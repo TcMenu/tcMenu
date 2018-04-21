@@ -1,0 +1,3 @@
+[submodule "embedded/IoAbstraction"]
+	path = embedded/IoAbstraction
+	url = https://github.com/davetcc/IoAbstraction.git
