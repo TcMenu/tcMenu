@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="351.0" prefWidth="539.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RegistrationController">
+    <top>
+        <Label styleClass="label-bright" text="Please register TcMenu Generator" BorderPane.alignment="CENTER" />
+    </top>
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints maxHeight="61.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="61.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="61.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="84.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="78.0" minHeight="0.0" prefHeight="39.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="78.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="78.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Your name*" GridPane.rowIndex="2" />
+            <Label text="Email Address*" GridPane.rowIndex="3" />
+            <Label text="Company Name (if applicable)" GridPane.rowIndex="4" />
+            <TextField fx:id="yourName" promptText="your name" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="emailAddress" promptText="email@address.com" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="companyName" promptText="company name" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label text="Country" GridPane.rowIndex="5" />
+            <TextField fx:id="country" promptText="country" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Registration helps us to understand how much it's used, we can also inform you of future updates." GridPane.columnSpan="2" />
+            <CheckBox fx:id="newsLetter" mnemonicParsing="false" text="Please add me to the newsletter" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label text="Newsletter" GridPane.rowIndex="6" />
+            <Label text="All information is stored securely in Amazon Web Services storage in US West region." GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" onAction="#onRegister" text="Register" />
+            <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Close" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</BorderPane>

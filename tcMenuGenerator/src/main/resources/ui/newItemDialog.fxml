@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="223.0" prefWidth="344.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
+   <top>
+      <Label style="-fx-font-size: 150%;" styleClass="label-bright" text="Choose the type of menu to create" BorderPane.alignment="CENTER" />
+   </top>
+   <center>
+      <VBox prefHeight="343.0" prefWidth="504.0" style="-fx-padding: 15px;" BorderPane.alignment="CENTER">
+         <children>
+            <RadioButton fx:id="subMenuSelect" mnemonicParsing="false" text="Sub menu Item that can have child items">
+               <toggleGroup>
+                  <ToggleGroup fx:id="main" />
+               </toggleGroup></RadioButton>
+            <RadioButton fx:id="analogSelect" mnemonicParsing="false" styleClass="radio" text="Analog item that supports numeric values" toggleGroup="$main" />
+            <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="Enumeration item similar to a combo box" toggleGroup="$main" />
+            <RadioButton fx:id="boolSelect" layoutX="25.0" layoutY="89.0" mnemonicParsing="false" text="Boolean item for On/Off or Yes/No" toggleGroup="$main" />
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints />
+                <RowConstraints />
+              </rowConstraints>
+               <children>
+                  <Label text="Menu Id (must be unique)" GridPane.rowIndex="1" />
+                  <TextField fx:id="idField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Create" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+</BorderPane>

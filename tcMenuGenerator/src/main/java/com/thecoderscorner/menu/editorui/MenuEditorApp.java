@@ -1,0 +1,51 @@
+package com.thecoderscorner.menu.editorui;
+
+import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+
+/**
+ * The application starting point for the JavaFX version of the application
+ */
+public class MenuEditorApp extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setTitle("Embedded Menu Designer loading");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/MenuEditor.fxml"));
+        Pane myPane = loader.load();
+
+        CurrentEditorProject project = new CurrentEditorProject(primaryStage, new FileBasedProjectPersistor());
+        MenuEditorController controller = loader.getController();
+        controller.initialise(project);
+
+        Scene myScene = new Scene(myPane);
+        primaryStage.setScene(myScene);
+        primaryStage.show();
+
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
+
+        primaryStage.setOnCloseRequest((evt)-> {
+            controller.persistPreferences();
+            if(project.isDirty()) {
+                evt.consume();
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Are you sure");
+                alert.setHeaderText("There are unsaved changes, continue with exit anyway?");
+                if(alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                    Platform.exit();
+                }
+            }
+        });
+    }
+}
