@@ -46,9 +46,9 @@ public class ArduinoLibraryInstaller {
     private void installTcMenuLibrary() {
         getArduinoDirectory().ifPresent(dir -> {
             try {
-                Path libDir = dir.resolve("libraries/tcMenu");
+                Path libDir = dir.resolve("libraries");
                 Files.createDirectories(libDir);
-                Path src = Paths.get("./embedded/tcMenu");
+                Path src = Paths.get("./embedded");
                 traverseDir(src, libDir);
             } catch (IOException e) {
                 installFailure(e);

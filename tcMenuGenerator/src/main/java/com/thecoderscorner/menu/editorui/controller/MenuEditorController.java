@@ -316,7 +316,13 @@ public class MenuEditorController {
         menuRecent4.setText(prefs.get(RECENT_DEFAULT + "4", RECENT_DEFAULT));
 
         if(prefs.get(REGISTERED_KEY, "").isEmpty()) {
-            Platform.runLater(()-> RegistrationDialog.showRegistration(getStage()));
+            Platform.runLater(()-> {
+                RegistrationDialog.showRegistration(getStage());
+                TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
+                if(item != null) {
+                    onTreeChangeSelection(item.getValue());
+                }
+            });
         }
     }
 
