@@ -58,7 +58,10 @@ public class TextTreeItemRenderer {
 
         private StringBuilder createBuilderWithName(String name) {
             StringBuilder sb = new StringBuilder(spaces);
-            sb.replace((level * 2) + 1, name.length() + 1, name);
+            if(name.length() != 0) {
+                int start = (level * 2) + 1;
+                sb.replace(start, start + name.length() + 1, name);
+            }
             return sb;
         }
 

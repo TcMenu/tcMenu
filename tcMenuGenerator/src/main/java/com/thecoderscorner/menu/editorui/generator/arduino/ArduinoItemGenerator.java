@@ -101,7 +101,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
         StringBuilder sb = new StringBuilder(256);
         sb.append(String.format("const PROGMEM SubMenuInfo minfo%s = { \"%s\", %d };\n",
                 nameNoSpaces, item.getName(), item.getId()));
-        sb.append(String.format("BackMenuItem backMnu%s(%s, minfo%s.name);\n", nameNoSpaces, nextChild));
+        sb.append(String.format("BackMenuItem backMnu%s(%s, minfo%s.name);\n", nameNoSpaces, nextChild, nameNoSpaces));
         sb.append(String.format("SubMenuItem menu%s(&minfo%s, &backMnu%s, %s);\n", nameNoSpaces, nameNoSpaces,
                 nameNoSpaces, nextMenuName));
 

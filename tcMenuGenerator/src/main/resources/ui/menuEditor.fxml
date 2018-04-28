@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="597.0" prefWidth="782.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="597.0" prefWidth="782.0" styleClass="background" stylesheets="/ui/JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" styleClass="background" BorderPane.alignment="CENTER">
         <menus>
@@ -83,7 +83,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../img/tree-add.png" />
+                              <Image url="/img/tree-add.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -94,7 +94,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../img/tree-remove.png" />
+                              <Image url="/img/tree-remove.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -105,7 +105,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../img/tree-copy.png" />
+                              <Image url="/img/tree-copy.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -117,7 +117,7 @@
                        <graphic>
                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                <image>
-                                   <Image url="@../img/tree-up.png" />
+                                   <Image url="/img/tree-up.png" />
                                </image>
                            </ImageView>
                        </graphic>
@@ -129,7 +129,7 @@
                        <graphic>
                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                <image>
-                                   <Image url="@../img/tree-down.png" />
+                                   <Image url="/img/tree-down.png" />
                                </image>
                            </ImageView>
                        </graphic>

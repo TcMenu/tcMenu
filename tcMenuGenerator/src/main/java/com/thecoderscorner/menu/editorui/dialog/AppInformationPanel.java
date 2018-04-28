@@ -16,8 +16,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class AppInformationPanel {
-    public static final String LIBRARY_DOCS_URL = "http://www.thecoderscorner.com/products/arduino-libraries/tc-menu/generating-arduino-menus-using-tcmenu-ui/";
-    public static final String YOUTUBE_VIDEO_URL = "http://www.youtube.com/videoToBeDefined";
+    public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
+    public static final String YOUTUBE_VIDEO_URL = "https://www.youtube.com/videoToBeDefined";
 
     private static final Logger logger = LoggerFactory.getLogger(AppInformationPanel.class);
 

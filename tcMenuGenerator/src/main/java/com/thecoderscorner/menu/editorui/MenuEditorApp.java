@@ -14,6 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 /**
  * The application starting point for the JavaFX version of the application
  */
@@ -22,7 +24,7 @@ public class MenuEditorApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Embedded Menu Designer loading");
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/MenuEditor.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
 
         CurrentEditorProject project = new CurrentEditorProject(primaryStage, new FileBasedProjectPersistor());

@@ -196,6 +196,8 @@ public class MenuEditorController {
         MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
         MenuIdChooser chooser = new MenuIdChooserImpl(editorProject.getMenuTree());
         MenuItem item = MenuItemHelper.createFromExistingWithId(selected, chooser.nextHighestId());
+        SubMenuItem subMenu = getSelectedSubMenu();
+        editorProject.applyCommand(Command.NEW, item, subMenu);
 
         redrawTreeControl();
     }
@@ -213,11 +215,7 @@ public class MenuEditorController {
     }
 
     public void onAddToTreeMenu(ActionEvent actionEvent) {
-        MenuItem selMenu = menuTree.getSelectionModel().getSelectedItem().getValue();
-        if (!selMenu.hasChildren()) {
-            selMenu = editorProject.getMenuTree().findParent(selMenu);
-        }
-        SubMenuItem subMenu = MenuItemHelper.asSubMenu(selMenu);
+        SubMenuItem subMenu = getSelectedSubMenu();
 
         Optional<MenuItem> maybeItem = NewItemDialog.showNewItemRequest(getStage(), editorProject.getMenuTree());
         maybeItem.ifPresent((menuItem) -> {
@@ -226,6 +224,14 @@ public class MenuEditorController {
             selectChildInTreeById(menuTree.getRoot(), menuItem.getId());
         });
 
+    }
+
+    private SubMenuItem getSelectedSubMenu() {
+        MenuItem selMenu = menuTree.getSelectionModel().getSelectedItem().getValue();
+        if (!selMenu.hasChildren()) {
+            selMenu = editorProject.getMenuTree().findParent(selMenu);
+        }
+        return MenuItemHelper.asSubMenu(selMenu);
     }
 
     private Stage getStage() {
