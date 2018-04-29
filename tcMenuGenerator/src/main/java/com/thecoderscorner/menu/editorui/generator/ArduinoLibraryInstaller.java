@@ -37,7 +37,7 @@ public class ArduinoLibraryInstaller {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Arduino directory not located");
                 alert.setHeaderText("Arduino directory not located");
-                alert.setContentText("Please copy the library manually into the Arduino -> libraries directory");
+                alert.setContentText("Please copy the library manually from the embedded folder in the distribution to the Arduino -> libraries directory");
                 alert.showAndWait();
             }
         });
@@ -91,8 +91,8 @@ public class ArduinoLibraryInstaller {
 
         Path arduinoPath = docsPath.resolve("Arduino");
         if(!Files.exists(arduinoPath)) {
-            // try for it in the onedrive folder, noticed it there on several windows machines
-            docsPath = docsPath.resolve("OneDrive");
+            // try again in the onedrive folder, noticed it there on several windows machines
+            docsPath = Paths.get(userDir, "OneDrive/Documents");
             if(!Files.exists(docsPath)) {
                 return Optional.empty();
             }
