@@ -1,7 +1,7 @@
 #include <IoAbstraction.h>
 #include <tcMenu.h>
 #include <Wire.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystalIO.h>
 #include <BaseRenderers.h>
 
 #define ENCODER_BUTTON_PIN 24

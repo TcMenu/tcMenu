@@ -17,7 +17,7 @@ public class LiquidCrystalCreator implements DisplayCreator{
 
     @Override
     public List<String> getIncludes() {
-        return Collections.singletonList("#include <LiquidCrystal.h>");
+        return Collections.singletonList("#include <LiquidCrystalIO.h>");
     }
 
     @Override

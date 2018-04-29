@@ -2,7 +2,7 @@
 #define _BASE_RENDERERS_H_
 
 #include "tcMenu.h"
-#include <LiquidCrystal.h>
+#include <LiquidCrystalIO.h>
 
 /** 
  * Each display must have a renderer, even if it is the NoRenderer, the NoRenderer is for situations

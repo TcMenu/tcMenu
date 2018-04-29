@@ -18,6 +18,12 @@
 [(${display.globalVariables})]
 
 /***************** Start generated menu items **********************/
+
+// call back functions need to be declared before they are referenced - for strict compilers
+[# th:each="func : ${callbacks}"]
+void [(${func})](int menuId);
+[/]
+
 [# th:each="item : ${menuItems}"]
 [(${item})]
 [/]
@@ -36,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-    // you can do work here that you need to happen when "idle" but never take
+    // you can do work here that you need to happen when "idle" but never
     // do anything that takes more than a few microseconds
     // start idle
 
