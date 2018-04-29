@@ -90,7 +90,17 @@ public class ArduinoLibraryInstaller {
         if(!Files.exists(docsPath)) return Optional.empty();
 
         Path arduinoPath = docsPath.resolve("Arduino");
-        if(!Files.exists(arduinoPath)) return Optional.empty();
+        if(!Files.exists(arduinoPath)) {
+            // try for it in the onedrive folder, noticed it there on several windows machines
+            docsPath = docsPath.resolve("OneDrive");
+            if(!Files.exists(docsPath)) {
+                return Optional.empty();
+            }
+            arduinoPath = docsPath.resolve("Arduino");
+            if(!Files.exists(arduinoPath)) {
+                return Optional.empty();
+            }
+        }
 
         Path libsPath = arduinoPath.resolve("libraries");
         if(!Files.exists(libsPath)) return Optional.empty();
