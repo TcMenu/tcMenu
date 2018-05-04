@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ */
+
 #ifndef _BASE_RENDERERS_H_
 #define _BASE_RENDERERS_H_
 
