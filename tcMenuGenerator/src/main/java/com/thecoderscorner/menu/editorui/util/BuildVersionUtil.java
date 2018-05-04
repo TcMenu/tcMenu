@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ */
+
 package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
@@ -37,7 +42,7 @@ public class BuildVersionUtil {
 
     public static String printableRegistrationInformation() {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
-        return "Registered to " + prefs.get(MenuEditorController.REGISTERED_KEY, "Unregistered");
+        return "Version " + getVersion() + ", registered to " + prefs.get(MenuEditorController.REGISTERED_KEY, "Unregistered");
     }
 
     public static void storeRegistration(String str) {

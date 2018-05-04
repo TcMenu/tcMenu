@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ */
+
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.generator.ArduinoLibraryInstaller;
@@ -29,7 +34,6 @@ public class AppInformationPanel {
         vbox.getChildren().add(new Rectangle(0,0,0,10));
 
         // add the documentation links
-
         vbox.getChildren().add(new Label("Documentation can be opened by pressing F1 or from the help menu."));
         Hyperlink docs = new Hyperlink(LIBRARY_DOCS_URL);
         docs.setOnAction((event)-> {
@@ -72,8 +76,9 @@ public class AppInformationPanel {
 
         // and lastly the version
 
-        vbox.getChildren().add(new Label("Version: " + BuildVersionUtil.getVersion()));
         vbox.getChildren().add(new Label(BuildVersionUtil.printableRegistrationInformation()));
+
+        vbox.getChildren().add(new Label("tcMenu designer (C) 2018 by thecoderscorner.com."));
         return vbox;
     }
 

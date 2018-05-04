@@ -3,6 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<!--
+  ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  -->
+
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
    <top>
       <Label styleClass="label-bright" stylesheets="@JMetroDarkTheme.css" text="ROM and ID layouts" BorderPane.alignment="CENTER" />

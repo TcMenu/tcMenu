@@ -16,6 +16,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<!--
+  ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  -->
+
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="597.0" prefWidth="782.0" styleClass="background" stylesheets="/ui/JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" styleClass="background" BorderPane.alignment="CENTER">
