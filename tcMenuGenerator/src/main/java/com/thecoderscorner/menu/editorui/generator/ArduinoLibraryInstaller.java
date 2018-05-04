@@ -7,6 +7,7 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 public class ArduinoLibraryInstaller {
+    public static final String ARDUINO_CUSTOM_PATH = "ArduinoCustomPath";
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public void tryToInstallLibrary() {
@@ -27,18 +30,17 @@ public class ArduinoLibraryInstaller {
             alert.setHeaderText("tcMenu is already installed on your system");
             alert.setContentText("The menu library is installed in: " + installLoc);
             alert.showAndWait();
-        }, ()-> {
-            if(getArduinoDirectory().isPresent()) {
+        }, () -> {
+            if (getArduinoDirectory().isPresent()) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("TcMenu Not installed");
                 alert.setHeaderText("TcMenu needs to be installed, do it now?");
                 alert.setContentText("TcMenu will be installed into " + getArduinoDirectory().get() + " libraries sub folder.");
                 Optional<ButtonType> confirm = alert.showAndWait();
-                if(confirm.isPresent() && confirm.get() == ButtonType.OK) {
+                if (confirm.isPresent() && confirm.get() == ButtonType.OK) {
                     installTcMenuLibrary();
                 }
-            }
-            else {
+            } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Arduino directory not located");
                 alert.setHeaderText("Arduino directory not located");
@@ -66,11 +68,10 @@ public class ArduinoLibraryInstaller {
         Files.list(files).forEach(path -> {
             try {
                 Path outFile = dir.resolve(path.getFileName());
-                if(Files.isDirectory(path) && !Files.isHidden(path)) {
+                if (Files.isDirectory(path) && !Files.isHidden(path)) {
                     Files.createDirectory(outFile);
                     traverseDir(path, outFile);
-                }
-                else if(!Files.isDirectory(outFile)) {
+                } else if (!Files.isDirectory(outFile)) {
                     logger.info("Copying from {} to {}", path, outFile);
                     Files.copy(path, outFile, StandardCopyOption.REPLACE_EXISTING);
                 }
@@ -91,24 +92,22 @@ public class ArduinoLibraryInstaller {
     public static Optional<Path> getArduinoDirectory() {
         String userDir = System.getProperty("user.home");
 
-        Path docsPath = Paths.get(userDir, "Documents");
-        if(!Files.exists(docsPath)) return Optional.empty();
-
-        Path arduinoPath = docsPath.resolve("Arduino");
-        if(!Files.exists(arduinoPath)) {
+        Path arduinoPath = Paths.get(userDir, "Documents/Arduino");
+        if (!Files.exists(arduinoPath)) {
             // try again in the onedrive folder, noticed it there on several windows machines
-            docsPath = Paths.get(userDir, "OneDrive/Documents");
-            if(!Files.exists(docsPath)) {
-                return Optional.empty();
-            }
-            arduinoPath = docsPath.resolve("Arduino");
-            if(!Files.exists(arduinoPath)) {
-                return Optional.empty();
+            arduinoPath = Paths.get(userDir, "OneDrive/Documents/Arduino");
+        }
+        if(!Files.exists(arduinoPath)) {
+            Optional<String> path = getArduinoPathWithDialog();
+            if(path.isPresent()) {
+                arduinoPath = Paths.get(path.get());
             }
         }
 
+        if(!Files.exists(arduinoPath)) return Optional.empty();
+
         Path libsPath = arduinoPath.resolve("libraries");
-        if(!Files.exists(libsPath)) return Optional.empty();
+        if (!Files.exists(libsPath)) return Optional.empty();
 
         return Optional.of(arduinoPath);
     }
@@ -117,10 +116,26 @@ public class ArduinoLibraryInstaller {
         return getArduinoDirectory().map(path -> {
             Path libsDir = path.resolve("libraries");
             Path tcMenuDir = libsDir.resolve("tcMenu");
-            if(Files.exists(tcMenuDir)) {
+            if (Files.exists(tcMenuDir)) {
                 return tcMenuDir;
             }
             return null;
         });
+    }
+
+    private static Optional<String> getArduinoPathWithDialog() {
+        String savedPath = Preferences.userNodeForPackage(ArduinoLibraryInstaller.class)
+                .get(ARDUINO_CUSTOM_PATH, System.getProperty("user.home"));
+
+        Path libsPath = Paths.get(savedPath, "libraries");
+        if (Files.exists(libsPath)) return Optional.of(savedPath);
+
+        TextInputDialog dialog = new TextInputDialog(savedPath);
+        dialog.setTitle("Manually enter Arduino Path");
+        dialog.setHeaderText("Please manually enter the Arduino folder");
+        dialog.setContentText("Arduino Path");
+        Optional<String> path = dialog.showAndWait();
+        path.ifPresent((p)->Preferences.userNodeForPackage(ArduinoLibraryInstaller.class).put(ARDUINO_CUSTOM_PATH, p));
+        return path;
     }
 }
