@@ -39,6 +39,10 @@ void LiquidCrystalRenderer::activeIndexChanged(uint8_t index) {
 }
 
 void LiquidCrystalRenderer::setupForEditing(MenuItem* item) {
+	if(currentEditor != NULL) {
+		currentEditor->setEditing(false);
+		currentEditor->setActive(false);
+	}
 	MenuType ty = item->getMenuType();
 	if ((ty == MENUTYPE_ENUM_VALUE || ty == MENUTYPE_INT_VALUE || ty == MENUTYPE_BOOLEAN_VALUE) && !item->isReadOnly()) {
 		currentEditor = item;
