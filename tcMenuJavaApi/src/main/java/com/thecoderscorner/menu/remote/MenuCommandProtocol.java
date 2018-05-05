@@ -3,7 +3,7 @@
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  */
 
-package com.thecoderscorner.menu.remote.protocol;
+package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
@@ -28,5 +28,5 @@ public interface MenuCommandProtocol {
      * @param buffer to write the data to
      * @param cmd the command to write
      */
-    void toChannel(ByteBuffer buffer, MenuCommand cmd) throws IOException;
+    void toChannel(ByteBuffer buffer, MenuCommand cmd);
 }

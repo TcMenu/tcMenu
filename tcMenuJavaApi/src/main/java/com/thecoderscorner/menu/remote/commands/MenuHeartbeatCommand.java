@@ -5,12 +5,10 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-public class MenuJoinCommand implements MenuCommand {
-    private final String myName;
-
+public class MenuHeartbeatCommand implements MenuCommand {
 
     @Override
     public MenuCommandType getCommandType() {
-        return MenuCommandType.JOIN;
+        return MenuCommandType.HEARTBEAT;
     }
 }

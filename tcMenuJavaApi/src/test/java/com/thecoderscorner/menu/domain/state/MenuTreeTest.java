@@ -144,4 +144,24 @@ public class MenuTreeTest {
         menuTree.moveItem(MenuTree.ROOT, item1, MenuTree.MoveType.MOVE_UP);
         assertThat(menuTree.getMenuItems(MenuTree.ROOT), is(Arrays.asList(item2, item1, item3)));
     }
+
+    @Test
+    public void testAddOrUpdateMethod() {
+        menuTree.addMenuItem(MenuTree.ROOT, item3);
+        menuTree.addMenuItem(MenuTree.ROOT, item1);
+
+        AnalogMenuItem item1Replacement = DomainFixtures.anAnalogItem("Replaced", 1);
+        menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item1Replacement);
+
+        MenuItem item = menuTree.getMenuById(MenuTree.ROOT, 1).get();
+        assertEquals("Replaced", item.getName());
+        assertEquals(1, item.getId());
+        assertTrue(item instanceof AnalogMenuItem);
+
+        menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item2);
+
+        assertEquals(3, menuTree.getMenuItems(MenuTree.ROOT).size());
+        item = menuTree.getMenuById(MenuTree.ROOT, item3.getId()).get();
+        assertEquals(item, item3);
+    }
 }
