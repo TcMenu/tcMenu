@@ -5,6 +5,11 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
+/**
+ * Field names are used to represent the possible field names that can be sent to a remote menu. These must
+ * be the same at both sides to be understood. All fields starting with an upper or lower case letter are
+ * reserved. Letters starting with digits 0 to 9 are not reserved.
+ */
 public interface TagValMenuFields {
     String KEY_MSG_TYPE = "MT";
     String KEY_NAME_FIELD = "NM";

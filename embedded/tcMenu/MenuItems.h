@@ -191,6 +191,7 @@ public:
 	virtual ~AnalogMenuItem() { }
 	virtual int getMaximumValue() { return pgm_read_word_near(&info->maxValue); }	
 	virtual MenuType getMenuType() { return MENUTYPE_INT_VALUE; }
+	virtual const char* getUnitNamePgm() { return info->unitName; }
 };
 
 /**
