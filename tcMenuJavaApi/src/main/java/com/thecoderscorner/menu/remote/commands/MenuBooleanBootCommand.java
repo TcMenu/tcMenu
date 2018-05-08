@@ -5,22 +5,23 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.AnalogMenuItem;
+import com.thecoderscorner.menu.domain.BooleanMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, Integer> {
+public class MenuBooleanBootCommand extends BootItemMenuCommand<BooleanMenuItem, Boolean> {
 
-    public MenuAnalogBootCommand(int subMenuId, AnalogMenuItem menuItem, int currentVal) {
+    public MenuBooleanBootCommand(int subMenuId, BooleanMenuItem menuItem, boolean currentVal) {
         super(subMenuId, menuItem, currentVal);
     }
 
     @Override
     public MenuCommandType getCommandType() {
-        return MenuCommandType.ANALOG_BOOT_ITEM;
+        return MenuCommandType.BOOLEAN_BOOT_ITEM;
     }
 
     @Override
-    public MenuState<Integer> internalNewMenuState(MenuState<Integer> oldState) {
+    public MenuState<Boolean> internalNewMenuState(MenuState<Boolean> oldState) {
         boolean changed = (oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }

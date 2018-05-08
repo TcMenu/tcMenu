@@ -5,15 +5,13 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public enum MenuCommandType {
     JOIN("NJ"),
     BOOTSTRAP("BS"),
     ANALOG_BOOT_ITEM("BA"),
-//    ENUM_ITEM_INFO("NE"),
-//    BOOLEAN_ITEM_INFO("NB"),
+    SUBMENU_BOOT_ITEM("BM"),
+    ENUM_BOOT_ITEM("BE"),
+    BOOLEAN_BOOT_ITEM("BB"),
 //
 //    CHANGE_INT_DELTA("CD"),
 //    CHANGE_INT_ABSOLUTE("CA"),

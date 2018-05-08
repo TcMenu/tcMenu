@@ -21,7 +21,7 @@ public class ProtocolUtil {
                 Properties props = new Properties();
                 props.load( resourceAsStream );
 
-                ver = "api" + props.getProperty("api.name") + "_" + props.getProperty("build.version");
+                ver = props.getProperty("api.name") + "_" + props.getProperty("build.version");
 
             } catch (IOException e) {
                 ver = "ERROR";

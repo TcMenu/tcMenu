@@ -5,18 +5,19 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.AnalogMenuItem;
+import com.thecoderscorner.menu.domain.EnumMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, Integer> {
+public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integer> {
 
-    public MenuAnalogBootCommand(int subMenuId, AnalogMenuItem menuItem, int currentVal) {
+    public MenuEnumBootCommand(int subMenuId, EnumMenuItem menuItem, int currentVal) {
         super(subMenuId, menuItem, currentVal);
     }
 
     @Override
     public MenuCommandType getCommandType() {
-        return MenuCommandType.ANALOG_BOOT_ITEM;
+        return MenuCommandType.ENUM_BOOT_ITEM;
     }
 
     @Override

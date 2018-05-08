@@ -26,4 +26,9 @@ public class RemoteInformation {
     public String getVersion() {
         return version;
     }
+
+    @Override
+    public String toString() {
+        return "RemoteInformation[name='" + name + "', version='" + version + "']";
+    }
 }

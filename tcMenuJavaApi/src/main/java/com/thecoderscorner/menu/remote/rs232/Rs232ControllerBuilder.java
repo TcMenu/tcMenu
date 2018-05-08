@@ -22,6 +22,7 @@ public class Rs232ControllerBuilder {
     private MenuTree menuTree;
     private MenuCommandProtocol protocol;
     private Clock clock = Clock.systemDefaultZone();
+    private String name = "NoName";
 
     public Rs232ControllerBuilder withRs232(String port, int baud) {
         portName = port;
@@ -54,6 +55,11 @@ public class Rs232ControllerBuilder {
         return this;
     }
 
+    public Rs232ControllerBuilder withLocalName(String name) {
+        this.name = name;
+        return this;
+    }
+
     public RemoteMenuController build() {
         if(protocol == null) {
             protocol = new TagValMenuCommandProtocol();
@@ -62,6 +68,6 @@ public class Rs232ControllerBuilder {
             executorService = Executors.newScheduledThreadPool(2);
         }
         Rs232RemoteConnector connector = new Rs232RemoteConnector(portName, baud, protocol, executorService);
-        return new RemoteMenuController(connector, menuTree, executorService, clock, heartbeatFrequency);
+        return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);
     }
 }

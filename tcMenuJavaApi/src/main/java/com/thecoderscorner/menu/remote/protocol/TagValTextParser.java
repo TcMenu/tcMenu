@@ -77,4 +77,11 @@ public class TagValTextParser {
     public int getValueAsInt(String keyIdField) throws IOException {
         return Integer.parseInt(getValue(keyIdField));
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(255);
+        keyToValue.forEach((k, v) -> sb.append("[Key='").append(k).append("', val='").append(v).append("'] "));
+        return sb.toString();
+    }
 }

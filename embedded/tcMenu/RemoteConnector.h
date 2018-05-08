@@ -11,7 +11,7 @@
 #include "RemoteTypes.h"
 #include "MenuItems.h"
 
-#define TICK_INTERVAL 25
+#define TICK_INTERVAL 50
 #define HEARTBEAT_INTERVAL_TICKS (10000 / TICK_INTERVAL)
 
 class ConnectorListener {
@@ -20,13 +20,15 @@ public:
 	virtual void newJoiner(const char* name, const char* version) = 0;
 	virtual void heartbeat() = 0;
 	virtual void error(uint8_t type) = 0;
+	virtual void connected(bool) = 0;
 };
 
 class RemoteConnector {
 public:
 	virtual ~RemoteConnector() {;}
+	virtual void setListener(ConnectorListener* listener);
 	virtual void start() = 0;
-	virtual void encodeJoin(const char* name, const char* version) = 0;
+	virtual void encodeJoin() = 0;
 	virtual void encodeBootstrap(bool isComplete) = 0;
 	virtual void encodeHeartbeat() = 0;
 	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item) = 0;
@@ -37,15 +39,12 @@ public:
 enum FieldValueType : byte {
 	FVAL_NEW_MSG, FVAL_END_MSG, FVAL_FIELD, FVAL_ERROR_PROTO,
 	// below are internal only states, and should not be acted upon.
-	FVAL_PROCESSING, FVAL_PROCESSING_WAITEQ, FVAL_PROCESSING_VALUE
+	FVAL_PROCESSING, FVAL_PROCESSING_WAITEQ, FVAL_PROCESSING_VALUE, FVAL_PROCESSING_AWAITINGMSG
 };
 
 struct FieldAndValue {
 	FieldValueType fieldType;
-	union {
-		uint16_t msgType;
-		char msgTyArr[2];
-	};
+	uint16_t msgType;
 	uint16_t field;
 	char value[MAX_VALUE_LEN];
 	uint8_t len;
@@ -86,38 +85,61 @@ public:
 
 	virtual bool available() { return serialPort->availableForWrite();}
 	virtual bool connected() { return true;}
+private:
+	bool findNextMessageStart();
+	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
+	void processMsgKey();
+	bool processValuePart();
 };
+
+#define MAX_DESC_SIZE 10
 
 class TagValueRemoteConnector : public RemoteConnector {
 private:
-	char remoteName[10];
-	char remoteVer[10];
-	MenuItem* bootMenuPtr;
+	char remoteName[MAX_DESC_SIZE];
+	char remoteVer[MAX_DESC_SIZE];
+	const char *localName;
 	uint16_t ticksLastSend;
 	uint16_t ticksLastRead;
+	bool currentlyConnected;
 	TagValueTransport* transport;
 	ConnectorListener* listener;
+	MenuItem* firstItem;
+	MenuItem* bootMenuPtr;
+	MenuItem* preSubMenuBootPtr;
+
 	static TagValueRemoteConnector* _TAG_INSTANCE;
 public:
-	TagValueRemoteConnector(TagValueTransport* transport);
+	TagValueRemoteConnector(MenuItem* first, const char* name, TagValueTransport* transport);
 	virtual void start();
 	virtual ~TagValueRemoteConnector() {;}
 
-	void setListener(ConnectorListener* listener) { this->listener = listener; }
+	virtual void setListener(ConnectorListener* listener) { this->listener = listener; }
 
 	virtual bool isTransportAvailable() { return transport->available(); }
 	virtual bool isTransportConnected() { return transport->connected(); }
 
-	virtual void encodeJoin(const char* name, const char* version);
+	virtual void encodeJoin();
 	virtual void encodeBootstrap(bool isComplete);
 	virtual void encodeHeartbeat();
 	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item);
+	virtual void encodeSubMenu(int parentId, SubMenuItem* item);
+	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item);
+	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item);
+	//virtual void encodeMenuChange(int parentId, MenuItem* item);
 
 	void tick();
 
 private:
+	/*
+	 * If you want to have custom messages that can be processed, simply extend this class,
+	 * override these methods and process the extra messages, calling super to handle the
+	 * standard messages. You can then add any additional messages to encode as well.
+	 */
 	void fieldForMsg(FieldAndValue* field);
 	void completeMsgRx(FieldAndValue* field);
+
+	void nextBootstrap();
 };
 
 #endif /* _TCMENU_REMOTECONNECTOR_H_ */
