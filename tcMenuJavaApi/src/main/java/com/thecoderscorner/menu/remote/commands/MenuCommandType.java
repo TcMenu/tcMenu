@@ -12,10 +12,9 @@ public enum MenuCommandType {
     SUBMENU_BOOT_ITEM("BM"),
     ENUM_BOOT_ITEM("BE"),
     BOOLEAN_BOOT_ITEM("BB"),
-//
-//    CHANGE_INT_DELTA("CD"),
-//    CHANGE_INT_ABSOLUTE("CA"),
-//
+    CHANGE_INT_FIELD("VC"),
+    //CHANGE_INT_ABSOLUTE("CA"),
+
     HEARTBEAT("HB");
 
     private final String code;

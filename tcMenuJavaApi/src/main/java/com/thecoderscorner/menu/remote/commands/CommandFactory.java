@@ -5,15 +5,15 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.AnalogMenuItem;
-import com.thecoderscorner.menu.domain.BooleanMenuItem;
-import com.thecoderscorner.menu.domain.EnumMenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
+
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
 
 public class CommandFactory {
     public static MenuJoinCommand newJoinCommand(String name) {
-        return new MenuJoinCommand(name, ProtocolUtil.getVersionFromProperties());
+        return new MenuJoinCommand(name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties());
     }
 
     public static MenuHeartbeatCommand newHeartbeatCommand() {
@@ -38,5 +38,13 @@ public class CommandFactory {
 
     public static MenuBooleanBootCommand newMenuBooleanBootCommand(int parentId, BooleanMenuItem item, boolean currentVal) {
         return new MenuBooleanBootCommand(parentId, item, currentVal);
+    }
+
+    public static MenuChangeCommand newDeltaChangeCommand(int parentId, int item, int value) {
+        return new MenuChangeCommand(parentId, item, ChangeType.DELTA, value);
+    }
+
+    public static MenuChangeCommand newAbsoluteMenuChangeCommand(int parentId, int item, int value) {
+        return new MenuChangeCommand(parentId, item, ChangeType.ABSOLUTE, value);
     }
 }

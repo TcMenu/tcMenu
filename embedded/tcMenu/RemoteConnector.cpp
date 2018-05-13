@@ -10,18 +10,21 @@
 #include "RemoteConnector.h"
 #include "MenuItems.h"
 #include "TaskManager.h"
+#include "tcMenu.h"
+#include "MessageProcessors.h"
 
-extern const PROGMEM char applicationVersion[] = "ard8_V1";
+#define majorminor(maj, min) ((maj * 100) + min)
 
-TagValueRemoteConnector::TagValueRemoteConnector(MenuItem* firstItem, const char* name, TagValueTransport* transport) {
-	this->localName = name;
+int apiVersion = majorminor(0, 4);
+
+TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport) {
+	this->localNamePgm = namePgm;
 	this->listener = NULL;
 	this->transport = transport;
 	this->ticksLastRead = this->ticksLastSend = 0;
 	this->currentlyConnected = false;
-	this->firstItem = firstItem;
-	this->preSubMenuBootPtr = NULL;
-	this->bootMenuPtr = NULL;
+	this->processor = NULL;
+	this->bootMenuPtr = preSubMenuBootPtr = NULL;
 }
 
 TagValueRemoteConnector* TagValueRemoteConnector::_TAG_INSTANCE;
@@ -29,6 +32,53 @@ TagValueRemoteConnector* TagValueRemoteConnector::_TAG_INSTANCE;
 void TagValueRemoteConnector::start() {
 	_TAG_INSTANCE = this;
 	taskManager.scheduleFixedRate(TICK_INTERVAL, [] {_TAG_INSTANCE->tick();});
+}
+
+void TagValueRemoteConnector::tick() {
+	++ticksLastRead;
+	++ticksLastSend;
+
+	if(ticksLastSend > HEARTBEAT_INTERVAL_TICKS) {
+		if(transport->available()) encodeHeartbeat();
+	}
+
+	if(ticksLastRead > (HEARTBEAT_INTERVAL_TICKS * 3)) {
+		if(currentlyConnected) {
+			listener->error(REMOTE_ERR_NO_HEARTBEAT);
+			currentlyConnected = false;
+			processor = NULL;
+			if(listener) listener->connected(false);
+		}
+	} else if(!currentlyConnected){
+		encodeJoinP(localNamePgm);
+		processor = NULL;
+		currentlyConnected = true;
+		if(listener) listener->connected(true);
+	}
+
+	if(bootMenuPtr) nextBootstrap();
+
+	FieldAndValue* field = transport->fieldIfAvailable();
+	switch(field->fieldType) {
+	case FVAL_NEW_MSG:
+		processor = processorList->findProcessorForType(field->msgType);
+		if(processor) processor->initialise();
+		break;
+	case FVAL_FIELD:
+		if(processor) processor->fieldRx(field);
+		break;
+	case FVAL_END_MSG:
+		if(processor) processor->onComplete();
+		processor = NULL;
+		ticksLastRead = 0;
+		break;
+	case FVAL_ERROR_PROTO:
+		if(listener) listener->error(REMOTE_ERR_PROTOCOL_WRONG);
+		processor = NULL;
+		break;
+	default: // not ready for processing yet.
+		break;
+	}
 }
 
 void TagValueRemoteConnector::nextBootstrap() {
@@ -62,86 +112,12 @@ void TagValueRemoteConnector::nextBootstrap() {
 	if(!bootMenuPtr) encodeBootstrap(true);
 }
 
-void TagValueRemoteConnector::tick() {
-	++ticksLastRead;
-	++ticksLastSend;
-
-	if(ticksLastSend > HEARTBEAT_INTERVAL_TICKS) {
-		if(transport->available()) encodeHeartbeat();
-	}
-
-	if(ticksLastRead > (HEARTBEAT_INTERVAL_TICKS * 3)) {
-		if(currentlyConnected) {
-			listener->error(REMOTE_ERR_NO_HEARTBEAT);
-			currentlyConnected = false;
-			if(listener) listener->connected(false);
-		}
-	} else if(!currentlyConnected){
-		encodeJoin();
-		currentlyConnected = true;
-		if(listener) listener->connected(true);
-	}
-
-
-	if(bootMenuPtr) {
-		nextBootstrap();
-	}
-
-	FieldAndValue* field = transport->fieldIfAvailable();
-	switch(field->fieldType) {
-	case FVAL_NEW_MSG:
-	case FVAL_FIELD:
-		fieldForMsg(field);
-		break;
-	case FVAL_END_MSG:
-		completeMsgRx(field);
-		break;
-	case FVAL_ERROR_PROTO:
-		if(listener) listener->error(REMOTE_ERR_PROTOCOL_WRONG);
-		break;
-	default: // not ready for processing yet.
-		break;
-	}
-}
-
-void TagValueRemoteConnector::fieldForMsg(FieldAndValue* field) {
-	switch(field->msgType) {
-	case MSG_JOIN:
-		if(field->field == FIELD_MSG_NAME) {
-			strncpy(remoteName, field->value, MAX_DESC_SIZE);
-			remoteName[MAX_DESC_SIZE - 1] = 0;
-		}
-		else if(field->field == FIELD_VERSION) {
-			strncpy(remoteVer, field->value, MAX_DESC_SIZE);
-			remoteVer[MAX_DESC_SIZE - 1] = 0;
-		}
-		break;
-	default:
-		break;
-	}
-}
-
-void TagValueRemoteConnector::completeMsgRx(FieldAndValue* field) {
-	switch(field->msgType) {
-	case MSG_JOIN:
-		// instigate bootstrap on new joiner
-		bootMenuPtr = firstItem;
-		if(listener) listener->newJoiner(remoteName, remoteVer);
-		break;
-	case MSG_HEARTBEAT:
-		if(listener) listener->heartbeat();
-		break;
-	}
-
-	// every message including heartbeat sets the tick back to 0.
-	ticksLastRead = 0;
-}
-
-void TagValueRemoteConnector::encodeJoin() {
+void TagValueRemoteConnector::encodeJoinP(const char* localName) {
 	if(transport->connected()) {
 		transport->startMsg(MSG_JOIN);
 		transport->writeFieldP(FIELD_MSG_NAME, localName);
-		transport->writeFieldP(FIELD_VERSION, applicationVersion);
+		transport->writeFieldInt(FIELD_VERSION, apiVersion);
+		transport->writeFieldInt(FIELD_PLATFORM, PLATFORM_ARDUINO_8BIT);
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
@@ -248,180 +224,28 @@ void TagValueRemoteConnector::encodeSubMenu(int parentId, SubMenuItem* item) {
 	}
 }
 
-SerialTagValueTransport::SerialTagValueTransport(HardwareSerial* serialPort) {
-	this->serialPort = serialPort;
-	this->currentField.field = UNKNOWN_FIELD_PART;
-	this->currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
-	this->currentField.msgType = UNKNOWN_MSG_TYPE;
-	this->currentField.len = 0;
-}
-
-void SerialTagValueTransport::startMsg(uint16_t msgType) {
-	char sz[3];
-	sz[0] = msgType >> 8;
-	sz[1] = msgType & 0xff;
-	sz[2] = 0;
-	serialPort->write('`');
-	writeField(FIELD_MSG_TYPE, sz);
-}
-
-void SerialTagValueTransport::writeField(uint16_t field, const char* value) {
-	char sz[4];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-	serialPort->write(value);
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::writeFieldP(uint16_t field, const char* value) {
-	char sz[4];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-
-	while(char val = pgm_read_byte_near(value)) {
-		serialPort->write(val);
-		++value;
-	}
-
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::writeFieldInt(uint16_t field, int value) {
-	char sz[10];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-	itoa(value, sz, 10);
-	serialPort->write(sz);
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::endMsg() {
-	serialPort->write("~\n");
-}
-
-bool SerialTagValueTransport::findNextMessageStart() {
-	char read = 0;
-	char cnt = '0';
-	while(serialPort->available() && read != '`') {
-		read = serialPort->read();
-		cnt++;
-	}
-	return (read == '`');
-}
-
-void SerialTagValueTransport::clearFieldStatus(FieldValueType ty) {
-	currentField.fieldType = ty;
-	currentField.field = UNKNOWN_FIELD_PART;
-	currentField.msgType = UNKNOWN_MSG_TYPE;
-
-}
-
-void SerialTagValueTransport::processMsgKey() {
-	if(highByte(currentField.field) == UNKNOWN_FIELD_PART && serialPort->available()) {
-		char r = serialPort->read();
-		if(r == '~') {
-			currentField.fieldType = FVAL_END_MSG;
-		}
-		else {
-			currentField.field = ((uint16_t)r) << 8;
-		}
-	}
-
-	// if we are PROCESSING the key and we've already filled in the top half, then now we need the lower part.
-	if(highByte(currentField.field) != UNKNOWN_FIELD_PART && lowByte(currentField.field) == UNKNOWN_FIELD_PART && serialPort->available()) {
-		currentField.field |= ((serialPort->read()) & 0xff);
-		currentField.fieldType = FVAL_PROCESSING_WAITEQ;
-	}
-
-}
-
-bool SerialTagValueTransport::processValuePart() {
-	char current = 0;
-	while(serialPort->available() && current != '|') {
-		current = serialPort->read();
-		if(current != '|') {
-			currentField.value[currentField.len] = current;
-			// safety check for too much data!
-			if(++currentField.len > (sizeof(currentField.value)-1)) {
-				return false;
-			}
-		}
-	}
-
-	// reached end of field?
-	if(current == '|') {
-		currentField.value[currentField.len] = 0;
-
-		// if this is a new message and the first field is not the type, that's an error
-		if(currentField.msgType == UNKNOWN_MSG_TYPE && currentField.field != FIELD_MSG_TYPE) {
-			return false;
-		}
-
-		// if its the message type field, populate it and report new message, otherwise report regular field
-		if(currentField.field == FIELD_MSG_TYPE) {
-			currentField.msgType = msgFieldToWord(currentField.value[0], currentField.value[1]);
-			currentField.fieldType = FVAL_NEW_MSG;
-		}
-		else currentField.fieldType = FVAL_FIELD;
-	}
-	return true;
-}
-
-FieldAndValue* SerialTagValueTransport::fieldIfAvailable() {
-	bool contProcessing = true;
-	while(contProcessing) {
-		switch(currentField.fieldType) {
-		case FVAL_END_MSG:
-			clearFieldStatus(FVAL_PROCESSING_AWAITINGMSG);
+void TagValueRemoteConnector::encodeChangeInt(int parentId, MenuItem* theItem) {
+	if(transport->connected()) {
+		transport->startMsg(MSG_CHANGE_INT);
+		transport->writeFieldInt(FIELD_PARENT, parentId);
+		transport->writeFieldInt(FIELD_ID, theItem->getId());
+		transport->writeFieldInt(FIELD_CHANGE_TYPE, CHANGE_ABSOLUTE); // menu host always sends absolute!
+		int val = 0;
+		switch(theItem->getMenuType()) {
+		case MENUTYPE_ENUM_VALUE:
+		case MENUTYPE_INT_VALUE:
+			val = ((ValueMenuItem<AnalogMenuInfo>*)theItem)->getCurrentValue();
 			break;
-		case FVAL_ERROR_PROTO:
-		case FVAL_PROCESSING_AWAITINGMSG: // in these states we need to find the next message
-			if(findNextMessageStart()) {
-				clearFieldStatus();
-			}
-			else {
-				currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
-				return &currentField;
-			}
+		case MENUTYPE_BOOLEAN_VALUE:
+			val = ((BooleanMenuItem*)theItem)->getBoolean();
 			break;
-
-		case FVAL_NEW_MSG:
-		case FVAL_FIELD: // the field finished last time around, now reset it.
-			currentField.fieldType = FVAL_PROCESSING;
-			currentField.field = UNKNOWN_FIELD_PART;
-			break;
-
-		case FVAL_PROCESSING: // we are looking for the field key
-			processMsgKey();
-			break;
-
-		case FVAL_PROCESSING_WAITEQ: // we expect an = following the key
-			if(!serialPort->available()) break;
-			if(serialPort->read() != '=') {
-				clearFieldStatus(FVAL_ERROR_PROTO);
-				return &currentField;
-			}
-			currentField.len = 0;
-			currentField.fieldType = FVAL_PROCESSING_VALUE;
-			break;
-
-		case FVAL_PROCESSING_VALUE: // and lastly a value followed by pipe.
-			if(!processValuePart()) {
-				clearFieldStatus(FVAL_ERROR_PROTO);
-			}
-			if(currentField.fieldType != FVAL_PROCESSING_VALUE) return &currentField;
+		default:
 			break;
 		}
-		contProcessing = serialPort->available();
+		transport->writeFieldInt(FIELD_CURRENT_VAL, val);
 	}
-	return &currentField;
+	else if(listener) {
+		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	}
 }
+

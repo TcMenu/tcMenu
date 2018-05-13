@@ -34,6 +34,7 @@
 #define MSG_BOOT_SUBMENU msgFieldToWord('B', 'M')
 #define MSG_BOOT_ENUM msgFieldToWord('B', 'E')
 #define MSG_BOOT_BOOL msgFieldToWord('B', 'B')
+#define MSG_CHANGE_INT msgFieldToWord('V', 'C')
 
 /*
  * Fields names that can be used in messages. Again each type is a two digit ID represented as a word
@@ -42,6 +43,7 @@
 #define FIELD_MSG_TYPE    msgFieldToWord('M', 'T')
 #define FIELD_MSG_NAME    msgFieldToWord('N', 'M')
 #define FIELD_VERSION     msgFieldToWord('V', 'E')
+#define FIELD_PLATFORM    msgFieldToWord('P', 'F')
 #define FIELD_BOOT_TYPE   msgFieldToWord('B', 'T')
 #define FIELD_ID          msgFieldToWord('I', 'D')
 #define FIELD_PARENT      msgFieldToWord('P', 'I')
@@ -52,7 +54,17 @@
 #define FIELD_CURRENT_VAL msgFieldToWord('V', 'C')
 #define FIELD_BOOL_NAMING msgFieldToWord('B', 'N')
 #define FIELD_NO_CHOICES  msgFieldToWord('N', 'C')
+#define FIELD_CHANGE_TYPE msgFieldToWord('T', 'C')
 
 #define FIELD_PREPEND_CHOICE 'C'
+
+enum ChangeType: byte {
+	CHANGE_ABSOLUTE = 0, CHANGE_DELTA = 1
+};
+
+enum ApiPlatform : byte {
+	PLATFORM_ARDUINO_8BIT = 0,
+	PLATFORM_JAVA_API = 1
+};
 
 #endif /* _TCMENU_REMOTETYPES_H_ */

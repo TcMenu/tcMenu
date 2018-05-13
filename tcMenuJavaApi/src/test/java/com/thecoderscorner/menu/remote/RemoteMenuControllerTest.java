@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.remote.commands.MenuAnalogBootCommand;
 import com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
+import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -62,10 +63,12 @@ public class RemoteMenuControllerTest {
 
     @Test
     public void testInitialiseAndBootstrapCommands() {
-        listener.getValue().onCommand(connector, new MenuJoinCommand("superDevice", "V1.0"));
+        listener.getValue().onCommand(connector, new MenuJoinCommand("superDevice", ApiPlatform.JAVA_API, 102));
         RemoteInformation ri = controller.getRemotePartyInfo();
         assertEquals("superDevice", ri.getName());
-        assertEquals("V1.0", ri.getVersion());
+        assertEquals(1, ri.getMajorVersion());
+        assertEquals(2, ri.getMinorVersion());
+        assertEquals(ApiPlatform.JAVA_API, ri.getPlatform());
 
         listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.START));
         assertFalse(controller.isTreeFullyPopulated());

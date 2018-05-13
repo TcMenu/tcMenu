@@ -51,3 +51,32 @@ void BooleanMenuItem::setBoolean(bool newVal) {
 	currentValue = newVal; 
 	setChanged(true);
 }
+
+TextMenuItem::TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next) {
+	this->menuInfo = textInfo;
+	menuText = new char[textLength()];
+	menuText[0] = 0;
+	this->next = next;
+	flags=0;
+}
+
+void TextMenuItem::load() {
+	const uint8_t* eepromStart = pgm_read_ptr_near(menuInfo->eeprom);
+	if(eepromStart == (const uint8_t*)0xffff) return;
+	uint8_t len = textLength();
+	for(int i=0;i<len;i++) {
+		menuText[i] = (char) eeprom_read_byte(eepromStart + i);
+	}
+}
+
+void TextMenuItem::save() {
+	uint8_t* eepromAddr = pgm_read_word_near(&menuInfo->eeprom);
+	if (eepromAddr == (uint8_t*)0xffff) return;
+	uint8_t len = textLength();
+
+	for(int i=0;i<len;i++) {
+		if (((char)eeprom_read_byte(eepromAddr + i)) != menuText[i]) {
+			eeprom_update_byte(eepromAddr + i, (uint8_t) menuText[i]);
+		}
+	}
+}

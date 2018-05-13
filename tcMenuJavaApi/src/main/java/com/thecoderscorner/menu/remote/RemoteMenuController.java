@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.remote;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.commands.*;
+import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thecoderscorner.menu.remote.RemoteInformation.*;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
 
@@ -32,7 +34,7 @@ public class RemoteMenuController {
     private final Clock clock;
     private final AtomicLong lastRx = new AtomicLong();
     private final AtomicLong lastTx = new AtomicLong();
-    private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(new RemoteInformation("", ""));
+    private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
     private final int heartbeatFrequency;
     private final String localName;
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
@@ -124,7 +126,8 @@ public class RemoteMenuController {
     }
 
     private void onJoinCommand(MenuJoinCommand join) {
-        remoteParty.set(new RemoteInformation(join.getMyName(), join.getApiVersion()));
+        remoteParty.set(new RemoteInformation(join.getMyName(), join.getApiVersion() / 100,
+                join.getApiVersion() % 100, join.getPlatform()));
         listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), true));
         executor.execute(() -> sendCommand(newJoinCommand(localName)) );
     }

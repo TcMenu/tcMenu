@@ -22,6 +22,7 @@ import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenu
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.*;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.BootType;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
 
 /**
@@ -65,8 +66,29 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processEnumBootItem(parser);
             case BOOLEAN_BOOT_ITEM:
                 return processBoolBootItem(parser);
+            case CHANGE_INT_FIELD:
+                return processItemChange(parser);
             default:
                 throw new IOException("Unknown message type " + cmdType);
+        }
+    }
+
+    private MenuCommand processItemChange(TagValTextParser parser) throws IOException {
+        ChangeType type = MenuChangeCommand.changeTypeFromInt(parser.getValueAsInt(KEY_CHANGE_TYPE));
+
+        if(type == ChangeType.DELTA) {
+            return newDeltaChangeCommand(
+                    parser.getValueAsInt(KEY_PARENT_ID_FIELD),
+                    parser.getValueAsInt(KEY_ID_FIELD),
+                    parser.getValueAsInt(KEY_CURRENT_VAL)
+            );
+        }
+        else {
+            return newAbsoluteMenuChangeCommand(
+                    parser.getValueAsInt(KEY_PARENT_ID_FIELD),
+                    parser.getValueAsInt(KEY_ID_FIELD),
+                    parser.getValueAsInt(KEY_CURRENT_VAL)
+            );
         }
     }
 
@@ -143,7 +165,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private MenuCommand processJoin(TagValTextParser parser) throws IOException {
-        return new MenuJoinCommand(parser.getValue(KEY_NAME_FIELD), parser.getValue(KEY_VER_FIELD));
+        return new MenuJoinCommand(parser.getValue(KEY_NAME_FIELD),
+                ProtocolUtil.fromKeyToApiPlatform(parser.getValueAsInt(KEY_PLATFORM_ID)),
+                parser.getValueAsInt(KEY_VER_FIELD));
     }
 
     private MenuCommand processHeartbeat(TagValTextParser parser) {
@@ -177,12 +201,21 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case BOOLEAN_BOOT_ITEM:
                 writeBoolMenuItem(sb, (MenuBooleanBootCommand) cmd);
                 break;
+            case CHANGE_INT_FIELD:
+                writeChangeInt(sb, (MenuChangeCommand)cmd);
         }
         sb.append('~');
 
         String msgStr = sb.toString();
         logger.debug("Protocol convert out: {}", msgStr);
         buffer.put(msgStr.getBytes());
+    }
+
+    private void writeChangeInt(StringBuilder sb, MenuChangeCommand cmd) {
+        appendField(sb, KEY_PARENT_ID_FIELD, cmd.getParentItemId());
+        appendField(sb, KEY_ID_FIELD, cmd.getMenuItemId());
+        appendField(sb, KEY_CHANGE_TYPE, MenuChangeCommand.changeTypeToInt(cmd.getChangeType()));
+        appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {
@@ -243,6 +276,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private void writeJoin(StringBuilder sb, MenuJoinCommand cmd) {
         appendField(sb, KEY_NAME_FIELD, cmd.getMyName());
         appendField(sb, KEY_VER_FIELD, cmd.getApiVersion());
+        appendField(sb, KEY_PLATFORM_ID, cmd.getPlatform().getKey());
     }
 
     private void appendField(StringBuilder sb, String key, Object value) {

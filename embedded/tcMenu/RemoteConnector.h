@@ -8,6 +8,7 @@
 #ifndef _TCMENU_REMOTECONNECTOR_H_
 #define _TCMENU_REMOTECONNECTOR_H_
 
+#include <Arduino.h>
 #include "RemoteTypes.h"
 #include "MenuItems.h"
 
@@ -17,7 +18,8 @@
 class ConnectorListener {
 public:
 	virtual ~ConnectorListener() {;}
-	virtual void newJoiner(const char* name, const char* version) = 0;
+	virtual void remoteNameChange(const char* remoteName);
+	virtual void newJoiner(uint8_t major, uint8_t minor, ApiPlatform platform) = 0;
 	virtual void heartbeat() = 0;
 	virtual void error(uint8_t type) = 0;
 	virtual void connected(bool) = 0;
@@ -26,12 +28,19 @@ public:
 class RemoteConnector {
 public:
 	virtual ~RemoteConnector() {;}
-	virtual void setListener(ConnectorListener* listener);
+	virtual void setListener(ConnectorListener* listener) = 0;
+	virtual ConnectorListener* getListener() = 0;
 	virtual void start() = 0;
-	virtual void encodeJoin() = 0;
+
+	virtual void encodeJoinP(const char* localName) = 0;
 	virtual void encodeBootstrap(bool isComplete) = 0;
 	virtual void encodeHeartbeat() = 0;
 	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item) = 0;
+	virtual void encodeSubMenu(int parentId, SubMenuItem* item) = 0;
+	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item) = 0;
+	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item) = 0;
+	virtual void encodeChangeInt(int parentId, MenuItem* theItem) = 0;
+
 	virtual bool isTransportAvailable() = 0;
 	virtual bool isTransportConnected() = 0;
 };
@@ -68,77 +77,73 @@ public:
 	virtual bool connected() = 0;
 };
 
-class SerialTagValueTransport : public TagValueTransport {
-private:
-	HardwareSerial* serialPort;
+
+/**
+ * Instead of each type of message processing being hardwired into the connector, the custom processing
+ * required for each message in instead handled by a message processor.
+ */
+class MessageProcessor {
+protected:
+	uint16_t msgType;
+	MessageProcessor* next;
 public:
-	SerialTagValueTransport(HardwareSerial* serialPort);
-	virtual ~SerialTagValueTransport() {}
+	virtual ~MessageProcessor() {;}
+	virtual void initialise() = 0;
+	virtual void fieldRx(FieldAndValue* field) = 0;
+	virtual void onComplete() = 0;
 
-	virtual void startMsg(uint16_t msgType);
-	virtual void writeField(uint16_t field, const char* value);
-	virtual void writeFieldP(uint16_t field, const char* value);
-	virtual void writeFieldInt(uint16_t field, int value);
-	virtual void endMsg();
+	// private list functions, to allow making a linked list of these.
 
-	virtual FieldAndValue* fieldIfAvailable();
-
-	virtual bool available() { return serialPort->availableForWrite();}
-	virtual bool connected() { return true;}
-private:
-	bool findNextMessageStart();
-	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
-	void processMsgKey();
-	bool processValuePart();
+	MessageProcessor* getNext() { return next; }
+	void setNext(MessageProcessor* n) { next =n; }
+	MessageProcessor* findProcessorForType(uint16_t msgType) {
+		MessageProcessor* proc = this;
+		while(proc && proc->msgType != msgType) {
+			proc->getNext();
+		}
+		return proc;
+	}
 };
-
-#define MAX_DESC_SIZE 10
 
 class TagValueRemoteConnector : public RemoteConnector {
 private:
-	char remoteName[MAX_DESC_SIZE];
-	char remoteVer[MAX_DESC_SIZE];
-	const char *localName;
+	const char* localNamePgm;
 	uint16_t ticksLastSend;
 	uint16_t ticksLastRead;
 	bool currentlyConnected;
+	MessageProcessor* processor;
 	TagValueTransport* transport;
 	ConnectorListener* listener;
-	MenuItem* firstItem;
+	static TagValueRemoteConnector* _TAG_INSTANCE;
+
+	// for bootstrapping
 	MenuItem* bootMenuPtr;
 	MenuItem* preSubMenuBootPtr;
-
-	static TagValueRemoteConnector* _TAG_INSTANCE;
 public:
-	TagValueRemoteConnector(MenuItem* first, const char* name, TagValueTransport* transport);
+	TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport);
 	virtual void start();
 	virtual ~TagValueRemoteConnector() {;}
+	static TagValueRemoteConnector* instance() { return _TAG_INSTANCE; }
 
 	virtual void setListener(ConnectorListener* listener) { this->listener = listener; }
+	virtual ConnectorListener* getListener() { return listener; }
 
 	virtual bool isTransportAvailable() { return transport->available(); }
 	virtual bool isTransportConnected() { return transport->connected(); }
 
-	virtual void encodeJoin();
+	virtual void encodeJoinP(const char* localName);
 	virtual void encodeBootstrap(bool isComplete);
 	virtual void encodeHeartbeat();
 	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item);
 	virtual void encodeSubMenu(int parentId, SubMenuItem* item);
 	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item);
 	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item);
-	//virtual void encodeMenuChange(int parentId, MenuItem* item);
+	virtual void encodeChangeInt(int parentId, MenuItem* theItem);
 
 	void tick();
 
 private:
-	/*
-	 * If you want to have custom messages that can be processed, simply extend this class,
-	 * override these methods and process the extra messages, calling super to handle the
-	 * standard messages. You can then add any additional messages to encode as well.
-	 */
-	void fieldForMsg(FieldAndValue* field);
 	void completeMsgRx(FieldAndValue* field);
-
 	void nextBootstrap();
 };
 

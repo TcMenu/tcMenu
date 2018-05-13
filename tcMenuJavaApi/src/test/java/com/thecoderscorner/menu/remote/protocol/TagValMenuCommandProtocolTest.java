@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.remote.commands.*;
+import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -37,11 +38,12 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveJoinCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=NJ|VE=ard8_1.0|NM=IoTdevice|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=NJ|NM=IoTdevice|VE=1223|PF=1|~"));
         assertTrue(cmd instanceof MenuJoinCommand);
         MenuJoinCommand join = (MenuJoinCommand) cmd;
         assertEquals("IoTdevice", join.getMyName());
-        assertEquals("ard8_1.0", join.getApiVersion());
+        assertEquals(1223, join.getApiVersion());
+        assertEquals(ApiPlatform.JAVA_API, join.getPlatform());
         assertEquals(MenuCommandType.JOIN, join.getCommandType());
     }
 
@@ -124,6 +126,30 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(naming, boolCmd.getMenuItem().getNaming());
     }
 
+    @Test
+    public void testReceiveDeltaChange() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|PI=11|ID=22|TC=0|VC=1|~"));
+        verifyChangeFields(cmd, ChangeType.DELTA, 1);
+    }
+
+    @Test
+    public void testReceiveAbsoluteChange() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|PI=11|ID=22|TC=1|VC=-10000|~"));
+        verifyChangeFields(cmd, ChangeType.ABSOLUTE, -10000);
+    }
+
+    private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value) {
+        assertTrue(cmd instanceof MenuChangeCommand);
+        MenuChangeCommand chg = (MenuChangeCommand) cmd;
+
+        assertEquals(chType, chg.getChangeType());
+        assertEquals(value, chg.getValue());
+        assertEquals(11, chg.getParentItemId());
+        assertEquals(22, chg.getMenuItemId());
+        assertEquals(MenuCommandType.CHANGE_INT_FIELD, chg.getCommandType());
+    }
+
+
     @Test(expected = IOException.class)
     public void testReceivingUnknownMessageThrowsException() throws IOException {
         protocol.fromChannel(toBuffer("MT=???|~"));
@@ -138,8 +164,8 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingJoin() {
-        protocol.toChannel(bb, new MenuJoinCommand("dave", "ard8_V1.0"));
-        testBufferAgainstExpected("MT=NJ|NM=dave|VE=ard8_V1.0|~");
+        protocol.toChannel(bb, new MenuJoinCommand("dave", ApiPlatform.ARDUINO_8, 101));
+        testBufferAgainstExpected("MT=NJ|NM=dave|VE=101|PF=0|~");
     }
 
     @Test
@@ -194,6 +220,18 @@ public class TagValMenuCommandProtocolTest {
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.YES_NO),
                 true));
         testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=2|VC=1|~");
+    }
+
+    @Test
+    public void testWritingAnAbsoluteChange() {
+        protocol.toChannel(bb, newAbsoluteMenuChangeCommand(1, 2, 1));
+        testBufferAgainstExpected("MT=VC|PI=1|ID=2|TC=1|VC=1|~");
+    }
+
+    @Test
+    public void testWritingADeltaChange() {
+        protocol.toChannel(bb, newDeltaChangeCommand(1, 2, 1));
+        testBufferAgainstExpected("MT=VC|PI=1|ID=2|TC=0|VC=1|~");
     }
 
     private void testBufferAgainstExpected(String s2) {

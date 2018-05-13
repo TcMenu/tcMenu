@@ -14,6 +14,7 @@ public interface TagValMenuFields {
     String KEY_MSG_TYPE = "MT";
     String KEY_NAME_FIELD = "NM";
     String KEY_VER_FIELD = "VE";
+    String KEY_PLATFORM_ID = "PF";
     String KEY_BOOT_TYPE_FIELD = "BT";
     String KEY_ID_FIELD = "ID";
     String KEY_PARENT_ID_FIELD = "PI";
@@ -24,5 +25,6 @@ public interface TagValMenuFields {
     String KEY_ANALOG_UNIT_FIELD = "AU";
     String KEY_NO_OF_CHOICES = "NC";
     String KEY_BOOLEAN_NAMING = "BN";
-    String KEY_PREPEND_CHOICE = "C"; // second char from 0 onwards.
+    String KEY_PREPEND_CHOICE = "C"; // second char from A onwards.
+    String KEY_CHANGE_TYPE = "TC";
 }

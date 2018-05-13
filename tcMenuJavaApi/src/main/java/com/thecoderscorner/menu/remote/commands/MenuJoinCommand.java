@@ -5,21 +5,29 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
+
 public class MenuJoinCommand implements MenuCommand {
     private final String myName;
-    private final String apiVer;
+    private final int apiVer;
+    private final ApiPlatform platform;
 
-    public MenuJoinCommand(String myName, String apiVer) {
+    public MenuJoinCommand(String myName, ApiPlatform platform, int apiVer) {
         this.myName = myName;
         this.apiVer = apiVer;
+        this.platform = platform;
     }
 
     public String getMyName() {
         return myName;
     }
 
-    public String getApiVersion() {
+    public int getApiVersion() {
         return apiVer;
+    }
+
+    public ApiPlatform getPlatform() {
+        return platform;
     }
 
     @Override
