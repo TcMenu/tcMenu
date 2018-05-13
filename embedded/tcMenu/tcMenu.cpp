@@ -113,3 +113,10 @@ void MenuManager::load(uint16_t magicKey) {
 		rootMenu->load();
 	}
 }
+
+void MenuManager::save(uint16_t magicKey) {
+	if(eeprom_read_word(0) != magicKey) {
+		eeprom_write_word(0, magicKey);
+	}
+	rootMenu->save();
+}

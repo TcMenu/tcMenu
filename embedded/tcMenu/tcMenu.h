@@ -40,9 +40,10 @@ public:
 	void load(uint16_t magicKey = 0xfade);
 
 	/**
-	 * Call to save all item values into eeprom.
+	 * Call to save all item values into eeprom. The magic key is saved at location 0 if not already set. This is a
+	 * lazy save that reads the eeprom values first, and only saves to eeprom when there are changes.
 	 */
-	void save() { rootMenu->save(); }
+	void save(uint16_t magicKey);
 
 	/**
 	 * Use this to record external changes made to a menu item. This will render and run any callbacks.
