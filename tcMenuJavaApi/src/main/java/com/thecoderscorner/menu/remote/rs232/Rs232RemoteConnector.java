@@ -155,7 +155,8 @@ public class Rs232RemoteConnector implements RemoteConnector {
     @Override
     public void close() {
         logger.info("Closing rs232 port");
-        serialPort.closePort();
+        // no point closing serial port, it just resets the arduino again and it normally remains open anyway
+        //serialPort.closePort();
         state.set(Rs232State.DISCONNECTED);
         notifyConnection();
     }

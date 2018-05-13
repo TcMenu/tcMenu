@@ -126,13 +126,15 @@ public:
 	virtual void save() = 0;
 
 	/** set the item to be changed, this lets the renderer know it needs painting */
-	inline void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); bitWrite(flags, MENUITEM_REMOTE_SEND, changed); }
+	inline void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
 	/** returns the changed state of the item */
 	inline bool isChanged() { return bitRead(flags, MENUITEM_CHANGED); }
 	/** returns if the menu item needs to be sent remotely */
 	inline bool isSendRemoteNeeded() { return bitRead(flags, MENUITEM_REMOTE_SEND); }
+	/** set the flag indicating that a remote refresh is needed */
+	inline void setSendRemoteNeeded(bool needed) { bitWrite(flags, MENUITEM_REMOTE_SEND, needed); }
 
-	/* sets this to be the active item, so that the renderer shows it highlighted */
+	/** sets this to be the active item, so that the renderer shows it highlighted */
 	inline void setActive(bool active) { bitWrite(flags, MENUITEM_ACTIVE, active); setChanged(true); }
 	/** returns the active status of the item */
 	inline bool isActive() { return bitRead(flags, MENUITEM_ACTIVE); }
@@ -175,7 +177,10 @@ public:
 	}
 
 	/** Sets the integer current value to a new value, and marks the menu changed */
-	void setCurrentValue(uint16_t val) { setChanged(true); currentValue = val; }
+	void setCurrentValue(uint16_t val) {
+		setChanged(true);
+		setSendRemoteNeeded(currentValue != val);
+		currentValue = val; }
 	/** gets the current value */
 	uint16_t getCurrentValue() { return currentValue; }
 
@@ -305,18 +310,16 @@ public:
 	TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next);
 	uint8_t textLength() { return pgm_read_byte_near(&menuInfo->length); }
 
-	void setTextValue(const char* text) {
-		strncpy(menuText, text, textLength());
-		menuText[textLength() - 1] = 0;
-	}
+	void setTextValue(const char* text);
 
 	const char* getTextValue() { return menuText; }
 
-	virtual ~TextMenuItem() { }
+	virtual ~TextMenuItem() { delete menuText; }
 	virtual int getMaximumValue() { return 1; }
 	virtual MenuType getMenuType() { return MENUTYPE_TEXT_VALUE; }
 	virtual const char* getNamePgm() { return menuInfo->name; }
 	int getId() { return pgm_read_word_near(&menuInfo->id); }
+	const TextMenuInfo* getTextMenuInfo() {return menuInfo;}
 
 	virtual void load();
 	virtual void save();

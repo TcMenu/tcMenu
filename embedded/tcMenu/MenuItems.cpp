@@ -48,6 +48,7 @@ const char * BackMenuItem::getNamePgm(){
 }
 
 void BooleanMenuItem::setBoolean(bool newVal) {
+	setSendRemoteNeeded(currentValue != newVal);
 	currentValue = newVal; 
 	setChanged(true);
 }
@@ -79,4 +80,11 @@ void TextMenuItem::save() {
 			eeprom_update_byte(eepromAddr + i, (uint8_t) menuText[i]);
 		}
 	}
+}
+
+void TextMenuItem::setTextValue(const char* text) {
+	setSendRemoteNeeded(strncmp(menuText, text, textLength()));
+	strncpy(menuText, text, textLength());
+	menuText[textLength() - 1] = 0;
+	setChanged(true);
 }

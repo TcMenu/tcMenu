@@ -24,6 +24,11 @@ public class MenuItemHelper {
             }
 
             @Override
+            public void visit(TextMenuItem item) {
+                /* ignored */
+            }
+
+            @Override
             public void anyItem(MenuItem item) { /* ignored */ }
         }).orElse(null);
     }
@@ -65,6 +70,15 @@ public class MenuItemHelper {
                         .menuItem()
                 );
             }
+
+            @Override
+            public void visit(TextMenuItem item) {
+                setResult(TextMenuItemBuilder.aTextMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
         }).orElse(null);
     }
 
@@ -88,6 +102,11 @@ public class MenuItemHelper {
             @Override
             public void visit(SubMenuItem item) {
                 setResult(0);
+            }
+
+            @Override
+            public void visit(TextMenuItem item) {
+                setResult(item.getTextLength());
             }
         }).orElse(0);
     }

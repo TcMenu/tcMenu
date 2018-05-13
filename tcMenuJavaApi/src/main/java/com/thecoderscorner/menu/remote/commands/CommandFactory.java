@@ -40,6 +40,10 @@ public class CommandFactory {
         return new MenuBooleanBootCommand(parentId, item, currentVal);
     }
 
+    public static MenuTextBootCommand newMenuTextBootCommand(int parentId, TextMenuItem item, String currentVal) {
+        return new MenuTextBootCommand(parentId, item, currentVal);
+    }
+
     public static MenuChangeCommand newDeltaChangeCommand(int parentId, int item, int value) {
         return new MenuChangeCommand(parentId, item, ChangeType.DELTA, value);
     }

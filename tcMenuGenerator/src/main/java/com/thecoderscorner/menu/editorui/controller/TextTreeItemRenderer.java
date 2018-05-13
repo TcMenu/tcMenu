@@ -61,6 +61,15 @@ public class TextTreeItemRenderer {
             setResult(sb.toString());
         }
 
+        @Override
+        public void visit(TextMenuItem item) {
+            StringBuilder sb = createBuilderWithName(item.getName());
+            String it = Strings.repeat("A", Math.max(1, item.getTextLength()));
+            sb.replace(spaces.length() - it.length(), spaces.length(), it);
+
+            setResult(sb.toString());
+        }
+
         private StringBuilder createBuilderWithName(String name) {
             StringBuilder sb = new StringBuilder(spaces);
             if(name.length() != 0) {

@@ -39,7 +39,7 @@ public:
 	virtual void encodeSubMenu(int parentId, SubMenuItem* item) = 0;
 	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item) = 0;
 	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item) = 0;
-	virtual void encodeChangeInt(int parentId, MenuItem* theItem) = 0;
+	virtual void encodeChangeValue(int parentId, MenuItem* theItem) = 0;
 
 	virtual bool isTransportAvailable() = 0;
 	virtual bool isTransportConnected() = 0;
@@ -95,22 +95,25 @@ public:
 	// private list functions, to allow making a linked list of these.
 
 	MessageProcessor* getNext() { return next; }
-	void setNext(MessageProcessor* n) { next =n; }
 	MessageProcessor* findProcessorForType(uint16_t msgType) {
 		MessageProcessor* proc = this;
 		while(proc && proc->msgType != msgType) {
-			proc->getNext();
+			proc = proc->getNext();
 		}
 		return proc;
 	}
 };
+
+#define FLAG_CURRENTLY_CONNECTED 1
+#define FLAG_BOOTSTRAP_MODE 2
+#define FLAG_WRITING_MSGS 3
 
 class TagValueRemoteConnector : public RemoteConnector {
 private:
 	const char* localNamePgm;
 	uint16_t ticksLastSend;
 	uint16_t ticksLastRead;
-	bool currentlyConnected;
+	uint8_t flags;
 	MessageProcessor* processor;
 	TagValueTransport* transport;
 	ConnectorListener* listener;
@@ -137,14 +140,22 @@ public:
 	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item);
 	virtual void encodeSubMenu(int parentId, SubMenuItem* item);
 	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item);
+	virtual void encodeTextMenu(int parentId, TextMenuItem* item);
 	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item);
-	virtual void encodeChangeInt(int parentId, MenuItem* theItem);
+	virtual void encodeChangeValue(int parentId, MenuItem* theItem);
 
 	void tick();
 
+	void initiateBootstrap(MenuItem* firstItem);
+
 private:
-	void completeMsgRx(FieldAndValue* field);
 	void nextBootstrap();
+	void performAnyWrites();
+	void dealWithHeartbeating();
+	void setBootstrapMode(bool mode) { bitWrite(flags, FLAG_BOOTSTRAP_MODE, mode); }
+	void setConnected(bool mode) { bitWrite(flags, FLAG_CURRENTLY_CONNECTED, mode); }
+	bool isConnected() { return bitRead(flags, FLAG_CURRENTLY_CONNECTED); }
+	bool isBootstrapMode() { return bitRead(flags, FLAG_BOOTSTRAP_MODE); }
 };
 
 #endif /* _TCMENU_REMOTECONNECTOR_H_ */

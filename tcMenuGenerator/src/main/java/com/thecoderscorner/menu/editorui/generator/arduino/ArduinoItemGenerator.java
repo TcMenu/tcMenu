@@ -42,6 +42,20 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
     }
 
     @Override
+    public void visit(TextMenuItem item) {
+        String nameNoSpaces = makeNameToVar(item.getName());
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(String.format("const PROGMEM TextMenuInfo minfo%s = { \"%s\", %d, %d, %d%s };\n",
+                nameNoSpaces, item.getName(), item.getId(), item.getEepromAddress(), item.getTextLength(),
+                possibleFunction(item))
+        );
+        sb.append(String.format("AnalogMenuItem menu%s(&minfo%s, %s);\n",
+                nameNoSpaces, nameNoSpaces, nextMenuName
+        ));
+        setResult(sb.toString());
+    }
+
+    @Override
     public void visit(BooleanMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
         StringBuilder sb = new StringBuilder(256);
@@ -96,7 +110,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
             return ", " + item.getFunctionName();
         }
         else {
-            return "";
+            return ", NO_CALLBACK";
         }
     }
 

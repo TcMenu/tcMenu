@@ -7,10 +7,9 @@
 #include "RemoteConnector.h"
 #include "MessageProcessors.h"
 
-
-JoinMessageProcessor joinProcessor;
-MessageProcessor* processorList = &joinProcessor;
-
+ValueChangeMessageProcessor valueProcessor(NULL);
+HeartbeatProcessor heartbeatProcessor(&valueProcessor);
+JoinMessageProcessor rootProcessor(&heartbeatProcessor);
 
 void JoinMessageProcessor::initialise() {
 	this->major = this->minor = -1;
@@ -18,6 +17,7 @@ void JoinMessageProcessor::initialise() {
 }
 
 void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
+	TagValueRemoteConnector::instance()->initiateBootstrap(menuMgr.getRoot());
 	switch(field->field) {
 	case FIELD_MSG_NAME:
 		if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->remoteNameChange(field->value);
@@ -63,11 +63,12 @@ void ValueChangeMessageProcessor::fieldRx(FieldAndValue* field) {
 		if(parentId != 0) {
 			sub = findItem(menuMgr.getRoot(), id);
 			if(sub == NULL || sub->getMenuType() != MENUTYPE_SUB_VALUE) return;
+			sub = ((SubMenuItem*)sub)->getChild();
 		}
 		else {
 			sub = menuMgr.getRoot();
 		}
-		item = findItem(((SubMenuItem*)sub)->getChild(), id);
+		item = findItem(sub, id);
 		break;
 	}
 	case FIELD_CURRENT_VAL:

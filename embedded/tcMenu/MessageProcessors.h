@@ -19,6 +19,11 @@ private:
 	ChangeType changeType;
 	int changeValue;
 public:
+	ValueChangeMessageProcessor(MessageProcessor* next) {
+		this->next = next;
+		this->msgType = MSG_CHANGE_INT;
+		initialise();
+	}
 	virtual ~ValueChangeMessageProcessor() {;}
 	virtual void initialise();
 	virtual void fieldRx(FieldAndValue* field);
@@ -31,6 +36,11 @@ private:
 	uint8_t major, minor;
 	ApiPlatform platform;
 public:
+	JoinMessageProcessor(MessageProcessor* next) {
+		this->next = next;
+		this->msgType = MSG_JOIN;
+		initialise();
+	}
 	virtual ~JoinMessageProcessor() {;}
 	virtual void initialise();
 	virtual void fieldRx(FieldAndValue* field);
@@ -39,12 +49,17 @@ public:
 
 class HeartbeatProcessor : public MessageProcessor {
 public:
+	HeartbeatProcessor(MessageProcessor* next) {
+		this->next = next;
+		this->msgType = MSG_HEARTBEAT;
+		initialise();
+	}
 	virtual ~HeartbeatProcessor() {;}
 	virtual void initialise() {;}
-	virtual void fieldRx() {;}
+	virtual void fieldRx(FieldAndValue*) {;}
 	virtual void onComplete();
 };
 
-extern MessageProcessor* processorList;
+extern JoinMessageProcessor rootProcessor;
 
 #endif /* _TCMENU_MESSAGEPROCESSORS_H_ */

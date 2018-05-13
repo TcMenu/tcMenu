@@ -10,11 +10,13 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -27,6 +29,7 @@ public class StandaloneRs232Test {
      * each controller manages exactly one MenuTree.
      */
     private MenuTree menuTree = new MenuTree();
+    private RemoteMenuController controller;
 
     /**
      * Just create an instance of the class to proceed.
@@ -42,19 +45,23 @@ public class StandaloneRs232Test {
         // bit of a hack to log everything possible.
         setToLogAbsolutelyEarthing();
 
+        // This is the name that will appear on the Arduino side for this connection
+        String myName = "OfficeMac";
+
         // Change this to the name of your serial port
         String portName = "/dev/cu.usbmodemFA1211";
 
         // Change this to set the baud rate
-        int baud = 9600;
+        int baud = 115200;
 
         logger.info("Creating an rs232 connection to {} at {} baud", portName, baud);
 
         // Now we use the rs232 builder to make a suitably configured instance of a
         // controller that can talk over serial and work with our menuTree.
-        RemoteMenuController controller = new Rs232ControllerBuilder()
+        controller = new Rs232ControllerBuilder()
                 .withRs232(portName, baud)
                 .withMenuTree(menuTree)
+                .withLocalName(myName)
                 //.withHeartbeatFrequency(10000000) // uncomment when debugging to prevent timeouts.
                 .build();
 
@@ -78,6 +85,15 @@ public class StandaloneRs232Test {
                 logger.info("SubMenu {} has the following child elements", subMenu);
                 // and then we go through all the items within that submenu.
                 menuTree.getMenuItems(subMenu).forEach(item -> logger.info("----->>> " + item));
+            });
+
+            // how to get an item by its id, we look for ID 1 in the root menu, if it's there we log it and send
+            // a delta change command.
+            Optional<MenuItem> maybeItem = menuTree.getMenuById(MenuTree.ROOT, 1);
+            maybeItem.ifPresent( item -> {
+                logger.info("Retrieved {} by its ID {}, reducing by +5", item.getName(), item.getId());
+                 controller.sendCommand(CommandFactory.newDeltaChangeCommand(MenuTree.ROOT.getId(),
+                         item.getId(), +5));
             });
         }
 

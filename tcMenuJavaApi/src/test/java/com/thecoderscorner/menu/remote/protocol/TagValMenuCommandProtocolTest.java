@@ -86,6 +86,18 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveTextBootCommand() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|NM=menuName|ID=1|ML=10|VC=12345678|~"));
+        assertEquals(MenuCommandType.TEXT_BOOT_ITEM,  cmd.getCommandType());
+        MenuTextBootCommand textCmd = (MenuTextBootCommand) cmd;
+        assertEquals("12345678", textCmd.getCurrentValue());
+        assertEquals(10, textCmd.getMenuItem().getTextLength());
+        assertEquals("menuName", textCmd.getMenuItem().getName());
+        assertEquals(1, textCmd.getMenuItem().getId());
+        assertEquals(2, textCmd.getSubMenuId());
+    }
+
+    @Test
     public void testReceiveEnumItem() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BE|PI=42|ID=21|NM=Choices|NC=3|CA=Choice1|CB=Choice2|CC=Choice3|VC=2|~"));
         assertTrue(cmd instanceof MenuEnumBootCommand);
@@ -204,6 +216,13 @@ public class TagValMenuCommandProtocolTest {
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.TRUE_FALSE),
                 false));
         testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=0|VC=0|~");
+    }
+
+    @Test
+    public void testWritingTextItem() {
+        protocol.toChannel(bb, new MenuTextBootCommand(22,
+                DomainFixtures.aTextMenu("TextItem", 1), "ABC"));
+        testBufferAgainstExpected("MT=BT|PI=22|ID=1|NM=TextItem|ML=10|VC=ABC|~");
     }
 
     @Test

@@ -21,8 +21,8 @@ TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTr
 	this->localNamePgm = namePgm;
 	this->listener = NULL;
 	this->transport = transport;
-	this->ticksLastRead = this->ticksLastSend = 0;
-	this->currentlyConnected = false;
+	this->ticksLastRead = this->ticksLastSend = 0xffff;
+	this->flags = 0;
 	this->processor = NULL;
 	this->bootMenuPtr = preSubMenuBootPtr = NULL;
 }
@@ -35,33 +35,16 @@ void TagValueRemoteConnector::start() {
 }
 
 void TagValueRemoteConnector::tick() {
-	++ticksLastRead;
-	++ticksLastSend;
+	dealWithHeartbeating();
 
-	if(ticksLastSend > HEARTBEAT_INTERVAL_TICKS) {
-		if(transport->available()) encodeHeartbeat();
+	if(isConnected()) {
+		performAnyWrites();
 	}
-
-	if(ticksLastRead > (HEARTBEAT_INTERVAL_TICKS * 3)) {
-		if(currentlyConnected) {
-			listener->error(REMOTE_ERR_NO_HEARTBEAT);
-			currentlyConnected = false;
-			processor = NULL;
-			if(listener) listener->connected(false);
-		}
-	} else if(!currentlyConnected){
-		encodeJoinP(localNamePgm);
-		processor = NULL;
-		currentlyConnected = true;
-		if(listener) listener->connected(true);
-	}
-
-	if(bootMenuPtr) nextBootstrap();
 
 	FieldAndValue* field = transport->fieldIfAvailable();
 	switch(field->fieldType) {
 	case FVAL_NEW_MSG:
-		processor = processorList->findProcessorForType(field->msgType);
+		processor = rootProcessor.findProcessorForType(field->msgType);
 		if(processor) processor->initialise();
 		break;
 	case FVAL_FIELD:
@@ -81,8 +64,73 @@ void TagValueRemoteConnector::tick() {
 	}
 }
 
+void TagValueRemoteConnector::dealWithHeartbeating() {
+	++ticksLastRead;
+	++ticksLastSend;
+
+	if(ticksLastSend > HEARTBEAT_INTERVAL_TICKS) {
+		if(transport->available()) encodeHeartbeat();
+	}
+
+	if(ticksLastRead > (HEARTBEAT_INTERVAL_TICKS * 3)) {
+		if(isConnected()) {
+			listener->error(REMOTE_ERR_NO_HEARTBEAT);
+			setConnected(false);
+			processor = NULL;
+			if(listener) listener->connected(false);
+		}
+	} else if(!isConnected()){
+		encodeJoinP(localNamePgm);
+		processor = NULL;
+		setConnected(true);
+		if(listener) listener->connected(true);
+	}
+
+}
+
+void TagValueRemoteConnector::performAnyWrites() {
+	if(isBootstrapMode()) {
+		nextBootstrap();
+	}
+	else {
+		if(bootMenuPtr == NULL) bootMenuPtr = menuMgr.getRoot();
+
+		int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
+		if(bootMenuPtr->isSendRemoteNeeded()) {
+			bootMenuPtr->setSendRemoteNeeded(false);
+			encodeChangeValue(parentId, bootMenuPtr);
+		}
+
+		// see if there's more to do, including moving between submenu / root.
+		bootMenuPtr = bootMenuPtr->getNext();
+		if(bootMenuPtr == NULL && preSubMenuBootPtr != NULL) {
+			bootMenuPtr = preSubMenuBootPtr->getNext();
+			preSubMenuBootPtr = NULL;
+		}
+	}
+}
+
+void TagValueRemoteConnector::initiateBootstrap(MenuItem* firstItem) {
+	if(isBootstrapMode()) return; // already booting.
+
+	bootMenuPtr = firstItem;
+	preSubMenuBootPtr = NULL;
+	encodeBootstrap(false);
+	setBootstrapMode(true);
+}
+
 void TagValueRemoteConnector::nextBootstrap() {
+	if(!bootMenuPtr) {
+		setBootstrapMode(false);
+		encodeBootstrap(true);
+		preSubMenuBootPtr = NULL;
+		return;
+	}
+
+	if(!transport->available()) return; // skip a turn, no write available.
+
 	int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
+	bootMenuPtr->setSendRemoteNeeded(false);
 	switch(bootMenuPtr->getMenuType()) {
 	case MENUTYPE_SUB_VALUE:
 		encodeSubMenu(parentId, (SubMenuItem*)bootMenuPtr);
@@ -98,6 +146,9 @@ void TagValueRemoteConnector::nextBootstrap() {
 	case MENUTYPE_INT_VALUE:
 		encodeAnalogItem(parentId, (AnalogMenuItem*)bootMenuPtr);
 		break;
+	case MENUTYPE_TEXT_VALUE:
+		encodeTextMenu(parentId, (TextMenuItem*)bootMenuPtr);
+		break;
 	default:
 		break;
 	}
@@ -106,10 +157,8 @@ void TagValueRemoteConnector::nextBootstrap() {
 	bootMenuPtr = bootMenuPtr->getNext();
 	if(bootMenuPtr == NULL && preSubMenuBootPtr != NULL) {
 		bootMenuPtr = preSubMenuBootPtr->getNext();
+		preSubMenuBootPtr = NULL;
 	}
-
-	// and we are done! tell the remote party
-	if(!bootMenuPtr) encodeBootstrap(true);
 }
 
 void TagValueRemoteConnector::encodeJoinP(const char* localName) {
@@ -172,6 +221,23 @@ void TagValueRemoteConnector::encodeAnalogItem(int parentId, AnalogMenuItem* ite
 	}
 }
 
+void TagValueRemoteConnector::encodeTextMenu(int parentId, TextMenuItem* item) {
+	if(transport->connected()) {
+		transport->startMsg(MSG_BOOT_TEXT);
+		transport->writeFieldInt(FIELD_PARENT, parentId);
+		transport->writeFieldInt(FIELD_ID,item->getId());
+		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
+		transport->writeFieldInt(FIELD_MAX_LEN, item->textLength());
+		transport->writeField(FIELD_CURRENT_VAL, item->getTextValue());
+		transport->endMsg();
+		ticksLastSend = 0;
+	}
+	else if(listener) {
+		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	}
+}
+
+
 void TagValueRemoteConnector::encodeEnumMenu(int parentId, EnumMenuItem* item) {
 	if(transport->connected()) {
 		transport->startMsg(MSG_BOOT_ENUM);
@@ -201,7 +267,7 @@ void TagValueRemoteConnector::encodeBooleanMenu(int parentId, BooleanMenuItem* i
 		transport->writeFieldInt(FIELD_ID,item->getId());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldInt(FIELD_CURRENT_VAL, item->getBoolean());
-		transport->writeFieldInt(FIELD_BOOL_NAMING, pgm_read_byte_near(item->getBooleanMenuInfo()->naming));
+		transport->writeFieldInt(FIELD_BOOL_NAMING, pgm_read_byte_near(&item->getBooleanMenuInfo()->naming));
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
@@ -224,28 +290,30 @@ void TagValueRemoteConnector::encodeSubMenu(int parentId, SubMenuItem* item) {
 	}
 }
 
-void TagValueRemoteConnector::encodeChangeInt(int parentId, MenuItem* theItem) {
+void TagValueRemoteConnector::encodeChangeValue(int parentId, MenuItem* theItem) {
 	if(transport->connected()) {
 		transport->startMsg(MSG_CHANGE_INT);
 		transport->writeFieldInt(FIELD_PARENT, parentId);
 		transport->writeFieldInt(FIELD_ID, theItem->getId());
 		transport->writeFieldInt(FIELD_CHANGE_TYPE, CHANGE_ABSOLUTE); // menu host always sends absolute!
-		int val = 0;
 		switch(theItem->getMenuType()) {
 		case MENUTYPE_ENUM_VALUE:
 		case MENUTYPE_INT_VALUE:
-			val = ((ValueMenuItem<AnalogMenuInfo>*)theItem)->getCurrentValue();
+			transport->writeFieldInt(FIELD_CURRENT_VAL, ((ValueMenuItem<AnalogMenuInfo>*)theItem)->getCurrentValue());
 			break;
 		case MENUTYPE_BOOLEAN_VALUE:
-			val = ((BooleanMenuItem*)theItem)->getBoolean();
+			transport->writeFieldInt(FIELD_CURRENT_VAL, ((BooleanMenuItem*)theItem)->getBoolean());
+			break;
+		case MENUTYPE_TEXT_VALUE:
+			transport->writeField(FIELD_CURRENT_VAL, ((TextMenuItem*)theItem)->getTextValue());
 			break;
 		default:
 			break;
 		}
-		transport->writeFieldInt(FIELD_CURRENT_VAL, val);
+		transport->endMsg();
+		ticksLastSend = 0;
 	}
 	else if(listener) {
 		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
-

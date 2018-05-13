@@ -7,6 +7,7 @@ package com.thecoderscorner.menu.domain;
 
 import org.junit.Test;
 
+import javax.xml.soap.Text;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,7 @@ import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.*;
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.*;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.*;
+import static com.thecoderscorner.menu.domain.TextMenuItemBuilder.*;
 import static org.junit.Assert.*;
 
 public class MenuItemTest {
@@ -57,6 +59,21 @@ public class MenuItemTest {
         assertEquals("someFn", item.getFunctionName());
 
         assertEquals(item, anEnumMenuItemBuilder().withExisting(item).menuItem());
+    }
+
+    @Test
+    public void testTextItem() {
+        TextMenuItem item = aTextMenuItemBuilder()
+                .withName("Test")
+                .withLength(10)
+                .withEepromAddr(-1)
+                .withId(1)
+                .withFunctionName("abc")
+                .menuItem();
+        assertBaseMenuFields(item, "Test", 1, -1);
+        assertEquals(10, item.getTextLength());
+        assertFalse(item.hasChildren());
+        assertEquals(item, aTextMenuItemBuilder().withExisting(item).menuItem());
     }
 
     @Test

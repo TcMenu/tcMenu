@@ -28,6 +28,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String ENUM_PERSIST_TYPE = "enumItem";
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
+    public static final String TEXT_PERSIST_TYPE = "textItem";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -117,6 +118,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 ENUM_PERSIST_TYPE, EnumMenuItem.class,
                 ANALOG_PERSIST_TYPE, AnalogMenuItem.class,
                 BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class,
+                TEXT_PERSIST_TYPE, TextMenuItem.class,
                 SUB_PERSIST_TYPE, SubMenuItem.class);
 
         @Override

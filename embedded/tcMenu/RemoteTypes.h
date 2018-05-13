@@ -34,6 +34,7 @@
 #define MSG_BOOT_SUBMENU msgFieldToWord('B', 'M')
 #define MSG_BOOT_ENUM msgFieldToWord('B', 'E')
 #define MSG_BOOT_BOOL msgFieldToWord('B', 'B')
+#define MSG_BOOT_TEXT msgFieldToWord('B','T')
 #define MSG_CHANGE_INT msgFieldToWord('V', 'C')
 
 /*
@@ -55,11 +56,12 @@
 #define FIELD_BOOL_NAMING msgFieldToWord('B', 'N')
 #define FIELD_NO_CHOICES  msgFieldToWord('N', 'C')
 #define FIELD_CHANGE_TYPE msgFieldToWord('T', 'C')
+#define FIELD_MAX_LEN     msgFieldToWord('M', 'L')
 
 #define FIELD_PREPEND_CHOICE 'C'
 
 enum ChangeType: byte {
-	CHANGE_ABSOLUTE = 0, CHANGE_DELTA = 1
+	CHANGE_DELTA = 0, CHANGE_ABSOLUTE = 1
 };
 
 enum ApiPlatform : byte {

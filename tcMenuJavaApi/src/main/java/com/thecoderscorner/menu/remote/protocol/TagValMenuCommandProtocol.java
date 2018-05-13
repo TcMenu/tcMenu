@@ -68,6 +68,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processBoolBootItem(parser);
             case CHANGE_INT_FIELD:
                 return processItemChange(parser);
+            case TEXT_BOOT_ITEM:
+                return processTextItem(parser);
             default:
                 throw new IOException("Unknown message type " + cmdType);
         }
@@ -102,6 +104,18 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
         int currentVal = parser.getValueAsInt(KEY_CURRENT_VAL);
         return newMenuBooleanBootCommand(parentId, item, currentVal != 0);
+    }
+
+    private MenuCommand processTextItem(TagValTextParser parser) throws IOException {
+        TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withLength(parser.getValueAsInt(KEY_MAX_LENGTH))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        String currentVal = parser.getValue(KEY_CURRENT_VAL);
+        return newMenuTextBootCommand(parentId, item, currentVal);
     }
 
     private BooleanMenuItem.BooleanNaming toNaming(int i) {
@@ -203,6 +217,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 break;
             case CHANGE_INT_FIELD:
                 writeChangeInt(sb, (MenuChangeCommand)cmd);
+                break;
+            case TEXT_BOOT_ITEM:
+                writeTextMenuItem(sb, (MenuTextBootCommand) cmd);
+                break;
+
         }
         sb.append('~');
 
@@ -219,9 +238,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {
-        appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
-        appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
-        appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
+        writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_ANALOG_OFFSET_FIELD, cmd.getMenuItem().getOffset());
         appendField(sb, KEY_ANALOG_DIVISOR_FIELD, cmd.getMenuItem().getDivisor());
         appendField(sb, KEY_ANALOG_MAX_FIELD, cmd.getMenuItem().getMaxValue());
@@ -230,18 +247,26 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void writeSubMenuItem(StringBuilder sb, MenuSubBootCommand cmd) {
-        appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
-        appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
-        appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
+        writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_CURRENT_VAL, "0");
     }
 
     private void writeBoolMenuItem(StringBuilder sb, MenuBooleanBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_BOOLEAN_NAMING, fromNaming(cmd.getMenuItem().getNaming()));
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue() ? 1  : 0);
+    }
+
+    private void writeCommonBootFields(StringBuilder sb, BootItemMenuCommand cmd) {
         appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
         appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
-        appendField(sb, KEY_BOOLEAN_NAMING, fromNaming(cmd.getMenuItem().getNaming()));
-        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue() ? 1  : 0);
+    }
+
+    private void writeTextMenuItem(StringBuilder sb, MenuTextBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getTextLength());
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
     }
 
     private int fromNaming(BooleanMenuItem.BooleanNaming naming) {
@@ -258,9 +283,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void writeEnumMenuItem(StringBuilder sb, MenuEnumBootCommand cmd) {
-        appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
-        appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
-        appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
+        writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
         List<String> entries = cmd.getMenuItem().getEnumEntries();
         appendField(sb, KEY_NO_OF_CHOICES, entries.size());

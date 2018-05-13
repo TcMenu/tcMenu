@@ -68,6 +68,9 @@ void MenuManager::menuItemChanged(MenuItem* item) {
 	case MENUTYPE_BOOLEAN_VALUE:
 		fn = (MenuCallbackFn)pgm_read_ptr_near(&((BooleanMenuItem*)item)->getBooleanMenuInfo()->callback);
 		break;
+	case MENUTYPE_TEXT_VALUE:
+		fn = (MenuCallbackFn)pgm_read_ptr_near(&((TextMenuItem*)item)->getTextMenuInfo()->callback);
+		break;
 	default:
 		fn = NULL;
 		break;

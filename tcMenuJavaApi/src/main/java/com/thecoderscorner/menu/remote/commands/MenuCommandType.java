@@ -7,15 +7,14 @@ package com.thecoderscorner.menu.remote.commands;
 
 public enum MenuCommandType {
     JOIN("NJ"),
+    HEARTBEAT("HB"),
     BOOTSTRAP("BS"),
     ANALOG_BOOT_ITEM("BA"),
     SUBMENU_BOOT_ITEM("BM"),
     ENUM_BOOT_ITEM("BE"),
     BOOLEAN_BOOT_ITEM("BB"),
-    CHANGE_INT_FIELD("VC"),
-    //CHANGE_INT_ABSOLUTE("CA"),
-
-    HEARTBEAT("HB");
+    TEXT_BOOT_ITEM("BT"),
+    CHANGE_INT_FIELD("VC");
 
     private final String code;
 

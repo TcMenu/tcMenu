@@ -44,6 +44,7 @@ void LiquidCrystalRenderer::setupForEditing(MenuItem* item) {
 		currentEditor->setActive(false);
 	}
 	MenuType ty = item->getMenuType();
+	// these are the only types we can edit with a rotary encoder & LCD.
 	if ((ty == MENUTYPE_ENUM_VALUE || ty == MENUTYPE_INT_VALUE || ty == MENUTYPE_BOOLEAN_VALUE) && !item->isReadOnly()) {
 		currentEditor = item;
 		currentEditor->setEditing(true);
@@ -186,6 +187,9 @@ void LiquidCrystalRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
 	case MENUTYPE_BACK_VALUE:
 		renderBackItem((BackMenuItem*)item);
 		break;
+	case MENUTYPE_TEXT_VALUE:
+		renderTextItem((TextMenuItem*)item);
+		break;
 	default:
 		strcpy(buffer, "unknown type..");
 		break;
@@ -200,6 +204,14 @@ inline void renderName(char * buffer, MenuItem* itm) {
 		*(++buffer) = nm;
 		++name;
 	}
+}
+
+void LiquidCrystalRenderer::renderTextItem(TextMenuItem* item) {
+	renderName(buffer, item);
+
+	uint8_t count = strlen(item->getTextValue());
+	int cpy = dimX - count;
+	strcpy(buffer + cpy, item->getTextValue());
 }
 
 void LiquidCrystalRenderer::renderAnalogItem(AnalogMenuItem* item) {
