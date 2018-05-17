@@ -11,7 +11,7 @@ complete menu can fit in less than 700 bytes including i2c and Serial libraries.
 
 You start a menu project either by using the provided user interface (recommended), or by coding a menu manually into a sketch. 
 
-[Get a copy of the project from the releases page](/releases/latest), where there's a JAR build that will require a modern version of Java installed on your machine. I'll build native packages before the next major release, but during the testing, please download Java from Oracle or use an open JDK, if you use OpenJDK you'll also need the open-javafx package.
+[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), where there's a JAR build that will require a modern version of Java installed on your machine. I'll build native packages before the next major release, but during the testing, please download Java from Oracle or use an open JDK, if you use OpenJDK you'll also need the open-javafx package.
 
 ## Generating a menu from the UI
 
