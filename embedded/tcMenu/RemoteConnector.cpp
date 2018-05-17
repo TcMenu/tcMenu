@@ -95,17 +95,21 @@ void TagValueRemoteConnector::performAnyWrites() {
 	else {
 		if(bootMenuPtr == NULL) bootMenuPtr = menuMgr.getRoot();
 
-		int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
-		if(bootMenuPtr->isSendRemoteNeeded()) {
-			bootMenuPtr->setSendRemoteNeeded(false);
-			encodeChangeValue(parentId, bootMenuPtr);
-		}
+		// we loop here until either we've gone through the structure or something has changed
+		while(bootMenuPtr) {
+			int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
+			if(bootMenuPtr->isSendRemoteNeeded()) {
+				bootMenuPtr->setSendRemoteNeeded(false);
+				encodeChangeValue(parentId, bootMenuPtr);
+				return; // exit once something is written
+			}
 
-		// see if there's more to do, including moving between submenu / root.
-		bootMenuPtr = bootMenuPtr->getNext();
-		if(bootMenuPtr == NULL && preSubMenuBootPtr != NULL) {
-			bootMenuPtr = preSubMenuBootPtr->getNext();
-			preSubMenuBootPtr = NULL;
+			// see if there's more to do, including moving between submenu / root.
+			bootMenuPtr = bootMenuPtr->getNext();
+			if(bootMenuPtr == NULL && preSubMenuBootPtr != NULL) {
+				bootMenuPtr = preSubMenuBootPtr->getNext();
+				preSubMenuBootPtr = NULL;
+			}
 		}
 	}
 }
