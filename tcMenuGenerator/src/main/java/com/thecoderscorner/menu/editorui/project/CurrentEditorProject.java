@@ -41,6 +41,7 @@ public class CurrentEditorProject {
     private MenuTree menuTree;
     private Optional<String> fileName;
     private boolean dirty;
+    private CodeGeneratorOptions generatorOptions;
     private Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
@@ -78,7 +79,9 @@ public class CurrentEditorProject {
     public void openProject(String file) {
         try {
             fileName = Optional.ofNullable(file);
-            menuTree = projectPersistor.open(file);
+            MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
+            menuTree = openedProject.getMenuTree();
+            generatorOptions = openedProject.getOptions();
             dirty = false;
             changeHistory.clear();
             changeTitle();
@@ -108,7 +111,7 @@ public class CurrentEditorProject {
 
         fileName.ifPresent((file)-> {
             try {
-                projectPersistor.save(file, menuTree);
+                projectPersistor.save(file, menuTree, generatorOptions);
                 dirty = false;
                 changeTitle();
             } catch (IOException e) {
@@ -159,9 +162,6 @@ public class CurrentEditorProject {
         if(this.dirty != dirty) {
             this.dirty = dirty;
             changeTitle();
-        }
-        else {
-            this.dirty = dirty;
         }
     }
 

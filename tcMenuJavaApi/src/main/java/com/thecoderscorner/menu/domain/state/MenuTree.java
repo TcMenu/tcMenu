@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.domain.state;
 import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -158,12 +157,13 @@ public class MenuTree {
         }
     }
 
-    public void changeItem(MenuItem item, MenuState<?> menuState) {
+    public <T> void changeItem(MenuItem<T> item, MenuState<T> menuState) {
         menuStates.put(item.getId(), menuState);
     }
 
-    public MenuState getMenuState(MenuItem item) {
-        return menuStates.get(item.getId());
+    @SuppressWarnings("unchecked")
+    public <T> MenuState<T> getMenuState(MenuItem<T> item) {
+        return (MenuState<T>) menuStates.get(item.getId());
     }
 }
 

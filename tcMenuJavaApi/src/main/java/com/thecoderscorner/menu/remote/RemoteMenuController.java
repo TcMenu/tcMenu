@@ -5,10 +5,8 @@
 
 package com.thecoderscorner.menu.remote;
 
-import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.commands.*;
-import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.thecoderscorner.menu.remote.RemoteInformation.*;
+import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
 
@@ -41,8 +39,10 @@ public class RemoteMenuController {
     private volatile boolean treeFullyPopulated = false;
 
     /**
-     * Constructs a remote connector to a menu app running elsewhere, Normally use the builder classes such
-     * as Rs232ControllerBuilder for this.
+     * This class manages a single remote connection to an Arduino. It is responsible for check
+     * if the connection is still alive, and sending heartbeat messages to keep the connection
+     * alive too. This class abstracts the connectivity part away from the business logic.
+     * The remote connection is then handled by the RemoteConnector.
      */
     public RemoteMenuController(RemoteConnector connector, MenuTree managedMenu,
                                 ScheduledExecutorService executor, String localName,
@@ -55,6 +55,9 @@ public class RemoteMenuController {
         this.heartbeatFrequency = heartbeatFrequency;
     }
 
+    /**
+     * starts the remote connection such that it will attempt to establish connectivity
+     */
     public void start() {
         connector.registerConnectorListener(this::onCommandReceived);
         connector.registerConnectionChangeListener(this::onConnectionChange);
@@ -78,16 +81,66 @@ public class RemoteMenuController {
         }
     }
 
-    public void stop() {
-        connector.stop();
-    }
-
     private void onConnectionChange(RemoteConnector remoteConnector, boolean b) {
         if(b) {
             lastRx.set(clock.millis());
             sendCommand(CommandFactory.newJoinCommand(localName));
         }
         listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), b));
+    }
+
+    /**
+     * attempt to stop the underlying connector
+     */
+    public void stop() {
+        connector.stop();
+    }
+
+    /**
+     * send a command to the Arduino, normally use the CommandFactory to generate the command
+     * @param command a command to send to the remote side.
+     */
+    public void sendCommand(MenuCommand command) {
+        lastTx.set(clock.millis());
+        try {
+            connector.sendMenuCommand(command);
+        } catch (IOException e) {
+            logger.error("Error while writing out command", e);
+            connector.close();
+        }
+    }
+
+    /**
+     * get the name of the device that we've connected to.
+     * @return the connected remote device
+     */
+    public RemoteInformation getRemotePartyInfo() {
+        return remoteParty.get();
+    }
+
+    /**
+     * get the underlying connectivity, rarely needed
+     * @return underlying connector
+     */
+    public RemoteConnector getConnector() {
+        return connector;
+    }
+
+    /**
+     * Check if all the menu items from the remote device are available locally yet.
+     * @return true if the populated, otherwise false.
+     */
+    public boolean isTreeFullyPopulated() {
+        return treeFullyPopulated;
+    }
+
+    /**
+     * register for events when the tree becomes fully populated, a menu item changes
+     * or there's a change in connectivity.
+     * @param listener your listener to register for events
+     */
+    public void addListener(RemoteControllerListener listener) {
+        listeners.add(listener);
     }
 
     private void onCommandReceived(RemoteConnector remoteConnector, MenuCommand menuCommand) {
@@ -97,7 +150,7 @@ public class RemoteMenuController {
                 break;
             case JOIN:
                 onJoinCommand((MenuJoinCommand) menuCommand);
-               break;
+                break;
             case BOOTSTRAP:
                 onBootstrapCommand((MenuBootstrapCommand) menuCommand);
                 break;
@@ -130,31 +183,5 @@ public class RemoteMenuController {
                 join.getApiVersion() % 100, join.getPlatform()));
         listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), true));
         executor.execute(() -> sendCommand(newJoinCommand(localName)) );
-    }
-
-    public void sendCommand(MenuCommand command) {
-        lastTx.set(clock.millis());
-        try {
-            connector.sendMenuCommand(command);
-        } catch (IOException e) {
-            logger.error("Error while writing out command", e);
-            connector.close();
-        }
-    }
-
-    public RemoteInformation getRemotePartyInfo() {
-        return remoteParty.get();
-    }
-
-    public RemoteConnector getConnector() {
-        return connector;
-    }
-
-    public boolean isTreeFullyPopulated() {
-        return treeFullyPopulated;
-    }
-
-    public void addListener(RemoteControllerListener listener) {
-        listeners.add(listener);
     }
 }

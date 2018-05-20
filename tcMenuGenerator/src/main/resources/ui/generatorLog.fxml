@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  -->
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="501.0" prefWidth="768.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.generator.ui.CodeGenLoggingController">
+   <top>
+      <Label styleClass="item-title" text="Code Generation Log" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </Label>
+   </top>
+   <center>
+      <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" text="Please wait..." BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" text="Copy to clipboard" />
+            <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="Close" />
+        </buttons>
+         <opaqueInsets>
+            <Insets top="5.0" />
+         </opaqueInsets>
+      </ButtonBar>
+   </bottom>
+   <opaqueInsets>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</BorderPane>

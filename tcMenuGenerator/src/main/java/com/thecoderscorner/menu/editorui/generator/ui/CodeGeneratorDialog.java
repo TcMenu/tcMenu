@@ -3,14 +3,12 @@
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  */
 
-package com.thecoderscorner.menu.editorui.dialog;
+package com.thecoderscorner.menu.editorui.generator.ui;
 
-import com.thecoderscorner.menu.editorui.controller.CodeGeneratorController;
+import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;

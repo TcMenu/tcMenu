@@ -17,6 +17,12 @@ import java.util.Map;
 public class TagValTextParser {
     private Map<String, String> keyToValue = new HashMap<>(32);
 
+    /**
+     * Creates an instance that contains all the tags and values in a map, that can
+     * then be used to extract the message.
+     * @param buffer a buffer containing a message.
+     * @throws IOException if the buffer is invalid
+     */
     public TagValTextParser(ByteBuffer buffer) throws IOException {
         boolean foundEnd = false;
         while(buffer.hasRemaining() && !foundEnd) {

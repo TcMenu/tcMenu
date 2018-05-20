@@ -9,8 +9,11 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
 
-import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 
+/**
+ * Static helper methods that create various types of messages, prefer this method over creating instances directly
+ */
 public class CommandFactory {
     public static MenuJoinCommand newJoinCommand(String name) {
         return new MenuJoinCommand(name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties());

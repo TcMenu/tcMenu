@@ -5,20 +5,28 @@
 
 package com.thecoderscorner.menu.editorui.generator.display;
 
+import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+
 import java.util.Collections;
 import java.util.List;
 
-public class LiquidCrystalCreator implements DisplayCreator{
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
 
-    private final int width;
-    private final int height;
-    private final boolean pwm;
+public class LiquidCrystalCreator extends AbstractCodeCreator {
 
-    public LiquidCrystalCreator(int width, int height, boolean pwm) {
-        this.width = width;
-        this.height = height;
-        this.pwm = pwm;
-    }
+    private final List<CreatorProperty> creatorProperties = List.of(
+            new CreatorProperty("LCD_RS", "RS connection to display", "0", INPUT),
+            new CreatorProperty("LCD_EN", "EN connection to display", "0", INPUT),
+            new CreatorProperty("LCD_D4", "D4 connection to display", "0", INPUT),
+            new CreatorProperty("LCD_D5", "D5 connection to display", "0", INPUT),
+            new CreatorProperty("LCD_D6", "D6 connection to display", "0", INPUT),
+            new CreatorProperty("LCD_D7", "D7 connection to display", "0", INPUT),
+            new CreatorProperty("LCD_WIDTH", "Number of chars across", "20", INPUT),
+            new CreatorProperty("LCD_HEIGHT", "Number of chars down", "4", INPUT),
+            new CreatorProperty("LCD_PWM_PIN", "Pin for PWM contrast (-1 is off)", "4", INPUT)
+    );
 
     @Override
     public List<String> getIncludes() {
@@ -28,29 +36,31 @@ public class LiquidCrystalCreator implements DisplayCreator{
     @Override
     public String getGlobalVariables() {
         StringBuilder sb = new StringBuilder(1024);
-        sb.append("#define LCD_RS 1\n");
-        sb.append("#define LCD_EN 2\n");
-        sb.append("#define LCD_D4 3\n");
-        sb.append("#define LCD_D5 4\n");
-        sb.append("#define LCD_D6 5\n");
-        sb.append("#define LCD_D7 6\n");
-        if(pwm) {
-            sb.append("#define LCD_PWM_CONTRAST 5\n");
-        }
         sb.append("LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioFrom8754(0x20)); // ioUsingArduino() for non i2c\n");
-        sb.append("LiquidCrystalRenderer renderer(lcd, ").append(width).append(", ").append(height).append(");");
+        sb.append("LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);");
         return sb.toString();
     }
 
     @Override
-    public String getSetupCode() {
+    public String getExportDefinitions() {
+        return "extern LiquidCrystal lcd;" + LINE_BREAK + "extern LiquidCrystalRenderer renderer;" + LINE_BREAK;
+    }
+
+    @Override
+    public String getSetupCode(String rootItem) {
         StringBuilder sb = new StringBuilder();
-        sb.append("    lcd.begin(").append(width).append(", ").append(height).append(");\n");
-        if(pwm) {
-            sb.append("// PWM contrast support, set contrast pin further up..\n");
-            sb.append("\tpinMode(LCD_PWM_CONTRAST, OUTPUT);\n");
-            sb.append("\tanalogWrite(LCD_PWM_CONTRAST, 10);\n");
+        sb.append("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);").append(LINE_BREAK);
+
+        if (findPropertyValue("LCD_PWM_PIN").getLatestValueAsInt() != -1) {
+            sb.append("\tpinMode(LCD_PWM_PIN, OUTPUT);\n");
+            sb.append("\tanalogWrite(LCD_PWM_PIN, 10);\n");
         }
+
         return sb.toString();
+    }
+
+    @Override
+    public List<CreatorProperty> properties() {
+        return creatorProperties;
     }
 }

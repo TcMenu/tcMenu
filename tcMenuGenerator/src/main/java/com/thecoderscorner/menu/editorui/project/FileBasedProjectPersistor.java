@@ -41,14 +41,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public MenuTree open(String fileName) throws IOException {
+    public MenuTreeWithCodeOptions open(String fileName) throws IOException {
         logger.info("Open file " + fileName);
 
         try(Reader reader = new BufferedReader(new FileReader(fileName))) {
             PersistedProject prj = gson.fromJson(reader, PersistedProject.class);
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem()));
-            return tree;
+            return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions());
         }
     }
 
@@ -62,13 +62,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public void save(String fileName, MenuTree tree) throws IOException {
+    public void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException {
         logger.info("Save file starting for: " + fileName);
 
-        List<PersistedMenu> itemsToStoreInOrder = populateListInOrder(MenuTree.ROOT, tree);
+        List<PersistedMenu> itemsInOrder = populateListInOrder(MenuTree.ROOT, tree);
 
         try(Writer writer = new BufferedWriter(new FileWriter(fileName))) {
-            gson.toJson(new PersistedProject(fileName, "author", Instant.now(), itemsToStoreInOrder), writer);
+            String user = System.getProperty("user.name");
+            gson.toJson(new PersistedProject(fileName, user, Instant.now(), itemsInOrder, options), writer);
         }
     }
 

@@ -8,12 +8,11 @@ package com.thecoderscorner.menu.remote;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * This is the base interface implemented by all remote connectors, it provides the means to both send and receive
- * menu commands
- *
+ * menu commands. Most people just wanting to use a menu remotely won't need to understand the connector layer beyond
+ * creating a connector.
  */
 public interface RemoteConnector {
 

@@ -14,10 +14,23 @@
         <artifactId>tcMenu</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>tcMenuJavaAPI</artifactId>
     <name>tcMenuJavaAPI</name>
     <description>A series of domain and serialisation components for the TcMenu library</description>
+    <url>http://www.thecoderscorner.com/products/arduino-libraries/tc-menu/</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/davetcc/tcMenu.git</url>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -105,25 +118,6 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -5,6 +5,9 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+/**
+ * Enumeration of the types of messages that can be sent to and from the server.
+ */
 public enum MenuCommandType {
     JOIN("NJ"),
     HEARTBEAT("HB"),

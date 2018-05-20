@@ -5,6 +5,10 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
+/**
+ * Provides a list of the support platforms as an enumeration. Used during joining to indicate the platform
+ * of the connectee.
+ */
 public enum ApiPlatform {
     ARDUINO_8(0, "Arduino 8bit"),
     JAVA_API(1, "Java API");

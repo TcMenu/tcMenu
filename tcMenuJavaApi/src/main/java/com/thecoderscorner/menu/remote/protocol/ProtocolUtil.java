@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.remote.protocol;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
@@ -16,11 +15,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A few general helper method to get the version and platform information to and from messages.
+ */
 public class ProtocolUtil {
     private static AtomicReference<String> version = new AtomicReference<>();
     private static AtomicReference<Map<Integer, ApiPlatform>> keyToPlatform = new AtomicReference<>();
     private static Pattern versionPattern = Pattern.compile(".*(\\d+)\\.(\\d+).*");
 
+    /**
+     * gets and caches the current version from the version properties file
+     * @return the current version as major * 100 + minor
+     */
     public static int getVersionFromProperties() {
         String ver = version.get();
         if(ver == null) {
@@ -44,6 +50,11 @@ public class ProtocolUtil {
         return 0;
     }
 
+    /**
+     * get the api platform given it's integer key value.
+     * @param key the platform key
+     * @return platform enum entry.
+     */
     public static ApiPlatform fromKeyToApiPlatform(int key) {
         if(keyToPlatform.get() == null) {
             ImmutableMap.Builder<Integer, ApiPlatform> builder = ImmutableMap.builder();
