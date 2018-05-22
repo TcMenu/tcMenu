@@ -74,10 +74,12 @@ void TagValueRemoteConnector::dealWithHeartbeating() {
 
 	if(ticksLastRead > (HEARTBEAT_INTERVAL_TICKS * 3)) {
 		if(isConnected()) {
-			listener->error(REMOTE_ERR_NO_HEARTBEAT);
 			setConnected(false);
 			processor = NULL;
-			if(listener) listener->connected(false);
+			if(listener) {
+				listener->connected(false);
+				listener->error(REMOTE_ERR_NO_HEARTBEAT);
+			}
 		}
 	} else if(!isConnected()){
 		encodeJoinP(localNamePgm);

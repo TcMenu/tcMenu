@@ -11,7 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 /**
- * Represents an analog numeric value, it is always a zero based integer when retrieved from storage, but it can
+ * Represents an analog (numeric) menu item, it is always a zero based integer when retrieved from storage, but it can
  * have an offset and divisor, so therefore is able to represent decimal values. The offset can also be negative.
  * Rather than directly constructing an item of this type, you can use the AnalogMenuItemBuilder.
  */

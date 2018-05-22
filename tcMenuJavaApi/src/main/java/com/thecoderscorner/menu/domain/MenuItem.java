@@ -6,9 +6,13 @@
 package com.thecoderscorner.menu.domain;
 
 import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
+/**
+ * The base class for all menu items, has the most basic operations available on it that are needed by pretty much
+ * all menu items.
+ * @param <T> the type of the current value
+ */
 public abstract class MenuItem<T> {
     protected final String name;
     protected final int id;
@@ -22,22 +26,42 @@ public abstract class MenuItem<T> {
         this.functionName = functionName;
     }
 
+    /**
+     * gets the name of the menu item
+     * @return menu item name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * gets the ID for the menu item
+     * @return item ID
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * gets the eeprom storage address for this item. -1 indicates no storage.
+     * @return eeprom address
+     */
     public int getEepromAddress() {
         return eepromAddress;
     }
 
+    /**
+     * Gets the function name for this item
+     * @return the function name
+     */
     public String getFunctionName() {
         return functionName;
     }
 
+    /**
+     * has children indicates if this item can contain child items
+     * @return true, if the item can contain child items
+     */
     public boolean hasChildren() {
         return false;
     }

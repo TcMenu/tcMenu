@@ -9,13 +9,14 @@ import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
 
 public class InputType extends EnumWithApplicability  {
-    public static Map<Integer, InputType> values;
+    public static Map<Integer, InputType> values = new HashMap<>();
 
     static {
         addValue(1, ALL_DEVICES, "Rotary encoder", RotaryEncoderInputCreator.class);

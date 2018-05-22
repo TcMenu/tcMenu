@@ -3,15 +3,17 @@
 */
 
 #include <tcMenu.h>
-#include "menuDefinition.h"
+#include "[(${projectName})].h"
 
 [(${allGlobals})]
 
 // Export all the menu items, makes like easier for the compiler.
 [# th:each="item : ${menuItems}"]
-[(${item})]
+[(${item.cppText})]
 [/]
 
-void setupMenu(RemoteConnectorListener* listener) {
+void setupMenu(ConnectorListener* listener) {
+    Wire.begin(); // if you're sure you don't use wire anywhere, you can remove this line.
+
 [(${allSetups})]
 }

@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,11 +18,12 @@ import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappin
 
 public class DisplayType extends EnumWithApplicability {
 
-    public static Map<Integer, DisplayType> values;
+    public static Map<Integer, DisplayType> values = new HashMap<>();
 
     static {
-        addValue(1, ALL_DEVICES, "No Remote", DisplayNotUsedCreator.class);
-        addValue(2, ALL_ARDUINO_BOARDS, "RS232 Remote", LiquidCrystalCreator.class);
+        addValue(1, ALL_DEVICES, "No Display", DisplayNotUsedCreator.class);
+        addValue(2, ALL_ARDUINO_BOARDS, "LiquidCrystalIO Arduino Pins", ArduinoPinLiquidCrystalCreator.class);
+        addValue(3, ALL_ARDUINO_BOARDS, "LiquidCrystalIO on i2c bus", I2cBusLiquidCrystalCreator.class);
     }
 
     public DisplayType(Set<EmbeddedPlatform> platformApplicability, String description,

@@ -68,13 +68,15 @@ public class ArduinoGenerator implements CodeGenerator {
         String inoFile = toSourceFile(directory, ".ino");
         String cppFile = toSourceFile(directory, ".cpp");
         String headerFile = toSourceFile(directory, ".h");
+        String projectName = directory.getFileName().toString();
+
         Path source = Paths.get(inoFile);
-        if(Files.exists(source)) {
+        if (Files.exists(source)) {
             try {
                 logLine("INO Previously existed, backup existing file");
                 Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
             } catch (IOException e) {
-                logLine("Failed to backup file:" + e.getMessage() );
+                logLine("Failed to backup file:" + e.getMessage());
                 logger.error("Backup failed - WILL NOT CONTINUE", e);
                 return false;
             }
@@ -82,11 +84,11 @@ public class ArduinoGenerator implements CodeGenerator {
 
         String root = getFirstMenuVariable(menuTree);
 
-        try(Writer writer = new FileWriter(headerFile)) {
-            logLine("File created, writing out header file: " + headerFile);
+        try (Writer writer = new FileWriter(headerFile)) {
+            logLine("Writing out header file: " + headerFile);
             Context context = new Context(Locale.getDefault());
             context.setVariable("allGeneratorIncludes", generators.stream()
-                    .flatMap(g-> g.getIncludes().stream())
+                    .flatMap(g -> g.getIncludes().stream())
                     .collect(Collectors.toList()));
             context.setVariable("allGeneratorExports", generators.stream()
                     .map(EmbeddedCodeCreator::getExportDefinitions)
@@ -94,17 +96,17 @@ public class ArduinoGenerator implements CodeGenerator {
             context.setVariable("menuItems", generateMenusInOrder(menuTree));
             context.setVariable("callbacks", callBackFunctions());
             engine.process("/generator/template.h", context, writer);
-            logLine("Process finished, check output directory for files.");
-        }
-        catch (Exception e) {
-            logLine("Failed to generate: " + e.getMessage());
-            logger.error("Code Generation failed", e);
+            logLine("Finished processing header file.");
+        } catch (Exception e) {
+            logLine("Failed to generate header file: " + e.getMessage());
+            logger.error("Header Code Generation failed", e);
             return false;
         }
 
-        try(Writer writer = new FileWriter(cppFile)) {
-            logLine("File created, writing out source CPP file: " + cppFile);
+        try (Writer writer = new FileWriter(cppFile)) {
+            logLine("Writing out source CPP file: " + cppFile);
             Context context = new Context(Locale.getDefault());
+            context.setVariable("projectName", projectName);
             context.setVariable("allGlobals", generators.stream()
                     .map(EmbeddedCodeCreator::getGlobalVariables)
                     .collect(Collectors.joining(LINE_BREAK)));
@@ -113,15 +115,33 @@ public class ArduinoGenerator implements CodeGenerator {
                     .collect(Collectors.joining(LINE_BREAK)));
             context.setVariable("menuItems", generateMenusInOrder(menuTree));
             context.setVariable("callbacks", callBackFunctions());
-            engine.process("/generator/template.h", context, writer);
-            logLine("Process finished, check output directory for files.");
-        }
-        catch (Exception e) {
-            logLine("Failed to generate: " + e.getMessage());
-            logger.error("Code Generation failed", e);
+            engine.process("/generator/template.cpp", context, writer);
+            logLine("Finished processing source file.");
+
+            logLine("Making adjustments to " + inoFile);
+        } catch (Exception e) {
+            logLine("Failed to generate CPP: " + e.getMessage());
+            logger.error("CPP Code Generation failed", e);
             return false;
         }
+
+        try {
+            ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(
+                    this::logLine,
+                    inoFile,
+                    projectName,
+                    callBackFunctions());
+            adjuster.makeAdjustments();
+        } catch (IOException e) {
+            logLine("Failed to make changes to sketch" +  e.getMessage());
+            logger.error("Sketch modification failed", e);
+        }
+
+        logLine("Process has completed, make sure the code in your IDE is up-to-date.");
+        logLine("You may need to close the project and then re-open it to pick up changes..");
+
         return true;
+
     }
 
     private String getFirstMenuVariable(MenuTree menuTree) {
@@ -149,10 +169,10 @@ public class ArduinoGenerator implements CodeGenerator {
     private List<CppAndHeader> renderMenu(Collection<MenuItem> itemsColl) {
         ArrayList<MenuItem> items = new ArrayList<>(itemsColl);
         List<CppAndHeader> itemsInOrder = new ArrayList<>(100);
-        for(int i = 0; i < items.size();i++) {
+        for (int i = 0; i < items.size(); i++) {
 
-            if(items.get(i).hasChildren()) {
-                int nextIdx = i+1;
+            if (items.get(i).hasChildren()) {
+                int nextIdx = i + 1;
                 String nextSub = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
 
                 ImmutableList<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
@@ -160,9 +180,8 @@ public class ArduinoGenerator implements CodeGenerator {
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
                         new ArduinoItemGenerator(nextSub, nextChild)).orElse(new CppAndHeader("", "")));
                 itemsInOrder.addAll(renderMenu(childItems));
-            }
-            else {
-                int nextIdx = i+1;
+            } else {
+                int nextIdx = i + 1;
                 String next = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
                         new ArduinoItemGenerator(next)).orElse(new CppAndHeader("", "")));

@@ -21,7 +21,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     public String getExportDefinitions() {
         return properties().stream()
                 .map(prop -> ("#define " + prop.getName() + " " + prop.getLatestValue()))
-                .collect(Collectors.joining(LINE_BREAK));
+                .collect(Collectors.joining(LINE_BREAK)) + LINE_BREAK;
     }
 
     public CreatorProperty findPropertyValue(String name) {

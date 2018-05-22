@@ -5,19 +5,22 @@
 
 package com.thecoderscorner.menu.editorui.generator.remote;
 
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
-public class Rs232RemoteCapabilitiesCreator implements EmbeddedCodeCreator {
+public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;
+    private final List<CreatorProperty> creatorProperties = List.of(
+            new CreatorProperty("SERIAL_BAUD", "Serial baud rate", "115200", REMOTE)
+    );
 
     public Rs232RemoteCapabilitiesCreator(CurrentEditorProject project) {
         this.project = project;
@@ -26,7 +29,6 @@ public class Rs232RemoteCapabilitiesCreator implements EmbeddedCodeCreator {
     @Override
     public List<String> getIncludes() {
         return Arrays.asList(
-                "#include <Serial.h>",
                 "#include <RemoteConnector.h>",
                 "#include <SerialTransport.h>"
         );
@@ -35,23 +37,27 @@ public class Rs232RemoteCapabilitiesCreator implements EmbeddedCodeCreator {
     @Override
     public String getGlobalVariables() {
         String projectName = Paths.get(project.getFileName()).getFileName().toString();
-        return "const char PROGMEM applicationName[] = \" + " +  projectName + " + \";" + LINE_BREAK;
+        return "const char PROGMEM applicationName[] = \"" +  projectName + "\";" + LINE_BREAK;
     }
 
     @Override
     public String getExportDefinitions() {
-        return "extern const char applicationName[];" + LINE_BREAK;
+        return super.getExportDefinitions() +
+               "extern const char applicationName[];" + LINE_BREAK +
+               "extern TagValueRemoteConnector connector;" + LINE_BREAK;
+
     }
 
     @Override
     public List<CreatorProperty> properties() {
-        return Collections.emptyList();
+        return creatorProperties;
     }
 
     @Override
     public String getSetupCode(String rootItem) {
 
-        return "    SerialTagValueTransport serialTransport(&Serial); // Using first serial port by default" + LINE_BREAK +
+        return "    Serial.begin(SERIAL_BAUD);" + LINE_BREAK +
+               "    SerialTagValueTransport serialTransport(&Serial); // Using first serial port by default" + LINE_BREAK +
                "    TagValueRemoteConnector connector(applicationName, &serialTransport);" + LINE_BREAK +
                "    connector.setListener(listener);" + LINE_BREAK +
                "    connector.start();" + LINE_BREAK;

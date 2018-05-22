@@ -15,16 +15,19 @@
 
 [(${allGeneratorExports})]
 
+// all callback functions must have this define on them, it is what the menu designer looks for.
 #define CALLBACK_FUNCTION
 
-// Forward reference all the callback functions to make life easier for the compiler.
+// Forward reference all the callback functions.
 [# th:each="func : ${callbacks}"]
 void CALLBACK_FUNCTION [(${func})](int menuId);
 [/]
 
-// Export all the menu items, makes like easier for the compiler.
+// Export all the menu items so they are visible in sketches.
 [# th:each="item : ${menuItems}"]
 [(${item.headerText})]
 [/]
+
+void setupMenu(ConnectorListener* listener);
 
 #endif /* header include check */

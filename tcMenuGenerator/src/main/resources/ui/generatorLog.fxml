@@ -18,13 +18,13 @@
       </Label>
    </top>
    <center>
-      <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" text="Please wait..." BorderPane.alignment="CENTER" />
+      <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" text="Copy to clipboard" />
-            <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="Close" />
+          <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="Copy to clipboard" />
+            <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" text="Close" />
         </buttons>
          <opaqueInsets>
             <Insets top="5.0" />

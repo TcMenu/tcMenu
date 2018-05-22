@@ -23,6 +23,13 @@ import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
 
+/**
+ * This class manages a single remote connection to an Arduino. It is responsible for check
+ * if the connection is still alive, and sending heartbeat messages to keep the connection
+ * alive too. This class abstracts the connectivity part away from the business logic.
+ * The remote connection is then handled by the RemoteConnector. Normally, one creates a
+ * whole remote stack using one the builders, such as Rs232ControllerBuilder.
+ */
 public class RemoteMenuController {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,12 +45,6 @@ public class RemoteMenuController {
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
     private volatile boolean treeFullyPopulated = false;
 
-    /**
-     * This class manages a single remote connection to an Arduino. It is responsible for check
-     * if the connection is still alive, and sending heartbeat messages to keep the connection
-     * alive too. This class abstracts the connectivity part away from the business logic.
-     * The remote connection is then handled by the RemoteConnector.
-     */
     public RemoteMenuController(RemoteConnector connector, MenuTree managedMenu,
                                 ScheduledExecutorService executor, String localName,
                                 Clock clock, int heartbeatFrequency) {

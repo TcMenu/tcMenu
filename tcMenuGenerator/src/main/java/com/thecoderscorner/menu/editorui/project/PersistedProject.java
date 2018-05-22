@@ -26,6 +26,7 @@ public class PersistedProject {
         this.author = author;
         this.lastEdited = lastEdited;
         this.items = new ArrayList<>(items);
+        this.codeOptions = generatorOptions;
     }
 
     public CodeGeneratorOptions getCodeOptions() {

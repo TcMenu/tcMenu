@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappin
 import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
 
 public class RemoteCapabilities extends EnumWithApplicability {
-    public static Map<Integer, RemoteCapabilities> values;
+    public static Map<Integer, RemoteCapabilities> values = new HashMap<>();
 
     static {
         addValue(1, ALL_DEVICES, "No Remote", NoRemoteCapability.class);

@@ -9,13 +9,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class CreatorProperty {
-    private final String name;
-    private final String description;
+    private String name;
+    transient private String description;
     transient private StringProperty property;
     private String latestValue;
-    private final SubSystem subsystem;
+    private SubSystem subsystem;
 
     public enum SubSystem { DISPLAY, INPUT, REMOTE }
+
+    public CreatorProperty() {
+        // for serialisation purposes.
+        this.property = null;
+    }
 
     public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem) {
         this.name = name;
@@ -26,7 +31,9 @@ public class CreatorProperty {
     }
 
     public String getLatestValue() {
-        latestValue = property.getValue();
+        if(property != null) {
+            latestValue = property.getValue();
+        }
         return latestValue;
     }
 

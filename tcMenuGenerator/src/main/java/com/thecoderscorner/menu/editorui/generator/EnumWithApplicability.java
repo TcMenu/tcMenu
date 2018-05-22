@@ -7,6 +7,7 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class EnumWithApplicability {
@@ -36,6 +37,19 @@ public class EnumWithApplicability {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EnumWithApplicability that = (EnumWithApplicability) o;
+        return key == that.key;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+
+    @Override
     public String toString() {
         return getDescription();
     }
@@ -47,7 +61,7 @@ public class EnumWithApplicability {
             try {
                 return creator.getConstructor().newInstance();
             } catch (Exception e) {
-                throw new UnsupportedOperationException("An undelcared code generation constructor in " + creator, e);
+                throw new UnsupportedOperationException("An undeclared code generation constructor in " + creator, e);
             }
         } catch (Exception e) {
             throw new UnsupportedOperationException("An undeclared code generation constructor in " + creator, e);

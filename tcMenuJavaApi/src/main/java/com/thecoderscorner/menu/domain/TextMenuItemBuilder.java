@@ -5,6 +5,10 @@
 
 package com.thecoderscorner.menu.domain;
 
+/**
+ * Constructs a TextMenuItemBuilder using the standard builder pattern. It is possible to either build
+ * an item from scratch, or start with an existing item and make changes.
+ */
 public class TextMenuItemBuilder extends MenuItemBuilder<TextMenuItemBuilder> {
 
     private int textLength = 0;

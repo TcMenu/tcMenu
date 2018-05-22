@@ -17,7 +17,7 @@
  */
 #define REMOTE_ERR_WRITE_NOT_CONNECTED 1
 #define REMOTE_ERR_PROTOCOL_WRONG 2
-#define REMOTE_ERR_NO_HEARTBEAT 2
+#define REMOTE_ERR_NO_HEARTBEAT 3
 
 // an unknown message or field
 #define UNKNOWN_FIELD_PART 0x00

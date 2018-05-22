@@ -24,7 +24,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This is the R232 connector that can talk to a tcMenu library application running
- * on an embedded Arduino.
+ * on an embedded Arduino. Normally one uses the Rs232ControllerBuilder to construct
+ * the whole remote stack instead of creating this directly.
  */
 public class Rs232RemoteConnector implements RemoteConnector {
 
