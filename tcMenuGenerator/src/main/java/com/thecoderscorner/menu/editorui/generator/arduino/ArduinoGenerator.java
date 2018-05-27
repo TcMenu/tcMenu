@@ -81,6 +81,15 @@ public class ArduinoGenerator implements CodeGenerator {
                 return false;
             }
         }
+        else {
+            logLine("No existing infoFile, generating an empty one");
+            try {
+                Files.write(source, ArduinoSketchFileAdjuster.EMPTY_SKETCH.getBytes());
+            } catch (IOException e) {
+                logLine("Unable to create info File " + inoFile);
+                return false;
+            }
+        }
 
         String root = getFirstMenuVariable(menuTree);
 

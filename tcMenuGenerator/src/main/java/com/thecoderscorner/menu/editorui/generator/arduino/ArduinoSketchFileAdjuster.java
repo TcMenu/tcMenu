@@ -18,8 +18,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ArduinoSketchFileAdjuster {
+    /** In case the directory has never previous had a sketch, this is the simplest sketch.. */
+    public static final String EMPTY_SKETCH = "\nvoid setup() {\n\n}\n\n" + "void loop() {\n\n}\n";
+
+    /** The pattern to look for call back functions */
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("void\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
+    /** the pattern to look for set up */
     private static final Pattern SETUP_PATTERN = Pattern.compile("void\\s+setup\\(\\)(.*)");
+    /** the pattern to loop for the loop method */
     private static final Pattern LOOP_PATTERN = Pattern.compile("void\\s+loop\\(\\)(.*)");
 
     private final List<String> callbacks;
@@ -75,6 +81,9 @@ public class ArduinoSketchFileAdjuster {
         if(changed) {
             logger.accept("Writing out changes to INO sketch file");
             Files.write(Paths.get(inoFile), lines);
+        }
+        else {
+            logger.accept("No changes to the INO file, not writing out");
         }
     }
 
