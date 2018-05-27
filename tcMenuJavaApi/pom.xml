@@ -37,8 +37,8 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/davetcc/tcMenu.git</connection>
-        <developerConnection>https://github.com/davetcc/tcMenu.git</developerConnection>
+        <connection>scm:git:https://github.com/davetcc/tcMenu.git</connection>
+        <developerConnection>scm:git:https://github.com/davetcc/tcMenu.git</developerConnection>
         <url>https://github.com/davetcc/tcMenu/tree/master</url>
     </scm>
 
