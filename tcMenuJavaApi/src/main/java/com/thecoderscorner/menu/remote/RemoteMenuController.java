@@ -5,7 +5,10 @@
 
 package com.thecoderscorner.menu.remote;
 
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,8 +162,11 @@ public class RemoteMenuController {
             case ENUM_BOOT_ITEM:
             case BOOLEAN_BOOT_ITEM:
             case SUBMENU_BOOT_ITEM:
+            case TEXT_BOOT_ITEM:
                 onMenuItemBoot((BootItemMenuCommand)menuCommand);
                 break;
+            case CHANGE_INT_FIELD:
+                onChangeField((MenuChangeCommand) menuCommand);
         }
     }
 
@@ -170,6 +176,38 @@ public class RemoteMenuController {
         managedMenu.changeItem(menuCommand.getMenuItem(), menuCommand.newMenuState(
                 managedMenu.getMenuState(menuCommand.getMenuItem())));
         listeners.forEach(l-> l.menuItemChanged(menuCommand.getMenuItem(), false));
+    }
+
+    private void onChangeField(MenuChangeCommand menuCommand) {
+        SubMenuItem subMenuParent = MenuItemHelper.asSubMenu(managedMenu.getSubMenuById(menuCommand.getParentItemId()).orElse(MenuTree.ROOT));
+        managedMenu.getMenuById(subMenuParent, menuCommand.getMenuItemId()).ifPresent((item) -> {
+            item.accept(new MenuItemVisitor() {
+                @Override
+                public void visit(AnalogMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(BooleanMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue() != 0, true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(EnumMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(SubMenuItem item) { /*ignored*/ }
+
+                @Override
+                public void visit(TextMenuItem item) { /*ignored*/ }
+            });
+
+        });
     }
 
     private void onBootstrapCommand(MenuBootstrapCommand cmd) {

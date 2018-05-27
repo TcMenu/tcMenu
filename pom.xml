@@ -16,5 +16,6 @@
         <module>tcMenuJavaAPI</module>
         <module>tcMenuGenerator</module>
         <module>embedded</module>
+        <module>tcMenuExampleUI</module>
     </modules>
 </project>

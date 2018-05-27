@@ -100,6 +100,11 @@ void TagValueRemoteConnector::performAnyWrites() {
 		// we loop here until either we've gone through the structure or something has changed
 		while(bootMenuPtr) {
 			int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
+			if(bootMenuPtr->getMenuType() == MENUTYPE_SUB_VALUE) {
+				preSubMenuBootPtr = bootMenuPtr;
+				SubMenuItem* sub = (SubMenuItem*) bootMenuPtr;
+				bootMenuPtr = sub->getChild();
+			}
 			if(bootMenuPtr->isSendRemoteNeeded()) {
 				bootMenuPtr->setSendRemoteNeeded(false);
 				encodeChangeValue(parentId, bootMenuPtr);
@@ -215,9 +220,9 @@ void TagValueRemoteConnector::encodeAnalogItem(int parentId, AnalogMenuItem* ite
 		transport->writeFieldInt(FIELD_ID,item->getId());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldP(FIELD_ANALOG_UNIT, item->getUnitNamePgm());
-		transport->writeFieldInt(FIELD_ANALOG_MAX, pgm_read_byte_near(item->getMenuInfo()->maxValue));
-		transport->writeFieldInt(FIELD_ANALOG_OFF, pgm_read_byte_near(item->getMenuInfo()->offset));
-		transport->writeFieldInt(FIELD_ANALOG_DIV, pgm_read_byte_near(item->getMenuInfo()->divisor));
+		transport->writeFieldInt(FIELD_ANALOG_MAX, pgm_read_word_near(&item->getMenuInfo()->maxValue));
+		transport->writeFieldInt(FIELD_ANALOG_OFF, pgm_read_word_near(&item->getMenuInfo()->offset));
+		transport->writeFieldInt(FIELD_ANALOG_DIV, pgm_read_byte_near(&item->getMenuInfo()->divisor));
 		transport->writeFieldInt(FIELD_CURRENT_VAL, item->getCurrentValue());
 		transport->endMsg();
 		ticksLastSend = 0;
