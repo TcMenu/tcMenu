@@ -7,9 +7,16 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thecoderscorner.tcmenu</groupId>
     <artifactId>tcMenu</artifactId>
-    <version>0.3</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>tcMenu</name>
+
+    <scm>
+        <connection>scm:git:https://github.com/davetcc/tcMenu.git</connection>
+        <developerConnection>scm:git:https://github.com/davetcc/tcMenu.git</developerConnection>
+        <url>https://github.com/davetcc/tcMenu/tree/master</url>
+    </scm>
+
     <modules>
         <module>tcMenuJavaAPI</module>
         <module>tcMenuGenerator</module>
