@@ -61,7 +61,7 @@ void ValueChangeMessageProcessor::fieldRx(FieldAndValue* field) {
 		int id = atoi(field->value);
 		MenuItem* sub;
 		if(parentId != 0) {
-			sub = findItem(menuMgr.getRoot(), id);
+			sub = findItem(menuMgr.getRoot(), parentId);
 			if(sub == NULL || sub->getMenuType() != MENUTYPE_SUB_VALUE) return;
 			sub = ((SubMenuItem*)sub)->getChild();
 		}

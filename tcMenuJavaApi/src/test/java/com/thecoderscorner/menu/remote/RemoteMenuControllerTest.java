@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.remote;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.remote.commands.MenuAnalogBootCommand;
 import com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand;
+import com.thecoderscorner.menu.remote.commands.MenuEnumBootCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
@@ -18,15 +18,14 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import javax.sound.midi.ControllerEventListener;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newAnalogBootCommand;
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newBootstrapCommand;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -82,25 +81,70 @@ public class RemoteMenuControllerTest {
 
     @Test
     public void testPopulatingTheTree() {
-        listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.START));
-        listener.getValue().onCommand(connector, newAnalogBootCommand(MenuTree.ROOT.getId(),
-                DomainFixtures.anAnalogItem( "Test", 12), 25));
-        listener.getValue().onCommand(connector, new MenuAnalogBootCommand(MenuTree.ROOT.getId(),
-                DomainFixtures.anAnalogItem( "Another", 11), 24));
-        listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.END));
+        populateTreeWithAllTypes();
 
-        assertEquals(2, menuTree.getMenuItems(MenuTree.ROOT).size());
+        assertEquals(4, menuTree.getMenuItems(MenuTree.ROOT).size());
         Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
         assertTrue(menuById11.isPresent());
         Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
         assertTrue(menuById12.isPresent());
+        Optional<MenuItem> menuById42 = menuTree.getMenuById(MenuTree.ROOT, 42);
+        assertTrue(menuById42.isPresent());
+        Optional<MenuItem> menuById43 = menuTree.getMenuById(MenuTree.ROOT, 43);
+        assertTrue(menuById43.isPresent());
         assertEquals("Another", menuById11.get().getName());
         assertEquals("Test", menuById12.get().getName());
-        assertEquals(menuTree.getMenuState(menuById11.get()).getValue(), 24);
+        assertEquals("Text", menuById42.get().getName());
+        assertEquals("Bool", menuById43.get().getName());
+        assertEquals(menuTree.getMenuState(menuById11.get()).getValue(), 2);
         assertEquals(menuTree.getMenuState(menuById12.get()).getValue(), 25);
+        assertEquals(menuTree.getMenuState(menuById42.get()).getValue(), "Abc");
 
         Mockito.verify(remoteListener).menuItemChanged(menuById11.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById12.get(), false);
+        Mockito.verify(remoteListener).menuItemChanged(menuById42.get(), false);
+        Mockito.verify(remoteListener).menuItemChanged(menuById43.get(), false);
+    }
+
+    private void populateTreeWithAllTypes() {
+        listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.START));
+        listener.getValue().onCommand(connector, newAnalogBootCommand(MenuTree.ROOT.getId(),
+                DomainFixtures.anAnalogItem( "Test", 12), 25));
+        listener.getValue().onCommand(connector, new MenuEnumBootCommand(MenuTree.ROOT.getId(),
+                DomainFixtures.anEnumItem( "Another", 11), 2));
+        listener.getValue().onCommand(connector, newMenuTextBootCommand(MenuTree.ROOT.getId(),
+                DomainFixtures.aTextMenu("Text", 42), "Abc"));
+        listener.getValue().onCommand(connector, newMenuBooleanBootCommand(MenuTree.ROOT.getId(),
+                DomainFixtures.aBooleanMenu("Bool", 43, BooleanNaming.TRUE_FALSE), true));
+        listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.END));
+    }
+
+    @Test
+    public void testReceiveChangeCommands() {
+        populateTreeWithAllTypes();
+
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 12, 42));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 42, "Hello"));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 11, 1));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 43, 1));
+
+        Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
+        Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
+        Optional<MenuItem> menuById42 = menuTree.getMenuById(MenuTree.ROOT, 42);
+        Optional<MenuItem> menuById43 = menuTree.getMenuById(MenuTree.ROOT, 43);
+
+        assertTrue( menuById11.isPresent() && menuById12.isPresent() && menuById42.isPresent() && menuById43.isPresent());
+
+        assertEquals(42, menuTree.getMenuState(menuById12.get()).getValue());
+        assertEquals(1, menuTree.getMenuState(menuById11.get()).getValue());
+        assertEquals("Hello", menuTree.getMenuState(menuById42.get()).getValue());
+        assertEquals(true, menuTree.getMenuState(menuById43.get()).getValue());
+
+        Mockito.verify(remoteListener).menuItemChanged(menuById11.get(), true);
+        Mockito.verify(remoteListener).menuItemChanged(menuById12.get(), true);
+        Mockito.verify(remoteListener).menuItemChanged(menuById42.get(), true);
+        Mockito.verify(remoteListener).menuItemChanged(menuById43.get(), true);
+
     }
 
     @Test

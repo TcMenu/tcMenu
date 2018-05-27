@@ -15,12 +15,18 @@ import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.newAbsoluteMenuChangeCommand;
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.newDeltaChangeCommand;
 
 public class MainWindowController {
     public Label connectedLabel;
@@ -39,7 +45,8 @@ public class MainWindowController {
     /**
      * initialise is called by the App to start the application up. In here we register a listener for
      * communication events and start the comms.
-     * @param menuTree the tree of menu items
+     *
+     * @param menuTree      the tree of menu items
      * @param remoteControl the control that's attached to a remote menu
      */
     public void initialise(MenuTree menuTree, RemoteMenuController remoteControl) {
@@ -58,7 +65,7 @@ public class MainWindowController {
 
             @Override
             public void treeFullyPopulated() {
-                Platform.runLater(()-> {
+                Platform.runLater(() -> {
                     menuLoadLabel.setText("YES");
                     itemGrid.getChildren().clear();
                     buildGrid(MenuTree.ROOT, 0, 0);
@@ -82,27 +89,92 @@ public class MainWindowController {
     /**
      * Here we go through all the menu items and build a grid of controls from them. Starting with ROOT
      */
-    private int  buildGrid(SubMenuItem subMenu, int inset, int gridPosition) {
+    private int buildGrid(SubMenuItem subMenu, int inset, int gridPosition) {
 
         for (MenuItem item : menuTree.getMenuItems(subMenu)) {
-            if(item.hasChildren()) {
+            if (item.hasChildren()) {
                 Label itemLbl = new Label("SubMenu " + item.getName());
                 itemLbl.setPadding(new Insets(12, 10, 4, inset));
                 itemGrid.add(itemLbl, 0, gridPosition++);
                 gridPosition = buildGrid(MenuItemHelper.asSubMenu(item), inset + 10, gridPosition);
-            }
-            else {
+            } else {
                 Label itemLbl = new Label(item.getName());
                 itemLbl.setPadding(new Insets(3, 10, 3, inset));
-                Label itemVal = new Label();
-                itemVal.setPadding(new Insets(3, 0, 3, inset));
-                itemIdToLabel.put(item.getId(), itemVal);
-                itemGrid.add(itemVal, 1, gridPosition);
-                itemGrid.add(itemLbl, 0, gridPosition++);
+                itemGrid.add(itemLbl, 0, gridPosition);
+                itemGrid.add(createUiControlForItem(item, gridPosition), 1, gridPosition);
                 renderItemValue(item);
+                gridPosition++;
             }
         }
         return gridPosition;
+    }
+
+    private Node createUiControlForItem(MenuItem item, int gridPosition) {
+        return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<Node>() {
+            @Override
+            public void visit(AnalogMenuItem item) {
+                renderIntegerMenu(item);
+            }
+
+            @Override
+            public void visit(EnumMenuItem item) {
+                renderIntegerMenu(item);
+            }
+
+            private void renderIntegerMenu(MenuItem<Integer> item) {
+                Button downButton = new Button("<");
+                downButton.setOnAction(event -> remoteControl.sendCommand(
+                        newDeltaChangeCommand(menuTree.findParent(item).getId(), item.getId(), -1))
+                );
+
+                Button upButton = new Button(">");
+                upButton.setOnAction(event -> remoteControl.sendCommand(
+                        newDeltaChangeCommand(menuTree.findParent(item).getId(), item.getId(), 1))
+                );
+
+                Label itemVal = new Label();
+                itemVal.setPadding(new Insets(3, 0, 3, 0));
+                itemIdToLabel.put(item.getId(), itemVal);
+                BorderPane borderPane = new BorderPane();
+                borderPane.setCenter(itemVal);
+                borderPane.setLeft(downButton);
+                borderPane.setRight(upButton);
+                setResult(borderPane);
+            }
+
+            @Override
+            public void visit(BooleanMenuItem item) {
+                Button flipButton = new Button("FLip");
+                flipButton.setOnAction(event -> {
+                    MenuState<Boolean> menuState = menuTree.getMenuState(item);
+                    boolean val = (menuState != null && menuState.getValue());
+                    remoteControl.sendCommand(
+                            newAbsoluteMenuChangeCommand(menuTree.findParent(item).getId(), item.getId(), val ? 0 : 1));
+                });
+
+                Label itemVal = new Label();
+                itemVal.setPadding(new Insets(3, 0, 3, 0));
+                itemIdToLabel.put(item.getId(), itemVal);
+
+                BorderPane borderPane = new BorderPane();
+                borderPane.setCenter(itemVal);
+                borderPane.setRight(flipButton);
+                setResult(borderPane);
+            }
+
+            @Override
+            public void visit(SubMenuItem item) {
+                /* no controls for this type*/
+            }
+
+            @Override
+            public void visit(TextMenuItem item) {
+                Label itemVal = new Label();
+                itemVal.setPadding(new Insets(3, 0, 3, 0));
+                itemIdToLabel.put(item.getId(), itemVal);
+                setResult(itemVal);
+            }
+        }).orElse(new Label(""));
     }
 
     private void renderItemValue(MenuItem item) {
@@ -160,7 +232,7 @@ public class MainWindowController {
         });
 
         Label lblForVal = itemIdToLabel.get(item.getId());
-        if(lblForVal != null) {
+        if (lblForVal != null) {
             lblForVal.setText(value.orElse("Not Present"));
         }
     }
@@ -177,7 +249,7 @@ public class MainWindowController {
             platformLabel.setText(remote.getPlatform().getDescription());
         });
 
-        if(!connected) {
+        if (!connected) {
             menuLoadLabel.setText("NO");
             versionLabel.setText("");
             remoteNameLabel.setText("");

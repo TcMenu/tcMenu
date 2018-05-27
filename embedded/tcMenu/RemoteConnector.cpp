@@ -105,7 +105,7 @@ void TagValueRemoteConnector::performAnyWrites() {
 				SubMenuItem* sub = (SubMenuItem*) bootMenuPtr;
 				bootMenuPtr = sub->getChild();
 			}
-			if(bootMenuPtr->isSendRemoteNeeded()) {
+			else if(bootMenuPtr->isSendRemoteNeeded()) {
 				bootMenuPtr->setSendRemoteNeeded(false);
 				encodeChangeValue(parentId, bootMenuPtr);
 				return; // exit once something is written

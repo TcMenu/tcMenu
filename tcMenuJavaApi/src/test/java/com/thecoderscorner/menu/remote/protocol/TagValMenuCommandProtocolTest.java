@@ -5,12 +5,9 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.DomainFixtures;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,12 +15,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TagValMenuCommandProtocolTest {
     private TagValMenuCommandProtocol protocol = new TagValMenuCommandProtocol();
@@ -155,7 +150,7 @@ public class TagValMenuCommandProtocolTest {
         MenuChangeCommand chg = (MenuChangeCommand) cmd;
 
         assertEquals(chType, chg.getChangeType());
-        assertEquals(value, chg.getValue());
+        assertEquals(value, Integer.parseInt(chg.getValue()));
         assertEquals(11, chg.getParentItemId());
         assertEquals(22, chg.getMenuItemId());
         assertEquals(MenuCommandType.CHANGE_INT_FIELD, chg.getCommandType());

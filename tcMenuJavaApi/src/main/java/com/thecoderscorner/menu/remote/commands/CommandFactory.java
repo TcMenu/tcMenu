@@ -48,10 +48,10 @@ public class CommandFactory {
     }
 
     public static MenuChangeCommand newDeltaChangeCommand(int parentId, int item, int value) {
-        return new MenuChangeCommand(parentId, item, ChangeType.DELTA, value);
+        return new MenuChangeCommand(parentId, item, ChangeType.DELTA, Integer.toString(value));
     }
 
-    public static MenuChangeCommand newAbsoluteMenuChangeCommand(int parentId, int item, int value) {
-        return new MenuChangeCommand(parentId, item, ChangeType.ABSOLUTE, value);
+    public static MenuChangeCommand newAbsoluteMenuChangeCommand(int parentId, int item, Object value) {
+        return new MenuChangeCommand(parentId, item, ChangeType.ABSOLUTE, value.toString());
     }
 }

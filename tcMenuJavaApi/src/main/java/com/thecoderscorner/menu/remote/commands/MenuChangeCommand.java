@@ -10,9 +10,9 @@ public class MenuChangeCommand implements MenuCommand {
     private final int menuItemId;
     private final int parentItemId;
     private final ChangeType changeType;
-    private final int value;
+    private final String value;
 
-    public MenuChangeCommand(int subMenuId, int menuItemId, ChangeType changeType, int value) {
+    public MenuChangeCommand(int subMenuId, int menuItemId, ChangeType changeType, String value) {
         this.parentItemId = subMenuId;
         this.menuItemId = menuItemId;
         this.value = value;
@@ -32,7 +32,7 @@ public class MenuChangeCommand implements MenuCommand {
         return parentItemId;
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 

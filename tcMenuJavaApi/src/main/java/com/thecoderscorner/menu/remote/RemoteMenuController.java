@@ -184,19 +184,19 @@ public class RemoteMenuController {
             item.accept(new MenuItemVisitor() {
                 @Override
                 public void visit(AnalogMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
 
                 @Override
                 public void visit(BooleanMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue() != 0, true, false));
+                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()) != 0, true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
 
                 @Override
                 public void visit(EnumMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
 
@@ -204,7 +204,10 @@ public class RemoteMenuController {
                 public void visit(SubMenuItem item) { /*ignored*/ }
 
                 @Override
-                public void visit(TextMenuItem item) { /*ignored*/ }
+                public void visit(TextMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
             });
 
         });
