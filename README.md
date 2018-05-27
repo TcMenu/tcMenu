@@ -25,6 +25,16 @@ Once you've arranged your menu using the UI how you'd like it, choose Code -> ID
 to check that you've not got any overlapping ranges, then choose Code -> Generate from the menu, choose appropriate
 hardware arrangements and hit generate.
 
+## The Java API
+
+There is a java API for accessing the menu remotely, include the following into your maven build file:
+
+        <dependency>
+            <groupId>com.thecoderscorner.tcmenu</groupId>
+            <artifactId>tcMenuJavaAPI</artifactId>
+            <version>0.3</version>
+        </dependency>
+
 ## More documentation
 
 More complete documentation is available on the coders corner website:
