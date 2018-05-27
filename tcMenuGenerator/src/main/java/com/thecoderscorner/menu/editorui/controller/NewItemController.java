@@ -6,6 +6,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.TextMenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -31,6 +32,7 @@ public class NewItemController {
     public RadioButton analogSelect;
     public RadioButton enumSelect;
     public RadioButton boolSelect;
+    public RadioButton textSelect;
     public Button okButton;
     public TextField idField;
     private Optional<MenuItem> result = Optional.empty();
@@ -80,6 +82,14 @@ public class NewItemController {
         else if(boolSelect.isSelected()) {
             result = Optional.of(aBooleanMenuItemBuilder()
                     .withName("New BoolItem")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(textSelect.isSelected()) {
+            result = Optional.of(TextMenuItemBuilder.aTextMenuItemBuilder()
+                    .withName("New TextItem")
                     .withId(id)
                     .withEepromAddr(-1)
                     .menuItem()

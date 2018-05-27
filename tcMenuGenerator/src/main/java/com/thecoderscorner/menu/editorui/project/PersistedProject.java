@@ -15,15 +15,22 @@ public class PersistedProject {
     private String author;
     private Instant lastEdited;
     private ArrayList<PersistedMenu> items;
+    private CodeGeneratorOptions codeOptions;
 
     public PersistedProject() {
     }
 
-    public PersistedProject(String projectName, String author, Instant lastEdited, List<PersistedMenu> items) {
+    public PersistedProject(String projectName, String author, Instant lastEdited, List<PersistedMenu> items,
+                            CodeGeneratorOptions generatorOptions) {
         this.projectName = projectName;
         this.author = author;
         this.lastEdited = lastEdited;
         this.items = new ArrayList<>(items);
+        this.codeOptions = generatorOptions;
+    }
+
+    public CodeGeneratorOptions getCodeOptions() {
+        return codeOptions;
     }
 
     public String getVersion() {

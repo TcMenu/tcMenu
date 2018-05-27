@@ -68,6 +68,9 @@ void MenuManager::menuItemChanged(MenuItem* item) {
 	case MENUTYPE_BOOLEAN_VALUE:
 		fn = (MenuCallbackFn)pgm_read_ptr_near(&((BooleanMenuItem*)item)->getBooleanMenuInfo()->callback);
 		break;
+	case MENUTYPE_TEXT_VALUE:
+		fn = (MenuCallbackFn)pgm_read_ptr_near(&((TextMenuItem*)item)->getTextMenuInfo()->callback);
+		break;
 	default:
 		fn = NULL;
 		break;
@@ -112,4 +115,11 @@ void MenuManager::load(uint16_t magicKey) {
 	if(eeprom_read_word(0) == magicKey) {
 		rootMenu->load();
 	}
+}
+
+void MenuManager::save(uint16_t magicKey) {
+	if(eeprom_read_word(0) != magicKey) {
+		eeprom_write_word(0, magicKey);
+	}
+	rootMenu->save();
 }

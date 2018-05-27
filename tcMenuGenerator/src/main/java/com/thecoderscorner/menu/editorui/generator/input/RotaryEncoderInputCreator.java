@@ -5,29 +5,43 @@
 
 package com.thecoderscorner.menu.editorui.generator.input;
 
-public class RotaryEncoderInputCreator implements InputCreator {
+import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
+
+public class RotaryEncoderInputCreator extends AbstractCodeCreator {
+    private final List<CreatorProperty> creatorProperties = List.of(
+            new CreatorProperty("ENCODER_PIN_A", "A pin from rotary encoder", "0", INPUT),
+            new CreatorProperty("ENCODER_PIN_B", "B pin from rotary encoder", "0", INPUT),
+            new CreatorProperty("ENCODER_PIN_OK", "OK button pin connector", "0", INPUT)
+    );
+
     @Override
-    public String getInputHeaders() {
+    public List<String> getIncludes() {
+        return Collections.singletonList("#include <LiquidCrystalIO.h>");
+    }
+
+    @Override
+    public String getGlobalVariables() {
         return "";
     }
 
     @Override
-    public String getInputGlobals() {
+    public String getSetupCode(String rootItem) {
         StringBuilder sb = new StringBuilder(256);
-        return sb.append("\n// Definitions for the Encoder A, B and select pins\n")
-                .append("#define ENCODER_PIN_A      2\n")
-                .append("#define ENCODER_PIN_B      3\n")
-                .append("#define ENCODER_BUTTON_PIN 24\n")
+        return sb.append("    switches.initialise(ioUsingArduino());\n")
+                .append("    menuMgr.initForEncoder(&renderer, &")
+                .append(rootItem)
+                .append(", ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_OK);")
                 .toString();
     }
 
     @Override
-    public String getInputSetup(String rootItem) {
-        StringBuilder sb = new StringBuilder(256);
-        return sb.append("    switches.initialise(ioUsingArduino());\n")
-                 .append("    menuMgr.initForEncoder(&renderer, &")
-                 .append(rootItem)
-                 .append(", ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_BUTTON_PIN);")
-                 .toString();
+    public List<CreatorProperty> properties() {
+        return creatorProperties;
     }
 }

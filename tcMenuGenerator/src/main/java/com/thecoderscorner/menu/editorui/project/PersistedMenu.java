@@ -42,6 +42,9 @@ public class PersistedMenu {
             public void visit(SubMenuItem item) {
                 type = SUB_PERSIST_TYPE;
             }
+
+            @Override
+            public void visit(TextMenuItem item) { type = TEXT_PERSIST_TYPE; }
         });
     }
 

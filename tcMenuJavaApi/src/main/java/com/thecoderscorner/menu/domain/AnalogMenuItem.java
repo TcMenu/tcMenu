@@ -10,6 +10,11 @@ import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
+/**
+ * Represents an analog (numeric) menu item, it is always a zero based integer when retrieved from storage, but it can
+ * have an offset and divisor, so therefore is able to represent decimal values. The offset can also be negative.
+ * Rather than directly constructing an item of this type, you can use the AnalogMenuItemBuilder.
+ */
 public class AnalogMenuItem extends MenuItem<Integer> {
     private final int maxValue;
     private final int offset;
@@ -33,22 +38,47 @@ public class AnalogMenuItem extends MenuItem<Integer> {
         this.unitName = unitName;
     }
 
+    /**
+     * The maximum value (0 based integer) that this item can represent
+     * @return max value
+     */
     public int getMaxValue() {
         return maxValue;
     }
 
+    /**
+     * The offset from 0 that is used when displaying the item, can be negative
+     * @return the offset
+     */
     public int getOffset() {
         return offset;
     }
 
+    /**
+     * The divisor used when displaying the item, for example value 50 with a divisor of 10 is 5.0
+     * @return the divisor used
+     */
     public int getDivisor() {
         return divisor;
     }
 
+    /**
+     * The unit name to appear directly after the value, for example a temprature item may be "oC"
+     * where as a volume control could be "dB"
+     * @return the name of the unit (if any)
+     */
     public String getUnitName() {
         return unitName;
     }
 
+    /**
+     * returns a new state object that represents the current value for the menu. Current values are
+     * held separately to the items, see MenuTree
+     * @param value the new value
+     * @param changed if the value has changed
+     * @param active if the menu item is active, can be used for your own purposes.
+     * @return
+     */
     @Override
     public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
         return new IntegerMenuState(changed, active, value);
@@ -75,6 +105,10 @@ public class AnalogMenuItem extends MenuItem<Integer> {
                 functionName);
     }
 
+    /**
+     * See the MenuItemVistor for more info.
+     * @param visitor the item to be visited.
+     */
     @Override
     public void accept(MenuItemVisitor visitor) {
         visitor.visit(this);

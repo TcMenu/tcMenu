@@ -10,6 +10,10 @@ import com.thecoderscorner.menu.domain.state.BooleanMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
+/**
+ * SubMenuItem represents a menu item that has children. To get the child items call the MenuTree
+ * methods that interact with items.
+ */
 public class SubMenuItem extends MenuItem<Boolean> {
 
     public SubMenuItem() {
@@ -21,6 +25,10 @@ public class SubMenuItem extends MenuItem<Boolean> {
         super(name, id, eepromAddr, null);
     }
 
+    /**
+     * SubMenuItems always have child items, so they always return true
+     * @return
+     */
     @Override
     public boolean hasChildren() {
         return true;

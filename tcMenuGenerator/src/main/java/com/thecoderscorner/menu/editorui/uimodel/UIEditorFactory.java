@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import org.w3c.dom.Text;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -34,6 +35,11 @@ public class UIEditorFactory {
         @Override
         public void visit(AnalogMenuItem item) {
             setResult(new UIAnalogMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
+        public void visit(TextMenuItem item) {
+            setResult(new UITextMenuItem(item, menuIdChooser, changeConsumer));
         }
 
         @Override

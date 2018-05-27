@@ -5,10 +5,13 @@
 
 package com.thecoderscorner.menu.editorui.generator.display;
 
+import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+
 import java.util.Collections;
 import java.util.List;
 
-public class DisplayNotUsedCreator implements DisplayCreator{
+public class DisplayNotUsedCreator implements EmbeddedCodeCreator {
 
     @Override
     public List<String> getIncludes() {
@@ -21,7 +24,17 @@ public class DisplayNotUsedCreator implements DisplayCreator{
     }
 
     @Override
-    public String getSetupCode() {
+    public String getExportDefinitions() {
         return "";
+    }
+
+    @Override
+    public String getSetupCode(String rootItem) {
+        return "";
+    }
+
+    @Override
+    public List<CreatorProperty> properties() {
+        return Collections.emptyList();
     }
 }

@@ -7,13 +7,15 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
+import com.thecoderscorner.menu.editorui.generator.CppAndHeader;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
+public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> {
+    public static final String LINE_BREAK = System.getProperty("line.separator");
     private final String nextMenuName;
     private final String nextChild;
 
@@ -30,15 +32,40 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
     @Override
     public void visit(AnalogMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sb = new StringBuilder(256);
-        sb.append(String.format("const PROGMEM AnalogMenuInfo minfo%s = { \"%s\", %d, %d, %d, %d, %d, \"%s\"%s };\n",
-                nameNoSpaces, item.getName(), item.getId(), item.getEepromAddress(), item.getMaxValue(),
-                item.getOffset(), item.getDivisor(), item.getUnitName(), possibleFunction(item))
+        StringBuilder sbCpp = new StringBuilder(256);
+        sbCpp.append(String.format("const PROGMEM AnalogMenuInfo minfo%s = { \"%s\", %d, %s, %d, %d, %d, \"%s\"%s };%s",
+                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), item.getMaxValue(),
+                item.getOffset(), item.getDivisor(), item.getUnitName(), possibleFunction(item), LINE_BREAK)
         );
-        sb.append(String.format("AnalogMenuItem menu%s(&minfo%s, 0, %s);\n",
-                nameNoSpaces, nameNoSpaces, nextMenuName
+        sbCpp.append(String.format("AnalogMenuItem menu%s(&minfo%s, 0, %s);%s",
+                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
         ));
-        setResult(sb.toString());
+        String header = String.format("extern AnalogMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
+        setResult(new CppAndHeader(sbCpp.toString(), header));
+    }
+
+    private String asEeprom(int eepromAddress) {
+        if(eepromAddress == -1) {
+            return "0xffff";
+        }
+        else {
+            return Integer.toString(eepromAddress);
+        }
+    }
+
+    @Override
+    public void visit(TextMenuItem item) {
+        String nameNoSpaces = makeNameToVar(item.getName());
+        StringBuilder sbCpp = new StringBuilder(256);
+        sbCpp.append(String.format("const PROGMEM TextMenuInfo minfo%s = { \"%s\", %d, %s, %d%s };%s",
+                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), item.getTextLength(),
+                possibleFunction(item), LINE_BREAK)
+        );
+        sbCpp.append(String.format("TextMenuItem menu%s(&minfo%s, %s);%s",
+                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
+        ));
+        String header = String.format("extern TextMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
+        setResult(new CppAndHeader(sbCpp.toString(), header));
     }
 
     @Override
@@ -58,14 +85,15 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
                 itemNaming = "NAMING_TRUE_FALSE";
                 break;
         }
-        sb.append(String.format("const PROGMEM BooleanMenuInfo minfo%s = { \"%s\", %d, %d, %s%s };\n",
-                nameNoSpaces, item.getName(), item.getId(), item.getEepromAddress(), itemNaming,
-                possibleFunction(item)
+        sb.append(String.format("const PROGMEM BooleanMenuInfo minfo%s = { \"%s\", %d, %s, %s%s };%s",
+                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), itemNaming,
+                possibleFunction(item), LINE_BREAK
         ));
-        sb.append(String.format("BooleanMenuItem menu%s(&minfo%s, false, %s);\n",
-                nameNoSpaces, nameNoSpaces, nextMenuName
+        sb.append(String.format("BooleanMenuItem menu%s(&minfo%s, false, %s);%s",
+                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
         ));
-        setResult(sb.toString());
+        String header = String.format("extern BooleanMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
+        setResult(new CppAndHeader(sb.toString(), header));
     }
 
     @Override
@@ -74,21 +102,22 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
         StringBuilder sb = new StringBuilder(256);
         IntStream.range(0, item.getEnumEntries().size()).forEach(i -> {
             String textRep = item.getEnumEntries().get(i);
-            sb.append(String.format("const char enumStr%s_%d[] PROGMEM = \"%s\";\n", nameNoSpaces, i, textRep));
+            sb.append(String.format("const char enumStr%s_%d[] PROGMEM = \"%s\";%s", nameNoSpaces, i, textRep, LINE_BREAK));
         });
         sb.append(String.format("const char* const enumStr%s[] PROGMEM  = { ", nameNoSpaces));
         sb.append(IntStream.range(0, item.getEnumEntries().size())
                 .mapToObj(i -> "enumStr" + nameNoSpaces + "_" + i)
                 .collect(Collectors.joining(", ")));
-        sb.append(" };\n");
-        sb.append(String.format("const PROGMEM EnumMenuInfo minfo%s = { \"%s\", %d, %d, enumStr%s, %d%s };\n",
-                nameNoSpaces, item.getName(), item.getId(), item.getEepromAddress(), nameNoSpaces,
-                item.getEnumEntries().size(), possibleFunction(item))
+        sb.append(" };").append(LINE_BREAK);
+        sb.append(String.format("const PROGMEM EnumMenuInfo minfo%s = { \"%s\", %d, %s, enumStr%s, %d%s };%s",
+                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), nameNoSpaces,
+                item.getEnumEntries().size(), possibleFunction(item), LINE_BREAK)
         );
-        sb.append(String.format("EnumMenuItem menu%s(&minfo%s, 0, %s);\n",
-                nameNoSpaces, nameNoSpaces, nextMenuName
+        sb.append(String.format("EnumMenuItem menu%s(&minfo%s, 0, %s);%s",
+                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
         ));
-        setResult(sb.toString());
+        String header = String.format("extern EnumMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
+        setResult(new CppAndHeader(sb.toString(), header));
     }
 
     private String possibleFunction(MenuItem item) {
@@ -96,7 +125,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
             return ", " + item.getFunctionName();
         }
         else {
-            return "";
+            return ", NO_CALLBACK";
         }
     }
 
@@ -110,7 +139,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<String> {
         sb.append(String.format("SubMenuItem menu%s(&minfo%s, &backMnu%s, %s);\n", nameNoSpaces, nameNoSpaces,
                 nameNoSpaces, nextMenuName));
 
-        setResult(sb.toString());
+        setResult(new CppAndHeader(sb.toString(), ""));
     }
 
     public static String makeNameToVar(String name) {

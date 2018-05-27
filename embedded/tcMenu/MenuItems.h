@@ -67,14 +67,26 @@ struct SubMenuInfo {
 	uint16_t id;
 };
 
+/**
+ * The information block for a text menu component
+ */
+struct TextMenuInfo {
+	char name[NAME_SIZE_T];
+	uint16_t id;
+	uint16_t eeprom;
+	uint8_t length;
+	MenuCallbackFn callback;
+};
+
 /** 
  * Each menu item can be in the following states.
  */
 enum Flags : byte {
-	MENUITEM_ACTIVE = 1,   // the menu is currently active but not editing
-	MENUITEM_CHANGED = 2,  // the menu has changed and needs drawing
-	MENUITEM_READONLY = 3, // the menu cannot be changed
-	MENUITEM_EDITING = 4   // the menu is being edited
+	MENUITEM_ACTIVE = 1,       // the menu is currently active but not editing
+	MENUITEM_CHANGED = 2,      // the menu has changed and needs drawing
+	MENUITEM_REMOTE_SEND = 3,  // the menu needs to be sent remotely
+	MENUITEM_READONLY = 4,     // the menu cannot be changed
+	MENUITEM_EDITING = 5       // the menu is being edited
 };
 
 /**
@@ -85,7 +97,8 @@ enum MenuType : byte {
 	MENUTYPE_ENUM_VALUE,     // EnumMenuItem
 	MENUTYPE_BOOLEAN_VALUE,  // BooleanMenuItem
 	MENUTYPE_SUB_VALUE,      // SubMenuItem
-	MENUTYPE_BACK_VALUE      // BackMenuItem
+	MENUTYPE_BACK_VALUE,     // BackMenuItem
+	MENUTYPE_TEXT_VALUE      // TextMenuItem
 };
 
 /**
@@ -116,8 +129,12 @@ public:
 	inline void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
 	/** returns the changed state of the item */
 	inline bool isChanged() { return bitRead(flags, MENUITEM_CHANGED); }
+	/** returns if the menu item needs to be sent remotely */
+	inline bool isSendRemoteNeeded() { return bitRead(flags, MENUITEM_REMOTE_SEND); }
+	/** set the flag indicating that a remote refresh is needed */
+	inline void setSendRemoteNeeded(bool needed) { bitWrite(flags, MENUITEM_REMOTE_SEND, needed); }
 
-	/* sets this to be the active item, so that the renderer shows it highlighted */
+	/** sets this to be the active item, so that the renderer shows it highlighted */
 	inline void setActive(bool active) { bitWrite(flags, MENUITEM_ACTIVE, active); setChanged(true); }
 	/** returns the active status of the item */
 	inline bool isActive() { return bitRead(flags, MENUITEM_ACTIVE); }
@@ -160,7 +177,10 @@ public:
 	}
 
 	/** Sets the integer current value to a new value, and marks the menu changed */
-	void setCurrentValue(uint16_t val) { setChanged(true); currentValue = val; }
+	void setCurrentValue(uint16_t val) {
+		setChanged(true);
+		setSendRemoteNeeded(currentValue != val);
+		currentValue = val; }
 	/** gets the current value */
 	uint16_t getCurrentValue() { return currentValue; }
 
@@ -191,6 +211,7 @@ public:
 	virtual ~AnalogMenuItem() { }
 	virtual int getMaximumValue() { return pgm_read_word_near(&info->maxValue); }	
 	virtual MenuType getMenuType() { return MENUTYPE_INT_VALUE; }
+	virtual const char* getUnitNamePgm() { return info->unitName; }
 };
 
 /**
@@ -276,5 +297,32 @@ public:
 	virtual void save() { }
 };
 
+/**
+ * TextMenuItem is for situations where text modified at runtime must be shown, for showing
+ * a series of text values from PROGMEM storage use EnumMenuItem instead.
+ */
+class TextMenuItem : public MenuItem {
+private:
+	const TextMenuInfo* menuInfo;
+	char *menuText;
+
+public:
+	TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next);
+	uint8_t textLength() { return pgm_read_byte_near(&menuInfo->length); }
+
+	void setTextValue(const char* text);
+
+	const char* getTextValue() { return menuText; }
+
+	virtual ~TextMenuItem() { delete menuText; }
+	virtual int getMaximumValue() { return 1; }
+	virtual MenuType getMenuType() { return MENUTYPE_TEXT_VALUE; }
+	virtual const char* getNamePgm() { return menuInfo->name; }
+	int getId() { return pgm_read_word_near(&menuInfo->id); }
+	const TextMenuInfo* getTextMenuInfo() {return menuInfo;}
+
+	virtual void load();
+	virtual void save();
+};
 #endif
 

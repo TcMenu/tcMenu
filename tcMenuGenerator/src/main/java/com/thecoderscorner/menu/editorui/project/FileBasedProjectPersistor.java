@@ -28,6 +28,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String ENUM_PERSIST_TYPE = "enumItem";
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
+    public static final String TEXT_PERSIST_TYPE = "textItem";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -40,14 +41,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public MenuTree open(String fileName) throws IOException {
+    public MenuTreeWithCodeOptions open(String fileName) throws IOException {
         logger.info("Open file " + fileName);
 
         try(Reader reader = new BufferedReader(new FileReader(fileName))) {
             PersistedProject prj = gson.fromJson(reader, PersistedProject.class);
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem()));
-            return tree;
+            return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions());
         }
     }
 
@@ -61,13 +62,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public void save(String fileName, MenuTree tree) throws IOException {
+    public void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException {
         logger.info("Save file starting for: " + fileName);
 
-        List<PersistedMenu> itemsToStoreInOrder = populateListInOrder(MenuTree.ROOT, tree);
+        List<PersistedMenu> itemsInOrder = populateListInOrder(MenuTree.ROOT, tree);
 
         try(Writer writer = new BufferedWriter(new FileWriter(fileName))) {
-            gson.toJson(new PersistedProject(fileName, "author", Instant.now(), itemsToStoreInOrder), writer);
+            String user = System.getProperty("user.name");
+            gson.toJson(new PersistedProject(fileName, user, Instant.now(), itemsInOrder, options), writer);
         }
     }
 
@@ -117,6 +119,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 ENUM_PERSIST_TYPE, EnumMenuItem.class,
                 ANALOG_PERSIST_TYPE, AnalogMenuItem.class,
                 BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class,
+                TEXT_PERSIST_TYPE, TextMenuItem.class,
                 SUB_PERSIST_TYPE, SubMenuItem.class);
 
         @Override

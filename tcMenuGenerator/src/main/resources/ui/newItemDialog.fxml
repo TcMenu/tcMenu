@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
 <!--
   ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
   ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
   -->
 
-<BorderPane prefHeight="223.0" prefWidth="344.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
+<BorderPane prefHeight="223.0" prefWidth="344.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
    <top>
       <Label style="-fx-font-size: 150%;" styleClass="label-bright" text="Choose the type of menu to create" BorderPane.alignment="CENTER" />
    </top>
@@ -19,9 +29,14 @@
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup></RadioButton>
-            <RadioButton fx:id="analogSelect" mnemonicParsing="false" styleClass="radio" text="Analog item that supports numeric values" toggleGroup="$main" />
+            <RadioButton fx:id="analogSelect" mnemonicParsing="false" text="Analog item that supports numeric values" toggleGroup="$main" />
             <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="Enumeration item similar to a combo box" toggleGroup="$main" />
-            <RadioButton fx:id="boolSelect" layoutX="25.0" layoutY="89.0" mnemonicParsing="false" text="Boolean item for On/Off or Yes/No" toggleGroup="$main" />
+            <RadioButton fx:id="boolSelect" mnemonicParsing="false" text="Boolean item for On/Off or Yes/No" toggleGroup="$main" />
+            <RadioButton fx:id="textSelect" mnemonicParsing="false" text="Text item for char arrays in RAM" toggleGroup="$main">
+               <toggleGroup>
+                  <ToggleGroup fx:id="main1" />
+               </toggleGroup>
+            </RadioButton>
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

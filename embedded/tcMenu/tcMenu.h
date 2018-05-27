@@ -18,12 +18,6 @@ private:
 	MenuRenderer* renderer;
 
 public:
-	// TODO: next release, move into support class and create
-	// TODO:   1/ encoder input
-	// TODO:   2/ switch (up / down) input
-	// TODO:   3/ Touch based input
-	// TODO:   4/ No input device
-
 	/**
 	 * Handle the various types of input
 	 */
@@ -40,9 +34,10 @@ public:
 	void load(uint16_t magicKey = 0xfade);
 
 	/**
-	 * Call to save all item values into eeprom.
+	 * Call to save all item values into eeprom. The magic key is saved at location 0 if not already set. This is a
+	 * lazy save that reads the eeprom values first, and only saves to eeprom when there are changes.
 	 */
-	void save() { rootMenu->save(); }
+	void save(uint16_t magicKey = 0xfade);
 
 	/**
 	 * Use this to record external changes made to a menu item. This will render and run any callbacks.

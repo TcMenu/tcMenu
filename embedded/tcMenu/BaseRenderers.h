@@ -88,6 +88,7 @@ private:
 	void renderBooleanItem(BooleanMenuItem* item);
 	void renderSubItem(SubMenuItem* item);
 	void renderBackItem(BackMenuItem* item);
+	void renderTextItem(TextMenuItem* item);
 };
 
 inline MenuRenderer* liquidCrystalRenderer(LiquidCrystal& lcd, uint8_t dimX, uint8_t dimY) {

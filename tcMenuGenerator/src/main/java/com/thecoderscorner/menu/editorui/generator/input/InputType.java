@@ -5,24 +5,32 @@
 
 package com.thecoderscorner.menu.editorui.generator.input;
 
-public enum InputType {
-    ROTARY_ENCODER("Rotary encoder", new RotaryEncoderInputCreator()),
-    UP_DOWN_OK_SWITCHES("Up/Down/OK switches", new UpDownOkInputCreator());
+import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
 
-    private final String name;
-    private final InputCreator creator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-    InputType(String s, InputCreator creator) {
-        name = s;
-        this.creator = creator;
+import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
+
+public class InputType extends EnumWithApplicability  {
+    public static Map<Integer, InputType> values = new HashMap<>();
+
+    static {
+        addValue(1, ALL_DEVICES, "Rotary encoder", RotaryEncoderInputCreator.class);
+        addValue(2, ALL_DEVICES, "Up/Down/OK switches", UpDownOkInputCreator.class);
     }
 
-    public InputCreator getCreator() {
-        return creator;
+    public InputType(Set<EmbeddedPlatform> platformApplicability, String description,
+                     Class<? extends EmbeddedCodeCreator> creator, int key) {
+        super(platformApplicability, description, creator, key);
     }
 
-    @Override
-    public String toString() {
-        return name;
+    private static void addValue(int key, Set<EmbeddedPlatform> applicability, String description,
+                                 Class<? extends EmbeddedCodeCreator> creator) {
+        values.put(key, new InputType(applicability, description, creator, key));
     }
+
 }

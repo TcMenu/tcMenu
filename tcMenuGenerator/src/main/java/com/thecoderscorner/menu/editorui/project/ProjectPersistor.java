@@ -11,6 +11,6 @@ import java.io.IOException;
 
 public interface ProjectPersistor {
 
-    MenuTree open(String fileName) throws IOException;
-    void save(String fileName, MenuTree tree) throws IOException;
+    MenuTreeWithCodeOptions open(String fileName) throws IOException;
+    void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException;
 }

@@ -5,26 +5,35 @@
 
 package com.thecoderscorner.menu.editorui.generator.display;
 
-public enum DisplayType {
-    LCD_16_BY_2_PWM(new LiquidCrystalCreator(16, 2, true), "LiquidCrystal 16x2 PWM Contrast"),
-    LCD_20_BY_4_PWM(new LiquidCrystalCreator(20, 4, true), "LiquidCrystal 20x4 PWM Contrast"),
-    LCD_16_BY_2_MAN(new LiquidCrystalCreator(16, 2, false), "LiquidCrystal 16x2 Manual Contrast"),
-    LCD_20_BY_4_MAN(new LiquidCrystalCreator(20, 4, false), "LiquidCrystal 20x4 Manual Contrast");
+import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
 
-    private final DisplayCreator creator;
-    private final String friendlyName;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-    DisplayType(DisplayCreator creator, String friendlyName) {
-        this.creator = creator;
-        this.friendlyName = friendlyName;
+import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_ARDUINO_BOARDS;
+import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
+
+public class DisplayType extends EnumWithApplicability {
+
+    public static Map<Integer, DisplayType> values = new HashMap<>();
+
+    static {
+        addValue(1, ALL_DEVICES, "No Display", DisplayNotUsedCreator.class);
+        addValue(2, ALL_ARDUINO_BOARDS, "LiquidCrystalIO Arduino Pins", ArduinoPinLiquidCrystalCreator.class);
+        addValue(3, ALL_ARDUINO_BOARDS, "LiquidCrystalIO on i2c bus", I2cBusLiquidCrystalCreator.class);
     }
 
-    public DisplayCreator getCreator() {
-        return creator;
+    public DisplayType(Set<EmbeddedPlatform> platformApplicability, String description,
+                       Class<? extends EmbeddedCodeCreator> creator, int key) {
+        super(platformApplicability, description, creator, key);
     }
 
-    @Override
-    public String toString() {
-        return friendlyName;
+    private static void addValue(int key, Set<EmbeddedPlatform> applicability, String description,
+                                 Class<? extends EmbeddedCodeCreator> creator) {
+        values.put(key, new DisplayType(applicability, description, creator, key));
     }
+
 }

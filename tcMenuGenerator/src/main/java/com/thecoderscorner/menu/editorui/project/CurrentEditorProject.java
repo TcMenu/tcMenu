@@ -8,6 +8,9 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
+import com.thecoderscorner.menu.editorui.generator.input.InputType;
+import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -17,10 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO_8BIT;
 import static javafx.stage.FileChooser.ExtensionFilter;
 
 /**
@@ -29,6 +34,12 @@ import static javafx.stage.FileChooser.ExtensionFilter;
  * write operations directly on the menu tree. Also controls the undo and redo buffers.
  */
 public class CurrentEditorProject {
+
+    public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
+            ARDUINO_8BIT, DisplayType.values.get(1),
+            InputType.values.get(1), RemoteCapabilities.values.get(1),
+            Collections.emptyList()
+    );
 
     public enum EditorSaveMode { SAVE_AS, SAVE }
 
@@ -41,6 +52,7 @@ public class CurrentEditorProject {
     private MenuTree menuTree;
     private Optional<String> fileName;
     private boolean dirty;
+    private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
     private Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
@@ -75,10 +87,22 @@ public class CurrentEditorProject {
         return true;
     }
 
+    public CodeGeneratorOptions getGeneratorOptions() {
+        return generatorOptions;
+    }
+
+    public void setGeneratorOptions(CodeGeneratorOptions generatorOptions) {
+        setDirty(true);
+        this.generatorOptions = generatorOptions;
+    }
+
     public void openProject(String file) {
         try {
             fileName = Optional.ofNullable(file);
-            menuTree = projectPersistor.open(file);
+            MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
+            menuTree = openedProject.getMenuTree();
+            generatorOptions = openedProject.getOptions();
+            if(generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
             dirty = false;
             changeHistory.clear();
             changeTitle();
@@ -108,7 +132,7 @@ public class CurrentEditorProject {
 
         fileName.ifPresent((file)-> {
             try {
-                projectPersistor.save(file, menuTree);
+                projectPersistor.save(file, menuTree, generatorOptions);
                 dirty = false;
                 changeTitle();
             } catch (IOException e) {
@@ -159,9 +183,6 @@ public class CurrentEditorProject {
         if(this.dirty != dirty) {
             this.dirty = dirty;
             changeTitle();
-        }
-        else {
-            this.dirty = dirty;
         }
     }
 

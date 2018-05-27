@@ -22,11 +22,11 @@ public class MenuTreeTest {
     private EnumMenuItem item1 = DomainFixtures.anEnumItem("Item1", 1);
     private EnumMenuItem item2 = DomainFixtures.anEnumItem("Item2", 2);
     private AnalogMenuItem item3 = DomainFixtures.anAnalogItem("Item3", 3);
+    private TextMenuItem itemText = DomainFixtures.aTextMenu("ItemText", 10);
     private SubMenuItem subMenu = DomainFixtures.aSubMenu("Sub1", 4);
 
-
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         menuTree = new MenuTree();
     }
 
@@ -98,6 +98,10 @@ public class MenuTreeTest {
         assertFalse(stateSubMenu.isChanged());
         assertTrue(stateSubMenu.isActive());
 
+        menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), itemText);
+        menuTree.changeItem(itemText, itemText.newMenuState("Hello", false, false));
+        assertNotNull(menuTree.getMenuState(itemText));
+        assertEquals("Hello", menuTree.getMenuState(itemText).getValue());
     }
 
     @Test
@@ -143,5 +147,25 @@ public class MenuTreeTest {
 
         menuTree.moveItem(MenuTree.ROOT, item1, MenuTree.MoveType.MOVE_UP);
         assertThat(menuTree.getMenuItems(MenuTree.ROOT), is(Arrays.asList(item2, item1, item3)));
+    }
+
+    @Test
+    public void testAddOrUpdateMethod() {
+        menuTree.addMenuItem(MenuTree.ROOT, item3);
+        menuTree.addMenuItem(MenuTree.ROOT, item1);
+
+        AnalogMenuItem item1Replacement = DomainFixtures.anAnalogItem("Replaced", 1);
+        menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item1Replacement);
+
+        MenuItem item = menuTree.getMenuById(MenuTree.ROOT, 1).get();
+        assertEquals("Replaced", item.getName());
+        assertEquals(1, item.getId());
+        assertTrue(item instanceof AnalogMenuItem);
+
+        menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item2);
+
+        assertEquals(3, menuTree.getMenuItems(MenuTree.ROOT).size());
+        item = menuTree.getMenuById(MenuTree.ROOT, item3.getId()).get();
+        assertEquals(item, item3);
     }
 }
