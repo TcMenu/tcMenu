@@ -38,7 +38,6 @@
         <connection>scm:git:https://github.com/davetcc/tcMenu.git</connection>
         <developerConnection>scm:git:https://github.com/davetcc/tcMenu.git</developerConnection>
         <url>https://github.com/davetcc/tcMenu/tree/master</url>
-      <tag>tcMenu-0.3</tag>
   </scm>
 
     <distributionManagement>
