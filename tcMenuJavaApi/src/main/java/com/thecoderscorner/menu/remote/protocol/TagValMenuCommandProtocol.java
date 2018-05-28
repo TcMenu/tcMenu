@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
-import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.*;
+import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.BootType;
-import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
 
 /**
@@ -98,6 +98,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         BooleanMenuItem item = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withNaming(toNaming(parser.getValueAsInt(KEY_BOOLEAN_NAMING)))
                 .menuItem();
 
@@ -110,6 +111,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withLength(parser.getValueAsInt(KEY_MAX_LENGTH))
                 .menuItem();
 
@@ -142,6 +144,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         EnumMenuItem item = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withEnumList(choices)
                 .menuItem();
 
@@ -167,6 +170,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withOffset(parser.getValueAsInt(KEY_ANALOG_OFFSET_FIELD))
                 .withUnit(parser.getValue(KEY_ANALOG_UNIT_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .menuItem();
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
         int currentVal = parser.getValueAsInt(KEY_CURRENT_VAL);

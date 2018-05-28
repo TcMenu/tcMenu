@@ -7,16 +7,13 @@ package com.thecoderscorner.menu.domain;
 
 import org.junit.Test;
 
-import javax.xml.soap.Text;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
-import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.*;
-import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
-import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.*;
-import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.*;
-import static com.thecoderscorner.menu.domain.TextMenuItemBuilder.*;
+import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.TextMenuItemBuilder.aTextMenuItemBuilder;
 import static org.junit.Assert.*;
 
 public class MenuItemTest {
@@ -30,6 +27,7 @@ public class MenuItemTest {
                 .withDivisor(2)
                 .withOffset(-20)
                 .withUnit("dB")
+                .withReadOnly(true)
                 .withMaxValue(10000).menuItem();
 
         assertBaseMenuFields(item, "Test Menu", 10, 100);
@@ -38,6 +36,7 @@ public class MenuItemTest {
         assertEquals("dB", item.getUnitName());
         assertEquals(10000, item.getMaxValue());
         assertEquals("someFn", item.getFunctionName());
+        assertTrue(item.isReadOnly());
         assertFalse(item.hasChildren());
 
         assertEquals(item, anAnalogMenuItemBuilder().withExisting(item).menuItem());
@@ -56,6 +55,7 @@ public class MenuItemTest {
         assertBaseMenuFields(item, "Enum Menu", 20, 102);
         assertTrue(item.getEnumEntries().contains("Enum1"));
         assertFalse(item.hasChildren());
+        assertFalse(item.isReadOnly());
         assertEquals("someFn", item.getFunctionName());
 
         assertEquals(item, anEnumMenuItemBuilder().withExisting(item).menuItem());
@@ -68,11 +68,13 @@ public class MenuItemTest {
                 .withLength(10)
                 .withEepromAddr(-1)
                 .withId(1)
+                .withReadOnly(false)
                 .withFunctionName("abc")
                 .menuItem();
         assertBaseMenuFields(item, "Test", 1, -1);
         assertEquals(10, item.getTextLength());
         assertFalse(item.hasChildren());
+        assertFalse(item.isReadOnly());
         assertEquals(item, aTextMenuItemBuilder().withExisting(item).menuItem());
     }
 

@@ -56,7 +56,7 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
 
     public AnalogMenuItem menuItem() {
         return new AnalogMenuItem(this.name, this.id, this.eepromAddr, this.functionName, this.maxValue,
-                                  this.offset, this.divisor, this.unit);
+                                  this.offset, this.divisor, this.unit, readOnly);
     }
 
     public static AnalogMenuItemBuilder anAnalogMenuItemBuilder() {

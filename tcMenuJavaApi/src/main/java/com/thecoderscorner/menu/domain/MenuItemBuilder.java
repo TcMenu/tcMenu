@@ -10,12 +10,18 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     int id;
     int eepromAddr;
     String functionName;
+    boolean readOnly;
 
     abstract T getThis();
 
     public T withName(String name) {
         assert(name.length() < 20);
         this.name = name;
+        return getThis();
+    }
+
+    public T withReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
         return getThis();
     }
 

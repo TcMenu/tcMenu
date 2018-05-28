@@ -18,12 +18,14 @@ public abstract class MenuItem<T> {
     protected final int id;
     protected final int eepromAddress;
     protected final String functionName;
+    protected final boolean readOnly;
 
-    public MenuItem(String name, int id, int eepromAddress, String functionName) {
+    public MenuItem(String name, int id, int eepromAddress, String functionName, boolean readOnly) {
         this.name = name;
         this.id = id;
         this.eepromAddress = eepromAddress;
         this.functionName = functionName;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -32,6 +34,14 @@ public abstract class MenuItem<T> {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * gets the read only status of this menu item
+     * @return true if read only
+     */
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
     /**

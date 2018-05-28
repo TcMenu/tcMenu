@@ -5,6 +5,7 @@
 
 package com.thecoderscorner.menu.remote.rs232;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
@@ -120,7 +121,8 @@ public class Rs232ControllerBuilder {
             protocol = new TagValMenuCommandProtocol();
         }
         if(executorService == null) {
-            executorService = Executors.newScheduledThreadPool(2);
+            executorService = Executors.newScheduledThreadPool(2,
+                    new ThreadFactoryBuilder().setDaemon(true).build());
         }
         Rs232RemoteConnector connector = new Rs232RemoteConnector(portName, baud, protocol, executorService);
         return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);

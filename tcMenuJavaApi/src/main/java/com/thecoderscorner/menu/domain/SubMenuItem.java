@@ -17,12 +17,12 @@ import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 public class SubMenuItem extends MenuItem<Boolean> {
 
     public SubMenuItem() {
-        super("", -1, -1, null);
+        super("", -1, -1, null, false);
         // needed for serialisation
     }
 
     public SubMenuItem(String name, int id, int eepromAddr) {
-        super(name, id, eepromAddr, null);
+        super(name, id, eepromAddr, null, false);
     }
 
     /**

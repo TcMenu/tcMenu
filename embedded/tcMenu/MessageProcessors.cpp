@@ -90,6 +90,10 @@ void ValueChangeMessageProcessor::fieldRx(FieldAndValue* field) {
 			// booleans are always absolute
 			((BooleanMenuItem*)item)->setBoolean(atoi(field->value));
 		}
+		else if(item != NULL && item->getMenuType() == MENUTYPE_TEXT_VALUE) {
+			// text is always absolute
+			((TextMenuItem*)item)->setTextValue(field->value);
+		}
 		break;
 	case FIELD_CHANGE_TYPE:
 		changeType = (ChangeType) atoi(field->value);

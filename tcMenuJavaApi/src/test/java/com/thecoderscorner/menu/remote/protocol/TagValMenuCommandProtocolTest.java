@@ -68,7 +68,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveAnalogItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BA|PI=321|ID=1|AM=255|AO=-180|AD=2|AU=dB|NM=Volume|VC=22|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BA|PI=321|ID=1|RO=1|AM=255|AO=-180|AD=2|AU=dB|NM=Volume|VC=22|~"));
         assertTrue(cmd instanceof MenuAnalogBootCommand);
         MenuAnalogBootCommand analog = (MenuAnalogBootCommand) cmd;
         assertEquals(-180, analog.getMenuItem().getOffset());
@@ -78,11 +78,12 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(1, analog.getMenuItem().getId());
         assertEquals("Volume", analog.getMenuItem().getName());
         assertEquals(321, analog.getSubMenuId());
+        assertTrue(analog.getMenuItem().isReadOnly());
     }
 
     @Test
     public void testReceiveTextBootCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|NM=menuName|ID=1|ML=10|VC=12345678|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|RO=0|NM=menuName|ID=1|ML=10|VC=12345678|~"));
         assertEquals(MenuCommandType.TEXT_BOOT_ITEM,  cmd.getCommandType());
         MenuTextBootCommand textCmd = (MenuTextBootCommand) cmd;
         assertEquals("12345678", textCmd.getCurrentValue());
@@ -90,22 +91,24 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("menuName", textCmd.getMenuItem().getName());
         assertEquals(1, textCmd.getMenuItem().getId());
         assertEquals(2, textCmd.getSubMenuId());
+        assertFalse(textCmd.getMenuItem().isReadOnly());
     }
 
     @Test
     public void testReceiveEnumItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BE|PI=42|ID=21|NM=Choices|NC=3|CA=Choice1|CB=Choice2|CC=Choice3|VC=2|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BE|PI=42|RO=1|ID=21|NM=Choices|NC=3|CA=Choice1|CB=Choice2|CC=Choice3|VC=2|~"));
         assertTrue(cmd instanceof MenuEnumBootCommand);
         MenuEnumBootCommand enumItem = (MenuEnumBootCommand) cmd;
         assertEquals(21, enumItem.getMenuItem().getId());
         assertEquals("Choices", enumItem.getMenuItem().getName());
         assertEquals(42, enumItem.getSubMenuId());
         assertThat(enumItem.getMenuItem().getEnumEntries(), is(Arrays.asList("Choice1", "Choice2", "Choice3")));
+        assertTrue(enumItem.getMenuItem().isReadOnly());
     }
 
     @Test
     public void testReceiveSubMenuItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BM|PI=0|ID=1|NM=SubMenu|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BM|RO=0|PI=0|ID=1|NM=SubMenu|~"));
         assertTrue(cmd instanceof MenuSubBootCommand);
         MenuSubBootCommand subMenu = (MenuSubBootCommand) cmd;
         assertEquals(1, subMenu.getMenuItem().getId());
@@ -115,11 +118,11 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveBooleanMenuItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|ID=1|BN=1|NM=BoolItem|VC=1|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|RO=1|ID=1|BN=1|NM=BoolItem|VC=1|~"));
         checkBooleanCmdFields(cmd, true, BooleanNaming.ON_OFF);
-        cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|ID=1|BN=0|NM=BoolItem|VC=0|~"));
+        cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|RO=1|ID=1|BN=0|NM=BoolItem|VC=0|~"));
         checkBooleanCmdFields(cmd, false, BooleanNaming.TRUE_FALSE);
-        cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|ID=1|BN=2|NM=BoolItem|VC=0|~"));
+        cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|ID=1|RO=1|BN=2|NM=BoolItem|VC=0|~"));
         checkBooleanCmdFields(cmd, false, BooleanNaming.YES_NO);
     }
 
@@ -131,6 +134,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(0, boolCmd.getSubMenuId());
         assertEquals(current, boolCmd.getCurrentValue());
         assertEquals(naming, boolCmd.getMenuItem().getNaming());
+        assertTrue(boolCmd.getMenuItem().isReadOnly());
     }
 
     @Test

@@ -218,6 +218,7 @@ void TagValueRemoteConnector::encodeAnalogItem(int parentId, AnalogMenuItem* ite
 		transport->startMsg(MSG_BOOT_ANALOG);
 		transport->writeFieldInt(FIELD_PARENT, parentId);
 		transport->writeFieldInt(FIELD_ID,item->getId());
+		transport->writeFieldInt(FIELD_READONLY, item->isReadOnly());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldP(FIELD_ANALOG_UNIT, item->getUnitNamePgm());
 		transport->writeFieldInt(FIELD_ANALOG_MAX, pgm_read_word_near(&item->getMenuInfo()->maxValue));
@@ -237,6 +238,7 @@ void TagValueRemoteConnector::encodeTextMenu(int parentId, TextMenuItem* item) {
 		transport->startMsg(MSG_BOOT_TEXT);
 		transport->writeFieldInt(FIELD_PARENT, parentId);
 		transport->writeFieldInt(FIELD_ID,item->getId());
+		transport->writeFieldInt(FIELD_READONLY, item->isReadOnly());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldInt(FIELD_MAX_LEN, item->textLength());
 		transport->writeField(FIELD_CURRENT_VAL, item->getTextValue());
@@ -254,6 +256,7 @@ void TagValueRemoteConnector::encodeEnumMenu(int parentId, EnumMenuItem* item) {
 		transport->startMsg(MSG_BOOT_ENUM);
 		transport->writeFieldInt(FIELD_PARENT, parentId);
 		transport->writeFieldInt(FIELD_ID,item->getId());
+		transport->writeFieldInt(FIELD_READONLY, item->isReadOnly());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldInt(FIELD_CURRENT_VAL, item->getCurrentValue());
 		uint8_t noChoices = pgm_read_byte_near(&item->getMenuInfo()->noOfItems);
@@ -276,6 +279,7 @@ void TagValueRemoteConnector::encodeBooleanMenu(int parentId, BooleanMenuItem* i
 		transport->startMsg(MSG_BOOT_BOOL);
 		transport->writeFieldInt(FIELD_PARENT, parentId);
 		transport->writeFieldInt(FIELD_ID,item->getId());
+		transport->writeFieldInt(FIELD_READONLY, item->isReadOnly());
 		transport->writeFieldP(FIELD_MSG_NAME, item->getNamePgm());
 		transport->writeFieldInt(FIELD_CURRENT_VAL, item->getBoolean());
 		transport->writeFieldInt(FIELD_BOOL_NAMING, pgm_read_byte_near(&item->getBooleanMenuInfo()->naming));

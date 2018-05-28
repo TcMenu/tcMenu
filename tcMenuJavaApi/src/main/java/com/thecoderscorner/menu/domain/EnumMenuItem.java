@@ -21,13 +21,13 @@ public class EnumMenuItem extends MenuItem<Integer> {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
-        super("", -1, -1, null);
+        super("", -1, -1, null, false);
         // needed for serialisation
         enumEntries = Collections.emptyList();
     }
 
-    public EnumMenuItem(String name, int id, int eepromAddress, String functionName, List<String> enumEntries) {
-        super(name, id, eepromAddress, functionName);
+    public EnumMenuItem(String name, int id, int eepromAddress, String functionName, List<String> enumEntries, boolean readOnly) {
+        super(name, id, eepromAddress, functionName, readOnly);
         this.enumEntries = enumEntries;
     }
 

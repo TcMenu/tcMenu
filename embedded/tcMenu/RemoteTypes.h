@@ -47,6 +47,7 @@
 #define FIELD_PLATFORM    msgFieldToWord('P', 'F')
 #define FIELD_BOOT_TYPE   msgFieldToWord('B', 'T')
 #define FIELD_ID          msgFieldToWord('I', 'D')
+#define FIELD_READONLY    msgFieldToWord('R', 'O')
 #define FIELD_PARENT      msgFieldToWord('P', 'I')
 #define FIELD_ANALOG_MAX  msgFieldToWord('A', 'M')
 #define FIELD_ANALOG_OFF  msgFieldToWord('A', 'O')

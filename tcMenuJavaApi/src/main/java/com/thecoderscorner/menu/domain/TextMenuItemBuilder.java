@@ -25,7 +25,7 @@ public class TextMenuItemBuilder extends MenuItemBuilder<TextMenuItemBuilder> {
     }
 
     public TextMenuItem menuItem() {
-        return new TextMenuItem(this.name, this.id, this.eepromAddr, this.functionName, textLength);
+        return new TextMenuItem(this.name, this.id, this.eepromAddr, this.functionName, textLength, readOnly);
     }
 
     public static TextMenuItemBuilder aTextMenuItemBuilder() {

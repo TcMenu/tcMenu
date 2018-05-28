@@ -19,12 +19,12 @@ public class TextMenuItem extends MenuItem<String> {
 
     public TextMenuItem() {
         // needed for serialisation
-        super("", -1, -1, null);
+        super("", -1, -1, null, false);
         textLength = 0;
     }
 
-    public TextMenuItem(String name, int id, int eepromAddress, String functionName, int length) {
-        super(name, id, eepromAddress, functionName);
+    public TextMenuItem(String name, int id, int eepromAddress, String functionName, int length, boolean readOnly) {
+        super(name, id, eepromAddress, functionName, readOnly);
         this.textLength = length;
     }
 
