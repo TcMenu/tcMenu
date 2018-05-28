@@ -17,10 +17,7 @@ You start a menu project either by using the provided user interface (recommende
 ## Generating a menu from the UI
 
 When working with menus in the UI, I normally save the menu file into a new sketch directory. The reason for this is
-that the generator will generate the sketch for you once you've defined the menus.
-
-NOTE: This is not a round trip solution, it's currently a one shot design a menu and then generate code. It will 
-backup and then overwrite your sketch.
+that the generator will generate the sketch for you once you've defined the menus. The Generator as of V0.4 is capable of round trip development too - most of the code is offloaded into a CPP and Header.
 
 Once you've arranged your menu using the UI how you'd like it, choose Code -> ID & Eeprom analyser from the menu
 to check that you've not got any overlapping ranges, then choose Code -> Generate from the menu, choose appropriate
