@@ -113,7 +113,14 @@ void MenuManager::changePrecisionForType(MenuItem* item) {
 
 void MenuManager::load(uint16_t magicKey) {
 	if(eeprom_read_word(0) == magicKey) {
-		rootMenu->load();
+		MenuItem* nextMenuItem = rootMenu;
+		while(nextMenuItem) {
+			nextMenuItem->load();
+			if(nextMenuItem->isChanged()) {
+				menuItemChanged(nextMenuItem);
+			}
+			nextMenuItem = nextMenuItem->getNext();
+		}
 	}
 }
 
@@ -121,5 +128,10 @@ void MenuManager::save(uint16_t magicKey) {
 	if(eeprom_read_word(0) != magicKey) {
 		eeprom_write_word(0, magicKey);
 	}
-	rootMenu->save();
+	MenuItem* nextMenuItem = rootMenu;
+	while(nextMenuItem) {
+		nextMenuItem->save();
+		nextMenuItem = nextMenuItem->getNext();
+	}
+
 }

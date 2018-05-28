@@ -172,7 +172,7 @@ public:
 	virtual void load() {
 		uint16_t* eepromAddr = pgm_read_word_near(&info->eepromAddr);
 		if (eepromAddr != (uint16_t*)0xffff) {
-			this->currentValue = eeprom_read_word(eepromAddr);
+			setCurrentValue(eeprom_read_word(eepromAddr));
 		}
 	}
 
@@ -180,7 +180,9 @@ public:
 	void setCurrentValue(uint16_t val) {
 		setChanged(true);
 		setSendRemoteNeeded(currentValue != val);
-		currentValue = val; }
+		currentValue = val;
+	}
+
 	/** gets the current value */
 	uint16_t getCurrentValue() { return currentValue; }
 
@@ -247,14 +249,14 @@ public:
 	bool getBoolean() { return currentValue; }
 
 	virtual void load() {
-		uint8_t* eepromAddr = pgm_read_word_near(&info->eepromAddr);
+		uint8_t* eepromAddr = pgm_read_ptr_near(&info->eepromAddr);
 		if (eepromAddr != (uint8_t*)0xffff) {
-			this->currentValue = eeprom_read_byte(eepromAddr);
+			setBoolean(eeprom_read_byte(eepromAddr));
 		}
 	}
 
 	virtual void save() {
-		uint8_t* eepromAddr = pgm_read_word_near(&info->eepromAddr);
+		uint8_t* eepromAddr = pgm_read_ptr_near(&info->eepromAddr);
 		if (eepromAddr == (uint8_t*)0xffff) return;
 
 		if (eeprom_read_byte(eepromAddr) != getBoolean()) {

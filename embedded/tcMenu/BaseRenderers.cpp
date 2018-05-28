@@ -43,6 +43,10 @@ void LiquidCrystalRenderer::setupForEditing(MenuItem* item) {
 		currentEditor->setEditing(false);
 		currentEditor->setActive(false);
 	}
+
+	// basically clear down editor state
+	if(item == NULL) return;
+
 	MenuType ty = item->getMenuType();
 	// these are the only types we can edit with a rotary encoder & LCD.
 	if ((ty == MENUTYPE_ENUM_VALUE || ty == MENUTYPE_INT_VALUE || ty == MENUTYPE_BOOLEAN_VALUE) && !item->isReadOnly()) {
@@ -87,7 +91,7 @@ MenuItem* LiquidCrystalRenderer::getItemAtPosition(uint8_t pos) {
 
 void LiquidCrystalRenderer::resetToDefault() {
 	prepareNewSubmenu(menuMgr.getRoot());
-	setupForEditing(getItemAtPosition(0));
+	setupForEditing(NULL);
 	ticksToReset = 255;
 }
 
