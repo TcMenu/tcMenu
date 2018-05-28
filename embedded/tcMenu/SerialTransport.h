@@ -31,7 +31,7 @@ public:
 private:
 	bool findNextMessageStart();
 	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
-	void processMsgKey();
+	bool processMsgKey();
 	bool processValuePart();
 };
 

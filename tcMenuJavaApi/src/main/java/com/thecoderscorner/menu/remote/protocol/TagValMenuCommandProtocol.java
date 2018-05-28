@@ -89,7 +89,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             return newAbsoluteMenuChangeCommand(
                     parser.getValueAsInt(KEY_PARENT_ID_FIELD),
                     parser.getValueAsInt(KEY_ID_FIELD),
-                    parser.getValueAsInt(KEY_CURRENT_VAL)
+                    parser.getValue(KEY_CURRENT_VAL)
             );
         }
     }

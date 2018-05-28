@@ -84,11 +84,12 @@ void SerialTagValueTransport::clearFieldStatus(FieldValueType ty) {
 
 }
 
-void SerialTagValueTransport::processMsgKey() {
+bool SerialTagValueTransport::processMsgKey() {
 	if(highByte(currentField.field) == UNKNOWN_FIELD_PART && serialPort->available()) {
 		char r = serialPort->read();
 		if(r == '~') {
 			currentField.fieldType = FVAL_END_MSG;
+			return false;
 		}
 		else {
 			currentField.field = ((uint16_t)r) << 8;
@@ -101,6 +102,7 @@ void SerialTagValueTransport::processMsgKey() {
 		currentField.fieldType = FVAL_PROCESSING_WAITEQ;
 	}
 
+	return true;
 }
 
 bool SerialTagValueTransport::processValuePart() {
@@ -160,7 +162,7 @@ FieldAndValue* SerialTagValueTransport::fieldIfAvailable() {
 			break;
 
 		case FVAL_PROCESSING: // we are looking for the field key
-			processMsgKey();
+			contProcessing = processMsgKey();
 			break;
 
 		case FVAL_PROCESSING_WAITEQ: // we expect an = following the key
@@ -180,7 +182,7 @@ FieldAndValue* SerialTagValueTransport::fieldIfAvailable() {
 			if(currentField.fieldType != FVAL_PROCESSING_VALUE) return &currentField;
 			break;
 		}
-		contProcessing = serialPort->available();
+		contProcessing = contProcessing && serialPort->available();
 	}
 	return &currentField;
 }

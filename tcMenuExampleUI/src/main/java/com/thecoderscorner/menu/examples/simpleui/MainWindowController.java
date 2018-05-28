@@ -172,7 +172,7 @@ public class MainWindowController {
     }
 
     /**
-     * Here we go through all the menu items and popuate a GridPane with controls to display and edit each item.
+     * Here we go through all the menu items and populate a GridPane with controls to display and edit each item.
      * We start at ROOT and through every item in all submenus. This is a recursive function that is repeatedly
      * called on sub menu's until we've finished all items.
      */
@@ -292,7 +292,7 @@ public class MainWindowController {
                 BorderPane borderPane = new BorderPane();
                 borderPane.setRight(textField);
                 borderPane.setCenter(itemVal);
-                setResult(itemVal);
+                setResult(borderPane);
             }
 
             /**
