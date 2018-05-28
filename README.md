@@ -5,7 +5,8 @@ it is currently in BETA testing and not quite ready for full production.
 
 As it stands tcMenu supports both button based and rotary encoder input, with output to either 20x4 or 16x2 displays.
 MenuItem's are mainly stored in program memory with a small amount of state in RAM; put it another way, a reasonably
-complete menu can fit in less than 700 bytes including i2c and Serial libraries.
+complete menu can fit in less than 700 bytes including i2c and Serial libraries. The system support loading and saving
+items into eeprom storage and remote control using a Java API.
 
 ## Getting started with tcMenu
 
