@@ -61,6 +61,8 @@ public class MenuEditorController {
     public javafx.scene.control.MenuItem menuRecent2;
     public javafx.scene.control.MenuItem menuRecent3;
     public javafx.scene.control.MenuItem menuRecent4;
+    public javafx.scene.control.MenuItem exitMenuItem;
+    public javafx.scene.control.MenuItem aboutMenuItem;
 
     public TextArea prototypeTextArea;
     public BorderPane rootPane;
@@ -95,9 +97,25 @@ public class MenuEditorController {
 
     private void sortOutMenuForMac() {
         final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith ("Mac"))
-            mainMenu.useSystemMenuBarProperty ().set (true);
+        if (os != null && os.startsWith ("Mac")) {
+            mainMenu.useSystemMenuBarProperty().set(true);
+            try {
+                OSXAdapter.setAboutHandler(this, getClass().getMethod("onAboutOsX"));
+                OSXAdapter.setQuitHandler(this, getClass().getMethod("onExitOsX"));
+                exitMenuItem.setVisible(false);
+                aboutMenuItem.setVisible(false);
+            } catch (NoSuchMethodException e) {
+                logger.error("Unable to set Mac menu properly", e);
+            }
+        }
+    }
 
+    public void onExitOsX() {
+        getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
+
+    public void onAboutOsX() {
+        aboutMenuPressed(null);
     }
 
     private void sortOutToolButtons() {

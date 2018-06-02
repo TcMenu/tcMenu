@@ -81,6 +81,7 @@
     </pluginRepositories>
 
     <build>
+        <finalName>tcMenu Designer</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -105,6 +106,9 @@
                 <configuration>
                     <source>1.9</source>
                     <target>1.9</target>
+                    <compilerArgs>
+                        <arg>-XDignore.symbol.file</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -153,8 +157,14 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.9.0-SNAPSHOT</version>
                 <configuration>
+                    <vendor>TheCodersCorner.com</vendor>
                     <mainClass>com.thecoderscorner.menu.editorui.MenuEditorApp</mainClass>
+                    <needMenu>true</needMenu>
                     <allPermissions>true</allPermissions>
+                    <bundleArguments>
+                        <icon>src/main/resources/img/Icon.icns</icon>
+                        <mac.CFBundleName>${project.build.finalName}</mac.CFBundleName>
+                    </bundleArguments>
                 </configuration>
                 <executions>
                     <execution>
