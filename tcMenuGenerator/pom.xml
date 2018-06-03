@@ -17,6 +17,29 @@
     <name>menuEditorUI</name>
     <description>JavaFX based menu editor UI</description>
 
+    <profiles>
+        <profile>
+            <id>macOS</id>
+            <activation>
+                <os><family>mac</family></os>
+            </activation>
+            <properties>
+                <native.icon.source>src/main/resources/img/Icon.icns</native.icon.source>
+                <native.build>dmg</native.build>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os><family>windows</family></os>
+            </activation>
+            <properties>
+                <native.icon.source>src/main/resources/img/Icon.ico</native.icon.source>
+                <native.build>msi</native.build>
+            </properties>
+
+        </profile>
+    </profiles>
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -161,8 +184,9 @@
                     <mainClass>com.thecoderscorner.menu.editorui.MenuEditorApp</mainClass>
                     <needMenu>true</needMenu>
                     <allPermissions>true</allPermissions>
+                    <bundler>${native.build}</bundler>
                     <bundleArguments>
-                        <icon>src/main/resources/img/Icon.icns</icon>
+                        <icon>${native.icon.source}</icon>
                         <mac.CFBundleName>${project.build.finalName}</mac.CFBundleName>
                     </bundleArguments>
                 </configuration>
