@@ -29,7 +29,7 @@ public class NoRemoteCapability implements EmbeddedCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
-        return "";
+        return "#include \"RemoteConnector.h\"";
     }
 
     @Override
