@@ -34,10 +34,9 @@
                 <os><family>windows</family></os>
             </activation>
             <properties>
-                <native.icon.source>src/main/resources/img/Icon.ico</native.icon.source>
-                <native.build>msi</native.build>
+                <native.icon.source>src/main/resources/img/tcMenu Designer.ico</native.icon.source>
+                <native.build>exe</native.build>
             </properties>
-
         </profile>
     </profiles>
     <properties>
@@ -181,13 +180,17 @@
                 <version>8.9.0-SNAPSHOT</version>
                 <configuration>
                     <vendor>TheCodersCorner.com</vendor>
+                    <appName>tcMenuDesigner</appName>
+                    <verbose>true</verbose>
                     <mainClass>com.thecoderscorner.menu.editorui.MenuEditorApp</mainClass>
                     <needMenu>true</needMenu>
+                    <needShortcut>true</needShortcut>
                     <allPermissions>true</allPermissions>
                     <bundler>${native.build}</bundler>
                     <bundleArguments>
                         <icon>${native.icon.source}</icon>
                         <mac.CFBundleName>${project.build.finalName}</mac.CFBundleName>
+                        <win.menuGroup>tcMenu</win.menuGroup>
                     </bundleArguments>
                 </configuration>
                 <executions>
