@@ -12,7 +12,7 @@ items into eeprom storage and remote control using a Java API.
 
 You start a menu project either by using the provided user interface (recommended), or by coding a menu manually into a sketch. 
 
-[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), where there's a JAR build that will require a modern version of Java installed on your machine. I'll build native packages before the next major release, but during the testing, please download Java from Oracle or use an open JDK, if you use OpenJDK you'll also need the open-javafx package.
+[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and also as a zip for any platform that can run Java 9 or above such as Linux, Windows or MacOS.
 
 ## Generating a menu from the UI
 
