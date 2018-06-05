@@ -33,7 +33,7 @@ public class UpDownOkInputCreator extends AbstractCodeCreator {
 
     @Override
     public List<String> getIncludes() {
-        return Collections.singletonList("#include <LiquidCrystalIO.h>");
+        return Collections.emptyList();
     }
 
     @Override

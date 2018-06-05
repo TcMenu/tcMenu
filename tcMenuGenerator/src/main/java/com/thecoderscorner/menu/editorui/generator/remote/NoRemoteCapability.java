@@ -14,7 +14,7 @@ import java.util.List;
 public class NoRemoteCapability implements EmbeddedCodeCreator {
     @Override
     public List<String> getIncludes() {
-        return Collections.emptyList();
+        return Collections.singletonList("#include \"RemoteConnector.h\"");
     }
 
     @Override
@@ -29,7 +29,7 @@ public class NoRemoteCapability implements EmbeddedCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
-        return "#include \"RemoteConnector.h\"";
+        return "";
     }
 
     @Override
