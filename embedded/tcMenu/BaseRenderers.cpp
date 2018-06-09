@@ -6,31 +6,36 @@
 #include <tcMenu.h>
 #include "BaseRenderers.h"
 
-LiquidCrystalRenderer::LiquidCrystalRenderer(LiquidCrystal& lcd, uint8_t dimX, uint8_t dimY) {
-
-	this->dimX = dimX;
-	this->dimY = dimY;
-	this->buffer = new char[dimX + 2];
-	this->lcd = &lcd;
-
-	currentEditor = NULL;
-	currentRoot = menuMgr.getRoot();
-	redrawRequirement(MENUDRAW_COMPLETE_REDRAW);
-}
-
-LiquidCrystalRenderer* LiquidCrystalRenderer::INSTANCE;
+BaseMenuRenderer* BaseMenuRenderer::INSTANCE;
 
 void doRender() {
-	LiquidCrystalRenderer::INSTANCE->render();
+	RendererCallbackFn callbackFn = BaseMenuRenderer::INSTANCE->getRenderingCallback();
+	if(callbackFn) {
+		callbackFn();
+	}
+	else {
+		BaseMenuRenderer::INSTANCE->render();
+	}
 }
 
-void LiquidCrystalRenderer::initialise() {
+BaseMenuRenderer::BaseMenuRenderer(int bufferSize) {
+	buffer = new char[bufferSize + 1]; // add one to allow for the trailing 0.
+	this->bufferSize = bufferSize;
+	ticksToReset = 0;
+	renderCallback = NULL;
+	redrawMode = MENUDRAW_COMPLETE_REDRAW;
+	this->currentEditor = this->currentRoot = NULL;
+}
+
+void BaseMenuRenderer::initialise() {
 	INSTANCE = this;
-	resetToDefault();
-	taskManager.scheduleFixedRate(250, doRender);
+	ticksToReset = 0;
+	renderCallback = NULL;
+	redrawMode = MENUDRAW_COMPLETE_REDRAW;
+	taskManager.scheduleFixedRate(SCREEN_DRAW_INTERVAL, doRender);
 }
 
-void LiquidCrystalRenderer::activeIndexChanged(uint8_t index) {
+void BaseMenuRenderer::activeIndexChanged(uint8_t index) {
 	MenuItem* currentActive = menuMgr.findCurrentActive();
 	currentActive->setActive(false);
 	currentActive = getItemAtPosition(index);
@@ -38,109 +43,13 @@ void LiquidCrystalRenderer::activeIndexChanged(uint8_t index) {
 	menuAltered();
 }
 
-void LiquidCrystalRenderer::setupForEditing(MenuItem* item) {
-	if(currentEditor != NULL) {
-		currentEditor->setEditing(false);
-		currentEditor->setActive(false);
-	}
-
-	// basically clear down editor state
-	if(item == NULL) return;
-
-	MenuType ty = item->getMenuType();
-	// these are the only types we can edit with a rotary encoder & LCD.
-	if ((ty == MENUTYPE_ENUM_VALUE || ty == MENUTYPE_INT_VALUE || ty == MENUTYPE_BOOLEAN_VALUE) && !item->isReadOnly()) {
-		currentEditor = item;
-		currentEditor->setEditing(true);
-		menuMgr.changePrecisionForType(currentEditor);
-	}
-}
-
-uint8_t itemCount(MenuItem* item) {
-	uint8_t count = 0;
-	while (item) {
-		++count;
-		item = item->getNext();
-	}
-	return count;
-}
-
-void LiquidCrystalRenderer::prepareNewSubmenu(MenuItem* newItems) {
-	menuAltered();
-	currentRoot = newItems;
-	currentRoot->setActive(true);
-
-	menuMgr.setItemsInCurrentMenu(itemCount(newItems) - 1);
-	redrawRequirement(MENUDRAW_COMPLETE_REDRAW);
-}
-
-MenuItem* LiquidCrystalRenderer::getItemAtPosition(uint8_t pos) {
-	uint8_t i = 0;
-	MenuItem* itm = currentRoot;
-
-	while (itm != NULL) {
-		if (i == pos) {
-			return itm;
-		}
-		i++;
-		itm = itm->getNext();
-	}
-
-	return currentRoot;
-}
-
-void LiquidCrystalRenderer::resetToDefault() {
+void BaseMenuRenderer::resetToDefault() {
 	prepareNewSubmenu(menuMgr.getRoot());
 	setupForEditing(NULL);
 	ticksToReset = 255;
 }
 
-void LiquidCrystalRenderer::setCurrentEditor(MenuItem* toEdit) {
-	if (currentEditor != NULL) {
-		currentEditor->setEditing(false);
-		currentEditor = NULL;
-		menuMgr.setItemsInCurrentMenu(itemCount(currentRoot) - 1);
-		redrawRequirement(MENUDRAW_EDITOR_CHANGE);
-	}
-
-	if(toEdit != NULL) {
-		if (toEdit->getMenuType() == MENUTYPE_SUB_VALUE) {
-			toEdit->setActive(false);
-			prepareNewSubmenu(((SubMenuItem*)toEdit)->getChild());
-		}
-		else if (toEdit->getMenuType() == MENUTYPE_BACK_VALUE) {
-			toEdit->setActive(false);
-			prepareNewSubmenu(menuMgr.getRoot());
-		}
-		else {
-			setupForEditing(toEdit);
-			redrawRequirement(MENUDRAW_EDITOR_CHANGE);
-		}
-	}
-	menuAltered();
-}
-
-int LiquidCrystalRenderer::offsetOfCurrentActive() {
-	uint8_t i = 0;
-	MenuItem* itm = currentRoot;
-	while (itm != NULL) {
-		if (itm->isActive()) {
-			return i;
-		}
-		i++;
-		itm = itm->getNext();
-	}
-
-	return 0;
-}
-
-void LiquidCrystalRenderer::render() {
-	uint8_t locRedrawMode = redrawMode;
-	redrawMode = MENUDRAW_NO_CHANGE;
-	if (locRedrawMode == MENUDRAW_COMPLETE_REDRAW) {
-		lcd->clear();
-	}
-
+void BaseMenuRenderer::countdownToDefaulting() {
 	if (ticksToReset == 0) {
 		resetToDefault();
 		ticksToReset = 255;
@@ -148,79 +57,36 @@ void LiquidCrystalRenderer::render() {
 	else if (ticksToReset != 255) {
 		--ticksToReset;
 	}
-
-	MenuItem* item = currentRoot;
-	uint8_t cnt = 0;
-	if (offsetOfCurrentActive() >= dimY) {
-		uint8_t toOffsetBy = (offsetOfCurrentActive() - dimY) + 1;
-		while (item != NULL && toOffsetBy--) {
-			item = item->getNext();
-		}
-	}
-
-	while (item && cnt < dimY) {
-		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
-			renderMenuItem(cnt, item);
-		}
-		++cnt;
-		item = item->getNext();
-	}
 }
 
-void LiquidCrystalRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
-	if (item == NULL || row > dimY) return;
-
-	lcd->setCursor(0, row);
-
-	memset(buffer, 32, dimX);
-	buffer[dimX] = 0;
-
+void BaseMenuRenderer::menuValueToText(MenuItem* item,	MenuDrawJustification justification) {
 	switch (item->getMenuType()) {
 	case MENUTYPE_INT_VALUE:
-		renderAnalogItem((AnalogMenuItem*)item);
+		menuValueAnalog((AnalogMenuItem*)item, justification);
 		break;
 	case MENUTYPE_ENUM_VALUE:
-		renderEnumItem((EnumMenuItem*)item);
+		menuValueEnum((EnumMenuItem*)item, justification);
 		break;
 	case MENUTYPE_BOOLEAN_VALUE:
-		renderBooleanItem((BooleanMenuItem*)item);
+		menuValueBool((BooleanMenuItem*)item, justification);
 		break;
 	case MENUTYPE_SUB_VALUE:
-		renderSubItem((SubMenuItem*)item);
+		menuValueSub((SubMenuItem*)item, justification);
 		break;
 	case MENUTYPE_BACK_VALUE:
-		renderBackItem((BackMenuItem*)item);
+		menuValueBack((BackMenuItem*)item, justification);
 		break;
 	case MENUTYPE_TEXT_VALUE:
-		renderTextItem((TextMenuItem*)item);
+		menuValueText((TextMenuItem*)item, justification);
 		break;
 	default:
-		strcpy(buffer, "unknown type..");
+		strcpy(buffer, "???");
 		break;
 	}
-	lcd->print(buffer);
+
 }
 
-inline void renderName(char * buffer, MenuItem* itm) {
-	buffer[0] = itm->isEditing() ? '=' : (itm->isActive() ? '>' : ' ');
-	const char * name = itm->getNamePgm();
-	while (char nm = pgm_read_byte_near(name)) {
-		*(++buffer) = nm;
-		++name;
-	}
-}
-
-void LiquidCrystalRenderer::renderTextItem(TextMenuItem* item) {
-	renderName(buffer, item);
-
-	uint8_t count = strlen(item->getTextValue());
-	int cpy = dimX - count;
-	strcpy(buffer + cpy, item->getTextValue());
-}
-
-void LiquidCrystalRenderer::renderAnalogItem(AnalogMenuItem* item) {
-	renderName(buffer, item);
-
+void BaseMenuRenderer::menuValueAnalog(AnalogMenuItem* item, MenuDrawJustification justification) {
 	char itoaBuf[10];
 
 	int calcVal = item->getCurrentValue() + ((int)pgm_read_word_near(&item->getMenuInfo()->offset));
@@ -249,54 +115,192 @@ void LiquidCrystalRenderer::renderAnalogItem(AnalogMenuItem* item) {
 		itoaBuf[decPart + 2] = 0;
 	}
 	uint8_t numLen = strlen(itoaBuf);
-	uint8_t unitLen = strlen_P(item->getMenuInfo()->unitName);
-	uint8_t startPlace = dimX - (numLen + unitLen);
-	strcpy(buffer + startPlace, itoaBuf);
-	strcpy_P(buffer + (dimX - unitLen), item->getMenuInfo()->unitName);
+
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy(buffer, itoaBuf);
+		strcpy_P(buffer + numLen, item->getMenuInfo()->unitName);
+	}
+	else {
+		uint8_t unitLen = strlen_P(item->getMenuInfo()->unitName);
+		uint8_t startPlace = bufferSize - (numLen + unitLen);
+		strcpy(buffer + startPlace, itoaBuf);
+		strcpy_P(buffer + (bufferSize - unitLen), item->getMenuInfo()->unitName);
+
+	}
 
 }
 
-void LiquidCrystalRenderer::renderEnumItem(EnumMenuItem* item) {
-	renderName(buffer, item);
+void BaseMenuRenderer::menuValueEnum(EnumMenuItem* item, MenuDrawJustification justification) {
 	char** itemPtr = ((char**)pgm_read_ptr_near(&item->getMenuInfo()->menuItems)) + item->getCurrentValue();
 	char* itemLoc = (char *)pgm_read_ptr_near(itemPtr);
-	uint8_t count = strlen_P(itemLoc);
-	int cpy = dimX - count;
-	strcpy_P(buffer + cpy, itemLoc);
+
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy_P(buffer, itemLoc);
+	}
+	else {
+		uint8_t count = strlen_P(itemLoc);
+		strcpy_P(buffer + (bufferSize - count), itemLoc);
+	}
 }
 
-const char ON_STR[] PROGMEM   = " ON";
+const char ON_STR[] PROGMEM   = "ON";
 const char OFF_STR[] PROGMEM  = "OFF";
 const char YES_STR[] PROGMEM  = "YES";
 const char NO_STR[] PROGMEM   = " NO";
 const char TRUE_STR[] PROGMEM = " TRUE";
 const char FALSE_STR[] PROGMEM= "FALSE";
 const char SUB_STR[] PROGMEM  = "->>>";
-
-void LiquidCrystalRenderer::renderBooleanItem(BooleanMenuItem* item) {
-	renderName(buffer, item);
-
-	BooleanNaming naming = (BooleanNaming)pgm_read_byte_near(&item->getBooleanMenuInfo()->naming);
-	if(naming == NAMING_ON_OFF) {
-		strcpy_P(buffer + (dimX - 3), item->getBoolean() ? ON_STR : OFF_STR);
-	}
-	else if (naming == NAMING_YES_NO) {
-		strcpy_P(buffer + (dimX - 3), item->getBoolean() ? YES_STR : NO_STR);
-	}
-	else {
-		strcpy_P(buffer + (dimX - 5), item->getBoolean() ? TRUE_STR : FALSE_STR);
-	}
-}
-
-void LiquidCrystalRenderer::renderSubItem(SubMenuItem* item) {
-	renderName(buffer, item);
-
-	strcpy_P(buffer + (dimX - 4), SUB_STR);
-}
-
 const char BACK_MENU_NAME[] PROGMEM  = "[Back]";
 
-void LiquidCrystalRenderer::renderBackItem(BackMenuItem* item) {
-	renderName(buffer, item);
-	strcpy_P(buffer + (dimX-6), BACK_MENU_NAME);
+void BaseMenuRenderer::menuValueBool(BooleanMenuItem* item, MenuDrawJustification justification) {
+	BooleanNaming naming = (BooleanNaming)pgm_read_byte_near(&item->getBooleanMenuInfo()->naming);
+	const char* val;
+	switch(naming) {
+	case NAMING_ON_OFF:
+		val = item->getBoolean() ? ON_STR : OFF_STR;
+		break;
+	case NAMING_YES_NO:
+		val = item->getBoolean() ? YES_STR : NO_STR;
+		break;
+	default:
+		val = item->getBoolean() ? TRUE_STR : FALSE_STR;
+		break;
+	}
+
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy_P(buffer, val);
+	}
+	else {
+		uint8_t len = strlen_P(val);
+		strcpy_P(buffer + (bufferSize - len), val);
+	}
+}
+
+void BaseMenuRenderer::menuValueSub(__attribute((unused)) SubMenuItem* item, MenuDrawJustification justification) {
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy_P(buffer, SUB_STR);
+	}
+	else {
+		strcpy_P(buffer + (bufferSize - 4), SUB_STR);
+	}
+}
+
+void BaseMenuRenderer::menuValueBack(__attribute((unused)) BackMenuItem* item, MenuDrawJustification justification) {
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy_P(buffer, BACK_MENU_NAME);
+	}
+	else {
+		strcpy_P(buffer + (bufferSize - 6), BACK_MENU_NAME);
+	}
+}
+
+void BaseMenuRenderer::menuValueText(TextMenuItem* item, MenuDrawJustification justification) {
+	if(justification == JUSTIFY_TEXT_LEFT) {
+		strcpy(buffer, item->getTextValue());
+	}
+	else {
+		uint8_t count = strlen(item->getTextValue());
+		int cpy = bufferSize - count;
+		strcpy(buffer + cpy, item->getTextValue());
+	}
+}
+
+void BaseMenuRenderer::takeOverDisplay(RendererCallbackFn displayFn) {
+	renderCallback = displayFn;
+}
+
+void BaseMenuRenderer::giveBackDisplay() {
+	renderCallback = NULL;
+	redrawMode = MENUDRAW_COMPLETE_REDRAW;
+}
+
+void BaseMenuRenderer::prepareNewSubmenu(MenuItem* newItems) {
+	menuAltered();
+	currentRoot = newItems;
+	currentRoot->setActive(true);
+
+	menuMgr.setItemsInCurrentMenu(itemCount(newItems) - 1);
+	redrawRequirement(MENUDRAW_COMPLETE_REDRAW);
+}
+
+void BaseMenuRenderer::setupForEditing(MenuItem* item) {
+	if(currentEditor != NULL) {
+		currentEditor->setEditing(false);
+		currentEditor->setActive(false);
+	}
+
+	// basically clear down editor state
+	if(item == NULL) return;
+
+	MenuType ty = item->getMenuType();
+	// these are the only types we can edit with a rotary encoder & LCD.
+	if ((ty == MENUTYPE_ENUM_VALUE || ty == MENUTYPE_INT_VALUE || ty == MENUTYPE_BOOLEAN_VALUE) && !item->isReadOnly()) {
+		currentEditor = item;
+		currentEditor->setEditing(true);
+		menuMgr.changePrecisionForType(currentEditor);
+	}
+}
+
+
+MenuItem* BaseMenuRenderer::getItemAtPosition(uint8_t pos) {
+	uint8_t i = 0;
+	MenuItem* itm = currentRoot;
+
+	while (itm != NULL) {
+		if (i == pos) {
+			return itm;
+		}
+		i++;
+		itm = itm->getNext();
+	}
+
+	return currentRoot;
+}
+
+int BaseMenuRenderer::offsetOfCurrentActive() {
+	uint8_t i = 0;
+	MenuItem* itm = currentRoot;
+	while (itm != NULL) {
+		if (itm->isActive()) {
+			return i;
+		}
+		i++;
+		itm = itm->getNext();
+	}
+
+	return 0;
+}
+
+void BaseMenuRenderer::setCurrentEditor(MenuItem* toEdit) {
+	if (currentEditor != NULL) {
+		currentEditor->setEditing(false);
+		currentEditor = NULL;
+		menuMgr.setItemsInCurrentMenu(itemCount(currentRoot) - 1);
+		redrawRequirement(MENUDRAW_EDITOR_CHANGE);
+	}
+
+	if(toEdit != NULL) {
+		if (toEdit->getMenuType() == MENUTYPE_SUB_VALUE) {
+			toEdit->setActive(false);
+			prepareNewSubmenu(((SubMenuItem*)toEdit)->getChild());
+		}
+		else if (toEdit->getMenuType() == MENUTYPE_BACK_VALUE) {
+			toEdit->setActive(false);
+			prepareNewSubmenu(menuMgr.getRoot());
+		}
+		else {
+			setupForEditing(toEdit);
+			redrawRequirement(MENUDRAW_EDITOR_CHANGE);
+		}
+	}
+	menuAltered();
+}
+
+uint8_t itemCount(MenuItem* item) {
+	uint8_t count = 0;
+	while (item) {
+		++count;
+		item = item->getNext();
+	}
+	return count;
 }
