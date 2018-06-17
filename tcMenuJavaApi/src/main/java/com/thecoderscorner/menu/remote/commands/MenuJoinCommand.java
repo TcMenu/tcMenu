@@ -34,4 +34,13 @@ public class MenuJoinCommand implements MenuCommand {
     public MenuCommandType getCommandType() {
         return MenuCommandType.JOIN;
     }
+
+    @Override
+    public String toString() {
+        return "MenuJoinCommand{" +
+                "myName='" + myName + '\'' +
+                ", apiVer=" + apiVer +
+                ", platform=" + platform +
+                '}';
+    }
 }

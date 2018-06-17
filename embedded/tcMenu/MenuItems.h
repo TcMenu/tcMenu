@@ -6,6 +6,8 @@
 #ifndef _MENUITEMS_h
 #define _MENUITEMS_h
 
+#include <EepromAbstraction.h>
+
 #define NAME_SIZE_T 20
 
 #define NO_CALLBACK NULL
@@ -19,7 +21,7 @@ struct AnalogMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
 	uint16_t eepromAddr;
-	int maxValue;
+	uint16_t maxValue;
 	int offset;
 	uint8_t divisor;
 	char unitName[4];
@@ -121,9 +123,9 @@ public:
 	/** returns the menu type as one of the above menu type enumeration */
 	virtual MenuType getMenuType() = 0;
 	/** reads current value from eeprom */
-	virtual void load() = 0;
+	virtual void load(EepromAbstraction& eeprom) = 0;
 	/** stores this items data to eeprom */
-	virtual void save() = 0;
+	virtual void save(EepromAbstraction& eeprom) = 0;
 
 	/** set the item to be changed, this lets the renderer know it needs painting */
 	inline void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
@@ -169,13 +171,6 @@ public:
 		flags = 0;
 	}
 
-	virtual void load() {
-		uint16_t* eepromAddr = pgm_read_word_near(&info->eepromAddr);
-		if (eepromAddr != (uint16_t*)0xffff) {
-			setCurrentValue(eeprom_read_word(eepromAddr));
-		}
-	}
-
 	/** Sets the integer current value to a new value, and marks the menu changed */
 	void setCurrentValue(uint16_t val) {
 		setChanged(true);
@@ -189,14 +184,19 @@ public:
 	virtual const char* getNamePgm() { return info->name; }
 	int getId() { return pgm_read_word_near(&info->id); }
 
-	/** saves the current value word into eeprom, if the eeprom address is not -1 */
-	virtual void save() {
-		uint16_t* eepromAddr = pgm_read_word_near(&info->eepromAddr);
-		if (eepromAddr == (uint16_t*)0xffff) return;
-
-		if (eeprom_read_word(eepromAddr) != getCurrentValue()) {
-			eeprom_update_word(eepromAddr, getCurrentValue());
+	virtual void load(EepromAbstraction& eeprom) {
+		uint16_t eeVal = pgm_read_word_near(&info->eepromAddr);
+		if (eeVal != 0xffff) {
+			setCurrentValue(eeprom.read16(eeVal));
 		}
+	}
+
+	/** saves the current value word into eeprom, if the eeprom address is not -1 */
+	virtual void save(EepromAbstraction& eeprom) {
+		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
+		if (eepromAddr == 0xffff) return;
+
+		eeprom.write16(eepromAddr, currentValue);
 	}
 
 	/** Gets hold of the menu info struct, careful this is in PROGMEM */
@@ -211,7 +211,7 @@ class AnalogMenuItem : public ValueMenuItem<const AnalogMenuInfo*> {
 public:
 	AnalogMenuItem(const AnalogMenuInfo* info, uint16_t defaultVal, MenuItem* next = NULL);
 	virtual ~AnalogMenuItem() { }
-	virtual int getMaximumValue() { return pgm_read_word_near(&info->maxValue); }	
+	virtual int getMaximumValue() { return (int)pgm_read_word_near(&info->maxValue); }
 	virtual MenuType getMenuType() { return MENUTYPE_INT_VALUE; }
 	virtual const char* getUnitNamePgm() { return info->unitName; }
 };
@@ -248,20 +248,17 @@ public:
 	void setBoolean(bool newVal);
 	bool getBoolean() { return currentValue; }
 
-	virtual void load() {
-		uint8_t* eepromAddr = pgm_read_ptr_near(&info->eepromAddr);
-		if (eepromAddr != (uint8_t*)0xffff) {
-			setBoolean(eeprom_read_byte(eepromAddr));
+	virtual void load(EepromAbstraction& eeprom) {
+		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
+		if (eepromAddr != 0xffff) {
+			setBoolean(eeprom.read8(eepromAddr));
 		}
 	}
 
-	virtual void save() {
-		uint8_t* eepromAddr = pgm_read_ptr_near(&info->eepromAddr);
-		if (eepromAddr == (uint8_t*)0xffff) return;
-
-		if (eeprom_read_byte(eepromAddr) != getBoolean()) {
-			eeprom_update_byte(eepromAddr, getBoolean());
-		}
+	virtual void save(EepromAbstraction& eeprom) {
+		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
+		if (eepromAddr == 0xffff) return;
+		eeprom.write8(eepromAddr, getBoolean());
 	}
 	const BooleanMenuInfo* getBooleanMenuInfo() { return info; }
 };
@@ -277,8 +274,8 @@ public:
 	virtual MenuType getMenuType() { return MENUTYPE_SUB_VALUE; }
 	virtual const char* getNamePgm() { return info->name; }
 	int getId() { return pgm_read_word_near(&info->id); }
-	virtual void load();
-	virtual void save();
+	virtual void load(EepromAbstraction& eeprom);
+	virtual void save(EepromAbstraction& eeprom);
 	MenuItem* getChild() { return child; }
 };
 
@@ -295,8 +292,8 @@ public:
 	virtual MenuType getMenuType() { return MENUTYPE_BACK_VALUE; }
 	virtual const char* getNamePgm();
 	int getId() { return -1; }
-	virtual void load() { }
-	virtual void save() { }
+	virtual void load(__attribute__((unused)) EepromAbstraction& eeprom) { }
+	virtual void save(__attribute__((unused)) EepromAbstraction& eeprom) { }
 };
 
 /**
@@ -323,8 +320,8 @@ public:
 	int getId() { return pgm_read_word_near(&menuInfo->id); }
 	const TextMenuInfo* getTextMenuInfo() {return menuInfo;}
 
-	virtual void load();
-	virtual void save();
+	virtual void load(EepromAbstraction& eeprom);
+	virtual void save(EepromAbstraction& eeprom);
 };
 #endif
 

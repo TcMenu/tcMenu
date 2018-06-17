@@ -7,7 +7,6 @@
 #define _BASE_RENDERERS_H_
 
 #include "tcMenu.h"
-#include <LiquidCrystalIO.h>
 
 /** the frequency at which the screen is redrawn (only if needed). */
 #define SCREEN_DRAW_INTERVAL 250
@@ -15,7 +14,7 @@
 #define TICKS_BEFORE_DEFAULTING 120
 
 /** Should you wish to take over the rendering, function of this type is needed */
-typedef void (*RendererCallbackFn)();
+typedef void (*RendererCallbackFn)(bool userClicked);
 
 /** 
  * Each display must have a renderer, even if it is the NoRenderer, the NoRenderer is for situations
@@ -104,10 +103,11 @@ public:
  */
 class BaseMenuRenderer : public MenuRenderer {
 protected:
-	uint8_t ticksToReset;
 	char* buffer;
+	uint8_t ticksToReset;
 	uint8_t bufferSize;
 	MenuRedrawState redrawMode;
+	uint8_t lastOffset;
 	RendererCallbackFn renderCallback;
 	MenuItem* currentRoot;
 	MenuItem* currentEditor;
@@ -140,6 +140,7 @@ protected:
 	void setupForEditing(MenuItem* toEdit);
 	int offsetOfCurrentActive();
 	void countdownToDefaulting();
+	void findFirstVisible();
 
 private:
 	void menuValueAnalog(AnalogMenuItem* item, MenuDrawJustification justification);

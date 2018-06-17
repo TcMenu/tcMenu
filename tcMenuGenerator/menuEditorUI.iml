@@ -15,6 +15,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.thecoderscorner.tcmenu:tcMenuJavaAPI:0.6" level="project" />
+    <orderEntry type="module" module-name="tcMenuJavaAPI" />
+    <orderEntry type="module" module-name="tcMenuJavaAPI" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-jdk14:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="module" module-name="tcMenuJavaAPI" />

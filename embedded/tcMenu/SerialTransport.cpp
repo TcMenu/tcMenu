@@ -7,7 +7,7 @@
 
 #include "SerialTransport.h"
 
-SerialTagValueTransport::SerialTagValueTransport(HardwareSerial* serialPort) {
+SerialTagValueTransport::SerialTagValueTransport(Stream* serialPort) {
 	this->serialPort = serialPort;
 	this->currentField.field = UNKNOWN_FIELD_PART;
 	this->currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;

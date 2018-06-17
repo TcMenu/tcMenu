@@ -13,9 +13,9 @@
 
 class SerialTagValueTransport : public TagValueTransport {
 private:
-	HardwareSerial* serialPort;
+	Stream* serialPort;
 public:
-	SerialTagValueTransport(HardwareSerial* serialPort);
+	SerialTagValueTransport(Stream* serialPort);
 	virtual ~SerialTagValueTransport() {}
 
 	virtual void startMsg(uint16_t msgType);

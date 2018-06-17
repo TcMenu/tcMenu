@@ -78,6 +78,7 @@ public class Rs232RemoteConnector implements RemoteConnector {
                 String line = readLineFromStream(serialPort.getInputStream());
                 logger.debug("Line read from stream: {}", line);
                 MenuCommand mc = protocol.fromChannel(ByteBuffer.wrap(line.getBytes()));
+                logger.info("Command received: " + mc);
                 notifyListeners(mc);
             }
             logger.info("Disconnected from serial port " + portName);
