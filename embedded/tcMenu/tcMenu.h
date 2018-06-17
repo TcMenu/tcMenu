@@ -11,12 +11,12 @@
 #include <tcMenu.h>
 #include "MenuItems.h"
 #include "BaseRenderers.h"
+#include "EepromAbstraction.h"
 
 class MenuManager {
 private:
 	MenuItem* rootMenu;
 	MenuRenderer* renderer;
-
 public:
 	/**
 	 * Handle the various types of input
@@ -31,13 +31,13 @@ public:
 	/**
 	 * Used during initialisation to load the previously stored state. Only if the magic key matches at location 0.
 	 */
-	void load(uint16_t magicKey = 0xfade);
+	void load(EepromAbstraction& eeprom, uint16_t magicKey = 0xfade);
 
 	/**
 	 * Call to save all item values into eeprom. The magic key is saved at location 0 if not already set. This is a
 	 * lazy save that reads the eeprom values first, and only saves to eeprom when there are changes.
 	 */
-	void save(uint16_t magicKey = 0xfade);
+	void save(EepromAbstraction& eeprom, uint16_t magicKey = 0xfade);
 
 	/**
 	 * Use this to record external changes made to a menu item. This will render and run any callbacks.

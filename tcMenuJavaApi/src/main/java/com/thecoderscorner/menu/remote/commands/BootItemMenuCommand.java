@@ -40,4 +40,13 @@ public abstract class BootItemMenuCommand<T extends MenuItem, V> implements Menu
     }
 
     protected abstract MenuState<V> internalNewMenuState(MenuState<V> oldState);
+
+    @Override
+    public String toString() {
+        return "BootItemMenuCommand{" +
+                "menuItem=" + menuItem +
+                ", currentValue=" + currentValue +
+                ", subMenuId=" + subMenuId +
+                '}';
+    }
 }

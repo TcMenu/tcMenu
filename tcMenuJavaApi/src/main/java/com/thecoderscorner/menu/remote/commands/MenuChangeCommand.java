@@ -47,4 +47,14 @@ public class MenuChangeCommand implements MenuCommand {
     public static ChangeType changeTypeFromInt(int changeType) {
         return changeType == 0 ? ChangeType.DELTA : ChangeType.ABSOLUTE;
     }
+
+    @Override
+    public String toString() {
+        return "MenuChangeCommand{" +
+                "menuItemId=" + menuItemId +
+                ", parentItemId=" + parentItemId +
+                ", changeType=" + changeType +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

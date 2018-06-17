@@ -8,6 +8,7 @@
 
 #include "tcMenu.h"
 #include "BaseRenderers.h"
+#include <LiquidCrystalIO.h>
 
 /**
  * A renderer that can renderer onto a LiquidCrystal display and supports the concept of single level

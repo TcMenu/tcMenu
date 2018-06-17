@@ -47,7 +47,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
         TagValTextParser parser = new TagValTextParser(buffer);
         String ty = parser.getValue(KEY_MSG_TYPE);
-        logger.info("Protocol convert in: {}", parser);
+        logger.debug("Protocol convert in: {}", parser);
         MenuCommandType cmdType = codeToCmdType.get(ty);
         if(cmdType == null) throw new IOException("Protocol received unexpected message: " + ty);
 
