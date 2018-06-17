@@ -32,7 +32,7 @@ public abstract class LiquidCrystalCreator extends AbstractCodeCreator {
 
     @Override
     public List<String> getIncludes() {
-        return Collections.singletonList("#include <LiquidCrystalIO.h>");
+        return Collections.singletonList("#include <tcMenuLiquidCrystal.h>");
     }
 
     @Override
