@@ -7,11 +7,12 @@ package com.thecoderscorner.menu.examples.simpleui;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -21,7 +22,7 @@ import javafx.stage.Stage;
  */
 public class SimpleFxApp extends Application {
     public static final String MY_REMOTE_NAME = "DavesMac";
-    public static final String MY_PORT_NAME = "/dev/cu.usbmodemFA1211";
+    public static final String MY_PORT_NAME = "/dev/cu.usbmodemFD131";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -31,24 +32,38 @@ public class SimpleFxApp extends Application {
         // does all the hard work and returns us a remote-controller
         //
         MenuTree menuTree = new MenuTree();
-        RemoteMenuController remoteControl = new Rs232ControllerBuilder()
-                .withLocalName(MY_REMOTE_NAME)
-                .withMenuTree(menuTree)
-                .withRs232(MY_PORT_NAME, 115200)
-                .build();
+        RemoteMenuController remote = showConfigChooser(menuTree);
 
-        // At this point we build a JavaFX stage and load up our main window
-        primaryStage.setTitle("JavaAPI -> tcMenu Arduino");
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
-        Pane myPane = loader.load();
+        if(remote != null) {
+            // At this point we build a JavaFX stage and load up our main window
+            primaryStage.setTitle("JavaAPI -> tcMenu Arduino");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
+            Pane myPane = loader.load();
 
-        // then we pass the menuTree and remoteControl to the windows controller.
-        MainWindowController controller = loader.getController();
-        controller.initialise(menuTree, remoteControl);
+            // then we pass the menuTree and remoteControl to the windows controller.
+            MainWindowController controller = loader.getController();
+            controller.initialise(menuTree, remote);
 
-        // display the main window.
-        Scene myScene = new Scene(myPane);
-        primaryStage.setScene(myScene);
-        primaryStage.show();
+            // display the main window.
+            Scene myScene = new Scene(myPane);
+            primaryStage.setScene(myScene);
+            primaryStage.show();
+        }
+    }
+
+    private RemoteMenuController showConfigChooser(MenuTree tree) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/remoteSelector.fxml"));
+        BorderPane pane = loader.load();
+        RemoteSelectorController controller = loader.getController();
+        controller.init(tree);
+
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Create new item");
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(null);
+        Scene scene = new Scene(pane);
+        dialogStage.setScene(scene);
+        dialogStage.showAndWait();
+        return controller.getResult();
     }
 }

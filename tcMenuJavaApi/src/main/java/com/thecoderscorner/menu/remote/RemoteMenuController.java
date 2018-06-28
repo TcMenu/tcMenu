@@ -179,6 +179,9 @@ public class RemoteMenuController {
     }
 
     private void onChangeField(MenuChangeCommand menuCommand) {
+        // we cannot process until the tree is populated
+        if(!treeFullyPopulated) return;
+
         SubMenuItem subMenuParent = MenuItemHelper.asSubMenu(managedMenu.getSubMenuById(menuCommand.getParentItemId()).orElse(MenuTree.ROOT));
         managedMenu.getMenuById(subMenuParent, menuCommand.getMenuItemId()).ifPresent((item) -> {
             item.accept(new MenuItemVisitor() {

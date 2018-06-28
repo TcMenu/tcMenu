@@ -6,82 +6,18 @@
  */
 
 #include "SerialTransport.h"
+#include "tcMenu.h"
 
-SerialTagValueTransport::SerialTagValueTransport(Stream* serialPort) {
+SerialTagValueTransport::SerialTagValueTransport(Stream* serialPort) : TagValueTransport() {
 	this->serialPort = serialPort;
-	this->currentField.field = UNKNOWN_FIELD_PART;
-	this->currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
-	this->currentField.msgType = UNKNOWN_MSG_TYPE;
-	this->currentField.len = 0;
-}
-
-void SerialTagValueTransport::startMsg(uint16_t msgType) {
-	char sz[3];
-	sz[0] = msgType >> 8;
-	sz[1] = msgType & 0xff;
-	sz[2] = 0;
-	serialPort->write('`');
-	writeField(FIELD_MSG_TYPE, sz);
-}
-
-void SerialTagValueTransport::writeField(uint16_t field, const char* value) {
-	char sz[4];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-	serialPort->write(value);
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::writeFieldP(uint16_t field, const char* value) {
-	char sz[4];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-
-	while(char val = pgm_read_byte_near(value)) {
-		serialPort->write(val);
-		++value;
-	}
-
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::writeFieldInt(uint16_t field, int value) {
-	char sz[10];
-	sz[0] = field >> 8;
-	sz[1] = field & 0xff;
-	sz[2] = '=';
-	sz[3] = 0;
-	serialPort->write(sz);
-	itoa(value, sz, 10);
-	serialPort->write(sz);
-	serialPort->write('|');
-}
-
-void SerialTagValueTransport::endMsg() {
-	serialPort->write("~\n");
 }
 
 bool SerialTagValueTransport::findNextMessageStart() {
 	char read = 0;
-	char cnt = '0';
 	while(serialPort->available() && read != '`') {
 		read = serialPort->read();
-		cnt++;
 	}
 	return (read == '`');
-}
-
-void SerialTagValueTransport::clearFieldStatus(FieldValueType ty) {
-	currentField.fieldType = ty;
-	currentField.field = UNKNOWN_FIELD_PART;
-	currentField.msgType = UNKNOWN_MSG_TYPE;
-
 }
 
 bool SerialTagValueTransport::processMsgKey() {
@@ -187,6 +123,7 @@ FieldAndValue* SerialTagValueTransport::fieldIfAvailable() {
 	return &currentField;
 }
 
-
-
-
+void SerialTagValueTransport::endMsg() {
+	TagValueTransport::endMsg();
+	serialPort->write("\r\n");
+}

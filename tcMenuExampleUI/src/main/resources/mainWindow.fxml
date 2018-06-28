@@ -9,12 +9,38 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.examples.simpleui.MainWindowController">
+<BorderPane prefHeight="574.0" prefWidth="424.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.examples.simpleui.MainWindowController">
    <opaqueInsets>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </opaqueInsets>
-   <right>
-      <GridPane style="-fx-background-color: #bbb;" BorderPane.alignment="CENTER">
+   <center>
+      <GridPane fx:id="itemGrid" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" />
+          <ColumnConstraints hgrow="SOMETIMES" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints />
+          <RowConstraints />
+          <RowConstraints />
+        </rowConstraints>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </GridPane>
+   </center>
+   <top>
+      <Label fx:id="topLabel" text="TcMenu embedded to Java FX Example UI" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+   </top>
+   <padding>
+      <Insets top="4.0" />
+   </padding>
+   <bottom>
+      <GridPane prefHeight="91.0" prefWidth="592.0" style="-fx-background-color: #bbb;" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -42,31 +68,5 @@
             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
          </padding>
       </GridPane>
-   </right>
-   <center>
-      <GridPane fx:id="itemGrid" BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" />
-          <ColumnConstraints hgrow="SOMETIMES" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints />
-          <RowConstraints />
-          <RowConstraints />
-        </rowConstraints>
-         <padding>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-         </padding>
-      </GridPane>
-   </center>
-   <top>
-      <Label fx:id="topLabel" text="TcMenu embedded to Java FX Example UI" BorderPane.alignment="CENTER">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-   </top>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
+   </bottom>
 </BorderPane>

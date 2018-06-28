@@ -18,19 +18,17 @@ public:
 	SerialTagValueTransport(Stream* serialPort);
 	virtual ~SerialTagValueTransport() {}
 
-	virtual void startMsg(uint16_t msgType);
-	virtual void writeField(uint16_t field, const char* value);
-	virtual void writeFieldP(uint16_t field, const char* value);
-	virtual void writeFieldInt(uint16_t field, int value);
-	virtual void endMsg();
-
 	virtual FieldAndValue* fieldIfAvailable();
+
+	virtual void flush() {serialPort->flush();}
+	virtual int writeChar(char data) { return serialPort->write(data); }
+	virtual int writeStr(const char* data) { return serialPort->write(data); }
 
 	virtual bool available() { return serialPort->availableForWrite();}
 	virtual bool connected() { return true;}
+	virtual void endMsg();
 private:
 	bool findNextMessageStart();
-	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
 	bool processMsgKey();
 	bool processValuePart();
 };

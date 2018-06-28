@@ -20,7 +20,7 @@ AdaFruitGfxMenuRenderer::~AdaFruitGfxMenuRenderer() {
 }
 
 typedef uint32_t Coord;
-#define MakeCoord(x, y) ((x<<16)|y)
+#define MakeCoord(x, y) ((((long)x)<<16)|y)
 #define CoordX(c) (c>>16)
 #define CoordY(c) (c&0xff)
 

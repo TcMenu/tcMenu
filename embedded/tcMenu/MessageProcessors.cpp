@@ -17,7 +17,6 @@ void JoinMessageProcessor::initialise() {
 }
 
 void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
-	TagValueRemoteConnector::instance()->initiateBootstrap(menuMgr.getRoot());
 	switch(field->field) {
 	case FIELD_MSG_NAME:
 		if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->remoteNameChange(field->value);
@@ -35,6 +34,7 @@ void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
 }
 
 void JoinMessageProcessor::onComplete() {
+	TagValueRemoteConnector::instance()->initiateBootstrap(menuMgr.getRoot());
 	if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->newJoiner(major, minor, platform);
 }
 
