@@ -32,7 +32,7 @@ public class TagValTextParser {
             }
             else {
                 if(key.isEmpty()) {
-                    throw new IOException("Key is empty in protocol");
+                    throw new TcProtocolException("Key is empty in protocol");
                 }
                 String value = readString(buffer);
                 if(value.equals("~")) {

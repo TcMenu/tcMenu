@@ -35,7 +35,6 @@ void BaseMenuRenderer::initialise() {
 	renderCallback = NULL;
 	redrawMode = MENUDRAW_COMPLETE_REDRAW;
 
-	Serial.begin(9600);
 	resetToDefault();
 
 	taskManager.scheduleFixedRate(SCREEN_DRAW_INTERVAL, doRender);

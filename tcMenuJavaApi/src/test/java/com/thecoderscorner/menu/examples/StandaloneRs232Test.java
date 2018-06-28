@@ -49,10 +49,10 @@ public class StandaloneRs232Test {
         String myName = "OfficeMac";
 
         // Change this to the name of your serial port
-        String portName = "/dev/cu.usbmodemFA1211";
+        String portName = "/dev/cu.usbmodemFD131";
 
         // Change this to set the baud rate
-        int baud = 115200;
+        int baud = 9600;
 
         logger.info("Creating an rs232 connection to {} at {} baud", portName, baud);
 
@@ -68,6 +68,15 @@ public class StandaloneRs232Test {
         // now we simply add our remote listener (class definition below) and start up the comms.
         controller.addListener(new MyRemoteListener());
         controller.start();
+
+        // here you could do whatever tasks you'd normally perform..
+        while(!Thread.currentThread().isInterrupted()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     private class MyRemoteListener implements RemoteControllerListener {
@@ -91,7 +100,7 @@ public class StandaloneRs232Test {
             // a delta change command.
             Optional<MenuItem> maybeItem = menuTree.getMenuById(MenuTree.ROOT, 1);
             maybeItem.ifPresent( item -> {
-                logger.info("Retrieved {} by its ID {}, reducing by +5", item.getName(), item.getId());
+                logger.info("Retrieved {} by its ID {}, change by 5", item.getName(), item.getId());
                  controller.sendCommand(CommandFactory.newDeltaChangeCommand(MenuTree.ROOT.getId(),
                          item.getId(), +5));
             });

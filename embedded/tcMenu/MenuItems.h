@@ -187,7 +187,7 @@ public:
 	virtual void load(EepromAbstraction& eeprom) {
 		uint16_t eeVal = pgm_read_word_near(&info->eepromAddr);
 		if (eeVal != 0xffff) {
-			setCurrentValue(eeprom.read16(eeVal));
+			setCurrentValue((int)eeprom.read16(eeVal));
 		}
 	}
 
@@ -196,7 +196,7 @@ public:
 		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
 		if (eepromAddr == 0xffff) return;
 
-		eeprom.write16(eepromAddr, currentValue);
+		eeprom.write16(eepromAddr, (uint16_t)currentValue);
 	}
 
 	/** Gets hold of the menu info struct, careful this is in PROGMEM */

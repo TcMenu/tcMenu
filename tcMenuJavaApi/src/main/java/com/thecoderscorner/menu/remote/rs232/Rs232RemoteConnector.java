@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.RemoteConnector;
 import com.thecoderscorner.menu.remote.RemoteConnectorListener;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,15 +76,21 @@ public class Rs232RemoteConnector implements RemoteConnector {
             state.set(Rs232State.CONNECTED);
             notifyConnection();
             while (!Thread.currentThread().isInterrupted() && isConnected()) {
-                String line = readLineFromStream(serialPort.getInputStream());
-                logger.debug("Line read from stream: {}", line);
-                MenuCommand mc = protocol.fromChannel(ByteBuffer.wrap(line.getBytes()));
-                logger.info("Command received: " + mc);
-                notifyListeners(mc);
+                try {
+                    String line = readLineFromStream(serialPort.getInputStream());
+                    logger.debug("Line read from stream: {}", line);
+                    MenuCommand mc = protocol.fromChannel(ByteBuffer.wrap(line.getBytes()));
+                    logger.info("Command received: " + mc);
+                    notifyListeners(mc);
+                }
+                catch(TcProtocolException ex) {
+                    // a protocol problem shouldn't drop the connection
+                    logger.warn("Probable Bad message reason='{}' port={} ", ex.getMessage(), portName);
+                }
             }
             logger.info("Disconnected from serial port " + portName);
         } catch (Exception e) {
-            logger.error("Disconnected from serial port " + portName, e);
+            logger.error("Probable Bad message on serial port " + portName, e);
         }
         finally {
             close();
@@ -124,9 +131,10 @@ public class Rs232RemoteConnector implements RemoteConnector {
                 cmdBuffer.clear();
                 protocol.toChannel(cmdBuffer, msg);
                 cmdBuffer.flip();
-                logger.debug("Sending message on rs232: " + cmdBuffer);
+                logByteBuffer("Sending message on rs232: ", cmdBuffer);
                 serialPort.getOutputStream().write('`');
                 serialPort.getOutputStream().write(cmdData, 0, cmdBuffer.remaining());
+                serialPort.getOutputStream().flush();
             }
         } else {
             throw new IOException("Not connected to port");
@@ -157,8 +165,7 @@ public class Rs232RemoteConnector implements RemoteConnector {
     @Override
     public void close() {
         logger.info("Closing rs232 port");
-        // no point closing serial port, it just resets the arduino again and it normally remains open anyway
-        //serialPort.closePort();
+        serialPort.closePort();
         state.set(Rs232State.DISCONNECTED);
         notifyConnection();
     }
@@ -189,5 +196,17 @@ public class Rs232RemoteConnector implements RemoteConnector {
             }
         }
         return sb.toString();
+    }
+
+    private void logByteBuffer(String msg, ByteBuffer inBuffer) {
+        if(!logger.isDebugEnabled()) return;
+
+        ByteBuffer bb = inBuffer.duplicate();
+
+        byte[] byData = new byte[2048];
+        int len = Math.min(256, bb.remaining());
+        bb.get(byData, 0, len);
+
+        logger.debug("{}. Content: '{}'", msg, new String(byData, 0, len));
     }
 }

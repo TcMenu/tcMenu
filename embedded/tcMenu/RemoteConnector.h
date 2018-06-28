@@ -18,7 +18,7 @@
 class ConnectorListener {
 public:
 	virtual ~ConnectorListener() {;}
-	virtual void remoteNameChange(const char* remoteName);
+	virtual void remoteNameChange(const char* remoteName) = 0;
 	virtual void newJoiner(uint8_t major, uint8_t minor, ApiPlatform platform) = 0;
 	virtual void heartbeat() = 0;
 	virtual void error(uint8_t type) = 0;
@@ -63,18 +63,24 @@ class TagValueTransport {
 protected:
 	FieldAndValue currentField;
 public:
+	TagValueTransport();
 	virtual ~TagValueTransport() {}
 
-	virtual void startMsg(uint16_t msgType) = 0;
-	virtual void writeField(uint16_t field, const char* value) = 0;
-	virtual void writeFieldP(uint16_t field, const char* value) = 0;
-	virtual void writeFieldInt(uint16_t field, int value) = 0;
-	virtual void endMsg() = 0;
+	virtual void startMsg(uint16_t msgType);
+	virtual void writeField(uint16_t field, const char* value);
+	virtual void writeFieldP(uint16_t field, const char* value);
+	virtual void writeFieldInt(uint16_t field, int value);
+	virtual void endMsg();
 
+	virtual void flush() = 0;
+
+	virtual int writeChar(char data) = 0;
+	virtual int writeStr(const char* data) = 0;
 	virtual FieldAndValue* fieldIfAvailable() = 0;
 
 	virtual bool available() = 0;
 	virtual bool connected() = 0;
+	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
 };
 
 

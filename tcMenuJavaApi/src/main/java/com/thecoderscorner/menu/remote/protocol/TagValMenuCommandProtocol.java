@@ -49,7 +49,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         String ty = parser.getValue(KEY_MSG_TYPE);
         logger.debug("Protocol convert in: {}", parser);
         MenuCommandType cmdType = codeToCmdType.get(ty);
-        if(cmdType == null) throw new IOException("Protocol received unexpected message: " + ty);
+        if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
 
         switch (cmdType) {
             case JOIN:
@@ -71,7 +71,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case TEXT_BOOT_ITEM:
                 return processTextItem(parser);
             default:
-                throw new IOException("Unknown message type " + cmdType);
+                throw new TcProtocolException("Unknown message type " + cmdType);
         }
     }
 

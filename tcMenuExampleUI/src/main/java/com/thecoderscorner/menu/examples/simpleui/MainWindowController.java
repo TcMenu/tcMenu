@@ -189,8 +189,8 @@ public class MainWindowController {
                 //
                 Label itemLbl = new Label("SubMenu " + item.getName());
                 itemLbl.setPadding(new Insets(12, 10, 12, inset));
-                itemLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: linear-gradient(#020b02, #3a3a3a);-fx-background-radius: 9,8,5,4,3;");
-                itemGrid.add(itemLbl, 0, gridPosition++);
+                itemLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 120%; -fx-background-color: linear-gradient(#dbdbdb, #e2aa94);");
+                itemGrid.add(itemLbl, 0, gridPosition++, 2, 1);
                 gridPosition = buildGrid(MenuItemHelper.asSubMenu(item), inset + 10, gridPosition);
             } else {
                 //
@@ -326,7 +326,7 @@ public class MainWindowController {
             }
 
             /**
-             * Make standard label makes a suitable label that the value can be rendered into later. This also
+             * Make a standard label that the value for this menu can be rendered into later. This also
              * adds the label to map of labels by ID.
              * @param id the ID of the item for which this label belongs
              * @return the label

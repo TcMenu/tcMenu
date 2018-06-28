@@ -8,6 +8,9 @@
 #ifndef _TCMENU_REMOTETYPES_H_
 #define _TCMENU_REMOTETYPES_H_
 
+#define majorminor(maj, min) ((maj * 100) + min)
+#define API_VERSION majorminor(0, 4)
+
 #define msgFieldToWord(a,b)  ( (((uint16_t)a)<<8) | ((uint16_t)b) )
 
 #define MAX_VALUE_LEN 24

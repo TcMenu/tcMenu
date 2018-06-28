@@ -13,10 +13,6 @@
 #include "tcMenu.h"
 #include "MessageProcessors.h"
 
-#define majorminor(maj, min) ((maj * 100) + min)
-
-int apiVersion = majorminor(0, 4);
-
 TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport) {
 	this->localNamePgm = namePgm;
 	this->listener = NULL;
@@ -33,6 +29,8 @@ void TagValueRemoteConnector::start() {
 	_TAG_INSTANCE = this;
 	taskManager.scheduleFixedRate(TICK_INTERVAL, [] {_TAG_INSTANCE->tick();});
 }
+
+
 
 void TagValueRemoteConnector::tick() {
 	dealWithHeartbeating();
@@ -176,7 +174,7 @@ void TagValueRemoteConnector::encodeJoinP(const char* localName) {
 	if(transport->connected()) {
 		transport->startMsg(MSG_JOIN);
 		transport->writeFieldP(FIELD_MSG_NAME, localName);
-		transport->writeFieldInt(FIELD_VERSION, apiVersion);
+		transport->writeFieldInt(FIELD_VERSION, API_VERSION);
 		transport->writeFieldInt(FIELD_PLATFORM, PLATFORM_ARDUINO_8BIT);
 		transport->endMsg();
 		ticksLastSend = 0;
@@ -331,4 +329,73 @@ void TagValueRemoteConnector::encodeChangeValue(int parentId, MenuItem* theItem)
 	else if(listener) {
 		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
+}
+
+//
+// Base transport capabilities
+//
+
+TagValueTransport::TagValueTransport() {
+	this->currentField.field = UNKNOWN_FIELD_PART;
+	this->currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
+	this->currentField.msgType = UNKNOWN_MSG_TYPE;
+	this->currentField.len = 0;
+}
+
+void TagValueTransport::startMsg(uint16_t msgType) {
+	char sz[3];
+	sz[0] = msgType >> 8;
+	sz[1] = msgType & 0xff;
+	sz[2] = 0;
+	writeChar('`');
+	writeField(FIELD_MSG_TYPE, sz);
+}
+
+void TagValueTransport::writeField(uint16_t field, const char* value) {
+	char sz[4];
+	sz[0] = field >> 8;
+	sz[1] = field & 0xff;
+	sz[2] = '=';
+	sz[3] = 0;
+	writeStr(sz);
+	writeStr(value);
+	writeChar('|');
+}
+
+void TagValueTransport::writeFieldP(uint16_t field, const char* value) {
+	char sz[4];
+	sz[0] = field >> 8;
+	sz[1] = field & 0xff;
+	sz[2] = '=';
+	sz[3] = 0;
+	writeStr(sz);
+
+	while(char val = pgm_read_byte_near(value)) {
+		writeChar(val);
+		++value;
+	}
+
+	writeChar('|');
+}
+
+void TagValueTransport::writeFieldInt(uint16_t field, int value) {
+	char sz[10];
+	sz[0] = field >> 8;
+	sz[1] = field & 0xff;
+	sz[2] = '=';
+	sz[3] = 0;
+	writeStr(sz);
+	itoa(value, sz, 10);
+	writeStr(sz);
+	writeChar('|');
+}
+
+void TagValueTransport::endMsg() {
+	writeStr("~");
+}
+
+void TagValueTransport::clearFieldStatus(FieldValueType ty) {
+	currentField.fieldType = ty;
+	currentField.field = UNKNOWN_FIELD_PART;
+	currentField.msgType = UNKNOWN_MSG_TYPE;
 }
