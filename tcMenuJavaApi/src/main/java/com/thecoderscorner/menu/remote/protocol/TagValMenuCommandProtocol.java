@@ -32,6 +32,8 @@ import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
  * the end of the message.
  */
 public class TagValMenuCommandProtocol implements MenuCommandProtocol {
+    private static final byte PROTOCOL_TAG_VAL = 1;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, MenuCommandType> codeToCmdType;
 
@@ -232,6 +234,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         String msgStr = sb.toString();
         logger.debug("Protocol convert out: {}", msgStr);
         buffer.put(msgStr.getBytes());
+    }
+
+    @Override
+    public byte getKeyIdentifier() {
+        return PROTOCOL_TAG_VAL;
     }
 
     private void writeChangeInt(StringBuilder sb, MenuChangeCommand cmd) {

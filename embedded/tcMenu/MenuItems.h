@@ -86,10 +86,14 @@ struct TextMenuInfo {
 enum Flags : byte {
 	MENUITEM_ACTIVE = 1,       // the menu is currently active but not editing
 	MENUITEM_CHANGED = 2,      // the menu has changed and needs drawing
-	MENUITEM_REMOTE_SEND = 3,  // the menu needs to be sent remotely
-	MENUITEM_READONLY = 4,     // the menu cannot be changed
-	MENUITEM_EDITING = 5       // the menu is being edited
+	MENUITEM_READONLY = 3,     // the menu cannot be changed
+	MENUITEM_EDITING = 4,      // the menu is being edited
+	MENUITEM_REMOTE_SEND0 = 6, // the menu needs to be sent remotely (for remote 0)
+	MENUITEM_REMOTE_SEND1 = 7, // the menu needs to be sent remotely (for remote 1)
+	MENUITEM_REMOTE_SEND2 = 8  // the menu needs to be sent remotely (for remote 2)
 };
+
+#define MENUITEM_ALL_REMOTES (32+64+128)
 
 /**
  * As we don't have RTTI we need a way of identifying each menu item
@@ -128,31 +132,32 @@ public:
 	virtual void save(EepromAbstraction& eeprom) = 0;
 
 	/** set the item to be changed, this lets the renderer know it needs painting */
-	inline void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
+	void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
 	/** returns the changed state of the item */
-	inline bool isChanged() { return bitRead(flags, MENUITEM_CHANGED); }
+	bool isChanged() { return bitRead(flags, MENUITEM_CHANGED); }
 	/** returns if the menu item needs to be sent remotely */
-	inline bool isSendRemoteNeeded() { return bitRead(flags, MENUITEM_REMOTE_SEND); }
+	bool isSendRemoteNeeded(uint8_t remoteNo);
 	/** set the flag indicating that a remote refresh is needed */
-	inline void setSendRemoteNeeded(bool needed) { bitWrite(flags, MENUITEM_REMOTE_SEND, needed); }
+	void setSendRemoteNeededAll(bool needed);
+	void setSendRemoteNeeded(uint8_t remoteNo, bool needed);
 
 	/** sets this to be the active item, so that the renderer shows it highlighted */
-	inline void setActive(bool active) { bitWrite(flags, MENUITEM_ACTIVE, active); setChanged(true); }
+	void setActive(bool active) { bitWrite(flags, MENUITEM_ACTIVE, active); setChanged(true); }
 	/** returns the active status of the item */
-	inline bool isActive() { return bitRead(flags, MENUITEM_ACTIVE); }
+	bool isActive() { return bitRead(flags, MENUITEM_ACTIVE); }
 
 	/** sets this item as the currently being edited, so that the renderer shows it as being edited */
-	inline void setEditing(bool active) { bitWrite(flags, MENUITEM_EDITING, active); setChanged(true); }
+	void setEditing(bool active) { bitWrite(flags, MENUITEM_EDITING, active); setChanged(true); }
 	/** returns true if the status is currently being edited */
-	inline bool isEditing() { return bitRead(flags, MENUITEM_EDITING); }
+	bool isEditing() { return bitRead(flags, MENUITEM_EDITING); }
 
 	/** sets this item to be read only, so that the manager will not allow it to be edited */
-	inline void setReadOnly(bool active) { bitWrite(flags, MENUITEM_READONLY, active); }
+	void setReadOnly(bool active) { bitWrite(flags, MENUITEM_READONLY, active); }
 	/** returns true if this item is read only */
-	inline bool isReadOnly() { return bitRead(flags, MENUITEM_READONLY); }
+	bool isReadOnly() { return bitRead(flags, MENUITEM_READONLY); }
 
 	/** gets the next menu (sibling) at this level */
-	inline MenuItem* getNext() { return next; }
+	MenuItem* getNext() { return next; }
 };
 
 /** 
@@ -174,7 +179,7 @@ public:
 	/** Sets the integer current value to a new value, and marks the menu changed */
 	void setCurrentValue(uint16_t val) {
 		setChanged(true);
-		setSendRemoteNeeded(currentValue != val);
+		setSendRemoteNeededAll(currentValue != val);
 		currentValue = val;
 	}
 

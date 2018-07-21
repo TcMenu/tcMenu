@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="333.0" prefWidth="466.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.examples.simpleui.RemoteSelectorController">
+<BorderPane prefHeight="333.0" prefWidth="466.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.examples.simpleui.RemoteSelectorController">
     <top>
         <Label text="Select communication Type" BorderPane.alignment="CENTER">
             <font>
@@ -40,7 +40,6 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
                 <RadioButton fx:id="chooseSerial" mnemonicParsing="false" onAction="#onCommChoiceChange" selected="true" text="I would like to communicate using RS232" GridPane.columnSpan="2">
@@ -52,11 +51,9 @@
                 <Label fx:id="baudLabel" text="Port Baud rate" GridPane.rowIndex="2" />
                 <TextField fx:id="baudText" promptText="baud (eg: 115200)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 <ComboBox fx:id="portCombo" prefHeight="27.0" prefWidth="221.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <RadioButton fx:id="chooseNetwork" mnemonicParsing="false" onAction="#onCommChoiceChange" text="I would like to communicate using network multicast" toggleGroup="$commstype" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                <RadioButton fx:id="chooseNetwork" mnemonicParsing="false" onAction="#onCommChoiceChange" text="I would like to communicate using sockets" toggleGroup="$commstype" GridPane.columnSpan="2" GridPane.rowIndex="3" />
                 <Label fx:id="addrLabel" disable="true" text="IP Address" GridPane.rowIndex="4" />
-                <Label fx:id="devIdLabel" disable="true" text="Device ID" GridPane.rowIndex="6" />
-                <TextField fx:id="addrText" disable="true" promptText="Multicast IP address" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <TextField fx:id="devIdText" disable="true" promptText="Device ID" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                <TextField fx:id="addrText" disable="true" promptText="Device IP address" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label fx:id="ipPortLabel" disable="true" text="Port" GridPane.rowIndex="5" />
             <TextField fx:id="ipPortText" promptText="port number" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             </children>

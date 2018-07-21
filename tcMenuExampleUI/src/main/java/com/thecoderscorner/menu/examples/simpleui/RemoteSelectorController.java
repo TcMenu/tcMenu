@@ -9,6 +9,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
+import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 import com.thecoderscorner.menu.remote.udp.UdpControllerBuilder;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -34,9 +36,7 @@ public class RemoteSelectorController {
     public RadioButton chooseSerial;
     public RadioButton chooseNetwork;
     public Label addrLabel;
-    public Label devIdLabel;
     public TextField addrText;
-    public TextField devIdText;
     public Label ipPortLabel;
     public TextField ipPortText;
     private MenuTree menuTree;
@@ -58,9 +58,7 @@ public class RemoteSelectorController {
         portCombo.setDisable(!enableSerial);
 
         addrLabel.setDisable(enableSerial);
-        devIdLabel.setDisable(enableSerial);
         addrText.setDisable(enableSerial);
-        devIdText.setDisable(enableSerial);
         ipPortLabel.setDisable(enableSerial);
         ipPortText.setDisable(enableSerial);
     }
@@ -82,15 +80,18 @@ public class RemoteSelectorController {
 
         }
         else {
-            short devId = (short) Integer.parseInt(devIdText.getText());
-            String address = addrText.getText();
             int port = Integer.parseInt(ipPortText.getText());
-            result = new UdpControllerBuilder()
-                    .withLocalName(LOCAL_NAME)
-                    .withMenuTree(menuTree)
-                    .withBindAddress(new InetSocketAddress(address, port))
-                    .withDeviceId(devId)
-                    .build();
+            String ipAddr = addrText.getText();
+            try {
+                result = new SocketControllerBuilder()
+                        .withAddress(ipAddr)
+                        .withPort(port)
+                        .withLocalName(LOCAL_NAME)
+                        .withMenuTree(menuTree)
+                        .build();
+            } catch (IOException e) {
+                throw new UnsupportedOperationException("Could not create socket");
+            }
         }
         Stage s = (Stage) portLabel.getScene().getWindow();
         s.close();
