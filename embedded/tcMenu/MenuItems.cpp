@@ -6,6 +6,25 @@
 #include "tcMenu.h"
 #include "MenuItems.h"
 
+bool MenuItem::isSendRemoteNeeded(uint8_t remoteNo) {
+	remoteNo += 5;
+	return flags & (1 << remoteNo);
+}
+
+void MenuItem::setSendRemoteNeeded(uint8_t remoteNo, bool needed) {
+	remoteNo += 5;
+	bitWrite(flags, remoteNo, needed);
+}
+
+void MenuItem::setSendRemoteNeededAll(bool needed) {
+	if(needed) {
+		flags = flags | MENUITEM_ALL_REMOTES;
+	}
+	else {
+		flags = flags & (~MENUITEM_ALL_REMOTES);
+	}
+}
+
 AnalogMenuItem::AnalogMenuItem(const AnalogMenuInfo* info, uint16_t currentValue, MenuItem* next) {
 	this->init(info, currentValue, next);
 }
@@ -51,7 +70,7 @@ const char * BackMenuItem::getNamePgm(){
 }
 
 void BooleanMenuItem::setBoolean(bool newVal) {
-	setSendRemoteNeeded(currentValue != newVal);
+	setSendRemoteNeededAll(currentValue != newVal);
 	currentValue = newVal; 
 	setChanged(true);
 }
@@ -70,7 +89,7 @@ void TextMenuItem::load(EepromAbstraction& eeprom) {
 	uint8_t len = textLength();
 	eeprom.readIntoMemArray((uint8_t*)menuText, eepromAddr, len);
 	menuText[len - 1] = 0; // make sure it's properly terminated!!
-	setSendRemoteNeeded(true);
+	setSendRemoteNeededAll(true);
 }
 
 void TextMenuItem::save(EepromAbstraction& eeprom) {
@@ -81,7 +100,7 @@ void TextMenuItem::save(EepromAbstraction& eeprom) {
 }
 
 void TextMenuItem::setTextValue(const char* text) {
-	setSendRemoteNeeded(strncmp(menuText, text, textLength()));
+	setSendRemoteNeededAll(strncmp(menuText, text, textLength()));
 	strncpy(menuText, text, textLength());
 	menuText[textLength() - 1] = 0;
 	setChanged(true);

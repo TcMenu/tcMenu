@@ -29,4 +29,10 @@ public interface MenuCommandProtocol {
      * @param cmd the command to write
      */
     void toChannel(ByteBuffer buffer, MenuCommand cmd);
+
+    /**
+     * returns the identifier for this protocol, when used in messages
+     * @return the ID for this protocol
+     */
+    byte getKeyIdentifier();
 }

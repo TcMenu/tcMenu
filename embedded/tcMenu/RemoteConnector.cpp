@@ -13,24 +13,19 @@
 #include "tcMenu.h"
 #include "MessageProcessors.h"
 
-TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport) {
+
+ConnectorListener* TagValueTransport::listener = NULL;
+
+TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport, uint8_t remoteNo) {
 	this->localNamePgm = namePgm;
-	this->listener = NULL;
 	this->transport = transport;
+	this->remoteNo = remoteNo;
 	this->ticksLastRead = this->ticksLastSend = 0xffff;
 	this->flags = 0;
 	this->processor = NULL;
 	this->bootMenuPtr = preSubMenuBootPtr = NULL;
+	this->next = NULL;
 }
-
-TagValueRemoteConnector* TagValueRemoteConnector::_TAG_INSTANCE;
-
-void TagValueRemoteConnector::start() {
-	_TAG_INSTANCE = this;
-	taskManager.scheduleFixedRate(TICK_INTERVAL, [] {_TAG_INSTANCE->tick();});
-}
-
-
 
 void TagValueRemoteConnector::tick() {
 	dealWithHeartbeating();
@@ -54,12 +49,16 @@ void TagValueRemoteConnector::tick() {
 		ticksLastRead = 0;
 		break;
 	case FVAL_ERROR_PROTO:
-		if(listener) listener->error(REMOTE_ERR_PROTOCOL_WRONG);
+		if(TagValueTransport::getListener()) TagValueTransport::getListener()->error(REMOTE_ERR_PROTOCOL_WRONG);
 		processor = NULL;
 		break;
 	default: // not ready for processing yet.
 		break;
 	}
+
+	taskManager.yieldForMicros(1);
+
+	if(next) next->tick();
 }
 
 void TagValueRemoteConnector::dealWithHeartbeating() {
@@ -74,16 +73,18 @@ void TagValueRemoteConnector::dealWithHeartbeating() {
 		if(isConnected()) {
 			setConnected(false);
 			processor = NULL;
-			if(listener) {
-				listener->connected(false);
-				listener->error(REMOTE_ERR_NO_HEARTBEAT);
+			if(TagValueTransport::getListener()) {
+				TagValueTransport::getListener()->connected(false);
+				TagValueTransport::getListener()->error(REMOTE_ERR_NO_HEARTBEAT);
+				transport->close();
 			}
 		}
 	} else if(!isConnected()){
 		encodeJoinP(localNamePgm);
 		processor = NULL;
 		setConnected(true);
-		if(listener) listener->connected(true);
+		if(TagValueTransport::getListener()) TagValueTransport::getListener()->connected(true);
+		initiateBootstrap(menuMgr.getRoot());
 	}
 
 }
@@ -103,8 +104,8 @@ void TagValueRemoteConnector::performAnyWrites() {
 				SubMenuItem* sub = (SubMenuItem*) bootMenuPtr;
 				bootMenuPtr = sub->getChild();
 			}
-			else if(bootMenuPtr->isSendRemoteNeeded()) {
-				bootMenuPtr->setSendRemoteNeeded(false);
+			else if(bootMenuPtr->isSendRemoteNeeded(remoteNo)) {
+				bootMenuPtr->setSendRemoteNeeded(remoteNo, false);
 				encodeChangeValue(parentId, bootMenuPtr);
 				return; // exit once something is written
 			}
@@ -139,7 +140,7 @@ void TagValueRemoteConnector::nextBootstrap() {
 	if(!transport->available()) return; // skip a turn, no write available.
 
 	int parentId = (preSubMenuBootPtr != NULL) ? preSubMenuBootPtr->getId() : 0;
-	bootMenuPtr->setSendRemoteNeeded(false);
+	bootMenuPtr->setSendRemoteNeeded(remoteNo, false);
 	switch(bootMenuPtr->getMenuType()) {
 	case MENUTYPE_SUB_VALUE:
 		encodeSubMenu(parentId, (SubMenuItem*)bootMenuPtr);
@@ -179,8 +180,8 @@ void TagValueRemoteConnector::encodeJoinP(const char* localName) {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -194,8 +195,8 @@ void TagValueRemoteConnector::encodeBootstrap(bool isComplete) {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -205,8 +206,8 @@ void TagValueRemoteConnector::encodeHeartbeat() {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 
 }
@@ -226,8 +227,8 @@ void TagValueRemoteConnector::encodeAnalogItem(int parentId, AnalogMenuItem* ite
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -243,8 +244,8 @@ void TagValueRemoteConnector::encodeTextMenu(int parentId, TextMenuItem* item) {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -267,8 +268,8 @@ void TagValueRemoteConnector::encodeEnumMenu(int parentId, EnumMenuItem* item) {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -284,8 +285,8 @@ void TagValueRemoteConnector::encodeBooleanMenu(int parentId, BooleanMenuItem* i
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -298,8 +299,8 @@ void TagValueRemoteConnector::encodeSubMenu(int parentId, SubMenuItem* item) {
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -326,8 +327,8 @@ void TagValueRemoteConnector::encodeChangeValue(int parentId, MenuItem* theItem)
 		transport->endMsg();
 		ticksLastSend = 0;
 	}
-	else if(listener) {
-		listener->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
+	else if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->error(REMOTE_ERR_WRITE_NOT_CONNECTED);
 	}
 }
 
@@ -343,11 +344,16 @@ TagValueTransport::TagValueTransport() {
 }
 
 void TagValueTransport::startMsg(uint16_t msgType) {
+	// start of message
+	writeChar(START_OF_MESSAGE);
+
+	// protocol low and high byte
+	writeChar(TAG_VAL_PROTOCOL);
+
 	char sz[3];
 	sz[0] = msgType >> 8;
 	sz[1] = msgType & 0xff;
 	sz[2] = 0;
-	writeChar('`');
 	writeField(FIELD_MSG_TYPE, sz);
 }
 
@@ -398,4 +404,120 @@ void TagValueTransport::clearFieldStatus(FieldValueType ty) {
 	currentField.fieldType = ty;
 	currentField.field = UNKNOWN_FIELD_PART;
 	currentField.msgType = UNKNOWN_MSG_TYPE;
+}
+
+bool TagValueTransport::findNextMessageStart() {
+	char read = 0;
+	while(readAvailable() && read != START_OF_MESSAGE) {
+		read = readByte();
+	}
+	return (read == START_OF_MESSAGE);
+}
+
+bool TagValueTransport::processMsgKey() {
+	if(highByte(currentField.field) == UNKNOWN_FIELD_PART && readAvailable()) {
+		char r = readByte();
+		if(r == '~') {
+			currentField.fieldType = FVAL_END_MSG;
+			return false;
+		}
+		else {
+			currentField.field = ((uint16_t)r) << 8;
+		}
+	}
+
+	// if we are PROCESSING the key and we've already filled in the top half, then now we need the lower part.
+	if(highByte(currentField.field) != UNKNOWN_FIELD_PART && lowByte(currentField.field) == UNKNOWN_FIELD_PART && readAvailable()) {
+		currentField.field |= ((readByte()) & 0xff);
+		currentField.fieldType = FVAL_PROCESSING_WAITEQ;
+	}
+
+	return true;
+}
+
+bool TagValueTransport::processValuePart() {
+	char current = 0;
+	while(readAvailable() && current != '|') {
+		current = readByte();
+		if(current != '|') {
+			currentField.value[currentField.len] = current;
+			// safety check for too much data!
+			if(++currentField.len > (sizeof(currentField.value)-1)) {
+				return false;
+			}
+		}
+	}
+
+	// reached end of field?
+	if(current == '|') {
+		currentField.value[currentField.len] = 0;
+
+		// if this is a new message and the first field is not the type, that's an error
+		if(currentField.msgType == UNKNOWN_MSG_TYPE && currentField.field != FIELD_MSG_TYPE) {
+			return false;
+		}
+
+		// if its the message type field, populate it and report new message, otherwise report regular field
+		if(currentField.field == FIELD_MSG_TYPE) {
+			currentField.msgType = msgFieldToWord(currentField.value[0], currentField.value[1]);
+			currentField.fieldType = FVAL_NEW_MSG;
+		}
+		else currentField.fieldType = FVAL_FIELD;
+	}
+	return true;
+}
+
+FieldAndValue* TagValueTransport::fieldIfAvailable() {
+	bool contProcessing = true;
+	while(contProcessing) {
+		switch(currentField.fieldType) {
+		case FVAL_END_MSG:
+			clearFieldStatus(FVAL_PROCESSING_AWAITINGMSG);
+			break;
+		case FVAL_ERROR_PROTO:
+		case FVAL_PROCESSING_AWAITINGMSG: // in these states we need to find the next message
+			if(findNextMessageStart()) {
+				clearFieldStatus(FVAL_PROCESSING_PROTOCOL);
+			}
+			else {
+				currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
+				return &currentField;
+			}
+			break;
+
+		case FVAL_NEW_MSG:
+		case FVAL_FIELD: // the field finished last time around, now reset it.
+			currentField.fieldType = FVAL_PROCESSING;
+			currentField.field = UNKNOWN_FIELD_PART;
+			break;
+
+		case FVAL_PROCESSING_PROTOCOL: // we need to make sure the protocol is valid
+			if(!readAvailable()) break;
+			currentField.fieldType = (readByte() == TAG_VAL_PROTOCOL) ? FVAL_PROCESSING : FVAL_ERROR_PROTO;
+			break;
+
+		case FVAL_PROCESSING: // we are looking for the field key
+			contProcessing = processMsgKey();
+			break;
+
+		case FVAL_PROCESSING_WAITEQ: // we expect an = following the key
+			if(!readAvailable()) break;
+			if(readByte() != '=') {
+				clearFieldStatus(FVAL_ERROR_PROTO);
+				return &currentField;
+			}
+			currentField.len = 0;
+			currentField.fieldType = FVAL_PROCESSING_VALUE;
+			break;
+
+		case FVAL_PROCESSING_VALUE: // and lastly a value followed by pipe.
+			if(!processValuePart()) {
+				clearFieldStatus(FVAL_ERROR_PROTO);
+			}
+			if(currentField.fieldType != FVAL_PROCESSING_VALUE) return &currentField;
+			break;
+		}
+		contProcessing = contProcessing && readAvailable();
+	}
+	return &currentField;
 }

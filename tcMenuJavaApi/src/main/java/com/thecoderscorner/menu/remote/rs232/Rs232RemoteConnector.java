@@ -6,10 +6,7 @@
 package com.thecoderscorner.menu.remote.rs232;
 
 import com.fazecast.jSerialComm.SerialPort;
-import com.thecoderscorner.menu.remote.ConnectionChangeListener;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.RemoteConnector;
-import com.thecoderscorner.menu.remote.RemoteConnectorListener;
+import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 import org.slf4j.Logger;
@@ -28,28 +25,19 @@ import java.util.concurrent.atomic.AtomicReference;
  * on an embedded Arduino. Normally one uses the Rs232ControllerBuilder to construct
  * the whole remote stack instead of creating this directly.
  */
-public class Rs232RemoteConnector implements RemoteConnector {
+public class Rs232RemoteConnector extends StreamRemoteConnector {
 
-    enum Rs232State {STARTED, CONNECTED, DISCONNECTED}
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final List<RemoteConnectorListener> connectorListeners = new CopyOnWriteArrayList<>();
-    private final List<ConnectionChangeListener> connectionListeners = new CopyOnWriteArrayList<>();
-    private final MenuCommandProtocol protocol;
-    private final ScheduledExecutorService executor;
     private final String portName;
     private final SerialPort serialPort;
-    private final byte[] cmdData = new byte[2048];
-    private final ByteBuffer cmdBuffer = ByteBuffer.wrap(cmdData);
-    private final AtomicReference<Rs232State> state = new AtomicReference<>(Rs232State.STARTED);
+    private final int baud;
 
     public Rs232RemoteConnector(String portName, int baud, MenuCommandProtocol protocol,
                                 ScheduledExecutorService executor) {
+        super(protocol, executor);
         serialPort = SerialPort.getCommPort(portName);
         serialPort.setBaudRate(baud);
-        this.protocol = protocol;
         this.portName = portName;
-        this.executor = executor;
+        this.baud = baud;
     }
 
     public void start() {
@@ -67,50 +55,15 @@ public class Rs232RemoteConnector implements RemoteConnector {
                 processMessagesOnConnection();
             }
         }
-        logger.info("RS232 Reading thread ended with interrupted state");
-    }
-
-    private void processMessagesOnConnection() {
-        try {
-            logger.info("Connected to serial port " + portName);
-            state.set(Rs232State.CONNECTED);
-            notifyConnection();
-            while (!Thread.currentThread().isInterrupted() && isConnected()) {
-                try {
-                    String line = readLineFromStream(serialPort.getInputStream());
-                    logger.debug("Line read from stream: {}", line);
-                    MenuCommand mc = protocol.fromChannel(ByteBuffer.wrap(line.getBytes()));
-                    logger.info("Command received: " + mc);
-                    notifyListeners(mc);
-                }
-                catch(TcProtocolException ex) {
-                    // a protocol problem shouldn't drop the connection
-                    logger.warn("Probable Bad message reason='{}' port={} ", ex.getMessage(), portName);
-                }
-            }
-            logger.info("Disconnected from serial port " + portName);
-        } catch (Exception e) {
-            logger.error("Probable Bad message on serial port " + portName, e);
-        }
-        finally {
-            close();
-        }
-    }
-
-    private void notifyListeners(MenuCommand mc) {
-        connectorListeners.forEach(listener-> listener.onCommand(this, mc));
-    }
-
-    private void notifyConnection() {
-        connectionListeners.forEach(listener-> listener.connectionChange(this, isConnected()));
+        logger.info("RS232 Reading thread ended");
     }
 
     private boolean reconnectWithWait() {
         try {
             Thread.sleep(500); // we need a short break before attempting the first reconnect
-            logger.info("Attempting to connect over rs232");
+            logger.info("Attempting to connect over rs232 to " + getConnectionName());
             serialPort.openPort();
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 100, 0);
+            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 30000, 30000);
             if(serialPort.isOpen()) {
                 notifyConnection();
             }
@@ -125,88 +78,28 @@ public class Rs232RemoteConnector implements RemoteConnector {
     }
 
     @Override
-    public void sendMenuCommand(MenuCommand msg) throws IOException {
-        if (isConnected()) {
-            synchronized (cmdBuffer) {
-                cmdBuffer.clear();
-                protocol.toChannel(cmdBuffer, msg);
-                cmdBuffer.flip();
-                logByteBuffer("Sending message on rs232: ", cmdBuffer);
-                serialPort.getOutputStream().write('`');
-                serialPort.getOutputStream().write(cmdData, 0, cmdBuffer.remaining());
-                serialPort.getOutputStream().flush();
-            }
-        } else {
-            throw new IOException("Not connected to port");
-        }
-    }
-
-    @Override
-    public boolean isConnected() {
-        return state.get() == Rs232State.CONNECTED;
-    }
-
-    @Override
     public String getConnectionName() {
-        return portName;
+        return "Serial " + portName + "@" + baud;
     }
 
     @Override
-    public void registerConnectorListener(RemoteConnectorListener listener) {
-        connectorListeners.add(listener);
+    protected void sendInternal(ByteBuffer outputBuffer) throws IOException {
+        byte[] data = new byte[outputBuffer.remaining()];
+        outputBuffer.get(data, 0, data.length);
+        serialPort.getOutputStream().write(data, 0, data.length);
     }
 
     @Override
-    public void registerConnectionChangeListener(ConnectionChangeListener listener) {
-        connectionListeners.add(listener);
-        executor.execute(() -> listener.connectionChange(this, isConnected()));
-    }
+    protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
+        while(inputBuffer.remaining()<len) {
+            byte[] data = new byte[1024];
+            int actual = serialPort.getInputStream().read(data, 0, data.length);
 
-    @Override
-    public void close() {
-        logger.info("Closing rs232 port");
-        serialPort.closePort();
-        state.set(Rs232State.DISCONNECTED);
-        notifyConnection();
-    }
+            if(actual <= 0) throw new IOException("Serial port has no data");
 
-    private String readLineFromStream(InputStream stream) throws IOException {
-
-        if(stream == null) {
-            close();
-            throw new IOException("The connection closed on unexpectedly - stream was null");
+            inputBuffer.compact();
+            inputBuffer.put(data,0, actual);
+            inputBuffer.flip();
         }
-
-        StringBuilder sb = new StringBuilder(100);
-
-        // first we must get past the backtick - start of message
-        boolean backtickFound = false;
-        while(!backtickFound) {
-            int readByte = stream.read();
-            backtickFound = (readByte == '`');
-        }
-
-        // and then we read the rest of the line
-        boolean crFound = false;
-        while (!crFound) {
-            int read = stream.read();
-            crFound = (read == 10 || read == 13);
-            if (read >= 0) {
-                sb.append((char) read);
-            }
-        }
-        return sb.toString();
-    }
-
-    private void logByteBuffer(String msg, ByteBuffer inBuffer) {
-        if(!logger.isDebugEnabled()) return;
-
-        ByteBuffer bb = inBuffer.duplicate();
-
-        byte[] byData = new byte[2048];
-        int len = Math.min(256, bb.remaining());
-        bb.get(byData, 0, len);
-
-        logger.debug("{}. Content: '{}'", msg, new String(byData, 0, len));
     }
 }

@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.remote.commands.MenuCommandType;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -44,14 +45,13 @@ public class UdpRemoteConnectorTest {
         Arrays.stream(LogManager.getLogManager().getLogger("").getHandlers())
                 .forEach(appender-> appender.setLevel(Level.ALL));
 
-        SocketAddress socketAddress = new InetSocketAddress("localhost", 31863);
-
         connector = new UdpRemoteConnector(
                 Executors.newScheduledThreadPool(3),
                 100,
-                socketAddress,
+                "236.22.33.11", 5349,
                 new TagValMenuCommandProtocol(),
-                (short)2);
+                (short)2,
+                true);
 
         connector.start();
 
@@ -64,7 +64,7 @@ public class UdpRemoteConnectorTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         connector.stop();
     }
 
@@ -75,6 +75,7 @@ public class UdpRemoteConnectorTest {
         }
     }
 
+    @Ignore("Not yet ready for general use")
     @Test
     public void testSendingAndReceivingMultiMsg() throws Exception {
         latch = new CountDownLatch(4);

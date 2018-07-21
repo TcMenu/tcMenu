@@ -19,7 +19,7 @@ void JoinMessageProcessor::initialise() {
 void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
 	switch(field->field) {
 	case FIELD_MSG_NAME:
-		if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->remoteNameChange(field->value);
+		if(TagValueTransport::getListener()) TagValueTransport::getListener()->remoteNameChange(field->value);
 		break;
 	case FIELD_VERSION: {
 		int val = atoi(field->value);
@@ -34,8 +34,9 @@ void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
 }
 
 void JoinMessageProcessor::onComplete() {
-	TagValueRemoteConnector::instance()->initiateBootstrap(menuMgr.getRoot());
-	if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->newJoiner(major, minor, platform);
+	if(TagValueTransport::getListener()) {
+		TagValueTransport::getListener()->newJoiner(major, minor, platform);
+	}
 }
 
 void ValueChangeMessageProcessor::initialise() {
@@ -106,5 +107,5 @@ void ValueChangeMessageProcessor::onComplete() {
 }
 
 void HeartbeatProcessor::onComplete() {
-	if(TagValueRemoteConnector::instance()->getListener()) TagValueRemoteConnector::instance()->getListener()->heartbeat();
+	if(TagValueTransport::getListener()) TagValueTransport::getListener()->heartbeat();
 }
