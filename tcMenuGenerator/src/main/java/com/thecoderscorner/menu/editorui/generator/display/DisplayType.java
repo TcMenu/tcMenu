@@ -24,6 +24,7 @@ public class DisplayType extends EnumWithApplicability {
         addValue(1, ALL_DEVICES, "No Display", DisplayNotUsedCreator.class);
         addValue(2, ALL_ARDUINO_BOARDS, "LiquidCrystalIO Arduino Pins", ArduinoPinLiquidCrystalCreator.class);
         addValue(3, ALL_ARDUINO_BOARDS, "LiquidCrystalIO on i2c bus", I2cBusLiquidCrystalCreator.class);
+        addValue(4, ALL_ARDUINO_BOARDS, "Adafruit_GFX Display", AdafruitGfxDisplayCreator.class);
     }
 
     public DisplayType(Set<EmbeddedPlatform> platformApplicability, String description,

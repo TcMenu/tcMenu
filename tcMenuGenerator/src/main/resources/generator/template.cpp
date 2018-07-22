@@ -12,7 +12,7 @@
 [(${item.cppText})]
 [/]
 
-void setupMenu(ConnectorListener* listener) {
+void setupMenu() {
     Wire.begin(); // if you're sure you don't use wire anywhere, you can remove this line.
 
 [(${allSetups})]

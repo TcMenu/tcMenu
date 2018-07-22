@@ -71,7 +71,7 @@ public class ArduinoSketchFileAdjuster {
 
         ArrayList<String> lines = new ArrayList<>(Files.readAllLines(Paths.get(inoFile)));
         if(needsInclude) addIncludeToTopOfFile(lines);
-        if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu(NULL); // NULL (no remote listener)");
+        if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
         if(needsTaskMgr) addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
         List<String> callbacksToMake = new ArrayList<>(callbacks);
         callbacksToMake.removeAll(callbacksDefined);
