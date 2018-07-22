@@ -20,6 +20,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     @Override
     public String getExportDefinitions() {
         return properties().stream()
+                .filter(prop -> prop.getPropType() == CreatorProperty.PropType.USE_IN_DEFINE)
                 .map(prop -> ("#define " + prop.getName() + " " + prop.getLatestValue()))
                 .collect(Collectors.joining(LINE_BREAK)) + LINE_BREAK;
     }
