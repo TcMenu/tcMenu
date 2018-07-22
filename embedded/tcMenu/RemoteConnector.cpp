@@ -13,18 +13,18 @@
 #include "tcMenu.h"
 #include "MessageProcessors.h"
 
+const PROGMEM char EMPTYNAME[] = "Device";
 
 ConnectorListener* TagValueTransport::listener = NULL;
 
-TagValueRemoteConnector::TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport, uint8_t remoteNo) {
-	this->localNamePgm = namePgm;
+TagValueRemoteConnector::TagValueRemoteConnector(TagValueTransport* transport, uint8_t remoteNo) {
 	this->transport = transport;
+	this->localNamePgm = EMPTYNAME;
 	this->remoteNo = remoteNo;
 	this->ticksLastRead = this->ticksLastSend = 0xffff;
 	this->flags = 0;
 	this->processor = NULL;
 	this->bootMenuPtr = preSubMenuBootPtr = NULL;
-	this->next = NULL;
 }
 
 void TagValueRemoteConnector::tick() {
@@ -55,10 +55,6 @@ void TagValueRemoteConnector::tick() {
 	default: // not ready for processing yet.
 		break;
 	}
-
-	taskManager.yieldForMicros(1);
-
-	if(next) next->tick();
 }
 
 void TagValueRemoteConnector::dealWithHeartbeating() {

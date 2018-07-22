@@ -28,6 +28,6 @@ void CALLBACK_FUNCTION [(${func})](int menuId);
 [(${item.headerText})]
 [/]
 
-void setupMenu(ConnectorListener* listener);
+void setupMenu();
 
 #endif /* header include check */

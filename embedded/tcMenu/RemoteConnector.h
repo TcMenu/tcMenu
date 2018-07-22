@@ -28,10 +28,7 @@ public:
 };
 
 class RemoteConnector {
-protected:
-	RemoteConnector* next;
 public:
-	RemoteConnector() {next = NULL;}
 	virtual ~RemoteConnector() {;}
 
 	virtual void encodeJoinP(const char* localName) = 0;
@@ -47,8 +44,6 @@ public:
 
 	virtual bool isTransportAvailable() = 0;
 	virtual bool isTransportConnected() = 0;
-	RemoteConnector* getNext() {return next;}
-	void setNext(RemoteConnector* next) { this->next = next; }
 };
 
 enum FieldValueType : byte {
@@ -143,8 +138,9 @@ private:
 	MenuItem* bootMenuPtr;
 	MenuItem* preSubMenuBootPtr;
 public:
-	TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport, uint8_t remoteNo);
+	TagValueRemoteConnector(TagValueTransport* transport, uint8_t remoteNo);
 	virtual ~TagValueRemoteConnector() {;}
+	void setName(const char* namePgm) {localNamePgm = namePgm;}
 
 	virtual bool isTransportAvailable() { return transport->available(); }
 	virtual bool isTransportConnected() { return transport->connected(); }

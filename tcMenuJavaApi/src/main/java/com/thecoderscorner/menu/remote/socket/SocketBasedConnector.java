@@ -5,7 +5,6 @@ import com.thecoderscorner.menu.remote.StreamRemoteConnector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,20 +40,26 @@ public class SocketBasedConnector extends StreamRemoteConnector {
                     processMessagesOnConnection();
                 }
                 else {
-                    Thread.sleep(5000);
+                    sleepResettingInterrupt();
                 }
-            }
-            catch(InterruptedException e) {
-                logger.info("Thread is interrupted, closing down");
-                close();
-                Thread.currentThread().interrupt();
             }
             catch(Exception ex) {
                 logger.error("Exception on socket {}:{}", remoteHost, remotePort, ex);
                 close();
+                sleepResettingInterrupt();
             }
         }
+        close();
         logger.info("Exiting socket read loop for {}:{}", remoteHost, remotePort);
+    }
+
+    private void sleepResettingInterrupt() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            logger.info("Thread has been interrupted");
+            Thread.currentThread().interrupt();
+        }
     }
 
     private boolean attemptToConnect() throws IOException {
