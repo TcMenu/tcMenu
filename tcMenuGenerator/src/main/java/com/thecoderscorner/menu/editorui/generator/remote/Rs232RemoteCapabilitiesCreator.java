@@ -14,13 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
 public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;
     private final List<CreatorProperty> creatorProperties = List.of(
             new CreatorProperty("SERIAL_BAUD", "Serial baud rate", "115200", REMOTE),
-            new CreatorProperty("SERIAL_PORT", "Serial port name", "Serial", REMOTE)
+            new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL),
+            new CreatorProperty("SERIAL_PORT", "Serial port variable name", "Serial", REMOTE, VARIABLE)
     );
 
     public Rs232RemoteCapabilitiesCreator(CurrentEditorProject project) {
@@ -37,8 +39,8 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getGlobalVariables() {
-        String projectName = Paths.get(project.getFileName()).getFileName().toString();
-        return "const char PROGMEM applicationName[] = \"" +  projectName + "\";" + LINE_BREAK;
+        String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
+        return "const char PROGMEM applicationName[] = \"" + deviceName + "\";" + LINE_BREAK;
     }
 
     @Override

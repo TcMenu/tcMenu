@@ -14,12 +14,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
 public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;
     private final List<CreatorProperty> creatorProperties = List.of(
-            new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333", REMOTE)
+            new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333", REMOTE),
+            new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL)
     );
 
     public EthernetRemoteCapabilitiesCreator(CurrentEditorProject project) {
@@ -36,9 +38,9 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getGlobalVariables() {
-        String projectName = Paths.get(project.getFileName()).getFileName().toString();
-        return "const char PROGMEM applicationName[] = \"" +  projectName + "\";" + LINE_BREAK +
-               "EthernetServer server(LISTEN_NAME);" + LINE_BREAK;
+        String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
+        return "const char PROGMEM applicationName[] = \"" +  deviceName + "\";" + LINE_BREAK +
+               "EthernetServer server(LISTEN_PORT);" + LINE_BREAK;
     }
 
     @Override
