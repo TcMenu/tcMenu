@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.remote.StreamRemoteConnector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,9 +61,8 @@ public class SocketBasedConnector extends StreamRemoteConnector {
         if(socketChannel.get() == null || !socketChannel.get().isConnected()) {
             close();
             SocketChannel ch = SocketChannel.open();
-            boolean connected = ch.connect(new InetSocketAddress(remoteHost, remotePort));
-            if(connected) socketChannel.set(ch);
-            return connected;
+            ch.socket().connect(new InetSocketAddress(remoteHost, remotePort), 10000);
+            socketChannel.set(ch);
         }
         return true;
     }
@@ -70,12 +70,13 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     @Override
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
         SocketChannel sc = socketChannel.get();
-        while(isConnected() && sc != null && inputBuffer.remaining()<len) {
+        if(sc == null || !isConnected()) throw new IOException("Socket closed during read");
+        do {
             inputBuffer.compact();
             int actual = sc.read(inputBuffer);
             inputBuffer.flip();
             if (actual <= 0) throw new IOException("Socket probably closed, read return was 0 or less");
-        }
+        } while(inputBuffer.remaining()<len);
     }
 
     @Override

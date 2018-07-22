@@ -8,16 +8,27 @@
 #include "SerialTransport.h"
 #include "tcMenu.h"
 
-SerialTagValueTransport::SerialTagValueTransport(Stream* serialPort) : TagValueTransport() {
-	this->serialPort = serialPort;
-}
+extern const char applicationName[];
 
-void SerialTagValueTransport::endMsg() {
-	TagValueTransport::endMsg();
-	serialPort->write("\r\n");
+SerialTagValServer serialServer;
+
+SerialTagValueTransport::SerialTagValueTransport() : TagValueTransport() {
+	this->serialPort = NULL;
 }
 
 void SerialTagValueTransport::close() {
 	currentField.msgType = UNKNOWN_MSG_TYPE;
 	currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
+}
+
+void SerialTagValServer::begin(Stream* portStream) {
+	serPort.setStream(portStream);
+	taskManager.scheduleFixedRate(TICK_INTERVAL, []{serialServer.runLoop();}, TIME_MILLIS);
+}
+
+SerialTagValServer::SerialTagValServer() : connector(applicationName, &serPort, 0) {
+}
+
+void SerialTagValServer::runLoop() {
+	connector.tick();
 }

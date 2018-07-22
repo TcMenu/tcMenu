@@ -66,6 +66,7 @@ void TagValueRemoteConnector::dealWithHeartbeating() {
 	++ticksLastSend;
 
 	if(ticksLastSend > HEARTBEAT_INTERVAL_TICKS) {
+		serdebug("sending hb");
 		if(transport->available()) encodeHeartbeat();
 	}
 
@@ -397,7 +398,7 @@ void TagValueTransport::writeFieldInt(uint16_t field, int value) {
 }
 
 void TagValueTransport::endMsg() {
-	writeStr("~");
+	writeStr("~\n");
 }
 
 void TagValueTransport::clearFieldStatus(FieldValueType ty) {

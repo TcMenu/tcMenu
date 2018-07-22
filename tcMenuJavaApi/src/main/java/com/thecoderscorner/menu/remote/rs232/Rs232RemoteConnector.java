@@ -63,7 +63,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
             Thread.sleep(500); // we need a short break before attempting the first reconnect
             logger.info("Attempting to connect over rs232 to " + getConnectionName());
             serialPort.openPort();
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 30000, 30000);
+            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 30000, 30000);
             if(serialPort.isOpen()) {
                 notifyConnection();
             }
@@ -91,15 +91,15 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
 
     @Override
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
-        while(inputBuffer.remaining()<len) {
-            byte[] data = new byte[1024];
-            int actual = serialPort.getInputStream().read(data, 0, data.length);
-
-            if(actual <= 0) throw new IOException("Serial port has no data");
-
+        do {
             inputBuffer.compact();
-            inputBuffer.put(data,0, actual);
+
+            while(serialPort.bytesAvailable() > 0) {
+                inputBuffer.put((byte)serialPort.getInputStream().read());
+            }
+
             inputBuffer.flip();
-        }
+
+        } while(inputBuffer.remaining()<len);
     }
 }
