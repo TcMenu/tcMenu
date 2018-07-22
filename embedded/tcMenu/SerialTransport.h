@@ -15,8 +15,9 @@ class SerialTagValueTransport : public TagValueTransport {
 private:
 	Stream* serialPort;
 public:
-	SerialTagValueTransport(Stream* serialPort);
+	SerialTagValueTransport();
 	virtual ~SerialTagValueTransport() {}
+	void setStream(Stream* stream) {this->serialPort = stream; }
 
 	virtual void flush()                   {serialPort->flush();}
 	virtual int writeChar(char data)       { return serialPort->write(data); }
@@ -26,11 +27,21 @@ public:
 	virtual bool readAvailable() { return serialPort->available(); }
 	virtual bool available()     { return serialPort->availableForWrite();}
 	virtual bool connected()     { return true;}
-	virtual void endMsg();
 
 	virtual void close();
 
 };
 
+class SerialTagValServer {
+private:
+	SerialTagValueTransport serPort;
+	TagValueRemoteConnector connector;
+public:
+	SerialTagValServer();
+	void begin(Stream* portStream);
+	void runLoop();
+};
+
+extern SerialTagValServer serialServer;
 
 #endif /* _TCMENU_SERIALTRANSPORT_H_ */

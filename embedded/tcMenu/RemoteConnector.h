@@ -172,4 +172,10 @@ private:
 	bool isBootstrapMode() { return bitRead(flags, FLAG_BOOTSTRAP_MODE); }
 };
 
+#define serdebug(x) //
+#define serdebug2(x, y) //
+
+//#define serdebug(x) Serial.println(x);
+//#define serdebug2(x1, x2) Serial.print(x1); Serial.println(x2);
+
 #endif /* _TCMENU_REMOTECONNECTOR_H_ */
