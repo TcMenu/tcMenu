@@ -23,8 +23,8 @@ struct AnalogMenuInfo {
 	uint16_t eepromAddr;
 	uint16_t maxValue;
 	int offset;
-	uint8_t divisor;
-	char unitName[4];
+	uint16_t divisor;
+	char unitName[5];
 	MenuCallbackFn callback;
 };
 
