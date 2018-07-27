@@ -11,7 +11,7 @@ BaseMenuRenderer* BaseMenuRenderer::INSTANCE;
 void doRender() {
 	RendererCallbackFn callbackFn = BaseMenuRenderer::INSTANCE->getRenderingCallback();
 	if(callbackFn) {
-		callbackFn();
+		callbackFn(false);
 	}
 	else {
 		BaseMenuRenderer::INSTANCE->render();
@@ -24,7 +24,9 @@ BaseMenuRenderer::BaseMenuRenderer(int bufferSize) {
 	ticksToReset = 0;
 	renderCallback = NULL;
 	redrawMode = MENUDRAW_COMPLETE_REDRAW;
-	this->currentEditor = this->currentRoot = NULL;
+	this->currentEditor = NULL;
+	this->currentRoot = menuMgr.getRoot();
+	this->lastOffset = 0;
 }
 
 void BaseMenuRenderer::initialise() {
@@ -32,6 +34,9 @@ void BaseMenuRenderer::initialise() {
 	ticksToReset = 0;
 	renderCallback = NULL;
 	redrawMode = MENUDRAW_COMPLETE_REDRAW;
+
+	resetToDefault();
+
 	taskManager.scheduleFixedRate(SCREEN_DRAW_INTERVAL, doRender);
 }
 
@@ -86,11 +91,16 @@ void BaseMenuRenderer::menuValueToText(MenuItem* item,	MenuDrawJustification jus
 
 }
 
+inline int16_t intFromEeprom(const int* ptrToInt) {
+	uint16_t* ptrAsUint = (uint16_t*)ptrToInt;
+	return (int16_t) pgm_read_word_near(ptrAsUint);
+}
+
 void BaseMenuRenderer::menuValueAnalog(AnalogMenuItem* item, MenuDrawJustification justification) {
 	char itoaBuf[10];
 
-	int calcVal = item->getCurrentValue() + ((int)pgm_read_word_near(&item->getMenuInfo()->offset));
-	uint8_t divisor = ((int)pgm_read_word_near(&item->getMenuInfo()->divisor));
+	int calcVal = ((int)item->getCurrentValue()) + intFromEeprom(&item->getMenuInfo()->offset);
+	int8_t divisor = (int8_t)pgm_read_byte_near(&item->getMenuInfo()->divisor);
 
 	if (divisor < 2) {
 		itoa(calcVal, itoaBuf, 10);
@@ -272,6 +282,12 @@ int BaseMenuRenderer::offsetOfCurrentActive() {
 }
 
 void BaseMenuRenderer::setCurrentEditor(MenuItem* toEdit) {
+	if(renderCallback) {
+		// we dont handle click events when the display is taken over
+		// instead we tell the custom renderer that we've had a click
+		renderCallback(true);
+	}
+
 	if (currentEditor != NULL) {
 		currentEditor->setEditing(false);
 		currentEditor = NULL;

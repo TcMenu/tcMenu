@@ -6,47 +6,56 @@
 package com.thecoderscorner.menu.editorui.generator.remote;
 
 import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
-import java.util.ArrayList;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
-public class NoRemoteCapability extends AbstractCodeCreator {
-    private List<CreatorProperty> creatorProperties = new ArrayList<>(Collections.singletonList(
+public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
+    private final CurrentEditorProject project;
+    private final List<CreatorProperty> creatorProperties = List.of(
+            new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333", REMOTE),
             new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL)
-    ));
+    );
+
+    public EthernetRemoteCapabilitiesCreator(CurrentEditorProject project) {
+        this.project = project;
+    }
 
     @Override
     public List<String> getIncludes() {
-        return Collections.singletonList("#include \"RemoteConnector.h\"");
+        return Arrays.asList(
+                "#include <RemoteConnector.h>",
+                "#include <EthernetTransport.h>"
+        );
     }
 
     @Override
     public String getGlobalVariables() {
         String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
-        return "const char PROGMEM applicationName[] = \"" + deviceName + "\";" + LINE_BREAK;
+        return "const char PROGMEM applicationName[] = \"" +  deviceName + "\";" + LINE_BREAK +
+               "EthernetServer server(LISTEN_PORT);" + LINE_BREAK;
     }
 
     @Override
     public String getExportDefinitions() {
-        return  "extern const char applicationName[];" + LINE_BREAK;
-    }
-
-    @Override
-    public String getSetupCode(String rootItem) {
-        return "";
+        return super.getExportDefinitions() +
+               "extern const char applicationName[];" + LINE_BREAK;
     }
 
     @Override
     public List<CreatorProperty> properties() {
         return creatorProperties;
+    }
+
+    @Override
+    public String getSetupCode(String rootItem) {
+        return "    ethTagValServer.begin(&server, applicationName);" + LINE_BREAK;
     }
 }

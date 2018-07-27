@@ -26,9 +26,17 @@ void LiquidCrystalRenderer::render() {
 	// first we find the first currently active item in our single linked list
 	if (offsetOfCurrentActive() >= dimY) {
 		uint8_t toOffsetBy = (offsetOfCurrentActive() - dimY) + 1;
+
+		if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+		lastOffset = toOffsetBy;
+
 		while (item != NULL && toOffsetBy--) {
 			item = item->getNext();
 		}
+	}
+	else {
+		if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+		lastOffset = 0xff;
 	}
 
 	// and then we start drawing items until we run out of screen or items
@@ -44,11 +52,14 @@ void LiquidCrystalRenderer::render() {
 void LiquidCrystalRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
 	if (item == NULL || row > dimY) return;
 
+	item->setChanged(false);
+
 	lcd->setCursor(0, row);
 
 	memset(buffer, 32, bufferSize);
 	buffer[bufferSize] = 0;
 
+	// looks nasty but efficiently avoids the 0 at the end of string.
 	buffer[0] = item->isEditing() ? '=' : (item->isActive() ? '>' : ' ');
 	const char* name = item->getNamePgm();
 	char* buf = buffer;

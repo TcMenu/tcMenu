@@ -12,13 +12,15 @@
 #include "RemoteTypes.h"
 #include "MenuItems.h"
 
-#define TICK_INTERVAL 50
+#define TAG_VAL_PROTOCOL 0x01
+#define START_OF_MESSAGE 0x01
+#define TICK_INTERVAL 20
 #define HEARTBEAT_INTERVAL_TICKS (10000 / TICK_INTERVAL)
 
 class ConnectorListener {
 public:
 	virtual ~ConnectorListener() {;}
-	virtual void remoteNameChange(const char* remoteName);
+	virtual void remoteNameChange(const char* remoteName) = 0;
 	virtual void newJoiner(uint8_t major, uint8_t minor, ApiPlatform platform) = 0;
 	virtual void heartbeat() = 0;
 	virtual void error(uint8_t type) = 0;
@@ -28,9 +30,6 @@ public:
 class RemoteConnector {
 public:
 	virtual ~RemoteConnector() {;}
-	virtual void setListener(ConnectorListener* listener) = 0;
-	virtual ConnectorListener* getListener() = 0;
-	virtual void start() = 0;
 
 	virtual void encodeJoinP(const char* localName) = 0;
 	virtual void encodeBootstrap(bool isComplete) = 0;
@@ -41,6 +40,8 @@ public:
 	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item) = 0;
 	virtual void encodeChangeValue(int parentId, MenuItem* theItem) = 0;
 
+	virtual void tick() = 0;
+
 	virtual bool isTransportAvailable() = 0;
 	virtual bool isTransportConnected() = 0;
 };
@@ -48,7 +49,7 @@ public:
 enum FieldValueType : byte {
 	FVAL_NEW_MSG, FVAL_END_MSG, FVAL_FIELD, FVAL_ERROR_PROTO,
 	// below are internal only states, and should not be acted upon.
-	FVAL_PROCESSING, FVAL_PROCESSING_WAITEQ, FVAL_PROCESSING_VALUE, FVAL_PROCESSING_AWAITINGMSG
+	FVAL_PROCESSING, FVAL_PROCESSING_WAITEQ, FVAL_PROCESSING_VALUE, FVAL_PROCESSING_AWAITINGMSG, FVAL_PROCESSING_PROTOCOL
 };
 
 struct FieldAndValue {
@@ -62,21 +63,36 @@ struct FieldAndValue {
 class TagValueTransport {
 protected:
 	FieldAndValue currentField;
+	static ConnectorListener* listener;
 public:
+	TagValueTransport();
 	virtual ~TagValueTransport() {}
+	static ConnectorListener* getListener() { return listener;}
+	static void setListener(ConnectorListener* l) { listener = l; }
 
-	virtual void startMsg(uint16_t msgType) = 0;
-	virtual void writeField(uint16_t field, const char* value) = 0;
-	virtual void writeFieldP(uint16_t field, const char* value) = 0;
-	virtual void writeFieldInt(uint16_t field, int value) = 0;
-	virtual void endMsg() = 0;
+	void startMsg(uint16_t msgType);
+	void writeField(uint16_t field, const char* value);
+	void writeFieldP(uint16_t field, const char* value);
+	void writeFieldInt(uint16_t field, int value);
+	void endMsg();
+	FieldAndValue* fieldIfAvailable();
+	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
 
-	virtual FieldAndValue* fieldIfAvailable() = 0;
+	virtual void flush() = 0;
+	virtual int writeChar(char data) = 0;
+	virtual int writeStr(const char* data) = 0;
+	virtual uint8_t readByte()=0;
+	virtual bool readAvailable()=0;
 
 	virtual bool available() = 0;
 	virtual bool connected() = 0;
-};
+	virtual void close() = 0;
 
+private:
+	bool findNextMessageStart();
+	bool processMsgKey();
+	bool processValuePart();
+};
 
 /**
  * Instead of each type of message processing being hardwired into the connector, the custom processing
@@ -114,22 +130,17 @@ private:
 	uint16_t ticksLastSend;
 	uint16_t ticksLastRead;
 	uint8_t flags;
+	uint8_t remoteNo;
 	MessageProcessor* processor;
 	TagValueTransport* transport;
-	ConnectorListener* listener;
-	static TagValueRemoteConnector* _TAG_INSTANCE;
 
 	// for bootstrapping
 	MenuItem* bootMenuPtr;
 	MenuItem* preSubMenuBootPtr;
 public:
-	TagValueRemoteConnector(const char* namePgm, TagValueTransport* transport);
-	virtual void start();
+	TagValueRemoteConnector(TagValueTransport* transport, uint8_t remoteNo);
 	virtual ~TagValueRemoteConnector() {;}
-	static TagValueRemoteConnector* instance() { return _TAG_INSTANCE; }
-
-	virtual void setListener(ConnectorListener* listener) { this->listener = listener; }
-	virtual ConnectorListener* getListener() { return listener; }
+	void setName(const char* namePgm) {localNamePgm = namePgm;}
 
 	virtual bool isTransportAvailable() { return transport->available(); }
 	virtual bool isTransportConnected() { return transport->connected(); }
@@ -144,10 +155,9 @@ public:
 	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item);
 	virtual void encodeChangeValue(int parentId, MenuItem* theItem);
 
-	void tick();
+	virtual void tick();
 
 	void initiateBootstrap(MenuItem* firstItem);
-
 private:
 	void nextBootstrap();
 	void performAnyWrites();
@@ -157,5 +167,11 @@ private:
 	bool isConnected() { return bitRead(flags, FLAG_CURRENTLY_CONNECTED); }
 	bool isBootstrapMode() { return bitRead(flags, FLAG_BOOTSTRAP_MODE); }
 };
+
+#define serdebug(x) //
+#define serdebug2(x, y) //
+
+//#define serdebug(x) Serial.println(x);
+//#define serdebug2(x1, x2) Serial.print(x1); Serial.println(x2);
 
 #endif /* _TCMENU_REMOTECONNECTOR_H_ */

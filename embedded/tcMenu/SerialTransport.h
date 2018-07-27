@@ -13,27 +13,35 @@
 
 class SerialTagValueTransport : public TagValueTransport {
 private:
-	HardwareSerial* serialPort;
+	Stream* serialPort;
 public:
-	SerialTagValueTransport(HardwareSerial* serialPort);
+	SerialTagValueTransport();
 	virtual ~SerialTagValueTransport() {}
+	void setStream(Stream* stream) {this->serialPort = stream; }
 
-	virtual void startMsg(uint16_t msgType);
-	virtual void writeField(uint16_t field, const char* value);
-	virtual void writeFieldP(uint16_t field, const char* value);
-	virtual void writeFieldInt(uint16_t field, int value);
-	virtual void endMsg();
+	virtual void flush()                   {serialPort->flush();}
+	virtual int writeChar(char data)       { return serialPort->write(data); }
+	virtual int writeStr(const char* data) { return serialPort->write(data); }
 
-	virtual FieldAndValue* fieldIfAvailable();
+	virtual uint8_t readByte()   { return serialPort->read(); }
+	virtual bool readAvailable() { return serialPort->available(); }
+	virtual bool available()     { return serialPort->availableForWrite();}
+	virtual bool connected()     { return true;}
 
-	virtual bool available() { return serialPort->availableForWrite();}
-	virtual bool connected() { return true;}
-private:
-	bool findNextMessageStart();
-	void clearFieldStatus(FieldValueType ty = FVAL_PROCESSING);
-	bool processMsgKey();
-	bool processValuePart();
+	virtual void close();
+
 };
 
+class SerialTagValServer {
+private:
+	SerialTagValueTransport serPort;
+	TagValueRemoteConnector connector;
+public:
+	SerialTagValServer();
+	void begin(Stream* portStream, const char* namePgm);
+	void runLoop();
+};
+
+extern SerialTagValServer serialServer;
 
 #endif /* _TCMENU_SERIALTRANSPORT_H_ */

@@ -6,6 +6,25 @@
 #include "tcMenu.h"
 #include "MenuItems.h"
 
+bool MenuItem::isSendRemoteNeeded(uint8_t remoteNo) {
+	remoteNo += 5;
+	return flags & (1 << remoteNo);
+}
+
+void MenuItem::setSendRemoteNeeded(uint8_t remoteNo, bool needed) {
+	remoteNo += 5;
+	bitWrite(flags, remoteNo, needed);
+}
+
+void MenuItem::setSendRemoteNeededAll(bool needed) {
+	if(needed) {
+		flags = flags | MENUITEM_ALL_REMOTES;
+	}
+	else {
+		flags = flags & (~MENUITEM_ALL_REMOTES);
+	}
+}
+
 AnalogMenuItem::AnalogMenuItem(const AnalogMenuInfo* info, uint16_t currentValue, MenuItem* next) {
 	this->init(info, currentValue, next);
 }
@@ -27,10 +46,10 @@ SubMenuItem::SubMenuItem(const SubMenuInfo* info, MenuItem* child, MenuItem* nex
 	this->next = next;
 }
 
-void SubMenuItem::load() {
+void SubMenuItem::load(EepromAbstraction& eeprom) {
 	MenuItem* chItem = child;
 	while (chItem != NULL) {
-		chItem->load();
+		chItem->load(eeprom);
 		if(chItem->isChanged()) {
 			menuMgr.menuItemChanged(chItem);
 		}
@@ -38,10 +57,10 @@ void SubMenuItem::load() {
 	}
 }
 
-void SubMenuItem::save() {
+void SubMenuItem::save(EepromAbstraction& eeprom) {
 	MenuItem* chItem = child;
 	while (chItem != NULL) {
-		chItem->save();
+		chItem->save(eeprom);
 		chItem = chItem->getNext();
 	}
 }
@@ -51,7 +70,7 @@ const char * BackMenuItem::getNamePgm(){
 }
 
 void BooleanMenuItem::setBoolean(bool newVal) {
-	setSendRemoteNeeded(currentValue != newVal);
+	setSendRemoteNeededAll(currentValue != newVal);
 	currentValue = newVal; 
 	setChanged(true);
 }
@@ -64,24 +83,24 @@ TextMenuItem::TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next) {
 	flags=0;
 }
 
-void TextMenuItem::load() {
-	char* eepromAddr = pgm_read_ptr_near(&menuInfo->eeprom);
-	if(eepromAddr == (char*)0xffff) return;
+void TextMenuItem::load(EepromAbstraction& eeprom) {
+	uint16_t eepromAddr = pgm_read_word_near(&menuInfo->eeprom);
+	if(eepromAddr == 0xffff) return;
 	uint8_t len = textLength();
-	eeprom_read_block(menuText, eepromAddr, len);
+	eeprom.readIntoMemArray((uint8_t*)menuText, eepromAddr, len);
 	menuText[len - 1] = 0; // make sure it's properly terminated!!
-	setSendRemoteNeeded(true);
+	setSendRemoteNeededAll(true);
 }
 
-void TextMenuItem::save() {
-	uint8_t* eepromAddr = pgm_read_ptr_near(&menuInfo->eeprom);
-	if (eepromAddr == (uint8_t*)0xffff) return;
+void TextMenuItem::save(EepromAbstraction& eeprom) {
+	uint16_t eepromAddr = pgm_read_word_near(&menuInfo->eeprom);
+	if (eepromAddr == 0xffff) return;
 	uint8_t len = textLength();
-	eeprom_write_block(menuText, eepromAddr, len);
+	eeprom.writeArrayToRom(eepromAddr, (uint8_t*)menuText, len);
 }
 
 void TextMenuItem::setTextValue(const char* text) {
-	setSendRemoteNeeded(strncmp(menuText, text, textLength()));
+	setSendRemoteNeededAll(strncmp(menuText, text, textLength()));
 	strncpy(menuText, text, textLength());
 	menuText[textLength() - 1] = 0;
 	setChanged(true);

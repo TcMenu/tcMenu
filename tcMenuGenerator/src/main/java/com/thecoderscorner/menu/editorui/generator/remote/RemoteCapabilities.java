@@ -22,6 +22,7 @@ public class RemoteCapabilities extends EnumWithApplicability {
     static {
         addValue(1, ALL_DEVICES, "No Remote", NoRemoteCapability.class);
         addValue(2, ALL_ARDUINO_BOARDS, "RS232 Remote", Rs232RemoteCapabilitiesCreator.class);
+        addValue(3, ALL_ARDUINO_BOARDS, "Ethernet Remote", EthernetRemoteCapabilitiesCreator.class);
     }
 
     private static void addValue(int key, Set<EmbeddedPlatform> applicability, String description,

@@ -21,4 +21,9 @@ public class MenuBootstrapCommand implements MenuCommand {
     public MenuCommandType getCommandType() {
         return MenuCommandType.BOOTSTRAP;
     }
+
+    @Override
+    public String toString() {
+        return "MenuBootstrapCommand{bootType=" + bootType + '}';
+    }
 }

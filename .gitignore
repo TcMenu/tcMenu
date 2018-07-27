@@ -1,6 +1,7 @@
 .DS_Store
-master.iml
+*.iml
 target/
+**/.idea/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

@@ -32,6 +32,8 @@ import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
  * the end of the message.
  */
 public class TagValMenuCommandProtocol implements MenuCommandProtocol {
+    private static final byte PROTOCOL_TAG_VAL = 1;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, MenuCommandType> codeToCmdType;
 
@@ -47,9 +49,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
         TagValTextParser parser = new TagValTextParser(buffer);
         String ty = parser.getValue(KEY_MSG_TYPE);
-        logger.info("Protocol convert in: {}", parser);
+        logger.debug("Protocol convert in: {}", parser);
         MenuCommandType cmdType = codeToCmdType.get(ty);
-        if(cmdType == null) throw new IOException("Protocol received unexpected message: " + ty);
+        if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
 
         switch (cmdType) {
             case JOIN:
@@ -71,7 +73,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case TEXT_BOOT_ITEM:
                 return processTextItem(parser);
             default:
-                throw new IOException("Unknown message type " + cmdType);
+                throw new TcProtocolException("Unknown message type " + cmdType);
         }
     }
 
@@ -232,6 +234,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         String msgStr = sb.toString();
         logger.debug("Protocol convert out: {}", msgStr);
         buffer.put(msgStr.getBytes());
+    }
+
+    @Override
+    public byte getKeyIdentifier() {
+        return PROTOCOL_TAG_VAL;
     }
 
     private void writeChangeInt(StringBuilder sb, MenuChangeCommand cmd) {

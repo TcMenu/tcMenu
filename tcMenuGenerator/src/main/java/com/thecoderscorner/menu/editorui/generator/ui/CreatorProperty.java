@@ -12,10 +12,12 @@ public class CreatorProperty {
     private String name;
     transient private String description;
     transient private StringProperty property;
+    transient private PropType propType;
     private String latestValue;
     private SubSystem subsystem;
 
     public enum SubSystem { DISPLAY, INPUT, REMOTE }
+    public enum PropType { USE_IN_DEFINE, VARIABLE, TEXTUAL }
 
     public CreatorProperty() {
         // for serialisation purposes.
@@ -23,11 +25,16 @@ public class CreatorProperty {
     }
 
     public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem) {
+        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE);
+    }
+
+    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem, PropType propType) {
         this.name = name;
         this.description = description;
         this.latestValue = latestValue;
         this.property = new SimpleStringProperty(latestValue);
         this.subsystem = subsystem;
+        this.propType = propType;
     }
 
     public String getLatestValue() {
@@ -55,5 +62,9 @@ public class CreatorProperty {
 
     public int getLatestValueAsInt() {
         return Integer.parseInt(getLatestValue());
+    }
+
+    public PropType getPropType() {
+        return propType;
     }
 }

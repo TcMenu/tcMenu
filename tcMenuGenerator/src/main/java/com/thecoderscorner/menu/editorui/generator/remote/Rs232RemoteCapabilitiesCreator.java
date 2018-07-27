@@ -14,12 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
 public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;
     private final List<CreatorProperty> creatorProperties = List.of(
-            new CreatorProperty("SERIAL_BAUD", "Serial baud rate", "115200", REMOTE)
+            new CreatorProperty("SERIAL_BAUD", "Serial baud rate", "115200", REMOTE),
+            new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL),
+            new CreatorProperty("SERIAL_PORT", "Serial port variable name", "Serial", REMOTE, VARIABLE)
     );
 
     public Rs232RemoteCapabilitiesCreator(CurrentEditorProject project) {
@@ -36,16 +39,14 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getGlobalVariables() {
-        String projectName = Paths.get(project.getFileName()).getFileName().toString();
-        return "const char PROGMEM applicationName[] = \"" +  projectName + "\";" + LINE_BREAK;
+        String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
+        return "const char PROGMEM applicationName[] = \"" + deviceName + "\";" + LINE_BREAK;
     }
 
     @Override
     public String getExportDefinitions() {
         return super.getExportDefinitions() +
-               "extern const char applicationName[];" + LINE_BREAK +
-               "extern TagValueRemoteConnector connector;" + LINE_BREAK;
-
+               "extern const char applicationName[];" + LINE_BREAK;
     }
 
     @Override
@@ -55,11 +56,8 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
-
-        return "    Serial.begin(SERIAL_BAUD);" + LINE_BREAK +
-               "    SerialTagValueTransport serialTransport(&Serial); // Using first serial port by default" + LINE_BREAK +
-               "    TagValueRemoteConnector connector(applicationName, &serialTransport);" + LINE_BREAK +
-               "    connector.setListener(listener);" + LINE_BREAK +
-               "    connector.start();" + LINE_BREAK;
+        String serialPort = findPropertyValue("SERIAL_PORT").getLatestValue();
+        return "    " + serialPort +  ".begin(SERIAL_BAUD);" + LINE_BREAK +
+               "    serialServer.begin(&" + serialPort + ", applicationName);" + LINE_BREAK;
     }
 }

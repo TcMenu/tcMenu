@@ -11,4 +11,9 @@ public class MenuHeartbeatCommand implements MenuCommand {
     public MenuCommandType getCommandType() {
         return MenuCommandType.HEARTBEAT;
     }
+
+    @Override
+    public String toString() {
+        return "MenuHeartbeatCommand{}";
+    }
 }
