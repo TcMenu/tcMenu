@@ -40,7 +40,7 @@ public interface RemoteConnector {
     boolean isConnected();
 
     /**
-     * Gets the name of this connector locally (for example rs232-comport)
+     * Gets the name of this connector locally
      */
     String getConnectionName();
 

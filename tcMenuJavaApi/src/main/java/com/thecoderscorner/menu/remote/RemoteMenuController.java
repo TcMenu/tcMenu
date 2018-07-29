@@ -75,12 +75,12 @@ public class RemoteMenuController {
         }
 
         if((clock.millis() - lastRx.get()) > (3 * heartbeatFrequency)) {
-            logger.warn("Lost connection with rs232, closing port");
+            logger.warn("Lost connection with " + getConnector().getConnectionName() + ", closing port");
             connector.close();
         }
 
         if((clock.millis() - lastTx.get()) > heartbeatFrequency) {
-            logger.info("Sending heartbeat to rs232 port");
+            logger.info("Sending heartbeat to " + getConnector().getConnectionName() + " port");
             sendCommand(newHeartbeatCommand());
         }
     }

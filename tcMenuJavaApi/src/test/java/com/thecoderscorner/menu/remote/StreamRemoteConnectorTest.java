@@ -44,7 +44,7 @@ public class StreamRemoteConnectorTest {
         Thread.sleep(500);
 
         streamConnector.processMessagesOnConnection();
-        Mockito.verify(connectionChangeListener).connectionChange(streamConnector, true);
+        Mockito.verify(connectionChangeListener, Mockito.atLeastOnce()).connectionChange(streamConnector, true);
         Mockito.verify(connectionChangeListener, Mockito.atLeastOnce()).connectionChange(streamConnector, false);
         Mockito.verify(connectorListener).onCommand(Mockito.any(), Mockito.isA(MenuHeartbeatCommand.class));
         Mockito.verifyNoMoreInteractions(connectorListener);
@@ -120,7 +120,7 @@ public class StreamRemoteConnectorTest {
         }
 
         @Override
-        protected void sendInternal(ByteBuffer outputBuffer) throws IOException {
+        protected void sendInternal(ByteBuffer outputBuffer) {
             lastBufferRx = ByteBuffer.allocate(1024).put(outputBuffer);
         }
 

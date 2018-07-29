@@ -6,6 +6,8 @@ import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class SocketBasedConnectorTest {
-    private static final int PORT_FOR_TESTING = 19385;
+    private static final int PORT_FOR_TESTING = 3546;
     private RemoteServer remoteServer;
     private SocketBasedConnector socket;
 
@@ -50,7 +52,7 @@ public class SocketBasedConnectorTest {
 
     @Test
     public void initiateConnectionAndSend() throws Exception {
-        CountDownLatch messageReadFromServerLatch = new CountDownLatch(4);
+        CountDownLatch messageReadFromServerLatch = new CountDownLatch(2);
         LinkedBlockingDeque<MenuCommand> messagesReadBack = new LinkedBlockingDeque<>(32);
 
         socket.registerConnectorListener((connector, command) -> {
@@ -67,9 +69,7 @@ public class SocketBasedConnectorTest {
 
         // and at this point our callback will receive two messages from the mock server
         messageReadFromServerLatch.await(15, TimeUnit.SECONDS);
-        assertEquals(4, messagesReadBack.size());
-        assertTrue(messagesReadBack.take() instanceof MenuHeartbeatCommand);
-        assertTrue(messagesReadBack.take() instanceof MenuJoinCommand);
+        assertTrue(messagesReadBack.size() >= 2);
         assertTrue(messagesReadBack.take() instanceof MenuHeartbeatCommand);
         assertTrue(messagesReadBack.take() instanceof MenuJoinCommand);
 
@@ -81,6 +81,7 @@ public class SocketBasedConnectorTest {
     }
 
     class RemoteServer {
+        private final Logger logger = LoggerFactory.getLogger(RemoteServer.class);
         private final int port;
 
         private AtomicBoolean failure = new AtomicBoolean();
@@ -93,15 +94,21 @@ public class SocketBasedConnectorTest {
         }
 
         public void start() {
+            logger.info("Starting Remote Server Tester");
             threadRunner = new Thread(this::connectionThread);
             threadRunner.start();
         }
 
         public void stop() {
-            if (threadRunner != null) threadRunner.interrupt();
+            if (threadRunner != null) {
+                logger.info("Stopping Remote Server Tester");
+
+                threadRunner.interrupt();
+            }
         }
 
         public void connectionThread() {
+            logger.info("Remote Server Tester thread start");
             ServerSocketChannel serverSock = null;
             SocketChannel socket = null;
             try {
@@ -114,6 +121,7 @@ public class SocketBasedConnectorTest {
                 serverSock.bind(new InetSocketAddress("localhost", port));
                 socket = serverSock.accept();
                 startLatch.countDown();
+                logger.info("Remote Server has connected to client");
 
                 // and now read messages until the socket closes.
                 int len = socket.read(readBuffer);
@@ -128,6 +136,7 @@ public class SocketBasedConnectorTest {
                     proto.toChannel(writeBuffer, CommandFactory.newJoinCommand("Fred"));
                     writeBuffer.flip();
                     while (socket.isConnected() && writeBuffer.hasRemaining()) {
+                        logger.info("Sending messages to socket client");
                         socket.write(writeBuffer);
                     }
                     writeBuffer.compact();
@@ -138,6 +147,7 @@ public class SocketBasedConnectorTest {
                         if (readBuffer.get() != START_OF_MSG || readBuffer.get() != proto.getKeyIdentifier()) {
                             throw new IOException("Bad protocol");
                         }
+                        logger.info("Reading back messages sent to us..");
                         messagesReceived.offer(proto.fromChannel(readBuffer));
                     }
 
@@ -153,7 +163,7 @@ public class SocketBasedConnectorTest {
                 } catch (IOException e) {
                     failure.set(true);
                 }
-
+                logger.info("Remote Server Tester thread ending");
             }
         }
 

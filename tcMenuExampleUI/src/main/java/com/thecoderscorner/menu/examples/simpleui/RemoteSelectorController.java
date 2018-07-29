@@ -10,7 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
-import com.thecoderscorner.menu.remote.udp.UdpControllerBuilder;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
@@ -20,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
