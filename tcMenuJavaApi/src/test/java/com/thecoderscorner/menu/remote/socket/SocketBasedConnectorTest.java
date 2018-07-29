@@ -63,6 +63,10 @@ public class SocketBasedConnectorTest {
         // we must first wait for the connection to be made
         assertTrue(remoteServer.waitForConnection());
 
+        // we need to wait for a short time to allow the socket to become connected at both sides.
+        //TODO see if this sleep can be replaced with another mechanism.
+        Thread.sleep(500);
+
         // then we initiate our mock server by sending a few commands - it sends 2 back for each command it gets
         socket.sendMenuCommand(CommandFactory.newHeartbeatCommand());
         socket.sendMenuCommand(CommandFactory.newDeltaChangeCommand(0, 1, 10));
