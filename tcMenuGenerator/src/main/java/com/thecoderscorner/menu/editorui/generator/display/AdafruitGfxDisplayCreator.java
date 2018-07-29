@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.display;
 
 import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 
 import java.util.ArrayList;
