@@ -8,8 +8,6 @@
 #include "SerialTransport.h"
 #include "tcMenu.h"
 
-extern const char applicationName[];
-
 SerialTagValServer serialServer;
 
 SerialTagValueTransport::SerialTagValueTransport() : TagValueTransport() {
