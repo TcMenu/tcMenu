@@ -70,6 +70,8 @@ public:
 	virtual void render();
 private:
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
+	void renderTitleArea();
+	void renderWidgets(bool forceDraw);
 };
 
 #endif /* _TCMENU_TCMENUADAFRUITGFX_H_ */

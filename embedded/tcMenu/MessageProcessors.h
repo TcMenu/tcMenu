@@ -45,6 +45,8 @@ public:
 	virtual void initialise();
 	virtual void fieldRx(FieldAndValue* field);
 	virtual void onComplete();
+	virtual bool requiresBootstrap() {return true;}
+
 };
 
 class HeartbeatProcessor : public MessageProcessor {

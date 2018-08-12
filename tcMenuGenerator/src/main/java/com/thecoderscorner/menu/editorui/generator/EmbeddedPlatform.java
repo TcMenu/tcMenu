@@ -6,7 +6,7 @@
 package com.thecoderscorner.menu.editorui.generator;
 
 public enum EmbeddedPlatform {
-    ARDUINO_8BIT("Arduino - Uno, Mega, 8bit");
+    ARDUINO("Arduino - Uno, Mega, 8bit");
 
     private final String friendlyName;
 

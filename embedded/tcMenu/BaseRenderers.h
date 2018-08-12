@@ -16,6 +16,45 @@
 /** Should you wish to take over the rendering, function of this type is needed */
 typedef void (*RendererCallbackFn)(bool userClicked);
 
+/**
+ * Title widgets allow for drawing small graphics in the title area, for example connectivity status
+ * of the wifi network, if a remote connection to the menu is active. They are in a linked list so
+ * as to make storage as efficient as possible. Chain them together using the constructor or setNext().
+ * Image icons should be declared in PROGMEM.
+ * 
+ * Thread / interrupt safety: get/setCurrentState & isChanged can be called from threads / interrupts
+ * 
+ * Currently, only graphical renderers can use title widgets.
+ */
+class TitleWidget {
+private:
+	const uint8_t **iconData;
+	volatile uint8_t currentState;
+	volatile bool changed;
+	uint8_t width;
+	uint8_t height;
+	TitleWidget* next;
+public:
+	/** Construct a widget with its icons and size */
+	TitleWidget(const uint8_t** icons, uint8_t width, uint8_t height, TitleWidget* next = NULL);
+	/** Get the current state that the widget represents */
+	uint8_t getCurrentState() {return currentState;}
+	/** gets the current icon data */
+	const uint8_t* getCurrentIcon() {return iconData[currentState]; changed = false;}
+	/** sets the current state of the widget, there must be an icon for this value */
+	void setCurrentState(uint8_t state) {this->currentState = state;this->changed = true;}
+	/** checks if the widget has changed since last drawn. */
+	bool isChanged() {return this->changed;}
+	/** gets the width of all the images */
+	uint8_t getWidth() {return width;}
+	/** gets the height of all the images */
+	uint8_t getHeight() {return height;}
+	/** gets the next widget in the chain or null */
+	TitleWidget* getNext() {return next;}
+	/** sets the next widget in the chain */
+	void setNext(TitleWidget* next) {this->next = next;}
+};
+
 /** 
  * Each display must have a renderer, even if it is the NoRenderer, the NoRenderer is for situations
  * where the control is performed exclusively by a remote device.
@@ -65,6 +104,12 @@ public:
 	 */
 	virtual void giveBackDisplay() = 0;
 
+	/** 
+	 * Sets the first widget in the chain of widgets, if there's more than one, ensure that the
+	 * next is set either in the constructor or by calling setNext. 
+	 */
+	virtual void setFirstWidget(TitleWidget* firstWidget) = 0;
+
 	/** virtual destructor is required by the language */
 	virtual ~MenuRenderer() { }
 };
@@ -104,8 +149,9 @@ public:
 class BaseMenuRenderer : public MenuRenderer {
 protected:
 	char* buffer;
-	uint8_t ticksToReset;
 	uint8_t bufferSize;
+	TitleWidget* firstWidget;
+	uint8_t ticksToReset;
 	MenuRedrawState redrawMode;
 	uint8_t lastOffset;
 	RendererCallbackFn renderCallback;
@@ -122,6 +168,7 @@ public:
 	virtual void giveBackDisplay();
 	virtual MenuItem* getCurrentEditor() { return currentEditor; }
 	virtual MenuItem* getCurrentSubMenu() { return currentRoot; }
+	virtual void setFirstWidget(TitleWidget* widget);
 	virtual void activeIndexChanged(uint8_t index);
 	virtual void setCurrentEditor(MenuItem* editor);
 	RendererCallbackFn getRenderingCallback() { return renderCallback; }

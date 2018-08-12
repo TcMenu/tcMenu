@@ -107,6 +107,7 @@ public:
 	virtual void initialise() = 0;
 	virtual void fieldRx(FieldAndValue* field) = 0;
 	virtual void onComplete() = 0;
+	virtual bool requiresBootstrap() {return false;}
 
 	// private list functions, to allow making a linked list of these.
 

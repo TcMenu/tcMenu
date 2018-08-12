@@ -25,7 +25,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO_8BIT;
+import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO;
 import static javafx.stage.FileChooser.ExtensionFilter;
 
 /**
@@ -36,7 +36,7 @@ import static javafx.stage.FileChooser.ExtensionFilter;
 public class CurrentEditorProject {
 
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            ARDUINO_8BIT, DisplayType.values.get(1),
+            ARDUINO, DisplayType.values.get(1),
             InputType.values.get(1), RemoteCapabilities.values.get(1),
             Collections.emptyList()
     );

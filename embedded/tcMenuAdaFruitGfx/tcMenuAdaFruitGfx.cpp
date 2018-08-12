@@ -5,6 +5,8 @@
 
 #include <tcMenuAdaFruitGfx.h>
 
+//#define DEBUG_GFX
+
 extern const char applicationName[];
 
 int drawingCount = 0;
@@ -31,6 +33,37 @@ Coord textExtents(Adafruit_GFX* gfx, const char* text, int16_t x, int16_t y) {
 	return MakeCoord(w, h);
 }
 
+void AdaFruitGfxMenuRenderer::renderTitleArea() {
+	if(currentRoot == menuMgr.getRoot()) {
+		strcpy(buffer, applicationName);
+	}
+	else {
+		strcpy_P(buffer, currentRoot->getNamePgm());
+	}
+	graphics->setTextSize(4);
+	Coord extents = textExtents(graphics, buffer, 5, 5);
+	titleHeight = CoordY(extents) + 15;
+	graphics->fillRect(0, 0, xSize, CoordY(extents) + 10, MENU_TITLE_BG);
+	graphics->setCursor(5, 5);
+	graphics->setTextColor(MENU_TITLE_COLOR);
+	graphics->print(buffer);
+}
+
+void AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
+	TitleWidget* widget = firstWidget;
+	int xPos = xSize - 10;
+	while(widget) {
+		xPos -= (widget->getWidth() + 5);
+
+		if(widget->isChanged() || forceDraw) {
+			int iconY = (titleHeight - widget->getHeight()) / 2;
+			graphics->drawBitmap(xPos, iconY, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(), MENU_TITLE_COLOR, MENU_TITLE_BG);
+		}
+
+		widget = widget->getNext();
+	}
+}
+
 void AdaFruitGfxMenuRenderer::render() {
 	uint8_t locRedrawMode = redrawMode;
 	redrawMode = MENUDRAW_NO_CHANGE;
@@ -40,21 +73,12 @@ void AdaFruitGfxMenuRenderer::render() {
 	if (locRedrawMode == MENUDRAW_COMPLETE_REDRAW) {
 		graphics->fillScreen(BACKGROUND_COLOR);
 		taskManager.yieldForMicros(0);
-
-		if(currentRoot == menuMgr.getRoot()) {
-			strcpy(buffer, applicationName);
-		}
-		else {
-			strcpy_P(buffer, currentRoot->getNamePgm());
-		}
-		graphics->setTextSize(4);
-		Coord extents = textExtents(graphics, buffer, 5, 5);
-		titleHeight = CoordY(extents) + 15;
-		graphics->fillRect(0, 0, xSize, CoordY(extents) + 10, MENU_TITLE_BG);
-		graphics->setCursor(5, 5);
-		graphics->setTextColor(MENU_TITLE_COLOR);
-		graphics->print(buffer);
+		renderTitleArea();
+		renderWidgets(true);
 		taskManager.yieldForMicros(0);
+	}
+	else {
+		renderWidgets(false);
 	}
 
 	graphics->setTextSize(2);
@@ -90,12 +114,15 @@ void AdaFruitGfxMenuRenderer::render() {
 		item = item->getNext();
 	}
 
+#ifdef DEBUG_GFX
+	// when debug graphics are on we draw a total count rendered to the bottom of the display
 	graphics->setTextColor(REGULAR_MENU_COLOR);
 	graphics->setCursor(200, 220);
 	graphics->setTextSize(2);
 	graphics->fillRect(200, 220, 80, 20, BACKGROUND_COLOR);
 	itoa(drawingCount, buffer, 10);
 	graphics->print(buffer);
+#endif
 }
 
 void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) {

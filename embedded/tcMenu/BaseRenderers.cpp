@@ -312,6 +312,11 @@ void BaseMenuRenderer::setCurrentEditor(MenuItem* toEdit) {
 	menuAltered();
 }
 
+void BaseMenuRenderer::setFirstWidget(TitleWidget* widget) {
+	this->firstWidget = widget;
+	this->redrawMode = MENUDRAW_COMPLETE_REDRAW;
+}
+
 uint8_t itemCount(MenuItem* item) {
 	uint8_t count = 0;
 	while (item) {
@@ -319,4 +324,13 @@ uint8_t itemCount(MenuItem* item) {
 		item = item->getNext();
 	}
 	return count;
+}
+
+TitleWidget::TitleWidget(const uint8_t ** icons, uint8_t width, uint8_t height, TitleWidget* next) {
+	this->iconData = icons;
+	this->width = width;
+	this->height = height;
+	this->currentState = 0;
+	this->next = next;
+	this->changed = true;
 }

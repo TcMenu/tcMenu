@@ -175,7 +175,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingJoin() {
-        protocol.toChannel(bb, new MenuJoinCommand("dave", ApiPlatform.ARDUINO_8, 101));
+        protocol.toChannel(bb, new MenuJoinCommand("dave", ApiPlatform.ARDUINO, 101));
         testBufferAgainstExpected("MT=NJ|NM=dave|VE=101|PF=0|~");
     }
 

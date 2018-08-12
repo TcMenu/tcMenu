@@ -189,7 +189,7 @@ public class MainWindowController {
                 //
                 Label itemLbl = new Label("SubMenu " + item.getName());
                 itemLbl.setPadding(new Insets(12, 10, 12, inset));
-                itemLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 120%; -fx-background-color: linear-gradient(#dbdbdb, #e2aa94);");
+                itemLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 120%;");
                 itemGrid.add(itemLbl, 0, gridPosition++, 2, 1);
                 gridPosition = buildGrid(MenuItemHelper.asSubMenu(item), inset + 10, gridPosition);
             } else {

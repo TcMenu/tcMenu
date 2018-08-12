@@ -10,6 +10,6 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 
 public interface EmbeddedPlatformMappings {
-    Set<EmbeddedPlatform> ALL_ARDUINO_BOARDS = Sets.newHashSet(EmbeddedPlatform.ARDUINO_8BIT);
-    Set<EmbeddedPlatform> ALL_DEVICES = Sets.newHashSet(EmbeddedPlatform.ARDUINO_8BIT);
+    Set<EmbeddedPlatform> ALL_ARDUINO_BOARDS = Sets.newHashSet(EmbeddedPlatform.ARDUINO);
+    Set<EmbeddedPlatform> ALL_DEVICES = Sets.newHashSet(EmbeddedPlatform.ARDUINO);
 }

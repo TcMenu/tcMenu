@@ -10,9 +10,8 @@ package com.thecoderscorner.menu.remote.protocol;
  * of the connectee.
  */
 public enum ApiPlatform {
-    ARDUINO_8(0, "Arduino 8bit"),
+    ARDUINO(0, "Arduino"),
     JAVA_API(1, "Java API");
-
 
     private final int key;
     private final String description;

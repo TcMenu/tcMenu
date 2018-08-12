@@ -44,7 +44,10 @@ void TagValueRemoteConnector::tick() {
 		if(processor) processor->fieldRx(field);
 		break;
 	case FVAL_END_MSG:
-		if(processor) processor->onComplete();
+		if(processor) {
+			processor->onComplete();
+			if(processor->requiresBootstrap()) initiateBootstrap(menuMgr.getRoot());
+		}
 		processor = NULL;
 		ticksLastRead = 0;
 		break;
@@ -81,7 +84,6 @@ void TagValueRemoteConnector::dealWithHeartbeating() {
 		processor = NULL;
 		setConnected(true);
 		if(TagValueTransport::getListener()) TagValueTransport::getListener()->connected(true);
-		initiateBootstrap(menuMgr.getRoot());
 	}
 
 }
