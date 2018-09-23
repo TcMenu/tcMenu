@@ -6,6 +6,21 @@ it is currently under development so be careful before using in full production.
 TcMenu is more than just an Arduino menu library, think of it more like a framework for building IoT applications that provides
 many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
+# Major improvement to memory usage for smaller boards - coming soon
+
+A major improvement in memory usage for Arduino Uno and other smaller boards is coming soon. It reduces memory usage considerably for most cases, by as much as 40% in some case.
+
+For most users, you'll just use the UI designer to remake your code from the saved designer file (the CPP and H file). Doing this will keep everything entact in your sketch. Any menu names will not change.
+
+I'm hoping to get it onto master soon, and do a release a week or later.
+
+This is what will mean:
+
+* No virtuals in the whole menuitem strucutre, although the signatures are near identical - infact the new signature is better, as it hides away the PROGMEM near completely.
+* Removed the interface for the high level remote management, there was no need for it, it was just a cost.
+* Removed the need to call menuItemChanged on menu manager, it's done automatically now.
+* On AVR, a reasonably sized menu with Serial and Ethernet now fits.
+
 ## Types of input supported
 
 * Button based rotary encoder emulation (Up, Down and OK buttons)
@@ -24,9 +39,7 @@ many useful abstractions and remote control capabilities, including the ability 
 
 ## More information 
 
-MenuItem's are mainly stored in program memory with a small amount of state in RAM; put it another way, a reasonably
-complete menu can fit in less than 700 bytes including i2c and Serial libraries. The system also supports loading and saving
-menu items to/from EEPROM storage.
+MenuItem's are mainly stored in program memory with a small amount of state in RAM. The system also supports loading and saving menu items to/from EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 
 
 ## Getting started with tcMenu
 
