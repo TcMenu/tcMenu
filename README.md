@@ -22,6 +22,7 @@ This is what will mean:
 * On smaller boards such as Uno, a reasonably sized menu with Serial and Ethernet now fits again.
 * At the same time, the embedded code will be moved into a new project tcMenuArduino, tcMenuAdaGfx and tcMenuLiquidCrystal. This allows it to be installed by library managers once a bit more stable.
 * Remote code will be moved into a separate set of files, included as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
+* If you previously used the RemoteListener, which was clunky to use, it's now replaced with a callback function that reports connections, disconnections and errors using a status type.
 
 ## Types of input supported
 
