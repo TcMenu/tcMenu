@@ -20,6 +20,8 @@ This is what will mean:
 * Removed the interface for the high level remote management, there was no need for it, it was just a cost.
 * Removed the need to call menuItemChanged on menu manager, it's done automatically now.
 * On AVR, a reasonably sized menu with Serial and Ethernet now fits.
+* At the same time, the embedded code will be moved into a new project tcMenuArduino, tcMenuAdaGfx and tcMenuLiquidCrystal. This allows it to be installed by library managers once a bit more stable.
+* Remote code will be moved into a separate set of files, included as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
 
 ## Types of input supported
 
