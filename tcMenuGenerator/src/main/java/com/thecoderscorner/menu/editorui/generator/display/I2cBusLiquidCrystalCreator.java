@@ -25,6 +25,6 @@ public class I2cBusLiquidCrystalCreator extends LiquidCrystalCreator {
 
     @Override
     protected String abstractionCode() {
-        return "ioFrom8754(LCD_I2C_ADDR)";
+        return "ioFrom8574(LCD_I2C_ADDR)";
     }
 }
