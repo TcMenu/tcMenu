@@ -91,32 +91,45 @@ void BaseMenuRenderer::menuValueToText(MenuItem* item,	MenuDrawJustification jus
 
 }
 
-inline int16_t intFromEeprom(const int* ptrToInt) {
-	uint16_t* ptrAsUint = (uint16_t*)ptrToInt;
-	return (int16_t) pgm_read_word_near(ptrAsUint);
+void zeropaditoa(int range, int value, char* buff) {
+	uint8_t pos = 0;
+	do {
+		range = range / 10;
+		buff[pos] = (value / range) + '0';
+		value = value % range;
+		++pos;
+	} while(range > 1);
+
+	buff[pos]=0;
 }
 
 void BaseMenuRenderer::menuValueAnalog(AnalogMenuItem* item, MenuDrawJustification justification) {
-	char itoaBuf[10];
+	char itoaBuf[12];
 
-	int calcVal = ((int)item->getCurrentValue()) + intFromEeprom(&item->getMenuInfo()->offset);
-	int8_t divisor = (int8_t)pgm_read_byte_near(&item->getMenuInfo()->divisor);
+	int32_t calcVal = ((int32_t)item->getCurrentValue()) + ((int32_t)item->getOffset());
+	int divisor = item->getDivisor();
 
 	if (divisor < 2) {
+		// in this case divisor was 0 or 1, this means treat as integer.
 		itoa(calcVal, itoaBuf, 10);
 	}
 	else if (divisor > 10) {
+		// so we can display as decimal, work out the nearest highest unit for 2dp, 3dp and 4dp.
+		int fractMax = (divisor > 1000) ? divisor = 10000 : (divisor >= 100) ? 1000 : 100;
+
+		// when divisor is greater than 10 we need to deal with both parts using itoa
 		int whole = calcVal / divisor;
-		uint8_t fraction = abs((calcVal % divisor) * divisor);
+		uint8_t fraction = abs((calcVal % divisor)) * (fractMax / divisor);
 
 		itoa(whole, itoaBuf, 10);
 		uint8_t decPart = strlen(itoaBuf);
 		itoaBuf[decPart] = '.';
-		itoa(fraction, &itoaBuf[decPart + 1], 10);
+		zeropaditoa(fractMax, fraction, &itoaBuf[decPart + 1]);
 	}
 	else {
+		// an efficient optimisation for fractions < 10.
 		int whole = calcVal / divisor;
-		uint8_t fraction = abs((calcVal % divisor) * (10 / divisor));
+		uint8_t fraction = abs((calcVal % divisor)) * (10 / divisor);
 
 		itoa(whole, itoaBuf, 10);
 		uint8_t decPart = strlen(itoaBuf);
@@ -128,28 +141,24 @@ void BaseMenuRenderer::menuValueAnalog(AnalogMenuItem* item, MenuDrawJustificati
 
 	if(justification == JUSTIFY_TEXT_LEFT) {
 		strcpy(buffer, itoaBuf);
-		strcpy_P(buffer + numLen, item->getMenuInfo()->unitName);
+		item->copyUnitToBuffer(buffer + numLen);
 	}
 	else {
-		uint8_t unitLen = strlen_P(item->getMenuInfo()->unitName);
+		uint8_t unitLen = item->unitNameLength();
 		uint8_t startPlace = bufferSize - (numLen + unitLen);
 		strcpy(buffer + startPlace, itoaBuf);
-		strcpy_P(buffer + (bufferSize - unitLen), item->getMenuInfo()->unitName);
-
+		item->copyUnitToBuffer(buffer + (bufferSize - unitLen));
 	}
 
 }
 
 void BaseMenuRenderer::menuValueEnum(EnumMenuItem* item, MenuDrawJustification justification) {
-	char** itemPtr = ((char**)pgm_read_ptr_near(&item->getMenuInfo()->menuItems)) + item->getCurrentValue();
-	char* itemLoc = (char *)pgm_read_ptr_near(itemPtr);
-
 	if(justification == JUSTIFY_TEXT_LEFT) {
-		strcpy_P(buffer, itemLoc);
+		item->copyEnumStrToBuffer(buffer, item->getCurrentValue());
 	}
 	else {
-		uint8_t count = strlen_P(itemLoc);
-		strcpy_P(buffer + (bufferSize - count), itemLoc);
+		uint8_t count = item->getLengthOfEnumStr(item->getCurrentValue());
+		item->copyEnumStrToBuffer(buffer + (bufferSize - count), item->getCurrentValue());
 	}
 }
 
@@ -163,7 +172,7 @@ const char SUB_STR[] PROGMEM  = "->>>";
 const char BACK_MENU_NAME[] PROGMEM  = "[Back]";
 
 void BaseMenuRenderer::menuValueBool(BooleanMenuItem* item, MenuDrawJustification justification) {
-	BooleanNaming naming = (BooleanNaming)pgm_read_byte_near(&item->getBooleanMenuInfo()->naming);
+	BooleanNaming naming = item->getBooleanNaming();
 	const char* val;
 	switch(naming) {
 	case NAMING_ON_OFF:

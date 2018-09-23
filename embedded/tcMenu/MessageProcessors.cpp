@@ -19,7 +19,7 @@ void JoinMessageProcessor::initialise() {
 void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
 	switch(field->field) {
 	case FIELD_MSG_NAME:
-		if(TagValueTransport::getListener()) TagValueTransport::getListener()->remoteNameChange(field->value);
+		//if(TagValueTransport::getListener()) TagValueTransport::getListener()->remoteNameChange(field->value);
 		break;
 	case FIELD_VERSION: {
 		int val = atoi(field->value);
@@ -34,9 +34,9 @@ void JoinMessageProcessor::fieldRx(FieldAndValue* field) {
 }
 
 void JoinMessageProcessor::onComplete() {
-	if(TagValueTransport::getListener()) {
-		TagValueTransport::getListener()->newJoiner(major, minor, platform);
-	}
+//	if(TagValueTransport::getListener()) {
+		//TagValueTransport::getListener()->newJoiner(major, minor, platform);
+//	}
 }
 
 void ValueChangeMessageProcessor::initialise() {
@@ -74,7 +74,7 @@ void ValueChangeMessageProcessor::fieldRx(FieldAndValue* field) {
 	}
 	case FIELD_CURRENT_VAL:
 		if((item != NULL) && (item->getMenuType() == MENUTYPE_INT_VALUE || item->getMenuType() == MENUTYPE_ENUM_VALUE)) {
-			auto valItem = (ValueMenuItem<AnalogMenuInfo>*)item;
+			auto valItem = (ValueMenuItem*)item;
 			auto newValue = atoi(field->value);
 			if(changeType == CHANGE_ABSOLUTE) {
 				valItem->setCurrentValue(newValue); // for absolutes, assume other system did checking.
@@ -103,9 +103,7 @@ void ValueChangeMessageProcessor::fieldRx(FieldAndValue* field) {
 }
 
 void ValueChangeMessageProcessor::onComplete() {
-	menuMgr.menuItemChanged(item);
 }
 
 void HeartbeatProcessor::onComplete() {
-	if(TagValueTransport::getListener()) TagValueTransport::getListener()->heartbeat();
 }

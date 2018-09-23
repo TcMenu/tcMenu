@@ -46,38 +46,11 @@ void MenuManager::valueChanged(int value) {
 			((BooleanMenuItem*)currentEditor)->setBoolean(value != 0);
 		}
 		else if (isMenuEditable(currentEditor)) {
-			((ValueMenuItem<AnalogMenuInfo*>*)currentEditor)->setCurrentValue(value);
+			((ValueMenuItem*)currentEditor)->setCurrentValue(value);
 		}
-		menuItemChanged(currentEditor);
 	}
 	else {
 		renderer->activeIndexChanged(value / switches.getMenuDivisor());
-	}
-}
-
-void MenuManager::menuItemChanged(MenuItem* item) { 
-	MenuCallbackFn fn = NULL;
-
-	switch (item->getMenuType()) {
-	case MENUTYPE_ENUM_VALUE:
-		fn = (MenuCallbackFn)pgm_read_ptr_near(&((EnumMenuItem*)item)->getMenuInfo()->callback);
-		break;
-	case MENUTYPE_INT_VALUE:
-		fn = (MenuCallbackFn)pgm_read_ptr_near(&((AnalogMenuItem*)item)->getMenuInfo()->callback);
-		break;
-	case MENUTYPE_BOOLEAN_VALUE:
-		fn = (MenuCallbackFn)pgm_read_ptr_near(&((BooleanMenuItem*)item)->getBooleanMenuInfo()->callback);
-		break;
-	case MENUTYPE_TEXT_VALUE:
-		fn = (MenuCallbackFn)pgm_read_ptr_near(&((TextMenuItem*)item)->getTextMenuInfo()->callback);
-		break;
-	default:
-		fn = NULL;
-		break;
-	}
-
-	if (fn) {
-		fn(item->getId());
 	}
 }
 
@@ -107,29 +80,70 @@ void MenuManager::changePrecisionForType(MenuItem* item) {
 		switches.changeEncoderPrecision(item->getMaximumValue(), 1);
 	}
 	else {
-		switches.changeEncoderPrecision(item->getMaximumValue(), ((ValueMenuItem<void*>*)item)->getCurrentValue());
+		switches.changeEncoderPrecision(item->getMaximumValue(), ((ValueMenuItem*)item)->getCurrentValue());
+	}
+}
+
+void loadRecursively(EepromAbstraction& eeprom, MenuItem* nextMenuItem) {
+	while(nextMenuItem) {
+		if(nextMenuItem->getMenuType() == MENUTYPE_SUB_VALUE) {
+			loadRecursively(eeprom, ((SubMenuItem*)nextMenuItem)->getChild());
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_TEXT_VALUE) {
+			TextMenuItem* textItem = (TextMenuItem*) nextMenuItem;
+			eeprom.readIntoMemArray((uint8_t*) textItem->getTextValue(), textItem->getEepromPosition(), textItem->getMaximumValue());
+			textItem->setSendRemoteNeededAll(true);
+			textItem->setChanged(true);
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_INT_VALUE) {
+			AnalogMenuItem* intItem = (AnalogMenuItem*)nextMenuItem;
+			intItem->setCurrentValue(eeprom.read16(intItem->getEepromPosition()));
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_ENUM_VALUE) {
+			EnumMenuItem* valItem = (EnumMenuItem*)nextMenuItem;
+			valItem->setCurrentValue(eeprom.read16(valItem->getEepromPosition()));
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_BOOLEAN_VALUE) {
+			BooleanMenuItem* valItem = (BooleanMenuItem*)nextMenuItem;
+			valItem->setCurrentValue(eeprom.read8(valItem->getEepromPosition()));
+		}
+		nextMenuItem = nextMenuItem->getNext();
 	}
 }
 
 void MenuManager::load(EepromAbstraction& eeprom, uint16_t magicKey) {
 	if(eeprom.read16(0) == magicKey) {
 		MenuItem* nextMenuItem = rootMenu;
-		while(nextMenuItem) {
-			nextMenuItem->load(eeprom);
-			if(nextMenuItem->isChanged()) {
-				menuItemChanged(nextMenuItem);
-			}
-			nextMenuItem = nextMenuItem->getNext();
+		loadRecursively(eeprom, nextMenuItem);
+	}
+}
+
+void saveRecursively(EepromAbstraction& eeprom, MenuItem* nextMenuItem) {
+	while(nextMenuItem) {
+		if(nextMenuItem->getMenuType() == MENUTYPE_SUB_VALUE) {
+			saveRecursively(eeprom, ((SubMenuItem*)nextMenuItem)->getChild());
 		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_TEXT_VALUE) {
+			TextMenuItem* textItem = (TextMenuItem*) nextMenuItem;
+			eeprom.writeArrayToRom(textItem->getEepromPosition(), (const uint8_t*) textItem->getTextValue(), textItem->getMaximumValue());
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_INT_VALUE) {
+			AnalogMenuItem* intItem = (AnalogMenuItem*)nextMenuItem;
+			eeprom.write16(intItem->getEepromPosition(), intItem->getCurrentValue());
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_ENUM_VALUE) {
+			EnumMenuItem* valItem = (EnumMenuItem*)nextMenuItem;
+			eeprom.write16(valItem->getEepromPosition(), valItem->getCurrentValue());
+		}
+		else if(nextMenuItem->getMenuType() == MENUTYPE_BOOLEAN_VALUE) {
+			BooleanMenuItem* valItem = (BooleanMenuItem*)nextMenuItem;
+			eeprom.write16(valItem->getEepromPosition(), valItem->getCurrentValue());
+		}
+		nextMenuItem = nextMenuItem->getNext();
 	}
 }
 
 void MenuManager::save(EepromAbstraction& eeprom, uint16_t magicKey) {
 	eeprom.write16(0, magicKey);
-	MenuItem* nextMenuItem = rootMenu;
-	while(nextMenuItem) {
-		nextMenuItem->save(eeprom);
-		nextMenuItem = nextMenuItem->getNext();
-	}
-
+	saveRecursively(eeprom, rootMenu);
 }

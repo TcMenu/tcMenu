@@ -40,11 +40,6 @@ public:
 	void save(EepromAbstraction& eeprom, uint16_t magicKey = 0xfade);
 
 	/**
-	 * Use this to record external changes made to a menu item. This will render and run any callbacks.
-	 */
-	void menuItemChanged(MenuItem* item);
-
-	/**
 	 * Find the menu item that is currently active.
 	 */
 	MenuItem* findCurrentActive();

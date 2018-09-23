@@ -24,7 +24,6 @@ getCurrentValue
 setCurrentValue
 getTextValue
 setTextValue
-menuItemChanged
 load
 save
 isChanged

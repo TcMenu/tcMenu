@@ -9,8 +9,10 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.CppAndHeader;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,46 +34,46 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
     @Override
     public void visit(AnalogMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sbCpp = new StringBuilder(256);
-        sbCpp.append(String.format("const PROGMEM AnalogMenuInfo minfo%s = { \"%s\", %d, %s, %d, %d, %d, \"%s\"%s };%s",
-                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), item.getMaxValue(),
-                item.getOffset(), item.getDivisor(), item.getUnitName(), possibleFunction(item), LINE_BREAK)
-        );
-        sbCpp.append(String.format("AnalogMenuItem menu%s(&minfo%s, 0, %s);%s",
-                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
-        ));
-        String header = String.format("extern AnalogMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
-        setResult(new CppAndHeader(sbCpp.toString(), header));
-    }
 
-    private String asEeprom(int eepromAddress) {
-        if(eepromAddress == -1) {
-            return "0xffff";
-        }
-        else {
-            return Integer.toString(eepromAddress);
-        }
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnalogMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(item.getMaxValue())
+                .addPossibleFunction(item.getFunctionName())
+                .addElement(item.getOffset())
+                .addElement(item.getDivisor())
+                .addQuoted(item.getUnitName());
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "AnalogMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(0)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
     }
 
     @Override
     public void visit(TextMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sbCpp = new StringBuilder(256);
-        sbCpp.append(String.format("const PROGMEM TextMenuInfo minfo%s = { \"%s\", %d, %s, %d%s };%s",
-                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), item.getTextLength(),
-                possibleFunction(item), LINE_BREAK)
-        );
-        sbCpp.append(String.format("TextMenuItem menu%s(&minfo%s, %s);%s",
-                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
-        ));
-        String header = String.format("extern TextMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
-        setResult(new CppAndHeader(sbCpp.toString(), header));
+
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "TextMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(item.getTextLength())
+                .addPossibleFunction(item.getFunctionName());
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "TextMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
     }
 
     @Override
     public void visit(BooleanMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sb = new StringBuilder(256);
         String itemNaming;
         switch (item.getNaming()) {
             case ON_OFF:
@@ -85,15 +87,21 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
                 itemNaming = "NAMING_TRUE_FALSE";
                 break;
         }
-        sb.append(String.format("const PROGMEM BooleanMenuInfo minfo%s = { \"%s\", %d, %s, %s%s };%s",
-                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), itemNaming,
-                possibleFunction(item), LINE_BREAK
-        ));
-        sb.append(String.format("BooleanMenuItem menu%s(&minfo%s, false, %s);%s",
-                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
-        ));
-        String header = String.format("extern BooleanMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
-        setResult(new CppAndHeader(sb.toString(), header));
+
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "BooleanMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(1)
+                .addPossibleFunction(item.getFunctionName())
+                .addElement(itemNaming);
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "BooleanMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(false)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
     }
 
     @Override
@@ -109,37 +117,44 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
                 .mapToObj(i -> "enumStr" + nameNoSpaces + "_" + i)
                 .collect(Collectors.joining(", ")));
         sb.append(" };").append(LINE_BREAK);
-        sb.append(String.format("const PROGMEM EnumMenuInfo minfo%s = { \"%s\", %d, %s, enumStr%s, %d%s };%s",
-                nameNoSpaces, item.getName(), item.getId(), asEeprom(item.getEepromAddress()), nameNoSpaces,
-                item.getEnumEntries().size(), possibleFunction(item), LINE_BREAK)
-        );
-        sb.append(String.format("EnumMenuItem menu%s(&minfo%s, 0, %s);%s",
-                nameNoSpaces, nameNoSpaces, nextMenuName, LINE_BREAK
-        ));
-        String header = String.format("extern EnumMenuItem menu%s;%s", nameNoSpaces, LINE_BREAK);
-        setResult(new CppAndHeader(sb.toString(), header));
-    }
 
-    private String possibleFunction(MenuItem item) {
-        if(item.getFunctionName() != null) {
-            return ", " + item.getFunctionName();
-        }
-        else {
-            return ", NO_CALLBACK";
-        }
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "EnumMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(item.getEnumEntries().size())
+                .addPossibleFunction(item.getFunctionName())
+                .addElement("enumStr" + nameNoSpaces);
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "EnumMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(false)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(sb.toString() + info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
     }
 
     @Override
     public void visit(SubMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sb = new StringBuilder(256);
-        sb.append(String.format("const PROGMEM SubMenuInfo minfo%s = { \"%s\", %d };\n",
-                nameNoSpaces, item.getName(), item.getId()));
-        sb.append(String.format("BackMenuItem backMnu%s(%s, minfo%s.name);\n", nameNoSpaces, nextChild, nameNoSpaces));
-        sb.append(String.format("SubMenuItem menu%s(&minfo%s, &backMnu%s, %s);\n", nameNoSpaces, nameNoSpaces,
-                nameNoSpaces, nextMenuName));
 
-        setResult(new CppAndHeader(sb.toString(), ""));
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "SubMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(0)
+                .addPossibleFunction(item.getFunctionName());
+
+        BuildStructInitializer menuBack = new BuildStructInitializer("Back" + nameNoSpaces, "BackMenuItem")
+                .addElement(nextChild)
+                .addElement("(const AnyMenuInfo*)&minfo" + nameNoSpaces);
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "SubMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement("&menuBack" + nameNoSpaces)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menuBack.toMenuItem() + menu.toMenuItem(), menu.toMenuHeader()));
     }
 
     public static String makeNameToVar(String name) {

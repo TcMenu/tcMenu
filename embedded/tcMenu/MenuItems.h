@@ -15,29 +15,41 @@
 typedef void (*MenuCallbackFn)(int id);
 
 /**
- * The information block stored in program memory for analog items. DO NOT move the first 3 items!!!
+ * Every single info structure must have these fields in this order. Therefore it is always save to use this structure
+ * in place of a specific one.
+ */
+struct AnyMenuInfo {
+	char name[NAME_SIZE_T];
+	uint16_t id;
+	uint16_t eepromAddr;
+	uint16_t maxValue;
+	MenuCallbackFn callback;
+};
+
+/**
+ * The information block stored in program memory for analog items. DO NOT move these items without considering AnyMenuInfo!!!
  */
 struct AnalogMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
 	uint16_t eepromAddr;
 	uint16_t maxValue;
-	int offset;
+	MenuCallbackFn callback;
+	int16_t offset;
 	uint16_t divisor;
 	char unitName[5];
-	MenuCallbackFn callback;
 };
 
 /**
- * The information block stored in program memory for enumeration items. DO NOT move the first 3 items!!!
+ * The information block stored in program memory for enumeration items. DO NOT move these items without considering AnyMenuInfo!!!
  */
 struct EnumMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
 	uint16_t eepromAddr;
-	const char * const *menuItems;
-	uint8_t noOfItems;
+	uint16_t noOfItems;
 	MenuCallbackFn callback;
+	const char * const *menuItems;
 };
 
 
@@ -51,32 +63,36 @@ enum BooleanNaming : byte {
 };
 
 /**
-* The information block stored in program memory for boolean items. DO NOT move the first 3 items!!!
+* The information block stored in program memory for boolean items. DO NOT move these items without considering AnyMenuInfo!!!
 */
 struct BooleanMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
 	uint16_t eepromAddr;
-	BooleanNaming naming;
+	uint16_t maxValue; // always 1, needed for consistency with other structs
 	MenuCallbackFn callback;
+	BooleanNaming naming;
 };
 
 /**
- * The information block for a submenu stored in program memory
+ * The information block for a submenu stored in program memory. DO NOT move these items without considering AnyMenuInfo!!!
  */
 struct SubMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
+	uint16_t eeprom;
+	uint16_t maxValue;// always 0, needed for consistency with other structs
+	MenuCallbackFn callback; // not used, for consistency with other structs
 };
 
 /**
- * The information block for a text menu component
+ * The information block for a text menu component. DO NOT move these items without considering AnyMenuInfo!!!
  */
 struct TextMenuInfo {
 	char name[NAME_SIZE_T];
 	uint16_t id;
 	uint16_t eeprom;
-	uint8_t length;
+	uint16_t maxLength;
 	MenuCallbackFn callback;
 };
 
@@ -84,28 +100,34 @@ struct TextMenuInfo {
  * Each menu item can be in the following states.
  */
 enum Flags : byte {
-	MENUITEM_ACTIVE = 1,       // the menu is currently active but not editing
-	MENUITEM_CHANGED = 2,      // the menu has changed and needs drawing
-	MENUITEM_READONLY = 3,     // the menu cannot be changed
-	MENUITEM_EDITING = 4,      // the menu is being edited
-	MENUITEM_REMOTE_SEND0 = 6, // the menu needs to be sent remotely (for remote 0)
-	MENUITEM_REMOTE_SEND1 = 7, // the menu needs to be sent remotely (for remote 1)
-	MENUITEM_REMOTE_SEND2 = 8  // the menu needs to be sent remotely (for remote 2)
+	MENUITEM_ACTIVE = 0,       // the menu is currently active but not editing
+	MENUITEM_CHANGED = 1,      // the menu has changed and needs drawing
+	MENUITEM_READONLY = 2,     // the menu cannot be changed
+	MENUITEM_EDITING = 3,      // the menu is being edited
+	MENUITEM_REMOTE_SEND0 = 5, // the menu needs to be sent remotely (for remote 0)
+	MENUITEM_REMOTE_SEND1 = 6, // the menu needs to be sent remotely (for remote 1)
+	MENUITEM_REMOTE_SEND2 = 7  // the menu needs to be sent remotely (for remote 2)
 };
 
 #define MENUITEM_ALL_REMOTES (32+64+128)
 
 /**
- * As we don't have RTTI we need a way of identifying each menu item
+ * As we don't have RTTI we need a way of identifying each menu item. Any value below 100 is based
+ * on ValueMenuItem and can therefore be edited, otherwise it cannot be edited on the device.
  */
 enum MenuType : byte {
-	MENUTYPE_INT_VALUE = 1,  // AnalogMenuItem
-	MENUTYPE_ENUM_VALUE,     // EnumMenuItem
-	MENUTYPE_BOOLEAN_VALUE,  // BooleanMenuItem
-	MENUTYPE_SUB_VALUE,      // SubMenuItem
-	MENUTYPE_BACK_VALUE,     // BackMenuItem
-	MENUTYPE_TEXT_VALUE      // TextMenuItem
+	MENUTYPE_INT_VALUE = 1,      // AnalogMenuItem
+	MENUTYPE_ENUM_VALUE = 2,     // EnumMenuItem
+	MENUTYPE_BOOLEAN_VALUE = 3,  // BooleanMenuItem
+	MENUTYPE_SUB_VALUE = 100,    // SubMenuItem
+	MENUTYPE_BACK_VALUE = 101,   // BackMenuItem
+	MENUTYPE_TEXT_VALUE = 102    // TextMenuItem
 };
+
+/**
+ * Any MenuType with an ID less than 100 is editable on the device. EG: Numeric, Boolean or choices
+ */
+#define menuTypeIsBasedOnValueType(x) (x < 99)
 
 /**
  * This is the base class of all menu items, containing functionality to hold the current state of the menu
@@ -115,21 +137,23 @@ enum MenuType : byte {
 class MenuItem {
 protected:
 	uint8_t flags;
+	MenuType menuType;
 	MenuItem* next;
+	const AnyMenuInfo *info;
 public:
-	virtual ~MenuItem() { }
+
 	/** Gets hold of the name pointer - caution this is in PROGMEM */
-	virtual const char* getNamePgm() = 0;
+	const char* getNamePgm() { return info->name; }
 	/** Retrieves the ID from the info block */
-	virtual int getId() = 0;
-	/** Gets hold of the maximum integer value for this entry when being edited */
-	virtual int getMaximumValue() = 0;
+	int getId() { return pgm_read_word_near(&info->id); }
+	/** Retrieves the maximum value for this menu type */
+	int getMaximumValue() { return pgm_read_word_near(&info->maxValue); }
+	/** Retrieves the eeprom storage position for this menu (or 0xffff if not applicable) */
+	int getEepromPosition() { return pgm_read_word_near(&info->eepromAddr); }
 	/** returns the menu type as one of the above menu type enumeration */
-	virtual MenuType getMenuType() = 0;
-	/** reads current value from eeprom */
-	virtual void load(EepromAbstraction& eeprom) = 0;
-	/** stores this items data to eeprom */
-	virtual void save(EepromAbstraction& eeprom) = 0;
+	MenuType getMenuType() { return menuType; }
+	/** returns the event callback associated with this item */
+	void triggerCallback();
 
 	/** set the item to be changed, this lets the renderer know it needs painting */
 	void setChanged(bool changed) { bitWrite(flags, MENUITEM_CHANGED, changed); }
@@ -137,8 +161,9 @@ public:
 	bool isChanged() { return bitRead(flags, MENUITEM_CHANGED); }
 	/** returns if the menu item needs to be sent remotely */
 	bool isSendRemoteNeeded(uint8_t remoteNo);
-	/** set the flag indicating that a remote refresh is needed */
+	/** set the flag indicating that a remote refresh is needed for all remotes - default */
 	void setSendRemoteNeededAll(bool needed);
+	/** set the flag indicating that a remote refresh is needed for a specific remote */
 	void setSendRemoteNeeded(uint8_t remoteNo, bool needed);
 
 	/** sets this to be the active item, so that the renderer shows it highlighted */
@@ -158,147 +183,102 @@ public:
 
 	/** gets the next menu (sibling) at this level */
 	MenuItem* getNext() { return next; }
+
+protected:
+	/**
+	 * Do not directly create menu items, always use the leaf classes, such as AnalogMenuItem etc.
+	 */
+	MenuItem(MenuType menuType, const AnyMenuInfo* menuInfo, MenuItem* next);
 };
 
 /** 
  * Represents an item that has a 16 bit unsigned integer backing it, and an info structure in program memory.
  */
-template <typename M> class ValueMenuItem : public MenuItem {
+class ValueMenuItem : public MenuItem {
 protected:
 	uint16_t currentValue;
-	M info;
-public:
-	/** initialise an instance of this type with the required data values */
-	void init(M info, uint16_t defaultVal, MenuItem* next = NULL) {
-		this->info = info;
-		this->currentValue = defaultVal;
-		this->next = next;
-		flags = 0;
-	}
 
+	/** Use the leaf types, dont construct directly. Initialise an instance of this type with the required data values */
+	ValueMenuItem(MenuType menuType, const AnyMenuInfo* info, uint16_t defaultVal, MenuItem* next = NULL) : MenuItem(menuType, info, next) {
+		this->currentValue = defaultVal;
+	}
+public:
 	/** Sets the integer current value to a new value, and marks the menu changed */
 	void setCurrentValue(uint16_t val) {
 		setChanged(true);
 		setSendRemoteNeededAll(currentValue != val);
 		currentValue = val;
+		triggerCallback();
 	}
 
 	/** gets the current value */
 	uint16_t getCurrentValue() { return currentValue; }
-
-	virtual const char* getNamePgm() { return info->name; }
-	int getId() { return pgm_read_word_near(&info->id); }
-
-	virtual void load(EepromAbstraction& eeprom) {
-		uint16_t eeVal = pgm_read_word_near(&info->eepromAddr);
-		if (eeVal != 0xffff) {
-			setCurrentValue((int)eeprom.read16(eeVal));
-		}
-	}
-
-	/** saves the current value word into eeprom, if the eeprom address is not -1 */
-	virtual void save(EepromAbstraction& eeprom) {
-		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
-		if (eepromAddr == 0xffff) return;
-
-		eeprom.write16(eepromAddr, (uint16_t)currentValue);
-	}
-
-	/** Gets hold of the menu info struct, careful this is in PROGMEM */
-	M getMenuInfo() { return info; }
 };
 
 /**
  * The implementation of MenuItem for storing numbers. Goes with it's AnalogMenuInfo
  * counterpart.
  */
-class AnalogMenuItem : public ValueMenuItem<const AnalogMenuInfo*> {
+class AnalogMenuItem : public ValueMenuItem {
 public:
-	AnalogMenuItem(const AnalogMenuInfo* info, uint16_t defaultVal, MenuItem* next = NULL);
-	virtual ~AnalogMenuItem() { }
-	virtual int getMaximumValue() { return (int)pgm_read_word_near(&info->maxValue); }
-	virtual MenuType getMenuType() { return MENUTYPE_INT_VALUE; }
-	virtual const char* getUnitNamePgm() { return info->unitName; }
+	AnalogMenuItem(const AnalogMenuInfo* info, uint16_t defaultVal, MenuItem* next = NULL) : ValueMenuItem(MENUTYPE_INT_VALUE, (const AnyMenuInfo*)info, defaultVal, next) {;}
+
+	int getOffset() { return (int) pgm_read_word_near(&((AnalogMenuInfo*)info)->offset);}
+	int getDivisor() { return (int) pgm_read_word_near(&((AnalogMenuInfo*)info)->divisor);}
+	int unitNameLength() {return (int) strlen_P(((AnalogMenuInfo*)info)->unitName);}
+	void copyUnitToBuffer(char* unitBuff) { strcpy_P(unitBuff, ((AnalogMenuInfo*)info)->unitName);}
+	const char* getUnitNamePgm() { return ((AnalogMenuInfo*)info)->unitName; }
 };
 
 /**
  * The implmentation of MenuItem for a list of choices, where only one can be chosen.
  * Goes with its EnumMenuInfo counterpart.
  */
-class EnumMenuItem : public ValueMenuItem<const EnumMenuInfo*> {
+class EnumMenuItem : public ValueMenuItem {
 public:
-	EnumMenuItem(const EnumMenuInfo *info, uint8_t defaultVal, MenuItem* next = NULL);
-	virtual ~EnumMenuItem() { }
-	int getMaximumValue() { return pgm_read_byte_near(&info->noOfItems) - 1; }
-	virtual MenuType getMenuType() { return MENUTYPE_ENUM_VALUE; }
-	virtual const char* getNamePgm() { return info->name; }
-	int getId() { return pgm_read_word_near(&info->id); }
+	EnumMenuItem(const EnumMenuInfo *info, uint8_t defaultVal, MenuItem* next = NULL) : ValueMenuItem(MENUTYPE_ENUM_VALUE, (const AnyMenuInfo*)info, defaultVal, next) {;}
+
+	void copyEnumStrToBuffer(char* buffer, int idx) {
+		char** itemPtr = ((char**)pgm_read_ptr_near(&((EnumMenuInfo*)info)->menuItems) + idx);
+		char* itemLoc = (char *)pgm_read_ptr_near(itemPtr);
+		strcpy_P(buffer, itemLoc);
+	}
+
+	int getLengthOfEnumStr(int idx) {
+		char** itemPtr = ((char**)pgm_read_ptr_near(&((EnumMenuInfo*)info)->menuItems) + idx);
+		char* itemLoc = (char *)pgm_read_ptr_near(itemPtr);
+		return strlen_P(itemLoc);
+	}
+
+	const char* getEntryPgm(int idx) { return ((char*)pgm_read_ptr_near((char**)pgm_read_ptr_near(&((EnumMenuInfo*)info)->menuItems) + idx)); }
 };
 
 /**
  * The implemenation of MenuItem for boolean, where it is true or false.
  */
-class BooleanMenuItem : public MenuItem {
-private:
-	bool currentValue;
-	const BooleanMenuInfo* info;
+class BooleanMenuItem : public ValueMenuItem {
 public:
-	BooleanMenuItem(const BooleanMenuInfo* info, bool defaultVal, MenuItem* next = NULL);
-	virtual ~BooleanMenuItem() { }
-	virtual int getMaximumValue() { return 1; }
-	virtual MenuType getMenuType() { return MENUTYPE_BOOLEAN_VALUE; }
-	virtual const char* getNamePgm() { return info->name; }
-	int getId() { return pgm_read_word_near(&info->id); }
+	BooleanMenuItem(const BooleanMenuInfo* info, bool defaultVal, MenuItem* next = NULL) : ValueMenuItem(MENUTYPE_BOOLEAN_VALUE, (const AnyMenuInfo*)info, defaultVal, next) {;}
+	BooleanNaming getBooleanNaming() { return (BooleanNaming)pgm_read_byte_near(&((BooleanMenuInfo*)info)->naming); }
 
-	void setBoolean(bool newVal);
-	bool getBoolean() { return currentValue; }
-
-	virtual void load(EepromAbstraction& eeprom) {
-		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
-		if (eepromAddr != 0xffff) {
-			setBoolean(eeprom.read8(eepromAddr));
-		}
-	}
-
-	virtual void save(EepromAbstraction& eeprom) {
-		uint16_t eepromAddr = pgm_read_word_near(&info->eepromAddr);
-		if (eepromAddr == 0xffff) return;
-		eeprom.write8(eepromAddr, getBoolean());
-	}
-	const BooleanMenuInfo* getBooleanMenuInfo() { return info; }
+	bool getBoolean() {return currentValue != 0;}
+	void setBoolean(bool b) {setCurrentValue(b);}
 };
 
+/**
+ * The implementation of a Menuitem that can contain more menu items as children.
+ */
 class SubMenuItem : public MenuItem {
 private:
-	const SubMenuInfo* info;
 	MenuItem* child;
 public:
-	SubMenuItem(const SubMenuInfo* info, MenuItem* child, MenuItem* next);
-	virtual ~SubMenuItem() { }
-	virtual int getMaximumValue() { return 1; }
-	virtual MenuType getMenuType() { return MENUTYPE_SUB_VALUE; }
-	virtual const char* getNamePgm() { return info->name; }
-	int getId() { return pgm_read_word_near(&info->id); }
-	virtual void load(EepromAbstraction& eeprom);
-	virtual void save(EepromAbstraction& eeprom);
+	SubMenuItem(const SubMenuInfo* info, MenuItem* child, MenuItem* next) : MenuItem(MENUTYPE_SUB_VALUE, (const AnyMenuInfo*)info, next) {this->child = child;}
 	MenuItem* getChild() { return child; }
 };
 
 class BackMenuItem : public MenuItem {
-	const char* pgmName;
 public:
-	BackMenuItem(MenuItem* next, const char* subMenuNamePgm) {
-		this->pgmName = subMenuNamePgm;
-		this->next = next;
-		flags=0;
-	}
-	virtual ~BackMenuItem() { }
-	virtual int getMaximumValue() { return 1; }
-	virtual MenuType getMenuType() { return MENUTYPE_BACK_VALUE; }
-	virtual const char* getNamePgm();
-	int getId() { return -1; }
-	virtual void load(__attribute__((unused)) EepromAbstraction& eeprom) { }
-	virtual void save(__attribute__((unused)) EepromAbstraction& eeprom) { }
+	BackMenuItem(MenuItem* nextChild, const AnyMenuInfo* parentInfo) : MenuItem(MENUTYPE_BACK_VALUE, parentInfo, nextChild) {;}
 };
 
 /**
@@ -307,26 +287,13 @@ public:
  */
 class TextMenuItem : public MenuItem {
 private:
-	const TextMenuInfo* menuInfo;
 	char *menuText;
-
 public:
-	TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next);
-	uint8_t textLength() { return pgm_read_byte_near(&menuInfo->length); }
+	TextMenuItem(const TextMenuInfo* textInfo, MenuItem* next) : MenuItem(MENUTYPE_TEXT_VALUE, (const AnyMenuInfo*)textInfo, next) { menuText = new char[textLength()]; menuText[0] = 0; }
+	uint8_t textLength() { return getMaximumValue(); }
 
 	void setTextValue(const char* text);
-
 	const char* getTextValue() { return menuText; }
-
-	virtual ~TextMenuItem() { delete menuText; }
-	virtual int getMaximumValue() { return 1; }
-	virtual MenuType getMenuType() { return MENUTYPE_TEXT_VALUE; }
-	virtual const char* getNamePgm() { return menuInfo->name; }
-	int getId() { return pgm_read_word_near(&menuInfo->id); }
-	const TextMenuInfo* getTextMenuInfo() {return menuInfo;}
-
-	virtual void load(EepromAbstraction& eeprom);
-	virtual void save(EepromAbstraction& eeprom);
 };
 #endif
 

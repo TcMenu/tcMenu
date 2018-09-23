@@ -29,4 +29,8 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
         return properties().stream().filter(p->name.equals(p.getName())).findFirst().orElse(EMPTY);
     }
 
+    protected boolean getBooleanFromProperty(String propName) {
+        CreatorProperty prop = findPropertyValue(propName);
+        return Boolean.valueOf(prop.getLatestValue());
+    }
 }

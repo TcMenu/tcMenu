@@ -8,22 +8,35 @@
 #ifndef _TCMENU_REMOTETYPES_H_
 #define _TCMENU_REMOTETYPES_H_
 
-#define majorminor(maj, min) ((maj * 100) + min)
-#define API_VERSION majorminor(0, 4)
-
-#define msgFieldToWord(a,b)  ( (((uint16_t)a)<<8) | ((uint16_t)b) )
-
+/**
+ * This defines the maximum size of any field value that can be received by this library.
+ * If you need longer fields, change this value to a higher one.
+ */
 #define MAX_VALUE_LEN 24
 
-/*
- * A list of errors returned by the error callback
+/**
+ * A helper to generate the major minor version numbers used in the protocol
  */
-#define REMOTE_ERR_WRITE_NOT_CONNECTED 1
-#define REMOTE_ERR_PROTOCOL_WRONG 2
-#define REMOTE_ERR_NO_HEARTBEAT 3
+#define majorminor(maj, min) ((maj * 100) + min)
 
-// an unknown message or field
+/**
+ * Definition of the current API version
+ */
+#define API_VERSION majorminor(1, 0)
+
+/**
+ * Converts a message field as two separate entities into a single word.
+ */
+#define msgFieldToWord(a,b)  ( (((uint16_t)a)<<8) | ((uint16_t)b) )
+
+/*
+ * Definitions for an unknown field key or part thereof.
+ */
 #define UNKNOWN_FIELD_PART 0x00
+
+/**
+ * Definition for an unknown message key
+ */
 #define UNKNOWN_MSG_TYPE 0x0000
 
 /*
@@ -64,10 +77,17 @@
 
 #define FIELD_PREPEND_CHOICE 'C'
 
+/**
+ * Defines the types of change that can be received / sent in changes messages, either
+ * delta or incremental (for example menuVolume + 3) or absolulte (channel is now 2)
+ */
 enum ChangeType: byte {
 	CHANGE_DELTA = 0, CHANGE_ABSOLUTE = 1
 };
 
+/**
+ * Defines the API platforms that are supported at the moment
+ */
 enum ApiPlatform : byte {
 	PLATFORM_ARDUINO_8BIT = 0,
 	PLATFORM_JAVA_API = 1

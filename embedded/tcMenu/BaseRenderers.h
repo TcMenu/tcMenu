@@ -91,25 +91,6 @@ public:
 	 */
 	virtual MenuItem* getCurrentSubMenu() = 0;
 
-	/**
-	 * Use this function to tell the menu renderer to stop rendering and give control of the display
-	 * to renderingFunction. After this call renderingFunction will be called every tick to redraw
-	 * the display. See the limitations of each specific renderer for more information.
-	 */
-	virtual void takeOverDisplay(RendererCallbackFn renederingFunction) = 0;
-
-	/**
-	 * Tell menu library to take back control of the display. The renderingFunction will no longer
-	 * be called.
-	 */
-	virtual void giveBackDisplay() = 0;
-
-	/** 
-	 * Sets the first widget in the chain of widgets, if there's more than one, ensure that the
-	 * next is set either in the constructor or by calling setNext. 
-	 */
-	virtual void setFirstWidget(TitleWidget* firstWidget) = 0;
-
 	/** virtual destructor is required by the language */
 	virtual ~MenuRenderer() { }
 };
@@ -162,18 +143,37 @@ public:
 	BaseMenuRenderer(int bufferSize);
 	virtual ~BaseMenuRenderer() {delete buffer;}
 	virtual void initialise();
-
 	virtual void render() = 0;
-	virtual void takeOverDisplay(RendererCallbackFn displayFn);
-	virtual void giveBackDisplay();
 	virtual MenuItem* getCurrentEditor() { return currentEditor; }
 	virtual MenuItem* getCurrentSubMenu() { return currentRoot; }
-	virtual void setFirstWidget(TitleWidget* widget);
 	virtual void activeIndexChanged(uint8_t index);
 	virtual void setCurrentEditor(MenuItem* editor);
-	RendererCallbackFn getRenderingCallback() { return renderCallback; }
 
+	void setFirstWidget(TitleWidget* widget);
+
+	/**
+	 * Called when the menu has been altered, to reset the countdown to
+	 * reset behaviour
+	 */
 	void menuAltered() { ticksToReset = TICKS_BEFORE_DEFAULTING; }
+
+	/**
+	 * In order to take over the display, provide a callback function that will receive
+	 * the regular render call backs instead of this renderer.
+	 * @param displayFn the callback to render the display
+	 */
+	void takeOverDisplay(RendererCallbackFn displayFn);
+
+	/**
+	 * Call this method to clear custom display rendering after a call to takeOverDisplay.
+	 * It will cause a complete repaint of the display.
+	 */
+	void giveBackDisplay();
+
+	/**
+	 * Returns a pointer to the rendering callback
+	 */
+	RendererCallbackFn getRenderingCallback() { return renderCallback; }
 
 	static BaseMenuRenderer* INSTANCE;
 

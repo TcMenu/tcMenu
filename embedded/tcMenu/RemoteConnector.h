@@ -17,35 +17,6 @@
 #define TICK_INTERVAL 20
 #define HEARTBEAT_INTERVAL_TICKS (10000 / TICK_INTERVAL)
 
-class ConnectorListener {
-public:
-	virtual ~ConnectorListener() {;}
-	virtual void remoteNameChange(const char* remoteName) = 0;
-	virtual void newJoiner(uint8_t major, uint8_t minor, ApiPlatform platform) = 0;
-	virtual void heartbeat() = 0;
-	virtual void error(uint8_t type) = 0;
-	virtual void connected(bool) = 0;
-};
-
-class RemoteConnector {
-public:
-	virtual ~RemoteConnector() {;}
-
-	virtual void encodeJoinP(const char* localName) = 0;
-	virtual void encodeBootstrap(bool isComplete) = 0;
-	virtual void encodeHeartbeat() = 0;
-	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item) = 0;
-	virtual void encodeSubMenu(int parentId, SubMenuItem* item) = 0;
-	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item) = 0;
-	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item) = 0;
-	virtual void encodeChangeValue(int parentId, MenuItem* theItem) = 0;
-
-	virtual void tick() = 0;
-
-	virtual bool isTransportAvailable() = 0;
-	virtual bool isTransportConnected() = 0;
-};
-
 enum FieldValueType : byte {
 	FVAL_NEW_MSG, FVAL_END_MSG, FVAL_FIELD, FVAL_ERROR_PROTO,
 	// below are internal only states, and should not be acted upon.
@@ -60,15 +31,29 @@ struct FieldAndValue {
 	uint8_t len;
 };
 
+enum CommsNotificationType : byte {
+	COMMS_CONNECTED1 = 1,
+	COMMS_CONNECTED2,
+	COMMS_CONNECTED3,
+	COMMS_DISCONNECTED1 = 50,
+	COMMS_DISCONNECTED2,
+	COMMS_DISCONNECTED3,
+	COMMS_ERR_WRITE_NOT_CONNECTED = 100,
+	COMMS_ERR_WRONG_PROTOCOL,
+
+};
+
+typedef void (*CommsCallbackFn)(CommsNotificationType);
+
 class TagValueTransport {
 protected:
 	FieldAndValue currentField;
-	static ConnectorListener* listener;
+	static CommsCallbackFn notificationFn;
 public:
 	TagValueTransport();
 	virtual ~TagValueTransport() {}
-	static ConnectorListener* getListener() { return listener;}
-	static void setListener(ConnectorListener* l) { listener = l; }
+	static void commsNotify(CommsNotificationType notifyType) { if(notificationFn) notificationFn(notifyType);}
+	static void setNoificationFn(CommsCallbackFn l) { notificationFn = l; }
 
 	void startMsg(uint16_t msgType);
 	void writeField(uint16_t field, const char* value);
@@ -103,7 +88,6 @@ protected:
 	uint16_t msgType;
 	MessageProcessor* next;
 public:
-	virtual ~MessageProcessor() {;}
 	virtual void initialise() = 0;
 	virtual void fieldRx(FieldAndValue* field) = 0;
 	virtual void onComplete() = 0;
@@ -125,7 +109,7 @@ public:
 #define FLAG_BOOTSTRAP_MODE 2
 #define FLAG_WRITING_MSGS 3
 
-class TagValueRemoteConnector : public RemoteConnector {
+class TagValueRemoteConnector {
 private:
 	const char* localNamePgm;
 	uint16_t ticksLastSend;
@@ -140,26 +124,26 @@ private:
 	MenuItem* preSubMenuBootPtr;
 public:
 	TagValueRemoteConnector(TagValueTransport* transport, uint8_t remoteNo);
-	virtual ~TagValueRemoteConnector() {;}
 	void setName(const char* namePgm) {localNamePgm = namePgm;}
 
-	virtual bool isTransportAvailable() { return transport->available(); }
-	virtual bool isTransportConnected() { return transport->connected(); }
+	bool isTransportAvailable() { return transport->available(); }
+	bool isTransportConnected() { return transport->connected(); }
 
-	virtual void encodeJoinP(const char* localName);
-	virtual void encodeBootstrap(bool isComplete);
-	virtual void encodeHeartbeat();
-	virtual void encodeAnalogItem(int parentId, AnalogMenuItem* item);
-	virtual void encodeSubMenu(int parentId, SubMenuItem* item);
-	virtual void encodeBooleanMenu(int parentId, BooleanMenuItem* item);
-	virtual void encodeTextMenu(int parentId, TextMenuItem* item);
-	virtual void encodeEnumMenu(int parentId, EnumMenuItem* item);
-	virtual void encodeChangeValue(int parentId, MenuItem* theItem);
+	void encodeJoinP(const char* localName);
+	void encodeBootstrap(bool isComplete);
+	void encodeHeartbeat();
+	void encodeAnalogItem(int parentId, AnalogMenuItem* item);
+	void encodeSubMenu(int parentId, SubMenuItem* item);
+	void encodeBooleanMenu(int parentId, BooleanMenuItem* item);
+	void encodeTextMenu(int parentId, TextMenuItem* item);
+	void encodeEnumMenu(int parentId, EnumMenuItem* item);
+	void encodeChangeValue(int parentId, MenuItem* theItem);
 
-	virtual void tick();
+	void tick();
 
 	void initiateBootstrap(MenuItem* firstItem);
 private:
+	void encodeBaseMenuFields(int parentId, MenuItem* item);
 	void nextBootstrap();
 	void performAnyWrites();
 	void dealWithHeartbeating();
