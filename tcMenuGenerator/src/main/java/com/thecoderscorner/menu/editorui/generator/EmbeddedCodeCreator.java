@@ -14,5 +14,6 @@ public interface EmbeddedCodeCreator {
     String getGlobalVariables();
     String getExportDefinitions();
     String getSetupCode(String rootItem);
+    List<String> getRequiredFiles();
     List<CreatorProperty> properties();
 }

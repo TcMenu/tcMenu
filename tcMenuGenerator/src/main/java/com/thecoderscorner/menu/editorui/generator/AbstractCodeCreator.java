@@ -7,6 +7,8 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
@@ -23,6 +25,11 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
                 .filter(prop -> prop.getPropType() == CreatorProperty.PropType.USE_IN_DEFINE)
                 .map(prop -> ("#define " + prop.getName() + " " + prop.getLatestValue()))
                 .collect(Collectors.joining(LINE_BREAK)) + LINE_BREAK;
+    }
+
+    @Override
+    public List<String> getRequiredFiles() {
+        return Collections.emptyList();
     }
 
     public CreatorProperty findPropertyValue(String name) {

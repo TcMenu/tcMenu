@@ -33,8 +33,13 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     public List<String> getIncludes() {
         return Arrays.asList(
                 "#include <RemoteConnector.h>",
-                "#include <SerialTransport.h>"
+                "#include \"SerialTransport.h\""
         );
+    }
+
+    @Override
+    public List<String> getRequiredFiles() {
+        return Arrays.asList("remotes/serial/SerialTransport.cpp","remotes/serial/SerialTransport.h");
     }
 
     @Override

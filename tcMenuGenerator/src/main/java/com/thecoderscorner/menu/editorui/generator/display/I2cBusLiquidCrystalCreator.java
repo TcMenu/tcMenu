@@ -23,7 +23,7 @@ public class I2cBusLiquidCrystalCreator extends LiquidCrystalCreator {
 
     @Override
     public List<String> getIncludes() {
-        return Arrays.asList("#include <Wire.h>", "#include <tcMenuLiquidCrystal.h>", "#include <IoAbstractionWire.h>");
+        return Arrays.asList("#include <Wire.h>", "#include \"tcMenuLiquidCrystal.h\"", "#include <IoAbstractionWire.h>");
     }
 
     @Override

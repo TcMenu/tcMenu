@@ -122,7 +122,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
                 .addQuoted(nameNoSpaces)
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
-                .addElement(item.getEnumEntries().size())
+                .addElement(item.getEnumEntries().size() - 1)
                 .addPossibleFunction(item.getFunctionName())
                 .addElement("enumStr" + nameNoSpaces);
 

@@ -5,7 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.generator.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -62,16 +62,10 @@ public class AppInformationPanel {
             vbox.getChildren().add(new Label("TcMenu Arduino Library is installed"));
         }
         else {
-            Label installLabel = new Label("TcMenu Arduino Library not yet installed");
-            vbox.getChildren().add(installLabel);
-            Hyperlink installLib = new Hyperlink("Install the TcMenu library");
-            installLib.setOnAction(event -> {
-                ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
-                installer.tryToInstallLibrary();
-                installLib.setVisible(false);
-                installLabel.setText("Installed TcMenu Library");
-            });
-            vbox.getChildren().add(installLib);
+            vbox.getChildren().add(new Label("IoAbstraction and TcMenu Arduino Library are needed to build menus"));
+            vbox.getChildren().add(new Label("- IoAbstraction can be installed from library manager"));
+            vbox.getChildren().add(new Label("- TcMenu must be installed manually (will be added soon)"));
+            vbox.getChildren().add(new Label("- You'll also need the library for any graphics device you use too"));
         }
 
         // and lastly the version
