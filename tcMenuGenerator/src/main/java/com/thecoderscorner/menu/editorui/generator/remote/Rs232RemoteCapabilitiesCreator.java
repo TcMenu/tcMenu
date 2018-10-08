@@ -63,6 +63,6 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     public String getSetupCode(String rootItem) {
         String serialPort = findPropertyValue("SERIAL_PORT").getLatestValue();
         return "    " + serialPort +  ".begin(SERIAL_BAUD);" + LINE_BREAK +
-               "    serialServer.begin(&" + serialPort + ", applicationName);" + LINE_BREAK;
+               "    remoteServer.begin(&" + serialPort + ", applicationName);" + LINE_BREAK;
     }
 }

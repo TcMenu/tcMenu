@@ -38,6 +38,16 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
         anyItem(item);
     }
 
+    @Override
+    public void visit(RemoteMenuItem item) {
+        anyItem(item);
+    }
+
+    @Override
+    public void visit(FloatMenuItem item) {
+        anyItem(item);
+    }
+
     public void anyItem(MenuItem item) {
         throw new UnsupportedOperationException("Unexpected visit case:" + item);
     }

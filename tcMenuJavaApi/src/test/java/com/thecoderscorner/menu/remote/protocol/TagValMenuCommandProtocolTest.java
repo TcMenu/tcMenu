@@ -82,6 +82,32 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveRemoteBootCommand() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BR|PI=2|RO=1|NM=menuName|ID=1|RN=1|VC=No Link|~"));
+        assertEquals(MenuCommandType.REMOTE_BOOT_ITEM,  cmd.getCommandType());
+        MenuRemoteBootCommand remoteCmd = (MenuRemoteBootCommand) cmd;
+        assertEquals("No Link", remoteCmd.getCurrentValue());
+        assertEquals(1, remoteCmd.getMenuItem().getRemoteNum());
+        assertEquals("menuName", remoteCmd.getMenuItem().getName());
+        assertEquals(1, remoteCmd.getMenuItem().getId());
+        assertEquals(2, remoteCmd.getSubMenuId());
+        assertFalse(remoteCmd.getMenuItem().isReadOnly());
+    }
+
+    @Test
+    public void testReceiveFloatBootCommand() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BF|PI=2|RO=1|NM=menuName|ID=1|FD=5|VC=12.3456|~"));
+        assertEquals(MenuCommandType.FLOAT_BOOT_ITEM,  cmd.getCommandType());
+        MenuFloatBootCommand floatCmd = (MenuFloatBootCommand) cmd;
+        assertEquals((float)12.3456, floatCmd.getCurrentValue(), 0.00001);
+        assertEquals(5, floatCmd.getMenuItem().getNumDecimalPlaces());
+        assertEquals("menuName", floatCmd.getMenuItem().getName());
+        assertEquals(1, floatCmd.getMenuItem().getId());
+        assertEquals(2, floatCmd.getSubMenuId());
+        assertFalse(floatCmd.getMenuItem().isReadOnly());
+    }
+
+    @Test
     public void testReceiveTextBootCommand() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|RO=0|NM=menuName|ID=1|ML=10|VC=12345678|~"));
         assertEquals(MenuCommandType.TEXT_BOOT_ITEM,  cmd.getCommandType());
@@ -215,6 +241,20 @@ public class TagValMenuCommandProtocolTest {
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.TRUE_FALSE),
                 false));
         testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=0|VC=0|~");
+    }
+
+    @Test
+    public void testWritingFloatItem() {
+        protocol.toChannel(bb, new MenuFloatBootCommand(22,
+                DomainFixtures.aFloatMenu("FloatMenu", 1), (float)12.0));
+        testBufferAgainstExpected("MT=BF|PI=22|ID=1|NM=FloatMenu|FD=3|VC=12.0|~");
+    }
+
+    @Test
+    public void testWritingRemoteItem() {
+        protocol.toChannel(bb, new MenuRemoteBootCommand(22,
+                DomainFixtures.aRemoteMenuItem("Remo", 1), "ABC"));
+        testBufferAgainstExpected("MT=BT|PI=22|ID=1|NM=Remo|RN=2|VC=ABC|~");
     }
 
     @Test

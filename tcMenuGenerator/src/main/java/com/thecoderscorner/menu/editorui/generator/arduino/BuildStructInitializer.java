@@ -2,12 +2,14 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
 
 class BuildStructInitializer {
         private String structName;
         private String structType;
+        private List<String> headerRequirement = new ArrayList<>();
         private List<String> structElements = new ArrayList<>();
 
         public BuildStructInitializer(String structName, String structType) {
@@ -22,6 +24,11 @@ class BuildStructInitializer {
 
         public BuildStructInitializer addElement(Object value) {
             structElements.add(value.toString());
+            return this;
+        }
+
+        public BuildStructInitializer addHeaderFileRequirement(String include) {
+            headerRequirement.add(include);
             return this;
         }
 
@@ -59,6 +66,14 @@ class BuildStructInitializer {
         }
 
         public String toMenuHeader() {
-            return "extern " + structType + " menu" + structName + ";" + LINE_BREAK;
+            String header = "";
+            if(!headerRequirement.isEmpty()) {
+                header = header + headerRequirement.stream()
+                        .map(h-> "#include <" + h + ">")
+                        .collect(Collectors.joining(LINE_BREAK));
+
+
+            }
+            return header + LINE_BREAK + "extern " + structType + " menu" + structName + ";" + LINE_BREAK;
         }
     }

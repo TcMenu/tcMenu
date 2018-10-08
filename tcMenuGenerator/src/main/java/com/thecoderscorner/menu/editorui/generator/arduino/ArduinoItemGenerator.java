@@ -72,6 +72,44 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
     }
 
     @Override
+    public void visit(RemoteMenuItem item) {
+        String nameNoSpaces = makeNameToVar(item.getName());
+
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "RemoteMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(item.getRemoteNum())
+                .addPossibleFunction(item.getFunctionName());
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "RemoteMenuItem")
+                .addHeaderFileRequirement("RemoteMenuItem.h")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement("remoteServer.getRemoteConnector(" + item.getRemoteNum() + ")")
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+    }
+
+    @Override
+    public void visit(FloatMenuItem item) {
+        String nameNoSpaces = makeNameToVar(item.getName());
+
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "FloatMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(item.getNumDecimalPlaces())
+                .addPossibleFunction(item.getFunctionName());
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "FloatMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+    }
+
+    @Override
     public void visit(BooleanMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
         String itemNaming;

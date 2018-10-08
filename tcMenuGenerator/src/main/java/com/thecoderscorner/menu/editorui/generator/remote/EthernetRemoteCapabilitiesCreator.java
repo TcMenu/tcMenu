@@ -61,6 +61,6 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
-        return "    ethTagValServer.begin(&server, applicationName);" + LINE_BREAK;
+        return "    remoteServer.begin(&server, applicationName);" + LINE_BREAK;
     }
 }

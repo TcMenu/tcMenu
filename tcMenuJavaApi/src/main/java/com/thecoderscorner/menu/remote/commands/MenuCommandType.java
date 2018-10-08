@@ -17,6 +17,8 @@ public enum MenuCommandType {
     ENUM_BOOT_ITEM("BE"),
     BOOLEAN_BOOT_ITEM("BB"),
     TEXT_BOOT_ITEM("BT"),
+    FLOAT_BOOT_ITEM("BF"),
+    REMOTE_BOOT_ITEM("BR"),
     CHANGE_INT_FIELD("VC");
 
     private final String code;

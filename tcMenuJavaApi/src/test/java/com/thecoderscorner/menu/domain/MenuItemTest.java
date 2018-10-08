@@ -12,6 +12,8 @@ import java.util.Collections;
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.*;
+import static com.thecoderscorner.menu.domain.RemoteMenuItemBuilder.*;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.TextMenuItemBuilder.aTextMenuItemBuilder;
 import static org.junit.Assert.*;
@@ -92,6 +94,32 @@ public class MenuItemTest {
         assertNull(sub.getFunctionName());
 
         assertEquals(sub, aSubMenuItemBuilder().withExisting(sub).menuItem());
+    }
+
+    @Test
+    public void testRemoteMenuItem() {
+        RemoteMenuItem rem = aRemoteMenuItemBuilder()
+                .withName("RemoteName")
+                .withId(22)
+                .withEepromAddr(-1)
+                .withFunctionName("someFunc")
+                .withRemoteNo(0)
+                .menuItem();
+
+        assertBaseMenuFields(rem, "RemoteName", 22, -1);
+        assertEquals(rem, aRemoteMenuItemBuilder().withExisting(rem).menuItem());
+    }
+
+    @Test
+    public void testFloatMenuItem() {
+        FloatMenuItem fl = aFloatMenuItemBuilder()
+                .withName("Flt")
+                .withId(33)
+                .withEepromAddr(-1)
+                .withDecimalPlaces(3)
+                .menuItem();
+        assertBaseMenuFields(fl, "Flt", 33, -1);
+        assertEquals(fl, aFloatMenuItemBuilder().withExisting(fl).menuItem());
     }
 
     @Test

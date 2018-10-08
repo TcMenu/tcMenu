@@ -72,6 +72,10 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processItemChange(parser);
             case TEXT_BOOT_ITEM:
                 return processTextItem(parser);
+            case REMOTE_BOOT_ITEM:
+                return processRemoteItem(parser);
+            case FLOAT_BOOT_ITEM:
+                return processFloatItem(parser);
             default:
                 throw new TcProtocolException("Unknown message type " + cmdType);
         }
@@ -122,6 +126,31 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuTextBootCommand(parentId, item, currentVal);
     }
 
+    private MenuCommand processFloatItem(TagValTextParser parser) throws IOException {
+        FloatMenuItem item = FloatMenuItemBuilder.aFloatMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        String currentVal = parser.getValue(KEY_CURRENT_VAL);
+        return newMenuFloatBootCommand(parentId, item, Float.valueOf(currentVal));
+    }
+
+    private MenuCommand processRemoteItem(TagValTextParser parser) throws IOException {
+        RemoteMenuItem item = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withRemoteNo(parser.getValueAsInt(KEY_REMOTE_NUM))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        String currentVal = parser.getValue(KEY_CURRENT_VAL);
+        return newMenuRemoteBootCommand(parentId, item, currentVal);
+    }
     private BooleanMenuItem.BooleanNaming toNaming(int i) {
         if(i==0) {
             return BooleanMenuItem.BooleanNaming.TRUE_FALSE;
@@ -218,6 +247,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case ENUM_BOOT_ITEM:
                 writeEnumMenuItem(sb, (MenuEnumBootCommand) cmd);
                 break;
+            case REMOTE_BOOT_ITEM:
+                writeRemoteBootItem(sb, (MenuRemoteBootCommand) cmd);
+                break;
+            case FLOAT_BOOT_ITEM:
+                writeFloatBootItem(sb, (MenuFloatBootCommand) cmd);
+                break;
             case BOOLEAN_BOOT_ITEM:
                 writeBoolMenuItem(sb, (MenuBooleanBootCommand) cmd);
                 break;
@@ -272,6 +307,18 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
         appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
+    }
+
+    private void writeRemoteBootItem(StringBuilder sb, MenuRemoteBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_REMOTE_NUM, cmd.getMenuItem().getRemoteNum());
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
+    }
+
+    private void writeFloatBootItem(StringBuilder sb, MenuFloatBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_FLOAT_DECIMAL_PLACES, cmd.getMenuItem().getNumDecimalPlaces());
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
     }
 
     private void writeTextMenuItem(StringBuilder sb, MenuTextBootCommand cmd) {
