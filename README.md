@@ -6,13 +6,11 @@ it is currently under development so be careful before using in full production.
 TcMenu is more than just an Arduino menu library, think of it more like a framework for building IoT applications that provides
 many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
-# Major improvement to memory usage for smaller boards - coming soon
+# Major improvement to memory usage - on master in beta
 
-A major improvement in memory usage for Arduino Uno and other smaller boards is coming soon. It reduces memory usage considerably for most cases, by as much as 40% in some case.
+A major improvement in memory usage for Arduino Uno and other smaller boards is on master. It reduces memory usage considerably for most cases, by as much as 40% in some case.
 
-For most users, you'll just use the UI designer to remake your code from the saved designer file (the CPP and H file). Doing this will keep everything entact in your sketch. Any menu names will not change.
-
-I'm hoping to get it onto master soon, and do a release a week or later.
+For most existing users, you'll just use the UI designer to remake your code from the saved designer file (the CPP and H file). Doing this will keep everything entact in your sketch. Any menu names will not change.
 
 This is what will mean:
 
@@ -23,6 +21,8 @@ This is what will mean:
 * At the same time, the embedded code will be moved into a new project tcMenuArduino, tcMenuAdaGfx and tcMenuLiquidCrystal. This allows it to be installed by library managers once a bit more stable.
 * Remote code will be moved into a separate set of files, included as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
 * If you previously used the RemoteListener, which was clunky to use, it's now replaced with a callback function that reports connections, disconnections and errors using a status type.
+* RemoteMenuItem now allows for feedback of whos connected
+* FloatMenuItem allows for read only floating point "status" values
 
 ## Types of input supported
 
