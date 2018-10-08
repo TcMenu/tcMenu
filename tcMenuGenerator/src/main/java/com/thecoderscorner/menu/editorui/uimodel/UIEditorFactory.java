@@ -53,6 +53,16 @@ public class UIEditorFactory {
         }
 
         @Override
+        public void visit(RemoteMenuItem item) {
+            setResult(new UIRemoteMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
+        public void visit(FloatMenuItem item) {
+            setResult(new UIFloatMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
         public void visit(SubMenuItem item) {
             if(!MenuTree.ROOT.equals(item)) {
                 setResult(new UISubMenuItem(item, menuIdChooser, changeConsumer));

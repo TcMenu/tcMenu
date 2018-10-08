@@ -22,7 +22,7 @@ public class MenuTextBootCommand extends BootItemMenuCommand<TextMenuItem, Strin
 
     @Override
     public MenuState<String> internalNewMenuState(MenuState<String> oldState) {
-        boolean changed = (oldState.getValue().equals(getCurrentValue()));
+        boolean changed = !(oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }
 }

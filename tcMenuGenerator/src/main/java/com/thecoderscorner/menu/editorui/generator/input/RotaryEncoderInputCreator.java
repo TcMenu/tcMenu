@@ -11,10 +11,14 @@ import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
 
 public class RotaryEncoderInputCreator extends AbstractCodeCreator {
     private final List<CreatorProperty> creatorProperties = List.of(
+            new CreatorProperty("PULLUP_LOGIC", "Use Pull Up switch logic (true/false)", "true", INPUT, PropType.TEXTUAL),
+            new CreatorProperty("INTERRUPT_SWITCHES", "Use interrupts for switches (true/false)", "false", INPUT, PropType.TEXTUAL),
+            new CreatorProperty("SWITCH_IODEVICE", "Optional: IoAbstractionRef, default is Arduino pins", "", INPUT, PropType.TEXTUAL),
             new CreatorProperty("ENCODER_PIN_A", "A pin from rotary encoder", "0", INPUT),
             new CreatorProperty("ENCODER_PIN_B", "B pin from rotary encoder", "0", INPUT),
             new CreatorProperty("ENCODER_PIN_OK", "OK button pin connector", "0", INPUT)
@@ -33,11 +37,19 @@ public class RotaryEncoderInputCreator extends AbstractCodeCreator {
     @Override
     public String getSetupCode(String rootItem) {
         StringBuilder sb = new StringBuilder(256);
-        return sb.append("    switches.initialise(ioUsingArduino());\n")
-                .append("    menuMgr.initForEncoder(&renderer, &")
-                .append(rootItem)
-                .append(", ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_OK);")
-                .toString();
+        boolean pullUp = getBooleanFromProperty("PULLUP_LOGIC");
+        boolean intSwitch = getBooleanFromProperty("INTERRUPT_SWITCHES");
+        String ioDevice = findPropertyValue("SWITCH_IODEVICE").getLatestValue();
+        if(ioDevice == null || ioDevice.isEmpty()) {
+            ioDevice = "ioUsingArduino()";
+        }
+
+        return sb.append("    switches.").append(intSwitch ? "initialiseInterrupt" : "initialise")
+                 .append("(").append(ioDevice).append(", ").append(pullUp).append(");\n")
+                 .append("    menuMgr.initForEncoder(&renderer, &")
+                 .append(rootItem)
+                 .append(", ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_OK);")
+                 .toString();
     }
 
     @Override

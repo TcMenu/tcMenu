@@ -21,8 +21,13 @@ public class AdafruitGfxDisplayCreator extends AbstractCodeCreator {
     @Override
     public List<String> getIncludes() {
         return Collections.singletonList(
-                "#include <tcMenuAdaFruitGfx.h>"
+                "#include \"tcMenuAdaFruitGfx.h\""
         );
+    }
+
+    @Override
+    public List<String> getRequiredFiles() {
+        return Arrays.asList("renderers/adafruit/tcMenuAdaFruitGfx.cpp", "renderers/adafruit/tcMenuAdaFruitGfx.h");
     }
 
     @Override

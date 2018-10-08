@@ -70,6 +70,12 @@ public class ArduinoGenerator implements CodeGenerator {
         String headerFile = toSourceFile(directory, ".h");
         String projectName = directory.getFileName().toString();
 
+        Optional<Path> libPath = ArduinoLibraryInstaller.findTcMenuInstall();
+        if(!libPath.isPresent()) {
+            logLine("Unable to find IoAbstraction and TcMenu library on your path, see documentation:");
+            logLine("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/");
+        }
+
         Path source = Paths.get(inoFile);
         if (Files.exists(source)) {
             try {
@@ -145,6 +151,20 @@ public class ArduinoGenerator implements CodeGenerator {
             logLine("Failed to make changes to sketch" +  e.getMessage());
             logger.error("Sketch modification failed", e);
         }
+
+        logLine("Finding any required rendering / remote plugins to add to project");
+
+        generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
+            try {
+                Path fileToCopy = libPath.get().resolve(file);
+                Path nameOfFile = Paths.get(file).getFileName();
+                Files.copy(fileToCopy, directory.resolve(nameOfFile), REPLACE_EXISTING);
+                logLine("Copied with replacement " + file);
+            } catch (IOException e) {
+                logLine("Copy failed for required plugin: " + file);
+                logger.error("Copy failed for " + file, e);
+            }
+        });
 
         logLine("Process has completed, make sure the code in your IDE is up-to-date.");
         logLine("You may need to close the project and then re-open it to pick up changes..");

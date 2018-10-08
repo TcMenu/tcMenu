@@ -112,7 +112,8 @@ public class CurrentEditorProject {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Unable to open file");
             alert.setHeaderText("The selected file could not be opened");
-            alert.setContentText(file + "\n\n" + e.getMessage());
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 
@@ -141,7 +142,7 @@ public class CurrentEditorProject {
                 alert.setTitle("Unable to save file");
                 alert.setHeaderText("Could not save file to chosen location");
                 alert.setContentText(file + "\n\n" + e.getMessage());
-
+                alert.showAndWait();
             }
         });
     }

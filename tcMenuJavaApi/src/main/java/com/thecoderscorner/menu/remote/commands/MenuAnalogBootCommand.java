@@ -21,7 +21,7 @@ public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, I
 
     @Override
     public MenuState<Integer> internalNewMenuState(MenuState<Integer> oldState) {
-        boolean changed = (oldState.getValue().equals(getCurrentValue()));
+        boolean changed = !(oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }
 }

@@ -42,7 +42,6 @@
           <Menu mnemonicParsing="false" text="Code">
             <items>
               <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
-                  <MenuItem mnemonicParsing="false" onAction="#onInstallLibrary" text="Install tcMenu library" />
               <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="Show ID &amp; ROM Layout" />
             </items>
           </Menu>

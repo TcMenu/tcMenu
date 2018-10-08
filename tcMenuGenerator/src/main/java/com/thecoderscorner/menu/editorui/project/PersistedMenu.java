@@ -45,6 +45,16 @@ public class PersistedMenu {
 
             @Override
             public void visit(TextMenuItem item) { type = TEXT_PERSIST_TYPE; }
+
+            @Override
+            public void visit(RemoteMenuItem item) {
+                type = REMOTE_PERSIST_TYPE;
+            }
+
+            @Override
+            public void visit(FloatMenuItem item) {
+                type = FLOAT_PERSIST_TYPE;
+            }
         });
     }
 

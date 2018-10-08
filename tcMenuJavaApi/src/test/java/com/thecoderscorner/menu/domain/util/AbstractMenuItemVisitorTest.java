@@ -56,6 +56,14 @@ public class AbstractMenuItemVisitorTest {
             public void visit(TextMenuItem item) {
                 setResult(getResult().orElse("") + "5");
             }
+            @Override
+            public void visit(RemoteMenuItem item) {
+                setResult(getResult().orElse("") + "6");
+            }
+            @Override
+            public void visit(FloatMenuItem item) {
+                setResult(getResult().orElse("") + "7");
+            }
         };
 
         AnalogMenuItem analog = anAnalogItem("123", 1);
@@ -63,14 +71,18 @@ public class AbstractMenuItemVisitorTest {
         EnumMenuItem enumItem = anEnumItem("111", 3);
         BooleanMenuItem boolItem = aBooleanMenu("222", 2, BooleanNaming.TRUE_FALSE);
         TextMenuItem textItem = aTextMenu("123", 2);
+        RemoteMenuItem remoteItem = aRemoteMenuItem("123", 222);
+        FloatMenuItem floatItem = aFloatMenu("123", 223);
 
         subItem.accept(visitor);
         analog.accept(visitor);
         enumItem.accept(visitor);
         boolItem.accept(visitor);
         textItem.accept(visitor);
+        remoteItem.accept(visitor);
+        floatItem.accept(visitor);
 
-        assertThat(visitor.getResult().orElse(""), is("12345"));
+        assertThat(visitor.getResult().orElse(""), is("1234567"));
     }
 
     @Test(expected = UnsupportedOperationException.class)

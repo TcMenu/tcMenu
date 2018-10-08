@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
+import java.text.NumberFormat;
+
 public class TextTreeItemRenderer {
 
     private final MenuTree tree;
@@ -108,6 +110,26 @@ public class TextTreeItemRenderer {
                     break;
             }
             sb.replace(spaces.length() - val.length(), spaces.length(), val);
+            setResult(sb.toString());
+        }
+
+        @Override
+        public void visit(RemoteMenuItem item) {
+            StringBuilder sb = createBuilderWithName(item.getName());
+            String s = "No Link";
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
+            setResult(sb.toString());
+        }
+
+        @Override
+        public void visit(FloatMenuItem item) {
+            StringBuilder sb = createBuilderWithName(item.getName());
+            NumberFormat fmt = NumberFormat.getInstance();
+            fmt.setGroupingUsed(false);
+            fmt.setMinimumFractionDigits(item.getNumDecimalPlaces());
+            fmt.setMaximumFractionDigits(item.getNumDecimalPlaces());
+            String s = fmt.format(-12345.123456);
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
             setResult(sb.toString());
         }
 

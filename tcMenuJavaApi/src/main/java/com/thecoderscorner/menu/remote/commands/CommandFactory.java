@@ -43,6 +43,13 @@ public class CommandFactory {
         return new MenuBooleanBootCommand(parentId, item, currentVal);
     }
 
+    public static MenuFloatBootCommand newMenuFloatBootCommand(int parentId, FloatMenuItem item, Float currentVal) {
+        return new MenuFloatBootCommand(parentId, item, currentVal);
+    }
+
+    public static MenuRemoteBootCommand newMenuRemoteBootCommand(int parentId, RemoteMenuItem item, String currentVal) {
+        return new MenuRemoteBootCommand(parentId, item, currentVal);
+    }
     public static MenuTextBootCommand newMenuTextBootCommand(int parentId, TextMenuItem item, String currentVal) {
         return new MenuTextBootCommand(parentId, item, currentVal);
     }

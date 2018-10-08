@@ -68,9 +68,7 @@ public class CodeGeneratorController {
 
         embeddedPlatformChoice.setItems(FXCollections.observableArrayList(EmbeddedPlatform.values()));
         EmbeddedPlatform selPlatform = project.getGeneratorOptions().getEmbeddedPlatform();
-        embeddedPlatformChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldVal, newVal) -> {
-            filterChoicesByPlatform(newVal);
-        });
+        embeddedPlatformChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
 
         embeddedPlatformChoice.getSelectionModel().select(selPlatform);
 
@@ -98,37 +96,39 @@ public class CodeGeneratorController {
 
     private void inputTypeChanged(Observable obs, InputType oldVal, InputType newVal) {
         inputCreator = newVal.makeCreator(project);
-        changeProperties(CreatorProperty.SubSystem.INPUT, inputCreator);
+        changeProperties();
     }
 
-    private void changeProperties(CreatorProperty.SubSystem subSystem, EmbeddedCodeCreator creator) {
-        List<CreatorProperty> otherProps = properties.stream()
-                .filter(cr -> cr.getSubsystem() != subSystem)
-                .collect(Collectors.toList());
-        setAllPropertiesToLastValues(creator.properties());
-        otherProps.addAll(creator.properties());
-        properties = otherProps;
+    private void changeProperties() {
+        List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
+        properties.clear();
+
+        creators.stream()
+                .filter(p -> p != null && p.properties().size() > 0)
+                .forEach( creator -> {
+                    setAllPropertiesToLastValues(creator.properties());
+                    properties.addAll(creator.properties());
+                });
+
         propsTable.setItems(FXCollections.observableArrayList(properties));
     }
 
     private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
-        propsToDefault.forEach(prop -> {
-            project.getGeneratorOptions().getLastProperties().stream()
-                    .filter(p-> prop.getName().equals(p.getName()))
-                    .findFirst()
-                    .ifPresent(p-> prop.getProperty().set(p.getLatestValue()));
-        });
+        propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
+                .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
+                .findFirst()
+                .ifPresent(p-> prop.getProperty().set(p.getLatestValue())));
     }
 
 
     private void displayTypeChanged(Observable obs, DisplayType oldVal, DisplayType newVal) {
         displayCreator = newVal.makeCreator(project);
-        changeProperties(CreatorProperty.SubSystem.DISPLAY, displayCreator);
+        changeProperties();
     }
 
     private void remoteTypeChanged(Observable obs, RemoteCapabilities oldVal, RemoteCapabilities newVal) {
         remoteCreator = newVal.makeCreator(project);
-        changeProperties(CreatorProperty.SubSystem.REMOTE, remoteCreator);
+        changeProperties();
     }
 
     private <T extends EnumWithApplicability> void filterChoicesFor(ComboBox<T> choices, EmbeddedPlatform platform, Map<Integer, T> values) {

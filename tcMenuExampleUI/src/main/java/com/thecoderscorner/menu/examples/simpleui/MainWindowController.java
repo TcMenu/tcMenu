@@ -23,6 +23,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -237,6 +238,24 @@ public class MainWindowController {
             }
 
             /**
+             * Remote values are just simple read only fields representing a remote connection state
+             * @param item the item
+             */
+            @Override
+            public void visit(RemoteMenuItem item) {
+                setResult(makeStandardLabel(item.getId()));
+            }
+
+            /**
+             * Float menu items are read only values that represent some numeric but inexact value.
+             * @param item the item
+             */
+            @Override
+            public void visit(FloatMenuItem item) {
+                setResult(makeStandardLabel(item.getId()));
+            }
+
+            /**
              * For boolean values we create the display label and a flip state button
              * @param item the item
              */
@@ -397,6 +416,26 @@ public class MainWindowController {
                 MenuState<Integer> state = menuTree.getMenuState(item);
                 if (state != null) {
                     setResult(item.getEnumEntries().get(state.getValue()));
+                }
+            }
+
+            @Override
+            public void visit(RemoteMenuItem item) {
+                MenuState<String> state = menuTree.getMenuState(item);
+                if(state != null) {
+                    setResult(state.getValue());
+                }
+            }
+
+            @Override
+            public void visit(FloatMenuItem item) {
+                MenuState<Float> state = menuTree.getMenuState(item);
+                if(state != null) {
+                    NumberFormat fmt = NumberFormat.getInstance();
+                    fmt.setGroupingUsed(false);
+                    fmt.setMinimumFractionDigits(item.getNumDecimalPlaces());
+                    fmt.setMaximumFractionDigits(item.getNumDecimalPlaces());
+                    setResult(fmt.format(state.getValue()));
                 }
             }
 

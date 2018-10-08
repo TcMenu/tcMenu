@@ -11,7 +11,7 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.*;
-import com.thecoderscorner.menu.editorui.generator.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -44,8 +44,6 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
-
-import com.thecoderscorner.menu.domain.MenuItem;
 
 public class MenuEditorController {
     public static final String RECENT_DEFAULT = "Recent";
@@ -329,11 +327,6 @@ public class MenuEditorController {
 
     public void onGenerateCode(ActionEvent event) {
         CodeGeneratorDialog.showCodeGenerator(getStage(), editorProject);
-    }
-
-    public void onInstallLibrary(ActionEvent actionEvent) {
-        ArduinoLibraryInstaller instaler = new ArduinoLibraryInstaller();
-        instaler.tryToInstallLibrary();
     }
 
     public void loadPreferences() {

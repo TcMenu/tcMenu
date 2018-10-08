@@ -163,6 +163,8 @@ public class RemoteMenuController {
             case BOOLEAN_BOOT_ITEM:
             case SUBMENU_BOOT_ITEM:
             case TEXT_BOOT_ITEM:
+            case REMOTE_BOOT_ITEM:
+            case FLOAT_BOOT_ITEM:
                 onMenuItemBoot((BootItemMenuCommand)menuCommand);
                 break;
             case CHANGE_INT_FIELD:
@@ -209,6 +211,18 @@ public class RemoteMenuController {
                 @Override
                 public void visit(TextMenuItem item) {
                     managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(RemoteMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(FloatMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(Float.valueOf(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
             });

@@ -32,8 +32,13 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
     public List<String> getIncludes() {
         return Arrays.asList(
                 "#include <RemoteConnector.h>",
-                "#include <EthernetTransport.h>"
+                "#include \"EthernetTransport.h\""
         );
+    }
+
+    @Override
+    public List<String> getRequiredFiles() {
+        return Arrays.asList("remotes/ethernet/EthernetTransport.cpp","remotes/ethernet/EthernetTransport.h");
     }
 
     @Override
@@ -56,6 +61,6 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
-        return "    ethTagValServer.begin(&server, applicationName);" + LINE_BREAK;
+        return "    remoteServer.begin(&server, applicationName);" + LINE_BREAK;
     }
 }

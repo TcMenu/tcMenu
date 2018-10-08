@@ -32,7 +32,7 @@ public abstract class LiquidCrystalCreator extends AbstractCodeCreator {
 
     @Override
     public List<String> getIncludes() {
-        return Collections.singletonList("#include <tcMenuLiquidCrystal.h>");
+        return Collections.singletonList("#include \"tcMenuLiquidCrystal.h\"");
     }
 
     @Override
@@ -45,6 +45,11 @@ public abstract class LiquidCrystalCreator extends AbstractCodeCreator {
     }
 
     protected abstract String abstractionCode();
+
+    @Override
+    public List<String> getRequiredFiles() {
+        return Arrays.asList("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp", "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+    }
 
     @Override
     public String getExportDefinitions() {

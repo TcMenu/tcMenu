@@ -5,23 +5,23 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.EnumMenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.RemoteMenuItem;
+import com.thecoderscorner.menu.domain.TextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integer> {
+public class MenuRemoteBootCommand extends BootItemMenuCommand<RemoteMenuItem, String> {
 
-    public MenuEnumBootCommand(int subMenuId, EnumMenuItem menuItem, int currentVal) {
+    public MenuRemoteBootCommand(int subMenuId, RemoteMenuItem menuItem, String currentVal) {
         super(subMenuId, menuItem, currentVal);
     }
 
     @Override
     public MenuCommandType getCommandType() {
-        return MenuCommandType.ENUM_BOOT_ITEM;
+        return MenuCommandType.REMOTE_BOOT_ITEM;
     }
 
     @Override
-    public MenuState<Integer> internalNewMenuState(MenuState<Integer> oldState) {
+    public MenuState<String> internalNewMenuState(MenuState<String> oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }

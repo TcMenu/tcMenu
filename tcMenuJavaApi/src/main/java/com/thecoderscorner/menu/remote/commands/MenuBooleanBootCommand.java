@@ -22,7 +22,7 @@ public class MenuBooleanBootCommand extends BootItemMenuCommand<BooleanMenuItem,
 
     @Override
     public MenuState<Boolean> internalNewMenuState(MenuState<Boolean> oldState) {
-        boolean changed = (oldState.getValue().equals(getCurrentValue()));
+        boolean changed = !(oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }
 }

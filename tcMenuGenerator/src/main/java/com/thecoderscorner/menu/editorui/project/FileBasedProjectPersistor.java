@@ -29,6 +29,8 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
     public static final String TEXT_PERSIST_TYPE = "textItem";
+    public static final String REMOTE_PERSIST_TYPE = "remoteItem";
+    public static final String FLOAT_PERSIST_TYPE = "floatItem";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -120,7 +122,9 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 ANALOG_PERSIST_TYPE, AnalogMenuItem.class,
                 BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class,
                 TEXT_PERSIST_TYPE, TextMenuItem.class,
-                SUB_PERSIST_TYPE, SubMenuItem.class);
+                SUB_PERSIST_TYPE, SubMenuItem.class,
+                REMOTE_PERSIST_TYPE, RemoteMenuItem.class,
+                FLOAT_PERSIST_TYPE, FloatMenuItem.class);
 
         @Override
         public ArrayList<PersistedMenu> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext ctx) throws JsonParseException {
