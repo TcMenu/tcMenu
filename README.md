@@ -14,6 +14,7 @@ For most existing users, you'll just use the UI designer to remake your code fro
 
 This is what will mean:
 
+* You MUST get the embedded library from it's own repo (will add to central repository): https://github.com/davetcc/tcMenuLib
 * No virtuals in the whole menuitem strucutre, although the signatures are near identical - infact the new signature is better, as it hides away the PROGMEM near completely.
 * Removed the interface for the high level remote management, there was no need for it, it was just a cost.
 * Removed the need to call menuItemChanged on menu manager, it's done automatically now.
