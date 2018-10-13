@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
 
@@ -32,6 +33,16 @@ public class RotaryEncoderInputCreator extends AbstractCodeCreator {
     @Override
     public String getGlobalVariables() {
         return "";
+    }
+
+    @Override
+    public String getExportDefinitions() {
+        String additionalExports = "";
+        String expVar = findPropertyValue("SWITCH_IODEVICE").getLatestValue();
+        if(expVar != null && !expVar.isEmpty()) {
+            additionalExports = "extern IoAbstractionRef " + expVar + ";" + LINE_BREAK;
+        }
+        return additionalExports + super.getExportDefinitions();
     }
 
     @Override
