@@ -18,7 +18,7 @@
   ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
   -->
 
-<BorderPane prefHeight="223.0" prefWidth="344.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
+<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
    <top>
       <Label style="-fx-font-size: 150%;" styleClass="label-bright" text="Choose the type of menu to create" BorderPane.alignment="CENTER" />
    </top>
@@ -35,6 +35,7 @@
             <RadioButton fx:id="textSelect" mnemonicParsing="false" text="Text item for char arrays in RAM" toggleGroup="$main" />
             <RadioButton fx:id="remoteSelect" mnemonicParsing="false" text="Remote connection status" toggleGroup="$main" />
             <RadioButton fx:id="floatSelect" mnemonicParsing="false" text="Floating point read only status value" toggleGroup="$main" />
+            <RadioButton fx:id="actionSelect" mnemonicParsing="false" text="Action item that triggers callback on selection" toggleGroup="$main" />
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -56,7 +57,7 @@
       </VBox>
    </center>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
         <buttons>
           <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Create" />
             <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />

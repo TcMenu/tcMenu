@@ -130,6 +130,14 @@ public class MenuItemTest {
         assertEquals(item, BooleanMenuItemBuilder.aBooleanMenuItemBuilder().withExisting(item).menuItem());
     }
 
+    @Test
+    public void testActionMenu() {
+        ActionMenuItem item = DomainFixtures.anActionMenu("Act1", 448);
+        assertBaseMenuFields(item, "Act1", 448, 20);
+        assertFalse(item.hasChildren());
+        assertEquals(item, ActionMenuItemBuilder.anActionMenuItemBuilder().withExisting(item).menuItem());
+    }
+
     private void assertBaseMenuFields(MenuItem item, String name, int id, int eeprom) {
         assertEquals(name, item.getName());
         assertEquals(id, item.getId());

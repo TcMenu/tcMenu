@@ -21,6 +21,7 @@ public class MenuItemHelperTest {
     private RemoteMenuItem remoteItem = aRemoteMenuItem("2432", 22);
     private TextMenuItem textItem = aTextMenu("2222", 33);
     private FloatMenuItem floatItem = aFloatMenu("fkgo", 223);
+    private ActionMenuItem actionItem = anActionMenu("act", 333);
 
     @Test
     public void testSubMenuHelper() {
@@ -39,6 +40,7 @@ public class MenuItemHelperTest {
         MenuItem newFloat = MenuItemHelper.createFromExistingWithId(floatItem, 3333);
         MenuItem newRemote = MenuItemHelper.createFromExistingWithId(remoteItem, 2222);
         MenuItem newText = MenuItemHelper.createFromExistingWithId(textItem, 1111);
+        MenuItem newAction = MenuItemHelper.createFromExistingWithId(actionItem, 9999);
 
         assertTrue(newAnalog instanceof AnalogMenuItem);
         assertEquals(11, newAnalog.getId());
@@ -58,6 +60,9 @@ public class MenuItemHelperTest {
         assertTrue(newRemote instanceof RemoteMenuItem);
         assertEquals(2222, newRemote.getId());
 
+        assertTrue((newAction instanceof ActionMenuItem));
+        assertEquals(9999, newAction.getId());
+
         assertTrue(newText instanceof TextMenuItem);
         assertEquals(1111, newText.getId());
     }
@@ -71,5 +76,6 @@ public class MenuItemHelperTest {
         assertEquals(10, MenuItemHelper.eepromSizeForItem(textItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(remoteItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(floatItem));
+        assertEquals(0, MenuItemHelper.eepromSizeForItem(actionItem));
     }
 }

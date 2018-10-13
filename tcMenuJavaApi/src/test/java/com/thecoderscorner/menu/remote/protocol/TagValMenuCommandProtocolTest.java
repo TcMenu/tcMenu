@@ -143,6 +143,16 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveActionMenuItem() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BC|RO=0|PI=0|ID=1|NM=Action|~"));
+        assertTrue(cmd instanceof MenuActionBootCommand);
+        MenuActionBootCommand actMenu = (MenuActionBootCommand) cmd;
+        assertEquals(1, actMenu.getMenuItem().getId());
+        assertEquals("Action", actMenu.getMenuItem().getName());
+        assertEquals(0, actMenu.getSubMenuId());
+    }
+
+    @Test
     public void testReceiveBooleanMenuItem() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BB|PI=0|RO=1|ID=1|BN=1|NM=BoolItem|VC=1|~"));
         checkBooleanCmdFields(cmd, true, BooleanNaming.ON_OFF);
@@ -254,7 +264,14 @@ public class TagValMenuCommandProtocolTest {
     public void testWritingRemoteItem() {
         protocol.toChannel(bb, new MenuRemoteBootCommand(22,
                 DomainFixtures.aRemoteMenuItem("Remo", 1), "ABC"));
-        testBufferAgainstExpected("MT=BT|PI=22|ID=1|NM=Remo|RN=2|VC=ABC|~");
+        testBufferAgainstExpected("MT=BR|PI=22|ID=1|NM=Remo|RN=2|VC=ABC|~");
+    }
+
+    @Test
+    public void testWritingActionItem() {
+        protocol.toChannel(bb, new MenuActionBootCommand(22,
+                DomainFixtures.anActionMenu("Action", 1), false));
+        testBufferAgainstExpected("MT=BC|PI=22|ID=1|NM=Action|VC=|~");
     }
 
     @Test

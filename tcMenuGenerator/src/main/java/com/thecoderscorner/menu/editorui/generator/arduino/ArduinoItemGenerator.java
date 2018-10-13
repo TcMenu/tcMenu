@@ -92,6 +92,24 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
     }
 
     @Override
+    public void visit(ActionMenuItem item) {
+        String nameNoSpaces = makeNameToVar(item.getName());
+
+        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnyMenuInfo")
+                .addQuoted(nameNoSpaces)
+                .addElement(item.getId())
+                .addEeprom(item.getEepromAddress())
+                .addElement(0)
+                .addPossibleFunction(item.getFunctionName());
+
+        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "ActionMenuItem")
+                .addElement("&minfo" + nameNoSpaces)
+                .addElement(nextMenuName);
+
+        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+    }
+
+    @Override
     public void visit(FloatMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 

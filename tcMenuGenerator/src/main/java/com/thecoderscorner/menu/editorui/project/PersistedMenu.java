@@ -44,6 +44,9 @@ public class PersistedMenu {
             }
 
             @Override
+            public void visit(ActionMenuItem item) { type = ACTION_PERSIST_TYPE; }
+
+            @Override
             public void visit(TextMenuItem item) { type = TEXT_PERSIST_TYPE; }
 
             @Override

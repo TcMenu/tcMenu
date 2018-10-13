@@ -6,44 +6,43 @@
 package com.thecoderscorner.menu.domain;
 
 import com.google.common.base.Objects;
-import com.thecoderscorner.menu.domain.state.FloatMenuState;
+import com.thecoderscorner.menu.domain.state.BooleanMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.StringMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 /**
- * FloatMenuItem represents a menu item that uses a floating point value. It is not editable on the device
- * because it does not really represent absolute values, but is sometimes useful for conveying status.
+ * ActionMenuItem represents a menu item that is a one shot action, in that when triggered it
+ * just runs the callback on the embedded side.
  */
-public class FloatMenuItem extends MenuItem<Float> {
+public class ActionMenuItem extends MenuItem<Boolean> {
 
-    private final int numDecimalPlaces;
-
-    public FloatMenuItem() {
+    public ActionMenuItem() {
         super("", -1, -1, null, false);
         // needed for serialisation
-        this.numDecimalPlaces = 0;
     }
 
-    public FloatMenuItem(String name, int id, String functionName, int eepromAddr, int numDecimalPlaces) {
+    public ActionMenuItem(String name, int id, String functionName, int eepromAddr) {
         super(name, id, eepromAddr, functionName, false);
-        this.numDecimalPlaces = numDecimalPlaces;
     }
 
+    /**
+     * SubMenuItems always have child items, so they always return true
+     * @return
+     */
+    @Override
+    public boolean hasChildren() {
+        return false;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FloatMenuItem that = (FloatMenuItem) o;
+        ActionMenuItem that = (ActionMenuItem) o;
         return  Objects.equal(name, that.name) &&
                 Objects.equal(functionName, that.functionName) &&
                 id == that.id &&
                 eepromAddress == that.eepromAddress;
-    }
-
-    public int getNumDecimalPlaces() {
-        return numDecimalPlaces;
     }
 
     @Override
@@ -52,8 +51,8 @@ public class FloatMenuItem extends MenuItem<Float> {
     }
 
     @Override
-    public MenuState<Float> newMenuState(Float value, boolean changed, boolean active) {
-        return new FloatMenuState(changed, active, value);
+    public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
+        return new BooleanMenuState(changed, active, value);
     }
 
     @Override

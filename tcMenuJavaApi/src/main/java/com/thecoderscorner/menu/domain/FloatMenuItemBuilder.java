@@ -29,7 +29,7 @@ public class FloatMenuItemBuilder extends MenuItemBuilder<FloatMenuItemBuilder> 
     }
 
     public FloatMenuItem menuItem() {
-        return new FloatMenuItem(this.name, this.id, this.eepromAddr, decimalPlaces);
+        return new FloatMenuItem(name, id, functionName, eepromAddr, decimalPlaces);
     }
 
     public static FloatMenuItemBuilder aFloatMenuItemBuilder() {

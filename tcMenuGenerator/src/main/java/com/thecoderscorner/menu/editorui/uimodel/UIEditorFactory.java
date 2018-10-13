@@ -63,6 +63,11 @@ public class UIEditorFactory {
         }
 
         @Override
+        public void visit(ActionMenuItem item) {
+            setResult(new UIActionMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
         public void visit(SubMenuItem item) {
             if(!MenuTree.ROOT.equals(item)) {
                 setResult(new UISubMenuItem(item, menuIdChooser, changeConsumer));

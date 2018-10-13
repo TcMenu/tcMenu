@@ -15,4 +15,5 @@ public interface MenuItemVisitor {
     void visit(TextMenuItem item);
     void visit(RemoteMenuItem item);
     void visit(FloatMenuItem item);
+    void visit(ActionMenuItem item);
 }

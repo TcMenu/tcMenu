@@ -13,6 +13,7 @@ public enum MenuCommandType {
     HEARTBEAT("HB"),
     BOOTSTRAP("BS"),
     ANALOG_BOOT_ITEM("BA"),
+    ACTION_BOOT_ITEM("BC"),
     SUBMENU_BOOT_ITEM("BM"),
     ENUM_BOOT_ITEM("BE"),
     BOOLEAN_BOOT_ITEM("BB"),

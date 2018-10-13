@@ -83,7 +83,7 @@ public class RemoteMenuControllerTest {
     public void testPopulatingTheTree() {
         populateTreeWithAllTypes();
 
-        assertEquals(6, menuTree.getMenuItems(MenuTree.ROOT).size());
+        assertEquals(7, menuTree.getMenuItems(MenuTree.ROOT).size());
         Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
         assertTrue(menuById11.isPresent());
         Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
@@ -96,12 +96,15 @@ public class RemoteMenuControllerTest {
         assertTrue(menuById239.isPresent());
         Optional<MenuItem> menuById233 = menuTree.getMenuById(MenuTree.ROOT, 233);
         assertTrue(menuById233.isPresent());
+        Optional<MenuItem> menuById9038 = menuTree.getMenuById(MenuTree.ROOT, 9038);
+        assertTrue(menuById233.isPresent());
         assertEquals("Another", menuById11.get().getName());
         assertEquals("Test", menuById12.get().getName());
         assertEquals("Text", menuById42.get().getName());
         assertEquals("Bool", menuById43.get().getName());
         assertEquals("Float", menuById239.get().getName());
         assertEquals("Remo", menuById233.get().getName());
+        assertEquals("Action", menuById9038.get().getName());
         assertEquals(menuTree.getMenuState(menuById11.get()).getValue(), 2);
         assertEquals(menuTree.getMenuState(menuById12.get()).getValue(), 25);
         assertEquals(menuTree.getMenuState(menuById42.get()).getValue(), "Abc");
@@ -114,6 +117,7 @@ public class RemoteMenuControllerTest {
         Mockito.verify(remoteListener).menuItemChanged(menuById43.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById239.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById233.get(), false);
+        Mockito.verify(remoteListener).menuItemChanged(menuById9038.get(), false);
     }
 
     private void populateTreeWithAllTypes() {
@@ -130,6 +134,8 @@ public class RemoteMenuControllerTest {
                 DomainFixtures.aFloatMenu("Float", 239), (float)102.23));
         listener.getValue().onCommand(connector, newMenuRemoteBootCommand(MenuTree.ROOT.getId(),
                 DomainFixtures.aRemoteMenuItem("Remo", 233),"No Link"));
+        listener.getValue().onCommand(connector, newMenuActionBootCommand(MenuTree.ROOT.getId(),
+                DomainFixtures.anActionMenu("Action", 9038)));
         listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.END));
     }
 

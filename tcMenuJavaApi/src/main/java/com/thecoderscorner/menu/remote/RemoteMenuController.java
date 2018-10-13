@@ -165,6 +165,7 @@ public class RemoteMenuController {
             case TEXT_BOOT_ITEM:
             case REMOTE_BOOT_ITEM:
             case FLOAT_BOOT_ITEM:
+            case ACTION_BOOT_ITEM:
                 onMenuItemBoot((BootItemMenuCommand)menuCommand);
                 break;
             case CHANGE_INT_FIELD:
@@ -224,6 +225,11 @@ public class RemoteMenuController {
                 public void visit(FloatMenuItem item) {
                     managedMenu.changeItem(item, item.newMenuState(Float.valueOf(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(ActionMenuItem item) {
+                    /* ignored, there is no state for this type */
                 }
             });
 

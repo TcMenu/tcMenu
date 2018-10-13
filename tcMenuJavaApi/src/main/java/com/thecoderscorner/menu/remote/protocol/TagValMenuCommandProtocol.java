@@ -76,6 +76,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processRemoteItem(parser);
             case FLOAT_BOOT_ITEM:
                 return processFloatItem(parser);
+            case ACTION_BOOT_ITEM:
+                return processActionItem(parser);
             default:
                 throw new TcProtocolException("Unknown message type " + cmdType);
         }
@@ -193,6 +195,15 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuSubBootCommand(parentId, item);
     }
 
+    private MenuCommand processActionItem(TagValTextParser parser) throws IOException {
+        ActionMenuItem item = ActionMenuItemBuilder.anActionMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .menuItem();
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        return new MenuActionBootCommand(parentId, item, Boolean.FALSE);
+    }
+
     private MenuCommand processAnalogBootItem(TagValTextParser parser) throws IOException {
         AnalogMenuItem item = anAnalogMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
@@ -250,6 +261,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case REMOTE_BOOT_ITEM:
                 writeRemoteBootItem(sb, (MenuRemoteBootCommand) cmd);
                 break;
+            case ACTION_BOOT_ITEM:
+                writeActionBootItem(sb, (MenuActionBootCommand) cmd);
+                break;
             case FLOAT_BOOT_ITEM:
                 writeFloatBootItem(sb, (MenuFloatBootCommand) cmd);
                 break;
@@ -295,6 +309,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private void writeSubMenuItem(StringBuilder sb, MenuSubBootCommand cmd) {
         writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_CURRENT_VAL, "0");
+    }
+
+    private void writeActionBootItem(StringBuilder sb, MenuActionBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_CURRENT_VAL, "");
     }
 
     private void writeBoolMenuItem(StringBuilder sb, MenuBooleanBootCommand cmd) {

@@ -92,6 +92,14 @@ public class MenuItemHelper {
                         .menuItem()
                 );
             }
+            @Override
+            public void visit(ActionMenuItem item) {
+                setResult(ActionMenuItemBuilder.anActionMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
         }).orElse(null);
     }
 

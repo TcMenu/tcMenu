@@ -122,6 +122,12 @@ public class TextTreeItemRenderer {
         }
 
         @Override
+        public void visit(ActionMenuItem item) {
+            StringBuilder sb = createBuilderWithName(item.getName());
+            setResult(sb.toString());
+        }
+
+        @Override
         public void visit(FloatMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             NumberFormat fmt = NumberFormat.getInstance();

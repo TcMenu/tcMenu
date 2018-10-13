@@ -287,6 +287,19 @@ public class MainWindowController {
                 setResult(borderPane);
             }
 
+            @Override
+            public void visit(ActionMenuItem item) {
+                //
+                // For action items, we just create a button to trigger the event.
+                //
+                Button triggerButton = new Button("Execute");
+                triggerButton.setDisable(item.isReadOnly());
+                triggerButton.setOnAction(event ->
+                        remoteControl.sendCommand(newAbsoluteMenuChangeCommand(menuTree.findParent(item).getId(), item.getId(), 1))
+                );
+
+                setResult(triggerButton);
+            }
 
             /** no controls for this type*/
             @Override
@@ -364,6 +377,10 @@ public class MainWindowController {
      * @param item the item to render
      */
     private void renderItemValue(MenuItem item) {
+
+        // only proceed if there's a label to be updated..
+        Label lblForVal = itemIdToLabel.get(item.getId());
+        if (lblForVal == null) return;
 
         //
         // First we use the visitor again to call the right method in the visitor based on it's type.
@@ -462,11 +479,8 @@ public class MainWindowController {
         });
 
         // And lastly set the text we just built into the label.
-        Label lblForVal = itemIdToLabel.get(item.getId());
-        if (lblForVal != null) {
-            lblForVal.setText(value.orElse("Not Present"));
-            itemIdToChangeTicks.put(item.getId(), TICKS_HIGHLIGHT_ON_CHANGE);
-        }
+        lblForVal.setText(value.orElse("Not Present"));
+        itemIdToChangeTicks.put(item.getId(), TICKS_HIGHLIGHT_ON_CHANGE);
     }
 
     /**

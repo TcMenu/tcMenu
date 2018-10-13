@@ -50,6 +50,11 @@ public class CommandFactory {
     public static MenuRemoteBootCommand newMenuRemoteBootCommand(int parentId, RemoteMenuItem item, String currentVal) {
         return new MenuRemoteBootCommand(parentId, item, currentVal);
     }
+
+    public static MenuActionBootCommand newMenuActionBootCommand(int parentId, ActionMenuItem item) {
+        return new MenuActionBootCommand(parentId, item, false);
+    }
+
     public static MenuTextBootCommand newMenuTextBootCommand(int parentId, TextMenuItem item, String currentVal) {
         return new MenuTextBootCommand(parentId, item, currentVal);
     }

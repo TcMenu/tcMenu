@@ -30,6 +30,14 @@ public class DomainFixtures {
                 .menuItem();
     }
 
+    public static ActionMenuItem anActionMenu(String name, int id) {
+        return ActionMenuItemBuilder.anActionMenuItemBuilder()
+                .withEepromAddr(20)
+                .withName(name)
+                .withId(id)
+                .menuItem();
+    }
+
     public static TextMenuItem aTextMenu(String name, int id) {
         return TextMenuItemBuilder.aTextMenuItemBuilder()
                 .withEepromAddr(101)

@@ -5,10 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.RemoteMenuItemBuilder;
-import com.thecoderscorner.menu.domain.TextMenuItemBuilder;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -37,6 +34,7 @@ public class NewItemController {
     public RadioButton textSelect;
     public RadioButton remoteSelect;
     public RadioButton floatSelect;
+    public RadioButton actionSelect;
     public Button okButton;
     public TextField idField;
     private Optional<MenuItem> result = Optional.empty();
@@ -110,6 +108,14 @@ public class NewItemController {
         else if(floatSelect.isSelected()) {
             result = Optional.of(FloatMenuItemBuilder.aFloatMenuItemBuilder()
                     .withName("New FloatItem")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(actionSelect.isSelected()) {
+            result = Optional.of(ActionMenuItemBuilder.anActionMenuItemBuilder()
+                    .withName("New ActionItem")
                     .withId(id)
                     .withEepromAddr(-1)
                     .menuItem()
