@@ -10,7 +10,13 @@ many useful abstractions and remote control capabilities, including the ability 
 
 There are pre-built packages for Windows and MacOS that include the Generator UI and the UI can copy over the libraries automatically. However, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
 
+[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and also as a zip for any platform that can run Java 9 or above such as Linux, Windows or MacOS.
+
 For using the Menu Generator on Linux, install a recent Java (tested on V10) with OpenJFX, and then take the application package instead of the dmg or exe file in the release. 
+
+[UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+
+[Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
 
 ## Major improvement to memory usage in V1.0
 
@@ -54,11 +60,6 @@ MenuItem's are mainly stored in program memory with a small amount of state in R
 
 You start a menu project either by using the provided user interface (recommended), or by coding a menu manually into a sketch. 
 
-[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and also as a zip for any platform that can run Java 9 or above such as Linux, Windows or MacOS.
-
-[Full documentation of the library on my site](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/) 
-
-
 ## Generating a menu from the UI
 
 When working with menus in the UI, I normally save the menu file into a new sketch directory. The reason for this is
@@ -78,7 +79,3 @@ There is a java API for accessing the menu remotely, include the following into 
             <version>1.0</version>
         </dependency>
 
-## More documentation
-
-More complete documentation is available on the coders corner website:
-[https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/] 
