@@ -70,7 +70,7 @@ There is a java API for accessing the menu remotely, include the following into 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>0.8</version>
+            <version>1.0</version>
         </dependency>
 
 ## More documentation
