@@ -6,15 +6,14 @@ it is currently under development so be careful before using in full production.
 TcMenu is more than just an Arduino menu library, think of it more like a framework for building IoT applications that provides
 many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
-# Major improvement to memory usage - on master in beta
+# Major improvement to memory usage
 
-A major improvement in memory usage for Arduino Uno and other smaller boards is on master. It reduces memory usage considerably for most cases, by as much as 40% in some case.
+A major improvement in memory usage for Arduino Uno and other smaller boards. It reduces memory usage considerably for most cases, by as much as 40% in some case.
 
 For most existing users, you'll just use the UI designer to remake your code from the saved designer file (the CPP and H file). Doing this will keep everything entact in your sketch. Any menu names will not change.
 
 This is what will mean:
 
-* You MUST get the embedded library from it's own repo (will add to central repository): https://github.com/davetcc/tcMenuLib
 * No virtuals in the whole menuitem strucutre, although the signatures are near identical - infact the new signature is better, as it hides away the PROGMEM near completely.
 * Removed the interface for the high level remote management, there was no need for it, it was just a cost.
 * Removed the need to call menuItemChanged on menu manager, it's done automatically now.
