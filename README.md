@@ -3,10 +3,16 @@
 TcMenu is a full feature menu system for Arduino, that is modular enough to support different input types and displays;
 it is currently under development so be careful before using in full production.
 
-TcMenu is more than just an Arduino menu library, think of it more like a framework for building IoT applications that provides
+TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that provides
 many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
-# Major improvement to memory usage
+## Installation
+
+There are pre-built packages for Windows and MacOS that include the Generator UI and the UI can copy over the libraries automatically. However, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
+
+For using the Menu Generator on Linux, install a recent Java (tested on V10) with OpenJFX, and then take the application package instead of the dmg or exe file in the release. 
+
+## Major improvement to memory usage in V1.0
 
 A major improvement in memory usage for Arduino Uno and other smaller boards. It reduces memory usage considerably for most cases, by as much as 40% in some case.
 
