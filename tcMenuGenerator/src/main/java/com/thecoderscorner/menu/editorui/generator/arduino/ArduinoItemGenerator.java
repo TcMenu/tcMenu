@@ -7,16 +7,13 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
-import com.thecoderscorner.menu.editorui.generator.CppAndHeader;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> {
+public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
     public static final String LINE_BREAK = System.getProperty("line.separator");
     private final String nextMenuName;
     private final String nextChild;
@@ -36,21 +33,23 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnalogMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getMaxValue())
                 .addPossibleFunction(item.getFunctionName())
                 .addElement(item.getOffset())
                 .addElement(item.getDivisor())
-                .addQuoted(item.getUnitName());
+                .addQuoted(item.getUnitName())
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "AnalogMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(0)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
     }
 
     @Override
@@ -58,17 +57,20 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "TextMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getTextLength())
-                .addPossibleFunction(item.getFunctionName());
+                .addPossibleFunction(item.getFunctionName())
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "TextMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
+
     }
 
     @Override
@@ -76,19 +78,21 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "RemoteMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getRemoteNum())
-                .addPossibleFunction(item.getFunctionName());
+                .addPossibleFunction(item.getFunctionName())
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "RemoteMenuItem")
                 .addHeaderFileRequirement("RemoteMenuItem.h")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement("remoteServer.getRemoteConnector(" + item.getRemoteNum() + ")")
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
     }
 
     @Override
@@ -96,17 +100,19 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnyMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
-                .addPossibleFunction(item.getFunctionName());
+                .addPossibleFunction(item.getFunctionName())
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "ActionMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
     }
 
     @Override
@@ -114,17 +120,19 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "FloatMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getNumDecimalPlaces())
-                .addPossibleFunction(item.getFunctionName());
+                .addPossibleFunction(item.getFunctionName())
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "FloatMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
     }
 
     @Override
@@ -145,49 +153,47 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         }
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "BooleanMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(1)
                 .addPossibleFunction(item.getFunctionName())
-                .addElement(itemNaming);
+                .addElement(itemNaming)
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "BooleanMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(false)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menu));
     }
 
     @Override
     public void visit(EnumMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
-        StringBuilder sb = new StringBuilder(256);
-        IntStream.range(0, item.getEnumEntries().size()).forEach(i -> {
-            String textRep = item.getEnumEntries().get(i);
-            sb.append(String.format("const char enumStr%s_%d[] PROGMEM = \"%s\";%s", nameNoSpaces, i, textRep, LINE_BREAK));
-        });
-        sb.append(String.format("const char* const enumStr%s[] PROGMEM  = { ", nameNoSpaces));
-        sb.append(IntStream.range(0, item.getEnumEntries().size())
-                .mapToObj(i -> "enumStr" + nameNoSpaces + "_" + i)
-                .collect(Collectors.joining(", ")));
-        sb.append(" };").append(LINE_BREAK);
+
+        BuildStructInitializer choices = new BuildStructInitializer(nameNoSpaces, "")
+                .stringChoices()
+                .collectionOfElements(item.getEnumEntries(), true);
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "EnumMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getEnumEntries().size() - 1)
                 .addPossibleFunction(item.getFunctionName())
-                .addElement("enumStr" + nameNoSpaces);
+                .addElement("enumStr" + nameNoSpaces)
+                .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "EnumMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
-                .addElement(false)
-                .addElement(nextMenuName);
+                .addElement(0)
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(sb.toString() + info.toMenuInfo() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(choices, info, menu));
     }
 
     @Override
@@ -195,22 +201,25 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<CppAndHeader> 
         String nameNoSpaces = makeNameToVar(item.getName());
 
         BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "SubMenuInfo")
-                .addQuoted(nameNoSpaces)
+                .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
-                .addPossibleFunction(item.getFunctionName());
+                .addPossibleFunction(item.getFunctionName())
+                .progMemInfo();
 
         BuildStructInitializer menuBack = new BuildStructInitializer("Back" + nameNoSpaces, "BackMenuItem")
                 .addElement(nextChild)
-                .addElement("(const AnyMenuInfo*)&minfo" + nameNoSpaces);
+                .addElement("(const AnyMenuInfo*)&minfo" + nameNoSpaces)
+                .requiresExtern();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "SubMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement("&menuBack" + nameNoSpaces)
-                .addElement(nextMenuName);
+                .addElement(nextMenuName)
+                .requiresExtern();
 
-        setResult(new CppAndHeader(info.toMenuInfo() + menuBack.toMenuItem() + menu.toMenuItem(), menu.toMenuHeader()));
+        setResult(Arrays.asList(info, menuBack, menu));
     }
 
     public static String makeNameToVar(String name) {

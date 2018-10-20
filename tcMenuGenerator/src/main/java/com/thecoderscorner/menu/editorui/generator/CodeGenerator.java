@@ -5,6 +5,9 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import java.util.function.Consumer;
+
 public interface CodeGenerator {
     boolean startConversion();
+    void setLoggerFunction(Consumer<String> logLine);
 }

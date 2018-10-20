@@ -98,3 +98,19 @@
   -fx-opacity: 1.0;
   -fx-font-size: 160%;
 }
+
+.libsOK {
+  -fx-background-color: #43cb43;
+  -fx-border-color: #303030;
+  -fx-border-width: 1px;
+  -fx-padding: 4;
+}
+
+.libsNotOK {
+  -fx-padding: 4;
+  -fx-font-weight: bold;
+  -fx-text-fill: white;
+  -fx-background-color: #c01620;
+  -fx-border-color: #040404;
+  -fx-border-width: 1px;
+}

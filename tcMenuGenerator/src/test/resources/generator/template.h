@@ -14,25 +14,24 @@
 #include<IoAbstraction.h>
 #include<Wire.h>
 #include<tcMenu.h>
-[# th:each="inc : ${allGeneratorIncludes}"]
-[(${inc})]
-[/]
 
-[(${allGeneratorExports})]
+includes section
+
+// all export definitions
+
+
+
+// all menu item forward references.
+extern AnalogMenuItem menuTest;
+extern BackMenuItem menuBackSub;
+extern SubMenuItem menuSub;
+extern AnalogMenuItem menuTest;
 
 // all callback functions must have this define on them, it is what the menu designer looks for.
 #define CALLBACK_FUNCTION
 
-// Forward reference all the callback functions.
-[# th:each="func : ${callbacks}"]
-void CALLBACK_FUNCTION [(${func})](int menuId);
-[/]
-
-// Export all the menu items so they are visible in sketches.
-[# th:each="item : ${menuItems}"]
-[(${item.headerText})]
-[/]
+void CALLBACK_FUNCTION callback1(int id);
 
 void setupMenu();
 
-#endif /* header include check */
+#endif // MENU_GENERATED_CODE_H

@@ -45,14 +45,16 @@ public class CodeGeneratorController {
     public TableColumn<CreatorProperty, String> descriptionCol;
 
     private CurrentEditorProject project;
+    private CodeGeneratorDialog dialog;
     private List<CreatorProperty> properties = new ArrayList<>();
 
     private EmbeddedCodeCreator inputCreator;
     private EmbeddedCodeCreator displayCreator;
     private EmbeddedCodeCreator remoteCreator;
 
-    public void init(CurrentEditorProject project) {
+    public void init(CurrentEditorProject project, CodeGeneratorDialog dialog) {
         this.project = project;
+        this.dialog = dialog;
         if(!project.isFileNameSet()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Project not yet saved");
@@ -154,12 +156,10 @@ public class CodeGeneratorController {
     }
 
     public void onGenerateCode(ActionEvent event) {
-        Stage stage = (Stage) embeddedPlatformChoice.getScene().getWindow();
-        CodeGeneratorDialog.showCodeLoggerWindow(
-                stage,
+        dialog.startArduinoGenerator(
                 Paths.get(project.getFileName()).getParent().toString(),
-                Arrays.asList(inputCreator, displayCreator, remoteCreator),
-                project.getMenuTree());
+                Arrays.asList(inputCreator, displayCreator, remoteCreator)
+        );
         closeIt();
     }
 

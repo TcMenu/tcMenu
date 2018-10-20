@@ -22,7 +22,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import org.thymeleaf.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;

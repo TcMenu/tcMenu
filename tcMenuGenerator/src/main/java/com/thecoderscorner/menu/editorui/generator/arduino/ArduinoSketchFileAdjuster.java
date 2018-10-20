@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoSketchFileAdjuster {
     /** In case the directory has never previous had a sketch, this is the simplest sketch.. */
@@ -28,26 +31,39 @@ public class ArduinoSketchFileAdjuster {
     /** the pattern to loop for the loop method */
     private static final Pattern LOOP_PATTERN = Pattern.compile("void\\s+loop\\(\\)(.*)");
 
-    private final List<String> callbacks;
-    private final String inoFile;
-    private final String projectName;
-    private final Consumer<String> logger;
-    private boolean changed = false;
+    boolean changed = false;
+    private Consumer<String> logger;
 
-    public ArduinoSketchFileAdjuster(Consumer<String> logger, String inoFile, String projectName, List<String> callbacks) {
-        this.callbacks = callbacks;
-        this.projectName = projectName;
-        this.inoFile = inoFile;
-        this.logger = logger;
+    public ArduinoSketchFileAdjuster() {
     }
 
-    public void makeAdjustments() throws IOException {
+    /**
+     * Is able to update and round trip an ino file for the items that tcMenu needs.
+     *
+     * Not thread safe, should be created for each run.
+     * @param logger a consumer that handles UI logging
+     * @param inoFile the file to be modified
+     * @param projectName the project name
+     * @param callbacks the list of callbacks.
+     * @throws IOException in the event of an error
+     */
+    public void makeAdjustments(Consumer<String> logger, String inoFile, String projectName, List<String> callbacks) throws IOException {
+
+        this.logger = logger;
+        changed = false;
+
+        Path source = Paths.get(inoFile);
+        if (!Files.exists(source)) {
+            logger.accept("No existing infoFile, generating an empty one");
+            Files.write(source, ArduinoSketchFileAdjuster.EMPTY_SKETCH.getBytes());
+        }
+
         boolean needsInclude = true;
         boolean needsTaskMgr = true;
         boolean needsSetup = true;
         List<String> callbacksDefined = new ArrayList<>();
 
-        for(String line : Files.lines(Paths.get(inoFile)).collect(Collectors.toList())) {
+        for(String line : Files.lines(source).collect(Collectors.toList())) {
             if(line.contains("#include") && line.contains(projectName + ".h")) {
                 logger.accept("found include in INO");
                 needsInclude = false;
@@ -69,8 +85,8 @@ public class ArduinoSketchFileAdjuster {
             }
         }
 
-        ArrayList<String> lines = new ArrayList<>(Files.readAllLines(Paths.get(inoFile)));
-        if(needsInclude) addIncludeToTopOfFile(lines);
+        ArrayList<String> lines = new ArrayList<>(Files.readAllLines(source));
+        if(needsInclude) addIncludeToTopOfFile(lines, projectName);
         if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
         if(needsTaskMgr) addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
         List<String> callbacksToMake = new ArrayList<>(callbacks);
@@ -79,6 +95,9 @@ public class ArduinoSketchFileAdjuster {
         makeNewCallbacks(lines, callbacksToMake);
 
         if(changed) {
+            logger.accept("INO Previously existed, backup existing file");
+            Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
+
             logger.accept("Writing out changes to INO sketch file");
             Files.write(Paths.get(inoFile), lines);
         }
@@ -98,7 +117,7 @@ public class ArduinoSketchFileAdjuster {
         }
     }
 
-    private void addSetupCode(ArrayList<String> lines, Pattern codePattern, String extraLine) throws IOException {
+    private void addSetupCode(ArrayList<String> lines, Pattern codePattern, String extraLine) {
         logger.accept("Running sketch setup adjustments: " + extraLine);
         for(int i=0;i<lines.size();i++) {
             Matcher matcher = codePattern.matcher(lines.get(i));
@@ -116,7 +135,7 @@ public class ArduinoSketchFileAdjuster {
         }
     }
 
-    private void addIncludeToTopOfFile(ArrayList<String> lines) {
+    private void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
         lines.add(0, "#include \"" + projectName + ".h\"");
         changed = true;
     }

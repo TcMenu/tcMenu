@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 public class MenuEditorController {
     public static final String RECENT_DEFAULT = "Recent";
     public static final String REGISTERED_KEY = "Registered";
@@ -75,9 +77,11 @@ public class MenuEditorController {
 
     private List<Button> toolButtons;
     private Optional<UIMenuItem> currentEditor = Optional.empty();
+    private ArduinoLibraryInstaller installer;
 
-    public void initialise(CurrentEditorProject editorProject) {
+    public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer) {
         this.editorProject = editorProject;
+        this.installer = installer;
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
                 onTreeChangeSelection(newItem.getValue());
@@ -130,14 +134,15 @@ public class MenuEditorController {
         }
     }
 
-    private void onTreeChangeSelection(MenuItem newValue) {
+    public void onTreeChangeSelection(MenuItem newValue) {
         UIEditorFactory.createPanelForMenuItem(newValue, editorProject.getMenuTree(), this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
                     editorBorderPane.setCenter(uiMenuItem.initPanel());
                     currentEditor = Optional.of(uiMenuItem);
                 },
                 () -> {
-                    editorBorderPane.setCenter(AppInformationPanel.showEmptyInfoPanel());
+                    AppInformationPanel panel = new AppInformationPanel(installer, this);
+                    editorBorderPane.setCenter(panel.showEmptyInfoPanel());
                     currentEditor = Optional.empty();
                 }
         );
@@ -326,7 +331,8 @@ public class MenuEditorController {
     }
 
     public void onGenerateCode(ActionEvent event) {
-        CodeGeneratorDialog.showCodeGenerator(getStage(), editorProject);
+        CodeGeneratorDialog dialog = new CodeGeneratorDialog();
+        dialog.showCodeGenerator(getStage(), editorProject, installer);
     }
 
     public void loadPreferences() {
