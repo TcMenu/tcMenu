@@ -35,7 +35,7 @@ public class DisplayNotUsedCreator implements EmbeddedCodeCreator {
 
     @Override
     public List<String> getRequiredFiles() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
