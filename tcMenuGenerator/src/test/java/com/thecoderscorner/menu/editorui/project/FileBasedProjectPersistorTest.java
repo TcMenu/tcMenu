@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.project;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
@@ -16,14 +17,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class FileBasedProjectPersistorTest {
@@ -48,7 +48,7 @@ public class FileBasedProjectPersistorTest {
         Path projFile = dir.resolve("projectSave.emf");
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
-        MenuTree tree = TestUtils.buildSimpleTree();
+        MenuTree tree = TestUtils.buildCompleteTree();
         CodeGeneratorOptions options = new CodeGeneratorOptions(
                 EmbeddedPlatform.ARDUINO,
                 DisplayType.values.get(1),
@@ -60,12 +60,7 @@ public class FileBasedProjectPersistorTest {
 
         MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());
 
-        assertEquals(openResult.getMenuTree().getMenuById(MenuTree.ROOT, 1), tree.getMenuById(MenuTree.ROOT, 1));
-        assertEquals(openResult.getMenuTree().getMenuById(MenuTree.ROOT, 20), tree.getMenuById(MenuTree.ROOT, 20));
-        Optional<SubMenuItem> subMenu = openResult.getMenuTree().getSubMenuById(100);
-        assertTrue(subMenu.isPresent());
-        assertEquals(subMenu, tree.getMenuById(MenuTree.ROOT, 100));
-        assertEquals(openResult.getMenuTree().getMenuById(subMenu.get(), 2), tree.getMenuById(subMenu.get(), 2));
+        compareTrees(tree, openResult.getMenuTree());
 
         assertEquals(EmbeddedPlatform.ARDUINO, openResult.getOptions().getEmbeddedPlatform());
         assertEquals(1, openResult.getOptions().getLastDisplayType().getKey());
@@ -76,5 +71,19 @@ public class FileBasedProjectPersistorTest {
         assertEquals("123", returnedProps.get(0).getLatestValue());
         assertEquals("name", returnedProps.get(0).getName());
         assertEquals(DISPLAY, returnedProps.get(0).getSubsystem());
+    }
+
+    private void compareTrees(MenuTree sourceTree, MenuTree compTree) {
+        Set<MenuItem> srcSubs = sourceTree.getAllSubMenus();
+        Set<MenuItem> dstSubs = compTree.getAllSubMenus();
+
+        assertThat(dstSubs, is(srcSubs));
+
+        srcSubs.forEach(subMenu -> {
+            List<MenuItem> srcItems = sourceTree.getMenuItems(subMenu);
+            List<MenuItem> dstItems = compTree.getMenuItems(subMenu);
+
+            assertThat(dstItems, is(srcItems));
+        });
     }
 }

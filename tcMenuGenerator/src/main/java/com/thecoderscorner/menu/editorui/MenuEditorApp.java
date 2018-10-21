@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,7 +32,10 @@ public class MenuEditorApp extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
 
-        CurrentEditorProject project = new CurrentEditorProject(primaryStage, new FileBasedProjectPersistor());
+        CurrentEditorProject project = new CurrentEditorProject(
+                new CurrentProjectEditorUIImpl(primaryStage),
+                new FileBasedProjectPersistor()
+        );
         MenuEditorController controller = loader.getController();
         controller.initialise(project, new ArduinoLibraryInstaller());
 

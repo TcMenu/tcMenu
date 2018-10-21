@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import org.junit.Assert;
 import org.mockito.Mockito;
@@ -38,7 +39,8 @@ public class TestUtils {
 
     public static CurrentEditorProject makeEditorProject() {
         ProjectPersistor mockedPersistor = Mockito.mock(ProjectPersistor.class);
-        CurrentEditorProject project = new CurrentEditorProject(null, mockedPersistor);
+        CurrentProjectEditorUI mockedEditorUI = Mockito.mock(CurrentProjectEditorUI.class);
+        CurrentEditorProject project = new CurrentEditorProject(mockedEditorUI, mockedPersistor);
         return project;
     }
 
@@ -79,4 +81,44 @@ public class TestUtils {
         return tree;
     }
 
+    public static MenuTree buildCompleteTree() {
+        MenuTree tree = buildSimpleTree();
+
+        BooleanMenuItem boolItem = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
+                .withId(4)
+                .withNaming(BooleanMenuItem.BooleanNaming.ON_OFF)
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, boolItem);
+
+        TextMenuItem textItem = TextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(4)
+                .withLength(10)
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, textItem);
+
+        FloatMenuItem floatItem = FloatMenuItemBuilder.aFloatMenuItemBuilder()
+                .withId(4)
+                .withDecimalPlaces(4)
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, floatItem);
+
+        RemoteMenuItem remoteItem = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
+                .withId(4)
+                .withRemoteNo(2)
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, remoteItem);
+
+        ActionMenuItem actionItem = ActionMenuItemBuilder.anActionMenuItemBuilder()
+                .withId(4)
+                .withFunctionName("callback")
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, actionItem);
+
+        return tree;
+    }
 }

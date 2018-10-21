@@ -11,14 +11,9 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Deque;
@@ -26,7 +21,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO;
-import static javafx.stage.FileChooser.ExtensionFilter;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
@@ -41,13 +35,14 @@ public class CurrentEditorProject {
             Collections.emptyList()
     );
 
-    public enum EditorSaveMode { SAVE_AS, SAVE }
+
+    public enum EditorSaveMode { SAVE_AS, SAVE;}
 
     private static final String TITLE = "TcMenu Designer";
     private static final int UNDO_BUFFER_SIZE = 200;
+    private final CurrentProjectEditorUI editorUI;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final ProjectPersistor projectPersistor;
-    private final Stage mainStage;
 
     private MenuTree menuTree;
     private Optional<String> fileName;
@@ -56,8 +51,8 @@ public class CurrentEditorProject {
     private Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
-    public CurrentEditorProject(Stage mainStage, ProjectPersistor persistor) {
-        this.mainStage = mainStage;
+    public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor) {
+        this.editorUI = editorUI;
         projectPersistor = persistor;
         cleanDown();
     }
@@ -78,10 +73,7 @@ public class CurrentEditorProject {
 
     private boolean checkIfWeShouldOverwrite() {
         if(isDirty()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Changes will be lost");
-            alert.setHeaderText("Changes will be lost if you proceed");
-            return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+            return editorUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?");
         }
 
         return true;
@@ -109,17 +101,13 @@ public class CurrentEditorProject {
         } catch (IOException e) {
             fileName = Optional.empty();
             logger.error("open operation failed on " + file, e);
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Unable to open file");
-            alert.setHeaderText("The selected file could not be opened");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
     }
 
     public boolean openProject() {
         if (checkIfWeShouldOverwrite()) {
-            fileName = projectPersistor.findFileNameFromUser(mainStage, true);
+            fileName = editorUI.findFileNameFromUser(true);
             fileName.ifPresent(this::openProject);
             return true;
         }
@@ -128,7 +116,7 @@ public class CurrentEditorProject {
 
     public void saveProject(EditorSaveMode saveMode) {
         if(!fileName.isPresent() || saveMode == EditorSaveMode.SAVE_AS) {
-            fileName = projectPersistor.findFileNameFromUser(mainStage,false);
+            fileName = editorUI.findFileNameFromUser(false);
         }
 
         fileName.ifPresent((file)-> {
@@ -138,19 +126,13 @@ public class CurrentEditorProject {
                 changeTitle();
             } catch (IOException e) {
                 logger.error("save operation failed on " + file, e);
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Unable to save file");
-                alert.setHeaderText("Could not save file to chosen location");
-                alert.setContentText(file + "\n\n" + e.getMessage());
-                alert.showAndWait();
+                editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
     }
 
     private void changeTitle() {
-        if(mainStage != null) {
-            mainStage.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
-        }
+        editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
     }
 
     public boolean isFileNameSet() {
@@ -159,10 +141,6 @@ public class CurrentEditorProject {
 
     public String getFileName() {
         return fileName.orElse("New");
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = Optional.ofNullable(fileName);
     }
 
     public boolean isDirty() {

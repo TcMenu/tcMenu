@@ -35,10 +35,4 @@ public interface ProjectPersistor {
      * @throws IOException if there is a problem saving.
      */
     void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException;
-
-    /**
-     * Requests the file name from the user for either a load or save operation.
-     * @param open true if an open dialog is needed, false for save.
-     */
-    Optional<String> findFileNameFromUser(Stage stage, boolean open);
 }

@@ -157,23 +157,4 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             return list;
         }
     }
-
-    public Optional<String> findFileNameFromUser(Stage stage, boolean open) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose a Menu File");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Embedded menu", "*.emf"));
-        File f;
-        if(open) {
-            f = fileChooser.showOpenDialog(stage);
-        }
-        else {
-            f = fileChooser.showSaveDialog(stage);
-        }
-
-        if(f != null) {
-            return Optional.of(f.getPath());
-        }
-        return Optional.empty();
-    }
-
 }
