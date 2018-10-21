@@ -20,7 +20,6 @@ import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.Sub
 public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;
     private final List<CreatorProperty> creatorProperties = List.of(
-            new CreatorProperty("SERIAL_BAUD", "Serial baud rate", "115200", REMOTE),
             new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL),
             new CreatorProperty("SERIAL_PORT", "Serial port variable name", "Serial", REMOTE, VARIABLE)
     );
@@ -62,7 +61,6 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     @Override
     public String getSetupCode(String rootItem) {
         String serialPort = findPropertyValue("SERIAL_PORT").getLatestValue();
-        return "    " + serialPort +  ".begin(SERIAL_BAUD);" + LINE_BREAK +
-               "    remoteServer.begin(&" + serialPort + ", applicationName);" + LINE_BREAK;
+        return "    remoteServer.begin(&" + serialPort + ", applicationName);" + LINE_BREAK;
     }
 }

@@ -192,7 +192,9 @@ public class ArduinoLibraryInstaller {
         }
 
         Properties propsSrc = new Properties();
-        propsSrc.load(new FileReader(libProps.toFile()));
+        try(FileReader reader = new FileReader(libProps.toFile())) {
+            propsSrc.load(reader);
+        }
         return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
     }
 

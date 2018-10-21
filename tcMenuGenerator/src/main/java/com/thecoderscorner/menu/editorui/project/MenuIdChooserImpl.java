@@ -36,10 +36,15 @@ public class MenuIdChooserImpl implements MenuIdChooser {
     @Override
     public int nextHighestEeprom() {
         List<MenuItem> list = getItemsSortedByEeprom();
+        if(list.isEmpty()) {
+            return MAGIC_EEPROM_OFFSET;
+        }
+
         MenuItem item = list.get(list.size() - 1);
         if(item.getEepromAddress() < 0) {
             return MAGIC_EEPROM_OFFSET;
         }
+
         return item.getEepromAddress() + MenuItemHelper.eepromSizeForItem(item);
     }
 

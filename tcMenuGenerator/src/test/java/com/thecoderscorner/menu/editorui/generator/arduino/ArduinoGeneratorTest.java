@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -68,8 +72,8 @@ public class ArduinoGeneratorTest {
 
         // these files should line up. IF they do not because of the change in the ArduinoGenerator,
         // then make sure the change is good before adjusting the templates.
-        assertEquals(cppTemplate, cppGenerated);
-        assertEquals(hTemplate, hGenerated);
+        assertEqualsIgnoringCRLF(cppTemplate, cppGenerated);
+        assertEqualsIgnoringCRLF(hTemplate, hGenerated);
 
 
         Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
@@ -100,34 +104,5 @@ public class ArduinoGeneratorTest {
             }
         };
         return Collections.singletonList(gen);
-    }
-
-    private MenuTree buildSimpleTree() {
-        MenuTree tree = new MenuTree();
-
-        AnalogMenuItem item = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
-                .withId(1)
-                .withName("test")
-                .withFunctionName(null)
-                .withEepromAddr(-1)
-                .withOffset(0)
-                .withDivisor(1)
-                .withUnit("dB")
-                .withMaxValue(100)
-                .menuItem();
-        AnalogMenuItem item2 = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
-                .withExisting(item)
-                .withId(2)
-                .withFunctionName("callback1")
-                .menuItem();
-        SubMenuItem sub = SubMenuItemBuilder.aSubMenuItemBuilder()
-                .withName("sub")
-                .withId(100)
-                .withEepromAddr(-1)
-                .menuItem();
-        tree.addMenuItem(MenuTree.ROOT, item);
-        tree.addMenuItem(MenuTree.ROOT, sub);
-        tree.addMenuItem(sub, item2);
-        return tree;
     }
 }

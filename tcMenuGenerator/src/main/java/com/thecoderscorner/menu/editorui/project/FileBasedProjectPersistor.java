@@ -10,19 +10,25 @@ import com.google.gson.*;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
+/**
+ * An implementation of the ProjectPersisor that is based on GSON based JSON library.
+ * It saves a human readable JSON file containing all the settings, and can load back
+ * equally.
+ *
+ * The file open / save dialog is based on JAva FX.
+ */
 public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String ANALOG_PERSIST_TYPE = "analogItem";
     public static final String ENUM_PERSIST_TYPE = "enumItem";
@@ -151,4 +157,23 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             return list;
         }
     }
+
+    public Optional<String> findFileNameFromUser(Stage stage, boolean open) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose a Menu File");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Embedded menu", "*.emf"));
+        File f;
+        if(open) {
+            f = fileChooser.showOpenDialog(stage);
+        }
+        else {
+            f = fileChooser.showSaveDialog(stage);
+        }
+
+        if(f != null) {
+            return Optional.of(f.getPath());
+        }
+        return Optional.empty();
+    }
+
 }

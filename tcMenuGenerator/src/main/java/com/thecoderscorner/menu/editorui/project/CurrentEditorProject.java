@@ -119,7 +119,7 @@ public class CurrentEditorProject {
 
     public boolean openProject() {
         if (checkIfWeShouldOverwrite()) {
-            findFileNameFromUser(true);
+            fileName = projectPersistor.findFileNameFromUser(mainStage, true);
             fileName.ifPresent(this::openProject);
             return true;
         }
@@ -128,7 +128,7 @@ public class CurrentEditorProject {
 
     public void saveProject(EditorSaveMode saveMode) {
         if(!fileName.isPresent() || saveMode == EditorSaveMode.SAVE_AS) {
-            findFileNameFromUser(false);
+            fileName = projectPersistor.findFileNameFromUser(mainStage,false);
         }
 
         fileName.ifPresent((file)-> {
@@ -147,25 +147,10 @@ public class CurrentEditorProject {
         });
     }
 
-    private void findFileNameFromUser(boolean open) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose a Menu File");
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Embedded menu", "*.emf"));
-        File f;
-        if(open) {
-            f = fileChooser.showOpenDialog(mainStage);
-        }
-        else {
-            f = fileChooser.showSaveDialog(mainStage);
-        }
-
-        if(f != null) {
-            fileName = Optional.of(f.getPath());
-        }
-    }
-
     private void changeTitle() {
-        mainStage.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
+        if(mainStage != null) {
+            mainStage.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
+        }
     }
 
     public boolean isFileNameSet() {
@@ -174,6 +159,10 @@ public class CurrentEditorProject {
 
     public String getFileName() {
         return fileName.orElse("New");
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = Optional.ofNullable(fileName);
     }
 
     public boolean isDirty() {

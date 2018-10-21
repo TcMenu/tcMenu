@@ -51,7 +51,7 @@ public class UpDownOkInputCreator extends AbstractCodeCreator {
 
     @Override
     public String getGlobalVariables() {
-        return null;
+        return "";
     }
 
     @Override

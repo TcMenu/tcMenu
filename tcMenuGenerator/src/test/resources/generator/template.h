@@ -26,6 +26,7 @@ extern AnalogMenuItem menuTest;
 extern BackMenuItem menuBackSub;
 extern SubMenuItem menuSub;
 extern AnalogMenuItem menuTest;
+extern EnumMenuItem menuExtra;
 
 // all callback functions must have this define on them, it is what the menu designer looks for.
 #define CALLBACK_FUNCTION
