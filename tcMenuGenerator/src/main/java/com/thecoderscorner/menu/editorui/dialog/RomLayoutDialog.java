@@ -21,21 +21,21 @@ import java.io.IOException;
 
 public class RomLayoutDialog {
     private static final Logger logger = LoggerFactory.getLogger(NewItemDialog.class);
+    private Stage dialogStage;
 
-    public static void showLayoutDialog(Stage stage, MenuTree menuTree) {
+    public RomLayoutDialog(Stage stage, MenuTree menuTree) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/romLayoutDialog.fxml"));
             BorderPane pane = loader.load();
             RomLayoutController controller = loader.getController();
             controller.init(menuTree);
 
-            Stage dialogStage = new Stage();
+            dialogStage = new Stage();
             dialogStage.setTitle("Rom layout");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(stage);
             Scene scene = new Scene(pane);
             dialogStage.setScene(scene);
-            dialogStage.showAndWait();
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);
             alert.setHeaderText("Error creating the form, more detail is in the log");
@@ -43,6 +43,13 @@ public class RomLayoutDialog {
 
             logger.error("Unable to create the form", e);
         }
+    }
 
+    public void show() {
+        dialogStage.show();
+    }
+
+    public void showAndWait() {
+        dialogStage.showAndWait();
     }
 }

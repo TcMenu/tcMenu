@@ -3,18 +3,16 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.project.MenuItemChange.Command.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 
 public class CurrentEditorProjectTest {
@@ -26,7 +24,7 @@ public class CurrentEditorProjectTest {
     private BooleanMenuItem item2;
     private SubMenuItem subMenu;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         editorUI = Mockito.mock(CurrentProjectEditorUI.class);
         persistor = Mockito.mock(ProjectPersistor.class);
@@ -78,22 +76,21 @@ public class CurrentEditorProjectTest {
 
         project.applyCommand(NEW, item1, MenuTree.ROOT);
         project.applyCommand(NEW, item2, MenuTree.ROOT);
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT), CoreMatchers.is(Arrays.asList(item1, item2)));
-
+        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
         project.applyCommand(DOWN, item1, MenuTree.ROOT);
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT), CoreMatchers.is(Arrays.asList(item2, item1)));
+        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
 
         project.applyCommand(UP, item1, MenuTree.ROOT);
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT), CoreMatchers.is(Arrays.asList(item1, item2)));
+        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
 
         project.undoChange();
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT), CoreMatchers.is(Arrays.asList(item2, item1)));
+        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
 
         assertTrue(project.canRedo());
         assertTrue(project.canUndo());
 
         project.undoChange();
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT), CoreMatchers.is(Arrays.asList(item1, item2)));
+        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
 
         assertTrue(project.isDirty());
     }

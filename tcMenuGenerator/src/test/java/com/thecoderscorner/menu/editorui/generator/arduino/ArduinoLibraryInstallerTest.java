@@ -2,9 +2,9 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArduinoLibraryInstallerTest {
     private ArduinoLibraryInstaller installer;
@@ -22,7 +22,7 @@ public class ArduinoLibraryInstallerTest {
     private Path dirArduinoLibs;
     private Path dirEmbedded;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dirTmp = Files.createTempDirectory("tcmenu");
 
@@ -37,7 +37,7 @@ public class ArduinoLibraryInstallerTest {
         installer = new ArduinoLibraryInstaller(dirTmp.toString(), dirEmbedded.toString());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         Files.walk(dirTmp)
                 .sorted(Comparator.reverseOrder())

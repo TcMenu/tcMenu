@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <!--
   ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
   ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
   -->
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
    <top>
       <Label styleClass="label-bright" stylesheets="@JMetroDarkTheme.css" text="ROM and ID layouts" BorderPane.alignment="CENTER" />
    </top>
    <left>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" styleClass="control-background" BorderPane.alignment="CENTER">
+      <ScrollPane prefHeight="487.0" prefWidth="200.0" styleClass="control-background" BorderPane.alignment="CENTER">
          <content>
             <VBox fx:id="idContainer" prefHeight="200.0" prefWidth="200.0">
                <children>
@@ -40,4 +40,11 @@
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" text="Close" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
 </BorderPane>

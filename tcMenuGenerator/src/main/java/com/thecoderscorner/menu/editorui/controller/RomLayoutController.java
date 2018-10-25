@@ -10,24 +10,30 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Optional;
 
 public class RomLayoutController {
     private MenuIdChooser menuIdChooser;
+    public Button closeButton;
     public VBox idContainer;
     public VBox eepromContainer;
 
     public void init(MenuTree menuTree) {
         menuIdChooser = new MenuIdChooserImpl(menuTree);
 
-        menuIdChooser.getItemsSortedById().forEach((item)-> idContainer.getChildren().add(
-                new Label(item.getId() + " - " + item.getName())
-        ));
+        menuIdChooser.getItemsSortedById().forEach((item)-> {
+            Label lbl = new Label(item.getId() + " - " + item.getName());
+            lbl.getStyleClass().add("idRomEntry");
+            idContainer.getChildren().add(lbl);
+        });
 
         List<MenuItem> sortedByEeprom = menuIdChooser.getItemsSortedByEeprom();
         sortedByEeprom.stream()
@@ -70,5 +76,10 @@ public class RomLayoutController {
                 .map(menuItem -> "Overlaps with " + menuItem)
                 .findFirst();
 
+    }
+
+    public void onClose(ActionEvent actionEvent) {
+        Stage s = (Stage) idContainer.getScene().getWindow();
+        s.close();
     }
 }

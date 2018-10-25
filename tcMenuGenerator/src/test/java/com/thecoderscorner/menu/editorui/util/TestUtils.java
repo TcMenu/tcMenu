@@ -7,19 +7,19 @@ import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
-import org.junit.Assert;
 import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 public class TestUtils {
     public static void assertEqualsIgnoringCRLF(String expected, String actual) {
         expected = expected.replaceAll("\\r\\n", "\n");
         actual = actual.replaceAll("\\r\\n", "\n");
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     public static CreatorProperty findAndCheckProperty(EmbeddedCodeCreator creator, String name, CreatorProperty.SubSystem subSystem,

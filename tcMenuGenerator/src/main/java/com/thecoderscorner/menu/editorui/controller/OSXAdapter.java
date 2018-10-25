@@ -85,7 +85,7 @@ public class OSXAdapter implements InvocationHandler {
     
     // Pass this method an Object and Method equipped to display application info
     // They will be called when the About menu item is selected from the application menu
-    public static void setAboutHandler(Object target, Method aboutHandler) {
+    public static boolean setAboutHandler(Object target, Method aboutHandler) {
         boolean enableAboutMenu = (target != null && aboutHandler != null);
         if (enableAboutMenu) {
             setHandler(new OSXAdapter("handleAbout", target, aboutHandler));
@@ -95,9 +95,11 @@ public class OSXAdapter implements InvocationHandler {
         try {
             Method enableAboutMethod = macOSXApplication.getClass().getDeclaredMethod("setEnabledAboutMenu", new Class[] { boolean.class });
             enableAboutMethod.invoke(macOSXApplication, new Object[] { Boolean.valueOf(enableAboutMenu) });
+            return true;
         } catch (Exception ex) {
             System.err.println("OSXAdapter could not access the About Menu");
             ex.printStackTrace();
+            return false;
         }
     }
     

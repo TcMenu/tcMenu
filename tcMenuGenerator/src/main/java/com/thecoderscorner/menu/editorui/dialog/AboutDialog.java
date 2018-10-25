@@ -5,57 +5,54 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
-import javafx.geometry.Rectangle2D;
+import com.thecoderscorner.menu.editorui.controller.AboutController;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /** Example of displaying a splash page for a standalone JavaFX application */
 public class AboutDialog {
+    private final Logger logger = LoggerFactory.getLogger(AboutDialog.class);
 
-    private static final int SPLASH_WIDTH = 358;
-    private static final int SPLASH_HEIGHT = 290;
+    private AboutController controller;
+    private Stage dialogStage;
 
-    public void showSplash(Stage initStage) {
-        ImageView splash = new ImageView(new Image("/img/splash.jpg"));
-        Button button = new Button("Close");
-        button.setPrefWidth(SPLASH_WIDTH);
-        button.setStyle("-fx-font-size: 160%; -fx-border-color: black; -fx-border-radius: 4px; -fx-border-width: 2px; -fx-background-color: blue;-fx-text-fill: white;");
-        button.setCancelButton(true);
+    public AboutDialog(Stage stage, ArduinoLibraryInstaller installer) {
+        try {
+            FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/aboutDialog.fxml"));
+            BorderPane pane = loader.load();
+            controller = loader.getController();
+            controller.initialise(installer);
 
-        Label versionText = new Label(BuildVersionUtil.getVersionInfo());
-        versionText.setStyle("-fx-padding: 5px;");
+            dialogStage = new Stage();
+            dialogStage.setTitle("Create new item");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(stage);
+            Scene scene = new Scene(pane);
+            dialogStage.setScene(scene);
+        }
+        catch(Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);
+            alert.setHeaderText("Error creating the form, more detail is in the log");
+            alert.showAndWait();
 
-        Pane splashLayout = new VBox();
-        splashLayout.getChildren().addAll(splash, versionText, button);
-        splashLayout.setStyle("-fx-padding: 5px; -fx-border-width:5px; -fx-border-color: black;");
-        splashLayout.setEffect(new DropShadow());
+            logger.error("Unable to create the form", e);
+        }
+    }
 
-        Stage dialog = new Stage();
-        dialog.initOwner(initStage);
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.initStyle(StageStyle.UNDECORATED);
+    public void showAndWait() {
+        dialogStage.showAndWait();
+    }
 
-        Scene splashScene = new Scene(splashLayout);
-        dialog.setScene(splashScene);
-        final Rectangle2D bounds = Screen.getPrimary().getBounds();
-        dialog.setX(bounds.getMinX() + bounds.getWidth() / 2 - SPLASH_WIDTH / 2);
-        dialog.setY(bounds.getMinY() + bounds.getHeight() / 2 - SPLASH_HEIGHT / 2);
-
-        button.setOnAction((e)-> {
-            dialog.close();
-        });
-
-        dialog.showAndWait();
+    public void show() {
+        dialogStage.show();
     }
 }

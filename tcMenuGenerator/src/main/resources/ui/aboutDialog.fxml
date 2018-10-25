@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="265.0" prefWidth="368.0" styleClass="background" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController" stylesheets="/ui/JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <ImageView fitHeight="65.0" fitWidth="366.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+         <image>
+            <Image url="/img/logo.png" />
+         </image>
+      </ImageView>
+   </top>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="368.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button onAction="#onClose" defaultButton="true" mnemonicParsing="false" text="OK" />
+        </buttons>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </ButtonBar>
+   </bottom>
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="25.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="46.0" minHeight="0.0" prefHeight="22.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="91.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="122.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="156.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="164.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label styleClass="label-bright" stylesheets="@JMetroDarkTheme.css" text="Embedded Device Menu Designer" GridPane.columnSpan="2147483647" />
+            <Label text="Application &amp; API Version" GridPane.rowIndex="1" />
+            <Label text="IoAbstraction Version" GridPane.rowIndex="3" />
+            <Label text="TcMenu Version" GridPane.rowIndex="2" />
+            <Label text="LiquidCrystalIO Version" GridPane.rowIndex="4" />
+            <Label prefHeight="17.0" prefWidth="349.0" text="(C) 2018 thecoderscorner.com" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
+            <Label fx:id="apiVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label fx:id="tcMenuVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label fx:id="ioAbstractionVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label fx:id="liquidCrystalVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+         </children>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </GridPane>
+   </center>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</BorderPane>

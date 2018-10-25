@@ -22,7 +22,6 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
     }
 
     public AnalogMenuItemBuilder withUnit(String unit) {
-        assert(unit.length() < 4);
         this.unit = unit;
         return getThis();
     }

@@ -2,21 +2,15 @@ package com.thecoderscorner.menu.editorui.generator.input;
 
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.findAndCheckProperty;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.makeEditorProject;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testfx.assertions.api.Assertions.assertThat;
 
 public class InputTypeTest {
     @Test
@@ -50,8 +44,8 @@ public class InputTypeTest {
                 "    menuMgr.initForEncoder(&renderer, &root, ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_OK);",
                 creator.getSetupCode("root"));
         assertEquals("", creator.getGlobalVariables());
-        assertThat(creator.getRequiredFiles(), is(Collections.emptyList()));
-        assertThat(creator.getIncludes(), is(Collections.emptyList()));
+        assertThat(creator.getRequiredFiles()).isEmpty();
+        assertThat(creator.getIncludes()).isEmpty();
     }
 
     @Test
@@ -75,7 +69,7 @@ public class InputTypeTest {
                         "    menuMgr.initForUpDownOk(&renderer, &root, ENCODER_PIN_UP, ENCODER_PIN_DOWN, ENCODER_BUTTON_PIN);",
                 creator.getSetupCode("root"));
         assertEquals("", creator.getGlobalVariables());
-        assertThat(creator.getRequiredFiles(), is(Collections.emptyList()));
-        assertThat(creator.getIncludes(), is(Collections.emptyList()));
+        assertThat(creator.getRequiredFiles()).isEmpty();
+        assertThat(creator.getIncludes()).isEmpty();
     }
 }

@@ -1,8 +1,8 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -13,7 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class ArduinoSketchFileAdjusterTest {
     private Path dir;
@@ -23,7 +24,7 @@ public class ArduinoSketchFileAdjusterTest {
     private Consumer<String> emptyLogger;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dir = Files.createTempDirectory("tcmenu");
         inoFile = dir.resolve("superProject.ino");
@@ -31,7 +32,7 @@ public class ArduinoSketchFileAdjusterTest {
         adjuster = new ArduinoSketchFileAdjuster();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         Files.walk(dir)
                 .sorted(Comparator.reverseOrder())
@@ -126,14 +127,14 @@ public class ArduinoSketchFileAdjusterTest {
             }
             else if(!line.trim().isEmpty() && currentNext < next.length) {
                 // we must find the next string
-                assertEquals("Expected items not in order", next[currentNext], line.trim());
+                assertEquals(next[currentNext], line.trim(), "Expected items not in order");
                 currentNext++;
             }
             else {
                 // we must not find the search string more than once.
-                assertFalse("Item to search duplicated", line.contains(search));
+                assertFalse(line.contains(search), "Item to search duplicated");
             }
         }
-        assertTrue("Search item not found", foundSearch);
+        assertTrue(foundSearch, "Search item not found");
     }
 }

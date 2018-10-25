@@ -23,22 +23,22 @@ import java.util.Optional;
 
 public class NewItemDialog {
     private static final Logger logger = LoggerFactory.getLogger(NewItemDialog.class);
+    private NewItemController controller;
+    private Stage dialogStage;
 
-    public static Optional<MenuItem> showNewItemRequest(Stage stage, MenuTree tree) {
+    public NewItemDialog(Stage stage, MenuTree tree) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/newItemDialog.fxml"));
             BorderPane pane = loader.load();
-            NewItemController controller = loader.getController();
+            controller = loader.getController();
             controller.initialise(new MenuIdChooserImpl(tree));
 
-            Stage dialogStage = new Stage();
+            dialogStage = new Stage();
             dialogStage.setTitle("Create new item");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(stage);
             Scene scene = new Scene(pane);
             dialogStage.setScene(scene);
-            dialogStage.showAndWait();
-            return controller.getResult();
         }
         catch(Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);
@@ -47,6 +47,18 @@ public class NewItemDialog {
 
             logger.error("Unable to create the form", e);
         }
-        return Optional.empty();
+    }
+
+    public Optional<MenuItem> showAndWait() {
+        dialogStage.showAndWait();
+        return controller.getResult();
+    }
+
+    public void show() {
+        dialogStage.show();
+    }
+
+    public Optional<MenuItem> getResultOrEmpty() {
+        return controller.getResult();
     }
 }

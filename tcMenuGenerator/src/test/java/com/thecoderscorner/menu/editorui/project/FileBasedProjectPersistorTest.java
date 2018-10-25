@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
@@ -9,32 +8,32 @@ import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBasedProjectPersistorTest {
     private Path dir;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dir = Files.createTempDirectory("tcmenu");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         Files.walk(dir)
                 .sorted(Comparator.reverseOrder())
@@ -77,13 +76,13 @@ public class FileBasedProjectPersistorTest {
         Set<MenuItem> srcSubs = sourceTree.getAllSubMenus();
         Set<MenuItem> dstSubs = compTree.getAllSubMenus();
 
-        assertThat(dstSubs, is(srcSubs));
+        assertEquals(dstSubs, srcSubs);
 
         srcSubs.forEach(subMenu -> {
             List<MenuItem> srcItems = sourceTree.getMenuItems(subMenu);
             List<MenuItem> dstItems = compTree.getMenuItems(subMenu);
 
-            assertThat(dstItems, is(srcItems));
+            assertEquals(dstItems, srcItems);
         });
     }
 }

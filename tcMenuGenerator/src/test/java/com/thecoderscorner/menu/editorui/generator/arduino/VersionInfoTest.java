@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VersionInfoTest {
 

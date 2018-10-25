@@ -2,26 +2,24 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
-import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class MenuIdChooserImplTest {
 
     private MenuIdChooserImpl chooser;
     private MenuTree tree;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tree = TestUtils.buildSimpleTree();
         chooser = new MenuIdChooserImpl(tree);
@@ -55,18 +53,18 @@ public class MenuIdChooserImplTest {
     @Test
     public void testSortingIdAndEeprom() {
         SubMenuItem sub = tree.getSubMenuById(100).orElseThrow(RuntimeException::new);
-        assertThat(chooser.getItemsSortedById(), CoreMatchers.is(Arrays.asList(
+        assertThat(chooser.getItemsSortedById()).containsExactly(
                 tree.getMenuById(MenuTree.ROOT, 1).orElse(null),
                 tree.getMenuById(sub, 2).orElse(null),
                 tree.getMenuById(MenuTree.ROOT, 20).orElse(null),
                 sub
-        )));
+        );
 
-        assertThat(chooser.getItemsSortedByEeprom(), CoreMatchers.is(Arrays.asList(
+        assertThat(chooser.getItemsSortedByEeprom()).containsExactly(
                 sub,
                 tree.getMenuById(MenuTree.ROOT, 1).orElse(null),
                 tree.getMenuById(sub, 2).orElse(null),
                 tree.getMenuById(MenuTree.ROOT, 20).orElse(null)
-        )));
+        );
     }
 }

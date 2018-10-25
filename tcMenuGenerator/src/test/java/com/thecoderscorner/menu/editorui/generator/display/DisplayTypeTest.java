@@ -2,19 +2,14 @@ package com.thecoderscorner.menu.editorui.generator.display;
 
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
-import com.thecoderscorner.menu.editorui.util.TestUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.*;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.*;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testfx.assertions.api.Assertions.assertThat;
 
 public class DisplayTypeTest {
 
@@ -42,8 +37,8 @@ public class DisplayTypeTest {
         assertEquals("", creator.getExportDefinitions());
         assertEquals("", creator.getSetupCode("root"));
         assertEquals("", creator.getGlobalVariables());
-        assertThat(creator.getRequiredFiles(), is(Collections.emptyList()));
-        assertThat(creator.getIncludes(), is(Collections.emptyList()));
+        assertThat(creator.getRequiredFiles()).isEmpty();
+        assertThat(creator.getIncludes()).isEmpty();
     }
 
     @Test
@@ -66,14 +61,14 @@ public class DisplayTypeTest {
                 "AdaFruitGfxMenuRenderer renderer(gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);\n",
                 creator.getGlobalVariables());
 
-        assertThat(creator.getRequiredFiles(), is(Arrays.asList(
+        assertThat(creator.getRequiredFiles()).containsExactly(
                 "renderers/adafruit/tcMenuAdaFruitGfx.cpp",
                 "renderers/adafruit/tcMenuAdaFruitGfx.h"
-        )));
+        );
 
-        assertThat(creator.getIncludes(), is(Arrays.asList(
+        assertThat(creator.getIncludes()).containsExactly(
                 "#include \"tcMenuAdaFruitGfx.h\""
-        )));
+        );
     }
 
     @Test
@@ -125,22 +120,22 @@ public class DisplayTypeTest {
         assertEqualsIgnoringCRLF("LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, " + ioDevice + ");\n" +
                 "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n", creator.getGlobalVariables());
 
-        assertThat(creator.getRequiredFiles(), is(Arrays.asList(
+        assertThat(creator.getRequiredFiles()).containsExactly(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h"
-        )));
+        );
 
         if(i2c) {
-            assertThat(creator.getIncludes(), is(Arrays.asList(
+            assertThat(creator.getIncludes()).containsExactly(
                     "#include <Wire.h>",
                     "#include \"tcMenuLiquidCrystal.h\"",
                     "#include <IoAbstractionWire.h>"
-            )));
+            );
         }
         else {
-            assertThat(creator.getIncludes(), is(Arrays.asList(
+            assertThat(creator.getIncludes()).containsExactly(
                     "#include \"tcMenuLiquidCrystal.h\""
-            )));
+            );
         }
     }
 }

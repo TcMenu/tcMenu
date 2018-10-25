@@ -6,6 +6,7 @@
 package com.thecoderscorner.menu.editorui;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.dialog.DialogFactoryImpl;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUIImpl;
@@ -37,7 +38,7 @@ public class MenuEditorApp extends Application {
                 new FileBasedProjectPersistor()
         );
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, new ArduinoLibraryInstaller());
+        controller.initialise(project, new ArduinoLibraryInstaller(), new DialogFactoryImpl());
 
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);

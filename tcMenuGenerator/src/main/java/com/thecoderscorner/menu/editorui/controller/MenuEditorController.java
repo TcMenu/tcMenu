@@ -10,7 +10,9 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.dialog.*;
+import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.dialog.DialogFactory;
+import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -78,10 +80,13 @@ public class MenuEditorController {
     private List<Button> toolButtons;
     private Optional<UIMenuItem> currentEditor = Optional.empty();
     private ArduinoLibraryInstaller installer;
+    private DialogFactory dialogFactory;
 
-    public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer) {
+    public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer, DialogFactory dialogFactory) {
         this.editorProject = editorProject;
         this.installer = installer;
+        this.dialogFactory = dialogFactory;
+
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
                 onTreeChangeSelection(newItem.getValue());
@@ -102,10 +107,12 @@ public class MenuEditorController {
         if (os != null && os.startsWith ("Mac")) {
             mainMenu.useSystemMenuBarProperty().set(true);
             try {
-                OSXAdapter.setAboutHandler(this, getClass().getMethod("onAboutOsX"));
+                if(OSXAdapter.setAboutHandler(this, getClass().getMethod("onAboutOsX"))) {
+                    aboutMenuItem.setVisible(false);
+                }
+
                 OSXAdapter.setQuitHandler(this, getClass().getMethod("onExitOsX"));
                 exitMenuItem.setVisible(false);
-                aboutMenuItem.setVisible(false);
             } catch (NoSuchMethodException e) {
                 logger.error("Unable to set Mac menu properly", e);
             }
@@ -201,8 +208,7 @@ public class MenuEditorController {
     }
 
     public void aboutMenuPressed(ActionEvent actionEvent) {
-        AboutDialog aboutDialog = new AboutDialog();
-        aboutDialog.showSplash(getStage());
+        dialogFactory.showAboutDialog(getStage(), installer);
     }
 
     public void onMenuDocumentation(ActionEvent actionEvent) {
@@ -243,7 +249,7 @@ public class MenuEditorController {
     public void onAddToTreeMenu(ActionEvent actionEvent) {
         SubMenuItem subMenu = getSelectedSubMenu();
 
-        Optional<MenuItem> maybeItem = NewItemDialog.showNewItemRequest(getStage(), editorProject.getMenuTree());
+        Optional<MenuItem> maybeItem = dialogFactory.showNewItemDialog(getStage(), editorProject.getMenuTree());
         maybeItem.ifPresent((menuItem) -> {
             editorProject.applyCommand(Command.NEW, menuItem, subMenu);
             redrawTreeControl();
@@ -327,7 +333,7 @@ public class MenuEditorController {
     }
 
     public void onCodeShowLayout(ActionEvent actionEvent) {
-        RomLayoutDialog.showLayoutDialog(getStage(), editorProject.getMenuTree());
+        dialogFactory.showRomLayoutDialog(getStage(), editorProject.getMenuTree());
     }
 
     public void onGenerateCode(ActionEvent event) {

@@ -2,14 +2,13 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArduinoItemGeneratorTest {
     @Test
@@ -33,10 +32,10 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "AnalogMenuInfo", "Volume");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Volume\"", "10", "20", "255", "onVolume", "-180", "2", "\"dB\"")));
+        assertThat(info.getStructElements()).containsExactly("\"Volume\"", "10", "20", "255", "onVolume", "-180", "2", "\"dB\"");
 
         checkTheBasicsOfItem(menu, "AnalogMenuItem", "Volume");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoVolume", "0", "&menuChannel")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoVolume", "0", "&menuChannel");
     }
 
     private void checkTheBasicsOfInfo(BuildStructInitializer info, String type, String name) {
@@ -73,11 +72,11 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(2);
 
         checkTheBasicsOfInfo(info, "EnumMenuInfo", "Channel");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Channel\"", "5", "22", "1", "onChannel", "enumStrChannel")));
+        assertThat(info.getStructElements()).containsExactly("\"Channel\"", "5", "22", "1", "onChannel", "enumStrChannel");
         checkTheBasicsOfItem(menu, "EnumMenuItem", "Channel");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoChannel", "0", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoChannel", "0", "NULL");
 
-        assertThat(choices.getStructElements(), is(Arrays.asList("\"Turntable\"", "\"Computer\"")));
+        assertThat(choices.getStructElements()).containsExactly("\"Turntable\"", "\"Computer\"");
         assertEquals("Channel", choices.getStructName());
         assertTrue(choices.isStringChoices());
         assertFalse(choices.isRequiresExtern());
@@ -101,9 +100,9 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "TextMenuInfo", "GenState");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Gen State\"", "10", "22", "10", "NO_CALLBACK")));
+        assertThat(info.getStructElements()).containsExactly("\"Gen State\"", "10", "22", "10", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoGenState", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "NULL");
 
     }
 
@@ -125,9 +124,9 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "RemoteMenuInfo", "Remote0");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Remote 0\"", "10", "22", "0", "NO_CALLBACK")));
+        assertThat(info.getStructElements()).containsExactly("\"Remote 0\"", "10", "22", "0", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "RemoteMenuItem", "Remote0");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoRemote0", "remoteServer.getRemoteConnector(0)", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoRemote0", "remoteServer.getRemoteConnector(0)", "NULL");
     }
 
     @Test
@@ -147,9 +146,9 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "PressMe");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Press me\"", "10", "42", "0", "onPressMe")));
+        assertThat(info.getStructElements()).containsExactly("\"Press me\"", "10", "42", "0", "onPressMe");
         checkTheBasicsOfItem(menu, "ActionMenuItem", "PressMe");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoPressMe", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoPressMe", "NULL");
     }
 
     @Test
@@ -170,9 +169,9 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "FloatMenuInfo", "CalcVal");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Calc Val\"", "10", "22", "5", "NO_CALLBACK")));
+        assertThat(info.getStructElements()).containsExactly("\"Calc Val\"", "10", "22", "5", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "FloatMenuItem", "CalcVal");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoCalcVal", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoCalcVal", "NULL");
     }
 
     @Test
@@ -193,13 +192,13 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(2);
 
         checkTheBasicsOfInfo(info, "SubMenuInfo", "SubMenu");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Sub Menu\"", "10", "0xffff", "0", "NO_CALLBACK")));
+        assertThat(info.getStructElements()).containsExactly("\"Sub Menu\"", "10", "0xffff", "0", "NO_CALLBACK");
 
         checkTheBasicsOfItem(menu, "SubMenuItem", "SubMenu");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoSubMenu", "&menuBackSubMenu", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoSubMenu", "&menuBackSubMenu", "NULL");
 
         checkTheBasicsOfItem(back, "BackMenuItem", "BackSubMenu");
-        assertThat(back.getStructElements(), is(Arrays.asList("&menuSubItem", "(const AnyMenuInfo*)&minfoSubMenu")));
+        assertThat(back.getStructElements()).containsExactly("&menuSubItem", "(const AnyMenuInfo*)&minfoSubMenu");
     }
 
 
@@ -227,9 +226,9 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "BooleanMenuInfo", "Enabled");
-        assertThat(info.getStructElements(), is(Arrays.asList("\"Enabled\"", "1", "2", "1", "onEnabled", embeddedNaming)));
+        assertThat(info.getStructElements()).containsExactly("\"Enabled\"", "1", "2", "1", "onEnabled", embeddedNaming);
         checkTheBasicsOfItem(menu, "BooleanMenuItem", "Enabled");
-        assertThat(menu.getStructElements(), is(Arrays.asList("&minfoEnabled", "false", "NULL")));
+        assertThat(menu.getStructElements()).containsExactly("&minfoEnabled", "false", "NULL");
 
     }
 }

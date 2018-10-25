@@ -3,15 +3,13 @@ package com.thecoderscorner.menu.editorui.generator.remote;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemoteCapabilitiesTest {
     @Test
@@ -37,8 +35,8 @@ public class RemoteCapabilitiesTest {
         assertEqualsIgnoringCRLF("const char PROGMEM applicationName[] = \"Tester\";\n", creator.getGlobalVariables());
         assertEqualsIgnoringCRLF("", creator.getSetupCode("root"));
         assertEqualsIgnoringCRLF("extern const char applicationName[];\n", creator.getExportDefinitions());
-        assertThat(creator.getIncludes(), CoreMatchers.is(Collections.singletonList("#include \"RemoteConnector.h\"")));
-        assertThat(creator.getRequiredFiles(), CoreMatchers.is(Collections.emptyList()));
+        assertThat(creator.getIncludes()).containsExactly("#include \"RemoteConnector.h\"");
+        assertThat(creator.getRequiredFiles()).isEmpty();
     }
 
     @Test
@@ -51,14 +49,14 @@ public class RemoteCapabilitiesTest {
         assertEqualsIgnoringCRLF("const char PROGMEM applicationName[] = \"Tester\";\n", creator.getGlobalVariables());
         assertEqualsIgnoringCRLF("    remoteServer.begin(&Serial, applicationName);\n", creator.getSetupCode("root"));
         assertEqualsIgnoringCRLF("\nextern const char applicationName[];\n", creator.getExportDefinitions());
-        assertThat(creator.getIncludes(), CoreMatchers.is(Arrays.asList(
+        assertThat(creator.getIncludes()).containsExactly(
                 "#include <RemoteConnector.h>",
-                "#include \"SerialTransport.h\""))
+                "#include \"SerialTransport.h\""
         );
-        assertThat(creator.getRequiredFiles(), CoreMatchers.is(Arrays.asList(
+        assertThat(creator.getRequiredFiles()).containsExactly(
                 "remotes/serial/SerialTransport.cpp",
                 "remotes/serial/SerialTransport.h"
-        )));
+        );
     }
 
     @Test
@@ -78,14 +76,14 @@ public class RemoteCapabilitiesTest {
         assertEqualsIgnoringCRLF("#define LISTEN_PORT 3333\n" +
                 "extern const char applicationName[];\n", creator.getExportDefinitions());
 
-        assertThat(creator.getIncludes(), CoreMatchers.is(Arrays.asList(
+        assertThat(creator.getIncludes()).containsExactly(
                 "#include <RemoteConnector.h>",
-                "#include \"EthernetTransport.h\""))
+                "#include \"EthernetTransport.h\""
         );
 
-        assertThat(creator.getRequiredFiles(), CoreMatchers.is(Arrays.asList(
+        assertThat(creator.getRequiredFiles()).containsExactly(
                 "remotes/ethernet/EthernetTransport.cpp",
                 "remotes/ethernet/EthernetTransport.h"
-        )));
+        );
     }
 }

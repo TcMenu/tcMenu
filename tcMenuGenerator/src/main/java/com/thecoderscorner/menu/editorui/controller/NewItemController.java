@@ -43,6 +43,7 @@ public class NewItemController {
     public void initialise(MenuIdChooserImpl menuIdChooser) {
         this.menuIdChooser = menuIdChooser;
         idField.setText(Integer.toString(menuIdChooser.nextHighestId()));
+
     }
 
     public void onCreatePressed(ActionEvent actionEvent) {
