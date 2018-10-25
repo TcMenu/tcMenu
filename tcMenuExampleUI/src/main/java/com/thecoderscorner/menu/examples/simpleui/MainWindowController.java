@@ -39,8 +39,12 @@ import static com.thecoderscorner.menu.remote.commands.CommandFactory.newDeltaCh
  * changes are made locally.
  *
  * I've tried to keep this class as simple as possible, avoiding functional style and optimisation.
- * and I've also avoided doing any more styling than absolutely required to make the UI look acceptable.
- * You'll notice that tcMenu JavaAPI does make use of the 'visitor pattern'.
+ *
+ * I've also avoided doing any more styling than absolutely required so the UI looks quite basic, get
+ * out your crayons and make your own look pretty!
+ *
+ * You'll notice that tcMenu JavaAPI does make use of both immutability and the 'visitor pattern', this
+ * allows you to use most of the API objects on any thread.
  */
 public class MainWindowController {
     private static final int TICKS_HIGHLIGHT_ON_CHANGE = 20; // about 2 seconds.
@@ -87,11 +91,13 @@ public class MainWindowController {
         this.menuTree = menuTree;
         this.remoteControl = remoteControl;
 
-        // we spin up something to monitor for changed fields and change their background colour.
+        // we spin up a monitor that counts down changed fields resetting the background colour after a few seconds.
         executor.scheduleAtFixedRate(this::updatedFieldChecker, 1000, 100, TimeUnit.MILLISECONDS);
 
         //
-        // register a listener that will handle all the connectivity and change events
+        // register a listener that will handle all the connectivity and change events. Take careful note of the
+        // Platform.runLater calls, these are very important, you must not update UI controls directly in the comms
+        // call back.
         //
         remoteControl.addListener(new RemoteControllerListener() {
 
@@ -384,6 +390,7 @@ public class MainWindowController {
 
         //
         // First we use the visitor again to call the right method in the visitor based on it's type.
+        // The visitors setResult stores a string value that it to be used for rendering.
         //
         Optional<String> value = MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<>() {
 
@@ -436,6 +443,10 @@ public class MainWindowController {
                 }
             }
 
+            /**
+             * Render a remote item by displaying the connection status contained in the object
+             * @param item the remote item to render
+             */
             @Override
             public void visit(RemoteMenuItem item) {
                 MenuState<String> state = menuTree.getMenuState(item);
@@ -444,6 +455,10 @@ public class MainWindowController {
                 }
             }
 
+            /**
+             * Render a floating point item to the number of decimal places configured.
+             * @param item the floating point item to render.
+             */
             @Override
             public void visit(FloatMenuItem item) {
                 MenuState<Float> state = menuTree.getMenuState(item);

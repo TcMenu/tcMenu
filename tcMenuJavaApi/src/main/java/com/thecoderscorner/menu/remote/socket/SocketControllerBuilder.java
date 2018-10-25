@@ -10,7 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
-import com.thecoderscorner.menu.remote.udp.UdpRemoteConnector;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -21,6 +20,15 @@ import java.util.concurrent.ScheduledExecutorService;
  * Creates an instance of a socket based controller to a given port, and connects it with the selected menu.
  * This implements the standard builder pattern, an example of use would be along the lines of:
  *
+ * <pre>
+ *     RemoteMenuController controller = new SocketControllerBuilder()
+ *       .withAddress(hostName)
+ *       .withPort(3333)
+ *       .withMenuTree(myMenuTree)
+ *       .withLocalName("My App")
+ *       .build();
+ *     controller.start();
+ * </pre>
  */
 public class SocketControllerBuilder {
     private int heartbeatFrequency = 10000;

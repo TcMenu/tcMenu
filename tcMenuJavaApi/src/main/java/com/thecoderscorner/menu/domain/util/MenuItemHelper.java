@@ -9,13 +9,30 @@ import com.thecoderscorner.menu.domain.*;
 
 import java.util.Optional;
 
+/**
+ * A helper class for dealing with MenuItem objects. This class provides the helper for visiting
+ * menu items and returning a result. It also provides other helpers for dealing with items.
+ */
 public class MenuItemHelper {
 
+    /**
+     * Visits a menu item calling the appropriate function for the type and collects the result
+     * that is set by calling your visitor's `setResult` method.
+     * @param item the item to be visited
+     * @param visitor the visitor that will be used
+     * @param <T> the return type
+     * @return an optional of the return type, set to empty unless setResult was called.
+     */
     public static <T> Optional<T> visitWithResult(MenuItem item, AbstractMenuItemVisitor<T> visitor) {
         item.accept(visitor);
         return visitor.getResult();
     }
 
+    /**
+     * Returns the menu item as a sub menu or null
+     * @param item the possible sub menu
+     * @return the sub menu, or null.
+     */
     public static SubMenuItem asSubMenu(MenuItem item) {
         return visitWithResult(item, new AbstractMenuItemVisitor<SubMenuItem>() {
             @Override
@@ -28,6 +45,12 @@ public class MenuItemHelper {
         }).orElse(null);
     }
 
+    /**
+     * creates a copy of the menu item chosen, with the ID changed to newId
+     * @param selected the item to copy
+     * @param newId the ID for the copy
+     * @return the newly created item
+     */
     public static MenuItem createFromExistingWithId(MenuItem selected, int newId) {
         return visitWithResult(selected, new AbstractMenuItemVisitor<MenuItem>() {
             @Override
@@ -103,6 +126,11 @@ public class MenuItemHelper {
         }).orElse(null);
     }
 
+    /**
+     * Gets the size of the eeprom storage for a given element type
+     * @param item the item to determine eeprom size for
+     * @return the eeprom storage needed.
+     */
     public static int eepromSizeForItem(MenuItem item) {
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<Integer>() {
             @Override

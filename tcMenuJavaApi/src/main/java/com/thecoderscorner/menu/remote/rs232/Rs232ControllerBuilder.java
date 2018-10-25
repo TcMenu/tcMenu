@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
  *             .withMenuTree(menuTree)
  *             .withLocalName("myApp")
  *             .build();
+ *     controller.start();
  * </pre>
  */
 public class Rs232ControllerBuilder {

@@ -7,6 +7,9 @@ package com.thecoderscorner.menu.remote.protocol;
 
 import java.io.IOException;
 
+/**
+ * An exception that indicates a problem during protocol conversion
+ */
 public class TcProtocolException extends IOException {
     public TcProtocolException(String message) {
         super(message);

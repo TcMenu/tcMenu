@@ -10,6 +10,12 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * A remote connector that will communicate using a client socket. Normally configured with a host and port. Create
+ * using the builder below.
+ *
+ * @see SocketControllerBuilder
+ */
 public class SocketBasedConnector extends StreamRemoteConnector {
     private final String remoteHost;
     private final int remotePort;
