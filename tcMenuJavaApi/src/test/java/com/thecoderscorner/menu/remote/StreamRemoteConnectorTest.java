@@ -5,7 +5,6 @@ import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -13,12 +12,11 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamRemoteConnectorTest {
 
@@ -80,7 +78,7 @@ public class StreamRemoteConnectorTest {
         int proto = bb.get();
         assertEquals(proto, protocol.getKeyIdentifier());
 
-        assertThat((MenuHeartbeatCommand) protocol.fromChannel(bb), Matchers.isA(MenuHeartbeatCommand.class));
+        assertTrue(protocol.fromChannel(bb) instanceof  MenuHeartbeatCommand);
         assertFalse(bb.hasRemaining());
     }
 
