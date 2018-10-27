@@ -6,11 +6,10 @@
 package com.thecoderscorner.menu.editorui;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.dialog.DialogFactoryImpl;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -33,12 +32,15 @@ public class MenuEditorApp extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
 
-        CurrentEditorProject project = new CurrentEditorProject(
-                new CurrentProjectEditorUIImpl(primaryStage),
-                new FileBasedProjectPersistor()
-        );
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, new ArduinoLibraryInstaller(), new DialogFactoryImpl());
+
+        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(primaryStage);
+
+        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
+
+        CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
+
+        controller.initialise(project, new ArduinoLibraryInstaller(), editorUI);
 
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);

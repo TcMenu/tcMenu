@@ -33,7 +33,7 @@ public class AboutDialog {
             controller.initialise(installer);
 
             dialogStage = new Stage();
-            dialogStage.setTitle("Create new item");
+            dialogStage.setTitle("About tcMenu Designer");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(stage);
             Scene scene = new Scene(pane);

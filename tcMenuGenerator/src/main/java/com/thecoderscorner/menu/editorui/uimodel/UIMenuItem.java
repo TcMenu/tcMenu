@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
-    private static final String NO_FUNCTION_DEFINED = "NoCallback";
+    public static final String NO_FUNCTION_DEFINED = "NoCallback";
     private final T menuItem;
     private final MenuIdChooser chooser;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
@@ -66,6 +66,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         grid.add(new Label("ID"), 0, idx);
         idField = new TextField(String.valueOf(menuItem.getId()));
+        idField.setId("idField");
         idField.setDisable(true);
 
         grid.add(idField, 1, idx);
@@ -73,6 +74,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idx++;
         grid.add(new Label("Name"), 0, idx);
         nameField = new TextField(menuItem.getName());
+        nameField.setId("nameField");
         nameField.textProperty().addListener(this::coreValueChanged);
         grid.add(nameField, 1, idx);
 
@@ -82,10 +84,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
         eepromBox.setSpacing(4);
 
         eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
+        eepromField.setId("eepromField");
         eepromField.textProperty().addListener(this::coreValueChanged);
         eepromBox.getChildren().add(eepromField);
 
         Button eepromNextBtn = new Button("auto");
+        eepromNextBtn.setId("eepromNextBtn");
         eepromNextBtn.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
         eepromBox.getChildren().add(eepromNextBtn);
         TextFormatterUtils.applyIntegerFormatToField(eepromField);
@@ -101,6 +105,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         String functionName = menuItem.getFunctionName();
         functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
         functionNameTextField.textProperty().addListener(this::coreValueChanged);
+        functionNameTextField.setId("functionNameTextField");
         grid.add(functionNameTextField, 1, idx);
 
         internalInitPanel(grid, idx);

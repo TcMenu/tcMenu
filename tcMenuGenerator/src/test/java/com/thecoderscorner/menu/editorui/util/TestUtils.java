@@ -5,8 +5,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -92,30 +92,30 @@ public class TestUtils {
         tree.addMenuItem(MenuTree.ROOT, boolItem);
 
         TextMenuItem textItem = TextMenuItemBuilder.aTextMenuItemBuilder()
-                .withId(4)
+                .withId(5)
                 .withLength(10)
-                .withName("BoolTest")
+                .withName("TextTest")
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, textItem);
 
         FloatMenuItem floatItem = FloatMenuItemBuilder.aFloatMenuItemBuilder()
-                .withId(4)
+                .withId(6)
                 .withDecimalPlaces(4)
-                .withName("BoolTest")
+                .withName("FloatTest")
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, floatItem);
 
         RemoteMenuItem remoteItem = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                .withId(4)
+                .withId(7)
                 .withRemoteNo(2)
-                .withName("BoolTest")
+                .withName("RemoteTest")
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, remoteItem);
 
         ActionMenuItem actionItem = ActionMenuItemBuilder.anActionMenuItemBuilder()
-                .withId(4)
+                .withId(8)
                 .withFunctionName("callback")
-                .withName("BoolTest")
+                .withName("ActionTest")
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, actionItem);
 

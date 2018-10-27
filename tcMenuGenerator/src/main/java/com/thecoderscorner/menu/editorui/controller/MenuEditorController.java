@@ -11,22 +11,20 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.dialog.DialogFactory;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.project.MenuItemChange.Command;
-import com.thecoderscorner.menu.editorui.uimodel.UIEditorFactory;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -80,12 +78,13 @@ public class MenuEditorController {
     private List<Button> toolButtons;
     private Optional<UIMenuItem> currentEditor = Optional.empty();
     private ArduinoLibraryInstaller installer;
-    private DialogFactory dialogFactory;
+    private CurrentProjectEditorUI editorUI;
 
-    public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer, DialogFactory dialogFactory) {
+    public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
+                           CurrentProjectEditorUI editorUI) {
         this.editorProject = editorProject;
         this.installer = installer;
-        this.dialogFactory = dialogFactory;
+        this.editorUI = editorUI;
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
@@ -142,7 +141,7 @@ public class MenuEditorController {
     }
 
     public void onTreeChangeSelection(MenuItem newValue) {
-        UIEditorFactory.createPanelForMenuItem(newValue, editorProject.getMenuTree(), this::onEditorChange)
+        editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
                     editorBorderPane.setCenter(uiMenuItem.initPanel());
                     currentEditor = Optional.of(uiMenuItem);
@@ -154,8 +153,12 @@ public class MenuEditorController {
                 }
         );
 
+        // we cannot modify root.
         toolButtons.stream().filter(b -> b != menuTreeAdd)
                 .forEach(b -> b.setDisable(MenuTree.ROOT.equals(newValue)));
+
+        // We cannot copy sub menus whole. Only value items
+        if(newValue.hasChildren()) menuTreeCopy.setDisable(true);
     }
 
     private void redrawTreeControl() {
@@ -208,7 +211,7 @@ public class MenuEditorController {
     }
 
     public void aboutMenuPressed(ActionEvent actionEvent) {
-        dialogFactory.showAboutDialog(getStage(), installer);
+        editorUI.showAboutDialog(installer);
     }
 
     public void onMenuDocumentation(ActionEvent actionEvent) {
@@ -231,7 +234,9 @@ public class MenuEditorController {
         SubMenuItem subMenu = getSelectedSubMenu();
         editorProject.applyCommand(Command.NEW, item, subMenu);
 
+        // select the newly created item and render it.
         redrawTreeControl();
+        selectChildInTreeById(menuTree.getRoot(), item.getId());
     }
 
     public void onTreeMoveUp(ActionEvent event) {
@@ -249,7 +254,7 @@ public class MenuEditorController {
     public void onAddToTreeMenu(ActionEvent actionEvent) {
         SubMenuItem subMenu = getSelectedSubMenu();
 
-        Optional<MenuItem> maybeItem = dialogFactory.showNewItemDialog(getStage(), editorProject.getMenuTree());
+        Optional<MenuItem> maybeItem = editorUI.showNewItemDialog(editorProject.getMenuTree());
         maybeItem.ifPresent((menuItem) -> {
             editorProject.applyCommand(Command.NEW, menuItem, subMenu);
             redrawTreeControl();
@@ -279,13 +284,8 @@ public class MenuEditorController {
 
         // if there are children, confirm before removing.
         if (toRemove.hasChildren()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Remove all items in submenu");
-            alert.setHeaderText("Remove ALL items within [" + toRemove + "]?");
-            alert.setContentText("If you click yes and proceed, you will remove all items under " + toRemove);
-            Optional<ButtonType> maybeButtonType = alert.showAndWait();
-            if (!maybeButtonType.isPresent() || maybeButtonType.get() != ButtonType.OK) {
-                // get outa here.
+            if(!editorUI.questionYesNo("Remove ALL items within [" + toRemove.getName() + "]?",
+                    "If you click yes and proceed, you will remove all items under " + toRemove.getName())) {
                 return;
             }
         }
@@ -333,12 +333,11 @@ public class MenuEditorController {
     }
 
     public void onCodeShowLayout(ActionEvent actionEvent) {
-        dialogFactory.showRomLayoutDialog(getStage(), editorProject.getMenuTree());
+        editorUI.showRomLayoutDialog(editorProject.getMenuTree());
     }
 
     public void onGenerateCode(ActionEvent event) {
-        CodeGeneratorDialog dialog = new CodeGeneratorDialog();
-        dialog.showCodeGenerator(getStage(), editorProject, installer);
+        editorUI.showCodeGeneratorDialog(editorProject, installer);
     }
 
     public void loadPreferences() {

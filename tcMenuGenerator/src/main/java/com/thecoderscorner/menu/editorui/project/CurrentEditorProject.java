@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,8 +7,8 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -39,9 +39,11 @@ public class NewItemController {
     public TextField idField;
     private Optional<MenuItem> result = Optional.empty();
     private MenuIdChooserImpl menuIdChooser;
+    private CurrentProjectEditorUI editorUI;
 
-    public void initialise(MenuIdChooserImpl menuIdChooser) {
+    public void initialise(MenuIdChooserImpl menuIdChooser, CurrentProjectEditorUI editorUI) {
         this.menuIdChooser = menuIdChooser;
+        this.editorUI = editorUI;
         idField.setText(Integer.toString(menuIdChooser.nextHighestId()));
 
     }
@@ -49,11 +51,8 @@ public class NewItemController {
     public void onCreatePressed(ActionEvent actionEvent) {
         Integer id = Integer.parseInt(idField.getText());
         if(!menuIdChooser.isIdUnique(id)) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("ID is not unique in this menu");
-            alert.setHeaderText("ID is not unique in this menu");
-            alert.setContentText("Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");
-            alert.showAndWait();
+            editorUI.alertOnError("ID is not unique in this menu",
+                    "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");
             return;
         }
 

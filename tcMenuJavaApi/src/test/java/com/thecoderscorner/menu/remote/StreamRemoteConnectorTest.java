@@ -56,7 +56,7 @@ public class StreamRemoteConnectorTest {
         streamConnector.processMessagesOnConnection();
         Mockito.verify(connectorListener).onCommand(Mockito.any(), Mockito.isA(MenuHeartbeatCommand.class));
         Mockito.verify(connectorListener).onCommand(Mockito.any(), Mockito.isA(MenuJoinCommand.class));
-        Mockito.verify(connectionChangeListener).connectionChange(streamConnector, true);
+        Mockito.verify(connectionChangeListener, Mockito.atLeastOnce()).connectionChange(streamConnector, true);
         Mockito.verifyNoMoreInteractions(connectorListener);
     }
 

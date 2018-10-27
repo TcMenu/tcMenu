@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.NewItemController;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -26,12 +27,12 @@ public class NewItemDialog {
     private NewItemController controller;
     private Stage dialogStage;
 
-    public NewItemDialog(Stage stage, MenuTree tree) {
+    public NewItemDialog(Stage stage, MenuTree tree, CurrentProjectEditorUI editorUI) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/newItemDialog.fxml"));
             BorderPane pane = loader.load();
             controller = loader.getController();
-            controller.initialise(new MenuIdChooserImpl(tree));
+            controller.initialise(new MenuIdChooserImpl(tree), editorUI);
 
             dialogStage = new Stage();
             dialogStage.setTitle("Create new item");

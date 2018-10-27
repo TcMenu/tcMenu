@@ -48,7 +48,7 @@
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="Documentation" />
-              <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#aboutMenuPressed" text="About" />
+              <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="About" />
               <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#registerMenuPressed" text="Register.." />
             </items>

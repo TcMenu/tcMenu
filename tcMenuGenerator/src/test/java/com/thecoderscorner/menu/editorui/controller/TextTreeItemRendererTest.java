@@ -14,14 +14,14 @@ class TextTreeItemRendererTest {
 
         TestUtils.assertEqualsIgnoringCRLF(
                 " Extra                    test\n" +
-                " test                    100dB\n" +
-                " sub                       >>>\n" +
-                "   test                  100dB\n" +
-                " BoolTest                   ON\n" +
-                " BoolTest           AAAAAAAAAA\n" +
-                " BoolTest          -12345.1235\n" +
-                " BoolTest              No Link\n" +
-                " BoolTest                    \n",
+                        " test                    100dB\n" +
+                        " sub                       >>>\n" +
+                        "   test                  100dB\n" +
+                        " BoolTest                   ON\n" +
+                        " TextTest           AAAAAAAAAA\n" +
+                        " FloatTest         -12345.1235\n" +
+                        " RemoteTest            No Link\n" +
+                        " ActionTest                  \n",
                 actual);
     }
 }

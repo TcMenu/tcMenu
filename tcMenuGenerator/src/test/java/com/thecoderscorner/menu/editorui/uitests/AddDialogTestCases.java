@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
@@ -10,20 +11,23 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.checkAlertDialogHeaderAndContent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(ApplicationExtension.class)
 public class AddDialogTestCases {
 
     private NewItemDialog dialog;
+    private CurrentProjectEditorUI editorUI;
     private boolean DEFAULT_ID = true;
     private boolean NON_DEFAULT_ID = false;
 
     @Start
     public void onStart(Stage stage) {
-        dialog = new NewItemDialog(stage, TestUtils.buildSimpleTree());
+        editorUI = mock(CurrentProjectEditorUI.class);
+
+        dialog = new NewItemDialog(stage, TestUtils.buildSimpleTree(), editorUI);
         dialog.show();
     }
 
@@ -69,16 +73,27 @@ public class AddDialogTestCases {
 
     @Test
     void testNonUniqueIdEntered(FxRobot robot) {
+
+        robot.clickOn("#actionSelect");
+
         robot.clickOn("#idField");
         robot.eraseText(3);
         robot.write("100");
         robot.clickOn("#okButton");
 
-        checkAlertDialogHeaderAndContent(
-                "ID is not unique in this menu",
-                "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.",
-                robot
-        );
+        verify(editorUI).alertOnError("ID is not unique in this menu",
+                "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");
+
+        robot.clickOn("#idField");
+        robot.eraseText(3);
+        robot.write("104");
+
+        robot.clickOn("#okButton");
+        MenuItem item = dialog.getResultOrEmpty().get();
+        assertThat(item.getClass()).isEqualTo(ActionMenuItem.class);
+        assertThat(item.getId()).isEqualTo(104);
+
+        verifyNoMoreInteractions(editorUI);
     }
 
     private void checkForItem(Class<? extends MenuItem> clazz, boolean defaultId, String idOfSelectItem, FxRobot robot) {
