@@ -27,19 +27,16 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
     }
 
     public AnalogMenuItemBuilder withOffset(int offset) {
-        assert(offset < 65355);
         this.offset = offset;
         return getThis();
     }
 
     public AnalogMenuItemBuilder withMaxValue(int maxValue) {
-        assert(maxValue < 65355);
         this.maxValue = maxValue;
         return getThis();
     }
 
     public AnalogMenuItemBuilder withDivisor(int divisor) {
-        assert(divisor < 255);
         this.divisor = divisor;
         return getThis();
     }

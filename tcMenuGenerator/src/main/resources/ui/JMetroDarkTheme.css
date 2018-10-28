@@ -62,7 +62,6 @@
   -fx-text-fill: white;
 }
 
-
 .header{
   -fx-font-size: 42pt;
   -fx-font-family: "Segoe UI Light";
@@ -74,7 +73,6 @@
   -fx-opacity: 0.6;
   -fx-font-weight: bold;
 }
-
 
 .menu-bar {
   -fx-font-size: 120%;
@@ -113,4 +111,10 @@
   -fx-background-color: #c01620;
   -fx-border-color: #040404;
   -fx-border-width: 1px;
+}
+
+#uiItemErrors {
+  -fx-background-color: #ff2718;
+  -fx-text-fill: white;
+  -fx-font-weight: bold;
 }

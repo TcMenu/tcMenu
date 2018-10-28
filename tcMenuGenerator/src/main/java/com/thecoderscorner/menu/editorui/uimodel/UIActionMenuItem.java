@@ -9,7 +9,11 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class UIActionMenuItem extends UIMenuItem<ActionMenuItem> {
 
@@ -18,10 +22,13 @@ public class UIActionMenuItem extends UIMenuItem<ActionMenuItem> {
     }
 
     @Override
-    protected ActionMenuItem getChangedMenuItem() {
+    protected Optional<ActionMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
+
         ActionMenuItemBuilder builder = ActionMenuItemBuilder.anActionMenuItemBuilder().withExisting(getMenuItem());
-        getChangedDefaults(builder);
-        return builder.menuItem();
+        getChangedDefaults(builder, errors);
+
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override

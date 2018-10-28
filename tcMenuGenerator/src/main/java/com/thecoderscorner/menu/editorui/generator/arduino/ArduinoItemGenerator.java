@@ -223,7 +223,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStru
     }
 
     public static String makeNameToVar(String name) {
-        Collection<String> parts = Arrays.asList(name.split("\\s"));
+        Collection<String> parts = Arrays.asList(name.split("[\\s\\-*%()_]+"));
         return parts.stream().map(ArduinoItemGenerator::capitaliseFirst).collect(Collectors.joining());
     }
 

@@ -50,6 +50,13 @@ public class NewItemController {
 
     public void onCreatePressed(ActionEvent actionEvent) {
         Integer id = Integer.parseInt(idField.getText());
+
+        if(id < 1 || id > Short.MAX_VALUE) {
+            editorUI.alertOnError("ID is not an allowed value",
+                    "ID must be unique, greater than 0 and less than 32768");
+            return;
+        }
+
         if(!menuIdChooser.isIdUnique(id)) {
             editorUI.alertOnError("ID is not unique in this menu",
                     "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");

@@ -13,6 +13,7 @@ import org.testfx.framework.junit5.Start;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(ApplicationExtension.class)
@@ -72,28 +73,34 @@ public class AddDialogTestCases {
     }
 
     @Test
-    void testNonUniqueIdEntered(FxRobot robot) {
+    void testInvalidIdEntryCases(FxRobot robot) {
 
         robot.clickOn("#actionSelect");
 
-        robot.clickOn("#idField");
-        robot.eraseText(3);
-        robot.write("100");
-        robot.clickOn("#okButton");
+        writeIntoIdFIeld(robot, "100");
 
         verify(editorUI).alertOnError("ID is not unique in this menu",
                 "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");
 
-        robot.clickOn("#idField");
-        robot.eraseText(3);
-        robot.write("104");
+        writeIntoIdFIeld(robot, "-1");
+        writeIntoIdFIeld(robot, "50000");
 
-        robot.clickOn("#okButton");
+        verify(editorUI, times(2)).alertOnError("ID is not an allowed value",
+                "ID must be unique, greater than 0 and less than 32768");
+
+        writeIntoIdFIeld(robot, "32000");
         MenuItem item = dialog.getResultOrEmpty().get();
         assertThat(item.getClass()).isEqualTo(ActionMenuItem.class);
-        assertThat(item.getId()).isEqualTo(104);
+        assertThat(item.getId()).isEqualTo(32000);
 
         verifyNoMoreInteractions(editorUI);
+    }
+
+    private void writeIntoIdFIeld(FxRobot robot, String s) {
+        robot.clickOn("#idField");
+        robot.eraseText(6);
+        robot.write(s);
+        robot.clickOn("#okButton");
     }
 
     private void checkForItem(Class<? extends MenuItem> clazz, boolean defaultId, String idOfSelectItem, FxRobot robot) {

@@ -11,6 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class UITextMenuItem extends UIMenuItem<TextMenuItem> {
@@ -22,16 +25,13 @@ public class UITextMenuItem extends UIMenuItem<TextMenuItem> {
     }
 
     @Override
-    protected TextMenuItem getChangedMenuItem() {
+    protected Optional<TextMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
         TextMenuItemBuilder builder = TextMenuItemBuilder.aTextMenuItemBuilder()
                 .withExisting(getMenuItem())
-                .withLength(getMaxLength());
-        getChangedDefaults(builder);
-        return builder.menuItem();
-    }
-
-    public int getMaxLength() {
-        return safeIntFromProperty(lenField.textProperty());
+                .withLength(safeIntFromProperty(lenField.textProperty(), "MaxLength", errors, 1, 256));
+        getChangedDefaults(builder, errors);
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override

@@ -11,6 +11,9 @@ import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
@@ -20,10 +23,11 @@ public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
     }
 
     @Override
-    protected SubMenuItem getChangedMenuItem() {
+    protected Optional<SubMenuItem> getChangedMenuItem() {
         SubMenuItemBuilder builder = SubMenuItemBuilder.aSubMenuItemBuilder().withExisting(getMenuItem());
-        getChangedDefaults(builder);
-        return builder.menuItem();
+        List<FieldError> errors = new ArrayList<>();
+        getChangedDefaults(builder, errors);
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override

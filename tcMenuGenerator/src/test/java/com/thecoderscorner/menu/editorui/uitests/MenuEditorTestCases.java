@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -319,6 +320,23 @@ public class MenuEditorTestCases {
         verifyThat("#eepromField", textFieldHasValue("-1"));
         verifyThat("#nameField", textFieldHasValue("sub"));
         verifyThat("#functionNameTextField", textFieldHasValue(NO_FUNCTION_DEFINED));
+
+        // get the consumer that takes change from the UIMenuItem back to the main controller.
+        // and send a simulated update to it, ensure it is processed and the tree updated.
+        verify(editorProjectUI).createPanelForMenuItem(eq(subItem), eq(project.getMenuTree()), captor.capture());
+        SubMenuItem adjustedItem = SubMenuItemBuilder.aSubMenuItemBuilder()
+                .withExisting(subItem)
+                .withName("AdjustedName")
+                .menuItem();
+        captor.getValue().accept(subItem, adjustedItem);
+
+        // check it's been processed
+        MenuItem readBackAdjusted = project.getMenuTree().getMenuById(MenuTree.ROOT, 100).get();
+        assertEquals(readBackAdjusted, adjustedItem);
+        assertEquals("AdjustedName", readBackAdjusted.getName());
+
+        // check the tree is updated
+        checkTheTreeMatchesMenuTree(robot, adjustedItem);
     }
 
     /**

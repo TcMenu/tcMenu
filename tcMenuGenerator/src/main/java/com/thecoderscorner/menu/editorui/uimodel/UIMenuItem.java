@@ -6,6 +6,7 @@
 package com.thecoderscorner.menu.editorui.uimodel;
 
 import com.google.common.base.Strings;
+import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -46,9 +48,9 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private TextField idField;
     private TextField nameField;
     private TextField eepromField;
+    private Label errorsField;
     private TextField functionNameTextField;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
-
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         this.menuItem = menuItem;
@@ -64,11 +66,18 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         int idx = 0;
 
+        errorsField = new Label();
+        errorsField.setId("uiItemErrors");
+        errorsField.setVisible(false);
+        errorsField.setMinHeight(40);
+        errorsField.setText("No Errors");
+        grid.add(errorsField, 0, idx, 2, 1);
+
+        idx++;
         grid.add(new Label("ID"), 0, idx);
         idField = new TextField(String.valueOf(menuItem.getId()));
         idField.setId("idField");
         idField.setDisable(true);
-
         grid.add(idField, 1, idx);
 
         idx++;
@@ -86,6 +95,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
         eepromField.setId("eepromField");
         eepromField.textProperty().addListener(this::coreValueChanged);
+        TextFormatterUtils.applyIntegerFormatToField(eepromField);
         eepromBox.getChildren().add(eepromField);
 
         Button eepromNextBtn = new Button("auto");
@@ -118,55 +128,113 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return grid;
     }
 
-    private String getFunctionName() {
+    private String getFunctionName(List<FieldError> errors) {
         String text = functionNameTextField.getText();
         if (Strings.isNullOrEmpty(text) || NO_FUNCTION_DEFINED.equals(text)) {
             return null;
         }
-        return text;
+        return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
+                errors, 32, true);
     }
 
-    protected void getChangedDefaults(MenuItemBuilder<?> builder) {
-        builder.withFunctionName(getFunctionName())
-                .withEepromAddr(getEeprom())
-                .withName(getName());
+    protected void getChangedDefaults(MenuItemBuilder<?> builder, List<FieldError> errorsBuilder) {
+        int eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
+                errorsBuilder, -1, Short.MAX_VALUE);
+        String name = safeStringFromProperty(nameField.textProperty(), "Name",
+                errorsBuilder, 19, false);
+
+        builder.withFunctionName(getFunctionName(errorsBuilder))
+                .withEepromAddr(eeprom)
+                .withName(name);
     }
+
+    protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {
+        if(errors.isEmpty()) {
+            errorsField.setVisible(false);
+            return Optional.of(item);
+        }
+        else {
+            String errorText = "Some fields are preventing save\n";
+            errorText += errors.stream()
+                    .map(error-> error.getField() + " - " + error.getMessage())
+                    .collect(Collectors.joining("\n"));
+            errorsField.setText(errorText);
+            errorsField.setVisible(true);
+        }
+        return Optional.empty();
+    }
+
 
     protected void coreValueChanged(Observable observable, String oldVal, String newVal) {
         callChangeConsumer();
     }
 
     protected void callChangeConsumer() {
-        changeConsumer.accept(menuItem, getChangedMenuItem());
+        getChangedMenuItem().ifPresent(newItem ->
+                changeConsumer.accept(menuItem, newItem)
+        );
     }
 
-    protected abstract T getChangedMenuItem();
+    protected abstract Optional<T> getChangedMenuItem();
 
     protected abstract void internalInitPanel(GridPane pane, int idx);
-
-    public int getEeprom() {
-        return safeIntFromProperty(eepromField.textProperty());
-    }
-
-    public String getName() {
-        return nameField.getText();
-    }
 
     public T getMenuItem() {
         return menuItem;
     }
 
-    protected int safeIntFromProperty(StringProperty strProp) {
+    /**
+     * Gets the string value from a text field and validates it is correct in terms of length and content.
+     * @param stringProperty the string property to get the string from
+     * @param field the field name to report errors against
+     * @param errorsBuilder the list of errors reported so far
+     * @param maxLen the maximum allowable length
+     * @param variable true if this field is a direct code generating field, false otherwise.
+     * @return the string once checked
+     */
+    protected String safeStringFromProperty(StringProperty stringProperty, String field, List<FieldError> errorsBuilder,
+                                            int maxLen, boolean variable) {
+        String s = stringProperty.get();
+        if(s.length() == 0 || s.length() > maxLen) {
+            errorsBuilder.add(new FieldError("Text field must not be blank and smaller than " + maxLen, field));
+        }
+
+        if(variable && !s.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$")) {
+            errorsBuilder.add(new FieldError("Function fields must use only letters, digits, and '_'", field));
+        }
+        else if(!variable && !s.matches("^[a-zA-Z_$0-9\\s\\-*%()]*$")) {
+            errorsBuilder.add(new FieldError("Text can only contain letters, numbers, spaces and '-_()*%'", field));
+        }
+        return s;
+    }
+
+    /**
+     * Gets the integer value from a text field property and validates it again the conditions provided. It must be
+     * a number and within the ranges provided.
+     * @param strProp the property to convert
+     * @param field the field to report errors against
+     * @param errorsBuilder the list of errors recorded so far
+     * @param min the minimum value allowed
+     * @param max the maximum value allowed
+     * @return the integer value if all conditions are met
+     */
+    protected int safeIntFromProperty(StringProperty strProp, String field, List<FieldError> errorsBuilder,
+                                      int min, int max)  {
         String s = strProp.get();
         if (Strings.isNullOrEmpty(s)) {
             return 0;
         }
+
+        int val = 0;
         try {
-            return Integer.valueOf(s);
+            val = Integer.valueOf(s);
+            if(val < min || val > max) {
+                errorsBuilder.add(new FieldError("Value must be between " + min + " and " + max, field));
+            }
         } catch (NumberFormatException e) {
-            // ignored
-            return -1;
+            errorsBuilder.add(new FieldError("Value must be a number", field));
         }
+        return val;
     }
 
     public boolean handleCut() {
@@ -188,7 +256,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         focused.positionCaret(range.getStart());
         return true;
-
     }
 
     private TextField getFocusedTextField() {
@@ -253,5 +320,23 @@ public abstract class UIMenuItem<T extends MenuItem> {
             return true;
         }
         return false;
+    }
+
+    protected class FieldError {
+        private String field;
+        private String message;
+
+        public FieldError(String message, String field) {
+            this.field = field;
+            this.message = message;
+        }
+
+        public String getField() {
+            return field;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }

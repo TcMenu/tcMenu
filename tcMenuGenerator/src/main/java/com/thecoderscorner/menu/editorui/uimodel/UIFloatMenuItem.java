@@ -11,6 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
@@ -22,16 +25,15 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
     }
 
     @Override
-    protected FloatMenuItem getChangedMenuItem() {
+    protected Optional<FloatMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
+
+        int dp = safeIntFromProperty(decimalPlaces.textProperty(), "Decimal Places", errors, 1, 6);
         FloatMenuItemBuilder builder = FloatMenuItemBuilder.aFloatMenuItemBuilder()
                 .withExisting(getMenuItem())
-                .withDecimalPlaces(getDecimalPlaces());
-        getChangedDefaults(builder);
-        return builder.menuItem();
-    }
-
-    public int getDecimalPlaces() {
-        return safeIntFromProperty(decimalPlaces.textProperty());
+                .withDecimalPlaces(dp);
+        getChangedDefaults(builder, errors);
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override
@@ -40,6 +42,7 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
         grid.add(new Label("Decimal Places"), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getNumDecimalPlaces()));
         decimalPlaces.textProperty().addListener(this::coreValueChanged);
+        decimalPlaces.setId("decimalPlacesField");
         TextFormatterUtils.applyIntegerFormatToField(decimalPlaces);
         grid.add(decimalPlaces, 1, idx);
     }

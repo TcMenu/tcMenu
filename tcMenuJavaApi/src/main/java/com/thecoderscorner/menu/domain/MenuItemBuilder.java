@@ -15,7 +15,6 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     abstract T getThis();
 
     public T withName(String name) {
-        assert(name.length() < 20);
         this.name = name;
         return getThis();
     }
@@ -26,13 +25,11 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     }
 
     public T withId(int id) {
-        assert(id < 65535);
         this.id = id;
         return getThis();
     }
 
     public T withEepromAddr(int eepromAddr) {
-        assert(eepromAddr < 65355);
         this.eepromAddr = eepromAddr;
         return getThis();
     }

@@ -15,6 +15,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
@@ -29,11 +32,13 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     }
 
     @Override
-    protected BooleanMenuItem getChangedMenuItem() {
+    protected Optional<BooleanMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
+
         BooleanMenuItemBuilder builder = aBooleanMenuItemBuilder().withExisting(getMenuItem())
                 .withNaming(namingBox.getValue());
-        getChangedDefaults(builder);
-        return builder.menuItem();
+        getChangedDefaults(builder, errors);
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override

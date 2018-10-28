@@ -19,6 +19,9 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
@@ -29,11 +32,23 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     }
 
     @Override
-    protected EnumMenuItem getChangedMenuItem() {
+    protected Optional<EnumMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
+
+        ObservableList<String> items = listView.getItems();
+        if(items.isEmpty()) {
+            errors.add(new FieldError("There must be at least one choice", "Choices"));
+        }
+        else if(items.stream().anyMatch(str-> str.isEmpty() || !str.matches("^[a-zA-Z_$0-9\\s\\-*%()]*$"))) {
+            errors.add(new FieldError("Choices must contain letters, digits, spaces and '()%*-_'", "Choices"));
+        }
+
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem())
-                .withEnumList(listView.getItems());
-        getChangedDefaults(builder);
-        return builder.menuItem();
+                .withEnumList(items);
+
+        getChangedDefaults(builder, errors);
+
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override

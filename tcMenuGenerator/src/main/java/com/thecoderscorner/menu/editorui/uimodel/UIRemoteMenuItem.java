@@ -12,6 +12,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import java.rmi.Remote;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class UIRemoteMenuItem extends UIMenuItem<RemoteMenuItem> {
@@ -23,16 +26,17 @@ public class UIRemoteMenuItem extends UIMenuItem<RemoteMenuItem> {
     }
 
     @Override
-    protected RemoteMenuItem getChangedMenuItem() {
+    protected Optional<RemoteMenuItem> getChangedMenuItem() {
+        List<FieldError> errors = new ArrayList<>();
+
+        int remoteNum = safeIntFromProperty(remoteNumField.textProperty(), "Remote No", errors, 0, 3);
+
         RemoteMenuItemBuilder builder = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
                 .withExisting(getMenuItem())
-                .withRemoteNo(getRemoteNum());
-        getChangedDefaults(builder);
-        return builder.menuItem();
-    }
+                .withRemoteNo(remoteNum);
 
-    public int getRemoteNum() {
-        return safeIntFromProperty(remoteNumField.textProperty());
+        getChangedDefaults(builder, errors);
+        return getItemOrReportError(builder.menuItem(), errors);
     }
 
     @Override
@@ -41,6 +45,7 @@ public class UIRemoteMenuItem extends UIMenuItem<RemoteMenuItem> {
         grid.add(new Label("Remote Num"), 0, idx);
         remoteNumField = new TextField(String.valueOf(getMenuItem().getRemoteNum()));
         remoteNumField.textProperty().addListener(this::coreValueChanged);
+        remoteNumField.setId("remoteNumField");
         TextFormatterUtils.applyIntegerFormatToField(remoteNumField);
         grid.add(remoteNumField, 1, idx);
     }
