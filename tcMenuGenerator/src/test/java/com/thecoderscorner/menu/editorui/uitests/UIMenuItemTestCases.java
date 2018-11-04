@@ -26,6 +26,8 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
@@ -276,13 +278,16 @@ public class UIMenuItemTestCases {
     private void createMainPanel(Optional<UIMenuItem> uiSubItem) throws InterruptedException {
         assertTrue(uiSubItem.isPresent());
 
+        CountDownLatch latch = new CountDownLatch(1);
+
         Platform.runLater(() -> {
             BorderPane borderLayout = new BorderPane();
             borderLayout.setMinSize(500, 500);
             borderLayout.centerProperty().set(uiSubItem.get().initPanel());
             dialogPane.getChildren().add(borderLayout);
             stage.show();
+            latch.countDown();
         });
-        Thread.sleep(100);
+        latch.await(1000, TimeUnit.MILLISECONDS);
     }
 }

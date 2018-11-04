@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -360,10 +362,15 @@ public class MenuEditorTestCases {
      * @param subItem the item to find.
      * @return true if the item was found.
      */
+    @SuppressWarnings("Duplicates") // because the duplicate is not trivial to fix and factoring out looks worse.
     private boolean recursiveSelectTreeItem(TreeView<MenuItem> treeView, TreeItem<MenuItem> treeItem, MenuItem subItem) throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         if(treeItem.getValue().equals(subItem)) {
-            Platform.runLater(()->treeView.getSelectionModel().select(treeItem));
-            Thread.sleep(100);
+            Platform.runLater(()-> {
+                treeView.getSelectionModel().select(treeItem);
+                latch.countDown();
+            });
+            latch.await(1000, TimeUnit.MILLISECONDS);
             return true;
         }
 
@@ -374,8 +381,11 @@ public class MenuEditorTestCases {
                 }
             }
             else if(item.getValue().equals(subItem)) {
-                Platform.runLater(()->treeView.getSelectionModel().select(item));
-                Thread.sleep(100);
+                Platform.runLater(()-> {
+                    treeView.getSelectionModel().select(item);
+                    latch.countDown();
+                });
+                latch.await(1000, TimeUnit.MILLISECONDS);
                 return true;
             }
         }
