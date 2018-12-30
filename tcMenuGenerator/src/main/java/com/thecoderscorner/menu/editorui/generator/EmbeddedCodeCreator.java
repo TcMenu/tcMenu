@@ -5,8 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
-
 import java.util.List;
 
 public interface EmbeddedCodeCreator {

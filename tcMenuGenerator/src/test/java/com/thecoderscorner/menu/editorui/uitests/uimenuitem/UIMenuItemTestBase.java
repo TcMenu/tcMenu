@@ -86,6 +86,6 @@ public abstract class UIMenuItemTestBase {
             stage.show();
             latch.countDown();
         });
-        latch.await(1000, TimeUnit.MILLISECONDS);
+        latch.await(2000, TimeUnit.MILLISECONDS);
     }
 }

@@ -6,15 +6,15 @@
 package com.thecoderscorner.menu.editorui.generator.display;
 
 import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
 
 public abstract class LiquidCrystalCreator extends AbstractCodeCreator {
 

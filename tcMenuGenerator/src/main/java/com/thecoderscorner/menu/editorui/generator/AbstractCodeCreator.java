@@ -5,14 +5,12 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.INPUT;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
 
 public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 

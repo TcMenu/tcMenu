@@ -2,14 +2,17 @@ package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import javafx.application.Platform;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +45,15 @@ public class TestUtils {
         CurrentProjectEditorUI mockedEditorUI = Mockito.mock(CurrentProjectEditorUI.class);
         CurrentEditorProject project = new CurrentEditorProject(mockedEditorUI, mockedPersistor);
         return project;
+    }
+
+    public static void runOnFxThreadAndWait(Runnable runnable) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(()-> {
+            runnable.run();
+            latch.countDown();
+        });
+        latch.await(5000, TimeUnit.MILLISECONDS);
     }
 
     public static MenuTree buildSimpleTree() {

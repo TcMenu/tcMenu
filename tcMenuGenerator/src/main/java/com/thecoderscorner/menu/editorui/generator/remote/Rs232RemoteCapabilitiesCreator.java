@@ -6,16 +6,16 @@
 package com.thecoderscorner.menu.editorui.generator.remote;
 
 import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.VARIABLE;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.REMOTE;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.*;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
 
 public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final CurrentEditorProject project;

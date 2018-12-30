@@ -4,8 +4,8 @@ import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType.USE_IN_DEFINE;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.DISPLAY;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -1,11 +1,11 @@
 package com.thecoderscorner.menu.editorui.generator.remote;
 
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.PropType;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.REMOTE;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.REMOTE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

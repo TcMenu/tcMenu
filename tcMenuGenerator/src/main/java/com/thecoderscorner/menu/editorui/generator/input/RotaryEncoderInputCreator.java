@@ -6,14 +6,14 @@
 package com.thecoderscorner.menu.editorui.generator.input;
 
 import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
 
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType;
+import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.INPUT;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.*;
-import static com.thecoderscorner.menu.editorui.generator.ui.CreatorProperty.SubSystem.INPUT;
 
 public class RotaryEncoderInputCreator extends AbstractCodeCreator {
     private final List<CreatorProperty> creatorProperties = List.of(

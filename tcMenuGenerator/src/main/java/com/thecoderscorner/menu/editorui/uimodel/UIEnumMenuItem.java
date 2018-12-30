@@ -39,8 +39,8 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         if(items.isEmpty()) {
             errors.add(new FieldError("There must be at least one choice", "Choices"));
         }
-        else if(items.stream().anyMatch(str-> str.isEmpty() || !str.matches("^[a-zA-Z_$0-9\\s\\-*%()]*$"))) {
-            errors.add(new FieldError("Choices must contain letters, digits, spaces and '()%*-_'", "Choices"));
+        else if(items.stream().anyMatch(str-> str.isEmpty() || str.matches(".*[\"\\\\].*$"))) {
+            errors.add(new FieldError("Choices must not contain speech marks or backslash", "Choices"));
         }
 
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem())
@@ -69,12 +69,17 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         grid.add(listView, 1, idx, 1, 3);
         idx+=3;
         Button addButton = new Button("Add");
+        addButton.setId("addEnumEntry");
         Button removeButton = new Button("Remove");
+        removeButton.setId("removeEnumEntry");
         removeButton.setDisable(true);
         HBox hbox = new HBox(addButton, removeButton);
         grid.add(hbox, 1, idx);
 
-        addButton.setOnAction(event -> listView.getItems().add("ChangeMe"));
+        addButton.setOnAction(event -> {
+            listView.getItems().add("ChangeMe");
+            listView.getSelectionModel().selectLast();
+        });
 
         removeButton.setOnAction(event -> {
             String selectedItem = listView.getSelectionModel().getSelectedItem();
@@ -83,10 +88,9 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
             }
         });
 
-        list.addListener((ListChangeListener<? super String>) observable -> {
-            callChangeConsumer();
-        });
+        list.addListener((ListChangeListener<? super String>) observable -> callChangeConsumer());
 
+        listView.setId("enumList");
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                 removeButton.setDisable(newValue == null)
         );

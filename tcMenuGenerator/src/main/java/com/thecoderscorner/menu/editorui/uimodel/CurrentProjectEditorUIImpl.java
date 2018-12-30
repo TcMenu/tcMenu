@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
+import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
@@ -90,7 +91,8 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showCodeGeneratorDialog(CurrentEditorProject project, ArduinoLibraryInstaller installer) {
         CodeGeneratorDialog dialog = new CodeGeneratorDialog();
-        dialog.showCodeGenerator(mainStage, project, installer);
+        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, installer);
+        dialog.showCodeGenerator(mainStage, this, project, codeGeneratorRunner, true);
     }
 
 

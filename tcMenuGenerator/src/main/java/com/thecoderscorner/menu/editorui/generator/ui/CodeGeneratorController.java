@@ -5,6 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
@@ -20,8 +21,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CodeGeneratorController {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     public ComboBox<InputType> inputTechCombo;
     public ComboBox<DisplayType> displayTechCombo;
     public ComboBox<EmbeddedPlatform> embeddedPlatformChoice;
@@ -45,24 +43,16 @@ public class CodeGeneratorController {
     public TableColumn<CreatorProperty, String> descriptionCol;
 
     private CurrentEditorProject project;
-    private CodeGeneratorDialog dialog;
+    private CodeGeneratorRunner generatorRunner;
     private List<CreatorProperty> properties = new ArrayList<>();
 
     private EmbeddedCodeCreator inputCreator;
     private EmbeddedCodeCreator displayCreator;
     private EmbeddedCodeCreator remoteCreator;
 
-    public void init(CurrentEditorProject project, CodeGeneratorDialog dialog) {
+    public void init(CurrentEditorProject project, CodeGeneratorRunner generatorRunner) {
         this.project = project;
-        this.dialog = dialog;
-        if(!project.isFileNameSet()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Project not yet saved");
-            alert.setHeaderText("Project has not yet been saved");
-            alert.setContentText("Before running the convert function, please ensure the project has been saved.");
-            alert.showAndWait();
-            throw new UnsupportedOperationException("Code not saved");
-        }
+        this.generatorRunner = generatorRunner;
 
         Path p = Paths.get(project.getFileName());
         Path folder = p.getParent();
@@ -156,7 +146,10 @@ public class CodeGeneratorController {
     }
 
     public void onGenerateCode(ActionEvent event) {
-        dialog.startArduinoGenerator(
+        Stage stage = (Stage) embeddedPlatformChoice.getScene().getWindow();
+        generatorRunner.startCodeGeneration(
+                stage,
+                embeddedPlatformChoice.getSelectionModel().getSelectedItem(),
                 Paths.get(project.getFileName()).getParent().toString(),
                 Arrays.asList(inputCreator, displayCreator, remoteCreator)
         );
