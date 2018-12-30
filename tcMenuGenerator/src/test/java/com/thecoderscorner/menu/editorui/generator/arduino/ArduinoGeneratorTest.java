@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTree;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class ArduinoGeneratorTest {
 
@@ -50,9 +50,9 @@ public class ArduinoGeneratorTest {
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
-        ArduinoGenerator generator = new ArduinoGenerator(dir, generators, tree, adjuster, installer);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer);
 
-        assertTrue(generator.startConversion());
+        assertTrue(generator.startConversion(dir, generators, tree));
 
         String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".cpp")));
         String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".h")));

@@ -113,6 +113,7 @@ public class GeneratorUITestCases {
         savedProperties.forEach(prop -> validateTableFor(tableView, prop));
     }
 
+    @SuppressWarnings("unchecked")
     private void validateTableFor(TableView tableView, CreatorProperty property) {
         // get the list of rows and also the columns that we are interested in validating.
         ObservableList items = tableView.getItems();

@@ -5,9 +5,13 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.domain.state.MenuTree;
+
+import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface CodeGenerator {
-    boolean startConversion();
+    boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree);
     void setLoggerFunction(Consumer<String> logLine);
 }

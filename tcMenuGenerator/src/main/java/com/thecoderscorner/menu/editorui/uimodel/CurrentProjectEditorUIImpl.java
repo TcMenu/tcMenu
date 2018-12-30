@@ -7,7 +7,11 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
+import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
+import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -19,6 +23,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -91,7 +96,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showCodeGeneratorDialog(CurrentEditorProject project, ArduinoLibraryInstaller installer) {
         CodeGeneratorDialog dialog = new CodeGeneratorDialog();
-        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, installer);
+        Map<EmbeddedPlatform, CodeGenerator> generators = Map.of(
+                EmbeddedPlatform.ARDUINO, new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer)
+        );
+        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, generators);
         dialog.showCodeGenerator(mainStage, this, project, codeGeneratorRunner, true);
     }
 

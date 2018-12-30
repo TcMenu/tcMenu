@@ -29,11 +29,6 @@ public class CodeGenLoggingController {
     public void init(CodeGenerator generator) {
         generator.setLoggerFunction(this::logLine);
         closeButton.setDisable(true);
-        Thread th = new Thread(() -> {
-            generator.startConversion();
-            Platform.runLater(() -> closeButton.setDisable(false));
-        });
-        th.start();
     }
 
     /**
@@ -60,5 +55,9 @@ public class CodeGenLoggingController {
     public void onClose(ActionEvent actionEvent) {
         Stage s = (Stage) loggingArea.getScene().getWindow();
         s.close();
+    }
+
+    public void enableCloseButton() {
+        closeButton.setDisable(false);
     }
 }

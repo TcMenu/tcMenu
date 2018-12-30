@@ -14,7 +14,7 @@ import java.util.Optional;
 import static com.thecoderscorner.menu.editorui.project.MenuItemChange.Command.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 public class CurrentEditorProjectTest {
 

@@ -54,26 +54,19 @@ public class ArduinoGenerator implements CodeGenerator {
             "#include<Wire.h>" + LINE_BREAK +
             "#include<tcMenu.h>" + LINE_BREAK + LINE_BREAK;
 
-    private final Path directory;
-    private final MenuTree menuTree;
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
 
     private Consumer<String> uiLogger = null;
-    private List<EmbeddedCodeCreator> generators;
 
-    public ArduinoGenerator(Path directory, List<EmbeddedCodeCreator> generators,
-                            MenuTree menuTree, ArduinoSketchFileAdjuster adjuster,
+    public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer) {
-        this.directory = directory;
-        this.menuTree = menuTree;
-        this.generators = generators;
         this.installer = installer;
         this.arduinoSketchAdjuster = adjuster;
     }
 
     @Override
-    public boolean startConversion() {
+    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
 
         String inoFile = toSourceFile(directory, ".ino");
@@ -87,14 +80,14 @@ public class ArduinoGenerator implements CodeGenerator {
 
         Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
 
-        if(generateHeaders(headerFile, menuStructure) && generateSource(cppFile, menuStructure, projectName, root)) {
+        if (generateHeaders(generators, menuTree, headerFile, menuStructure) &&
+                generateSource(generators, cppFile, menuStructure, projectName, root)) {
 
-            updateArduinoSketch(inoFile, projectName);
+            updateArduinoSketch(inoFile, projectName, menuTree);
 
-            addAnyRequiredPluginsToSketch();
+            addAnyRequiredPluginsToSketch(generators, directory);
 
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -102,10 +95,10 @@ public class ArduinoGenerator implements CodeGenerator {
         logLine("You may need to close the project and then re-open it to pick up changes..");
 
         return true;
-
     }
 
-    private boolean generateSource(String cppFile, Collection<BuildStructInitializer> menuStructure,
+    private boolean generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
+                                   Collection<BuildStructInitializer> menuStructure,
                                    String projectName, String root) {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
@@ -152,7 +145,8 @@ public class ArduinoGenerator implements CodeGenerator {
         return true;
     }
 
-    private boolean generateHeaders(String headerFile, Collection<BuildStructInitializer> menuStructure) {
+    private boolean generateHeaders(List<EmbeddedCodeCreator> generators, MenuTree menuTree,
+                                    String headerFile, Collection<BuildStructInitializer> menuStructure) {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
             logLine("Writing out header file: " + headerFile);
 
@@ -184,7 +178,7 @@ public class ArduinoGenerator implements CodeGenerator {
             writer.write("// all callback functions must have this define on them, it is what the menu designer looks for."
                             + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 
-            for (String callback : callBackFunctions()) {
+            for (String callback : callBackFunctions(menuTree)) {
                 writer.write("void CALLBACK_FUNCTION " + callback + "(int id);" + LINE_BREAK);
             }
 
@@ -210,18 +204,18 @@ public class ArduinoGenerator implements CodeGenerator {
         }
     }
 
-    private void updateArduinoSketch(String inoFile, String projectName) {
+    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) {
         logLine("Making adjustments to " + inoFile);
 
         try {
-            arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions());
+            arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions(menuTree));
         } catch (IOException e) {
             logLine("Failed to make changes to sketch" +  e.getMessage());
             logger.error("Sketch modification failed", e);
         }
     }
 
-    private void addAnyRequiredPluginsToSketch() {
+    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) {
         logLine("Finding any required rendering / remote plugins to add to project");
 
         generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
@@ -250,14 +244,14 @@ public class ArduinoGenerator implements CodeGenerator {
 
     private Collection<BuildStructInitializer> generateMenusInOrder(MenuTree menuTree) {
         ImmutableList<MenuItem> root = menuTree.getMenuItems(MenuTree.ROOT);
-        List<List<BuildStructInitializer>> itemsInOrder = renderMenu(root);
+        List<List<BuildStructInitializer>> itemsInOrder = renderMenu(menuTree, root);
         Collections.reverse(itemsInOrder);
         return itemsInOrder.stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
-    private List<List<BuildStructInitializer>> renderMenu(Collection<MenuItem> itemsColl) {
+    private List<List<BuildStructInitializer>> renderMenu(MenuTree menuTree, Collection<MenuItem> itemsColl) {
         ArrayList<MenuItem> items = new ArrayList<>(itemsColl);
         List<List<BuildStructInitializer>> itemsInOrder = new ArrayList<>(100);
         for (int i = 0; i < items.size(); i++) {
@@ -270,7 +264,7 @@ public class ArduinoGenerator implements CodeGenerator {
                 String nextChild = (!childItems.isEmpty()) ? childItems.get(0).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
                         new ArduinoItemGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
-                itemsInOrder.addAll(renderMenu(childItems));
+                itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
                 String next = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
@@ -281,7 +275,7 @@ public class ArduinoGenerator implements CodeGenerator {
         return itemsInOrder;
     }
 
-    private List<String> callBackFunctions() {
+    private List<String> callBackFunctions(MenuTree menuTree) {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(menuItem -> !Strings.isNullOrEmpty(menuItem.getFunctionName()))
