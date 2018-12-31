@@ -5,6 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.google.common.base.Objects;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -66,5 +67,23 @@ public class CreatorProperty {
 
     public PropType getPropType() {
         return propType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CreatorProperty that = (CreatorProperty) o;
+        return Objects.equal(name, that.name) &&
+                Objects.equal(description, that.description) &&
+                Objects.equal(property.getValue(), that.property.getValue()) &&
+                propType == that.propType &&
+                Objects.equal(latestValue, that.latestValue) &&
+                subsystem == that.subsystem;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name, description, property, propType, latestValue, subsystem);
     }
 }

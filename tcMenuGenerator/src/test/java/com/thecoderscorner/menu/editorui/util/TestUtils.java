@@ -8,7 +8,10 @@ import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import org.mockito.Mockito;
+import org.testfx.api.FxRobot;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -54,6 +57,13 @@ public class TestUtils {
             latch.countDown();
         });
         latch.await(5000, TimeUnit.MILLISECONDS);
+    }
+
+    public static <T> void selectItemInCombo(FxRobot robot, String query, T value) throws InterruptedException {
+        runOnFxThreadAndWait(()-> {
+            ComboBox<T> combo = robot.lookup(query).queryComboBox();
+            combo.getSelectionModel().select(value);
+        });
     }
 
     public static MenuTree buildSimpleTree() {

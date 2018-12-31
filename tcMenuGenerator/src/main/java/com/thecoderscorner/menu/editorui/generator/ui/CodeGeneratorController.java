@@ -41,6 +41,7 @@ public class CodeGeneratorController {
     public TableColumn<CreatorProperty, String> typeCol;
     public TableColumn<CreatorProperty, String> valueCol;
     public TableColumn<CreatorProperty, String> descriptionCol;
+    public Button generateButton;
 
     private CurrentEditorProject project;
     private CodeGeneratorRunner generatorRunner;

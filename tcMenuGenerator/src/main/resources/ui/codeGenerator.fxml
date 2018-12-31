@@ -45,8 +45,8 @@
       </GridPane>
       <ButtonBar layoutX="14.0" layoutY="578.0" prefHeight="40.0" prefWidth="808.0">
         <buttons>
-          <Button mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
-            <Button mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
+          <Button mnemonicParsing="false" onAction="#onCancel" cancelButton="true" text="Cancel" />
+          <Button mnemonicParsing="false" fx:id="generateButton" onAction="#onGenerateCode" defaultButton="true" text="Generate code" />
         </buttons>
       </ButtonBar>
       <Label layoutX="14.0" layoutY="224.0" text="Properties to define" />
