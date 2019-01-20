@@ -1,0 +1,8 @@
+# always start in target directory
+
+running java app direct from jfx/app directory (java 11):
+java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
+
+# windows java 11 packager (in progress)
+
+jpackager --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --main-jar tcMenuDesigner.jar --class com.thecoderscorner.menu.editorui.MenuEditorApp --version 1.1 --icon classes/img/tcMenuDesigner.ico --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner --module com.thecoderscorner.tcmenu.menuEditorUI --win-menu-group="The Coders Corner" --win-shortcut

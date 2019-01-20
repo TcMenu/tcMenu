@@ -13,29 +13,6 @@
     <description>JavaFX based menu editor UI</description>
     <version>1.1-SNAPSHOT</version>
 
-    <profiles>
-        <profile>
-            <id>macOS</id>
-            <activation>
-                <os><family>mac</family></os>
-            </activation>
-            <properties>
-                <native.icon.source>src/main/resources/img/Icon.icns</native.icon.source>
-                <native.build>dmg</native.build>
-            </properties>
-        </profile>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os><family>windows</family></os>
-            </activation>
-            <properties>
-                <native.icon.source>src/main/resources/img/tcMenu Designer.ico</native.icon.source>
-                <native.build>exe</native.build>
-            </properties>
-        </profile>
-    </profiles>
-
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -160,7 +137,7 @@
     </pluginRepositories>
 
     <build>
-        <finalName>tcMenu Designer</finalName>
+        <finalName>tcMenuDesigner</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -203,7 +180,8 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}/jfx/app</outputDirectory>
+                            <includeScope>runtime</includeScope>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
@@ -212,11 +190,19 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <outputDirectory>${basedir}/target/jfx/app</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-resources-embed</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>
