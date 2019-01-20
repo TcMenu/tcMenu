@@ -5,9 +5,10 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.google.common.base.Objects;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import java.util.Objects;
 
 public class CreatorProperty {
     private String name;
@@ -74,16 +75,16 @@ public class CreatorProperty {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CreatorProperty that = (CreatorProperty) o;
-        return Objects.equal(name, that.name) &&
-                Objects.equal(description, that.description) &&
-                Objects.equal(property.getValue(), that.property.getValue()) &&
-                propType == that.propType &&
-                Objects.equal(latestValue, that.latestValue) &&
-                subsystem == that.subsystem;
+        return Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getDescription(), that.getDescription()) &&
+                Objects.equals(getProperty(), that.getProperty()) &&
+                getPropType() == that.getPropType() &&
+                Objects.equals(getLatestValue(), that.getLatestValue()) &&
+                getSubsystem() == that.getSubsystem();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, description, property, propType, latestValue, subsystem);
+        return Objects.hash(getName(), getDescription(), getProperty(), getPropType(), getLatestValue(), getSubsystem());
     }
 }

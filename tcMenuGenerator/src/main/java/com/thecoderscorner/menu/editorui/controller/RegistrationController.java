@@ -5,7 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -15,6 +14,7 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class RegistrationController {
     }
 
     private void onTextChanged(Observable obs, String oldVal, String newVal) {
-        boolean valid = !Strings.isNullOrEmpty(yourName.getText());
+        boolean valid = !StringUtils.isEmpty(yourName.getText());
         valid = valid && isValidEmail(emailAddress.getText());
 
         generateButton.setDisable(!valid);
@@ -65,7 +65,7 @@ public class RegistrationController {
     }
 
     private boolean isValidEmail(String text) {
-        return !Strings.isNullOrEmpty(text) && emailPattern.matcher(text).matches();
+        return !StringUtils.isEmpty(text) && emailPattern.matcher(text).matches();
     }
 
     public void onRegister(ActionEvent event) {

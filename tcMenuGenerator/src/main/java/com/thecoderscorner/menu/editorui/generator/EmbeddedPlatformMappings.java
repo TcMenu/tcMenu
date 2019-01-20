@@ -5,11 +5,10 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.google.common.collect.Sets;
 
 import java.util.Set;
 
 public interface EmbeddedPlatformMappings {
-    Set<EmbeddedPlatform> ALL_ARDUINO_BOARDS = Sets.newHashSet(EmbeddedPlatform.ARDUINO);
-    Set<EmbeddedPlatform> ALL_DEVICES = Sets.newHashSet(EmbeddedPlatform.ARDUINO);
+    Set<EmbeddedPlatform> ALL_ARDUINO_BOARDS = Set.of(EmbeddedPlatform.ARDUINO);
+    Set<EmbeddedPlatform> ALL_DEVICES = Set.of(EmbeddedPlatform.ARDUINO);
 }

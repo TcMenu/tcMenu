@@ -31,7 +31,7 @@ public class RomLayoutDialogTestCases {
     }
 
     @Test
-    void testCheckingDialog(FxRobot robot) {
+    void testCheckingDialog(FxRobot robot) throws InterruptedException {
 
         // get all the heading labels and check them.
         List<String> idTitle = getStringsFromNodeQuery(robot, "#idContainer > .label-bright");
@@ -49,7 +49,7 @@ public class RomLayoutDialogTestCases {
         );
 
         List<String> brokenEeproms = getStringsFromNodeQuery(robot, "#eepromContainer > .brokenEeprom");
-        assertThat(brokenEeproms).containsExactly("4-5: test", "4-5: Extra");
+        assertThat(brokenEeproms).containsExactly("4-5: test", "5-6: Extra");
 
         List<String> goodEeproms = getStringsFromNodeQuery(robot, "#eepromContainer > .eepromEntry");
         assertThat(goodEeproms).containsExactly("2-3: test");

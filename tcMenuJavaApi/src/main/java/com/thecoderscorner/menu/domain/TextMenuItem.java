@@ -5,10 +5,11 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.google.common.base.Objects;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.StringMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
+
+import java.util.Objects;
 
 /**
  * An implementation of menu item that can store text strings. Currently, the are always stored in RAM on the Arduino
@@ -53,16 +54,16 @@ public class TextMenuItem extends MenuItem<String> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TextMenuItem that = (TextMenuItem) o;
-        return  Objects.equal(textLength, that.textLength) &&
-                Objects.equal(name, that.name) &&
-                Objects.equal(functionName, that.functionName) &&
-                id == that.id &&
-                eepromAddress == that.eepromAddress;
+        return getTextLength() == that.getTextLength() &&
+                getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(textLength, eepromAddress, name, id, functionName);
+        return Objects.hash(getTextLength(), getName(), getId(), getEepromAddress(), getFunctionName());
     }
 
     @Override

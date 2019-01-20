@@ -129,7 +129,7 @@ public class ArduinoLibraryInstaller {
 
         TextInputDialog dialog = new TextInputDialog(savedPath);
         dialog.setTitle("Manually enter Arduino Path");
-        dialog.setHeaderText("Please manually enter the Arduino folder");
+        dialog.setHeaderText("Please manually enter the full path to the Arduino folder");
         dialog.setContentText("Arduino Path");
         Optional<String> path = dialog.showAndWait();
         path.ifPresent((p) -> Preferences.userNodeForPackage(ArduinoLibraryInstaller.class).put(ARDUINO_CUSTOM_PATH, p));

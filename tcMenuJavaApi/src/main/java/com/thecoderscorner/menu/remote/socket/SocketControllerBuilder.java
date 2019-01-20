@@ -5,9 +5,9 @@
 
 package com.thecoderscorner.menu.remote.socket;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
@@ -133,7 +133,7 @@ public class SocketControllerBuilder {
         }
         if(executorService == null) {
             executorService = Executors.newScheduledThreadPool(2,
-                    new ThreadFactoryBuilder().setDaemon(true).build());
+                    new NamedDaemonThreadFactory("remote-socket"));
         }
         SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
         return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);

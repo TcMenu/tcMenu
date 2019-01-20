@@ -5,15 +5,16 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.google.common.collect.ImmutableMap;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * A few general helper method to get the version and platform information to and from messages.
@@ -44,7 +45,7 @@ public class ProtocolUtil {
                 }
 
             } catch (Exception e) {
-                LoggerFactory.getLogger(ProtocolUtil.class).info("Did not successfully obtain version", e);
+                System.getLogger("ProtocolUtil").log(ERROR, "Did not successfully obtain version", e);
             }
         }
         return 0;
@@ -57,11 +58,11 @@ public class ProtocolUtil {
      */
     public static ApiPlatform fromKeyToApiPlatform(int key) {
         if(keyToPlatform.get() == null) {
-            ImmutableMap.Builder<Integer, ApiPlatform> builder = ImmutableMap.builder();
+            Map<Integer, ApiPlatform> map = new HashMap<>();
             for (ApiPlatform apiPlatform : ApiPlatform.values()) {
-                builder.put(apiPlatform.getKey(), apiPlatform);
+                map.put(apiPlatform.getKey(), apiPlatform);
             }
-            keyToPlatform.set(builder.build());
+            keyToPlatform.set(Collections.unmodifiableMap(map));
         }
         return keyToPlatform.get().get(key);
     }

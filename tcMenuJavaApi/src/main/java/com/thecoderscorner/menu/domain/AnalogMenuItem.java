@@ -5,10 +5,11 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.google.common.base.Objects;
 import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
+
+import java.util.Objects;
 
 /**
  * Represents an analog (numeric) menu item, it is always a zero based integer when retrieved from storage, but it can
@@ -85,27 +86,6 @@ public class AnalogMenuItem extends MenuItem<Integer> {
         return new IntegerMenuState(changed, active, value);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AnalogMenuItem that = (AnalogMenuItem) o;
-        return maxValue == that.maxValue &&
-                offset == that.offset &&
-                divisor == that.divisor &&
-                Objects.equal(unitName, that.unitName) &&
-                Objects.equal(name, that.name) &&
-                Objects.equal(functionName, that.functionName) &&
-                id == that.id &&
-                eepromAddress == that.eepromAddress;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(maxValue, offset, divisor, unitName, eepromAddress, name, id,
-                functionName);
-    }
-
     /**
      * See the MenuItemVistor for more info.
      * @param visitor the item to be visited.
@@ -113,5 +93,26 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     @Override
     public void accept(MenuItemVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnalogMenuItem that = (AnalogMenuItem) o;
+        return getMaxValue() == that.getMaxValue() &&
+                getOffset() == that.getOffset() &&
+                getDivisor() == that.getDivisor() &&
+                Objects.equals(getName(), that.getName()) &&
+                getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                Objects.equals(getUnitName(), that.getUnitName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getUnitName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
     }
 }

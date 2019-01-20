@@ -10,6 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+
 /**
  * A remote connector that will communicate using a client socket. Normally configured with a host and port. Create
  * using the builder below.
@@ -39,7 +42,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     }
 
     private void threadReadLoop() {
-        logger.info("Starting socket read loop for {}:{}", remoteHost, remotePort);
+        logger.log(INFO, "Starting socket read loop for " + remoteHost + ":" + remotePort);
         while(!Thread.currentThread().isInterrupted()) {
             try {
                 if(attemptToConnect()) {
@@ -50,20 +53,20 @@ public class SocketBasedConnector extends StreamRemoteConnector {
                 }
             }
             catch(Exception ex) {
-                logger.error("Exception on socket {}:{}", remoteHost, remotePort, ex);
+                logger.log(ERROR, "Exception on socket " + remoteHost + ":" + remotePort, ex);
                 close();
                 sleepResettingInterrupt();
             }
         }
         close();
-        logger.info("Exiting socket read loop for {}:{}", remoteHost, remotePort);
+        logger.log(INFO, "Exiting socket read loop for " + remoteHost + ":" + remotePort);
     }
 
     private void sleepResettingInterrupt() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            logger.info("Thread has been interrupted");
+            logger.log(INFO, "Thread has been interrupted");
             Thread.currentThread().interrupt();
         }
     }
@@ -113,7 +116,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
         try {
             socketChannel.get().close();
         } catch (IOException e) {
-            logger.error("Unexpected error closing socket", e);
+            logger.log(ERROR, "Unexpected error closing socket", e);
         }
 
         super.close();

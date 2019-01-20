@@ -5,14 +5,14 @@
 
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 public class TextTreeItemRenderer {
 
@@ -23,7 +23,7 @@ public class TextTreeItemRenderer {
     }
 
     public String getTreeAsText() {
-        ImmutableList<MenuItem> list = tree.getMenuItems(MenuTree.ROOT);
+        List<MenuItem> list = tree.getMenuItems(MenuTree.ROOT);
 
         if(list == null) {
             return "List is empty";
@@ -33,7 +33,7 @@ public class TextTreeItemRenderer {
         return sb.toString();
     }
 
-    private StringBuilder renderMenuLevel(ImmutableList<MenuItem> list, int level) {
+    private StringBuilder renderMenuLevel(List<MenuItem> list, int level) {
         StringBuilder sb = new StringBuilder();
         list.forEach((item) -> {
             sb.append(MenuItemHelper.visitWithResult(item, new ItemValueRenderer(level)).orElse("Empty"));
@@ -46,7 +46,7 @@ public class TextTreeItemRenderer {
     }
 
     static class ItemValueRenderer extends AbstractMenuItemVisitor<String> {
-        private final String spaces = Strings.repeat(" ", 30);
+        private final String spaces = "                              ";
         private int level;
 
         public ItemValueRenderer(int level) {
@@ -66,7 +66,7 @@ public class TextTreeItemRenderer {
         @Override
         public void visit(TextMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
-            String it = Strings.repeat("A", Math.max(1, item.getTextLength()));
+            String it = StringUtils.repeat("A", Math.max(1, item.getTextLength()));
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
             setResult(sb.toString());

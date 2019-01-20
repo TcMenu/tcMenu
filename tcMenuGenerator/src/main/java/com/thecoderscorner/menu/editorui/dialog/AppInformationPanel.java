@@ -20,7 +20,7 @@ import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,26 +46,8 @@ public class AppInformationPanel {
 
         // add the documentation links
         vbox.getChildren().add(new Label("Documentation can be opened by pressing F1 or from the help menu."));
-        Hyperlink docs = new Hyperlink(LIBRARY_DOCS_URL);
-        docs.setOnAction((event)-> {
-            try {
-                Desktop.getDesktop().browse(new URI(LIBRARY_DOCS_URL));
-            } catch (IOException | URISyntaxException e) {
-                // not much we can do here really!
-                logger.error("Could not open browser", e);
-            }
-        });
-        vbox.getChildren().add(docs);
-        Hyperlink youTube = new Hyperlink(YOUTUBE_VIDEO_URL);
-        youTube.setOnAction((event)-> {
-            try {
-                Desktop.getDesktop().browse(new URI(YOUTUBE_VIDEO_URL));
-            } catch (IOException | URISyntaxException e) {
-                // not much we can do here really!
-                logger.error("Could not open browser", e);
-            }
-        });
-        vbox.getChildren().add(youTube);
+        labelWithUrl(vbox, LIBRARY_DOCS_URL);
+        labelWithUrl(vbox, YOUTUBE_VIDEO_URL);
 
         // add the library installation status
 
@@ -79,7 +61,7 @@ public class AppInformationPanel {
             libsNotOK.getStyleClass().add("libsNotOK");
             vbox.getChildren().add(libsNotOK);
             Button installUpdates = new Button("Install library updates");
-            installUpdates.setOnAction(this::installLibraries);
+            installUpdates.setOnAction(controller::installLibraries);
             vbox.getChildren().add(installUpdates);
         }
 
@@ -99,18 +81,17 @@ public class AppInformationPanel {
         return vbox;
     }
 
-    private void installLibraries(Event actionEvent) {
-        try {
-            installer.copyLibraryFromPackage("IoAbstraction");
-            installer.copyLibraryFromPackage("tcMenu");
-            installer.copyLibraryFromPackage("LiquidCrystalIO");
-            controller.onTreeChangeSelection(MenuTree.ROOT);
-        } catch (IOException e) {
-            logger.error("Did not complete copying embedded files", e);
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to copy embedded files");
-            alert.setTitle("Error while copying");
-            alert.showAndWait();
-        }
+    private void labelWithUrl(VBox vbox, String urlToVisit) {
+        Hyperlink docs = new Hyperlink(urlToVisit);
+        docs.setOnAction((event)-> {
+            try {
+                Desktop.getDesktop().browse(new URI(urlToVisit));
+            } catch (IOException | URISyntaxException e) {
+                // not much we can do here really!
+                logger.error("Could not open browser", e);
+            }
+        });
+        vbox.getChildren().add(docs);
     }
 
     private String diffLibVersions(String lib) throws IOException {

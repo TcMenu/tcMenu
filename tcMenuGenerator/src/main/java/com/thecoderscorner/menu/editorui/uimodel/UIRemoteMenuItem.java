@@ -11,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

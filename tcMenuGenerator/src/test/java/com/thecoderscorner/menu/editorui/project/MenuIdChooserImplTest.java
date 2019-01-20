@@ -28,7 +28,7 @@ public class MenuIdChooserImplTest {
     @Test
     public void testIdAndEepromGeneration() {
         assertEquals(101, chooser.nextHighestId());
-        assertEquals(6, chooser.nextHighestEeprom());
+        assertEquals(7, chooser.nextHighestEeprom());
         assertTrue(chooser.isIdUnique(25));
         assertFalse(chooser.isIdUnique(1));
     }

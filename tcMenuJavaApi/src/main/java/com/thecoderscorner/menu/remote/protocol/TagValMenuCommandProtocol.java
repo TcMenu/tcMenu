@@ -5,16 +5,14 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.google.common.collect.ImmutableMap;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +22,7 @@ import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.BootType;
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
+import static java.lang.System.Logger.Level.DEBUG;
 
 /**
  * A protocol implementation that uses tag value pair notation with a few special text items
@@ -34,22 +33,21 @@ import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
 public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private static final byte PROTOCOL_TAG_VAL = 1;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Map<String, MenuCommandType> codeToCmdType;
 
     public TagValMenuCommandProtocol() {
-        ImmutableMap.Builder<String, MenuCommandType> builder = ImmutableMap.builder();
+        codeToCmdType = new HashMap<>();
         for (MenuCommandType ty : MenuCommandType.values()) {
-            builder.put(ty.getCode(), ty);
+            codeToCmdType.put(ty.getCode(), ty);
         }
-        codeToCmdType = builder.build();
     }
 
     @Override
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
         TagValTextParser parser = new TagValTextParser(buffer);
         String ty = parser.getValue(KEY_MSG_TYPE);
-        logger.debug("Protocol convert in: {}", parser);
+        logger.log(DEBUG, "Protocol convert in: {0}", parser);
         MenuCommandType cmdType = codeToCmdType.get(ty);
         if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
 
@@ -281,7 +279,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         sb.append('~');
 
         String msgStr = sb.toString();
-        logger.debug("Protocol convert out: {}", msgStr);
+        logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
         buffer.put(msgStr.getBytes());
     }
 

@@ -93,7 +93,7 @@ public class TestUtils {
         EnumMenuItem extraItem = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(20)
                 .withName("Extra")
-                .withEepromAddr(4)
+                .withEepromAddr(5)
                 .withEnumList(List.of("test"))
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, extraItem);

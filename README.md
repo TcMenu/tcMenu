@@ -6,6 +6,13 @@ it is currently under development so be careful before using in full production.
 TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that provides
 many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
+## Questions, community forum and support
+
+You can get help from the community forum, there are also support options available from TheCodersCorner.
+
+* [TCC Libraries community discussion forum](https://www.thecoderscorner.com/jforum/)
+* [Consultancy pages on the coders corner](https://www.thecoderscorner.com/products/consultancy/)
+
 ## Installation
 
 There are pre-built packages for Windows and MacOS that include the Generator UI and the UI can copy over the libraries automatically. However, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.

@@ -10,23 +10,20 @@ import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.RemoteConnector;
 import com.thecoderscorner.menu.remote.RemoteConnectorListener;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.MembershipKey;
-import java.nio.channels.MulticastChannel;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.nio.channels.DatagramChannel.*;
+import static java.lang.System.Logger.Level.*;
+import static java.nio.channels.DatagramChannel.open;
 
 /**
  *  EXPERIMENTAL: DO NOT USE AT THE MOMENT
@@ -39,7 +36,7 @@ public class UdpRemoteConnector implements RemoteConnector {
     private static final short MSGFLAG_API_TO_DEV = 1;
     private static final short MSGFLAG_DEV_TO_API = 0;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ScheduledExecutorService executor;
     private final long flushFreq;
     private final boolean sendCommandAsDevice;
@@ -86,21 +83,21 @@ public class UdpRemoteConnector implements RemoteConnector {
 
     private void threadedReader() {
         try {
-            logger.info("UDP based socket read thread starting");
+            logger.log(INFO, "UDP based socket read thread starting");
             while (!Thread.currentThread().isInterrupted()) {
                 if (handleConnection()) {
                     processMessagesOnConnection();
                 }
             }
 
-            logger.info("UDP based socket read thread ended");
+            logger.log(INFO, "UDP based socket read thread ended");
         }
         catch(InterruptedException ie) {
             Thread.currentThread().interrupt();
-            logger.error("UDP based socket closing because its interrupted", ie);
+            logger.log(ERROR, "UDP based socket closing because its interrupted", ie);
         }
         catch (Exception e) {
-            logger.error("UDP based socket closing because of exception", e);
+            logger.log(ERROR, "UDP based socket closing because of exception", e);
         }
     }
 
@@ -118,22 +115,22 @@ public class UdpRemoteConnector implements RemoteConnector {
                         && inBuffer.getShort() == PROTOCOL_TAGVAL && inBuffer.getShort() == MSGFLAG_DEV_TO_API) {
                     while (inBuffer.remaining() > 3 && inBuffer.get() == '`') {
                         MenuCommand mc = protocol.fromChannel(inBuffer);
-                        logger.info("Command received: " + mc);
+                        logger.log(INFO, "Command received: " + mc);
                         notifyListeners(mc);
                     }
 
                 }
             }
-            logger.info("Disconnected from network");
+            logger.log(INFO, "Disconnected from network");
         } catch (Exception e) {
-            logger.error("Disconnected from network with exception", e);
+            logger.log(INFO, "Disconnected from network with exception", e);
         } finally {
             silentlyCloseChannel();
         }
     }
 
     private void logProtocolByteBuffer(String msg, ByteBuffer buffer) {
-        if(!logger.isDebugEnabled() || buffer.remaining() < 10) return;
+        if(!logger.isLoggable(DEBUG) || buffer.remaining() < 10) return;
 
         ByteBuffer bb = buffer.duplicate();
         int magic = bb.getInt();
@@ -145,8 +142,8 @@ public class UdpRemoteConnector implements RemoteConnector {
         int len = Math.min(256, bb.remaining());
         bb.get(byData, 0, len);
 
-        logger.debug("{}. Magic:{}, Device:{}, Proto:{}, ToAPI:{}, Content: '{}'", msg, magic, devId, proto, toApi,
-                new String(byData, 0, len));
+        logger.log(DEBUG,"{}. Magic:{}, Device:{}, Proto:{}, ToAPI:{}, Content: '{}'", msg, magic, devId,
+                   proto, toApi, new String(byData, 0, len));
     }
 
     private void flushNetworkBuffers() {
@@ -181,7 +178,7 @@ public class UdpRemoteConnector implements RemoteConnector {
             }
             outBuffer.put((byte) '`');
             protocol.toChannel(outBuffer, msg);
-            logger.debug("Added command to buffer for send, remaining " + outBuffer.remaining());
+            logger.log(DEBUG, "Added command to buffer for send, remaining " + outBuffer.remaining());
         }
     }
 
@@ -205,7 +202,7 @@ public class UdpRemoteConnector implements RemoteConnector {
     private void silentlyCloseChannel() {
         MembershipKey membershipKey = key.get();
         if(channel.isOpen() && membershipKey != null) {
-            logger.info("Channel was open, closing now and dropping multicast subscription");
+            logger.log(INFO,"Channel was open, closing now and dropping multicast subscription");
             membershipKey.drop();
             key.set(null);
         }
@@ -217,7 +214,7 @@ public class UdpRemoteConnector implements RemoteConnector {
             key.set(channel.join(InetAddress.getByName(address), networkInterface));
             return true;
         } catch (IOException e) {
-            logger.error("Unable to open socket connection", e);
+            logger.log(ERROR, "Unable to open socket connection", e);
         }
         Thread.sleep(5000);
         return false;

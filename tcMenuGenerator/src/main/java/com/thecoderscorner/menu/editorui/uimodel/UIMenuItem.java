@@ -5,8 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.google.common.base.Strings;
-import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -130,7 +128,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     private String getFunctionName(List<FieldError> errors) {
         String text = functionNameTextField.getText();
-        if (Strings.isNullOrEmpty(text) || NO_FUNCTION_DEFINED.equals(text)) {
+        if (StringUtils.isEmpty(text) || NO_FUNCTION_DEFINED.equals(text)) {
             return null;
         }
         return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
@@ -221,7 +219,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected int safeIntFromProperty(StringProperty strProp, String field, List<FieldError> errorsBuilder,
                                       int min, int max)  {
         String s = strProp.get();
-        if (Strings.isNullOrEmpty(s)) {
+        if (StringUtils.isEmpty(s)) {
             return 0;
         }
 
@@ -267,7 +265,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         if (focused == null) return false;
         String text = focused.getSelectedText();
 
-        if (!Strings.isNullOrEmpty(text)) {
+        if (!StringUtils.isEmpty(text)) {
             Clipboard systemClipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
             content.putString(text);
@@ -311,15 +309,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     public boolean canCopy() {
         TextField tf = getFocusedTextField();
-        return (tf != null && !Strings.isNullOrEmpty(tf.getSelectedText()));
+        return (tf != null && !StringUtils.isEmpty(tf.getSelectedText()));
     }
 
     public boolean canPaste() {
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
-        if (systemClipboard.hasContent(DataFormat.PLAIN_TEXT)) {
-            return true;
-        }
-        return false;
+        return systemClipboard.hasContent(DataFormat.PLAIN_TEXT);
     }
 
     protected class FieldError {

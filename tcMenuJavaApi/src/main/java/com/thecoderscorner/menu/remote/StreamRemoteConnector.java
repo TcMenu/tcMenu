@@ -2,8 +2,6 @@ package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,6 +11,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.lang.System.Logger.Level.*;
+
 /**
  * Stream remote connector is the base class for all stream implementations, such as Socket and RS232. Any remote
  * with stream like semantics can use this as the base for building out an adapter.
@@ -21,7 +21,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
     private static final int MAX_MSG_EXPECTED = 1024;
     public static final byte START_OF_MSG = 0x01;
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     protected final ScheduledExecutorService executor;
     protected final AtomicReference<StreamState> state = new AtomicReference<>(StreamState.STARTED);
@@ -46,7 +46,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      */
     protected void processMessagesOnConnection() {
         try {
-            logger.info("Connected to " + getConnectionName());
+            logger.log(INFO, "Connected to " + getConnectionName());
             state.set(StreamState.CONNECTED);
             notifyConnection();
             inputBuffer.flip();
@@ -67,17 +67,18 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
 
                     // now we take a shallow buffer copy and process the message
                     MenuCommand mc = protocol.fromChannel(inputBuffer);
-                    logger.info("Command received: " + mc);
+                    logger.log(INFO, "Command received: " + mc);
                     notifyListeners(mc);
                 }
                 catch(TcProtocolException ex) {
                     // a protocol problem shouldn't drop the connection
-                    logger.warn("Probable Bad message reason='{}' Remote={} ", ex.getMessage(), getConnectionName());
+                    logger.log(WARNING, "Probable Bad message reason='{}' Remote={} ",
+                               ex.getMessage(), getConnectionName());
                 }
             }
-            logger.info("Disconnected from " + getConnectionName());
+            logger.log(INFO, "Disconnected from " + getConnectionName());
         } catch (Exception e) {
-            logger.error("Problem with connectivity on " + getConnectionName(), e);
+            logger.log(ERROR, "Problem with connectivity on " + getConnectionName(), e);
         }
         finally {
             close();
@@ -197,7 +198,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      * @param inBuffer the buffer to be logged
      */
     protected void logByteBuffer(String msg, ByteBuffer inBuffer) {
-        if(!logger.isDebugEnabled()) return;
+        if(!logger.isLoggable(DEBUG)) return;
 
         ByteBuffer bb = inBuffer.duplicate();
 
@@ -205,7 +206,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
         int len = Math.min(byData.length, bb.remaining());
         bb.get(byData, 0, len);
 
-        logger.debug("{}. Content: '{}'", msg, new String(byData, 0, len));
+        logger.log(DEBUG, () -> msg + ". Content: " + new String(byData, 0, len));
     }
 
     public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {

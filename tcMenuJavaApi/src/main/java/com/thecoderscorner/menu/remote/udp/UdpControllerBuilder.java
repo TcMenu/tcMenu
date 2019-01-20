@@ -5,9 +5,9 @@
 
 package com.thecoderscorner.menu.remote.udp;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
@@ -160,7 +160,7 @@ public class UdpControllerBuilder {
         }
         if(executorService == null) {
             executorService = Executors.newScheduledThreadPool(2,
-                    new ThreadFactoryBuilder().setDaemon(true).build());
+                    new NamedDaemonThreadFactory("udp-remote"));
         }
         UdpRemoteConnector connector = new UdpRemoteConnector(executorService, sendFreq, address, port, protocol, deviceId, sendAsDevice);
         return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);

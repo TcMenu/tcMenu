@@ -23,7 +23,7 @@ const PROGMEM AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1,
 AnalogMenuItem menuTest(&minfoTest, 0, &menuSub);
 const char enumStrExtra_0[] PROGMEM = "test";
 const char* const enumStrExtra[] PROGMEM  = { enumStrExtra_0 };
-const PROGMEM EnumMenuInfo minfoExtra = { "Extra", 20, 4, 0, NO_CALLBACK, enumStrExtra };
+const PROGMEM EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, NO_CALLBACK, enumStrExtra };
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
 
 // Set up code

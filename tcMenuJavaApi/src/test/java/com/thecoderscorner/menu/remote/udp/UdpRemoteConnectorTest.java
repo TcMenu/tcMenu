@@ -17,16 +17,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,11 +34,6 @@ public class UdpRemoteConnectorTest {
 
     @Before
     public void setUp() throws Exception {
-
-        // set logging to 11!
-        LogManager.getLogManager().getLogger("").setLevel(Level.ALL);
-        Arrays.stream(LogManager.getLogManager().getLogger("").getHandlers())
-                .forEach(appender-> appender.setLevel(Level.ALL));
 
         connector = new UdpRemoteConnector(
                 Executors.newScheduledThreadPool(3),

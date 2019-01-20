@@ -6,19 +6,14 @@
 package com.thecoderscorner.menu.remote.rs232;
 
 import com.fazecast.jSerialComm.SerialPort;
-import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.commands.MenuCommand;
-import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.StreamRemoteConnector;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
+
+import static java.lang.System.Logger.Level.INFO;
 
 /**
  * This is the R232 connector that can talk to a tcMenu library application running
@@ -49,19 +44,19 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     private void threadedReader() {
-        logger.info("RS232 Reading thread started");
+        logger.log(INFO, "RS232 Reading thread started");
         while (!Thread.currentThread().isInterrupted()) {
             if(reconnectWithWait()) {
                 processMessagesOnConnection();
             }
         }
-        logger.info("RS232 Reading thread ended");
+        logger.log(INFO, "RS232 Reading thread ended");
     }
 
     private boolean reconnectWithWait() {
         try {
             Thread.sleep(500); // we need a short break before attempting the first reconnect
-            logger.info("Attempting to connect over rs232 to " + getConnectionName());
+            logger.log(INFO, "Attempting to connect over rs232 to " + getConnectionName());
             serialPort.openPort();
             serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 30000, 30000);
             if(serialPort.isOpen()) {

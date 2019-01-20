@@ -5,7 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -24,8 +23,8 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -44,8 +43,6 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
-
-import com.thecoderscorner.menu.domain.MenuItem;
 
 public class MenuEditorController {
     public static final String RECENT_DEFAULT = "Recent";
@@ -197,7 +194,7 @@ public class MenuEditorController {
         prototypeTextArea.setText(new TextTreeItemRenderer(editorProject.getMenuTree()).getTreeAsText());
     }
 
-    private void recurseTreeItems(ImmutableList<MenuItem> menuItems, TreeItem<MenuItem> treeItem) {
+    private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItem> treeItem) {
         if (menuItems == null) return;
 
         for (MenuItem<?> item : menuItems) {
@@ -407,7 +404,8 @@ public class MenuEditorController {
     private void handleRecents() {
         if (!editorProject.isFileNameSet()) return;
 
-        List<String> recents = Arrays.asList(editorProject.getFileName(), menuRecent1.getText(), menuRecent2.getText(), menuRecent3.getText(), menuRecent4.getText());
+        List<String> recents = Arrays.asList(editorProject.getFileName(), menuRecent1.getText(), menuRecent2.getText(),
+                                             menuRecent3.getText(), menuRecent4.getText());
         LinkedList<String> cleanedRecents = recents.stream()
                 .filter(name -> !name.equals(RECENT_DEFAULT))
                 .distinct()
@@ -421,7 +419,19 @@ public class MenuEditorController {
                 menuItem.setText(cleanedRecents.removeFirst());
             }
         });
+    }
 
-
+    public void installLibraries(Event actionEvent) {
+        try {
+            installer.copyLibraryFromPackage("IoAbstraction");
+            installer.copyLibraryFromPackage("tcMenu");
+            installer.copyLibraryFromPackage("LiquidCrystalIO");
+            onTreeChangeSelection(MenuTree.ROOT);
+        } catch (IOException e) {
+            logger.error("Did not complete copying embedded files", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to copy embedded files");
+            alert.setTitle("Error while copying");
+            alert.showAndWait();
+        }
     }
 }

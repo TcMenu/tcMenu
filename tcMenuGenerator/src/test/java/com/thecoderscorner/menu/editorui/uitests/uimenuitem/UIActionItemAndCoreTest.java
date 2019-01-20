@@ -67,7 +67,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         assertEquals("onChange", captor.getValue().getFunctionName());
 
         robot.clickOn("#eepromNextBtn");
-        verifyThat("#eepromField", textFieldHasValue("6"));
+        verifyThat("#eepromField", textFieldHasValue("7"));
     }
 
     @Test

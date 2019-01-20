@@ -5,10 +5,11 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.google.common.base.Objects;
 import com.thecoderscorner.menu.domain.state.BooleanMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
+
+import java.util.Objects;
 
 /**
  * A menu item that can only hold boolean values (true or false). The naming can be changed such that the boolean can
@@ -57,16 +58,17 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BooleanMenuItem that = (BooleanMenuItem) o;
-        return  Objects.equal(naming, that.naming) &&
-                Objects.equal(name, that.name) &&
-                Objects.equal(functionName, that.functionName) &&
-                id == that.id &&
-                eepromAddress == that.eepromAddress;
+        return getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                getNaming() == that.getNaming() &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(naming, eepromAddress, name, id, functionName);
+        return Objects.hash(getNaming(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
     }
 
     @Override

@@ -107,6 +107,8 @@ public class GeneratorUITestCases {
         verifyThat("#displayTechCombo", ComboBoxMatchers.hasSelectedItem(selectedDisplayType));
         verifyThat("#remoteCapabilityCombo", ComboBoxMatchers.hasSelectedItem(selectedRemoteType));
 
+        waitWhileTableSettles();
+
         // When this form loads, it copies over all the previous values from the creator properties above
         // into the form. We need to make sure this load takes place and the values are properly defaulted.
 
@@ -116,6 +118,15 @@ public class GeneratorUITestCases {
         // now we cancel the dialog an ensure there's no call to the runner.
         robot.clickOn(".button:cancel");
         verifyNoMoreInteractions(codeGeneratorRunner);
+    }
+
+    private void waitWhileTableSettles() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            // ignored but pass on
+            Thread.currentThread().interrupt();
+        }
     }
 
     private List<CreatorProperty> standardProperties() {
@@ -155,6 +166,8 @@ public class GeneratorUITestCases {
         // change the display type to Adafruit graphics
         DisplayType adaGraphicsDisplay = DisplayType.values.get(4);
         TestUtils.selectItemInCombo(robot, "#displayTechCombo", adaGraphicsDisplay);
+
+        waitWhileTableSettles();
 
         // check some of the defaults.
         TableView tableView = robot.lookup(".table-view").query();

@@ -5,7 +5,7 @@
 
 package com.thecoderscorner.menu.domain.state;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 /**
  * The base class of menu state, stores the value, if it's active and changed.
@@ -57,14 +57,14 @@ public abstract class MenuState<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MenuState<?> menuState = (MenuState<?>) o;
-        return changed == menuState.changed &&
-               active == menuState.active &&
-               Objects.equal(value, menuState.value);
+        return isChanged() == menuState.isChanged() &&
+                isActive() == menuState.isActive() &&
+                Objects.equals(getValue(), menuState.getValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(changed, active, value);
+        return Objects.hash(isChanged(), isActive(), getValue());
     }
 }
 

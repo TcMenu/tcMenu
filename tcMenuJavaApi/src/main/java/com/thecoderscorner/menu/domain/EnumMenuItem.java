@@ -5,13 +5,13 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.google.common.base.Objects;
 import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A menu item implementation that represents one of a known set of choices, the choices are stored as an integer
@@ -45,16 +45,17 @@ public class EnumMenuItem extends MenuItem<Integer> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EnumMenuItem that = (EnumMenuItem) o;
-        return  Objects.equal(enumEntries, that.enumEntries) &&
-                Objects.equal(name, that.name) &&
-                Objects.equal(id, that.id) &&
-                Objects.equal(eepromAddress, that.eepromAddress) &&
-                Objects.equal(functionName, that.functionName);
+        return getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getEnumEntries(), that.getEnumEntries()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(eepromAddress, name, id, enumEntries, functionName);
+        return Objects.hash(getEnumEntries(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
     }
 
     @Override

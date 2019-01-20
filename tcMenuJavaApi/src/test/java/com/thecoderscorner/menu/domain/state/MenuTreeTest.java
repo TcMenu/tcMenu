@@ -5,13 +5,13 @@
 
 package com.thecoderscorner.menu.domain.state;
 
-import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -39,7 +39,7 @@ public class MenuTreeTest {
 
         menuTree.removeMenuItem(MenuTree.ROOT, item1);
 
-        ImmutableList<MenuItem> menuItems = menuTree.getMenuItems(MenuTree.ROOT);
+        List<MenuItem> menuItems = menuTree.getMenuItems(MenuTree.ROOT);
         assertThat(menuItems, is(Collections.singletonList(item2)));
     }
 

@@ -10,8 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.commands.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -25,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
+import static java.lang.System.Logger.Level.*;
 
 /**
  * This class manages a single remote connection to an Arduino. It is responsible for check
@@ -35,7 +34,7 @@ import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCom
  */
 public class RemoteMenuController {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final RemoteConnector connector;
     private final MenuTree managedMenu;
     private final ScheduledExecutorService executor;
@@ -75,12 +74,12 @@ public class RemoteMenuController {
         }
 
         if((clock.millis() - lastRx.get()) > (3 * heartbeatFrequency)) {
-            logger.warn("Lost connection with " + getConnector().getConnectionName() + ", closing port");
+            logger.log(WARNING, "Lost connection with " + getConnector().getConnectionName() + ", closing port");
             connector.close();
         }
 
         if((clock.millis() - lastTx.get()) > heartbeatFrequency) {
-            logger.info("Sending heartbeat to " + getConnector().getConnectionName() + " port");
+            logger.log(INFO, "Sending heartbeat to " + getConnector().getConnectionName() + " port");
             sendCommand(newHeartbeatCommand());
         }
     }
@@ -109,7 +108,7 @@ public class RemoteMenuController {
         try {
             connector.sendMenuCommand(command);
         } catch (IOException e) {
-            logger.error("Error while writing out command", e);
+            logger.log(ERROR, "Error while writing out command", e);
             connector.close();
         }
     }

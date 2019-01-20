@@ -47,6 +47,7 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
         this.maxValue = other.getMaxValue();
         this.divisor = other.getDivisor();
         this.offset = other.getOffset();
+        this.readOnly = other.isReadOnly();
         return getThis();
     }
 

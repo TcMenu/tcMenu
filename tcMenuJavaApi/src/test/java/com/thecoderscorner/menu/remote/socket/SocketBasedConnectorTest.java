@@ -1,13 +1,10 @@
 package com.thecoderscorner.menu.remote.socket;
 
-import com.thecoderscorner.menu.remote.RemoteConnectorListener;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,10 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thecoderscorner.menu.remote.StreamRemoteConnector.START_OF_MSG;
 import static com.thecoderscorner.menu.remote.StreamRemoteConnector.doesBufferHaveEOM;
-import static org.junit.Assert.assertEquals;
+import static java.lang.System.Logger.Level.INFO;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class SocketBasedConnectorTest {
     private static final int PORT_FOR_TESTING = 3546;
@@ -85,7 +81,7 @@ public class SocketBasedConnectorTest {
     }
 
     class RemoteServer {
-        private final Logger logger = LoggerFactory.getLogger(RemoteServer.class);
+        private final System.Logger logger = System.getLogger("RemoteTestServer");
         private final int port;
 
         private AtomicBoolean failure = new AtomicBoolean();
@@ -98,21 +94,21 @@ public class SocketBasedConnectorTest {
         }
 
         public void start() {
-            logger.info("Starting Remote Server Tester");
+            logger.log(INFO, "Starting Remote Server Tester");
             threadRunner = new Thread(this::connectionThread);
             threadRunner.start();
         }
 
         public void stop() {
             if (threadRunner != null) {
-                logger.info("Stopping Remote Server Tester");
+                logger.log(INFO, "Stopping Remote Server Tester");
 
                 threadRunner.interrupt();
             }
         }
 
         public void connectionThread() {
-            logger.info("Remote Server Tester thread start");
+            logger.log(INFO, "Remote Server Tester thread start");
             ServerSocketChannel serverSock = null;
             SocketChannel socket = null;
             try {
@@ -125,7 +121,7 @@ public class SocketBasedConnectorTest {
                 serverSock.bind(new InetSocketAddress("localhost", port));
                 socket = serverSock.accept();
                 startLatch.countDown();
-                logger.info("Remote Server has connected to client");
+                logger.log(INFO, "Remote Server has connected to client");
 
                 // and now read messages until the socket closes.
                 int len = socket.read(readBuffer);
@@ -140,7 +136,7 @@ public class SocketBasedConnectorTest {
                     proto.toChannel(writeBuffer, CommandFactory.newJoinCommand("Fred"));
                     writeBuffer.flip();
                     while (socket.isConnected() && writeBuffer.hasRemaining()) {
-                        logger.info("Sending messages to socket client");
+                        logger.log(INFO, "Sending messages to socket client");
                         socket.write(writeBuffer);
                     }
                     writeBuffer.compact();
@@ -151,7 +147,7 @@ public class SocketBasedConnectorTest {
                         if (readBuffer.get() != START_OF_MSG || readBuffer.get() != proto.getKeyIdentifier()) {
                             throw new IOException("Bad protocol");
                         }
-                        logger.info("Reading back messages sent to us..");
+                        logger.log(INFO, "Reading back messages sent to us..");
                         messagesReceived.offer(proto.fromChannel(readBuffer));
                     }
 
@@ -167,7 +163,7 @@ public class SocketBasedConnectorTest {
                 } catch (IOException e) {
                     failure.set(true);
                 }
-                logger.info("Remote Server Tester thread ending");
+                logger.log(INFO,"Remote Server Tester thread ending");
             }
         }
 

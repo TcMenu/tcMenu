@@ -5,12 +5,12 @@
 
 package com.thecoderscorner.menu.examples.simpleui;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
@@ -66,7 +66,7 @@ public class MainWindowController {
     // The highlighting of an items background after a change is done by holding
     // the time since the last change and ticking every 100ms to check it.
     private Map<Integer, Integer> itemIdToChangeTicks = new ConcurrentHashMap<>();
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new NamedDaemonThreadFactory("ui-executor"));
 
     // The remoteControl reference passed in from the app. This is the means to get events from and
     // control a remote menu

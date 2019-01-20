@@ -5,7 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -122,7 +122,7 @@ public class ArduinoSketchFileAdjuster {
         for(int i=0;i<lines.size();i++) {
             Matcher matcher = codePattern.matcher(lines.get(i));
             if(matcher.matches()) {
-                if(Strings.isNullOrEmpty(matcher.group(1)) || !matcher.group(1).contains("{")) {
+                if(StringUtils.isEmpty(matcher.group(1)) || !matcher.group(1).contains("{")) {
                     if(!lines.get(++i).contains("{")) {
                         return; // non standard - cant add
                     }

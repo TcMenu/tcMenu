@@ -5,20 +5,20 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
@@ -84,7 +84,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
     private List<PersistedMenu> populateListInOrder(SubMenuItem node, MenuTree menuTree) {
         ArrayList<PersistedMenu> list = new ArrayList<>();
-        ImmutableList<MenuItem> items = menuTree.getMenuItems(node);
+        List<MenuItem> items = menuTree.getMenuItems(node);
         for (MenuItem item : items) {
             list.add(new PersistedMenu(node, item));
             if(item.hasChildren()) {

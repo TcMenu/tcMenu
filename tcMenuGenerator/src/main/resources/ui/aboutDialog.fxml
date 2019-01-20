@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-<BorderPane prefHeight="265.0" prefWidth="368.0" styleClass="background" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController" stylesheets="/ui/JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane prefHeight="265.0" prefWidth="368.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
    <top>
       <ImageView fitHeight="65.0" fitWidth="366.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
-            <Image url="/img/logo.png" />
+            <Image url="@../img/logo.png" />
          </image>
       </ImageView>
    </top>
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="368.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button onAction="#onClose" defaultButton="true" mnemonicParsing="false" text="OK" />
+          <Button defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="OK" />
         </buttons>
          <BorderPane.margin>
             <Insets />

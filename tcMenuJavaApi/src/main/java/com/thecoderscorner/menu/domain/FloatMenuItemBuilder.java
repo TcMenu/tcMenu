@@ -20,6 +20,7 @@ public class FloatMenuItemBuilder extends MenuItemBuilder<FloatMenuItemBuilder> 
 
     public FloatMenuItemBuilder withExisting(FloatMenuItem item) {
         baseFromExisting(item);
+        decimalPlaces = item.getNumDecimalPlaces();
         return getThis();
     }
 

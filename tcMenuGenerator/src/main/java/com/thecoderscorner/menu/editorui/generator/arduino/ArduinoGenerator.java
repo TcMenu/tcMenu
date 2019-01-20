@@ -5,8 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -243,7 +241,7 @@ public class ArduinoGenerator implements CodeGenerator {
     }
 
     private Collection<BuildStructInitializer> generateMenusInOrder(MenuTree menuTree) {
-        ImmutableList<MenuItem> root = menuTree.getMenuItems(MenuTree.ROOT);
+        List<MenuItem> root = menuTree.getMenuItems(MenuTree.ROOT);
         List<List<BuildStructInitializer>> itemsInOrder = renderMenu(menuTree, root);
         Collections.reverse(itemsInOrder);
         return itemsInOrder.stream()
@@ -260,7 +258,7 @@ public class ArduinoGenerator implements CodeGenerator {
                 int nextIdx = i + 1;
                 String nextSub = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
 
-                ImmutableList<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
+                List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
                 String nextChild = (!childItems.isEmpty()) ? childItems.get(0).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
                         new ArduinoItemGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
@@ -278,7 +276,7 @@ public class ArduinoGenerator implements CodeGenerator {
     private List<String> callBackFunctions(MenuTree menuTree) {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
-                .filter(menuItem -> !Strings.isNullOrEmpty(menuItem.getFunctionName()))
+                .filter(menuItem -> menuItem.getFunctionName() != null && !menuItem.getFunctionName().isEmpty())
                 .map(MenuItem::getFunctionName)
                 .collect(Collectors.toList());
 

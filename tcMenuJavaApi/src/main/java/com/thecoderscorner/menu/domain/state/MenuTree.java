@@ -5,7 +5,6 @@
 
 package com.thecoderscorner.menu.domain.state;
 
-import com.google.common.collect.ImmutableList;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 
@@ -239,10 +238,10 @@ public class MenuTree {
      * @param item the submenu to use
      * @return a list of submenu items that's immutable
      */
-    public ImmutableList<MenuItem> getMenuItems(MenuItem item) {
+    public List<MenuItem> getMenuItems(MenuItem item) {
         synchronized (subMenuItems) {
             ArrayList<MenuItem> menuItems = subMenuItems.get(item);
-            return menuItems == null ? null : ImmutableList.copyOf(menuItems);
+            return menuItems == null ? null : Collections.unmodifiableList(menuItems);
         }
     }
 
