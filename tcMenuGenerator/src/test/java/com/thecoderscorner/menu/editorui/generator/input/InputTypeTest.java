@@ -66,7 +66,7 @@ public class InputTypeTest {
                 "#define ENCODER_OK_PIN 3\n", creator.getExportDefinitions());
 
         assertEquals("    switches.initialise(io8574, false);\n" +
-                        "    menuMgr.initForUpDownOk(&renderer, &root, ENCODER_PIN_UP, ENCODER_PIN_DOWN, ENCODER_BUTTON_PIN);",
+                        "    menuMgr.initForUpDownOk(&renderer, &root, ENCODER_UP_PIN, ENCODER_DOWN_PIN, ENCODER_OK_PIN);",
                 creator.getSetupCode("root"));
         assertEquals("", creator.getGlobalVariables());
         assertThat(creator.getRequiredFiles()).isEmpty();
