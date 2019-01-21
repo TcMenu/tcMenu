@@ -23,6 +23,12 @@ java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.t
 
 jpackager create-image --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI --version 1.1 --icon classes/img/tcMenuDesigner.ico --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner  --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
+Move the inno setup for windows into target/tcMenuDesigner folder, and then run the setup
+
+Rename the setup.exe to setupTcMenu.exe (setup.exe is unsafe)
+
+Job done on windows!
+
 #
 # macos java 11 packager to create a dmg
 #
