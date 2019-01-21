@@ -40,7 +40,7 @@ public class UpDownOkInputCreator extends AbstractCodeCreator {
                  .append("(").append(ioDevice).append(", ").append(pullUp).append(");\n")
                  .append("    menuMgr.initForUpDownOk(&renderer, &")
                  .append(rootItem)
-                 .append(", ENCODER_PIN_UP, ENCODER_PIN_DOWN, ENCODER_BUTTON_PIN);")
+                 .append(", ENCODER_UP_PIN, ENCODER_DOWN_PIN, ENCODER_OK_PIN);")
                  .toString();
     }
 
