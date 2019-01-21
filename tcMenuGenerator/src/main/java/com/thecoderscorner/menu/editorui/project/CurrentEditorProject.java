@@ -12,10 +12,9 @@ import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -42,7 +41,7 @@ public class CurrentEditorProject {
     private static final String TITLE = "TcMenu Designer";
     private static final int UNDO_BUFFER_SIZE = 200;
     private final CurrentProjectEditorUI editorUI;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ProjectPersistor projectPersistor;
 
     private MenuTree menuTree;
@@ -101,7 +100,7 @@ public class CurrentEditorProject {
             changeTitle();
         } catch (IOException e) {
             fileName = Optional.empty();
-            logger.error("open operation failed on " + file, e);
+            logger.log(Level.ERROR, "open operation failed on " + file, e);
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
     }
@@ -116,7 +115,7 @@ public class CurrentEditorProject {
     }
 
     public void saveProject(EditorSaveMode saveMode) {
-        if(!fileName.isPresent() || saveMode == EditorSaveMode.SAVE_AS) {
+        if(fileName.isEmpty() || saveMode == EditorSaveMode.SAVE_AS) {
             fileName = editorUI.findFileNameFromUser(false);
         }
 
@@ -126,7 +125,7 @@ public class CurrentEditorProject {
                 dirty = false;
                 changeTitle();
             } catch (IOException e) {
-                logger.error("save operation failed on " + file, e);
+                logger.log(Level.ERROR, "save operation failed on " + file, e);
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });

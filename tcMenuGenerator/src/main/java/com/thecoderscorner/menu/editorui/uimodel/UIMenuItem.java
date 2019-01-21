@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
@@ -21,7 +22,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -128,7 +128,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     private String getFunctionName(List<FieldError> errors) {
         String text = functionNameTextField.getText();
-        if (StringUtils.isEmpty(text) || NO_FUNCTION_DEFINED.equals(text)) {
+        if (StringHelper.isStringEmptyOrNull(text) || NO_FUNCTION_DEFINED.equals(text)) {
             return null;
         }
         return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
@@ -219,7 +219,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected int safeIntFromProperty(StringProperty strProp, String field, List<FieldError> errorsBuilder,
                                       int min, int max)  {
         String s = strProp.get();
-        if (StringUtils.isEmpty(s)) {
+        if (StringHelper.isStringEmptyOrNull(s)) {
             return 0;
         }
 
@@ -248,8 +248,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         IndexRange range = focused.getSelection();
         String origText = focused.getText();
-        String firstPart = StringUtils.substring(origText, 0, range.getStart());
-        String lastPart = StringUtils.substring(origText, range.getEnd(), StringUtils.length(origText));
+        String firstPart = origText.substring(0, range.getStart());
+        String lastPart = origText.substring(range.getEnd());
         focused.setText(firstPart + lastPart);
 
         focused.positionCaret(range.getStart());
@@ -265,7 +265,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         if (focused == null) return false;
         String text = focused.getSelectedText();
 
-        if (!StringUtils.isEmpty(text)) {
+        if (!StringHelper.isStringEmptyOrNull(text)) {
             Clipboard systemClipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
             content.putString(text);
@@ -291,15 +291,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         int endPos = 0;
         String updatedText = "";
-        String firstPart = StringUtils.substring(origText, 0, range.getStart());
-        String lastPart = StringUtils.substring(origText, range.getEnd(), StringUtils.length(origText));
+        String firstPart = origText.substring(0, range.getStart());
+        String lastPart = origText.substring(range.getEnd());
 
         updatedText = firstPart + clipboardText + lastPart;
 
         if (range.getStart() == range.getEnd()) {
-            endPos = range.getEnd() + StringUtils.length(clipboardText);
+            endPos = range.getEnd() + clipboardText.length();
         } else {
-            endPos = range.getStart() + StringUtils.length(clipboardText);
+            endPos = range.getStart() + clipboardText.length();
         }
 
         focusedTF.setText(updatedText);
@@ -309,7 +309,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     public boolean canCopy() {
         TextField tf = getFocusedTextField();
-        return (tf != null && !StringUtils.isEmpty(tf.getSelectedText()));
+        return (tf != null && !StringHelper.isStringEmptyOrNull(tf.getSelectedText()));
     }
 
     public boolean canPaste() {

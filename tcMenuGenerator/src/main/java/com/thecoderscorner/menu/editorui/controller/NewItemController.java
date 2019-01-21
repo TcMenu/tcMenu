@@ -13,8 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -22,10 +20,11 @@ import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenu
 import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
+import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class NewItemController {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     public RadioButton subMenuSelect;
     public RadioButton analogSelect;
@@ -129,7 +128,7 @@ public class NewItemController {
             );
         }
         else {
-            logger.error("Don't know which item was selected!");
+            logger.log(ERROR, "Don't know which item was selected!");
         }
         closeIt();
     }

@@ -28,8 +28,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -43,11 +41,12 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
+import static java.lang.System.Logger.Level.ERROR;
 
 public class MenuEditorController {
     public static final String RECENT_DEFAULT = "Recent";
     public static final String REGISTERED_KEY = "Registered";
-    private final Logger logger = LoggerFactory.getLogger(MenuEditorController.class);
+    private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -110,7 +109,7 @@ public class MenuEditorController {
                 OSXAdapter.setQuitHandler(this, getClass().getMethod("onExitOsX"));
                 exitMenuItem.setVisible(false);
             } catch (NoSuchMethodException e) {
-                logger.error("Unable to set Mac menu properly", e);
+                logger.log(ERROR, "Unable to set Mac menu properly", e);
             }
         }
     }
@@ -216,7 +215,7 @@ public class MenuEditorController {
             Desktop.getDesktop().browse(new URI(LIBRARY_DOCS_URL));
         } catch (IOException | URISyntaxException e) {
             // not much we can do here really!
-            logger.error("Could not open browser", e);
+            logger.log(ERROR, "Could not open browser", e);
         }
     }
 
@@ -428,7 +427,7 @@ public class MenuEditorController {
             installer.copyLibraryFromPackage("LiquidCrystalIO");
             onTreeChangeSelection(MenuTree.ROOT);
         } catch (IOException e) {
-            logger.error("Did not complete copying embedded files", e);
+            logger.log(ERROR, "Did not complete copying embedded files", e);
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to copy embedded files");
             alert.setTitle("Error while copying");
             alert.showAndWait();

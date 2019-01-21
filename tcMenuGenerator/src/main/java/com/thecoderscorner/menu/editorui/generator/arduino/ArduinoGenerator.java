@@ -10,8 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -30,10 +28,12 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.makeNameToVar;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoGenerator implements CodeGenerator {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
             .withLocale(Locale.getDefault())
             .withZone(ZoneId.systemDefault());
@@ -136,7 +136,7 @@ public class ArduinoGenerator implements CodeGenerator {
 
         } catch (Exception e) {
             logLine("Failed to generate CPP: " + e.getMessage());
-            logger.error("CPP Code Generation failed", e);
+            logger.log(ERROR, "CPP Code Generation failed", e);
             return false;
         }
 
@@ -186,7 +186,7 @@ public class ArduinoGenerator implements CodeGenerator {
             logLine("Finished processing header file.");
         } catch (Exception e) {
             logLine("Failed to generate header file: " + e.getMessage());
-            logger.error("Header Code Generation failed", e);
+            logger.log(ERROR, "Header Code Generation failed", e);
             return false;
         }
 
@@ -209,7 +209,7 @@ public class ArduinoGenerator implements CodeGenerator {
             arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions(menuTree));
         } catch (IOException e) {
             logLine("Failed to make changes to sketch" +  e.getMessage());
-            logger.error("Sketch modification failed", e);
+            logger.log(ERROR, "Sketch modification failed", e);
         }
     }
 
@@ -224,7 +224,7 @@ public class ArduinoGenerator implements CodeGenerator {
                 logLine("Copied with replacement " + file);
             } catch (IOException e) {
                 logLine("Copy failed for required plugin: " + file);
-                logger.error("Copy failed for " + file, e);
+                logger.log(ERROR, "Copy failed for " + file, e);
             }
         });
     }
@@ -289,6 +289,6 @@ public class ArduinoGenerator implements CodeGenerator {
 
     private void logLine(String s) {
         if(uiLogger != null) uiLogger.accept(DATE_TIME_FORMATTER.format(Instant.now()) + " - " + s);
-        logger.info(s);
+        logger.log(INFO, s);
     }
 }

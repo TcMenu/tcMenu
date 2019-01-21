@@ -9,15 +9,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.lang.System.Logger.Level;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,7 +27,7 @@ public class RegistrationController {
     //private static final String REGISTRATION_URL = "http://localhost:8080/tcc/registerTcMenu";
     private static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/registerTcMenu";
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Pattern emailPattern = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
 
     public TextField yourName;
@@ -48,7 +47,7 @@ public class RegistrationController {
     }
 
     private void onTextChanged(Observable obs, String oldVal, String newVal) {
-        boolean valid = !StringUtils.isEmpty(yourName.getText());
+        boolean valid = !StringHelper.isStringEmptyOrNull(yourName.getText());
         valid = valid && isValidEmail(emailAddress.getText());
 
         generateButton.setDisable(!valid);
@@ -65,7 +64,7 @@ public class RegistrationController {
     }
 
     private boolean isValidEmail(String text) {
-        return !StringUtils.isEmpty(text) && emailPattern.matcher(text).matches();
+        return !StringHelper.isStringEmptyOrNull(text) && emailPattern.matcher(text).matches();
     }
 
     public void onRegister(ActionEvent event) {
@@ -78,7 +77,7 @@ public class RegistrationController {
                 newsLetter.isSelected()
         );
         String json = gson.toJson(registration);
-        logger.info(json);
+        logger.log(Level.INFO, "Sending json to reg service " + json);
         generateButton.setDisable(true);
         yourName.setDisable(true);
         emailAddress.setDisable(true);
@@ -150,7 +149,7 @@ public class RegistrationController {
                     Platform.runLater(RegistrationController.this::registrationFailed);
                 }
             } catch (Exception e) {
-                logger.error("Did not connect to the coders corner.",e );
+                logger.log(Level.ERROR, "Did not connect to the coders corner.", e);
                 errorStore.set("Unexpected error during registration");
                 Platform.runLater(RegistrationController.this::registrationFailed);
             }

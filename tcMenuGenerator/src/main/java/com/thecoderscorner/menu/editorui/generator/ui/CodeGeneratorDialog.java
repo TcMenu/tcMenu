@@ -13,14 +13,14 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.lang.System.Logger.Level;
 
 /**
  * The code generator dialog is the starting point for both initiating conversion, and to display the generation options
  */
 public class CodeGeneratorDialog {
-    private static final Logger logger = LoggerFactory.getLogger(NewItemDialog.class);
+    private static final System.Logger logger = System.getLogger(NewItemDialog.class.getSimpleName());
 
     /**
      * Shows the code generation configuration window, that is always displayed before a conversion starts. It
@@ -29,7 +29,7 @@ public class CodeGeneratorDialog {
      * @param editorUI the editorUI object responsible for rendering error alerts
      * @param project the project we are converting
      * @param codeGeneratorRunner the runner that runs the actual conversion
-     * @param model true for a modal window
+     * @param modal true for a modal window
      */
     public void showCodeGenerator(Stage stage, CurrentProjectEditorUI editorUI, CurrentEditorProject project,
                                   CodeGeneratorRunner codeGeneratorRunner, boolean modal) {
@@ -59,7 +59,7 @@ public class CodeGeneratorDialog {
             }
         }
         catch(Exception e) {
-            logger.error("Unable to create the form", e);
+            logger.log(Level.ERROR, "Unable to create the form", e);
         }
     }
 }

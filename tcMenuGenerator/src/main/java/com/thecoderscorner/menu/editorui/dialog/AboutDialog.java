@@ -14,13 +14,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 
 /** Example of displaying a splash page for a standalone JavaFX application */
 public class AboutDialog {
-    private final Logger logger = LoggerFactory.getLogger(AboutDialog.class);
+    private final System.Logger logger = System.getLogger(AboutDialog.class.getSimpleName());
 
     private AboutController controller;
     private Stage dialogStage;
@@ -44,7 +44,7 @@ public class AboutDialog {
             alert.setHeaderText("Error creating the form, more detail is in the log");
             alert.showAndWait();
 
-            logger.error("Unable to create the form", e);
+            logger.log(ERROR, "Unable to create the form", e);
         }
     }
 

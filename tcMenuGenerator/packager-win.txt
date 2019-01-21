@@ -1,8 +1,31 @@
-# always start in target directory
+# Unfortunately at the moment building the final step into a packaged archive is quite manual.
+# Always start with a command line in maven target directory..
 
-running java app direct from jfx/app directory (java 11):
+#
+# step 1 - a version of GSON that has a module-info.class file is a must
+#
+
+jdeps --generate-module-info . .\gson-2.8.5.jar
+javac --patch-module gson=gson-2.8.5.jar module-info.java
+jar -uf .\gson-2.8.5.jar -C gson module-info.class
+jar tvf .\gson-2.8.5.jar | findstr module
+remove the module directory created by jdeps.
+
+#
+# Step 2 Now try running as a java app direct from jfx/deps directory (java 11):
+#
+
 java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
 
-# windows java 11 packager (in progress)
+#
+# windows java 11 packager to create an image
+#
 
-jpackager --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --main-jar tcMenuDesigner.jar --class com.thecoderscorner.menu.editorui.MenuEditorApp --version 1.1 --icon classes/img/tcMenuDesigner.ico --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner --module com.thecoderscorner.tcmenu.menuEditorUI --win-menu-group="The Coders Corner" --win-shortcut
+jpackager create-image --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI --version 1.1 --icon classes/img/tcMenuDesigner.ico --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner  --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
+
+#
+# macos java 11 packager to create a dmg
+#
+
+To be determined..
+

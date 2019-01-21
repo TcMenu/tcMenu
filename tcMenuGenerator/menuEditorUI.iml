@@ -12,13 +12,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.16" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.0.1" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.0.1" level="project" />
     <orderEntry type="module" module-name="tcMenuJavaAPI" />
     <orderEntry type="library" name="Maven: com.fazecast:jSerialComm:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:11" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:win:11" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:11" level="project" />

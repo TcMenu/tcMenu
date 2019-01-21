@@ -14,13 +14,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static java.lang.System.Logger.Level.ERROR;
+
 public class RomLayoutDialog {
-    private static final Logger logger = LoggerFactory.getLogger(NewItemDialog.class);
+    private static final System.Logger logger = System.getLogger(NewItemDialog.class.getSimpleName());
     private Stage dialogStage;
 
     public RomLayoutDialog(Stage stage, MenuTree menuTree) {
@@ -41,7 +41,7 @@ public class RomLayoutDialog {
             alert.setHeaderText("Error creating the form, more detail is in the log");
             alert.showAndWait();
 
-            logger.error("Unable to create the form", e);
+            logger.log(ERROR, "Unable to create the form", e);
         }
     }
 

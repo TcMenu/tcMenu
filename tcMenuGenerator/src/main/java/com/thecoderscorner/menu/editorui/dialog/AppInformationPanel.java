@@ -5,31 +5,28 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
-import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String YOUTUBE_VIDEO_URL = "https://youtu.be/NYYXh9iwI5s";
 
-    private static final Logger logger = LoggerFactory.getLogger(AppInformationPanel.class);
+    private static final System.Logger logger = System.getLogger(AppInformationPanel.class.getSimpleName());
     private final MenuEditorController controller;
     private ArduinoLibraryInstaller installer;
 
@@ -71,7 +68,7 @@ public class AppInformationPanel {
             vbox.getChildren().add(new Label(diffLibVersions("LiquidCrystalIO")));
         }
         catch(Exception e) {
-            logger.error("Library checks failed", e);
+            logger.log(ERROR, "Library checks failed", e);
         }
 
         // and lastly the version
@@ -88,7 +85,7 @@ public class AppInformationPanel {
                 Desktop.getDesktop().browse(new URI(urlToVisit));
             } catch (IOException | URISyntaxException e) {
                 // not much we can do here really!
-                logger.error("Could not open browser", e);
+                logger.log(ERROR, "Could not open browser", e);
             }
         });
         vbox.getChildren().add(docs);

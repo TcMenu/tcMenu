@@ -9,8 +9,6 @@ import com.google.gson.*;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -21,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
+import static java.lang.System.Logger.Level.INFO;
 
 /**
  * An implementation of the ProjectPersisor that is based on GSON based JSON library.
@@ -42,7 +41,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
     private static final String ITEM_ID = "item";
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Gson gson;
 
     public FileBasedProjectPersistor() {
@@ -51,7 +50,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
     @Override
     public MenuTreeWithCodeOptions open(String fileName) throws IOException {
-        logger.info("Open file " + fileName);
+        logger.log(INFO, "Open file " + fileName);
 
         try(Reader reader = new BufferedReader(new FileReader(fileName))) {
             PersistedProject prj = gson.fromJson(reader, PersistedProject.class);
@@ -72,7 +71,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
     @Override
     public void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException {
-        logger.info("Save file starting for: " + fileName);
+        logger.log(INFO, "Save file starting for: " + fileName);
 
         List<PersistedMenu> itemsInOrder = populateListInOrder(MenuTree.ROOT, tree);
 

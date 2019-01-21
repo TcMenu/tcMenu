@@ -1,4 +1,4 @@
-module com.thecoderscorner.tcmenu.menuEditorUI {
+module com.thecoderscorner.tcmenu.tcMenuExampleUI {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.base;

@@ -6,11 +6,12 @@
 package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.prefs.Preferences;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 public class BuildVersionUtil {
 
@@ -26,7 +27,7 @@ public class BuildVersionUtil {
             props.load( resourceAsStream );
         }
         catch(Exception e) {
-            LoggerFactory.getLogger(BuildVersionUtil.class).error("Cannot load version properties", e);
+            System.getLogger("BuildVersioning").log(ERROR, "Cannot load version properties", e);
         }
 
     }

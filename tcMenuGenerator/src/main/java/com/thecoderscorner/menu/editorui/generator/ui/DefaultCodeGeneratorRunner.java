@@ -11,15 +11,16 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+
 public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
-    private final Logger logger = LoggerFactory.getLogger(DefaultCodeGeneratorRunner.class);
+    private final System.Logger logger = System.getLogger(DefaultCodeGeneratorRunner.class.getSimpleName());
 
     private final CurrentEditorProject project;
     private final Map<EmbeddedPlatform, CodeGenerator> codeGenerators;
@@ -32,17 +33,17 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
     @Override
     public void startCodeGeneration(Stage stage, EmbeddedPlatform platform, String path, List<EmbeddedCodeCreator> creators) {
         try {
-            logger.info("Starting conversion for [" + platform + "] in path [" + path + "]");
+            logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
             CodeGenerator gen = codeGenerators.get(platform);
             if(gen != null) {
                 startGeneratorWithLoggerWindow(stage, path, creators, gen);
             }
             else {
-                logger.error("Invalid platform detected: " + platform);
+                logger.log(ERROR, "Invalid platform detected: " + platform);
             }
         }
         catch(Exception e) {
-            logger.error("Unable to create the form", e);
+            logger.log(ERROR, "Unable to create the form", e);
         }
     }
 

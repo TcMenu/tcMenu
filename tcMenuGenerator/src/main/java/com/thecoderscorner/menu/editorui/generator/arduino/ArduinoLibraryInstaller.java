@@ -8,11 +8,10 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import javafx.scene.control.TextInputDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +35,7 @@ public class ArduinoLibraryInstaller {
      * the name of the library properties file
      */
     public static final String LIBRARY_PROPERTIES_NAME = "library.properties";
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     /**
      * the home directory
@@ -51,7 +50,7 @@ public class ArduinoLibraryInstaller {
     /**
      * the directory located for arduino library storage
      */
-    public String arduinoDirectory;
+    private String arduinoDirectory;
 
 
     /**
@@ -85,25 +84,34 @@ public class ArduinoLibraryInstaller {
             return Optional.ofNullable(Paths.get(arduinoDirectory));
         }
 
+        logger.log(Level.INFO, "Looking for Árduino directory");
 
         Path arduinoPath = Paths.get(homeDirectory, "Documents/Arduino");
         if (!Files.exists(arduinoPath)) {
+            logger.log(Level.INFO, "Not found in " + arduinoPath);
+
             // try again in the onedrive folder, noticed it there on several windows machines
             arduinoPath = Paths.get(homeDirectory, "OneDrive/Documents/Arduino");
         }
         if (!Files.exists(arduinoPath)) {
+            logger.log(Level.INFO, "Not found in " + arduinoPath);
+
             Optional<String> path = getArduinoPathWithDialog();
             if (path.isPresent()) {
+                logger.log(Level.INFO, "Finally found in  " + path);
                 arduinoPath = Paths.get(path.get());
             }
         }
 
         if (!Files.exists(arduinoPath)) return Optional.empty();
 
+        logger.log(Level.INFO, "looking for libraries");
+
         // there was an arduino install without a libraries directory - add it.
         Path libsPath = arduinoPath.resolve("libraries");
         if (!Files.exists(libsPath)) {
             try {
+                logger.log(Level.INFO, "Creating libraries folder");
                 Files.createDirectory(libsPath);
             } catch (IOException e) {
                 return Optional.empty();

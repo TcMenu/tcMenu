@@ -9,7 +9,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import org.apache.commons.lang3.StringUtils;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -66,7 +66,7 @@ public class TextTreeItemRenderer {
         @Override
         public void visit(TextMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
-            String it = StringUtils.repeat("A", Math.max(1, item.getTextLength()));
+            String it = StringHelper.repeat("A", Math.max(1, item.getTextLength()));
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
             setResult(sb.toString());
