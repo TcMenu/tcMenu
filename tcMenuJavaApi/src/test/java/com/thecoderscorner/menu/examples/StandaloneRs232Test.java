@@ -49,7 +49,7 @@ public class StandaloneRs232Test {
         // Change this to set the baud rate
         int baud = 9600;
 
-        logger.log(INFO, "Creating an rs232 connection to {} at {} baud", portName, baud);
+        logger.log(INFO, "Creating an rs232 connection to {0} at {1} baud", portName, baud);
 
         // Now we use the rs232 builder to make a suitably configured instance of a
         // controller that can talk over serial and work with our menuTree.
@@ -86,7 +86,7 @@ public class StandaloneRs232Test {
 
             // here we first traverse through all the submenus (even ROOT is a submenu)!
             menuTree.getAllSubMenus().forEach(subMenu -> {
-                logger.log(INFO, "SubMenu {} has the following child elements", subMenu);
+                logger.log(INFO, "SubMenu {0} has the following child elements", subMenu);
                 // and then we go through all the items within that submenu.
                 menuTree.getMenuItems(subMenu).forEach(item -> logger.log(INFO, "----->>> " + item));
             });
@@ -95,7 +95,7 @@ public class StandaloneRs232Test {
             // a delta change command.
             Optional<MenuItem> maybeItem = menuTree.getMenuById(MenuTree.ROOT, 1);
             maybeItem.ifPresent( item -> {
-                logger.log(INFO, "Retrieved {} by its ID {}, change by 5", item.getName(), item.getId());
+                logger.log(INFO, "Retrieved {0} by its ID {1}, change by 5", item.getName(), item.getId());
                  controller.sendCommand(CommandFactory.newDeltaChangeCommand(MenuTree.ROOT.getId(),
                          item.getId(), +5));
             });

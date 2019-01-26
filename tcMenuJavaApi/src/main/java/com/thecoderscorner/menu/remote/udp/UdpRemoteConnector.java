@@ -142,7 +142,7 @@ public class UdpRemoteConnector implements RemoteConnector {
         int len = Math.min(256, bb.remaining());
         bb.get(byData, 0, len);
 
-        logger.log(DEBUG,"{}. Magic:{}, Device:{}, Proto:{}, ToAPI:{}, Content: '{}'", msg, magic, devId,
+        logger.log(DEBUG,"{0}. Magic:{1}, Device:{2}, Proto:{3}, ToAPI:{4}, Content: '{5}'", msg, magic, devId,
                    proto, toApi, new String(byData, 0, len));
     }
 

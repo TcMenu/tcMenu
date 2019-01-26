@@ -11,7 +11,7 @@ public class NamedDaemonThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread th = new Thread();
+        Thread th = new Thread(r);
         th.setDaemon(true);
         th.setName(name);
         return th;

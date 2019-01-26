@@ -33,9 +33,11 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
         serialPort.setBaudRate(baud);
         this.portName = portName;
         this.baud = baud;
+        logger.log(INFO, "Created RS232 connector with port {0} and baud {1}.", portName, baud);
     }
 
     public void start() {
+        logger.log(INFO, "Starting RS232 connector {0}", portName);
         executor.execute(this::threadedReader);
     }
 

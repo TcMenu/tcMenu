@@ -72,7 +72,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
                 }
                 catch(TcProtocolException ex) {
                     // a protocol problem shouldn't drop the connection
-                    logger.log(WARNING, "Probable Bad message reason='{}' Remote={} ",
+                    logger.log(WARNING, "Probable Bad message reason='{0}' Remote={1} ",
                                ex.getMessage(), getConnectionName());
                 }
             }
