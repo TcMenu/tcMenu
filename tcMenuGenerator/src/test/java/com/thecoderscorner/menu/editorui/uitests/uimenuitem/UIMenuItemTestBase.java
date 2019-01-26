@@ -63,6 +63,10 @@ public abstract class UIMenuItemTestBase {
         verifyThat("#uiItemErrors", (Label l)-> l.getText().contains(errorText) && l.isVisible());
     }
 
+    protected void verifyThatThereAreNoErrorsReported() {
+        verifyThat("#uiItemErrors", node -> !node.isVisible());
+    }
+
     protected void performAllCommonChecks(MenuItem item) {
         verifyThat("#idField", Node::isDisabled);
         verifyThat("#idField", textFieldHasValue(Integer.toString(item.getId())));

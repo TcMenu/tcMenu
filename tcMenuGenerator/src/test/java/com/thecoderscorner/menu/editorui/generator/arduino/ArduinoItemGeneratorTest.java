@@ -58,7 +58,7 @@ public class ArduinoItemGeneratorTest {
     public void testGenerateEnumItem() {
         EnumMenuItem item = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(5)
-                .withName("Channel")
+                .withName("Channel öôóò")
                 .withEepromAddr(22)
                 .withFunctionName("onChannel")
                 .withEnumList(List.of("Turntable", "Computer"))
@@ -71,13 +71,13 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer info = result.get().get(1);
         BuildStructInitializer menu = result.get().get(2);
 
-        checkTheBasicsOfInfo(info, "EnumMenuInfo", "Channel");
-        assertThat(info.getStructElements()).containsExactly("\"Channel\"", "5", "22", "1", "onChannel", "enumStrChannel");
-        checkTheBasicsOfItem(menu, "EnumMenuItem", "Channel");
-        assertThat(menu.getStructElements()).containsExactly("&minfoChannel", "0", "NULL");
+        checkTheBasicsOfInfo(info, "EnumMenuInfo", "ChannelÖôóò");
+        assertThat(info.getStructElements()).containsExactly("\"Channel öôóò\"", "5", "22", "1", "onChannel", "enumStrChannelÖôóò");
+        checkTheBasicsOfItem(menu, "EnumMenuItem", "ChannelÖôóò");
+        assertThat(menu.getStructElements()).containsExactly("&minfoChannelÖôóò", "0", "NULL");
 
         assertThat(choices.getStructElements()).containsExactly("\"Turntable\"", "\"Computer\"");
-        assertEquals("Channel", choices.getStructName());
+        assertEquals("ChannelÖôóò", choices.getStructName());
         assertTrue(choices.isStringChoices());
         assertFalse(choices.isRequiresExtern());
     }
@@ -86,7 +86,7 @@ public class ArduinoItemGeneratorTest {
     public void testGenerateTextItem() {
         TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(10)
-                .withName("Gen State")
+                .withName("Gen &^%State")
                 .withEepromAddr(22)
                 .withFunctionName(null)
                 .withLength(10)
@@ -100,7 +100,7 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(1);
 
         checkTheBasicsOfInfo(info, "TextMenuInfo", "GenState");
-        assertThat(info.getStructElements()).containsExactly("\"Gen State\"", "10", "22", "10", "NO_CALLBACK");
+        assertThat(info.getStructElements()).containsExactly("\"Gen &^%State\"", "10", "22", "10", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
         assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "NULL");
 

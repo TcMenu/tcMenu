@@ -38,7 +38,10 @@ import java.util.stream.Collectors;
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
+
+    public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL}
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
+
     private final T menuItem;
     private final MenuIdChooser chooser;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
@@ -104,9 +107,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         grid.add(eepromBox, 1, idx);
 
-        eepromNextBtn.setOnAction((act) -> {
-            eepromField.setText(Integer.toString(chooser.nextHighestEeprom()));
-        });
+        eepromNextBtn.setOnAction((act) -> eepromField.setText(Integer.toString(chooser.nextHighestEeprom())));
 
         idx++;
         grid.add(new Label("onChange Function"), 0, idx);
@@ -132,14 +133,14 @@ public abstract class UIMenuItem<T extends MenuItem> {
             return null;
         }
         return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
-                errors, 32, true);
+                errors, 32, StringFieldType.VARIABLE);
     }
 
     protected void getChangedDefaults(MenuItemBuilder<?> builder, List<FieldError> errorsBuilder) {
         int eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
                 errorsBuilder, -1, Short.MAX_VALUE);
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
-                errorsBuilder, 19, false);
+                errorsBuilder, 19, StringFieldType.MANDATORY);
 
         builder.withFunctionName(getFunctionName(errorsBuilder))
                 .withEepromAddr(eeprom)
@@ -187,20 +188,23 @@ public abstract class UIMenuItem<T extends MenuItem> {
      * @param field the field name to report errors against
      * @param errorsBuilder the list of errors reported so far
      * @param maxLen the maximum allowable length
-     * @param variable true if this field is a direct code generating field, false otherwise.
+     * @param fieldType the type of field which changes the method of evaluation.
      * @return the string once checked
      */
     protected String safeStringFromProperty(StringProperty stringProperty, String field, List<FieldError> errorsBuilder,
-                                            int maxLen, boolean variable) {
+                                            int maxLen, StringFieldType fieldType) {
         String s = stringProperty.get();
-        if(s.length() == 0 || s.length() > maxLen) {
-            errorsBuilder.add(new FieldError("Text field must not be blank and smaller than " + maxLen, field));
+        if(fieldType == StringFieldType.OPTIONAL &&  s.length() > maxLen) {
+            errorsBuilder.add(new FieldError("field must be less than " + maxLen + " characters", field));
+        }
+        else if(fieldType != StringFieldType.OPTIONAL  && (s.length() > maxLen || s.isEmpty())) {
+            errorsBuilder.add(new FieldError("field must not be blank and less than " + maxLen + " characters", field));
         }
 
-        if(variable && !s.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$")) {
+        if(fieldType == StringFieldType.VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
             errorsBuilder.add(new FieldError("Function fields must use only letters, digits, and '_'", field));
         }
-        else if(!variable && !s.matches("^[a-zA-Z_$0-9\\s\\-*%()]*$")) {
+        else if(!s.matches("^[\\p{L}\\p{N}\\s\\-_*%()]*$")) {
             errorsBuilder.add(new FieldError("Text can only contain letters, numbers, spaces and '-_()*%'", field));
         }
         return s;
@@ -289,8 +293,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         String origText = focusedTF.getText();
 
-        int endPos = 0;
-        String updatedText = "";
+        int endPos;
+        String updatedText;
         String firstPart = origText.substring(0, range.getStart());
         String lastPart = origText.substring(range.getEnd());
 

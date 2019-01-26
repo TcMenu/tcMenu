@@ -36,7 +36,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringBadValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
-        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).get();
+        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -49,7 +49,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
                 "Offset - Value must be between -32768 and 32767");
 
         tryToEnterBadValueIntoField(robot, "unitNameField", "nameField", "too long",
-                "Text field must not be blank and smaller than 4");
+                "Unit Name - field must be less than 4 characters");
 
         tryToEnterBadValueIntoField(robot, "divisorField", "nameField", "100000",
                 "Divisor - Value must be between 0 and 10000");
@@ -64,7 +64,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringValidValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
-        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).get();
+        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -89,6 +89,8 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         robot.eraseText(5);
         robot.write("255");
 
+        verifyThatThereAreNoErrorsReported();
+
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
         AnalogMenuItem item = (AnalogMenuItem) captor.getValue();
@@ -96,6 +98,47 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         assertEquals(255, item.getMaxValue());
         assertEquals(2, item.getDivisor());
         assertEquals("dB", item.getUnitName());
+    }
+
+    @Test
+    void testValidValuesNearLimits(FxRobot robot) throws InterruptedException {
+        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
+        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
+
+        // open the sub menu item editor panel
+        createMainPanel(uiSubItem);
+
+        // firstly check that all the fields are populated properly
+        performAllCommonChecks(analogItem);
+
+        robot.clickOn("#offsetField");
+        robot.eraseText(5);
+        robot.write("-32768");
+
+        robot.clickOn("#unitNameField");
+        robot.eraseText(5);
+        robot.write("");
+
+        robot.clickOn("#divisorField");
+        robot.eraseText(5);
+        robot.write("10000");
+
+        robot.clickOn("#maxValueField");
+        robot.eraseText(5);
+        robot.write("65355");
+
+        // select any other field to commit edit.
+        robot.clickOn("#unitNameField");
+
+        verifyThatThereAreNoErrorsReported();
+
+        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
+        verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
+        AnalogMenuItem item = (AnalogMenuItem) captor.getValue();
+        assertEquals(-32768, item.getOffset());
+        assertEquals(65355, item.getMaxValue());
+        assertEquals(10000, item.getDivisor());
+        assertEquals("", item.getUnitName());
     }
 
 }

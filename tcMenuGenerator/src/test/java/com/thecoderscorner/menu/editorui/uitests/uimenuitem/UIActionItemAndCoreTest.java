@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringAcceptableValuesIntoActionEditor(FxRobot robot) throws InterruptedException {
-        MenuItem actionItem = menuTree.getMenuById(MenuTree.ROOT, 8).get();
+        MenuItem actionItem = menuTree.getMenuById(MenuTree.ROOT, 8).orElseThrow();
         Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -54,11 +55,11 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         robot.eraseText(4);
         robot.write("4");
 
-        robot.clickOn("#functionNameTextField");
-        robot.eraseText(15);
-        robot.write("onChange");
+        writeIntoFunctionFieldAndVerifyOK(robot, "on_change");
+        writeIntoFunctionFieldAndVerifyOK(robot, "öôóòLatin");
+        writeIntoFunctionFieldAndVerifyOK(robot, "onChange");
 
-        robot.clickOn("#nameField");
+        verifyThatThereAreNoErrorsReported();
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
@@ -70,9 +71,18 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         verifyThat("#eepromField", textFieldHasValue("7"));
     }
 
+    private void writeIntoFunctionFieldAndVerifyOK(FxRobot robot, String newValue) {
+        TextField field =  robot.lookup("#functionNameTextField").query();
+        robot.clickOn(field);
+        robot.eraseText(field.getText().length());
+        robot.write(newValue);
+        robot.clickOn("#nameField");
+        verifyThatThereAreNoErrorsReported();
+    }
+
     @Test
     void testEnteringBadValuesIntoBaseEditor(FxRobot robot) throws InterruptedException {
-        MenuItem subItem = menuTree.getSubMenuById(100).get();
+        MenuItem subItem = menuTree.getSubMenuById(100).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(subItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -95,15 +105,18 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
                 "Name - Text can only contain letters, numbers, spaces and '-_()*%'");
 
         tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "",
-                "Name - Text field must not be blank and smaller than 19");
-
-        tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "This name is too long for menuitem",
-                "Name - Text field must not be blank and smaller than 19");
+                "Name - field must not be blank and less than 19 characters");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "name spaces",
                 "Function fields must use only letters, digits, and '_'");
 
-        MenuItem subItemCompare = menuTree.getSubMenuById(100).get();
+        tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "This name is too long for menuitem",
+                                    "Name - field must not be blank and less than 19 characters");
+
+        tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "19_Bad",
+                                    "Function fields must use only letters, digits, and '_'");
+
+        MenuItem subItemCompare = menuTree.getSubMenuById(100).orElseThrow();
         assertEquals(-1, subItemCompare.getEepromAddress());
 
         tryToEnterLettersIntoNumericField(robot, "eepromField");

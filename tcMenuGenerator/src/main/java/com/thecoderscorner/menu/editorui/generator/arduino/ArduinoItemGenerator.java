@@ -223,16 +223,13 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStru
     }
 
     public static String makeNameToVar(String name) {
-        Collection<String> parts = Arrays.asList(name.split("[\\s\\-*%()_]+"));
+        Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
         return parts.stream().map(ArduinoItemGenerator::capitaliseFirst).collect(Collectors.joining());
     }
 
     private static String capitaliseFirst(String s) {
         if(s.isEmpty()) return s;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(Character.toUpperCase(s.charAt(0)));
-        sb.append(s.substring(1));
-        return sb.toString();
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 }
