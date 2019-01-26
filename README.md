@@ -32,26 +32,19 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>
 
-## Major improvement to memory usage in V1.0
+## TcMenu saves memory in many ways
 
-A major improvement in memory usage for Arduino Uno and other smaller boards. It reduces memory usage considerably for most cases, by as much as 40% in some case.
+Memory usage is so low that it's even viable for Arduino Uno and other smaller boards, by holding all static data possible in static RAM, and only including the display drivers and remotes that you're using. 
 
-For most existing users, you'll just use the UI designer to remake your code from the saved designer file (the CPP and H file). Doing this will keep everything entact in your sketch. Any menu names will not change.
+This means:
 
-This is what will mean:
-
-* No virtuals in the whole menuitem strucutre, although the signatures are near identical - infact the new signature is better, as it hides away the PROGMEM near completely.
-* Removed the interface for the high level remote management, there was no need for it, it was just a cost.
-* Removed the need to call menuItemChanged on menu manager, it's done automatically now.
-* On smaller boards such as Uno, a reasonably sized menu with Serial and Ethernet now fits again.
-* At the same time, the embedded code will be moved into a new project tcMenuArduino, tcMenuAdaGfx and tcMenuLiquidCrystal. This allows it to be installed by library managers once a bit more stable.
-* Remote code will be moved into a separate set of files, included as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
+* No virtuals in the whole menuitem strucutre; while the API hides away the PROGMEM near completely.
+* On smaller boards such as Uno, a reasonably sized menu with Serial and Ethernet fits into the small 2K RAM.
+* Remote code is now plugin based, stored in a separate set of files, included into your sketch directory as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
 * If you previously used the RemoteListener, which was clunky to use, it's now replaced with a callback function that reports connections, disconnections and errors using a status type.
-* RemoteMenuItem now allows for feedback of whos connected
-* FloatMenuItem allows for read only floating point "status" values
 
 ## Types of input supported
 
