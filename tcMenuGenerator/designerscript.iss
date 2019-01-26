@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=C:\Users\dave\IdeaProjects\tcMenu\LICENSE
-OutputBaseFilename=setup
+OutputBaseFilename=setupTcMenu
 Compression=lzma
 SolidCompression=yes
 
