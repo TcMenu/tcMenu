@@ -2,17 +2,16 @@
 # Always start with a command line in maven target directory..
 
 #
-# step 1 - a version of GSON that has a module-info.class file is a must
+# step 1 before maven build - a version of GSON that has a module-info.class file (must override local repo version)
 #
 
 jdeps --generate-module-info . .\gson-2.8.5.jar
 javac --patch-module gson=gson-2.8.5.jar module-info.java
 jar -uf .\gson-2.8.5.jar -C gson module-info.class
 jar tvf .\gson-2.8.5.jar | findstr module
-remove the module directory created by jdeps.
 
 #
-# Step 2 Now try running as a java app direct from jfx/deps directory (java 11):
+# Step 2 after maven build - try running as a java app direct from jfx/deps directory (java 11):
 #
 
 java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
