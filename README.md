@@ -1,10 +1,9 @@
 # tcMenu beta - An embedded menu system for Arduino
 
 TcMenu is a full feature menu system for Arduino, that is modular enough to support different input types and displays;
-it is currently under development so be careful before using in full production.
+it is currently under development so be careful before using in full production. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that provides many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
 
-TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that provides
-many useful abstractions and remote control capabilities, including the ability to render menus locally onto a display.
+To start one normally uses the menu designer UI, which is packaged with every release, and available for both Windows and MacOS. It should also be easy to run on Linux - contact me if interested. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
 
 ## Questions, community forum and support
 
@@ -24,6 +23,21 @@ For using the Menu Generator on Linux, install a recent Java (tested on V10) wit
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 
 [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
+
+## Current Priorities to get the menu out of BETA
+
+* Some more videos on youtube showing how to generate menus.
+* More complete documentation on the coders corner showing how to use it.
+* Better and more configurable options for the AdaGfx display range.
+* Complete support for most types of OLED display.
+* Complete support for the Nokia 5110 display.
+* Improve the 16x2 LCD support to have an additional renderer with one item per page.
+* Make the plugin system modular so that anyone can add additional designer UI plugins without understanding the Java language.
+
+## Coming in the next version V1.2
+
+* Acceleration on rotary encoders and repeat-key switches.
+* Support for DfRobot LCD shield input switches on analog input.
 
 ## The Java API
 
@@ -48,16 +62,18 @@ This means:
 
 ## Types of input supported
 
-* Button based rotary encoder emulation (Up, Down and OK buttons)
-* Rotary encoder based input with no need any additional components in many cases.
+* Button based rotary encoder emulation (Up, Down and OK buttons) either local, i2c expander, shift register, or DfRobot analog.  
+* Rotary encoder based input with no need any additional components in many cases. Either local or i2c expander.
 * No local input facilities if your application is completely controlled remotely.
 
 ## Display types that are supported
 
 * LiquidCrystal 20x4 or 16x2 displays - can be either directly connected, i2c or on a shift register.
-* Adafruit_GFX - can render onto a display compatible with this library 
+* Adafruit_GFX - can render onto a display compatible with this library.
 
 ## Remote endpoints that are supported
+
+This menu library provides complete remote control, presently over serial and ethernet. The full menu structure is sent over the wire and the Java API provides it as a tree that can be manipulated. There is also a defined protocol for other languages. In addition to this the menu can be programatically manipulated very easily on the device.
 
 * RS232 endpoint that supports full control of the menu items using a Java API - example app included.
 * Ethernet endpoint that supports the Ethernet library specification.
