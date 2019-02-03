@@ -16,9 +16,7 @@ You can get help from the community forum, there are also support options availa
 
 There are pre-built packages for Windows and MacOS that include the Generator UI and the UI can copy over the libraries automatically. However, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
 
-[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and also as a zip for any platform that can run Java 9 or above such as Linux, Windows or MacOS.
-
-For using the Menu Generator on Linux, install a recent Java (tested on V10) with OpenJFX, and then take the application package instead of the dmg or exe file in the release. 
+[Get a copy of the project from the releases page](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and also as a zip for any platform that can run Java 11 or above; such as most Linux distros, Windows 7, 8, 10 or any recent MacOSX.
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 
