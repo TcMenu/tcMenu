@@ -3,7 +3,7 @@
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  */
 
-package com.thecoderscorner.menu.editorui.generator;
+package com.thecoderscorner.menu.pluginapi;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -18,7 +18,6 @@ public class CreatorProperty {
     private String latestValue;
     private SubSystem subsystem;
 
-    public enum SubSystem { DISPLAY, INPUT, REMOTE }
     public enum PropType { USE_IN_DEFINE, VARIABLE, TEXTUAL }
 
     public CreatorProperty() {

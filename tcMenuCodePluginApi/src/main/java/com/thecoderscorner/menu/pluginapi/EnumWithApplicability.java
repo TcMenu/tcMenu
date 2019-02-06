@@ -3,9 +3,8 @@
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  */
 
-package com.thecoderscorner.menu.editorui.generator;
+package com.thecoderscorner.menu.pluginapi;
 
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
 import java.util.Objects;
 import java.util.Set;
@@ -54,17 +53,11 @@ public class EnumWithApplicability {
         return getDescription();
     }
 
-    public EmbeddedCodeCreator makeCreator(CurrentEditorProject project) {
+    public EmbeddedCodeCreator makeCreator() {
         try {
-            return creator.getConstructor(CurrentEditorProject.class).newInstance(project);
-        } catch (NoSuchMethodException ex) {
-            try {
-                return creator.getConstructor().newInstance();
-            } catch (Exception e) {
-                throw new UnsupportedOperationException("An undeclared code generation constructor in " + creator, e);
-            }
+            return creator.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new UnsupportedOperationException("An undeclared code generation constructor in " + creator, e);
+            throw new UnsupportedOperationException("Code generators must have no args constructor: " + creator, e);
         }
     }
 

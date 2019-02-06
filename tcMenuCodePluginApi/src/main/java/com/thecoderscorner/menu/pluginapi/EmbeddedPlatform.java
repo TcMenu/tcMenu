@@ -3,7 +3,7 @@
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  */
 
-package com.thecoderscorner.menu.editorui.generator;
+package com.thecoderscorner.menu.pluginapi;
 
 public enum EmbeddedPlatform {
     ARDUINO("Arduino - Uno, Mega, 8bit");

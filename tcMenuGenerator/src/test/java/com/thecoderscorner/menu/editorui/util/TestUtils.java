@@ -2,15 +2,11 @@ package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.SubSystem;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
-import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 
 import java.util.List;
@@ -28,8 +24,8 @@ public class TestUtils {
         assertEquals(expected, actual);
     }
 
-    public static CreatorProperty findAndCheckProperty(EmbeddedCodeCreator creator, String name, CreatorProperty.SubSystem subSystem,
-                                                 CreatorProperty.PropType type, String newVal) {
+    public static CreatorProperty findAndCheckProperty(EmbeddedCodeCreator creator, String name, SubSystem subSystem,
+                                                       CreatorProperty.PropType type, String newVal) {
         CreatorProperty prop = creator.properties().stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst().orElse(null);
@@ -41,13 +37,6 @@ public class TestUtils {
         prop.getProperty().setValue(newVal);
         assertEquals(newVal, prop.getLatestValue());
         return prop;
-    }
-
-    public static CurrentEditorProject makeEditorProject() {
-        ProjectPersistor mockedPersistor = Mockito.mock(ProjectPersistor.class);
-        CurrentProjectEditorUI mockedEditorUI = Mockito.mock(CurrentProjectEditorUI.class);
-        CurrentEditorProject project = new CurrentEditorProject(mockedEditorUI, mockedPersistor);
-        return project;
     }
 
     public static void runOnFxThreadAndWait(Runnable runnable) throws InterruptedException {

@@ -1,15 +1,14 @@
 package com.thecoderscorner.menu.editorui.generator.display;
 
-import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 
 public class AdafruitGfxDisplayCreator extends AbstractCodeCreator {
 
@@ -17,7 +16,7 @@ public class AdafruitGfxDisplayCreator extends AbstractCodeCreator {
             new CreatorProperty("DISPLAY_VARIABLE", "This variable must be an Adafruit_GFX*", "gfx", DISPLAY),
             new CreatorProperty("DISPLAY_WIDTH", "The display width", "320", DISPLAY),
             new CreatorProperty("DISPLAY_HEIGHT", "The display height", "240", DISPLAY)
-    ));
+                                                                                   ));
     @Override
     public List<String> getIncludes() {
         return Collections.singletonList(

@@ -5,8 +5,8 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;

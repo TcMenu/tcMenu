@@ -5,26 +5,23 @@
 
 package com.thecoderscorner.menu.editorui.generator.display;
 
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.EnumWithApplicability;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_ARDUINO_BOARDS;
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
 
 public class DisplayType extends EnumWithApplicability {
 
     public static Map<Integer, DisplayType> values = new HashMap<>();
 
     static {
-        addValue(1, ALL_DEVICES, "No Display", DisplayNotUsedCreator.class);
-        addValue(2, ALL_ARDUINO_BOARDS, "LiquidCrystalIO Arduino Pins", ArduinoPinLiquidCrystalCreator.class);
-        addValue(3, ALL_ARDUINO_BOARDS, "LiquidCrystalIO on i2c bus", I2cBusLiquidCrystalCreator.class);
-        addValue(4, ALL_ARDUINO_BOARDS, "Adafruit_GFX Display", AdafruitGfxDisplayCreator.class);
+        addValue(1, Set.of(EmbeddedPlatform.ARDUINO), "No Display", DisplayNotUsedCreator.class);
+        addValue(2, Set.of(EmbeddedPlatform.ARDUINO), "LiquidCrystalIO Arduino Pins", ArduinoPinLiquidCrystalCreator.class);
+        addValue(3, Set.of(EmbeddedPlatform.ARDUINO), "LiquidCrystalIO on i2c bus", I2cBusLiquidCrystalCreator.class);
+        addValue(4, Set.of(EmbeddedPlatform.ARDUINO), "Adafruit_GFX Display", AdafruitGfxDisplayCreator.class);
     }
 
     public DisplayType(Set<EmbeddedPlatform> platformApplicability, String description,

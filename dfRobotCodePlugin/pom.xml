@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.thecoderscorner.tcmenu</groupId>
+    <artifactId>dfRobotCodePlugin</artifactId>
+    <name>dfRobotCodePlugin</name>
+    <description>DfRobot plugins to build Arduino code</description>
+    <version>1.2-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <junit5.surefire.version>1.3.1</junit5.surefire.version>
+        <junit5.version>5.3.1</junit5.version>
+        <mockito.version>2.23.0</mockito.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.thecoderscorner.tcmenu</groupId>
+            <artifactId>tcMenuJavaAPI</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thecoderscorner.tcmenu</groupId>
+            <artifactId>tcMenuCodePluginApi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- test only dependencies start -->
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>${junit5.surefire.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit5.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.11.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- the resource below just allows us to use maven defined
+             properties such as build version in the plugin json -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>tcmenu-plugin.json</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>tcmenu-plugin.json</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- we need to use a recent complier plugin version set to 11 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

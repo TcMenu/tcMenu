@@ -5,7 +5,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
-import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
+import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;

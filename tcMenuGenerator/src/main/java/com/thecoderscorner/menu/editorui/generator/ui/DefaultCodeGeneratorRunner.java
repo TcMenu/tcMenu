@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
-import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.CodeGenerator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

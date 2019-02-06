@@ -5,16 +5,15 @@
 
 package com.thecoderscorner.menu.editorui.generator.remote;
 
-import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.REMOTE;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 
 public class NoRemoteCapability extends AbstractCodeCreator {
     private List<CreatorProperty> creatorProperties = new ArrayList<>(Collections.singletonList(

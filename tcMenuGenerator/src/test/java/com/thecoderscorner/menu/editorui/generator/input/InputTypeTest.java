@@ -1,13 +1,12 @@
 package com.thecoderscorner.menu.editorui.generator.input;
 
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.USE_IN_DEFINE;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.INPUT;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.findAndCheckProperty;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.INPUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.assertions.api.Assertions.assertThat;
@@ -25,7 +24,7 @@ public class InputTypeTest {
 
     @Test
     public void testRotaryEncoderInput() {
-        EmbeddedCodeCreator creator = InputType.values.get(1).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = InputType.values.get(1).makeCreator();
         assertEquals(6, creator.properties().size());
 
         findAndCheckProperty(creator,"PULLUP_LOGIC", INPUT, TEXTUAL, "false");
@@ -50,7 +49,7 @@ public class InputTypeTest {
 
     @Test
     public void testUpDownEncoder() {
-        EmbeddedCodeCreator creator = InputType.values.get(2).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = InputType.values.get(2).makeCreator();
         assertEquals(6, creator.properties().size());
 
         findAndCheckProperty(creator,"PULLUP_LOGIC", INPUT, TEXTUAL, "false");

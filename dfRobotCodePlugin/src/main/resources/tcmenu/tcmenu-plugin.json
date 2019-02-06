@@ -1,0 +1,23 @@
+{
+  "name": "DfRobot CodeGen Plugin",
+  "moduleName": "com.thecoderscorner.tcmenu.dfRobotCodePlugin",
+  "version": "${project.version}",
+  "plugins": [
+    {
+      "subsytem": "INPUT",
+      "applicability": ["ARDUINO"],
+      "description": "Input from DfRobot Shield",
+      "extendedDescription": "Uses the DfRobot shield switches connected to analog input A0",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotAnalogInputCreator",
+      "imageFileName": "DfRobotShield.jpg"
+    },
+    {
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO"],
+      "description": "Output to DfRobot Shield LCD",
+      "extendedDescription": "Uses the LCD panel on the DfRobot shield via the LiquidCrystalIO library without ",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotLcdCreator",
+      "imageFileName": "DfRobotShield.jpg"
+    }
+  ]
+}

@@ -1,12 +1,9 @@
 package com.thecoderscorner.menu.editorui.generator.remote;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.REMOTE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +24,7 @@ public class RemoteCapabilitiesTest {
 
     @Test
     public void testNoRemoteCapabilities() {
-        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(1).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(1).makeCreator();
         assertEquals(1, creator.properties().size());
 
         findAndCheckProperty(creator, "DEVICE_NAME", REMOTE, PropType.TEXTUAL, "Tester");
@@ -41,7 +38,7 @@ public class RemoteCapabilitiesTest {
 
     @Test
     public void testSerialRemoteCapabilities() {
-        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(2).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(2).makeCreator();
         assertEquals(2, creator.properties().size());
         findAndCheckProperty(creator, "DEVICE_NAME", REMOTE, PropType.TEXTUAL, "Tester");
         findAndCheckProperty(creator, "SERIAL_PORT", REMOTE, PropType.VARIABLE, "Serial");
@@ -61,7 +58,7 @@ public class RemoteCapabilitiesTest {
 
     @Test
     public void testEthernetRemoteCapabilites() {
-        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(3).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = RemoteCapabilities.values.get(3).makeCreator();
         assertEquals(2, creator.properties().size());
 
         findAndCheckProperty(creator, "DEVICE_NAME", REMOTE, PropType.TEXTUAL, "Tester");

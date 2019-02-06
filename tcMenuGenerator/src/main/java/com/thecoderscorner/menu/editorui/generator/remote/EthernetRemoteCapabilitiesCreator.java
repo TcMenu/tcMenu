@@ -5,27 +5,21 @@
 
 package com.thecoderscorner.menu.editorui.generator.remote;
 
-import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.REMOTE;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 
 public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
-    private final CurrentEditorProject project;
     private final List<CreatorProperty> creatorProperties = List.of(
             new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333", REMOTE),
             new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device", REMOTE, TEXTUAL)
     );
-
-    public EthernetRemoteCapabilitiesCreator(CurrentEditorProject project) {
-        this.project = project;
-    }
 
     @Override
     public List<String> getIncludes() {

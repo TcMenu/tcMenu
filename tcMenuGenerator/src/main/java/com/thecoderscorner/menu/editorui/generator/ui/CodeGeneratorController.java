@@ -5,10 +5,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.EnumWithApplicability;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
@@ -88,7 +88,17 @@ public class CodeGeneratorController {
         }
 
     private void inputTypeChanged(Observable obs, InputType oldVal, InputType newVal) {
-        inputCreator = newVal.makeCreator(project);
+        inputCreator = newVal.makeCreator();
+        changeProperties();
+    }
+
+    private void displayTypeChanged(Observable obs, DisplayType oldVal, DisplayType newVal) {
+        displayCreator = newVal.makeCreator();
+        changeProperties();
+    }
+
+    private void remoteTypeChanged(Observable obs, RemoteCapabilities oldVal, RemoteCapabilities newVal) {
+        remoteCreator = newVal.makeCreator();
         changeProperties();
     }
 
@@ -111,17 +121,6 @@ public class CodeGeneratorController {
                 .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
                 .findFirst()
                 .ifPresent(p-> prop.getProperty().set(p.getLatestValue())));
-    }
-
-
-    private void displayTypeChanged(Observable obs, DisplayType oldVal, DisplayType newVal) {
-        displayCreator = newVal.makeCreator(project);
-        changeProperties();
-    }
-
-    private void remoteTypeChanged(Observable obs, RemoteCapabilities oldVal, RemoteCapabilities newVal) {
-        remoteCreator = newVal.makeCreator(project);
-        changeProperties();
     }
 
     private <T extends EnumWithApplicability> void filterChoicesFor(ComboBox<T> choices, EmbeddedPlatform platform, Map<Integer, T> values) {

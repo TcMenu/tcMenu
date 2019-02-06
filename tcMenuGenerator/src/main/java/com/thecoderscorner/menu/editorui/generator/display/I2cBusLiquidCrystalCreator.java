@@ -5,14 +5,13 @@
 
 package com.thecoderscorner.menu.editorui.generator.display;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 
 public class I2cBusLiquidCrystalCreator extends LiquidCrystalCreator {
 

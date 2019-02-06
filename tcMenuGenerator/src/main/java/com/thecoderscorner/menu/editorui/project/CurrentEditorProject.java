@@ -20,7 +20,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller

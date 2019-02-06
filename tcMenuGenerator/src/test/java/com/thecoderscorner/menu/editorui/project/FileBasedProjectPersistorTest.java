@@ -2,8 +2,6 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
 import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
@@ -21,8 +19,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBasedProjectPersistorTest {

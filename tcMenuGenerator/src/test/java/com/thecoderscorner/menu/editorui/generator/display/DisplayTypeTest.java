@@ -1,12 +1,10 @@
 package com.thecoderscorner.menu.editorui.generator.display;
 
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.USE_IN_DEFINE;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.assertions.api.Assertions.assertThat;
@@ -32,7 +30,7 @@ public class DisplayTypeTest {
 
     @Test
     public void testNoDisplayCase() {
-        EmbeddedCodeCreator creator = DisplayType.values.get(1).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = DisplayType.values.get(1).makeCreator();
 
         assertEquals("", creator.getExportDefinitions());
         assertEquals("", creator.getSetupCode("root"));
@@ -43,7 +41,7 @@ public class DisplayTypeTest {
 
     @Test
     public void testAdaFruitGfxCreator() {
-        EmbeddedCodeCreator creator = DisplayType.values.get(4).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = DisplayType.values.get(4).makeCreator();
 
         findAndCheckProperty(creator, "DISPLAY_VARIABLE", DISPLAY, USE_IN_DEFINE, "gfx");
         findAndCheckProperty(creator, "DISPLAY_WIDTH", DISPLAY, USE_IN_DEFINE, "320");
@@ -82,7 +80,7 @@ public class DisplayTypeTest {
     }
 
     private void testLiquidCrystalCreator(boolean i2c) {
-        EmbeddedCodeCreator creator = DisplayType.values.get(i2c ? 3 : 2).makeCreator(makeEditorProject());
+        EmbeddedCodeCreator creator = DisplayType.values.get(i2c ? 3 : 2).makeCreator();
 
         findAndCheckProperty(creator, "LCD_RS", DISPLAY, USE_IN_DEFINE, "22");
         findAndCheckProperty(creator, "LCD_EN", DISPLAY, USE_IN_DEFINE, "23");

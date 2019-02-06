@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.CodeGenerator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

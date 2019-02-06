@@ -1,8 +1,5 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.display.AdafruitGfxDisplayCreator;
 import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
 import com.thecoderscorner.menu.editorui.generator.input.InputType;
@@ -39,9 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem;
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform.ARDUINO;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.runOnFxThreadAndWait;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;

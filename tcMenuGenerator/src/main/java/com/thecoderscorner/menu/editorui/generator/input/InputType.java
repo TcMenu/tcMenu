@@ -5,22 +5,21 @@
 
 package com.thecoderscorner.menu.editorui.generator.input;
 
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.EnumWithApplicability;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.EnumWithApplicability;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.thecoderscorner.menu.editorui.generator.EmbeddedPlatformMappings.ALL_DEVICES;
 
 public class InputType extends EnumWithApplicability  {
     public static Map<Integer, InputType> values = new HashMap<>();
 
     static {
-        addValue(1, ALL_DEVICES, "Rotary encoder", RotaryEncoderInputCreator.class);
-        addValue(2, ALL_DEVICES, "Up/Down/OK switches", UpDownOkInputCreator.class);
+        addValue(1, Set.of(EmbeddedPlatform.ARDUINO), "Rotary encoder", RotaryEncoderInputCreator.class);
+        addValue(2, Set.of(EmbeddedPlatform.ARDUINO), "Up/Down/OK switches", UpDownOkInputCreator.class);
     }
 
     public InputType(Set<EmbeddedPlatform> platformApplicability, String description,
