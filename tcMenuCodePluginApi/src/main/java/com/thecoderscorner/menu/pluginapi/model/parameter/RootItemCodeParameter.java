@@ -8,6 +8,6 @@ public class RootItemCodeParameter extends CodeParameter {
 
     @Override
     public String getParameterValue(CodeConversionContext context) {
-        return context.getRootObject();
+        return "&" + context.getRootObject();
     }
 }

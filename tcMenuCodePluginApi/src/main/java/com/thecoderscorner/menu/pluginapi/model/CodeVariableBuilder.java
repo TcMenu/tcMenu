@@ -113,6 +113,8 @@ public class CodeVariableBuilder {
      * @return the export code.
      */
     public String getExport() {
+        if(!isExported()) return "";
+
         return "extern " + type + " " + name + ";";
     }
 

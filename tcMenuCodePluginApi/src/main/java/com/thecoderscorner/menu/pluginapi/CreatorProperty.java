@@ -76,7 +76,6 @@ public class CreatorProperty {
         CreatorProperty that = (CreatorProperty) o;
         return Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
-                Objects.equals(getProperty(), that.getProperty()) &&
                 getPropType() == that.getPropType() &&
                 Objects.equals(getLatestValue(), that.getLatestValue()) &&
                 getSubsystem() == that.getSubsystem();
@@ -84,6 +83,18 @@ public class CreatorProperty {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getProperty(), getPropType(), getLatestValue(), getSubsystem());
+        return Objects.hash(getName(), getDescription(), getPropType(), getLatestValue(), getSubsystem());
+    }
+
+    @Override
+    public String toString() {
+        return "CreatorProperty{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", property=" + property +
+                ", propType=" + propType +
+                ", latestValue='" + latestValue + '\'' +
+                ", subsystem=" + subsystem +
+                '}';
     }
 }
