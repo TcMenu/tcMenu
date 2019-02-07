@@ -7,6 +7,7 @@ package com.thecoderscorner.menu.editorui;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.DirectoryCodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
@@ -39,6 +40,9 @@ public class MenuEditorApp extends Application {
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
+
+        DirectoryCodePluginManager manager = new DirectoryCodePluginManager();
+        manager.loadPlugins("plugins");
 
         controller.initialise(project, new ArduinoLibraryInstaller(), editorUI);
 

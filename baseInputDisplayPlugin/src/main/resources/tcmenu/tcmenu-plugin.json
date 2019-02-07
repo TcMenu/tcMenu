@@ -1,0 +1,34 @@
+{
+  "name": "DfRobot CodeGen Plugin",
+  "moduleName": "com.thecoderscorner.tcmenu.baseInputDisplayPlugin",
+  "version": "${project.version}",
+  "plugins": [
+    {
+      "id": "6dd87e7d-e751-4912-a70d-91793b1d3d87",
+      "subsytem": "INPUT",
+      "applicability": ["ARDUINO"],
+      "description": "Hardware rotary encoder with button",
+      "extendedDescription": "Hardware rotary encoder with pin A connected to interrupt pin, and a button to select",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.RotaryEncoderInputCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049",
+      "subsystem": "INPUT",
+      "applicability": ["ARDUINO"],
+      "description": "Up / Down / OK buttons emulating encoder",
+      "extendedDescription": "Switches that represent up, down and OK controlled by switches library",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "61f370f4-0294-41cf-8988-1458f242914a",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO"],
+      "description": "LiquidCrystal based display",
+      "extendedDescription": "General LiquidCrystal based display that can be used with Arduino pins (or any IO expander)",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
+      "imageFileName": ""
+    }
+  ]
+}

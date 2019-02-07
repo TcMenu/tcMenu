@@ -1,8 +1,9 @@
 package com.thecoderscorner.menu.pluginapi.model;
 
-import java.util.*;
+import com.thecoderscorner.menu.pluginapi.model.parameter.*;
 
-import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.ROOT_ITEM_REPLACEMENT;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Provides a builder pattern for describing variables that need to be created in order for this plugin to work.
@@ -13,7 +14,7 @@ public class CodeVariableBuilder {
     private boolean export = false;
     private String type;
     private String name;
-    private Collection<String> params = new ArrayList<>();
+    private Collection<CodeParameter> params = new ArrayList<>();
     private Set<HeaderDefinition> headers = new HashSet<>();
 
     /**
@@ -51,7 +52,7 @@ public class CodeVariableBuilder {
      * @return this for chaining
      */
     public CodeVariableBuilder param(Object param) {
-        params.add(param == null ? "NULL" : param.toString());
+        params.add(new CodeParameter(param));
         return this;
     }
 
@@ -62,12 +63,38 @@ public class CodeVariableBuilder {
      * @return this for chaining
      */
     public CodeVariableBuilder quoted(Object param) {
-        if(param == null) {
-            params.add("NULL");
-        }
-        else {
-            params.add("\"" + param.toString() + "\"");
-        }
+        params.add(new QuotedCodeParameter(param, '\"'));
+        return this;
+    }
+
+    /**
+     * This parameter will be based on the value of a property, if the property is empty or missing then the replacement
+     * default will be used.
+     * @param property the property to lookup
+     * @param defVal the default if the above is blank
+     * @return this for chaining.
+     */
+    public CodeVariableBuilder paramFromPropertyWithDefault(String property, String defVal) {
+        params.add(new PropertyWithDefaultParameter(property, defVal));
+        return this;
+    }
+
+    /**
+     * describes a property in the form of a function with no params, ( ) will be added to the end
+     * @param fn the function
+     * @return this for chainging.
+     */
+    public CodeVariableBuilder fnparam(String fn) {
+        params.add(new FunctionCodeParameter(fn));
+        return this;
+    }
+
+    /**
+     * Adds the root item variable that defines the top level item in the tree as a parameter.
+     * @return this for chaining.
+     */
+    public CodeVariableBuilder paramMenuRoot() {
+        params.add(new RootItemCodeParameter());
         return this;
     }
 
@@ -75,8 +102,10 @@ public class CodeVariableBuilder {
      * gets the variable code from this builder.
      * @return the variable code
      */
-    public String getVariable() {
-        return type + " " + name + "(" + String.join(", ", params) + ");";
+    public String getVariable(CodeConversionContext context) {
+        var paramList = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
+
+        return type + " " + name + "(" + paramList + ");";
     }
 
     /**
@@ -112,4 +141,5 @@ public class CodeVariableBuilder {
     public String getNameOnly() {
         return name;
     }
+
 }

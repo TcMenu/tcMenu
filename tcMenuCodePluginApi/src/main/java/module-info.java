@@ -4,4 +4,5 @@ module com.thecoderscorner.tcmenu.CodePluginApi {
 
     exports com.thecoderscorner.menu.pluginapi;
     exports com.thecoderscorner.menu.pluginapi.model;
+    exports com.thecoderscorner.menu.pluginapi.model.parameter;
 }

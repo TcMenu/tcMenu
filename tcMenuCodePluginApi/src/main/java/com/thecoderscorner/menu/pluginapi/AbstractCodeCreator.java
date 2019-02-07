@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.pluginapi;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,8 +59,10 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     @Override
     public String getGlobalVariables() {
+        CodeConversionContext context = new CodeConversionContext(null, properties());
+
         var output = variables.stream()
-                .map(CodeVariableBuilder::getVariable)
+                .map(v -> v.getVariable(context))
                 .collect(Collectors.joining(LINE_BREAK));
 
         if(output.isEmpty()) return "";
@@ -69,8 +72,10 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     @Override
     public String getSetupCode(String rootItem) {
+        CodeConversionContext context = new CodeConversionContext(rootItem, properties());
+
         return functionCalls.stream()
-                .map(f -> f.getFunctionCode(rootItem))
+                .map(f -> f.getFunctionCode(context))
                 .map(s -> s.equals(ROOT_ITEM_REPLACEMENT) ? "&" + rootItem : s)
                 .collect(Collectors.joining(LINE_BREAK)) + LINE_BREAK;
     }
@@ -94,6 +99,13 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     public CreatorProperty findPropertyValue(String name) {
         return properties().stream().filter(p->name.equals(p.getName())).findFirst().orElse(EMPTY);
+    }
+
+    public int findPropertyValueAsIntWithDefault(String name, int defVal) {
+        return properties().stream()
+                .filter(p->name.equals(p.getName()))
+                .map(CreatorProperty::getLatestValueAsInt)
+                .findFirst().orElse(defVal);
     }
 
     protected boolean getBooleanFromProperty(String propName) {

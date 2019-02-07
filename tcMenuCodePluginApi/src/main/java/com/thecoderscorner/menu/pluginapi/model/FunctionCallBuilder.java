@@ -1,11 +1,9 @@
 package com.thecoderscorner.menu.pluginapi.model;
 
-import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
+import com.thecoderscorner.menu.pluginapi.model.parameter.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.ROOT_ITEM_REPLACEMENT;
 
 /**
  * Builder pattern way of building function calls that will be made during setup, to avoid writing code in strings.
@@ -13,7 +11,7 @@ import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.ROOT_ITEM_R
 public class FunctionCallBuilder {
     private Optional<String> objectName = Optional.empty();
     private String functionName;
-    private Collection<String> params = new ArrayList<>();
+    private Collection<CodeParameter> params = new ArrayList<>();
     private Set<HeaderDefinition> headers = new HashSet<>();
 
     /**
@@ -63,12 +61,12 @@ public class FunctionCallBuilder {
      * @return itself for chaining
      */
     public FunctionCallBuilder param(Object param) {
-        params.add(param == null ? "NULL" : param.toString());
+        params.add(new CodeParameter(param));
         return this;
     }
 
     public FunctionCallBuilder fnparam(String fn) {
-        params.add(fn + "()");
+        params.add(new FunctionCodeParameter(fn));
         return this;
     }
 
@@ -78,12 +76,12 @@ public class FunctionCallBuilder {
      * @return itself for chaining
      */
     public FunctionCallBuilder quoted(Object param) {
-        if(param == null) {
-            params.add("NULL");
-        }
-        else {
-            params.add("\"" + param.toString() + "\"");
-        }
+        params.add(new QuotedCodeParameter(param, '\"'));
+        return this;
+    }
+
+    public FunctionCallBuilder paramFromPropertyWithDefault(String property, String defVal) {
+        params.add(new PropertyWithDefaultParameter(property, defVal));
         return this;
     }
 
@@ -92,7 +90,7 @@ public class FunctionCallBuilder {
      * @return this for chaining.
      */
     public FunctionCallBuilder paramMenuRoot() {
-        params.add(ROOT_ITEM_REPLACEMENT);
+        params.add(new RootItemCodeParameter());
         return this;
     }
 
@@ -100,15 +98,13 @@ public class FunctionCallBuilder {
     /**
      * @return the code that is built from this function builder.
      */
-    public String getFunctionCode(String rootItem) {
+    public String getFunctionCode(CodeConversionContext context) {
         String fn = "    ";
         if(objectName.isPresent()) {
             fn += objectName.get() + ".";
         }
         fn += functionName + "(";
-        var parameters = params.stream()
-                .map(p -> p.equals(ROOT_ITEM_REPLACEMENT) ? "&" + rootItem : p)
-                .collect(Collectors.joining(", "));
+        var parameters = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
         fn += parameters;
         fn += ");";
         return fn;

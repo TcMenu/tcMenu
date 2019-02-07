@@ -2,8 +2,8 @@ package com.thecoderscorner.tcmenu.plugins.dfrobot;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class DfRobotCodeGeneratorTests {
 
@@ -39,11 +39,5 @@ public class DfRobotCodeGeneratorTests {
         assertEqualsIgnoringCRLF("    switches.initialise(ioUsingArduino());\n" +
                                          "    menuMgr.initForUpDownOk(DF_KEY_UP, DF_KEY_DOWN, DF_KEY_SELECT);\n",
                                  creator.getSetupCode("rootMenuItem"));
-    }
-
-    public static void assertEqualsIgnoringCRLF(String expected, String actual) {
-        expected = expected.replaceAll("\\r\\n", "\n");
-        actual = actual.replaceAll("\\r\\n", "\n");
-        assertEquals(expected, actual);
     }
 }

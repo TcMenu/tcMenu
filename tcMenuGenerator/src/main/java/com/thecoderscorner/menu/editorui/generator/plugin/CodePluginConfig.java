@@ -28,8 +28,9 @@ public class CodePluginConfig {
     @Override
     public String toString() {
         return "CodePluginConfig{" +
-                "javaModule='" + moduleName + '\'' +
+                "moduleName='" + moduleName + '\'' +
                 ", name='" + name + '\'' +
+                ", version='" + version + '\'' +
                 ", plugins=" + plugins +
                 '}';
     }

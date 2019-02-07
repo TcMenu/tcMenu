@@ -1,13 +1,16 @@
 package com.thecoderscorner.menu.editorui.generator.display;
 
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
+import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.findAndCheckProperty;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testfx.assertions.api.Assertions.assertThat;
 
 public class DisplayTypeTest {
 

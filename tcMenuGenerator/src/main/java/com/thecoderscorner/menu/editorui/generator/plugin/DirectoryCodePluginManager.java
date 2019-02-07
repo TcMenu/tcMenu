@@ -1,6 +1,8 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.google.gson.Gson;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.SubSystem;
 import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
@@ -53,7 +55,6 @@ public class DirectoryCodePluginManager implements CodePluginManager {
         loadModules(sourceDir, configurationsLoaded.stream()
                 .map(CodePluginConfig::getModuleName)
                 .collect(Collectors.toList()));
-        Class<?> clazz = Class.forName(configurationsLoaded.get(0).getPlugins().get(0).getCodeCreatorClass());
     }
 
     @Override
@@ -64,6 +65,14 @@ public class DirectoryCodePluginManager implements CodePluginManager {
     @Override
     public Optional<Image> getImageForName(String imageName) {
         return Optional.ofNullable(imagesLoaded.get(imageName));
+    }
+
+    @Override
+    public List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem) {
+        return configurationsLoaded.stream()
+                .flatMap(module -> module.getPlugins().stream())
+                .filter(item -> item.getApplicability().contains(platform) && item.getSubsystem() == subSystem)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -92,8 +101,4 @@ public class DirectoryCodePluginManager implements CodePluginManager {
         return config;
     }
 
-    public static void main(String[] args) throws Exception {
-        DirectoryCodePluginManager manager = new DirectoryCodePluginManager();
-        manager.loadPlugins("C:\\Users\\dave\\IdeaProjects\\tcMenu\\dfRobotCodePlugin\\target");
-    }
 }

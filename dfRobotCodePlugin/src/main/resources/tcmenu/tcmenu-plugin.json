@@ -4,6 +4,7 @@
   "version": "${project.version}",
   "plugins": [
     {
+      "id": "7daa6a81-dd09-422e-b83c-bda5045abaef",
       "subsytem": "INPUT",
       "applicability": ["ARDUINO"],
       "description": "Input from DfRobot Shield",
@@ -12,6 +13,7 @@
       "imageFileName": "DfRobotShield.jpg"
     },
     {
+      "id": "bcd5fe34-9e9f-4fcb-9edf-f4e3caca0674",
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "Output to DfRobot Shield LCD",
