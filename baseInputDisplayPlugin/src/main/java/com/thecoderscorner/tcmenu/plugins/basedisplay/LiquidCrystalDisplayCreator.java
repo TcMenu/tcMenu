@@ -23,7 +23,7 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
             new CreatorProperty("LCD_D7", "D7 connection to display", "7", DISPLAY),
             new CreatorProperty("LCD_WIDTH", "Number of chars across", "20", DISPLAY),
             new CreatorProperty("LCD_HEIGHT", "Number of chars down", "4", DISPLAY),
-            new CreatorProperty("LCD_BACKLIGHT", "Configures the Backlight pin (-1 off)", "-1", DISPLAY),
+            new CreatorProperty("LCD_BACKLIGHT", "Controls the backlight (-1 no backlight)", "-1", DISPLAY),
             new CreatorProperty("LCD_PWM_PIN", "Advanced: PWM control contrast (-1 off)", "-1", DISPLAY),
             new CreatorProperty("IO_DEVICE", "Advanced: IoDevice to use (default blank)", "", DISPLAY, TEXTUAL))
     );
