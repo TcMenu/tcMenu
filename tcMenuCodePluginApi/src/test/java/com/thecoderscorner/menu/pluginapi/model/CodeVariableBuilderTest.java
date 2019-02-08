@@ -59,4 +59,15 @@ class CodeVariableBuilderTest {
 
         assertEqualsIgnoringCRLF("SomeType var(1.01, def);", builder.getVariable(context));
     }
+
+    @Test
+    public void testExportOnlyVariable() {
+        CodeVariableBuilder builder = new CodeVariableBuilder()
+                .variableName("var").variableType("Type").exportOnly();
+
+        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+
+        assertEqualsIgnoringCRLF("extern Type var;", builder.getExport());
+        assertEqualsIgnoringCRLF("", builder.getVariable(context));
+    }
 }

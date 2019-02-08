@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
  * to do the rest.
  */
 public class CodeVariableBuilder {
-    private boolean export = false;
+    enum DefinitionMode { EXPORT_AND_DEFINE, EXPORT_ONLY, VARIABLE_ONLY }
+    private DefinitionMode definitionMode = DefinitionMode.VARIABLE_ONLY;
     private String type;
     private String name;
     private Collection<CodeParameter> params = new ArrayList<>();
@@ -22,7 +23,12 @@ public class CodeVariableBuilder {
      * @return this for chaining
      */
     public CodeVariableBuilder exportNeeded() {
-        this.export = true;
+        this.definitionMode = DefinitionMode.EXPORT_AND_DEFINE;
+        return this;
+    }
+
+    public CodeVariableBuilder exportOnly() {
+        this.definitionMode = DefinitionMode.EXPORT_ONLY;
         return this;
     }
 
@@ -103,6 +109,8 @@ public class CodeVariableBuilder {
      * @return the variable code
      */
     public String getVariable(CodeConversionContext context) {
+        if(!isVariableDefNeeded()) return "";
+
         var paramList = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
 
         return type + " " + name + "(" + paramList + ");";
@@ -122,7 +130,11 @@ public class CodeVariableBuilder {
      * @return true if exported, otherwise false
      */
     public boolean isExported() {
-        return export;
+        return definitionMode != DefinitionMode.VARIABLE_ONLY;
+    }
+
+    public boolean isVariableDefNeeded() {
+        return definitionMode != DefinitionMode.EXPORT_ONLY;
     }
 
     public Set<HeaderDefinition> getHeaders() {
@@ -143,5 +155,4 @@ public class CodeVariableBuilder {
     public String getNameOnly() {
         return name;
     }
-
 }

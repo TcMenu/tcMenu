@@ -62,6 +62,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
         CodeConversionContext context = new CodeConversionContext(null, properties());
 
         var output = variables.stream()
+                .filter(CodeVariableBuilder::isVariableDefNeeded)
                 .map(v -> v.getVariable(context))
                 .collect(Collectors.joining(LINE_BREAK));
 
