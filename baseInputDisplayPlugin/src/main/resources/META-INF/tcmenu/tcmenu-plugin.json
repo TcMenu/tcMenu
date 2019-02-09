@@ -1,5 +1,5 @@
 {
-  "name": "DfRobot CodeGen Plugin",
+  "name": "General IO CodeGen Plugin",
   "moduleName": "com.thecoderscorner.tcmenu.plugin.baseio",
   "version": "${project.version}",
   "plugins": [
@@ -55,7 +55,7 @@
       "description": "No Remote Control",
       "extendedDescription": "Use this option when you don't want any remote control capabilities",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.NoRemoteCapability",
-      "imageFileName": ""
+      "imageFileName": "no-display.png"
     },
     {
       "id": "1e38dc42-672d-4c1c-a393-2c7632bf6c5c",

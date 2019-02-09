@@ -18,8 +18,7 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
-import static com.thecoderscorner.menu.pluginapi.SubSystem.INPUT;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
 
 public class GenerateCodeDialog {
     private final CodePluginManager manager;
@@ -29,9 +28,11 @@ public class GenerateCodeDialog {
 
     private List<CodePluginItem> displaysSupported;
     private List<CodePluginItem> inputsSupported;
+    private List<CodePluginItem> remotesSupported;
 
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentInput;
+    private UICodePluginItem currentRemote;
 
     private ComboBox<EmbeddedPlatform> platformCombo;
 
@@ -45,7 +46,7 @@ public class GenerateCodeDialog {
 
         displaysSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), DISPLAY);
         inputsSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), INPUT);
-
+        remotesSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), REMOTE);
 
     }
 
@@ -79,6 +80,16 @@ public class GenerateCodeDialog {
         currentDisplay = new UICodePluginItem(manager, itemDisplay);
         vbox.getChildren().add(currentDisplay);
 
+        pane = new BorderPane();
+        Label titleLbl2 = new Label("Remote device:");
+        titleLbl2.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
+        pane.setLeft(titleLbl2);
+        pane.setRight(new Button("Change remote"));
+        vbox.getChildren().add(pane);
+
+        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, project.getGeneratorOptions().getLastRemoteCapabilitiesUuid());
+        currentRemote = new UICodePluginItem(manager, itemRemote);
+        vbox.getChildren().add(currentRemote);
 
         BorderPane root = new BorderPane();
         root.setTop(vbox);

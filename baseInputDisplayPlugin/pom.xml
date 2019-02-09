@@ -62,24 +62,6 @@
     </dependencies>
 
     <build>
-        <!-- the resource below just allows us to use maven defined
-             properties such as build version in the plugin json -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>tcmenu-plugin.json</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>tcmenu-plugin.json</exclude>
-                </excludes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
         <plugins>
             <!-- we need to use a recent complier plugin version set to 11 -->
             <plugin>
@@ -89,6 +71,30 @@
                 <configuration>
                     <source>11</source>
                     <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <addDefaultExcludes>false</addDefaultExcludes>
+                    <resources>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <includes>
+                                <include>META-INF/tcmenu/tcmenu-plugin.json</include>
+                            </includes>
+                            <filtering>true</filtering>
+                        </resource>
+                        <resource>
+                            <directory>/src/main/resources</directory>
+                            <excludes>
+                                <exclude>META-INF/tcmenu/tcmenu-plugin.json</exclude>
+                            </excludes>
+                            <filtering>false</filtering>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>

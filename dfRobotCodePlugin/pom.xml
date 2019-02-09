@@ -68,14 +68,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>tcmenu/tcmenu-plugin.json</include>
+                    <include>META-INF/tcmenu/tcmenu-plugin.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>tcmenu/tcmenu-plugin.json</exclude>
+                    <exclude>META-INF/tcmenu/tcmenu-plugin.json</exclude>
                 </excludes>
                 <filtering>false</filtering>
             </resource>

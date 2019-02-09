@@ -42,17 +42,17 @@ public class DirectoryCodePluginManager implements CodePluginManager {
             try(ZipInputStream zipFile = new ZipInputStream(new FileInputStream(p.toFile()))) {
                 ZipEntry entry;
                 while((entry = zipFile.getNextEntry()) != null) {
-                    if(entry.getName().equals("tcmenu/tcmenu-plugin.json")) {
+                    if(entry.getName().equals("META-INF/tcmenu/tcmenu-plugin.json")) {
                         logger.log(Level.INFO, "Found configuration file " + entry.getName());
                         CodePluginConfig config = parsePluginConfig(zipFile);
                         configurationsLoaded.add(config);
                         config.getPlugins().forEach(item -> itemToConfig.put(item, config));
                     }
-                    else if(entry.getName().matches("tcmenu/.*\\.(png|jpg)")) {
+                    else if(entry.getName().matches("META-INF/tcmenu/.*\\.(png|jpg)")) {
                         logger.log(Level.INFO, "Found image file " + entry.getName());
                         Image img = new Image(zipFile);
                         logger.log(Level.INFO, "Image loaded, Width: {0}, height: {1}", img.getWidth(), img.getHeight());
-                        imagesLoaded.put(entry.getName().substring(7), img);
+                        imagesLoaded.put(entry.getName().substring(16), img);
                     }
                 }
             }
