@@ -9,7 +9,8 @@ import java.util.List;
 
 public class DfRobotLcdCreator extends AbstractCodeCreator {
 
-    public DfRobotLcdCreator() {
+    @Override
+    protected void initCreator(String root) {
         CodeVariableBuilder lcd = new CodeVariableBuilder()
                 .variableName("lcd")
                 .variableType("LiquidCrystal")
@@ -37,5 +38,4 @@ public class DfRobotLcdCreator extends AbstractCodeCreator {
     public List<CreatorProperty> properties() {
         return List.of();
     }
-
 }

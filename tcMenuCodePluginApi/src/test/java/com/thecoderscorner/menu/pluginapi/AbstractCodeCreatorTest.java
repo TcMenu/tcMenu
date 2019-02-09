@@ -25,7 +25,8 @@ class AbstractCodeCreatorTest {
 
     class ExampleCodeCreator extends AbstractCodeCreator {
 
-        public ExampleCodeCreator() {
+        @Override
+        public void initCreator(String root) {
             addLibraryFiles("file1.cpp", "file2.h");
 
             addVariable(new CodeVariableBuilder().variableName("test").variableType("Type").exportNeeded()

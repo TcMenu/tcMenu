@@ -7,6 +7,8 @@ import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
@@ -35,6 +37,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +63,7 @@ public class MenuEditorTestCases {
     private ArduinoLibraryInstaller installer;
     private CurrentEditorProject project;
     private Stage stage;
+    private CodePluginManager simulatedCodeManager;
 
     @Start
     public void onStart(Stage stage) throws Exception {
@@ -75,6 +79,9 @@ public class MenuEditorTestCases {
         persistor = mock(ProjectPersistor.class);
         installer = mock(ArduinoLibraryInstaller.class);
 
+        simulatedCodeManager = mock(CodePluginManager.class);
+        when(simulatedCodeManager.getLoadedPlugins()).thenReturn(Arrays.asList(generateCodePluginConfig()));
+
         // and we are always up to date library wise in unit test land
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
@@ -86,12 +93,17 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager);
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
         stage.setScene(myScene);
         stage.show();
+    }
+
+    private CodePluginConfig generateCodePluginConfig() {
+        return new CodePluginConfig("module.name", "PluginName", "1.0.0",
+                                    Arrays.asList());
     }
 
     @AfterEach

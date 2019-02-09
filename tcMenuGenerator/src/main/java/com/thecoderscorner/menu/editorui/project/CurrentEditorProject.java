@@ -8,9 +8,6 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
-import com.thecoderscorner.menu.editorui.generator.input.InputType;
-import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -30,9 +27,7 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO;
 public class CurrentEditorProject {
 
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            ARDUINO, DisplayType.values.get(1),
-            InputType.values.get(1), RemoteCapabilities.values.get(1),
-            Collections.emptyList()
+            ARDUINO, "", "", "", Collections.emptyList()
     );
 
 

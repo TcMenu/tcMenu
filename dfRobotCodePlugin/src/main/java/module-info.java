@@ -1,5 +1,5 @@
-module com.thecoderscorner.tcmenu.dfRobotCodePlugin {
-    requires com.thecoderscorner.tcmenu.CodePluginApi;
+module com.thecoderscorner.tcmenu.plugin.dfrobot {
+    requires com.thecoderscorner.tcmenu.plugin.api;
 
     exports com.thecoderscorner.tcmenu.plugins.dfrobot;
 }

@@ -5,16 +5,11 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.pluginapi.EnumWithApplicability;
-import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
-import com.thecoderscorner.menu.editorui.generator.input.InputType;
-import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
-import com.thecoderscorner.menu.editorui.project.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -31,10 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CodeGeneratorController {
-    public ComboBox<InputType> inputTechCombo;
-    public ComboBox<DisplayType> displayTechCombo;
     public ComboBox<EmbeddedPlatform> embeddedPlatformChoice;
-    public ComboBox<RemoteCapabilities> remoteCapabilityCombo;
     public Label projectDirLabel;
     public TableView<CreatorProperty> propsTable;
     public TableColumn<CreatorProperty, String> defineCol;
@@ -64,14 +56,12 @@ public class CodeGeneratorController {
         embeddedPlatformChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
 
         embeddedPlatformChoice.getSelectionModel().select(selPlatform);
+// fixme change to new
+//        inputTechCombo.getSelectionModel().selectedItemProperty().addListener(this::inputTypeChanged);
+//        displayTechCombo.getSelectionModel().selectedItemProperty().addListener(this::displayTypeChanged);
+//        remoteCapabilityCombo.getSelectionModel().selectedItemProperty().addListener(this::remoteTypeChanged);
 
-        inputTechCombo.getSelectionModel().selectedItemProperty().addListener(this::inputTypeChanged);
-        displayTechCombo.getSelectionModel().selectedItemProperty().addListener(this::displayTypeChanged);
-        remoteCapabilityCombo.getSelectionModel().selectedItemProperty().addListener(this::remoteTypeChanged);
-
-        inputTechCombo.getSelectionModel().select(project.getGeneratorOptions().getLastInputType());
-        displayTechCombo.getSelectionModel().select(project.getGeneratorOptions().getLastDisplayType());
-        remoteCapabilityCombo.getSelectionModel().select(project.getGeneratorOptions().getLastRemoteCapabilities());
+        //FIXME re instate the
 
         setUpTable();
     }
@@ -87,20 +77,21 @@ public class CodeGeneratorController {
         descriptionCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getDescription()));
         }
 
-    private void inputTypeChanged(Observable obs, InputType oldVal, InputType newVal) {
-        inputCreator = newVal.makeCreator();
-        changeProperties();
-    }
-
-    private void displayTypeChanged(Observable obs, DisplayType oldVal, DisplayType newVal) {
-        displayCreator = newVal.makeCreator();
-        changeProperties();
-    }
-
-    private void remoteTypeChanged(Observable obs, RemoteCapabilities oldVal, RemoteCapabilities newVal) {
-        remoteCreator = newVal.makeCreator();
-        changeProperties();
-    }
+        //FIXME change to new
+//    private void inputTypeChanged(Observable obs, InputType oldVal, InputType newVal) {
+//        inputCreator = newVal.makeCreator();
+//        changeProperties();
+//    }
+//
+//    private void displayTypeChanged(Observable obs, DisplayType oldVal, DisplayType newVal) {
+//        displayCreator = newVal.makeCreator();
+//        changeProperties();
+//    }
+//
+//    private void remoteTypeChanged(Observable obs, RemoteCapabilities oldVal, RemoteCapabilities newVal) {
+//        remoteCreator = newVal.makeCreator();
+//        changeProperties();
+//    }
 
     private void changeProperties() {
         List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
@@ -137,12 +128,13 @@ public class CodeGeneratorController {
     }
 
     private void filterChoicesByPlatform(EmbeddedPlatform selPlatform) {
-        filterChoicesFor(inputTechCombo, selPlatform, InputType.values);
-        inputTypeChanged(null, null, inputTechCombo.getValue());
-        filterChoicesFor(displayTechCombo, selPlatform, DisplayType.values);
-        displayTypeChanged(null, null, displayTechCombo.getValue());
-        filterChoicesFor(remoteCapabilityCombo, selPlatform, RemoteCapabilities.values);
-        remoteTypeChanged(null, null, remoteCapabilityCombo.getValue());
+        //FIXME change to new system
+//        filterChoicesFor(inputTechCombo, selPlatform, InputType.values);
+//        inputTypeChanged(null, null, inputTechCombo.getValue());
+//        filterChoicesFor(displayTechCombo, selPlatform, DisplayType.values);
+//        displayTypeChanged(null, null, displayTechCombo.getValue());
+//        filterChoicesFor(remoteCapabilityCombo, selPlatform, RemoteCapabilities.values);
+//        remoteTypeChanged(null, null, remoteCapabilityCombo.getValue());
     }
 
     public void onGenerateCode(ActionEvent event) {
@@ -157,13 +149,14 @@ public class CodeGeneratorController {
     }
 
     void closeIt() {
-        project.setGeneratorOptions(new CodeGeneratorOptions(
-                embeddedPlatformChoice.getSelectionModel().getSelectedItem(),
-                displayTechCombo.getSelectionModel().getSelectedItem(),
-                inputTechCombo.getSelectionModel().getSelectedItem(),
-                remoteCapabilityCombo.getSelectionModel().getSelectedItem(),
-                properties
-        ));
+        // fixme change to new..
+//        project.setGeneratorOptions(new CodeGeneratorOptions(
+//                embeddedPlatformChoice.getSelectionModel().getSelectedItem(),
+//                displayTechCombo.getSelectionModel().getSelectedItem(),
+//                inputTechCombo.getSelectionModel().getSelectedItem(),
+//                remoteCapabilityCombo.getSelectionModel().getSelectedItem(),
+//                properties
+//        ));
         Stage s = (Stage) embeddedPlatformChoice.getScene().getWindow();
         s.close();
     }

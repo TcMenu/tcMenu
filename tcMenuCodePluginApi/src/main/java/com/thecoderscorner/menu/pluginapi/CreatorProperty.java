@@ -5,20 +5,25 @@
 
 package com.thecoderscorner.menu.pluginapi;
 
+import com.thecoderscorner.menu.pluginapi.validation.PropertyValidationRules;
+import com.thecoderscorner.menu.pluginapi.validation.StringPropertyValidationRules;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import java.util.Objects;
 
 public class CreatorProperty {
-    private String name;
-    transient private String description;
-    transient private StringProperty property;
-    transient private PropType propType;
-    private String latestValue;
-    private SubSystem subsystem;
+    private static final PropertyValidationRules BASE_RULE = new StringPropertyValidationRules(false, 32);
 
     public enum PropType { USE_IN_DEFINE, VARIABLE, TEXTUAL }
+
+    private String name;
+    private String latestValue;
+    private SubSystem subsystem;
+    transient private String description;
+    transient private StringProperty property;
+    transient private PropType propType = PropType.TEXTUAL;
+    transient private PropertyValidationRules validationRules = BASE_RULE;
 
     public CreatorProperty() {
         // for serialisation purposes.
@@ -26,16 +31,22 @@ public class CreatorProperty {
     }
 
     public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem) {
-        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE);
+        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE, BASE_RULE);
     }
 
-    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem, PropType propType) {
+    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem, PropertyValidationRules rules) {
+        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE, rules);
+    }
+
+    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem,
+                           PropType propType, PropertyValidationRules rules) {
         this.name = name;
         this.description = description;
         this.latestValue = latestValue;
         this.property = new SimpleStringProperty(latestValue);
         this.subsystem = subsystem;
         this.propType = propType;
+        this.validationRules = rules;
     }
 
     public String getLatestValue() {
@@ -67,6 +78,10 @@ public class CreatorProperty {
 
     public PropType getPropType() {
         return propType;
+    }
+
+    public PropertyValidationRules getValidationRules() {
+        return validationRules;
     }
 
     @Override

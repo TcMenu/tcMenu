@@ -5,9 +5,6 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
-import com.thecoderscorner.menu.editorui.generator.input.InputType;
-import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 
@@ -15,18 +12,18 @@ import java.util.List;
 
 public class CodeGeneratorOptions {
     private final EmbeddedPlatform embeddedPlatform;
-    private final int lastDisplayKey;
-    private final int lastInputKey;
-    private final int lastRemoteKey;
+    private final String lastDisplayUuid;
+    private final String lastInputUuid;
+    private final String lastRemoteUuid;
     private final List<CreatorProperty> lastProperties;
 
-    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, DisplayType displayType,
-                                InputType inputType, RemoteCapabilities remoteCapabilities,
+    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, String displayTypeId,
+                                String inputTypeId, String remoteCapabilitiesId,
                                 List<CreatorProperty> lastProperties) {
         this.embeddedPlatform = embeddedPlatform;
-        this.lastDisplayKey = displayType.getKey();
-        this.lastInputKey = inputType.getKey();
-        this.lastRemoteKey = remoteCapabilities.getKey();
+        this.lastDisplayUuid = displayTypeId;
+        this.lastInputUuid = inputTypeId;
+        this.lastRemoteUuid = remoteCapabilitiesId;
         this.lastProperties = lastProperties;
     }
 
@@ -34,16 +31,16 @@ public class CodeGeneratorOptions {
         return embeddedPlatform;
     }
 
-    public DisplayType getLastDisplayType() {
-        return DisplayType.values.get(lastDisplayKey);
+    public String getLastDisplayUuid() {
+        return lastDisplayUuid;
     }
 
-    public InputType getLastInputType() {
-        return InputType.values.get(lastInputKey);
+    public String getLastInputUuid() {
+        return lastInputUuid;
     }
 
-    public RemoteCapabilities getLastRemoteCapabilities() {
-        return RemoteCapabilities.values.get(lastRemoteKey);
+    public String getLastRemoteCapabilitiesUuid() {
+        return lastRemoteUuid;
     }
 
     public List<CreatorProperty> getLastProperties() {

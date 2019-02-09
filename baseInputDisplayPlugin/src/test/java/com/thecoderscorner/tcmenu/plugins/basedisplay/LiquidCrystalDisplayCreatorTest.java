@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
-import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
-import static com.thecoderscorner.menu.pluginapi.util.TestUtils.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LiquidCrystalDisplayCreatorTest {
@@ -14,8 +13,9 @@ class LiquidCrystalDisplayCreatorTest {
     void testSetupWithNoBacklightOrPwm() {
         LiquidCrystalDisplayCreator creator = new LiquidCrystalDisplayCreator();
         setupStandardProperties(creator);
+        creator.initialise("root");
 
-        assertEqualsIgnoringCRLF(
+        assertThat(
                 "#define LCD_RS 10\n" +
                         "#define LCD_EN 11\n" +
                         "#define LCD_D4 12\n" +
@@ -27,13 +27,14 @@ class LiquidCrystalDisplayCreatorTest {
                         "#define LCD_BACKLIGHT -1\n" +
                         "#define LCD_PWM_PIN -1\n" +
                         "extern LiquidCrystal lcd;\n" +
-                        "extern LiquidCrystalRenderer renderer;\n", creator.getExportDefinitions());
+                        "extern LiquidCrystalRenderer renderer;\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
-        assertEqualsIgnoringCRLF(
+        assertThat(
                 "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, 16, 2);\n", creator.getGlobalVariables());
+                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
-        assertEqualsIgnoringCRLF("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n", creator.getSetupCode("root"));
+        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                                                                          "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
         assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <LiquidCrystalIO.h>");
@@ -45,8 +46,9 @@ class LiquidCrystalDisplayCreatorTest {
         setupStandardProperties(creator);
         findAndSetValueOnProperty(creator, "LCD_BACKLIGHT", DISPLAY, USE_IN_DEFINE, 9);
         findAndSetValueOnProperty(creator, "LCD_PWM_PIN", DISPLAY, USE_IN_DEFINE, 8);
+        creator.initialise("root");
 
-        assertEqualsIgnoringCRLF(
+        assertThat(
                 "#define LCD_RS 10\n" +
                         "#define LCD_EN 11\n" +
                         "#define LCD_D4 12\n" +
@@ -58,17 +60,20 @@ class LiquidCrystalDisplayCreatorTest {
                         "#define LCD_BACKLIGHT 9\n" +
                         "#define LCD_PWM_PIN 8\n" +
                         "extern LiquidCrystal lcd;\n" +
-                        "extern LiquidCrystalRenderer renderer;\n", creator.getExportDefinitions());
+                        "extern LiquidCrystalRenderer renderer;\n")
+                .isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
-        assertEqualsIgnoringCRLF(
+        assertThat(
                 "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, 16, 2);\n", creator.getGlobalVariables());
+                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
-        assertEqualsIgnoringCRLF("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
                                          "    lcd.configureBacklightPin(LCD_BACKLIGHT);\n" +
                                          "    lcd.backlight();\n" +
                                          "    pinMode(LCD_PWM_PIN, OUTPUT);\n" +
-                                         "    analogWrite(LCD_PWM_PIN, 10);\n", creator.getSetupCode("root"));
+                                         "    analogWrite(LCD_PWM_PIN, 10);\n")
+                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                                                                          "renderers/liquidcrystal/tcMenuLiquidCrystal.h");

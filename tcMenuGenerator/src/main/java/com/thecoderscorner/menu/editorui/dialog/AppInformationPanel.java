@@ -7,13 +7,12 @@ package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 
 import java.awt.*;
 import java.io.IOException;
@@ -28,21 +27,24 @@ public class AppInformationPanel {
 
     private static final System.Logger logger = System.getLogger(AppInformationPanel.class.getSimpleName());
     private final MenuEditorController controller;
-    private ArduinoLibraryInstaller installer;
+    private final ArduinoLibraryInstaller installer;
+    private final CodePluginManager pluginManager;
 
-    public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller) {
+    public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
+                               CodePluginManager pluginManager) {
         this.installer = installer;
         this.controller = controller;
+        this.pluginManager = pluginManager;
     }
 
     public Node showEmptyInfoPanel() {
         VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        vbox.getChildren().add(new Label("This item is not editable, select another item"));
-        vbox.getChildren().add(new Rectangle(0,0,0,10));
+        vbox.setSpacing(5);
 
         // add the documentation links
-        vbox.getChildren().add(new Label("Documentation can be opened by pressing F1 or from the help menu."));
+        Label docsLbl = new Label("Documentation (F1) or use the link below:");
+        docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;-fx-padding: 4px;");
+        vbox.getChildren().add(docsLbl);
         labelWithUrl(vbox, LIBRARY_DOCS_URL);
         labelWithUrl(vbox, YOUTUBE_VIDEO_URL);
 
@@ -71,15 +73,20 @@ public class AppInformationPanel {
             logger.log(ERROR, "Library checks failed", e);
         }
 
-        // and lastly the version
+        Label pluginLbl = new Label("Installed code generation plugins");
+        pluginLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
+        vbox.getChildren().add(pluginLbl);
 
-        vbox.getChildren().add(new Label(BuildVersionUtil.printableRegistrationInformation()));
-        vbox.getChildren().add(new Label("tcMenu designer (C) 2018 by thecoderscorner.com."));
+        pluginManager.getLoadedPlugins().forEach(plugin -> {
+            vbox.getChildren().add(new Label("- " + plugin.getName() + " (" + plugin.getVersion() + ")"));
+        });
+
         return vbox;
     }
 
     private void labelWithUrl(VBox vbox, String urlToVisit) {
         Hyperlink docs = new Hyperlink(urlToVisit);
+        docs.setStyle("-fx-vgap: 5px; -fx-border-insets: 0;");
         docs.setOnAction((event)-> {
             try {
                 Desktop.getDesktop().browse(new URI(urlToVisit));

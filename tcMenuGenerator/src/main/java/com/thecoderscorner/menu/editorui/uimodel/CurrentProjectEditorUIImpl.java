@@ -7,16 +7,17 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
-import com.thecoderscorner.menu.pluginapi.CodeGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
+import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.pluginapi.CodeGenerator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -30,8 +31,10 @@ import java.util.function.BiConsumer;
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     private Stage mainStage;
+    private CodePluginManager manager;
 
-    public CurrentProjectEditorUIImpl(Stage mainStage) {
+    public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage) {
+        this.manager = manager;
         this.mainStage = mainStage;
     }
 
@@ -95,12 +98,17 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showCodeGeneratorDialog(CurrentEditorProject project, ArduinoLibraryInstaller installer) {
-        CodeGeneratorDialog dialog = new CodeGeneratorDialog();
+        if(!project.isFileNameSet()) {
+            this.alertOnError("No filename set", "Please set a filename to continue");
+            return;
+        }
+
         Map<EmbeddedPlatform, CodeGenerator> generators = Map.of(
                 EmbeddedPlatform.ARDUINO, new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer)
-        );
+                                                                );
         DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, generators);
-        dialog.showCodeGenerator(mainStage, this, project, codeGeneratorRunner, true);
+        GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, project, codeGeneratorRunner);
+        dialog.showCodeGenerator(mainStage, true);
     }
 
 

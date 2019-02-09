@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
@@ -33,10 +34,12 @@ public abstract class UIMenuItemTestBase {
     protected BiConsumer<MenuItem, MenuItem> mockedConsumer;
     protected Stage stage;
     protected DialogPane dialogPane;
+    private CodePluginManager manager;
 
     @SuppressWarnings("unchecked")
     protected void init(Stage stage) {
-        editorUI = new CurrentProjectEditorUIImpl(stage);
+        manager = mock(CodePluginManager.class);
+        editorUI = new CurrentProjectEditorUIImpl(manager, stage);
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);
         this.stage = stage;

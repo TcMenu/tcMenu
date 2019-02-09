@@ -6,7 +6,6 @@ import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -58,6 +57,16 @@ class CodeVariableBuilderTest {
         ));
 
         assertEqualsIgnoringCRLF("SomeType var(1.01, def);", builder.getVariable(context));
+    }
+
+    @Test
+    public void testByAssignmentProgmem() {
+        CodeVariableBuilder builder = new CodeVariableBuilder().variableName("abc").variableType("Type").exportNeeded()
+                .byAssignment().progmem().quoted("Super");
+        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+
+        assertThat("const Type PROGMEM abc = \"Super\";").isEqualToIgnoringNewLines(builder.getVariable(context));
+        assertThat("extern const Type abc;").isEqualToIgnoringNewLines(builder.getExport());
     }
 
     @Test

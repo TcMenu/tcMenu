@@ -8,6 +8,12 @@ package com.thecoderscorner.menu.pluginapi;
 import java.util.List;
 
 public interface EmbeddedCodeCreator {
+    /**
+     * Called at the very beginning of conversion to allow the creator to prepare any late bound fields and variables.
+     * @param root the first menu item in the tree
+     */
+    void initialise(String root);
+
     List<String> getIncludes();
     String getGlobalVariables();
     String getExportDefinitions();

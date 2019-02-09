@@ -8,6 +8,17 @@ public class CodePluginConfig {
     private String version;
     private List<CodePluginItem> plugins;
 
+    public CodePluginConfig() {
+        // for reflection / serialisation
+    }
+
+    public CodePluginConfig(String moduleName, String name, String version, List<CodePluginItem> plugins) {
+        this.moduleName = moduleName;
+        this.name = name;
+        this.version = version;
+        this.plugins = plugins;
+    }
+
     public String getModuleName() {
         return moduleName;
     }

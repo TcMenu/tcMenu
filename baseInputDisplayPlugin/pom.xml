@@ -59,14 +59,6 @@
             <scope>test</scope>
             <version>3.11.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.thecoderscorner.tcmenu</groupId>
-            <artifactId>tcMenuCodePluginApi</artifactId>
-            <scope>test</scope>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -93,7 +85,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>

@@ -59,15 +59,6 @@
             <version>3.11.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.thecoderscorner.tcmenu</groupId>
-            <artifactId>tcMenuCodePluginApi</artifactId>
-            <scope>test</scope>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -77,14 +68,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>tcmenu-plugin.json</include>
+                    <include>tcmenu/tcmenu-plugin.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>tcmenu-plugin.json</exclude>
+                    <exclude>tcmenu/tcmenu-plugin.json</exclude>
                 </excludes>
                 <filtering>false</filtering>
             </resource>
@@ -94,7 +85,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>

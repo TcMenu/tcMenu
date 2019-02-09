@@ -1,13 +1,13 @@
 {
   "name": "DfRobot CodeGen Plugin",
-  "moduleName": "com.thecoderscorner.tcmenu.baseInputDisplayPlugin",
+  "moduleName": "com.thecoderscorner.tcmenu.plugin.baseio",
   "version": "${project.version}",
   "plugins": [
     {
       "id": "6dd87e7d-e751-4912-a70d-91793b1d3d87",
       "subsytem": "INPUT",
       "applicability": ["ARDUINO"],
-      "description": "Hardware rotary encoder with button",
+      "description": "Control menu with rotary encoder & button",
       "extendedDescription": "Hardware rotary encoder with pin A connected to interrupt pin, and a button to select",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.RotaryEncoderInputCreator",
       "imageFileName": ""
@@ -16,7 +16,7 @@
       "id": "2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049",
       "subsystem": "INPUT",
       "applicability": ["ARDUINO"],
-      "description": "Up / Down / OK buttons emulating encoder",
+      "description": "Control menu with Up / Down / OK buttons",
       "extendedDescription": "Switches that represent up, down and OK controlled by switches library",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
       "imageFileName": ""
@@ -25,9 +25,54 @@
       "id": "61f370f4-0294-41cf-8988-1458f242914a",
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
-      "description": "LiquidCrystal based display",
+      "description": "LiquidCrystalIO display direct or other i2c",
       "extendedDescription": "General LiquidCrystal based display that can be used with Arduino pins (or any IO expander)",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "cdd0be35-f6ff-40ae-86fc-f9d04a6e8679",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO"],
+      "description": "No display or custom display module",
+      "extendedDescription": "This is for cases where either no local display, or a custom display is going to be used.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.DoNotDefineDisplayCreator",
+      "imageFileName": "no-display.png"
+    },
+    {
+      "id": "7c486068-9879-459f-89ee-9522366524a3",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO"],
+      "description": "Color Adafruit GFX based display",
+      "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.adagfx.ColorAdaGfxDisplayCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb",
+      "subsystem": "REMOTE",
+      "applicability": ["ARDUINO"],
+      "description": "No Remote Control",
+      "extendedDescription": "Use this option when you don't want any remote control capabilities",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.NoRemoteCapability",
+      "imageFileName": ""
+    },
+    {
+      "id": "1e38dc42-672d-4c1c-a393-2c7632bf6c5c",
+      "subsystem": "REMOTE",
+      "applicability": ["ARDUINO"],
+      "description": "Serial remote control (Rs232 / USB / Bluetooth)",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Rs232RemoteCapabilitiesCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "0877131c-e03e-426b-8eaf-228e01f5e7f1",
+      "subsystem": "REMOTE",
+      "applicability": ["ARDUINO"],
+      "description": "Ethernet2 library control for Ethernet shields",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds that are compatible with Ethernet2 library",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.EthernetRemoteCapabilitiesCreator",
       "imageFileName": ""
     }
   ]

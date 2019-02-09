@@ -2,6 +2,9 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +76,10 @@ public class ArduinoGeneratorTest {
 
     private List<EmbeddedCodeCreator> unitTestGenerator() {
         EmbeddedCodeCreator gen = new AbstractCodeCreator() {
+            @Override
+            protected void initCreator(String root) {
+            }
+
             @Override
             public List<String> getIncludes() {
                 return Collections.singletonList("includes section");

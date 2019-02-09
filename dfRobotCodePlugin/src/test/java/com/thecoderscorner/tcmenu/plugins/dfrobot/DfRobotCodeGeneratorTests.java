@@ -2,7 +2,6 @@ package com.thecoderscorner.tcmenu.plugins.dfrobot;
 
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DfRobotCodeGeneratorTests {
@@ -15,14 +14,16 @@ public class DfRobotCodeGeneratorTests {
                                                                          "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
         assertThat(creator.getIncludes()).containsExactly("#include <LiquidCrystalIO.h>");
 
-        assertEqualsIgnoringCRLF("extern LiquidCrystal lcd;\n" +
-                                 "extern LiquidCrystalRenderer renderer;\n", creator.getExportDefinitions());
+        assertThat("extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;\n")
+                .isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
-        assertEqualsIgnoringCRLF("LiquidCrystal lcd(8, 9, 4, 5, 6, 7);\n" +
-                                         "LiquidCrystalRenderer renderer(&lcd, 16, 2);\n", creator.getGlobalVariables());
-        assertEqualsIgnoringCRLF("    lcd.begin(16, 2);\n" +
-                                         "    lcd.configureBacklightPin(10);\n" +
-                                         "    lcd.backlight();\n", creator.getSetupCode("rootMenuItem"));
+        assertThat("LiquidCrystal lcd(8, 9, 4, 5, 6, 7);\n" +
+                   "LiquidCrystalRenderer renderer(&lcd, 16, 2);\n")
+                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat("    lcd.begin(16, 2);\n" +
+                   "    lcd.configureBacklightPin(10);\n" +
+                   "    lcd.backlight();\n")
+                   .isEqualToIgnoringNewLines(creator.getSetupCode("rootMenuItem"));
     }
 
     @Test
@@ -33,11 +34,13 @@ public class DfRobotCodeGeneratorTests {
         assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <IoAbstraction.h>",
                                                                     "#include <DfRobotInputAbstraction.h>");
 
-        assertEqualsIgnoringCRLF("", creator.getExportDefinitions());
+        assertThat("").isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
-        assertEqualsIgnoringCRLF("", creator.getGlobalVariables());
-        assertEqualsIgnoringCRLF("    switches.initialise(ioUsingArduino());\n" +
-                                         "    menuMgr.initForUpDownOk(DF_KEY_UP, DF_KEY_DOWN, DF_KEY_SELECT);\n",
-                                 creator.getSetupCode("rootMenuItem"));
+        assertThat("").isEqualToIgnoringNewLines(creator.getGlobalVariables());
+
+        assertThat(
+                "    switches.initialise(ioUsingArduino());\n" +
+                        "    menuMgr.initForUpDownOk(DF_KEY_UP, DF_KEY_DOWN, DF_KEY_SELECT);\n")
+                .isEqualToIgnoringNewLines(creator.getSetupCode("rootMenuItem"));
     }
 }

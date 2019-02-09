@@ -7,7 +7,8 @@ import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import java.util.List;
 
 public class DfRobotAnalogInputCreator extends AbstractCodeCreator {
-    public DfRobotAnalogInputCreator() {
+    @Override
+    protected void initCreator(String root) {
         addFunctionCall(new FunctionCallBuilder().functionName("initialise").objectName("switches")
                                 .requiresHeader("IoAbstraction.h", false)
                                 .fnparam("ioUsingArduino"));
@@ -20,5 +21,4 @@ public class DfRobotAnalogInputCreator extends AbstractCodeCreator {
     public List<CreatorProperty> properties() {
         return List.of();
     }
-
 }

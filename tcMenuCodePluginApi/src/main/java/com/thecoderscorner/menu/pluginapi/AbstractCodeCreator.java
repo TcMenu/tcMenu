@@ -28,6 +28,15 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     private List<String> libraryFiles = new ArrayList<>();
 
     @Override
+    public void initialise(String root) {
+        functionCalls.clear();
+        variables.clear();
+        initCreator(root);
+    }
+
+    protected abstract void initCreator(String root);
+
+    @Override
     public String getExportDefinitions() {
         var props = properties().stream()
                 .filter(prop -> prop.getPropType() == CreatorProperty.PropType.USE_IN_DEFINE)
@@ -69,6 +78,13 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
         if(output.isEmpty()) return "";
 
         return output + LINE_BREAK;
+    }
+
+    protected void addExportVariableIfPresent(String variable, String typeName) {
+        String expVar = findPropertyValue(variable).getLatestValue();
+        if(expVar != null && !expVar.isEmpty()) {
+            addVariable(new CodeVariableBuilder().exportOnly().variableType(typeName).variableName(expVar));
+        }
     }
 
     @Override

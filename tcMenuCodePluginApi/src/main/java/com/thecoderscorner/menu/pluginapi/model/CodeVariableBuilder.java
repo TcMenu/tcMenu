@@ -11,11 +11,14 @@ import java.util.stream.Collectors;
  * to do the rest.
  */
 public class CodeVariableBuilder {
+
     enum DefinitionMode { EXPORT_AND_DEFINE, EXPORT_ONLY, VARIABLE_ONLY }
     private DefinitionMode definitionMode = DefinitionMode.VARIABLE_ONLY;
     private String type;
     private String name;
-    private Collection<CodeParameter> params = new ArrayList<>();
+    private boolean byAssignment = false;
+    private boolean progmem = false;
+    private List<CodeParameter> params = new ArrayList<>();
     private Set<HeaderDefinition> headers = new HashSet<>();
 
     /**
@@ -31,6 +34,17 @@ public class CodeVariableBuilder {
         this.definitionMode = DefinitionMode.EXPORT_ONLY;
         return this;
     }
+
+    public CodeVariableBuilder byAssignment() {
+        this.byAssignment = true;
+        return this;
+    }
+
+    public CodeVariableBuilder progmem() {
+        this.progmem = true;
+        return this;
+    }
+
 
     /**
      * Set the variable name for this var.
@@ -111,9 +125,23 @@ public class CodeVariableBuilder {
     public String getVariable(CodeConversionContext context) {
         if(!isVariableDefNeeded()) return "";
 
-        var paramList = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
+        String paramList;
+        if(byAssignment) {
+            if(params.size() != 1) {
+                throw new IllegalArgumentException("ByAssignment param list size must always be 1");
+            }
+            paramList = " = " + params.get(0).getParameterValue(context);
+        }
+        else {
+            paramList = "(" + params.stream()
+                    .map(p -> p.getParameterValue(context))
+                    .collect(Collectors.joining(", ")) + ")";
+        }
 
-        return type + " " + name + "(" + paramList + ");";
+        if(progmem)
+            return "const " + type + " PROGMEM " + name + paramList + ";";
+        else
+            return type + " " + name + paramList + ";";
     }
 
     /**
@@ -123,7 +151,7 @@ public class CodeVariableBuilder {
     public String getExport() {
         if(!isExported()) return "";
 
-        return "extern " + type + " " + name + ";";
+        return "extern " + (progmem ? "const " : "") + type + " " + name + ";";
     }
 
     /**

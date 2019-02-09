@@ -78,6 +78,8 @@ public class ArduinoGenerator implements CodeGenerator {
 
         Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
 
+        generators.forEach(gen -> gen.initialise(root));
+
         if (generateHeaders(generators, menuTree, headerFile, menuStructure) &&
                 generateSource(generators, cppFile, menuStructure, projectName, root)) {
 
