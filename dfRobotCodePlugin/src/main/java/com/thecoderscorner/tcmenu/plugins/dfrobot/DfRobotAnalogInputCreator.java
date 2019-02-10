@@ -15,12 +15,16 @@ import java.util.List;
 public class DfRobotAnalogInputCreator extends AbstractCodeCreator {
     @Override
     protected void initCreator(String root) {
+        addFunctionCall(new FunctionCallBuilder().functionName("pinMode").param("A0").param("INPUT"));
+
         addFunctionCall(new FunctionCallBuilder().functionName("initialise").objectName("switches")
                                 .requiresHeader("IoAbstraction.h", false)
-                                .fnparam("ioUsingArduino"));
+                                .fnparam("inputFromDfRobotShield").param("false"));
+
         addFunctionCall(new FunctionCallBuilder().functionName("initForUpDownOk").objectName("menuMgr")
                                 .requiresHeader("DfRobotInputAbstraction.h", false)
-                                .param("DF_KEY_UP").param("DF_KEY_DOWN").param("DF_KEY_SELECT"));
+                                .param("&renderer").param("&" + root).param("DF_KEY_DOWN").param("DF_KEY_UP")
+                                .param("DF_KEY_SELECT"));
     }
 
     @Override

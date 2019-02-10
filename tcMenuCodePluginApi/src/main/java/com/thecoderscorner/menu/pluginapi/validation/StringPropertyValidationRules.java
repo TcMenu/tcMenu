@@ -45,6 +45,6 @@ public class StringPropertyValidationRules implements PropertyValidationRules {
 
     @Override
     public String toString() {
-        return variable ? "Variable ":"String " + "validator (max length " + maxLen + ")";
+        return (variable ? "Variable name ":"String ") + "validation (max length " + maxLen + ")";
     }
 }

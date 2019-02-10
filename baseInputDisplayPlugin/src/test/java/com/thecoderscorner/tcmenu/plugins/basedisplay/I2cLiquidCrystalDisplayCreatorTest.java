@@ -31,7 +31,7 @@ public class I2cLiquidCrystalDisplayCreatorTest {
 
         assertThat(
                 "LiquidCrystal lcd(2, 0, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
         assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
@@ -39,9 +39,12 @@ public class I2cLiquidCrystalDisplayCreatorTest {
                                          "    lcd.backlight();\n")
                 .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                                                                         "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <LiquidCrystalIO.h>");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+                "#include <LiquidCrystalIO.h>",
+                "#include \"tcMenuLiquidCrystal.h\"");
     }
 
     @Test
@@ -57,15 +60,21 @@ public class I2cLiquidCrystalDisplayCreatorTest {
                            "extern LiquidCrystalRenderer renderer;\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
         assertThat("LiquidCrystal lcd(0, 2, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n").isEqualToIgnoringNewLines(creator.getGlobalVariables());
+                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
         assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
                                          "    lcd.configureBacklightPin(3);\n" +
-                                         "    lcd.backlight();\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+                                         "    lcd.backlight();\n")
+                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                                                                         "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <LiquidCrystalIO.h>");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+
+        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+                "#include <LiquidCrystalIO.h>",
+                "#include \"tcMenuLiquidCrystal.h\"");
     }
 
     private void setupStandardProperties(I2cLiquidCrystalDisplayCreator creator, I2cDisplayChoices choice) {

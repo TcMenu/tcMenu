@@ -8,8 +8,6 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -22,13 +20,14 @@ import javafx.scene.layout.HBox;
 
 import java.awt.*;
 import java.net.URI;
+import java.util.function.Consumer;
 
 import static java.lang.System.Logger.Level.ERROR;
 
 public class UICodePluginItem extends BorderPane {
     public enum UICodeAction { CHANGE, SELECT;}
 
-    private final UICodeAction action;
+    private Consumer<CodePluginItem> eventHandler;
     private BorderPane innerBorder;
     private Node imagePanel;
     private Label titleLabel;
@@ -41,10 +40,10 @@ public class UICodePluginItem extends BorderPane {
     private Button actionButton;
     private final static System.Logger LOGGER = System.getLogger(UICodePluginItem.class.getSimpleName());
 
-    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, EventHandler<ActionEvent> evt) {
+    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt) {
         super();
 
-        this.action = action;
+        this.eventHandler = evt;
 
         this.mgr = mgr;
         this.item = item;
@@ -79,7 +78,7 @@ public class UICodePluginItem extends BorderPane {
         actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
         actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
         actionButton.setMaxSize(2000, 2000);
-        actionButton.setOnAction(evt);
+        actionButton.setOnAction(event-> eventHandler.accept(item));
 
         setRight(actionButton);
         setCenter(innerBorder);

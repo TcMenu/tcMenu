@@ -7,12 +7,12 @@
   "plugins": [
     {
       "id": "6dd87e7d-e751-4912-a70d-91793b1d3d87",
-      "subsytem": "INPUT",
+      "subsystem": "INPUT",
       "applicability": ["ARDUINO"],
       "description": "Control menu with rotary encoder & button",
       "extendedDescription": "Hardware rotary encoder with acceleration that needs no external components in most cases. It can either be connected direct to Arduino or on an i2c expander (8574, 23017). With long wire runs may need stronger pull up resistors near the device.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.RotaryEncoderInputCreator",
-      "imageFileName": ""
+      "imageFileName": "rotary-encoder.jpg"
     },
     {
       "id": "2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049",
@@ -21,14 +21,23 @@
       "description": "Control menu with Up / Down / OK buttons",
       "extendedDescription": "Switches that represent up, down and OK controlled by switches library. These are fully debounced either pull up or pull down switches and can either be connected direct to Arduino or via an i2c expander.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
-      "imageFileName": ""
+      "imageFileName": "up-down-encoder.jpg"
     },
     {
       "id": "61f370f4-0294-41cf-8988-1458f242914a",
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "LiquidCrystalIO display direct or other i2c",
-      "extendedDescription": "I2c LiquidCrystal based display that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement you can use the general version.",
+      "extendedDescription": "LiquidCrystal based display driver that can be configured to work with any pin arrangement. Just set the EN, RS, Data pins at a minimum. It also has optional inbuilt backlight and PWM contrast support.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.LiquidCrystalDisplayCreator",
+      "imageFileName": ""
+    },
+    {
+      "id": "d4c84106-fa87-4024-b91e-053e17a52b8f",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO"],
+      "description": "LiquidCrystalIO for commonly available I2C backpacks",
+      "extendedDescription": "LiquidCrystal based display driver that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement use the general version",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.I2cLiquidCrystalDisplayCreator",
       "imageFileName": ""
     },

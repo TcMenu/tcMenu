@@ -43,14 +43,15 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
     @Override
     public void initCreator(String root) {
         addVariable(new CodeVariableBuilder().variableName("lcd").variableType("LiquidCrystal")
-                               .requiresHeader("LiquidCrystalIO.h", false)
-                               .exportNeeded().param("LCD_RS").param("LCD_EN")
-                               .param("LCD_D4").param("LCD_D5").param("LCD_D6").param("LCD_D7")
-                               .paramFromPropertyWithDefault("IO_DEVICE", "ioUsingArduino()"));
+                        .requiresHeader("LiquidCrystalIO.h", false)
+                        .requiresHeader("tcMenuLiquidCrystal.h", true)
+                        .exportNeeded().param("LCD_RS").param("LCD_EN")
+                        .param("LCD_D4").param("LCD_D5").param("LCD_D6").param("LCD_D7")
+                        .paramFromPropertyWithDefault("IO_DEVICE", "ioUsingArduino()"));
 
         addVariable(new CodeVariableBuilder().variableName("renderer").variableType("LiquidCrystalRenderer")
                                 .requiresHeader("LiquidCrystalIO.h", false)
-                                .exportNeeded().param("&lcd").param("LCD_WIDTH").param("LCD_HEIGHT"));
+                                .exportNeeded().param("lcd").param("LCD_WIDTH").param("LCD_HEIGHT"));
 
         addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd")
                                 .param("LCD_WIDTH").param("LCD_HEIGHT"));

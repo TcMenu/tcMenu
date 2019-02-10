@@ -37,13 +37,16 @@ class LiquidCrystalDisplayCreatorTest {
 
         assertThat(
                 "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
         assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                                                                         "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <LiquidCrystalIO.h>");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+                "#include <LiquidCrystalIO.h>",
+                "#include \"tcMenuLiquidCrystal.h\"");
     }
 
     @Test
@@ -71,7 +74,7 @@ class LiquidCrystalDisplayCreatorTest {
 
         assertThat(
                 "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(&lcd, LCD_WIDTH, LCD_HEIGHT);\n")
+                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
         assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
@@ -81,10 +84,13 @@ class LiquidCrystalDisplayCreatorTest {
                                          "    analogWrite(LCD_PWM_PIN, 10);\n")
                 .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                                                                         "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
+                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
 
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <LiquidCrystalIO.h>");
+        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+                "#include <LiquidCrystalIO.h>",
+                "#include \"tcMenuLiquidCrystal.h\"");
     }
 
     private void setupStandardProperties(LiquidCrystalDisplayCreator creator) {

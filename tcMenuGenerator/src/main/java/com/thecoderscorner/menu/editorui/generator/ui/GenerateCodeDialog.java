@@ -22,14 +22,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
+import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -65,6 +69,7 @@ public class GenerateCodeDialog {
     public TableColumn<CreatorProperty, String> valueCol;
     public TableColumn<CreatorProperty, String> descriptionCol;
     private List<CreatorProperty> properties = new ArrayList<>();
+    private Stage dialogStage;
 
 
     public GenerateCodeDialog(CodePluginManager manager,  CurrentProjectEditorUI editorUI,
@@ -138,7 +143,7 @@ public class GenerateCodeDialog {
         BorderPane.setMargin(buttonBar, new Insets(5));
         BorderPane.setMargin(vbox, new Insets(5));
 
-        Stage dialogStage = new Stage();
+        dialogStage = new Stage();
         dialogStage.setTitle("Code Generator:" + project.getFileName());
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(stage);
@@ -160,6 +165,7 @@ public class GenerateCodeDialog {
         typeCol = new TableColumn<>("SubSystem");
         valueCol = new TableColumn<>("Value");
         descriptionCol = new TableColumn<>("Description");
+        descriptionCol.setPrefWidth(400);
         propsTable.getColumns().addAll(defineCol, typeCol, valueCol, descriptionCol);
         propsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         propsTable.setMaxHeight(2000);
@@ -195,7 +201,8 @@ public class GenerateCodeDialog {
         embeddedPane.setRight(platformCombo);
         vbox.getChildren().add(embeddedPane);
         platformCombo.getSelectionModel().select(project.getGeneratorOptions().getEmbeddedPlatform());
-        platformCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
+        platformCombo.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
     }
 
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
@@ -227,7 +234,7 @@ public class GenerateCodeDialog {
 
 
     private void onCancel(ActionEvent actionEvent) {
-        ((Stage)cancelButton.getScene().getWindow()).close();
+        dialogStage.close();
     }
 
     private void onGenerateCode(ActionEvent actionEvent) {
@@ -244,21 +251,69 @@ public class GenerateCodeDialog {
                                    Paths.get(project.getFileName()).getParent().toString(),
                                    Arrays.asList(displayCreator, inputCreator, remoteCreator));
 
-        ((Stage) cancelButton.getScene().getWindow()).close();
+        dialogStage.close();
     }
 
-    private void onDisplayChange(ActionEvent actionEvent) {
+    private void onDisplayChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on display");
+        selectPlugin(displaysSupported, "Display", (pluginItem)-> {
+            try {
+                displayCreator = manager.makeCreator(pluginItem);
+            } catch (ClassNotFoundException e) {
+                logger.log(ERROR, "Unable to create the display creator" + item);
+            }
+            currentDisplay.setItem(pluginItem);
+            changeProperties();
+        });
     }
 
-    private void onRemoteChange(ActionEvent actionEvent) {
+    private void onRemoteChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on remote");
-
+        selectPlugin(remotesSupported, "Remote", (pluginItem)-> {
+            try {
+                remoteCreator = manager.makeCreator(pluginItem);
+            } catch (ClassNotFoundException e) {
+                logger.log(ERROR, "Unable to create the remote creator" + item);
+            }
+            currentRemote.setItem(pluginItem);
+            changeProperties();
+        });
     }
 
-    private void onInputChange(ActionEvent actionEvent) {
+    private void onInputChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on input");
+        selectPlugin(inputsSupported, "Input", (pluginItem)-> {
+            try {
+                inputCreator = manager.makeCreator(pluginItem);
+            } catch (ClassNotFoundException e) {
+                logger.log(ERROR, "Unable to create the input creator" + item);
+            }
+            currentInput.setItem(pluginItem);
+            changeProperties();
+        });
     }
 
+
+    private void selectPlugin(List<CodePluginItem> pluginItems, String changeWhat, Consumer<CodePluginItem> eventHandler) {
+
+        Popup popup = new Popup();
+        List<UICodePluginItem> listOfComponents = pluginItems.stream()
+                .map(display -> new UICodePluginItem(manager, display, SELECT, item -> {
+                    popup.hide();
+                    eventHandler.accept(item);
+                }))
+                .collect(Collectors.toList());
+
+        VBox vbox = new VBox(5);
+        addTitleLabel(vbox, "Select the " + changeWhat + " to use:");
+        vbox.getChildren().addAll(listOfComponents);
+        vbox.setPrefSize(700, 600);
+        vbox.setStyle("-fx-background-color: #f4f0ff; -fx-border-style: solid;-fx-border-color: black; -fx-border-width: 1px; -fx-border-insets: 2px;-fx-background-insets: 2px;");
+
+        popup.getContent().add(vbox);
+        popup.setAutoHide(true);
+        popup.hideOnEscapeProperty();
+        popup.show(dialogStage);
+    }
 
 }

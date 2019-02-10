@@ -29,8 +29,9 @@ public class DfRobotLcdCreator extends AbstractCodeCreator {
                             .variableName("renderer")
                             .variableType("LiquidCrystalRenderer")
                             .requiresHeader("LiquidCrystalIO.h", false)
+                            .requiresHeader("tcMenuLiquidCrystal.h", true)
                             .exportNeeded()
-                            .param("&lcd").param(16).param(2));
+                            .param("lcd").param(16).param(2));
 
         addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName(lcd).param(16).param(2));
         addFunctionCall(new FunctionCallBuilder().functionName("configureBacklightPin").objectName(lcd).param(10));
