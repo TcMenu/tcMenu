@@ -1,14 +1,16 @@
 {
   "name": "DfRobot CodeGen Plugin",
   "moduleName": "com.thecoderscorner.tcmenu.plugin.dfrobot",
-  "version": "${project.version}",
+  "version": "1.2.0",
+  "license": "Apache 2.0",
+  "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
   "plugins": [
     {
       "id": "7daa6a81-dd09-422e-b83c-bda5045abaef",
       "subsystem": "INPUT",
       "applicability": ["ARDUINO"],
       "description": "Input from DfRobot Shield",
-      "extendedDescription": "Uses the DfRobot shield switches connected to analog input A0",
+      "extendedDescription": "Uses the DfRobot shield switches to control the menu. These switches are connected to analog input A0 and will be managed by switches.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotAnalogInputCreator",
       "imageFileName": "DfRobotShield.jpg"
     },
@@ -17,7 +19,7 @@
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "Output to DfRobot Shield LCD",
-      "extendedDescription": "Uses the LCD panel on the DfRobot shield via the LiquidCrystalIO library without ",
+      "extendedDescription": "Uses the LCD panel on the DfRobot shield via the LiquidCrystalIO library without needing to specify any configuration at all. This provides a menu item per line menu view supporting submenus.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotLcdCreator",
       "imageFileName": "DfRobotShield.jpg"
     }

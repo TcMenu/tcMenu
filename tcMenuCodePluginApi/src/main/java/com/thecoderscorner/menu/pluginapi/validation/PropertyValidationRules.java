@@ -6,11 +6,11 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface PropertyValidationRules {
     boolean isValueValid(String value);
 
     boolean hasChoices();
-    Collection<String> choices();
+    List<String> choices();
 }

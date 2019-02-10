@@ -6,8 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class StringPropertyValidationRules implements PropertyValidationRules {
@@ -39,7 +39,12 @@ public class StringPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public Collection<String> choices() {
+    public List<String> choices() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public String toString() {
+        return variable ? "Variable ":"String " + "validator (max length " + maxLen + ")";
     }
 }

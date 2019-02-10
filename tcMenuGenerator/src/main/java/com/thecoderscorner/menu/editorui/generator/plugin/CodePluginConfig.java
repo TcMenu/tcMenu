@@ -12,6 +12,8 @@ public class CodePluginConfig {
     private String moduleName;
     private String name;
     private String version;
+    private String license;
+    private String licenseUrl;
     private List<CodePluginItem> plugins;
 
     public CodePluginConfig() {
@@ -42,12 +44,22 @@ public class CodePluginConfig {
         return plugins;
     }
 
+    public String getLicense() {
+        return license;
+    }
+
+    public String getLicenseUrl() {
+        return licenseUrl;
+    }
+
     @Override
     public String toString() {
         return "CodePluginConfig{" +
                 "moduleName='" + moduleName + '\'' +
                 ", name='" + name + '\'' +
                 ", version='" + version + '\'' +
+                ", license='" + license + '\'' +
+                ", licenseUrl='" + licenseUrl + '\'' +
                 ", plugins=" + plugins +
                 '}';
     }

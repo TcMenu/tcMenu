@@ -1,7 +1,9 @@
 {
   "name": "General IO CodeGen Plugin",
   "moduleName": "com.thecoderscorner.tcmenu.plugin.baseio",
-  "version": "${project.version}",
+  "version": "1.2.0",
+  "license": "Apache 2.0",
+  "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
   "plugins": [
     {
       "id": "6dd87e7d-e751-4912-a70d-91793b1d3d87",

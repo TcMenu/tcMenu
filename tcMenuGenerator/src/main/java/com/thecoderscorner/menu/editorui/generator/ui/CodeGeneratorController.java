@@ -11,11 +11,9 @@ import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.pluginapi.EnumWithApplicability;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
@@ -68,15 +66,7 @@ public class CodeGeneratorController {
     }
 
     private void setUpTable() {
-        propsTable.setEditable(true);
-        defineCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getName()));
-        typeCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getSubsystem().toString()));
-        valueCol.setCellValueFactory(param -> param.getValue().getProperty());
-        valueCol.setEditable(true);
-        valueCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        valueCol.setOnEditCommit(event -> event.getRowValue().getProperty().set(event.getNewValue()));
-        descriptionCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getDescription()));
-        }
+    }
 
         //FIXME change to new
 //    private void inputTypeChanged(Observable obs, InputType oldVal, InputType newVal) {
@@ -94,26 +84,6 @@ public class CodeGeneratorController {
 //        changeProperties();
 //    }
 
-    private void changeProperties() {
-        List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
-        properties.clear();
-
-        creators.stream()
-                .filter(p -> p != null && p.properties().size() > 0)
-                .forEach( creator -> {
-                    setAllPropertiesToLastValues(creator.properties());
-                    properties.addAll(creator.properties());
-                });
-
-        propsTable.setItems(FXCollections.observableArrayList(properties));
-    }
-
-    private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
-        propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
-                .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
-                .findFirst()
-                .ifPresent(p-> prop.getProperty().set(p.getLatestValue())));
-    }
 
     private <T extends EnumWithApplicability> void filterChoicesFor(ComboBox<T> choices, EmbeddedPlatform platform, Map<Integer, T> values) {
         SingleSelectionModel<T> selectionModel = choices.getSelectionModel();

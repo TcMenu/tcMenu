@@ -63,24 +63,7 @@
     </dependencies>
 
     <build>
-        <!-- the resource below just allows us to use maven defined
-             properties such as build version in the plugin json -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>META-INF/tcmenu/tcmenu-plugin.json</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>META-INF/tcmenu/tcmenu-plugin.json</exclude>
-                </excludes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
+        <finalName>dfRobotCodePlugin</finalName>
         <plugins>
             <!-- we need to use a recent complier plugin version set to 11 -->
             <plugin>
@@ -91,6 +74,53 @@
                     <source>11</source>
                     <target>11</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <configuration>
+                            <addDefaultExcludes>false</addDefaultExcludes>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>META-INF/tcmenu/tcmenu-plugin.json</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>/src/main/resources</directory>
+                                    <excludes>
+                                        <exclude>META-INF/tcmenu/tcmenu-plugin.json</exclude>
+                                    </excludes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-jar-to-plugins</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/../builtPlugins</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/target</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>dfRobotCodePlugin.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

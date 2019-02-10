@@ -193,6 +193,22 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>copy-resources-plugins</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/jfx/app/plugins</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../builtPlugins</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-resources-jar</id>
                         <phase>install</phase>
                         <goals>

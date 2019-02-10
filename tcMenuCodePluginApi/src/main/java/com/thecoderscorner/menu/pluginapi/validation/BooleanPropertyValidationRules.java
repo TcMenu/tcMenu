@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.pluginapi.validation;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 public class BooleanPropertyValidationRules implements PropertyValidationRules {
     @Override
@@ -21,7 +21,12 @@ public class BooleanPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public Collection<String> choices() {
+    public List<String> choices() {
         return Arrays.asList("true", "false");
+    }
+
+    @Override
+    public String toString() {
+        return "Boolean Validator accepting true, false";
     }
 }

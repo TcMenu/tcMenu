@@ -6,8 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class IntegerPropertyValidationRules implements PropertyValidationRules {
@@ -42,7 +42,13 @@ public class IntegerPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public Collection<String> choices() {
+    public List<String> choices() {
         return Collections.emptyList();
     }
+
+    @Override
+    public String toString() {
+        return "Int Validator accepting " + minVal + " to " + maxVal;
+    }
+
 }

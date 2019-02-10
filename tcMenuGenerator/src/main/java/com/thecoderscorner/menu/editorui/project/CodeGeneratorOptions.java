@@ -12,11 +12,15 @@ import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import java.util.List;
 
 public class CodeGeneratorOptions {
-    private final EmbeddedPlatform embeddedPlatform;
-    private final String lastDisplayUuid;
-    private final String lastInputUuid;
-    private final String lastRemoteUuid;
-    private final List<CreatorProperty> lastProperties;
+    private EmbeddedPlatform embeddedPlatform;
+    private String lastDisplayUuid;
+    private String lastInputUuid;
+    private String lastRemoteUuid;
+    private List<CreatorProperty> lastProperties;
+
+    public CodeGeneratorOptions() {
+        // for serialisation
+    }
 
     public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, String displayTypeId,
                                 String inputTypeId, String remoteCapabilitiesId,

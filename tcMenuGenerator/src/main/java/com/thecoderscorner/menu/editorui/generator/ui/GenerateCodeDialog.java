@@ -8,25 +8,36 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.project.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import javafx.collections.FXCollections;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class GenerateCodeDialog {
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+
     private final CodePluginManager manager;
     private final CurrentProjectEditorUI editorUI;
     private final CurrentEditorProject project;
@@ -39,73 +50,100 @@ public class GenerateCodeDialog {
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentInput;
     private UICodePluginItem currentRemote;
+    private EmbeddedCodeCreator displayCreator;
+    private EmbeddedCodeCreator inputCreator;
+    private EmbeddedCodeCreator remoteCreator;
 
     private ComboBox<EmbeddedPlatform> platformCombo;
+    private Button generateButton;
+    private Button cancelButton;
+    private Stage mainStage;
+
+    public TableView<CreatorProperty> propsTable;
+    public TableColumn<CreatorProperty, String> defineCol;
+    public TableColumn<CreatorProperty, String> typeCol;
+    public TableColumn<CreatorProperty, String> valueCol;
+    public TableColumn<CreatorProperty, String> descriptionCol;
+    private List<CreatorProperty> properties = new ArrayList<>();
+
 
     public GenerateCodeDialog(CodePluginManager manager,  CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner) {
-
         this.manager = manager;
         this.editorUI = editorUI;
         this.project = project;
         this.runner = runner;
-
-        displaysSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), DISPLAY);
-        inputsSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), INPUT);
-        remotesSupported = manager.getPluginsThatMatch(project.getGeneratorOptions().getEmbeddedPlatform(), REMOTE);
-
     }
 
-    public void showCodeGenerator(Stage stage, boolean modal) {
-
+    public void showCodeGenerator(Stage stage, boolean modal)  {
+        this.mainStage = stage;
         VBox vbox = new VBox(5);
-        vbox.setPrefSize(640, 500);
 
         placeDirectoryAndEmbeddedPanels(vbox);
+        filterChoicesByPlatform(platformCombo.getValue());
 
-        BorderPane pane = new BorderPane();
-        Label titleLbl = new Label("Input device:");
-        titleLbl.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
-        pane.setLeft(titleLbl);
-        pane.setRight(new Button("Change input"));
-        vbox.getChildren().add(pane);
+        addTitleLabel(vbox, "Select the input type:");
+        CodeGeneratorOptions genOptions = project.getGeneratorOptions();
+        try {
+            CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
+            inputCreator = manager.makeCreator(itemInput);
+            currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
+            currentInput.getStyleClass().add("uiCodeGen");
+            vbox.getChildren().add(currentInput);
+        } catch (ClassNotFoundException e) {
+            logger.log(ERROR, "Class loading problem", e);
+        }
 
-        CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, project.getGeneratorOptions().getLastInputUuid());
-        currentInput = new UICodePluginItem(manager, itemInput);
-        vbox.getChildren().add(currentInput);
 
+        addTitleLabel(vbox, "Select the display type:");
+        try {
+            CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
+            currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
+            displayCreator = manager.makeCreator(itemDisplay);
+            currentDisplay.getStyleClass().add("uiCodeGen");
+            vbox.getChildren().add(currentDisplay);
+        } catch (ClassNotFoundException e) {
+            logger.log(ERROR, "Class loading problem", e);
+        }
 
-        pane = new BorderPane();
-        Label titleLbl1 = new Label("Display device:");
-        titleLbl1.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
-        pane.setLeft(titleLbl1);
-        pane.setRight(new Button("Change display"));
-        vbox.getChildren().add(pane);
+        addTitleLabel(vbox, "Select remote capabilities:");
+        try {
+            CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
+            currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
+            remoteCreator = manager.makeCreator(itemRemote);
+            currentRemote.getStyleClass().add("uiCodeGen");
+            vbox.getChildren().add(currentRemote);
+        } catch (ClassNotFoundException e) {
+            logger.log(ERROR, "Class loading problem", e);
+        }
 
-        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, project.getGeneratorOptions().getLastDisplayUuid());
-        currentDisplay = new UICodePluginItem(manager, itemDisplay);
-        vbox.getChildren().add(currentDisplay);
+        buildTable();
 
-        pane = new BorderPane();
-        Label titleLbl2 = new Label("Remote device:");
-        titleLbl2.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
-        pane.setLeft(titleLbl2);
-        pane.setRight(new Button("Change remote"));
-        vbox.getChildren().add(pane);
-
-        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, project.getGeneratorOptions().getLastRemoteCapabilitiesUuid());
-        currentRemote = new UICodePluginItem(manager, itemRemote);
-        vbox.getChildren().add(currentRemote);
+        ButtonBar buttonBar = new ButtonBar();
+        generateButton = new Button("Generate Code");
+        generateButton.setDefaultButton(true);
+        generateButton.setOnAction(this::onGenerateCode);
+        cancelButton = new Button("Cancel");
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(this::onCancel);
+        buttonBar.getButtons().addAll(generateButton, cancelButton);
 
         BorderPane root = new BorderPane();
         root.setTop(vbox);
-        root.setPadding(new Insets(5));
+        root.setOpaqueInsets(new Insets(5));
+        root.setCenter(propsTable);
+        root.setBottom(buttonBar);
+        root.setPrefSize(800, 750);
+        BorderPane.setMargin(propsTable, new Insets(5));
+        BorderPane.setMargin(buttonBar, new Insets(5));
+        BorderPane.setMargin(vbox, new Insets(5));
 
         Stage dialogStage = new Stage();
-        dialogStage.setTitle("Code Generator");
+        dialogStage.setTitle("Code Generator:" + project.getFileName());
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(stage);
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/ui/JMetroDarkTheme.css").toExternalForm());
         dialogStage.setScene(scene);
         if(modal) {
             dialogStage.showAndWait();
@@ -116,19 +154,44 @@ public class GenerateCodeDialog {
 
     }
 
+    private void buildTable() {
+        propsTable = new TableView<>();
+        defineCol = new TableColumn<>("Parameter");
+        typeCol = new TableColumn<>("SubSystem");
+        valueCol = new TableColumn<>("Value");
+        descriptionCol = new TableColumn<>("Description");
+        propsTable.getColumns().addAll(defineCol, typeCol, valueCol, descriptionCol);
+        propsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        propsTable.setMaxHeight(2000);
+
+        defineCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getName()));
+        typeCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getSubsystem().toString()));
+        valueCol.setCellValueFactory(param -> param.getValue().getProperty());
+        valueCol.setPrefWidth(130);
+        descriptionCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getDescription()));
+
+        propsTable.setEditable(true);
+        valueCol.setEditable(true);
+
+        valueCol.setCellFactory(editCol -> new CreatorEditingTableCell(editorUI));
+
+        changeProperties();
+    }
+
+    private void addTitleLabel(VBox vbox, String text) {
+        Label titleLbl = new Label(text);
+        titleLbl.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
+        vbox.getChildren().add(titleLbl);
+    }
+
     private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid) {
         return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElse(items.get(0));
     }
 
     private void placeDirectoryAndEmbeddedPanels(VBox vbox) {
-        BorderPane directoryPane = new BorderPane();
-        directoryPane.setLeft(new Label("Project directory"));
-        directoryPane.setRight(new Label(project.getFileName()));
-        vbox.getChildren().add(directoryPane);
-
         BorderPane embeddedPane = new BorderPane();
         embeddedPane.setLeft(new Label("Embedded Platform"));
-        platformCombo = new ComboBox<>(FXCollections.observableArrayList(EmbeddedPlatform.values()));
+        platformCombo = new ComboBox<>(observableArrayList(EmbeddedPlatform.values()));
         embeddedPane.setRight(platformCombo);
         vbox.getChildren().add(embeddedPane);
         platformCombo.getSelectionModel().select(project.getGeneratorOptions().getEmbeddedPlatform());
@@ -138,5 +201,64 @@ public class GenerateCodeDialog {
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
         displaysSupported = manager.getPluginsThatMatch(newVal, DISPLAY);
         inputsSupported = manager.getPluginsThatMatch(newVal, INPUT);
+        remotesSupported = manager.getPluginsThatMatch(newVal, REMOTE);
     }
+
+    private void changeProperties() {
+        List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
+        properties.clear();
+
+        creators.stream()
+                .filter(p -> p != null && p.properties().size() > 0)
+                .forEach( creator -> {
+                    setAllPropertiesToLastValues(creator.properties());
+                    properties.addAll(creator.properties());
+                });
+
+        propsTable.setItems(observableArrayList(properties));
+    }
+
+    private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
+        propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
+                .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
+                .findFirst()
+                .ifPresent(p-> prop.getProperty().set(p.getLatestValue())));
+    }
+
+
+    private void onCancel(ActionEvent actionEvent) {
+        ((Stage)cancelButton.getScene().getWindow()).close();
+    }
+
+    private void onGenerateCode(ActionEvent actionEvent) {
+        var allProps = new ArrayList<CreatorProperty>();
+        allProps.addAll(displayCreator.properties());
+        allProps.addAll(inputCreator.properties());
+        allProps.addAll(remoteCreator.properties());
+
+        project.setGeneratorOptions(new CodeGeneratorOptions(
+                platformCombo.getSelectionModel().getSelectedItem(),
+                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), allProps));
+
+        runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
+                                   Paths.get(project.getFileName()).getParent().toString(),
+                                   Arrays.asList(displayCreator, inputCreator, remoteCreator));
+
+        ((Stage) cancelButton.getScene().getWindow()).close();
+    }
+
+    private void onDisplayChange(ActionEvent actionEvent) {
+        logger.log(INFO, "Action fired on display");
+    }
+
+    private void onRemoteChange(ActionEvent actionEvent) {
+        logger.log(INFO, "Action fired on remote");
+
+    }
+
+    private void onInputChange(ActionEvent actionEvent) {
+        logger.log(INFO, "Action fired on input");
+    }
+
+
 }

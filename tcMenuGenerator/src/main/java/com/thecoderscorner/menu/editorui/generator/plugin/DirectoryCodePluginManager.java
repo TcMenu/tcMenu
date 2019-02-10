@@ -28,7 +28,7 @@ import java.util.zip.ZipInputStream;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
- * This class loads the code generator plugins into memory and stores the
+ * This class loads the code generator plugins from Jar files into memory.
  */
 public class DirectoryCodePluginManager implements CodePluginManager {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -96,15 +96,15 @@ public class DirectoryCodePluginManager implements CodePluginManager {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized Optional<EmbeddedCodeCreator> makeCreator(CodePluginItem item) {
+    public synchronized EmbeddedCodeCreator makeCreator(CodePluginItem item) throws ClassNotFoundException {
         try {
             Class<EmbeddedCodeCreator> clazz = (Class<EmbeddedCodeCreator>)
                     layer.findLoader(itemToConfig.get(item).getModuleName()).loadClass(item.getCodeCreatorClass());
 
-            return Optional.of(clazz.getConstructor().newInstance());
+            return clazz.getConstructor().newInstance();
         } catch (Exception e) {
             System.getLogger("CodePlugin").log(ERROR, "Plugin Class did not load " + item.getDescription(), e);
-            return Optional.empty();
+            throw new ClassNotFoundException("makeCreator failed to load plugin", e);
         }
     }
 

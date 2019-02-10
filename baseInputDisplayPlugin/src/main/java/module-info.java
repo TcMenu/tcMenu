@@ -3,4 +3,5 @@ module com.thecoderscorner.tcmenu.plugin.baseio {
 
     exports com.thecoderscorner.tcmenu.plugins.basedisplay;
     exports com.thecoderscorner.tcmenu.plugins.baseinput;
+    exports com.thecoderscorner.tcmenu.plugins.remote;
 }

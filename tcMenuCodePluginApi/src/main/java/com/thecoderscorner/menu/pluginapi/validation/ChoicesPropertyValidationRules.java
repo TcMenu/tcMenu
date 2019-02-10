@@ -6,8 +6,9 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,13 @@ public class ChoicesPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public Collection<String> choices() {
-        return enumValues;
+    public List<String> choices() {
+        return new ArrayList<>(enumValues);
     }
+
+    @Override
+    public String toString() {
+        return "Choice Validator accepting " + String.join(", ", enumValues);
+    }
+
 }

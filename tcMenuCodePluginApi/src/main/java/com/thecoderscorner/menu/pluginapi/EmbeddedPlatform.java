@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.pluginapi;
 
 public enum EmbeddedPlatform {
-    ARDUINO("Arduino - Uno, Mega, 8bit");
+    ARDUINO("Arduino AVR/SAMD/ESP");
 
     private final String friendlyName;
 
