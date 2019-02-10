@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.remote;
@@ -9,7 +10,6 @@ import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 
 /**
  * This is a low level part of the API that most people don't need to deal, implementations will translate

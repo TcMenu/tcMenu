@@ -1,7 +1,12 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.tcmenu.plugins.remote;
 
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
@@ -13,11 +18,11 @@ class NoRemoteCapabilityTest {
 
     @Test
     public void testNoRemoteCapabilities() {
-        EmbeddedCodeCreator creator = new NoRemoteCapability();
+        NoRemoteCapability creator = new NoRemoteCapability();
         assertEquals(1, creator.properties().size());
 
         findAndSetValueOnProperty(creator, "DEVICE_NAME", REMOTE, CreatorProperty.PropType.TEXTUAL, "Tester");
-        ((NoRemoteCapability) creator).initCreator("root");
+        creator.initCreator("root");
 
         assertThat("const char PROGMEM applicationName[] = \"Tester\";\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());

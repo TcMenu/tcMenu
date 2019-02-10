@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.remote.udp;
@@ -12,7 +13,6 @@ import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.time.Clock;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

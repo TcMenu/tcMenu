@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.RemoteMenuItem;
-import com.thecoderscorner.menu.domain.TextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
 public class MenuRemoteBootCommand extends BootItemMenuCommand<RemoteMenuItem, String> {

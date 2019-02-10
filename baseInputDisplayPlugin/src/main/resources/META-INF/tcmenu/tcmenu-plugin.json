@@ -8,7 +8,7 @@
       "subsytem": "INPUT",
       "applicability": ["ARDUINO"],
       "description": "Control menu with rotary encoder & button",
-      "extendedDescription": "Hardware rotary encoder with pin A connected to interrupt pin, and a button to select",
+      "extendedDescription": "Hardware rotary encoder with acceleration that needs no external components in most cases. It can either be connected direct to Arduino or on an i2c expander (8574, 23017). With long wire runs may need stronger pull up resistors near the device.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.RotaryEncoderInputCreator",
       "imageFileName": ""
     },
@@ -17,7 +17,7 @@
       "subsystem": "INPUT",
       "applicability": ["ARDUINO"],
       "description": "Control menu with Up / Down / OK buttons",
-      "extendedDescription": "Switches that represent up, down and OK controlled by switches library",
+      "extendedDescription": "Switches that represent up, down and OK controlled by switches library. These are fully debounced either pull up or pull down switches and can either be connected direct to Arduino or via an i2c expander.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
       "imageFileName": ""
     },
@@ -26,8 +26,8 @@
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "LiquidCrystalIO display direct or other i2c",
-      "extendedDescription": "General LiquidCrystal based display that can be used with Arduino pins (or any IO expander)",
-      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
+      "extendedDescription": "I2c LiquidCrystal based display that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement you can use the general version.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.I2cLiquidCrystalDisplayCreator",
       "imageFileName": ""
     },
     {
@@ -35,7 +35,7 @@
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "No display or custom display module",
-      "extendedDescription": "This is for cases where either no local display, or a custom display is going to be used.",
+      "extendedDescription": "This is for cases where either no local display, or a custom display is going to be used. If you are using a custom display, just make sure the renderer is created and registered during setup.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.DoNotDefineDisplayCreator",
       "imageFileName": "no-display.png"
     },
@@ -44,7 +44,7 @@
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO"],
       "description": "Color Adafruit GFX based display",
-      "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size.",
+      "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version is optimised for colour screens of 320x240 or greater. It will place a rendering configuration file into your project.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.adagfx.ColorAdaGfxDisplayCreator",
       "imageFileName": ""
     },
@@ -62,7 +62,7 @@
       "subsystem": "REMOTE",
       "applicability": ["ARDUINO"],
       "description": "Serial remote control (Rs232 / USB / Bluetooth)",
-      "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Rs232RemoteCapabilitiesCreator",
       "imageFileName": ""
     },
@@ -71,7 +71,7 @@
       "subsystem": "REMOTE",
       "applicability": ["ARDUINO"],
       "description": "Ethernet2 library control for Ethernet shields",
-      "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds that are compatible with Ethernet2 library",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds that are compatible with Ethernet2 library. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.EthernetRemoteCapabilitiesCreator",
       "imageFileName": ""
     }

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.domain.util;
@@ -8,7 +9,7 @@ package com.thecoderscorner.menu.domain.util;
 import com.thecoderscorner.menu.domain.*;
 import org.junit.Test;
 
-import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.domain.DomainFixtures.*;
 import static org.junit.Assert.*;
 

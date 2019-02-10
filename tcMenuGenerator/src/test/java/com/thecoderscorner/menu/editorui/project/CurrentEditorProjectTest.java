@@ -1,3 +1,9 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.*;
@@ -26,7 +32,7 @@ public class CurrentEditorProjectTest {
     private SubMenuItem subMenu;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         editorUI = Mockito.mock(CurrentProjectEditorUI.class);
         persistor = Mockito.mock(ProjectPersistor.class);
         project = new CurrentEditorProject(editorUI, persistor);
