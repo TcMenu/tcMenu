@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi;
 
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+
 import java.util.List;
 
 public interface EmbeddedCodeCreator {
@@ -15,7 +17,7 @@ public interface EmbeddedCodeCreator {
      */
     void initialise(String root);
 
-    List<String> getIncludes();
+    List<HeaderDefinition> getIncludes();
     String getGlobalVariables();
     String getExportDefinitions();
     String getSetupCode(String rootItem);

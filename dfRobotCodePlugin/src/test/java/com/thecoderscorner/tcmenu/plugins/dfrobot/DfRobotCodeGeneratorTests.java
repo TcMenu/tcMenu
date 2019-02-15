@@ -6,7 +6,11 @@
 
 package com.thecoderscorner.tcmenu.plugins.dfrobot;
 
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +25,7 @@ public class DfRobotCodeGeneratorTests {
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
 
-        assertThat(creator.getIncludes()).containsExactly(
+        assertThat(includeConverter(creator.getIncludes())).containsExactly(
                 "#include <LiquidCrystalIO.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
 
@@ -44,8 +48,9 @@ public class DfRobotCodeGeneratorTests {
         creator.initCreator("root");
         assertThat(creator.properties()).isEmpty();
         assertThat(creator.getRequiredFiles()).isEmpty();
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <IoAbstraction.h>",
-                                                                    "#include <DfRobotInputAbstraction.h>");
+        assertThat(includeConverter(creator.getIncludes()))
+                .containsExactlyInAnyOrder("#include <IoAbstraction.h>",
+                                           "#include <DfRobotInputAbstraction.h>");
 
         assertThat("").isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
@@ -56,5 +61,10 @@ public class DfRobotCodeGeneratorTests {
                       "    switches.initialise(inputFromDfRobotShield(), false);\n" +
                       "    menuMgr.initForUpDownOk(&renderer, &root, DF_KEY_DOWN, DF_KEY_UP, DF_KEY_SELECT);\n")
                 .isEqualToIgnoringNewLines(creator.getSetupCode("rootMenuItem"));
+    }
+
+    private List<String> includeConverter(List<HeaderDefinition> includes) {
+        return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
+
     }
 }

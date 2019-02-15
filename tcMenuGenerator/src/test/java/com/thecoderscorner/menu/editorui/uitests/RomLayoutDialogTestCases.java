@@ -30,8 +30,7 @@ public class RomLayoutDialogTestCases {
 
     @Start
     public void onStart(Stage stage) {
-        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree());
-        romDialog.show();
+        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree(), false);
 
         this.stage = stage;
     }

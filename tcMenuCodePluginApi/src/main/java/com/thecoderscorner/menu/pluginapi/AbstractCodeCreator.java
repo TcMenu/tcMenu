@@ -56,7 +56,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     }
 
     @Override
-    public List<String> getIncludes() {
+    public List<HeaderDefinition> getIncludes() {
         var allHeaders = new ArrayList<HeaderDefinition>();
         allHeaders.addAll(variables.stream()
                 .flatMap(var -> var.getHeaders().stream()).collect(Collectors.toList()));
@@ -64,7 +64,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
         allHeaders.addAll(functionCalls.stream()
                 .flatMap(fn -> fn.getHeaders().stream()).collect(Collectors.toList()));
 
-        return allHeaders.stream().distinct().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
+        return allHeaders.stream().distinct().collect(Collectors.toList());
     }
 
     @Override

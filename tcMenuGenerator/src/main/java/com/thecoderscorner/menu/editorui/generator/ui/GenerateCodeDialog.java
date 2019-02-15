@@ -11,17 +11,16 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.UiHelper;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
+import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShowSceneAdj;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -143,13 +143,12 @@ public class GenerateCodeDialog {
         BorderPane.setMargin(buttonBar, new Insets(5));
         BorderPane.setMargin(vbox, new Insets(5));
 
-        dialogStage = new Stage();
-        dialogStage.setTitle("Code Generator:" + project.getFileName());
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(stage);
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/ui/JMetroDarkTheme.css").toExternalForm());
-        dialogStage.setScene(scene);
+        var title = "Code Generator:" + project.getFileName();
+        createDialogStateAndShowSceneAdj(stage, root, title, modal, (scene, dlgStg) -> {
+            scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
+            dialogStage = dlgStg;
+        });
+
         if(modal) {
             dialogStage.showAndWait();
         }
@@ -249,7 +248,8 @@ public class GenerateCodeDialog {
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
-                                   Arrays.asList(displayCreator, inputCreator, remoteCreator));
+                                   Arrays.asList(displayCreator, inputCreator, remoteCreator),
+                                   true);
 
         dialogStage.close();
     }

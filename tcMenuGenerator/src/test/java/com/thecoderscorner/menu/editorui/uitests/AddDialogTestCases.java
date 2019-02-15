@@ -33,8 +33,7 @@ public class AddDialogTestCases {
     public void onStart(Stage stage) {
         editorUI = mock(CurrentProjectEditorUI.class);
 
-        dialog = new NewItemDialog(stage, TestUtils.buildSimpleTree(), editorUI);
-        dialog.show();
+        dialog = new NewItemDialog(stage, TestUtils.buildSimpleTree(), editorUI, false);
     }
 
     @Test

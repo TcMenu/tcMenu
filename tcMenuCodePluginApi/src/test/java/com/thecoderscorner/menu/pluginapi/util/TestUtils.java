@@ -6,6 +6,11 @@
 
 package com.thecoderscorner.menu.pluginapi.util;
 
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
@@ -13,6 +18,10 @@ public class TestUtils {
         expected = expected.replaceAll("\\r\\n", "\n");
         actual = actual.replaceAll("\\r\\n", "\n");
         assertEquals(expected, actual);
+    }
+
+    public static List<String> includeToString(List<HeaderDefinition> includes) {
+        return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
     }
 
 }

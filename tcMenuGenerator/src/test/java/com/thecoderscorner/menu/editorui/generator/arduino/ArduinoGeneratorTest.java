@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,8 +88,8 @@ public class ArduinoGeneratorTest {
             }
 
             @Override
-            public List<String> getIncludes() {
-                return Collections.singletonList("includes section");
+            public List<HeaderDefinition> getIncludes() {
+                return Collections.singletonList(new HeaderDefinition("header", false));
             }
 
             @Override

@@ -8,25 +8,27 @@ package com.thecoderscorner.menu.pluginapi;
 
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.pluginapi.util.TestUtils.includeToString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractCodeCreatorTest {
 
     @Test
     void testCodeCreation() {
         ExampleCodeCreator creator = new ExampleCodeCreator();
+        creator.initCreator("root");
         assertEqualsIgnoringCRLF("#define name 1\n" +
                 "extern Type test;\n", creator.getExportDefinitions());
         assertEqualsIgnoringCRLF("Type test(2);\n", creator.getGlobalVariables());
         assertEqualsIgnoringCRLF("    testFunc(&root);\n", creator.getSetupCode("root"));
-        Assertions.assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <ac.h>", "#include <ab.h>");
-        Assertions.assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("file1.cpp", "file2.h");
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder("#include <ac.h>", "#include <ab.h>");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("file1.cpp", "file2.h");
     }
 
     class ExampleCodeCreator extends AbstractCodeCreator {

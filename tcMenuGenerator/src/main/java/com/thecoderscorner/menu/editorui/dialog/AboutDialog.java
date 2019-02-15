@@ -9,13 +9,12 @@ package com.thecoderscorner.menu.editorui.dialog;
 import com.thecoderscorner.menu.editorui.controller.AboutController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
 import static java.lang.System.Logger.Level.ERROR;
 
 
@@ -26,19 +25,15 @@ public class AboutDialog {
     private AboutController controller;
     private Stage dialogStage;
 
-    public AboutDialog(Stage stage, ArduinoLibraryInstaller installer) {
+    public AboutDialog(Stage stage, ArduinoLibraryInstaller installer, boolean modal) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/aboutDialog.fxml"));
             BorderPane pane = loader.load();
             controller = loader.getController();
             controller.initialise(installer);
 
-            dialogStage = new Stage();
-            dialogStage.setTitle("About tcMenu Designer");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(stage);
-            Scene scene = new Scene(pane);
-            dialogStage.setScene(scene);
+
+            createDialogStateAndShow(stage, pane, "About tcMenu Designer", modal);
         }
         catch(Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);
@@ -47,13 +42,5 @@ public class AboutDialog {
 
             logger.log(ERROR, "Unable to create the form", e);
         }
-    }
-
-    public void showAndWait() {
-        dialogStage.showAndWait();
-    }
-
-    public void show() {
-        dialogStage.show();
     }
 }

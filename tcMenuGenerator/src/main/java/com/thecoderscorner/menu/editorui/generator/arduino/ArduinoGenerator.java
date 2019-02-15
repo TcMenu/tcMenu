@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -48,11 +49,7 @@ public class ArduinoGenerator implements CodeGenerator {
             " */" + LINE_BREAK + LINE_BREAK;
 
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
-            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
-            "#include<IoAbstraction.h>" + LINE_BREAK +
-            "#include<Wire.h>" + LINE_BREAK +
-            "#include<tcMenu.h>" + LINE_BREAK + LINE_BREAK;
-
+                                             "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK;
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
 
@@ -154,8 +151,13 @@ public class ArduinoGenerator implements CodeGenerator {
             writer.write(COMMENT_HEADER);
             writer.write(HEADER_TOP);
 
-            writer.write(generators.stream()
-                    .flatMap(g -> g.getIncludes().stream())
+            var includeList = generators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
+
+            includeList.add(new HeaderDefinition("tcMenu.h", false));
+
+            writer.write(includeList.stream()
+                    .distinct()
+                    .map(HeaderDefinition::getHeaderCode)
                     .collect(Collectors.joining(LINE_BREAK))
             );
 
@@ -221,7 +223,9 @@ public class ArduinoGenerator implements CodeGenerator {
 
         generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
             try {
-                Path fileToCopy = installer.findLibraryInstall("tcMenu").get().resolve(file);
+                Path fileToCopy = installer.findLibraryInstall("tcMenu")
+                        .orElseThrow(IOException::new).resolve(file);
+
                 Path nameOfFile = Paths.get(file).getFileName();
                 Files.copy(fileToCopy, directory.resolve(nameOfFile), REPLACE_EXISTING);
                 logLine("Copied with replacement " + file);

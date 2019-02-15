@@ -34,9 +34,7 @@ public class AboutDialogTestCases {
         when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.2"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
 
-        AboutDialog dialog = new AboutDialog(stage, installer);
-
-        dialog.show();
+        AboutDialog dialog = new AboutDialog(stage, installer, false);
     }
 
     @Test

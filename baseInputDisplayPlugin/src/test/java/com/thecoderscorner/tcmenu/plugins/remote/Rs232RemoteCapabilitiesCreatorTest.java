@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,7 +27,7 @@ class Rs232RemoteCapabilitiesCreatorTest {
         assertThat("const char PROGMEM applicationName[] = \"Tester\";\n").isEqualToIgnoringNewLines(creator.getGlobalVariables());
         assertThat("    remoteServer.begin(&Serial, applicationName);\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
         assertThat("\nextern const char applicationName[];\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <RemoteConnector.h>",
                 "#include \"SerialTransport.h\"");
         assertThat(creator.getRequiredFiles()).containsExactly(

@@ -11,14 +11,10 @@
 #ifndef MENU_GENERATED_CODE_H
 #define MENU_GENERATED_CODE_H
 
-#include<IoAbstraction.h>
-#include<Wire.h>
-#include<tcMenu.h>
-
-includes section
+#include <header>
+#include <tcMenu.h>
 
 // all export definitions
-
 
 
 // all menu item forward references.

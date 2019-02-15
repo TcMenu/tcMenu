@@ -86,20 +86,18 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public Optional<MenuItem> showNewItemDialog(MenuTree tree) {
-        NewItemDialog dlg = new NewItemDialog(mainStage, tree, this);
-        return dlg.showAndWait();
+        NewItemDialog dlg = new NewItemDialog(mainStage, tree, this, true);
+        return dlg.getResultOrEmpty();
     }
 
     @Override
     public void showRomLayoutDialog(MenuTree tree) {
-        RomLayoutDialog rld = new RomLayoutDialog(mainStage, tree);
-        rld.showAndWait();
+        RomLayoutDialog rld = new RomLayoutDialog(mainStage, tree, false);
     }
 
     @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
-        AboutDialog ad = new AboutDialog(mainStage, installer);
-        ad.showAndWait();
+        AboutDialog ad = new AboutDialog(mainStage, installer, true);
     }
 
     @Override

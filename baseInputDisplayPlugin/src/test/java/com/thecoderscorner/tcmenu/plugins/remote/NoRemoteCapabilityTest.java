@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,7 +29,7 @@ class NoRemoteCapabilityTest {
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
         assertThat(creator.getSetupCode("root")).isBlank();
         assertThat("extern const char applicationName[];\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
-        assertThat(creator.getIncludes()).containsExactly("#include \"RemoteConnector.h\"");
+        assertThat(includeToString(creator.getIncludes())).containsExactly("#include \"RemoteConnector.h\"");
         assertThat(creator.getRequiredFiles()).isEmpty();
     }
 }

@@ -36,6 +36,6 @@ class CreatorPropertyTest {
 
     @Test
     void testArduinoPlatformEnum() {
-        assertEquals("Arduino - Uno, Mega, 8bit", EmbeddedPlatform.ARDUINO.toString());
+        assertEquals("Arduino AVR/SAMD/ESP", EmbeddedPlatform.ARDUINO.toString());
     }
 }

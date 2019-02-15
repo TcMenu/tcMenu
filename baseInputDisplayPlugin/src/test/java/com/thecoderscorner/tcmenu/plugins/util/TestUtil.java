@@ -9,6 +9,10 @@ package com.thecoderscorner.tcmenu.plugins.util;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,4 +33,9 @@ public class TestUtil {
         assertEquals(newStr, prop.getLatestValue());
         return prop;
     }
+
+    public static List<String> includeToString(List<HeaderDefinition> includes) {
+        return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
+    }
+
 }

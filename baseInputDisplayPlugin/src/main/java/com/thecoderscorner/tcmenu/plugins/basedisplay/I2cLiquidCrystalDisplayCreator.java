@@ -60,6 +60,8 @@ public class I2cLiquidCrystalDisplayCreator extends AbstractCodeCreator {
                             .requiresHeader("LiquidCrystalIO.h", false)
                             .exportNeeded().param("lcd").param("LCD_WIDTH").param("LCD_HEIGHT"));
 
+        addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("Wire")
+                       .requiresHeader("Wire.h", false));
         addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd")
                                 .param("LCD_WIDTH").param("LCD_HEIGHT"));
 

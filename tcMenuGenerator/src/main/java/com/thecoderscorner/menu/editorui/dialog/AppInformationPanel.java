@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
@@ -24,7 +25,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
-    public static final String YOUTUBE_VIDEO_URL = "https://youtu.be/NYYXh9iwI5s";
+    public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
 
     private static final System.Logger logger = System.getLogger(AppInformationPanel.class.getSimpleName());
     private final MenuEditorController controller;
@@ -42,12 +43,12 @@ public class AppInformationPanel {
         VBox vbox = new VBox();
         vbox.setSpacing(5);
 
-        // add the documentation links
-        Label docsLbl = new Label("Documentation (F1) or use the link below:");
+        Label docsLbl = new Label("TcMenu designer");
         docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;-fx-padding: 4px;");
         vbox.getChildren().add(docsLbl);
-        labelWithUrl(vbox, LIBRARY_DOCS_URL);
-        labelWithUrl(vbox, YOUTUBE_VIDEO_URL);
+        // add the documentation links
+        labelWithUrl(vbox, LIBRARY_DOCS_URL, "Read the Documentation (F1 at any time)");
+        labelWithUrl(vbox, GITHUB_PROJECT_URL, "Please give us a star on github if you like this tool");
 
         // add the library installation status
 
@@ -85,8 +86,9 @@ public class AppInformationPanel {
         return vbox;
     }
 
-    private void labelWithUrl(VBox vbox, String urlToVisit) {
-        Hyperlink docs = new Hyperlink(urlToVisit);
+    private void labelWithUrl(VBox vbox, String urlToVisit, String title) {
+        Hyperlink docs = new Hyperlink(title);
+        docs.setTooltip(new Tooltip(urlToVisit));
         docs.setStyle("-fx-vgap: 5px; -fx-border-insets: 0;");
         docs.setOnAction((event)-> {
             try {

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LiquidCrystalDisplayCreatorTest {
@@ -44,7 +45,7 @@ class LiquidCrystalDisplayCreatorTest {
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }
@@ -88,7 +89,7 @@ class LiquidCrystalDisplayCreatorTest {
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
 
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }

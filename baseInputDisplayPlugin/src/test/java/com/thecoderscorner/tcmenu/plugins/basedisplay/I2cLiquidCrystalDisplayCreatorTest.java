@@ -12,6 +12,7 @@ import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUA
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class I2cLiquidCrystalDisplayCreatorTest {
@@ -34,16 +35,18 @@ public class I2cLiquidCrystalDisplayCreatorTest {
                         "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
-        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
-                                         "    lcd.configureBacklightPin(3);\n" +
-                                         "    lcd.backlight();\n")
+        assertThat("    Wire.begin();\n" +
+                        "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                        "    lcd.configureBacklightPin(3);\n" +
+                        "    lcd.backlight();\n")
                 .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
+                "#include <Wire.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }
 
@@ -63,17 +66,19 @@ public class I2cLiquidCrystalDisplayCreatorTest {
                         "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
-        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
-                                         "    lcd.configureBacklightPin(3);\n" +
-                                         "    lcd.backlight();\n")
+        assertThat("    Wire.begin();\n" +
+                        "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                        "    lcd.configureBacklightPin(3);\n" +
+                        "    lcd.backlight();\n")
                 .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
 
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder(
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
+                "#include <Wire.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }
 

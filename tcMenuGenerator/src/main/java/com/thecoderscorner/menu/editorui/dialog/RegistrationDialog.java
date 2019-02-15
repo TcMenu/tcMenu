@@ -8,11 +8,10 @@ package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.RegistrationController;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class RegistrationDialog {
@@ -24,13 +23,7 @@ public class RegistrationDialog {
             BorderPane pane = loader.load();
             RegistrationController controller = loader.getController();
             controller.init();
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Please Register with us");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(stage);
-            Scene scene = new Scene(pane);
-            dialogStage.setScene(scene);
-            dialogStage.showAndWait();
+            createDialogStateAndShow(stage, pane, "Please Register with us", true);
         }
         catch(Exception e) {
             // in this case, just get out of here.

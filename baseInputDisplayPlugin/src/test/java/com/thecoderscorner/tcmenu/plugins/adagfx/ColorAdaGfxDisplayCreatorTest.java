@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
+import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ColorAdaGfxDisplayCreatorTest {
@@ -39,7 +40,7 @@ class ColorAdaGfxDisplayCreatorTest {
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/adafruit/tcMenuAdaFruitGfx.cpp",
                                                                          "renderers/adafruit/tcMenuAdaFruitGfx.h");
-        assertThat(creator.getIncludes()).containsExactlyInAnyOrder("#include <tcMenuAdaFruitGfx.h>");
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder("#include <tcMenuAdaFruitGfx.h>");
 
     }
 }
