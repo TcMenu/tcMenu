@@ -57,7 +57,18 @@ public class FunctionCallBuilder {
      * @return
      */
     public FunctionCallBuilder requiresHeader(String headerName, boolean useQuotes) {
-        headers.add(new HeaderDefinition(headerName, useQuotes));
+        headers.add(new HeaderDefinition(headerName, useQuotes, HeaderDefinition.PRIORITY_NORMAL));
+        return this;
+    }
+
+    /**
+     * Add a requirement that a header file needs to be included for this to work
+     * @param headerName the name of the header including .h
+     * @param useQuotes true for quotes, false for triangle brackets.
+     * @return
+     */
+    public FunctionCallBuilder requiresHeader(String headerName, boolean useQuotes, int priority) {
+        headers.add(new HeaderDefinition(headerName, useQuotes, priority));
         return this;
     }
 

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class DfRobotLcdCreator extends AbstractCodeCreator {
                             .variableName("renderer")
                             .variableType("LiquidCrystalRenderer")
                             .requiresHeader("LiquidCrystalIO.h", false)
-                            .requiresHeader("tcMenuLiquidCrystal.h", true)
+                            .requiresHeader("tcMenuLiquidCrystal.h", true, HeaderDefinition.PRIORITY_MIN)
                             .exportNeeded()
                             .param("lcd").param(16).param(2));
 

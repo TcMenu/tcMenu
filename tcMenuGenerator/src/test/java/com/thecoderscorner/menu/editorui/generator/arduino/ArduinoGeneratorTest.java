@@ -89,7 +89,7 @@ public class ArduinoGeneratorTest {
 
             @Override
             public List<HeaderDefinition> getIncludes() {
-                return Collections.singletonList(new HeaderDefinition("header", false));
+                return Collections.singletonList(new HeaderDefinition("header", false, HeaderDefinition.PRIORITY_NORMAL));
             }
 
             @Override

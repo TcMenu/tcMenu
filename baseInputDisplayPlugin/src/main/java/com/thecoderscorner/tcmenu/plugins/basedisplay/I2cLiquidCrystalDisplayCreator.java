@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +57,7 @@ public class I2cLiquidCrystalDisplayCreator extends AbstractCodeCreator {
         }
 
         addVariable(new CodeVariableBuilder().variableName("renderer").variableType("LiquidCrystalRenderer")
-                            .requiresHeader("tcMenuLiquidCrystal.h", true)
+                            .requiresHeader("tcMenuLiquidCrystal.h", true, HeaderDefinition.PRIORITY_MIN)
                             .requiresHeader("LiquidCrystalIO.h", false)
                             .exportNeeded().param("lcd").param("LCD_WIDTH").param("LCD_HEIGHT"));
 

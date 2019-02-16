@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
                             .exportNeeded().param("&" + graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
-                            .requiresHeader("tcMenuAdaFruitGfx.h", false));
+                            .requiresHeader("tcMenuAdaFruitGfx.h", false, HeaderDefinition.PRIORITY_MIN));
 
         addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName("lcd")
                                 .paramFromPropertyWithDefault("DISPLAY_ROTATION", "0"));

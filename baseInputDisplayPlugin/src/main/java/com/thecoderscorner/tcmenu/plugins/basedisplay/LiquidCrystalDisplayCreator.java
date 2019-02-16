@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
     public void initCreator(String root) {
         addVariable(new CodeVariableBuilder().variableName("lcd").variableType("LiquidCrystal")
                         .requiresHeader("LiquidCrystalIO.h", false)
-                        .requiresHeader("tcMenuLiquidCrystal.h", true)
+                        .requiresHeader("tcMenuLiquidCrystal.h", true, HeaderDefinition.PRIORITY_MIN)
                         .exportNeeded().param("LCD_RS").param("LCD_EN")
                         .param("LCD_D4").param("LCD_D5").param("LCD_D6").param("LCD_D7")
                         .paramFromPropertyWithDefault("IO_DEVICE", "ioUsingArduino()"));
