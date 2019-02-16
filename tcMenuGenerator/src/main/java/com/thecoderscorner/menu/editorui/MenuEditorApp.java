@@ -9,6 +9,8 @@ package com.thecoderscorner.menu.editorui;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DirectoryCodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
@@ -30,16 +32,19 @@ public class MenuEditorApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Embedded Menu Designer loading");
+        primaryStage.setTitle("Embedded Menu Designer");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
 
         MenuEditorController controller = loader.getController();
 
-        DirectoryCodePluginManager manager = new DirectoryCodePluginManager();
+        EmbeddedPlatforms platforms = new PluginEmbeddedPlatformsImpl();
+
+        DirectoryCodePluginManager manager = new DirectoryCodePluginManager(platforms);
         manager.loadPlugins("plugins");
 
-        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage);
+
+        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms);
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 

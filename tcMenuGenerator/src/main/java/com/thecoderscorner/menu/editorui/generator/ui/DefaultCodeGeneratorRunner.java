@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
@@ -18,7 +19,6 @@ import javafx.stage.Stage;
 
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
 import static java.lang.System.Logger.Level.ERROR;
@@ -28,11 +28,11 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
     private final System.Logger logger = System.getLogger(DefaultCodeGeneratorRunner.class.getSimpleName());
 
     private final CurrentEditorProject project;
-    private final Map<EmbeddedPlatform, CodeGenerator> codeGenerators;
+    private EmbeddedPlatforms platforms;
 
-    public DefaultCodeGeneratorRunner(CurrentEditorProject project, Map<EmbeddedPlatform, CodeGenerator> codeGenerators) {
+    public DefaultCodeGeneratorRunner(CurrentEditorProject project, EmbeddedPlatforms platforms) {
         this.project = project;
-        this.codeGenerators = codeGenerators;
+        this.platforms = platforms;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                                     List<EmbeddedCodeCreator> creators, boolean modal) {
         try {
             logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
-            CodeGenerator gen = codeGenerators.get(platform);
+            CodeGenerator gen = platforms.getCodeGeneratorFor(platform);
             if(gen != null) {
                 FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/generatorLog.fxml"));
                 BorderPane pane = loader.load();

@@ -17,12 +17,12 @@ import static java.lang.System.Logger.Level.ERROR;
 public class RegistrationDialog {
     private static final System.Logger logger = System.getLogger(NewItemDialog.class.getSimpleName());
 
-    public static void showRegistration(Stage stage) {
+    public static void showRegistration(Stage stage, String registerUrl) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/registrationDialog.fxml"));
             BorderPane pane = loader.load();
             RegistrationController controller = loader.getController();
-            controller.init();
+            controller.init(registerUrl);
             createDialogStateAndShow(stage, pane, "Please Register with us", true);
         }
         catch(Exception e) {

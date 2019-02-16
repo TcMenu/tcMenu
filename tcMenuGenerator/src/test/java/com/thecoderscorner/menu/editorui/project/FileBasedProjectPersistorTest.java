@@ -8,9 +8,9 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ public class FileBasedProjectPersistorTest {
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
         MenuTree tree = TestUtils.buildCompleteTree();
         CodeGeneratorOptions options = new CodeGeneratorOptions(
-                EmbeddedPlatform.ARDUINO,
+                EmbeddedPlatforms.DEFAULT.getBoardId(),
                 "uuid1",
                 "uuid2",
                 "uuid3",
@@ -63,7 +63,8 @@ public class FileBasedProjectPersistorTest {
 
         compareTrees(tree, openResult.getMenuTree());
 
-        assertEquals(EmbeddedPlatform.ARDUINO, openResult.getOptions().getEmbeddedPlatform());
+
+        assertEquals(EmbeddedPlatforms.DEFAULT.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
         assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
         assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
         assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuid());

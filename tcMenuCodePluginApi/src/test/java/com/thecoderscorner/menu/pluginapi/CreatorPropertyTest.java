@@ -36,6 +36,11 @@ class CreatorPropertyTest {
 
     @Test
     void testArduinoPlatformEnum() {
-        assertEquals("Arduino AVR/SAMD/ESP", EmbeddedPlatform.ARDUINO.toString());
+        EmbeddedPlatform emb1 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO");
+        EmbeddedPlatform emb2 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO");
+        EmbeddedPlatform emb3 = new EmbeddedPlatform("NotUsedEquality", "SAMD");
+        assertEquals(emb1, emb2);
+        assertEquals(emb1.hashCode(), emb2.hashCode());
+        assertNotEquals(emb2, emb3);
     }
 }

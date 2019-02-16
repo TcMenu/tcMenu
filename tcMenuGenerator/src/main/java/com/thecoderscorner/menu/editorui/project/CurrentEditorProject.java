@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -18,8 +19,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO;
-
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
  * with all the required functionality to both alter and persist project files. The controller should never perform any
@@ -28,7 +27,7 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO;
 public class CurrentEditorProject {
 
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            ARDUINO, "", "", "", Collections.emptyList()
+            EmbeddedPlatforms.DEFAULT.getBoardId(), "", "", "", Collections.emptyList()
     );
 
 
@@ -42,7 +41,7 @@ public class CurrentEditorProject {
 
     private MenuTree menuTree;
     private Optional<String> fileName;
-    private boolean dirty;
+    private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
     private Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private Deque<MenuItemChange> redoHistory = new LinkedList<>();
@@ -55,9 +54,8 @@ public class CurrentEditorProject {
 
     private void cleanDown() {
         menuTree = new MenuTree();
-        dirty = false;
         fileName = Optional.empty();
-        changeTitle();
+        setDirty(false);
     }
 
     public void newProject() {
@@ -91,9 +89,8 @@ public class CurrentEditorProject {
             menuTree = openedProject.getMenuTree();
             generatorOptions = openedProject.getOptions();
             if(generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
-            dirty = false;
+            setDirty(false);
             changeHistory.clear();
-            changeTitle();
         } catch (IOException e) {
             fileName = Optional.empty();
             logger.log(Level.ERROR, "open operation failed on " + file, e);
@@ -118,17 +115,12 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 projectPersistor.save(file, menuTree, generatorOptions);
-                dirty = false;
-                changeTitle();
+                setDirty(false);
             } catch (IOException e) {
                 logger.log(Level.ERROR, "save operation failed on " + file, e);
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
-    }
-
-    private void changeTitle() {
-        editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
     }
 
     public boolean isFileNameSet() {
@@ -146,7 +138,7 @@ public class CurrentEditorProject {
     private void setDirty(boolean dirty) {
         if(this.dirty != dirty) {
             this.dirty = dirty;
-            changeTitle();
+            editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
         }
     }
 

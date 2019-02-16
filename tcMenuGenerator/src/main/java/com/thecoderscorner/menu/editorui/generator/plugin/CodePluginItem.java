@@ -10,15 +10,27 @@ import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CodePluginItem {
     private String id;
     private String description;
     private String extendedDescription;
-    private List<EmbeddedPlatform> applicability;
+    private List<String> applicability;
     private SubSystem subsystem;
     private String imageFileName;
     private String codeCreatorClass;
+
+    public CodePluginItem(String id, String description, String extendedDescription, List<String> applicability,
+                          SubSystem subsystem, String imageFileName, String codeCreatorClass) {
+        this.id = id;
+        this.description = description;
+        this.extendedDescription = extendedDescription;
+        this.applicability = applicability;
+        this.subsystem = subsystem;
+        this.imageFileName = imageFileName;
+        this.codeCreatorClass = codeCreatorClass;
+    }
 
     public String getId() {
         return id;
@@ -36,8 +48,10 @@ public class CodePluginItem {
         return extendedDescription;
     }
 
-    public List<EmbeddedPlatform> getApplicability() {
-        return applicability;
+    public List<EmbeddedPlatform> getApplicability(EmbeddedPlatforms platforms) {
+        return applicability.stream()
+                .map(platforms::getEmbeddedPlatformFromId)
+                .collect(Collectors.toList());
     }
 
     public String getImageFileName() {

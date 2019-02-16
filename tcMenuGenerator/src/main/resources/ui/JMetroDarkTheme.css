@@ -128,3 +128,13 @@
   -fx-font-weight: bold;
   -fx-padding: 4;
 }
+
+.popupWindow {
+  -fx-background-color: #f4f0ff;
+  -fx-border-style: solid;
+  -fx-border-color: black;
+  -fx-border-width: 1px;
+  -fx-border-insets: 2px;
+  -fx-background-insets: 2px;
+  -fx-padding: 5px;
+}

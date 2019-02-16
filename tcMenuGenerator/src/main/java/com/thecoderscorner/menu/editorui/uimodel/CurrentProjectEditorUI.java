@@ -85,4 +85,10 @@ public interface CurrentProjectEditorUI {
      * @param installer the arduino installer object.
      */
     void showCodeGeneratorDialog(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer);
+
+    /**
+     * Browses to a URL using the default external browser
+     * @param urlToVisit the URL to be visited
+     */
+    void browseToURL(String urlToVisit);
 }

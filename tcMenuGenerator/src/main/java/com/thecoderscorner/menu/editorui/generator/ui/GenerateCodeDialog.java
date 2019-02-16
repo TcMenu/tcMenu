@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -46,6 +47,7 @@ public class GenerateCodeDialog {
     private final CurrentProjectEditorUI editorUI;
     private final CurrentEditorProject project;
     private final CodeGeneratorRunner runner;
+    private final EmbeddedPlatforms platforms;
 
     private List<CodePluginItem> displaysSupported;
     private List<CodePluginItem> inputsSupported;
@@ -72,12 +74,14 @@ public class GenerateCodeDialog {
     private Stage dialogStage;
 
 
-    public GenerateCodeDialog(CodePluginManager manager,  CurrentProjectEditorUI editorUI,
-                              CurrentEditorProject project, CodeGeneratorRunner runner) {
+    public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
+                              CurrentEditorProject project, CodeGeneratorRunner runner,
+                              EmbeddedPlatforms platforms) {
         this.manager = manager;
         this.editorUI = editorUI;
         this.project = project;
         this.runner = runner;
+        this.platforms = platforms;
     }
 
     public void showCodeGenerator(Stage stage, boolean modal)  {
@@ -93,6 +97,7 @@ public class GenerateCodeDialog {
             CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
             inputCreator = manager.makeCreator(itemInput);
             currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
+            currentInput.setId("currentInputUI");
             currentInput.getStyleClass().add("uiCodeGen");
             vbox.getChildren().add(currentInput);
         } catch (ClassNotFoundException e) {
@@ -104,6 +109,7 @@ public class GenerateCodeDialog {
         try {
             CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
             currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
+            currentDisplay.setId("currentDisplayUI");
             displayCreator = manager.makeCreator(itemDisplay);
             currentDisplay.getStyleClass().add("uiCodeGen");
             vbox.getChildren().add(currentDisplay);
@@ -115,6 +121,7 @@ public class GenerateCodeDialog {
         try {
             CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
             currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
+            currentRemote.setId("currentRemoteUI");
             remoteCreator = manager.makeCreator(itemRemote);
             currentRemote.getStyleClass().add("uiCodeGen");
             vbox.getChildren().add(currentRemote);
@@ -128,6 +135,7 @@ public class GenerateCodeDialog {
         generateButton = new Button("Generate Code");
         generateButton.setDefaultButton(true);
         generateButton.setOnAction(this::onGenerateCode);
+        generateButton.setId("GenerateButton");
         cancelButton = new Button("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(this::onCancel);
@@ -148,14 +156,6 @@ public class GenerateCodeDialog {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
-
-        if(modal) {
-            dialogStage.showAndWait();
-        }
-        else {
-            dialogStage.show();
-        }
-
     }
 
     private void buildTable() {
@@ -185,7 +185,7 @@ public class GenerateCodeDialog {
 
     private void addTitleLabel(VBox vbox, String text) {
         Label titleLbl = new Label(text);
-        titleLbl.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
+        titleLbl.getStyleClass().add("label-bright");
         vbox.getChildren().add(titleLbl);
     }
 
@@ -196,10 +196,11 @@ public class GenerateCodeDialog {
     private void placeDirectoryAndEmbeddedPanels(VBox vbox) {
         BorderPane embeddedPane = new BorderPane();
         embeddedPane.setLeft(new Label("Embedded Platform"));
-        platformCombo = new ComboBox<>(observableArrayList(EmbeddedPlatform.values()));
+        platformCombo = new ComboBox<>(observableArrayList(platforms.getEmbeddedPlatforms()));
         embeddedPane.setRight(platformCombo);
         vbox.getChildren().add(embeddedPane);
-        platformCombo.getSelectionModel().select(project.getGeneratorOptions().getEmbeddedPlatform());
+        var platform = platforms.getEmbeddedPlatformFromId(project.getGeneratorOptions().getEmbeddedPlatform());
+        platformCombo.getSelectionModel().select(platform);
         platformCombo.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
     }
@@ -243,7 +244,7 @@ public class GenerateCodeDialog {
         allProps.addAll(remoteCreator.properties());
 
         project.setGeneratorOptions(new CodeGeneratorOptions(
-                platformCombo.getSelectionModel().getSelectedItem(),
+                platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
                 currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), allProps));
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
@@ -298,22 +299,30 @@ public class GenerateCodeDialog {
 
         Popup popup = new Popup();
         List<UICodePluginItem> listOfComponents = pluginItems.stream()
-                .map(display -> new UICodePluginItem(manager, display, SELECT, item -> {
-                    popup.hide();
-                    eventHandler.accept(item);
-                }))
+                .map(display -> {
+                    var it = new UICodePluginItem(manager, display, SELECT, item -> {
+                        popup.hide();
+                        eventHandler.accept(item);
+                    });
+                    it.setId("sel-" + display.getId());
+
+                    return it;
+                })
                 .collect(Collectors.toList());
 
         VBox vbox = new VBox(5);
         addTitleLabel(vbox, "Select the " + changeWhat + " to use:");
         vbox.getChildren().addAll(listOfComponents);
         vbox.setPrefSize(700, 600);
-        vbox.setStyle("-fx-background-color: #f4f0ff; -fx-border-style: solid;-fx-border-color: black; -fx-border-width: 1px; -fx-border-insets: 2px;-fx-background-insets: 2px;");
 
-        popup.getContent().add(vbox);
+        BorderPane pane = new BorderPane();
+        pane.setCenter(vbox);
+        vbox.getStyleClass().add("popupWindow");
+
+        popup.getContent().add(pane);
         popup.setAutoHide(true);
-        popup.hideOnEscapeProperty();
+        popup.setOnAutoHide(event -> popup.hide());
+        popup.setHideOnEscape(true);
         popup.show(dialogStage);
     }
-
 }

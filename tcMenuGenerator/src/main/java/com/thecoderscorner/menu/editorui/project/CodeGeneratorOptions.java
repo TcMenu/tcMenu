@@ -7,12 +7,11 @@
 package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 
 import java.util.List;
 
 public class CodeGeneratorOptions {
-    private EmbeddedPlatform embeddedPlatform;
+    private String embeddedPlatform;
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
@@ -22,7 +21,7 @@ public class CodeGeneratorOptions {
         // for serialisation
     }
 
-    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, String displayTypeId,
+    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId,
                                 String inputTypeId, String remoteCapabilitiesId,
                                 List<CreatorProperty> lastProperties) {
         this.embeddedPlatform = embeddedPlatform;
@@ -32,7 +31,7 @@ public class CodeGeneratorOptions {
         this.lastProperties = lastProperties;
     }
 
-    public EmbeddedPlatform getEmbeddedPlatform() {
+    public String getEmbeddedPlatform() {
         return embeddedPlatform;
     }
 

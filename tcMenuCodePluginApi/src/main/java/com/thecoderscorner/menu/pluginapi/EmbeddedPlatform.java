@@ -6,17 +6,38 @@
 
 package com.thecoderscorner.menu.pluginapi;
 
-public enum EmbeddedPlatform {
-    ARDUINO("Arduino AVR/SAMD/ESP");
+import java.util.Objects;
 
+public class EmbeddedPlatform {
     private final String friendlyName;
+    private final String boardId;
 
-    EmbeddedPlatform(String friendlyName) {
+    public EmbeddedPlatform(String friendlyName, String boardId) {
         this.friendlyName = friendlyName;
+        this.boardId = boardId;
     }
+
+
 
     @Override
     public String toString() {
         return friendlyName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmbeddedPlatform that = (EmbeddedPlatform) o;
+        return Objects.equals(boardId, that.boardId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(boardId);
+    }
+
+    public String getBoardId() {
+        return boardId;
     }
 }

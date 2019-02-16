@@ -33,10 +33,16 @@ import static java.lang.System.Logger.Level.ERROR;
 public class DirectoryCodePluginManager implements CodePluginManager {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
+    private final EmbeddedPlatforms platforms;
+
     private Map<String, Image> imagesLoaded = new HashMap<>();
     private List<CodePluginConfig> configurationsLoaded = new ArrayList<>();
     private Map<CodePluginItem, CodePluginConfig> itemToConfig = new HashMap<>();
-    private ModuleLayer layer;
+    protected ModuleLayer layer;
+
+    public DirectoryCodePluginManager(EmbeddedPlatforms platforms) {
+        this.platforms = platforms;
+    }
 
     @Override
     public synchronized void loadPlugins(String sourceDir) throws Exception {
@@ -86,7 +92,7 @@ public class DirectoryCodePluginManager implements CodePluginManager {
     public synchronized List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem) {
         return configurationsLoaded.stream()
                 .flatMap(module -> module.getPlugins().stream())
-                .filter(item -> item.getApplicability().contains(platform) && item.getSubsystem() == subSystem)
+                .filter(item -> item.getApplicability(platforms).contains(platform) && item.getSubsystem() == subSystem)
                 .collect(Collectors.toList());
     }
 
@@ -115,7 +121,7 @@ public class DirectoryCodePluginManager implements CodePluginManager {
      * @param sourceDir the directory where the modules exist
      * @param moduleNames the names of all the modules to load
      */
-    private void loadModules(String sourceDir, Collection<String> moduleNames) {
+    protected void loadModules(String sourceDir, Collection<String> moduleNames) {
         ModuleFinder finder = ModuleFinder.of(Paths.get(sourceDir));
         ClassLoader scl = ClassLoader.getSystemClassLoader();
         ModuleLayer parent = ModuleLayer.boot();
