@@ -26,21 +26,27 @@ class ColorAdaGfxDisplayCreatorTest {
 
         creator.initCreator("root");
 
-        assertThat("#define DISPLAY_WIDTH 320\n" +
-                                         "#define DISPLAY_HEIGHT 240\n" +
-                                         "#define DISPLAY_ROTATION 0\n" +
-                                         "extern Adafruit_GFX* gfx;\n" +
-                                         "extern AdaFruitGfxMenuRenderer renderer;\n")
+        assertThat(
+                "#define DISPLAY_WIDTH 320\n" +
+                    "#define DISPLAY_HEIGHT 240\n" +
+                    "#define DISPLAY_ROTATION 0\n" +
+                    "extern Adafruit_ILI9341 gfx;\n" +
+                    "extern AdaFruitGfxMenuRenderer renderer;\n")
                 .isEqualToIgnoringNewLines(creator.getExportDefinitions());
 
         assertThat("AdaFruitGfxMenuRenderer renderer(&gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);\n")
                 .isEqualToIgnoringNewLines(creator.getGlobalVariables());
 
-        assertThat("    lcd.setRotation(0);\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+        assertThat(
+                "    gfx.begin();\n" +
+                      "    gfx.setRotation(0);\n")
+                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/adafruit/tcMenuAdaFruitGfx.cpp",
                                                                          "renderers/adafruit/tcMenuAdaFruitGfx.h");
-        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder("#include <tcMenuAdaFruitGfx.h>");
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
+                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_ILI9341.h>"
+        );
 
     }
 }

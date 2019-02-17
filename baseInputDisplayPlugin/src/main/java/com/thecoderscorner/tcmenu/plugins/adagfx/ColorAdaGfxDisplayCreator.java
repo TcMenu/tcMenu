@@ -24,8 +24,10 @@ import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValida
 public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
 
     private List<CreatorProperty> creatorProperties = new ArrayList<>(Arrays.asList(
-            new CreatorProperty("DISPLAY_VARIABLE", "Pointer to AdaGFX display EG: Adafruit_GFX* pGfx=&gfx;",
+            new CreatorProperty("DISPLAY_VARIABLE", "The name of the AdaGfx variable",
                                 "gfx", DISPLAY, TEXTUAL, variableValidator()),
+            new CreatorProperty("DISPLAY_TYPE", "The type of the AdaGfx variable used",
+                    "Adafruit_ILI9341", DISPLAY, TEXTUAL, variableValidator()),
             new CreatorProperty("DISPLAY_WIDTH", "The display width", "320",
                                 DISPLAY, uintValidator(4096)),
             new CreatorProperty("DISPLAY_HEIGHT", "The display height", "240",
@@ -38,15 +40,18 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
     protected void initCreator(String root) {
         addLibraryFiles("renderers/adafruit/tcMenuAdaFruitGfx.cpp", "renderers/adafruit/tcMenuAdaFruitGfx.h");
 
+        String graphicsType = findPropertyValue("DISPLAY_TYPE").getLatestValue();
         String graphicsVar = findPropertyValue("DISPLAY_VARIABLE").getLatestValue();
 
-        addVariable(new CodeVariableBuilder().variableType("Adafruit_GFX*").variableName(graphicsVar).exportOnly());
+        addVariable(new CodeVariableBuilder().variableType(graphicsType).variableName(graphicsVar).exportOnly()
+                            .requiresHeader(graphicsType + ".h", false));
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
-                            .exportNeeded().param(graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
+                            .exportNeeded().param("&" + graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
                             .requiresHeader("tcMenuAdaFruitGfx.h", true, HeaderDefinition.PRIORITY_MIN));
 
-        addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName(graphicsVar).pointerType()
+        addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName(graphicsVar));
+        addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName(graphicsVar)
                                 .paramFromPropertyWithDefault("DISPLAY_ROTATION", "0"));
     }
 
