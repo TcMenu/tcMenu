@@ -35,6 +35,16 @@ class FunctionCallBuilderTest {
     }
 
     @Test
+    public void testPointerTypeFunction() {
+        FunctionCallBuilder builder = new FunctionCallBuilder()
+                .functionName("callMe").pointerType().objectName("pObject");
+
+        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+
+        assertEqualsIgnoringCRLF("    pObject->callMe();", builder.getFunctionCode(context));
+    }
+
+    @Test
     public void testFunctionWithIncludeAndRoot() {
         FunctionCallBuilder builder = new FunctionCallBuilder()
                 .functionName("setup").objectName("lcd")

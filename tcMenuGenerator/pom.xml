@@ -193,6 +193,22 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>copy-resources-logging</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/jfx/app/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/deploy</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-resources-plugins</id>
                         <phase>validate</phase>
                         <goals>

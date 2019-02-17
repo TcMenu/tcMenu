@@ -25,6 +25,11 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * The application starting point for the JavaFX version of the application
  */
@@ -32,6 +37,9 @@ public class MenuEditorApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        createLogDirIfNeeded();
+
         primaryStage.setTitle("Embedded Menu Designer");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
@@ -70,5 +78,19 @@ public class MenuEditorApp extends Application {
                 }
             }
         });
+    }
+
+    private void createLogDirIfNeeded() {
+        var homeDir = Paths.get(System.getProperty("user.home"));
+        try {
+            Path menuDir = homeDir.resolve(".tcmenu/logs");
+            if(!Files.exists(menuDir)) {
+                Files.createDirectories(menuDir);
+            }
+        } catch (IOException e) {
+            Alert alert = new Alert(AlertType.ERROR, "Logging directory could not be created ", ButtonType.CLOSE);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 }

@@ -12,9 +12,9 @@ import java.util.Objects;
  * Used internally by the variable builder to store header requirements.
  */
 public class HeaderDefinition {
-    public static final int PRIORITY_MIN = 0;
+    public static final int PRIORITY_MIN = 10;
     public static final int PRIORITY_NORMAL = 5;
-    public static final int PRIORITY_MAX = 10;
+    public static final int PRIORITY_MAX = 0;
     private final String headerName;
     private final char startQuote, endQuote;
     private final int priority;

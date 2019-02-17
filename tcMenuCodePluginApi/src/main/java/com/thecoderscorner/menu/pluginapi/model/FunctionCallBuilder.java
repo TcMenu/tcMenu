@@ -19,6 +19,7 @@ public class FunctionCallBuilder {
     private String functionName;
     private Collection<CodeParameter> params = new ArrayList<>();
     private Set<HeaderDefinition> headers = new HashSet<>();
+    private boolean pointerType = false;
 
     /**
      * If this function call is on an object then provide the object definition.
@@ -27,6 +28,11 @@ public class FunctionCallBuilder {
      */
     public FunctionCallBuilder objectName(CodeVariableBuilder variable) {
         objectName = Optional.ofNullable(variable.getNameOnly());
+        return this;
+    }
+
+    public FunctionCallBuilder pointerType() {
+        pointerType = true;
         return this;
     }
 
@@ -54,7 +60,7 @@ public class FunctionCallBuilder {
      * Add a requirement that a header file needs to be included for this to work
      * @param headerName the name of the header including .h
      * @param useQuotes true for quotes, false for triangle brackets.
-     * @return
+     * @return this for chaining
      */
     public FunctionCallBuilder requiresHeader(String headerName, boolean useQuotes) {
         headers.add(new HeaderDefinition(headerName, useQuotes, HeaderDefinition.PRIORITY_NORMAL));
@@ -65,7 +71,8 @@ public class FunctionCallBuilder {
      * Add a requirement that a header file needs to be included for this to work
      * @param headerName the name of the header including .h
      * @param useQuotes true for quotes, false for triangle brackets.
-     * @return
+     * @param priority indicates priority where 0 is highest
+     * @return this for chaining
      */
     public FunctionCallBuilder requiresHeader(String headerName, boolean useQuotes, int priority) {
         headers.add(new HeaderDefinition(headerName, useQuotes, priority));
@@ -118,13 +125,17 @@ public class FunctionCallBuilder {
     public String getFunctionCode(CodeConversionContext context) {
         String fn = "    ";
         if(objectName.isPresent()) {
-            fn += objectName.get() + ".";
+            fn += objectName.get() + memberAccessor();
         }
         fn += functionName + "(";
         var parameters = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
         fn += parameters;
         fn += ");";
         return fn;
+    }
+
+    private String memberAccessor() {
+        return (pointerType) ? "->" : ".";
     }
 
     public Set<HeaderDefinition> getHeaders() {

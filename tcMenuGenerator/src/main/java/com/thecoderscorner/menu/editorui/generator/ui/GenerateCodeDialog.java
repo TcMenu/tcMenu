@@ -262,6 +262,9 @@ public class GenerateCodeDialog {
                 displayCreator = manager.makeCreator(pluginItem);
             } catch (ClassNotFoundException e) {
                 logger.log(ERROR, "Unable to create the display creator" + item);
+                editorUI.alertOnError(
+                        "Fault loading display plugin",
+                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
             }
             currentDisplay.setItem(pluginItem);
             changeProperties();
@@ -275,6 +278,9 @@ public class GenerateCodeDialog {
                 remoteCreator = manager.makeCreator(pluginItem);
             } catch (ClassNotFoundException e) {
                 logger.log(ERROR, "Unable to create the remote creator" + item);
+                editorUI.alertOnError(
+                        "Fault loading remote plugin",
+                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
             }
             currentRemote.setItem(pluginItem);
             changeProperties();
@@ -288,6 +294,10 @@ public class GenerateCodeDialog {
                 inputCreator = manager.makeCreator(pluginItem);
             } catch (ClassNotFoundException e) {
                 logger.log(ERROR, "Unable to create the input creator" + item);
+                editorUI.alertOnError(
+                        "Fault loading input plugin",
+                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
+
             }
             currentInput.setItem(pluginItem);
             changeProperties();

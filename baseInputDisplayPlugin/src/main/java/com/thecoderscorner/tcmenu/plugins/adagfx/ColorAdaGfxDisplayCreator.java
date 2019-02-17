@@ -24,7 +24,7 @@ import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValida
 public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
 
     private List<CreatorProperty> creatorProperties = new ArrayList<>(Arrays.asList(
-            new CreatorProperty("DISPLAY_VARIABLE", "The name of the display variable you defined",
+            new CreatorProperty("DISPLAY_VARIABLE", "Pointer to AdaGFX display EG: Adafruit_GFX* pGfx=&gfx;",
                                 "gfx", DISPLAY, TEXTUAL, variableValidator()),
             new CreatorProperty("DISPLAY_WIDTH", "The display width", "320",
                                 DISPLAY, uintValidator(4096)),
@@ -43,10 +43,10 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
         addVariable(new CodeVariableBuilder().variableType("Adafruit_GFX*").variableName(graphicsVar).exportOnly());
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
-                            .exportNeeded().param("&" + graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
-                            .requiresHeader("tcMenuAdaFruitGfx.h", false, HeaderDefinition.PRIORITY_MIN));
+                            .exportNeeded().param(graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
+                            .requiresHeader("tcMenuAdaFruitGfx.h", true, HeaderDefinition.PRIORITY_MIN));
 
-        addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName("lcd")
+        addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName(graphicsVar).pointerType()
                                 .paramFromPropertyWithDefault("DISPLAY_ROTATION", "0"));
     }
 

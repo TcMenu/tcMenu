@@ -192,7 +192,7 @@ public class CodeVariableBuilder {
      * indicating that the file is not in the current directory structure.
      * @param headerName the name of the header
      * @param useQuotes indicates the header should use quotes if true
-     * @param priority indicates priority where 0 is lowest, 10 is highest.
+     * @param priority indicates priority where 0 is highest
      * @see HeaderDefinition
      * @return this object for chaining
      */

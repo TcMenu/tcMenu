@@ -153,7 +153,7 @@ public class ArduinoGenerator implements CodeGenerator {
 
             var includeList = generators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
 
-            includeList.add(new HeaderDefinition("tcMenu.h", false, HeaderDefinition.PRIORITY_MAX));
+            includeList.add(new HeaderDefinition("tcMenu.h", false, HeaderDefinition.PRIORITY_MAX - 1));
 
             writer.write(includeList.stream()
                     .distinct()
