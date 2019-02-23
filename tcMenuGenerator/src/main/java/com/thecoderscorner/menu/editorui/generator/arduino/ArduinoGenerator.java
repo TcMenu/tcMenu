@@ -66,8 +66,8 @@ public class ArduinoGenerator implements CodeGenerator {
         logLine("Starting Arduino generate: " + directory);
 
         String inoFile = toSourceFile(directory, ".ino");
-        String cppFile = toSourceFile(directory, ".cpp");
-        String headerFile = toSourceFile(directory, ".h");
+        String cppFile = toSourceFile(directory, "_menu.cpp");
+        String headerFile = toSourceFile(directory, "_menu.h");
         String projectName = directory.getFileName().toString();
 
         checkIfUpToDateWarningNeeded();
@@ -106,7 +106,7 @@ public class ArduinoGenerator implements CodeGenerator {
 
             writer.write("#include <tcMenu.h>");
             writer.write(LINE_BREAK);
-            writer.write("#include \"" + projectName + ".h\"");
+            writer.write("#include \"" + projectName + "_menu.h\"");
             writer.write(LINE_BREAK + LINE_BREAK);
 
             writer.write("// Global variable declarations" + LINE_BREAK);
@@ -153,7 +153,13 @@ public class ArduinoGenerator implements CodeGenerator {
 
             var includeList = generators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
 
-            includeList.add(new HeaderDefinition("tcMenu.h", false, HeaderDefinition.PRIORITY_MAX - 1));
+
+            includeList.addAll(menuStructure.stream()
+                    .flatMap(s-> s.getHeaderRequirements().stream())
+                    .collect(Collectors.toList()));
+
+            includeList.add(new HeaderDefinition("tcMenu.h", false,
+                    HeaderDefinition.PRIORITY_MAX - 1));
 
             writer.write(includeList.stream()
                     .distinct()

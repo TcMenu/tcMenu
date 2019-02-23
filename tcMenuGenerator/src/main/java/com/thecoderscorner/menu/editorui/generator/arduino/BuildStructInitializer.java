@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +18,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGen
 class BuildStructInitializer {
     private String structName;
     private String structType;
-    private List<String> headerRequirement = new ArrayList<>();
+    private List<HeaderDefinition> headerRequirement = new ArrayList<>();
     private List<String> structElements = new ArrayList<>();
     private boolean requiresExtern = false;
     private boolean progMemInfo = false;
@@ -37,8 +39,8 @@ class BuildStructInitializer {
         return this;
     }
 
-    public BuildStructInitializer addHeaderFileRequirement(String include) {
-        headerRequirement.add(include);
+    public BuildStructInitializer addHeaderFileRequirement(String include, boolean quotes) {
+        headerRequirement.add(new HeaderDefinition(include, quotes, HeaderDefinition.PRIORITY_NORMAL));
         return this;
     }
 
@@ -92,18 +94,16 @@ class BuildStructInitializer {
 
     public String toHeader() {
         String header = "";
-        if(!headerRequirement.isEmpty()) {
-            header = header + headerRequirement.stream()
-                    .map(h-> "#include <" + h + ">")
-                    .collect(Collectors.joining(LINE_BREAK));
-            header += LINE_BREAK;
-        }
 
         if(requiresExtern) {
             header = header + "extern " + structType + " menu" + structName + ";";
         }
 
         return header;
+    }
+
+    public List<HeaderDefinition> getHeaderRequirements() {
+        return headerRequirement;
     }
 
     public BuildStructInitializer requiresExtern() {

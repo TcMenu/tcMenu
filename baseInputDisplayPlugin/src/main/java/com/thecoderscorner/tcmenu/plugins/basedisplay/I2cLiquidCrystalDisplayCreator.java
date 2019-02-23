@@ -42,17 +42,21 @@ public class I2cLiquidCrystalDisplayCreator extends AbstractCodeCreator {
 
         switch(choice) {
             case RS_RW_EN:
-                addVariable(new CodeVariableBuilder().variableName("lcd").variableType("LiquidCrystal")
-                                    .requiresHeader("LiquidCrystalIO.h", false)
-                                    .exportNeeded().param(0).param(2)
-                                    .param(4).param(5).param(6).param(7).param(ioDevice));
+                addVariable(new CodeVariableBuilder()
+                        .variableName("lcd").variableType("LiquidCrystal")
+                        .requiresHeader("LiquidCrystalIO.h", false)
+                        .requiresHeader("IoAbstractionWire.h", false)
+                        .exportNeeded().param(0).param(1).param(2)
+                        .param(4).param(5).param(6).param(7).param(ioDevice));
                 break;
             case EN_RW_RS:
             default:
-                addVariable(new CodeVariableBuilder().variableName("lcd").variableType("LiquidCrystal")
-                                    .requiresHeader("LiquidCrystalIO.h", false)
-                                    .exportNeeded().param(2).param(0)
-                                    .param(4).param(5).param(6).param(7).param(ioDevice));
+                addVariable(new CodeVariableBuilder()
+                        .variableName("lcd").variableType("LiquidCrystal")
+                        .requiresHeader("LiquidCrystalIO.h", false)
+                        .requiresHeader("IoAbstractionWire.h", false)
+                        .exportNeeded().param(2).param(1).param(0)
+                        .param(4).param(5).param(6).param(7).param(ioDevice));
                 break;
         }
 

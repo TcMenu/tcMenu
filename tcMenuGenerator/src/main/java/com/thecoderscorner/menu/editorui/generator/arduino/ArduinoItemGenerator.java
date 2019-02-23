@@ -87,7 +87,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStru
                 .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "RemoteMenuItem")
-                .addHeaderFileRequirement("RemoteMenuItem.h")
+                .addHeaderFileRequirement("RemoteMenuItem.h", false)
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement("remoteServer.getRemoteConnector(" + item.getRemoteNum() + ")")
                 .addElement(nextMenuName)

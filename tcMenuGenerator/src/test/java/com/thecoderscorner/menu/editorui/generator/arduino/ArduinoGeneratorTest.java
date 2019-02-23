@@ -61,8 +61,8 @@ public class ArduinoGeneratorTest {
 
         assertTrue(generator.startConversion(dir, generators, tree));
 
-        String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".cpp")));
-        String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".h")));
+        String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
+        String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
 
         String cppTemplate = new String(getClass().getResourceAsStream("/generator/template.cpp").readAllBytes());
         String hTemplate = new String(getClass().getResourceAsStream("/generator/template.h").readAllBytes());

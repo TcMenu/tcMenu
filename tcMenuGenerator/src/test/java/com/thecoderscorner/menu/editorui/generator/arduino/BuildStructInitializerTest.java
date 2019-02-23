@@ -7,6 +7,8 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,11 +35,14 @@ public class BuildStructInitializerTest {
     public void testInitialiseItemStructure() {
         BuildStructInitializer initializer = new BuildStructInitializer("MyItem", "MenuItem")
                 .addElement(42)
-                .addHeaderFileRequirement("SomeHeader.h")
+                .addHeaderFileRequirement("SomeHeader.h", false)
                 .addElement("someVar")
                 .requiresExtern();
-        assertEquals("#include <SomeHeader.h>" + LINE_BREAK + "extern MenuItem menuMyItem;", initializer.toHeader());
+        assertEquals("extern MenuItem menuMyItem;", initializer.toHeader());
         assertEquals("MenuItem menuMyItem(42, someVar);", initializer.toSource());
+        Assertions.assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
+                new HeaderDefinition("SomeHeader.h", false, HeaderDefinition.PRIORITY_NORMAL)
+        );
     }
 
     @Test

@@ -11,8 +11,8 @@
 #ifndef MENU_GENERATED_CODE_H
 #define MENU_GENERATED_CODE_H
 
-#include <header>
 #include <tcMenu.h>
+#include <header>
 
 // all export definitions
 

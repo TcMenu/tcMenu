@@ -65,7 +65,7 @@ public class ArduinoSketchFileAdjuster {
         List<String> callbacksDefined = new ArrayList<>();
 
         for(String line : Files.lines(source).collect(Collectors.toList())) {
-            if(line.contains("#include") && line.contains(projectName + ".h")) {
+            if(line.contains("#include") && line.contains(projectName + "_menu.h")) {
                 logger.accept("found include in INO");
                 needsInclude = false;
             }
@@ -137,7 +137,7 @@ public class ArduinoSketchFileAdjuster {
     }
 
     private void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
-        lines.add(0, "#include \"" + projectName + ".h\"");
+        lines.add(0, "#include \"" + projectName + "_menu.h\"");
         changed = true;
     }
 }

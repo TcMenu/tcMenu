@@ -53,7 +53,7 @@ public class ArduinoSketchFileAdjusterTest {
         List<String> lines = Files.readAllLines(inoFile);
 
         // we should have an include, only once.
-        ensureLinesContaining(lines,"#include \"superProject.h\"");
+        ensureLinesContaining(lines,"#include \"superProject_menu.h\"");
 
         // we should have a basic set up and loop method ready prepared
         ensureLinesContaining(lines,"void setup() {", "setupMenu();", "}");
@@ -66,7 +66,7 @@ public class ArduinoSketchFileAdjusterTest {
 
     @Test
     public void testUpdatingFileThatPartlyExists() throws IOException {
-        String inoContent = "#include \"superProject.h\"\n\n"
+        String inoContent = "#include \"superProject_menu.h\"\n\n"
                 + "void setup() {\n"
                 + "  superObj.init();\n"
                 + "}\n\n"
@@ -101,7 +101,7 @@ public class ArduinoSketchFileAdjusterTest {
 
     @Test
     public void testWhereNoChangesNeeded() throws IOException {
-        String inoContent = "#include \"superProject.h\"\n\n"
+        String inoContent = "#include \"superProject_menu.h\"\n\n"
                 + "void setup() {\n"
                 + "  superObj.init();\n"
                 + "  setupMenu();"
