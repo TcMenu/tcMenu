@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.tcmenu.plugins.basedisplay;
 
+import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
@@ -21,27 +22,35 @@ class LiquidCrystalDisplayCreatorTest {
         LiquidCrystalDisplayCreator creator = new LiquidCrystalDisplayCreator();
         setupStandardProperties(creator);
         creator.initialise("root");
+        var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(
+        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
                 "#define LCD_RS 10\n" +
-                        "#define LCD_EN 11\n" +
-                        "#define LCD_D4 12\n" +
-                        "#define LCD_D5 13\n" +
-                        "#define LCD_D6 14\n" +
-                        "#define LCD_D7 15\n" +
-                        "#define LCD_WIDTH 20\n" +
-                        "#define LCD_HEIGHT 4\n" +
-                        "#define LCD_BACKLIGHT -1\n" +
-                        "#define LCD_PWM_PIN -1\n" +
-                        "extern LiquidCrystal lcd;\n" +
-                        "extern LiquidCrystalRenderer renderer;\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
+                "#define LCD_EN 11\n" +
+                "#define LCD_D4 12\n" +
+                "#define LCD_D5 13\n" +
+                "#define LCD_D6 14\n" +
+                "#define LCD_D7 15\n" +
+                "#define LCD_WIDTH 20\n" +
+                "#define LCD_HEIGHT 4\n" +
+                "#define LCD_BACKLIGHT -1\n" +
+                "#define LCD_PWM_PIN -1"
+        );
 
-        assertThat(
-                "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+            "extern LiquidCrystal lcd;\n" +
+            "extern LiquidCrystalRenderer renderer;\n"
+        );
 
-        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n").isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+            "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
+            "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n"
+        );
+
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n"
+        );
+
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
@@ -57,33 +66,38 @@ class LiquidCrystalDisplayCreatorTest {
         findAndSetValueOnProperty(creator, "LCD_BACKLIGHT", DISPLAY, USE_IN_DEFINE, 9);
         findAndSetValueOnProperty(creator, "LCD_PWM_PIN", DISPLAY, USE_IN_DEFINE, 8);
         creator.initialise("root");
+        var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(
+        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
                 "#define LCD_RS 10\n" +
-                        "#define LCD_EN 11\n" +
-                        "#define LCD_D4 12\n" +
-                        "#define LCD_D5 13\n" +
-                        "#define LCD_D6 14\n" +
-                        "#define LCD_D7 15\n" +
-                        "#define LCD_WIDTH 20\n" +
-                        "#define LCD_HEIGHT 4\n" +
-                        "#define LCD_BACKLIGHT 9\n" +
-                        "#define LCD_PWM_PIN 8\n" +
-                        "extern LiquidCrystal lcd;\n" +
-                        "extern LiquidCrystalRenderer renderer;\n")
-                .isEqualToIgnoringNewLines(creator.getExportDefinitions());
+                "#define LCD_EN 11\n" +
+                "#define LCD_D4 12\n" +
+                "#define LCD_D5 13\n" +
+                "#define LCD_D6 14\n" +
+                "#define LCD_D7 15\n" +
+                "#define LCD_WIDTH 20\n" +
+                "#define LCD_HEIGHT 4\n" +
+                "#define LCD_BACKLIGHT 9\n" +
+                "#define LCD_PWM_PIN 8"
+        );
 
-        assertThat(
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+                "extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;"
+        );
+
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
                 "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
-                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+                "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);"
+        );
 
-        assertThat("    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
-                                         "    lcd.configureBacklightPin(LCD_BACKLIGHT);\n" +
-                                         "    lcd.backlight();\n" +
-                                         "    pinMode(LCD_PWM_PIN, OUTPUT);\n" +
-                                         "    analogWrite(LCD_PWM_PIN, 10);\n")
-                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                 "    lcd.configureBacklightPin(LCD_BACKLIGHT);\n" +
+                 "    lcd.backlight();\n" +
+                 "    pinMode(LCD_PWM_PIN, OUTPUT);\n" +
+                 "    analogWrite(LCD_PWM_PIN, 10);\n"
+        );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",

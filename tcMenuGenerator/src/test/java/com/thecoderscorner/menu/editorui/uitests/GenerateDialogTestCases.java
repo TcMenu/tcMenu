@@ -15,10 +15,10 @@ import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -38,7 +38,6 @@ import org.testfx.service.finder.NodeFinder;
 import org.testfx.service.query.NodeQuery;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -305,7 +304,7 @@ public class GenerateDialogTestCases {
 
     }
 
-    private class DummyCreator implements EmbeddedCodeCreator {
+    private class DummyCreator extends AbstractCodeCreator {
         private final List<CreatorProperty> props;
 
         public DummyCreator(CreatorProperty... props) {
@@ -313,33 +312,8 @@ public class GenerateDialogTestCases {
         }
 
         @Override
-        public void initialise(String root) {
-
-        }
-
-        @Override
-        public List<HeaderDefinition> getIncludes() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getGlobalVariables() {
-            return "";
-        }
-
-        @Override
-        public String getExportDefinitions() {
-            return "";
-        }
-
-        @Override
-        public String getSetupCode(String rootItem) {
-            return "";
-        }
-
-        @Override
-        public List<String> getRequiredFiles() {
-            return Collections.emptyList();
+        protected void initCreator(String root) {
+            // empty creator.
         }
 
         @Override

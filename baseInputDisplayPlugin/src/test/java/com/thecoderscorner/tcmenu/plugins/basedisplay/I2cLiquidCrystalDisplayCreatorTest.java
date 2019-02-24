@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.tcmenu.plugins.basedisplay;
 
+import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
@@ -21,31 +22,37 @@ public class I2cLiquidCrystalDisplayCreatorTest {
     void testBasicI2cSetupENRWRS() {
         I2cLiquidCrystalDisplayCreator creator = new I2cLiquidCrystalDisplayCreator();
         setupStandardProperties(creator, I2cDisplayChoices.EN_RW_RS);
+        var extractor = TestUtil.extractorFor(creator);
 
         creator.initialise("root");
 
-        assertThat(
-                "#define LCD_WIDTH 16\n" +
-                        "#define LCD_HEIGHT 2\n" +
-                        "extern LiquidCrystal lcd;\n" +
-                        "extern LiquidCrystalRenderer renderer;\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
+        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
+                "#define LCD_WIDTH 16\n#define LCD_HEIGHT 2"
+        );
 
-        assertThat(
-                "LiquidCrystal lcd(2, 0, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
-                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+                "extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;"
+        );
 
-        assertThat("    Wire.begin();\n" +
-                        "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
-                        "    lcd.configureBacklightPin(3);\n" +
-                        "    lcd.backlight();\n")
-                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+                "LiquidCrystal lcd(2, 1, 0, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
+                "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n"
+        );
+
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    Wire.begin();\n" +
+                "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                "    lcd.configureBacklightPin(3);\n" +
+                "    lcd.backlight();"
+        );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
+                "#include <IoAbstractionWire.h>",
                 "#include <Wire.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }
@@ -54,23 +61,29 @@ public class I2cLiquidCrystalDisplayCreatorTest {
     void testBasicI2cSetupRSRWEN() {
         I2cLiquidCrystalDisplayCreator creator = new I2cLiquidCrystalDisplayCreator();
         setupStandardProperties(creator, I2cDisplayChoices.RS_RW_EN);
+        var extractor = TestUtil.extractorFor(creator);
 
         creator.initialise("root");
 
-        assertThat("#define LCD_WIDTH 16\n" +
-                           "#define LCD_HEIGHT 2\n" +
-                           "extern LiquidCrystal lcd;\n" +
-                           "extern LiquidCrystalRenderer renderer;\n").isEqualToIgnoringNewLines(creator.getExportDefinitions());
+        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
+                "#define LCD_WIDTH 16\n#define LCD_HEIGHT 2"
+        );
 
-        assertThat("LiquidCrystal lcd(0, 2, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
-                        "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+                "extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;"
+        );
 
-        assertThat("    Wire.begin();\n" +
-                        "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
-                        "    lcd.configureBacklightPin(3);\n" +
-                        "    lcd.backlight();\n")
-                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+                "LiquidCrystal lcd(0, 1, 2, 4, 5, 6, 7, ioFrom8574(0x20));\n" +
+                "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n"
+        );
+
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    Wire.begin();\n" +
+                "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                "    lcd.configureBacklightPin(3);\n" +
+                "    lcd.backlight();\n"
+        );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
@@ -78,6 +91,7 @@ public class I2cLiquidCrystalDisplayCreatorTest {
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
+                "#include <IoAbstractionWire.h>",
                 "#include <Wire.h>",
                 "#include \"tcMenuLiquidCrystal.h\"");
     }

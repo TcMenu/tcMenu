@@ -12,10 +12,13 @@
 #define MENU_GENERATED_CODE_H
 
 #include <tcMenu.h>
-#include <header>
+#include <header1.h>
 
-// all export definitions
+// all define statements needed
+#define A_DEFINE 2
 
+// all variables that need exporting
+extern VarType varName;
 
 // all menu item forward references.
 extern AnalogMenuItem menuTest;
@@ -24,7 +27,7 @@ extern SubMenuItem menuSub;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;
 
-// all callback functions must have this define on them, it is what the menu designer looks for.
+// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();
 #define CALLBACK_FUNCTION
 
 void CALLBACK_FUNCTION callback1(int id);

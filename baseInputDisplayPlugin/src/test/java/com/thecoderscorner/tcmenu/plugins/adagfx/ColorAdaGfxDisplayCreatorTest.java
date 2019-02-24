@@ -7,6 +7,7 @@
 package com.thecoderscorner.tcmenu.plugins.adagfx;
 
 import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
@@ -23,24 +24,27 @@ class ColorAdaGfxDisplayCreatorTest {
         findAndSetValueOnProperty(creator, "DISPLAY_HEIGHT", SubSystem.DISPLAY, USE_IN_DEFINE, "240");
         findAndSetValueOnProperty(creator, "DISPLAY_ROTATION", SubSystem.DISPLAY, USE_IN_DEFINE, "0");
         findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
-
         creator.initCreator("root");
+        var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(
+        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
                 "#define DISPLAY_WIDTH 320\n" +
-                    "#define DISPLAY_HEIGHT 240\n" +
-                    "#define DISPLAY_ROTATION 0\n" +
+                "#define DISPLAY_HEIGHT 240\n" +
+                "#define DISPLAY_ROTATION 0"
+        );
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
                     "extern Adafruit_ILI9341 gfx;\n" +
-                    "extern AdaFruitGfxMenuRenderer renderer;\n")
-                .isEqualToIgnoringNewLines(creator.getExportDefinitions());
+                    "extern AdaFruitGfxMenuRenderer renderer;"
+        );
 
-        assertThat("AdaFruitGfxMenuRenderer renderer(&gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+                "AdaFruitGfxMenuRenderer renderer(&gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+        );
 
-        assertThat(
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
                 "    gfx.begin();\n" +
-                      "    gfx.setRotation(0);\n")
-                .isEqualToIgnoringNewLines(creator.getSetupCode("root"));
+                "    gfx.setRotation(0);\n"
+        );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/adafruit/tcMenuAdaFruitGfx.cpp",
                                                                          "renderers/adafruit/tcMenuAdaFruitGfx.h");

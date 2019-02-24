@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.pluginapi.model;
 import com.thecoderscorner.menu.pluginapi.model.parameter.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Provides a builder pattern for describing variables that need to be created in order for this plugin to work.
@@ -125,42 +124,6 @@ public class CodeVariableBuilder {
     }
 
     /**
-     * gets the variable code from this builder.
-     * @return the variable code
-     */
-    public String getVariable(CodeConversionContext context) {
-        if(!isVariableDefNeeded()) return "";
-
-        String paramList;
-        if(byAssignment) {
-            if(params.size() != 1) {
-                throw new IllegalArgumentException("ByAssignment param list size must always be 1");
-            }
-            paramList = " = " + params.get(0).getParameterValue(context);
-        }
-        else {
-            paramList = "(" + params.stream()
-                    .map(p -> p.getParameterValue(context))
-                    .collect(Collectors.joining(", ")) + ")";
-        }
-
-        if(progmem)
-            return "const " + type + " PROGMEM " + name + paramList + ";";
-        else
-            return type + " " + name + paramList + ";";
-    }
-
-    /**
-     * gets the export code from this variable
-     * @return the export code.
-     */
-    public String getExport() {
-        if(!isExported()) return "";
-
-        return "extern " + (progmem ? "const " : "") + type + " " + name + ";";
-    }
-
-    /**
      * @return true if exported, otherwise false
      */
     public boolean isExported() {
@@ -173,6 +136,26 @@ public class CodeVariableBuilder {
 
     public Set<HeaderDefinition> getHeaders() {
         return Collections.unmodifiableSet(headers);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isByAssignment() {
+        return byAssignment;
+    }
+
+    public boolean isProgmem() {
+        return progmem;
+    }
+
+    public List<CodeParameter> getParams() {
+        return params;
     }
 
     /**
@@ -201,7 +184,17 @@ public class CodeVariableBuilder {
         return this;
     }
 
-    public String getNameOnly() {
-        return name;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CodeVariableBuilder builder = (CodeVariableBuilder) o;
+        return Objects.equals(type, builder.type) &&
+                Objects.equals(name, builder.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, name);
     }
 }

@@ -82,7 +82,7 @@ public class ArduinoSketchFileAdjusterTest {
         List<String> lines = Files.readAllLines(inoFile);
 
         // we should have an include, only once.
-        ensureLinesContaining(lines,"#include \"superProject.h\"");
+        ensureLinesContaining(lines,"#include \"superProject_menu.h\"");
 
         // we should have a basic set up and loop method ready prepared
         ensureLinesContaining(lines,"void setup() {", "setupMenu();", "superObj.init();", "}");

@@ -37,7 +37,7 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
                                 DISPLAY, pinValidator()),
             new CreatorProperty("LCD_PWM_PIN", "Advanced: PWM control contrast (-1 off)", "-1",
                                 DISPLAY, optPinValidator()),
-            new CreatorProperty("IO_DEVICE", "Advanced: IoDevice to use (default blank)", "",
+            new CreatorProperty("LCD_IO_DEVICE", "Advanced: IoDevice to use (default blank)", "",
                                 DISPLAY, TEXTUAL, variableValidator()))
     );
 
@@ -70,6 +70,8 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
             addFunctionCall(new FunctionCallBuilder().functionName("pinMode").param("LCD_PWM_PIN").param("OUTPUT"));
             addFunctionCall(new FunctionCallBuilder().functionName("analogWrite").param("LCD_PWM_PIN").param(10));
         }
+
+        addExportVariableIfPresent("LCD_IO_DEVICE", "IoAbstractionRef");
     }
 
 

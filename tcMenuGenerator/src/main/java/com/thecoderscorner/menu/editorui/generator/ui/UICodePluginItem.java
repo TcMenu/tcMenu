@@ -25,6 +25,9 @@ import java.util.function.Consumer;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class UICodePluginItem extends BorderPane {
+
+    public static final int IMG_THUMB_WIDTH = 150;
+
     public enum UICodeAction { CHANGE, SELECT;}
 
     private Consumer<CodePluginItem> eventHandler;
@@ -111,16 +114,16 @@ public class UICodePluginItem extends BorderPane {
 
         imagePanel = mgr.getImageForName(item.getImageFileName())
                 .map(img -> {
-                    double scaleFactor = img.getHeight() / 80;
+                    double scaleFactor = img.getWidth() / IMG_THUMB_WIDTH;
                     ImageView imgView = new ImageView(img);
-                    imgView.setFitHeight(80);
-                    imgView.setFitWidth(img.getWidth() / scaleFactor);
+                    imgView.setFitWidth(IMG_THUMB_WIDTH);
+                    imgView.setFitHeight(img.getHeight() / scaleFactor);
                     return (Node)imgView;
                 })
                 .orElseGet(()-> {
                     Label noImg = new Label("No Image");
                     noImg.setAlignment(Pos.CENTER);
-                    noImg.setMaxSize(150, 80);
+                    noImg.setPrefSize(IMG_THUMB_WIDTH, IMG_THUMB_WIDTH / 2.0);
                     noImg.setStyle("-fx-background-color: #e0ccff;-fx-fill: #000000;");
                     return (Node)noImg;
                 });

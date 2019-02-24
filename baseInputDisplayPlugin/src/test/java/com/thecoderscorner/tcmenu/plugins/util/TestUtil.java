@@ -9,7 +9,9 @@ package com.thecoderscorner.tcmenu.plugins.util;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +34,10 @@ public class TestUtil {
         prop.getProperty().setValue(newStr);
         assertEquals(newStr, prop.getLatestValue());
         return prop;
+    }
+
+    public static CodeVariableCppExtractor extractorFor(EmbeddedCodeCreator creator) {
+        return new CodeVariableCppExtractor(new CodeConversionContext("root", creator.properties()));
     }
 
     public static List<String> includeToString(List<HeaderDefinition> includes) {

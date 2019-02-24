@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -26,11 +27,12 @@ class FunctionCallBuilderTest {
                 .functionName("analogWrite").param("A0").paramFromPropertyWithDefault("PARAM1", "1")
                 .fnparam("func");
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.singletonList(
+        CodeConversionContext context = new CodeConversionContext("root", singletonList(
                 new CreatorProperty("PARAM1", "Desc", "1.01", SubSystem.INPUT)
         ));
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("    analogWrite(A0, 1.01, func());", builder.getFunctionCode(context));
+        assertEqualsIgnoringCRLF("    analogWrite(A0, 1.01, func());", extractor.mapFunctions(singletonList(builder)));
         assertThat(builder.getHeaders()).isEmpty();
     }
 
@@ -40,8 +42,9 @@ class FunctionCallBuilderTest {
                 .functionName("callMe").pointerType().objectName("pObject");
 
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("    pObject->callMe();", builder.getFunctionCode(context));
+        assertEqualsIgnoringCRLF("    pObject->callMe();", extractor.mapFunctions(singletonList(builder)));
     }
 
     @Test
@@ -52,8 +55,9 @@ class FunctionCallBuilderTest {
                 .requiresHeader("abc.h", true);
 
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("    lcd.setup(&root, 16, 2, \"abcdef\");", builder.getFunctionCode(context));
+        assertEqualsIgnoringCRLF("    lcd.setup(&root, 16, 2, \"abcdef\");", extractor.mapFunctions(singletonList(builder)));
         var listOfHeaders = new ArrayList<>(builder.getHeaders());
         assertEquals(1, listOfHeaders.size());
         assertEquals("#include \"abc.h\"", listOfHeaders.get(0).getHeaderCode());

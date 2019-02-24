@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
+import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
-    public static final String LINE_BREAK = System.getProperty("line.separator");
     private final String nextMenuName;
     private final String nextChild;
 

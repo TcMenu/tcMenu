@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi;
 
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
+import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.List;
@@ -18,9 +20,8 @@ public interface EmbeddedCodeCreator {
     void initialise(String root);
 
     List<HeaderDefinition> getIncludes();
-    String getGlobalVariables();
-    String getExportDefinitions();
-    String getSetupCode(String rootItem);
+    List<CodeVariableBuilder> getVariables();
+    List<FunctionCallBuilder> getFunctionCalls();
     List<String> getRequiredFiles();
     List<CreatorProperty> properties();
 }

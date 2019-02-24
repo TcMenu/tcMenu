@@ -6,7 +6,10 @@
 
 package com.thecoderscorner.tcmenu.plugins.dfrobot;
 
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -20,6 +23,7 @@ public class DfRobotCodeGeneratorTests {
     void testLcdCodeGeneratedCorrectly() {
         DfRobotLcdCreator creator = new DfRobotLcdCreator();
         creator.initCreator("root");
+        var extractor = aDefaultExtractorFor(creator);
         assertThat(creator.properties()).isEmpty();
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
                 "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
@@ -27,44 +31,51 @@ public class DfRobotCodeGeneratorTests {
 
         assertThat(includeConverter(creator.getIncludes())).containsExactly(
                 "#include <LiquidCrystalIO.h>",
-                "#include \"tcMenuLiquidCrystal.h\"");
+                "#include \"tcMenuLiquidCrystal.h\""
+        );
 
-        assertThat("extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;\n")
-                .isEqualToIgnoringNewLines(creator.getExportDefinitions());
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+                "extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;"
+        );
 
-        assertThat("LiquidCrystal lcd(8, 9, 4, 5, 6, 7);\n" +
-                   "LiquidCrystalRenderer renderer(lcd, 16, 2);\n")
-                .isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+                "LiquidCrystal lcd(8, 9, 4, 5, 6, 7);\nLiquidCrystalRenderer renderer(lcd, 16, 2);"
+        );
 
-        assertThat("    lcd.begin(16, 2);\n" +
-                   "    lcd.configureBacklightPin(10);\n" +
-                   "    lcd.backlight();\n")
-                   .isEqualToIgnoringNewLines(creator.getSetupCode("rootMenuItem"));
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    lcd.begin(16, 2);\n" +
+                "    lcd.configureBacklightPin(10);\n" +
+                "    lcd.backlight();"
+        );
     }
 
     @Test
     void testAnalogInputCodeGeneratedCorrectly() {
         DfRobotAnalogInputCreator creator = new DfRobotAnalogInputCreator();
         creator.initCreator("root");
+        var extractor = aDefaultExtractorFor(creator);
         assertThat(creator.properties()).isEmpty();
         assertThat(creator.getRequiredFiles()).isEmpty();
         assertThat(includeConverter(creator.getIncludes()))
                 .containsExactlyInAnyOrder("#include <IoAbstraction.h>",
                                            "#include <DfRobotInputAbstraction.h>");
 
-        assertThat("").isEqualToIgnoringNewLines(creator.getExportDefinitions());
+        assertThat(extractor.mapExports(creator.getVariables())).isBlank();
 
-        assertThat("").isEqualToIgnoringNewLines(creator.getGlobalVariables());
+        assertThat(extractor.mapVariables(creator.getVariables())).isBlank();
 
-        assertThat(
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
                 "    pinMode(A0, INPUT);\n" +
-                      "    switches.initialise(inputFromDfRobotShield(), false);\n" +
-                      "    menuMgr.initForUpDownOk(&renderer, &root, DF_KEY_DOWN, DF_KEY_UP, DF_KEY_SELECT);\n")
-                .isEqualToIgnoringNewLines(creator.getSetupCode("rootMenuItem"));
+                "    switches.initialise(inputFromDfRobotShield(), false);\n" +
+                "    menuMgr.initForUpDownOk(&renderer, &root, DF_KEY_DOWN, DF_KEY_UP, DF_KEY_SELECT);\n");
     }
 
     private List<String> includeConverter(List<HeaderDefinition> includes) {
         return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
 
+    }
+
+    private CodeVariableCppExtractor aDefaultExtractorFor(EmbeddedCodeCreator creator) {
+        return new CodeVariableCppExtractor(new CodeConversionContext("rootMenuItem", creator.properties()));
     }
 }

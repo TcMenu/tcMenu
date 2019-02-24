@@ -11,7 +11,9 @@ import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
+import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,27 +86,19 @@ public class ArduinoGeneratorTest {
     private List<EmbeddedCodeCreator> unitTestGenerator() {
         EmbeddedCodeCreator gen = new AbstractCodeCreator() {
             @Override
-            protected void initCreator(String root) {
-            }
-
-            @Override
-            public List<HeaderDefinition> getIncludes() {
-                return Collections.singletonList(new HeaderDefinition("header", false, HeaderDefinition.PRIORITY_NORMAL));
-            }
-
-            @Override
-            public String getGlobalVariables() {
-                return "global vars";
-            }
-
-            @Override
-            public String getSetupCode(String rootItem) {
-                return "setup code";
-            }
-
-            @Override
             public List<CreatorProperty> properties() {
-                return Collections.emptyList();
+                return List.of(new CreatorProperty("A_DEFINE", "blah", "2", SubSystem.INPUT));
+            }
+
+            @Override
+            protected void initCreator(String root) {
+                addVariable(new CodeVariableBuilder()
+                        .requiresHeader("header1.h", false)
+                        .variableName("varName").variableType("VarType")
+                        .param("1234.34")
+                        .exportNeeded()
+                );
+                addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd").param(16).param(2));
             }
         };
         return Collections.singletonList(gen);

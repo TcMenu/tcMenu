@@ -4,18 +4,13 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.generator.arduino;
-
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+package com.thecoderscorner.menu.pluginapi.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-
-class BuildStructInitializer {
+public class BuildStructInitializer {
     private String structName;
     private String structType;
     private List<HeaderDefinition> headerRequirement = new ArrayList<>();
@@ -57,49 +52,6 @@ class BuildStructInitializer {
             structElements.add(Integer.toString(eepromAddress));
         }
         return this;
-    }
-
-    public String toSource() {
-        if(stringChoices) {
-            return doStringSource();
-        }
-        StringBuilder sb = new StringBuilder(256);
-        if(progMemInfo) {
-            sb.append("const PROGMEM ").append(structType).append(" minfo").append(structName).append(" = { ");
-            sb.append(String.join(", ", structElements));
-            sb.append(" };");
-        }
-        else {
-            sb.append(structType).append(" menu").append(structName).append("(");
-            sb.append(String.join(", ", structElements));
-            sb.append(");");
-        }
-        return sb.toString();
-    }
-
-    private String doStringSource() {
-        StringBuilder sb = new StringBuilder(256);
-        IntStream.range(0, structElements.size()).forEach(i -> {
-            String textRep = structElements.get(i);
-            sb.append(String.format("const char enumStr%s_%d[] PROGMEM = %s;%s", structName, i, textRep, LINE_BREAK));
-        });
-        sb.append(String.format("const char* const enumStr%s[] PROGMEM  = { ", structName));
-        sb.append(IntStream.range(0, structElements.size())
-                .mapToObj(i -> "enumStr" + structName + "_" + i)
-                .collect(Collectors.joining(", ")));
-        sb.append(" };");
-
-        return sb.toString();
-    }
-
-    public String toHeader() {
-        String header = "";
-
-        if(requiresExtern) {
-            header = header + "extern " + structType + " menu" + structName + ";";
-        }
-
-        return header;
     }
 
     public List<HeaderDefinition> getHeaderRequirements() {

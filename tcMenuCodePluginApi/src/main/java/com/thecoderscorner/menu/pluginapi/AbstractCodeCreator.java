@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.pluginapi;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
-import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import static com.thecoderscorner.menu.pluginapi.SubSystem.INPUT;
 public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     public static final String LINE_BREAK = System.getProperty("line.separator");
     private static final CreatorProperty EMPTY = new CreatorProperty("", "", "-1", INPUT);
-    public static final String ROOT_ITEM_REPLACEMENT = "$ROOT$";
 
     private List<FunctionCallBuilder> functionCalls = new ArrayList<>();
     private List<CodeVariableBuilder> variables = new ArrayList<>();
@@ -38,21 +36,8 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     protected abstract void initCreator(String root);
 
     @Override
-    public String getExportDefinitions() {
-        var props = properties().stream()
-                .filter(prop -> prop.getPropType() == CreatorProperty.PropType.USE_IN_DEFINE)
-                .map(prop -> ("#define " + prop.getName() + " " + prop.getLatestValue()))
-                .collect(Collectors.joining(LINE_BREAK));
-
-        var exports = variables.stream()
-                .filter(CodeVariableBuilder::isExported)
-                .map(CodeVariableBuilder::getExport)
-                .collect(Collectors.joining(LINE_BREAK));
-
-        // don't output two blank lines basically when empty.
-        if(props.isEmpty() && exports.isEmpty()) return "";
-
-        return props + (props.isEmpty()?"":LINE_BREAK) +  exports + (exports.isEmpty()?"":LINE_BREAK);
+    public List<CodeVariableBuilder> getVariables() {
+        return variables;
     }
 
     @Override
@@ -67,20 +52,6 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
         return allHeaders.stream().distinct().collect(Collectors.toList());
     }
 
-    @Override
-    public String getGlobalVariables() {
-        CodeConversionContext context = new CodeConversionContext(null, properties());
-
-        var output = variables.stream()
-                .filter(CodeVariableBuilder::isVariableDefNeeded)
-                .map(v -> v.getVariable(context))
-                .collect(Collectors.joining(LINE_BREAK));
-
-        if(output.isEmpty()) return "";
-
-        return output + LINE_BREAK;
-    }
-
     protected void addExportVariableIfPresent(String variable, String typeName) {
         String expVar = findPropertyValue(variable).getLatestValue();
         if(expVar != null && !expVar.isEmpty()) {
@@ -89,13 +60,8 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     }
 
     @Override
-    public String getSetupCode(String rootItem) {
-        CodeConversionContext context = new CodeConversionContext(rootItem, properties());
-
-        return functionCalls.stream()
-                .map(f -> f.getFunctionCode(context))
-                .map(s -> s.equals(ROOT_ITEM_REPLACEMENT) ? "&" + rootItem : s)
-                .collect(Collectors.joining(LINE_BREAK)) + LINE_BREAK;
+    public List<FunctionCallBuilder> getFunctionCalls() {
+        return functionCalls;
     }
 
     protected void addLibraryFiles(String... files) {

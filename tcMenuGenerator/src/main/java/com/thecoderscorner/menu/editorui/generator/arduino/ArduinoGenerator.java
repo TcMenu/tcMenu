@@ -11,7 +11,11 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableExtractor;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -28,14 +32,17 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.makeNameToVar;
+import static com.thecoderscorner.menu.pluginapi.model.HeaderDefinition.PRIORITY_MAX;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoGenerator implements CodeGenerator {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    public static final String LINE_BREAK = System.getProperty("line.separator");
+    public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
+
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
             .withLocale(Locale.getDefault())
             .withZone(ZoneId.systemDefault());
@@ -72,14 +79,18 @@ public class ArduinoGenerator implements CodeGenerator {
 
         checkIfUpToDateWarningNeeded();
 
+        checkIfLegacyFilesAreOnPath(directory);
+
         String root = getFirstMenuVariable(menuTree);
+        var allProps = generators.stream().flatMap(gen-> gen.properties().stream()).collect(Collectors.toList());
+        CodeVariableExtractor extractor = new CodeVariableCppExtractor(new CodeConversionContext(root, allProps));
 
         Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
 
         generators.forEach(gen -> gen.initialise(root));
 
-        if (generateHeaders(generators, menuTree, headerFile, menuStructure) &&
-                generateSource(generators, cppFile, menuStructure, projectName, root)) {
+        if (generateHeaders(generators, menuTree, headerFile, menuStructure, extractor) &&
+                generateSource(generators, cppFile, menuStructure, projectName, extractor)) {
 
             updateArduinoSketch(inoFile, projectName, menuTree);
 
@@ -95,9 +106,25 @@ public class ArduinoGenerator implements CodeGenerator {
         return true;
     }
 
+    private void checkIfLegacyFilesAreOnPath(Path directory) {
+        if(Files.exists(Paths.get(toSourceFile(directory, ".h")))
+                || Files.exists(Paths.get(toSourceFile(directory, ".cpp")))) {
+
+            Path fileName = directory.getFileName();
+            logLine("ERROR: OLD FILES FOUND !!!!!!!!!!==========================================");
+            logLine("POTENTIAL COMPILE ERROR IN IDE");
+            logLine("From V1.2 onwards the source files containing menu definitions have changed");
+            logLine("from " + fileName + ".h/.cpp to " + fileName + "_menu.h/_menu.cpp");
+            logLine("To avoid errors in your IDE you will need to open the directory and remove");
+            logLine("the files " + fileName + ".h/.cpp");
+            logLine("The directory is: " + directory);
+            logLine("===========================================================================");
+        }
+    }
+
     private boolean generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
                                    Collection<BuildStructInitializer> menuStructure,
-                                   String projectName, String root) {
+                                   String projectName, CodeVariableExtractor extractor) {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
             logLine("Writing out source CPP file: " + cppFile);
@@ -107,29 +134,24 @@ public class ArduinoGenerator implements CodeGenerator {
             writer.write("#include <tcMenu.h>");
             writer.write(LINE_BREAK);
             writer.write("#include \"" + projectName + "_menu.h\"");
-            writer.write(LINE_BREAK + LINE_BREAK);
 
-            writer.write("// Global variable declarations" + LINE_BREAK);
-            writer.write(generators.stream()
-                    .map(EmbeddedCodeCreator::getGlobalVariables)
-                    .collect(Collectors.joining(LINE_BREAK)));
+            writer.write(TWO_LINES + "// Global variable declarations" + TWO_LINES);
+            writer.write(extractor.mapVariables(
+                    generators.stream().flatMap(ecc->ecc.getVariables().stream()).collect(Collectors.toList())
+            ));
 
-            writer.write(LINE_BREAK);
-
-            writer.write("// Global Menu Item declarations" + LINE_BREAK);
+            writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
             writer.write(menuStructure.stream()
-                    .map(BuildStructInitializer::toSource)
+                    .map(extractor::mapStructSource)
                     .collect(Collectors.joining(LINE_BREAK)));
 
-            writer.write(LINE_BREAK);
-
-            writer.write(LINE_BREAK + "// Set up code" + LINE_BREAK);
+            writer.write(TWO_LINES + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
-            writer.write(generators.stream()
-                    .map(ecc -> ecc.getSetupCode(root))
-                    .collect(Collectors.joining(LINE_BREAK)));
+            writer.write(extractor.mapFunctions(
+                    generators.stream().flatMap(ecc->ecc.getFunctionCalls().stream()).collect(Collectors.toList())
+            ));
 
-            writer.write("}" + LINE_BREAK);
+            writer.write(LINE_BREAK + "}" + LINE_BREAK);
             writer.write(LINE_BREAK);
 
             logLine("Finished processing source file.");
@@ -143,49 +165,51 @@ public class ArduinoGenerator implements CodeGenerator {
         return true;
     }
 
-    private boolean generateHeaders(List<EmbeddedCodeCreator> generators, MenuTree menuTree,
-                                    String headerFile, Collection<BuildStructInitializer> menuStructure) {
+    private boolean generateHeaders(List<EmbeddedCodeCreator> embeddedCreators, MenuTree menuTree,
+                                    String headerFile, Collection<BuildStructInitializer> menuStructure,
+                                    CodeVariableExtractor extractor) {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
             logLine("Writing out header file: " + headerFile);
 
             writer.write(COMMENT_HEADER);
             writer.write(HEADER_TOP);
 
-            var includeList = generators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
+            // first get a list of includes to add to the header file from the creators
+            var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
 
-
+            // now add any extra headers needed for the menu structure items.
             includeList.addAll(menuStructure.stream()
                     .flatMap(s-> s.getHeaderRequirements().stream())
                     .collect(Collectors.toList()));
 
-            includeList.add(new HeaderDefinition("tcMenu.h", false,
-                    HeaderDefinition.PRIORITY_MAX - 1));
+            // and lastly add the tcMenu header file.
+            includeList.add(new HeaderDefinition("tcMenu.h", false, PRIORITY_MAX - 1));
 
-            writer.write(includeList.stream()
-                    .distinct()
-                    .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
-                    .map(HeaderDefinition::getHeaderCode)
-                    .collect(Collectors.joining(LINE_BREAK))
-            );
+            // and write out the includes
+            writer.write(extractor.mapIncludes(includeList));
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// all export definitions" + LINE_BREAK);
+            writer.write(LINE_BREAK + LINE_BREAK + "// all define statements needed" + LINE_BREAK);
 
-            writer.write(generators.stream()
-                    .map(EmbeddedCodeCreator::getExportDefinitions)
-                    .collect(Collectors.joining(LINE_BREAK))
-            );
+            // now get all the #defines that we need to add.
+            writer.write(extractor.mapDefines());
 
+            writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
+
+            // and put the exports in the file too
+            writer.write(extractor.mapExports(
+                    embeddedCreators.stream().flatMap(ecc->ecc.getVariables().stream()).collect(Collectors.toList())
+            ));
             writer.write(LINE_BREAK + LINE_BREAK + "// all menu item forward references." + LINE_BREAK);
 
             writer.write(menuStructure.stream()
-                    .map(BuildStructInitializer::toHeader)
+                    .map(extractor::mapStructHeader)
                     .filter(item-> !item.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
 
-            writer.write(LINE_BREAK + LINE_BREAK);
+            writer.write(TWO_LINES);
 
-            writer.write("// all callback functions must have this define on them, it is what the menu designer looks for."
+            writer.write("// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();"
                             + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 
             for (String callback : callBackFunctions(menuTree)) {

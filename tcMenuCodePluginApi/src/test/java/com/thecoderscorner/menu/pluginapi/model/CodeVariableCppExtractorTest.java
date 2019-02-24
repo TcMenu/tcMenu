@@ -4,19 +4,23 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.generator.arduino;
+package com.thecoderscorner.menu.pluginapi.model;
 
 
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.LINE_BREAK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BuildStructInitializerTest {
+public class CodeVariableCppExtractorTest {
+    private CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(
+            new CodeConversionContext("root", Collections.emptyList())
+    );
 
     @Test
     public void testIntialiseInfoStructure() {
@@ -27,8 +31,9 @@ public class BuildStructInitializerTest {
                 .addPossibleFunction(null)
                 .progMemInfo();
 
-        assertEquals("", initializer.toHeader().trim());
-        assertEquals("const PROGMEM StructType minfoMyStruct = { \"Test1\", 0xffff, 22, NO_CALLBACK };", initializer.toSource().trim());
+        assertEquals("", extractor.mapStructHeader(initializer));
+        assertEquals("const PROGMEM StructType minfoMyStruct = { \"Test1\", 0xffff, 22, NO_CALLBACK };",
+                extractor.mapStructSource(initializer));
     }
 
     @Test
@@ -38,8 +43,8 @@ public class BuildStructInitializerTest {
                 .addHeaderFileRequirement("SomeHeader.h", false)
                 .addElement("someVar")
                 .requiresExtern();
-        assertEquals("extern MenuItem menuMyItem;", initializer.toHeader());
-        assertEquals("MenuItem menuMyItem(42, someVar);", initializer.toSource());
+        assertEquals("extern MenuItem menuMyItem;", extractor.mapStructHeader(initializer));
+        assertEquals("MenuItem menuMyItem(42, someVar);", extractor.mapStructSource(initializer));
         Assertions.assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
                 new HeaderDefinition("SomeHeader.h", false, HeaderDefinition.PRIORITY_NORMAL)
         );
@@ -50,12 +55,12 @@ public class BuildStructInitializerTest {
         BuildStructInitializer initializer = new BuildStructInitializer("Enums", "")
                 .collectionOfElements(List.of("INPUT", "OUTPUT"), true)
                 .stringChoices();
-        assertEquals("", initializer.toHeader());
+        assertEquals("", extractor.mapStructHeader(initializer));
 
-        String expectedChoices = "const char enumStrEnums_0[] PROGMEM = \"INPUT\";" +LINE_BREAK +
-                "const char enumStrEnums_1[] PROGMEM = \"OUTPUT\";" +LINE_BREAK +
+        String expectedChoices = "const char enumStrEnums_0[] PROGMEM = \"INPUT\";" + LINE_BREAK +
+                "const char enumStrEnums_1[] PROGMEM = \"OUTPUT\";" + LINE_BREAK +
                 "const char* const enumStrEnums[] PROGMEM  = { enumStrEnums_0, enumStrEnums_1 };";
 
-        assertEquals(expectedChoices, initializer.toSource());
+        assertEquals(expectedChoices, extractor.mapStructSource(initializer));
     }
 }

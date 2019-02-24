@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,10 +28,11 @@ class CodeVariableBuilderTest {
                 .param(23).quoted("Abc").fnparam("func");
 
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("", builder.getExport());
-        assertEqualsIgnoringCRLF("var", builder.getNameOnly());
-        assertEqualsIgnoringCRLF("SomeType var(23, \"Abc\", func());", builder.getVariable(context));
+        assertEqualsIgnoringCRLF("", extractor.mapExports(singletonList(builder)));
+        assertEqualsIgnoringCRLF("var", builder.getName());
+        assertEqualsIgnoringCRLF("SomeType var(23, \"Abc\", func());", extractor.mapVariables(singletonList(builder)));
         assertThat(builder.getHeaders()).isEmpty();
     }
 
@@ -42,9 +44,10 @@ class CodeVariableBuilderTest {
                 .requiresHeader("abc.h", false);
 
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("extern SomeType var;", builder.getExport());
-        assertEqualsIgnoringCRLF("SomeType var(33);", builder.getVariable(context));
+        assertEqualsIgnoringCRLF("extern SomeType var;", extractor.mapExports(singletonList(builder)));
+        assertEqualsIgnoringCRLF("SomeType var(33);", extractor.mapVariables(singletonList(builder)));
         assertTrue(builder.isExported());
         var listOfHeaders = new ArrayList<>(builder.getHeaders());
         assertEquals(1, listOfHeaders.size());
@@ -61,8 +64,10 @@ class CodeVariableBuilderTest {
         CodeConversionContext context = new CodeConversionContext("root", Collections.singletonList(
                 new CreatorProperty("PARAM1", "Desc", "1.01", SubSystem.INPUT)
         ));
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("SomeType var(1.01, def);", builder.getVariable(context));
+        assertEqualsIgnoringCRLF("SomeType var(1.01, def);", extractor.mapVariables(singletonList(builder)));
+        assertEqualsIgnoringCRLF("", extractor.mapExports(singletonList(builder)));
     }
 
     @Test
@@ -70,9 +75,14 @@ class CodeVariableBuilderTest {
         CodeVariableBuilder builder = new CodeVariableBuilder().variableName("abc").variableType("Type").exportNeeded()
                 .byAssignment().progmem().quoted("Super");
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertThat("const Type PROGMEM abc = \"Super\";").isEqualToIgnoringNewLines(builder.getVariable(context));
-        assertThat("extern const Type abc;").isEqualToIgnoringNewLines(builder.getExport());
+        assertThat(extractor.mapVariables(singletonList(builder))).isEqualToIgnoringNewLines(
+                "const Type PROGMEM abc = \"Super\";"
+        );
+        assertThat(extractor.mapExports(singletonList(builder))).isEqualToIgnoringNewLines(
+                "extern const Type abc;"
+        );
     }
 
     @Test
@@ -81,8 +91,9 @@ class CodeVariableBuilderTest {
                 .variableName("var").variableType("Type").exportOnly();
 
         CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("extern Type var;", builder.getExport());
-        assertEqualsIgnoringCRLF("", builder.getVariable(context));
+        assertEqualsIgnoringCRLF("extern Type var;", extractor.mapExports(singletonList(builder)));
+        assertEqualsIgnoringCRLF("", extractor.mapVariables(singletonList(builder)));
     }
 }

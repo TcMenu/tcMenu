@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.pluginapi.model;
 import com.thecoderscorner.menu.pluginapi.model.parameter.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Builder pattern way of building function calls that will be made during setup, to avoid writing code in strings.
@@ -27,7 +26,7 @@ public class FunctionCallBuilder {
      * @return itself for chaining
      */
     public FunctionCallBuilder objectName(CodeVariableBuilder variable) {
-        objectName = Optional.ofNullable(variable.getNameOnly());
+        objectName = Optional.ofNullable(variable.getName());
         return this;
     }
 
@@ -118,27 +117,23 @@ public class FunctionCallBuilder {
         return this;
     }
 
-
-    /**
-     * @return the code that is built from this function builder.
-     */
-    public String getFunctionCode(CodeConversionContext context) {
-        String fn = "    ";
-        if(objectName.isPresent()) {
-            fn += objectName.get() + memberAccessor();
-        }
-        fn += functionName + "(";
-        var parameters = params.stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
-        fn += parameters;
-        fn += ");";
-        return fn;
-    }
-
-    private String memberAccessor() {
-        return (pointerType) ? "->" : ".";
-    }
-
     public Set<HeaderDefinition> getHeaders() {
         return Collections.unmodifiableSet(headers);
+    }
+
+    public Optional<String> getObjectName() {
+        return objectName;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public Collection<CodeParameter> getParams() {
+        return params;
+    }
+
+    public boolean isPointerType() {
+        return pointerType;
     }
 }
