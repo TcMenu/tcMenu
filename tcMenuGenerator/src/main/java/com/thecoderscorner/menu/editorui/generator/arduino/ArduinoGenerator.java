@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.TcMenuConversionException;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableExtractor;
@@ -29,6 +30,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -72,36 +74,40 @@ public class ArduinoGenerator implements CodeGenerator {
     public boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
 
+        // get the file names that we are going to modify.
         String inoFile = toSourceFile(directory, ".ino");
         String cppFile = toSourceFile(directory, "_menu.cpp");
         String headerFile = toSourceFile(directory, "_menu.h");
         String projectName = directory.getFileName().toString();
 
-        checkIfUpToDateWarningNeeded();
+        try {
+            // Prepare the generator by initialising all the structures ready for conversion.
+            String root = getFirstMenuVariable(menuTree);
+            var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
+            CodeVariableExtractor extractor = new CodeVariableCppExtractor(new CodeConversionContext(root, allProps));
+            Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
+            generators.forEach(gen -> gen.initialise(root));
 
-        checkIfLegacyFilesAreOnPath(directory);
-
-        String root = getFirstMenuVariable(menuTree);
-        var allProps = generators.stream().flatMap(gen-> gen.properties().stream()).collect(Collectors.toList());
-        CodeVariableExtractor extractor = new CodeVariableCppExtractor(new CodeConversionContext(root, allProps));
-
-        Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
-
-        generators.forEach(gen -> gen.initialise(root));
-
-        if (generateHeaders(generators, menuTree, headerFile, menuStructure, extractor) &&
-                generateSource(generators, cppFile, menuStructure, projectName, extractor)) {
-
+            // generate the source by first generating the CPP and H for the menu definition and then
+            // update the sketch. Also, if any plugins have changed, then update them.
+            generateHeaders(generators, menuTree, headerFile, menuStructure, extractor);
+            generateSource(generators, cppFile, menuStructure, projectName, extractor);
             updateArduinoSketch(inoFile, projectName, menuTree);
-
             addAnyRequiredPluginsToSketch(generators, directory);
 
-        } else {
-            return false;
-        }
+            // do a couple of final checks and put out warnings if need be
+            checkIfUpToDateWarningNeeded();
+            checkIfLegacyFilesAreOnPath(directory);
 
-        logLine("Process has completed, make sure the code in your IDE is up-to-date.");
-        logLine("You may need to close the project and then re-open it to pick up changes..");
+            logLine("Process has completed, make sure the code in your IDE is up-to-date.");
+            logLine("You may need to close the project and then re-open it to pick up changes..");
+        }
+        catch(Exception e) {
+            logLine("ERROR during conversion---------------------------------------------");
+            logLine("The conversion process has failed with an error: " + e.getMessage());
+            logLine("A more complete error can be found in the log file in <Home>/.tcMenu");
+            logger.log(ERROR, "Exception caught while converting code: ", e);
+        }
 
         return true;
     }
@@ -112,19 +118,20 @@ public class ArduinoGenerator implements CodeGenerator {
 
             Path fileName = directory.getFileName();
             logLine("ERROR: OLD FILES FOUND !!!!!!!!!!==========================================");
-            logLine("POTENTIAL COMPILE ERROR IN IDE");
+            logLine("POTENTIAL COMPILE ERROR IN IDE - Non backward compatible change");
             logLine("From V1.2 onwards the source files containing menu definitions have changed");
             logLine("from " + fileName + ".h/.cpp to " + fileName + "_menu.h/_menu.cpp");
             logLine("To avoid errors in your IDE you will need to open the directory and remove");
             logLine("the files " + fileName + ".h/.cpp");
+            logLine("Also remove the line #include <" + fileName + "_tcmenu.h> from your sketch" );
             logLine("The directory is: " + directory);
             logLine("===========================================================================");
         }
     }
 
-    private boolean generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
+    private void generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
                                    Collection<BuildStructInitializer> menuStructure,
-                                   String projectName, CodeVariableExtractor extractor) {
+                                   String projectName, CodeVariableExtractor extractor) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
             logLine("Writing out source CPP file: " + cppFile);
@@ -158,16 +165,14 @@ public class ArduinoGenerator implements CodeGenerator {
 
         } catch (Exception e) {
             logLine("Failed to generate CPP: " + e.getMessage());
-            logger.log(ERROR, "CPP Code Generation failed", e);
-            return false;
+            throw new TcMenuConversionException("Header Generation failed", e);
         }
 
-        return true;
     }
 
-    private boolean generateHeaders(List<EmbeddedCodeCreator> embeddedCreators, MenuTree menuTree,
+    private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators, MenuTree menuTree,
                                     String headerFile, Collection<BuildStructInitializer> menuStructure,
-                                    CodeVariableExtractor extractor) {
+                                    CodeVariableExtractor extractor) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
             logLine("Writing out header file: " + headerFile);
 
@@ -222,11 +227,8 @@ public class ArduinoGenerator implements CodeGenerator {
             logLine("Finished processing header file.");
         } catch (Exception e) {
             logLine("Failed to generate header file: " + e.getMessage());
-            logger.log(ERROR, "Header Code Generation failed", e);
-            return false;
+            throw new TcMenuConversionException("Header Generation failed", e);
         }
-
-        return true;
     }
 
     private void checkIfUpToDateWarningNeeded() {
@@ -238,19 +240,21 @@ public class ArduinoGenerator implements CodeGenerator {
         }
     }
 
-    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) {
+    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) throws TcMenuConversionException {
         logLine("Making adjustments to " + inoFile);
 
         try {
             arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions(menuTree));
         } catch (IOException e) {
-            logLine("Failed to make changes to sketch" +  e.getMessage());
             logger.log(ERROR, "Sketch modification failed", e);
+            throw new TcMenuConversionException("Could not modify sketch", e);
         }
     }
 
-    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) {
+    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
         logLine("Finding any required rendering / remote plugins to add to project");
+
+        AtomicReference<Exception> possibleException = new AtomicReference<>();
 
         generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
             try {
@@ -262,9 +266,12 @@ public class ArduinoGenerator implements CodeGenerator {
                 logLine("Copied with replacement " + file);
             } catch (IOException e) {
                 logLine("Copy failed for required plugin: " + file);
-                logger.log(ERROR, "Copy failed for " + file, e);
+                possibleException.set(e);
             }
         });
+        if(possibleException.get() != null) {
+            throw new TcMenuConversionException("Plugin copy failed", possibleException.get());
+        }
     }
 
     @Override
