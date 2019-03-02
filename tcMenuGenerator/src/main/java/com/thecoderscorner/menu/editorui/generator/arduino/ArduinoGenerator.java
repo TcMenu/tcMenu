@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import com.thecoderscorner.menu.pluginapi.TcMenuConversionException;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.makeNameToVar;
+import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
 import static com.thecoderscorner.menu.pluginapi.model.HeaderDefinition.PRIORITY_MAX;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -61,13 +62,16 @@ public class ArduinoGenerator implements CodeGenerator {
                                              "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK;
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
+    private final EmbeddedPlatform embeddedPlatform;
 
     private Consumer<String> uiLogger = null;
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
-                            ArduinoLibraryInstaller installer) {
+                            ArduinoLibraryInstaller installer,
+                            EmbeddedPlatform embeddedPlatform) {
         this.installer = installer;
         this.arduinoSketchAdjuster = adjuster;
+        this.embeddedPlatform = embeddedPlatform;
     }
 
     @Override
@@ -306,13 +310,13 @@ public class ArduinoGenerator implements CodeGenerator {
                 List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
                 String nextChild = (!childItems.isEmpty()) ? childItems.get(0).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new ArduinoItemGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
                 String next = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new ArduinoItemGenerator(next)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(next)).orElse(Collections.emptyList()));
             }
         }
         return itemsInOrder;

@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
@@ -59,7 +60,7 @@ public class ArduinoGeneratorTest {
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, EmbeddedPlatforms.DEFAULT);
 
         assertTrue(generator.startConversion(dir, generators, tree));
 

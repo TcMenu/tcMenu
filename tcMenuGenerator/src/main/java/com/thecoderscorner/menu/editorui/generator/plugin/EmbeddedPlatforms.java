@@ -16,7 +16,8 @@ import java.util.List;
  * a code generator for a given platform.
  */
 public interface EmbeddedPlatforms {
-    EmbeddedPlatform DEFAULT = new EmbeddedPlatform("Arduino AVR/SAMD/ESP", "ARDUINO");
+    EmbeddedPlatform DEFAULT = new EmbeddedPlatform("Arduino AVR/Uno/Mega", "ARDUINO");
+    EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino SAMD/ESP", "ARDUINO32");
 
     /** @return the list of available platforms */
     List<EmbeddedPlatform> getEmbeddedPlatforms();

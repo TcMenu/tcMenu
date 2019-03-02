@@ -22,7 +22,7 @@ import java.util.List;
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(DEFAULT);
+    private final List<EmbeddedPlatform> platforms = List.of(DEFAULT, ARDUINO32);
 
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
@@ -31,17 +31,24 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform) {
-        if(platform.equals(DEFAULT)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller());
+        if(platform.equals(DEFAULT) || platform.equals(ARDUINO32)) {
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(), platform);
         }
         else {
-            throw new IllegalArgumentException("No such platform " + platform);
+            throw new IllegalArgumentException("No such board type: " + platform);
         }
     }
 
     @Override
     public EmbeddedPlatform getEmbeddedPlatformFromId(String id) {
-        if(!DEFAULT.getBoardId().equals(id)) throw new IllegalArgumentException("Invalid platform " + id);
-        return DEFAULT;
+        if(id.equals(DEFAULT.getBoardId())) {
+            return DEFAULT;
+        }
+        else if(id.equals(ARDUINO32.getBoardId())) {
+            return ARDUINO32;
+        }
+        else {
+            throw new IllegalArgumentException("No such board type: " + id);
+        }
     }
 }

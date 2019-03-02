@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.ARDUINO32;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.DEFAULT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +24,10 @@ class PluginEmbeddedPlatformsImplTest {
         assertThat(platforms.getEmbeddedPlatforms()).containsExactly(DEFAULT);
 
         assertEquals(DEFAULT, platforms.getEmbeddedPlatformFromId(DEFAULT.getBoardId()));
+        assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));
+        assertThrows(IllegalArgumentException.class, () -> {
+            platforms.getEmbeddedPlatformFromId("invalidId");
+        });
 
         var generator = platforms.getCodeGeneratorFor(DEFAULT);
         assertThat(generator).isOfAnyClassIn(ArduinoGenerator.class);

@@ -17,8 +17,6 @@ public class EmbeddedPlatform {
         this.boardId = boardId;
     }
 
-
-
     @Override
     public String toString() {
         return friendlyName;

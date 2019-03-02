@@ -15,16 +15,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
+/**
+ * This class follows the visitor pattern to generate code for
+ */
+public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
     private final String nextMenuName;
     private final String nextChild;
 
-    public ArduinoItemGenerator(String next) {
+    public MenuItemToEmbeddedGenerator(String next) {
         nextMenuName = (next == null) ? "NULL" : "&menu" + makeNameToVar(next);
         nextChild = null;
     }
 
-    public ArduinoItemGenerator(String nextName, String nextCh) {
+    public MenuItemToEmbeddedGenerator(String nextName, String nextCh) {
         nextMenuName = (nextName == null) ? "NULL" : "&menu" + makeNameToVar(nextName);
         nextChild = (nextCh == null) ? "NULL" : "&menu" + makeNameToVar(nextCh);
     }
@@ -225,7 +228,7 @@ public class ArduinoItemGenerator extends AbstractMenuItemVisitor<List<BuildStru
 
     public static String makeNameToVar(String name) {
         Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
-        return parts.stream().map(ArduinoItemGenerator::capitaliseFirst).collect(Collectors.joining());
+        return parts.stream().map(MenuItemToEmbeddedGenerator::capitaliseFirst).collect(Collectors.joining());
     }
 
     private static String capitaliseFirst(String s) {

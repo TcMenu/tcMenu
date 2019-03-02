@@ -57,7 +57,7 @@
       "description": "Color Adafruit GFX based display",
       "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version is optimised for colour screens of 320x240 or greater. It will place a rendering configuration file into your project.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.adagfx.ColorAdaGfxDisplayCreator",
-      "imageFileName": ""
+      "imageFileName": "adagfx-color.jpg"
     },
     {
       "id": "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb",
@@ -75,7 +75,7 @@
       "description": "Serial remote control (Rs232 / USB / Bluetooth)",
       "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Rs232RemoteCapabilitiesCreator",
-      "imageFileName": ""
+      "imageFileName": "serial-connection.jpg"
     },
     {
       "id": "0877131c-e03e-426b-8eaf-228e01f5e7f1",
@@ -84,7 +84,7 @@
       "description": "Ethernet2 library control for Ethernet shields",
       "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds that are compatible with Ethernet2 library. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.EthernetRemoteCapabilitiesCreator",
-      "imageFileName": ""
+      "imageFileName": "ethernet-shield.jpg"
     }
   ]
 }
