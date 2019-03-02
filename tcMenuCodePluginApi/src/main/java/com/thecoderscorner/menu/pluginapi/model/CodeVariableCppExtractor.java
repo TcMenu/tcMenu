@@ -19,9 +19,15 @@ import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType;
 
 public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private final CodeConversionContext context;
+    private final boolean progMemNeeded;
 
     public CodeVariableCppExtractor(CodeConversionContext context) {
+        this(context, true);
+    }
+
+    public CodeVariableCppExtractor(CodeConversionContext context, boolean progMemNeeded) {
         this.context = context;
+        this.progMemNeeded = progMemNeeded;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
 
         if(var.isProgmem())
-            return "const " + var.getType() + " PROGMEM " + var.getName() + paramList + ";";
+            return "const " + var.getType() + " " + progMem() + var.getName() + paramList + ";";
         else
             return var.getType() + " " + var.getName() + paramList + ";";
     }
@@ -112,7 +118,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
         StringBuilder sb = new StringBuilder(256);
         if(s.isProgMemInfo()) {
-            sb.append("const PROGMEM ").append(s.getStructType()).append(" minfo").append(s.getStructName()).append(" = { ");
+            sb.append("const ").append(progMem()).append(s.getStructType()).append(" minfo").append(s.getStructName()).append(" = { ");
             sb.append(String.join(", ", s.getStructElements()));
             sb.append(" };");
         }
@@ -125,13 +131,17 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     }
 
+    private String progMem() {
+        return progMemNeeded ? "PROGMEM " : "";
+    }
+
     private String doStringSource(BuildStructInitializer s) {
         StringBuilder sb = new StringBuilder(256);
         IntStream.range(0, s.getStructElements().size()).forEach(i -> {
             String textRep = s.getStructElements().get(i);
-            sb.append(String.format("const char enumStr%s_%d[] PROGMEM = %s;%s", s.getStructName(), i, textRep, LINE_BREAK));
+            sb.append(String.format("const char enumStr%s_%d[] " + progMem() + "= %s;%s", s.getStructName(), i, textRep, LINE_BREAK));
         });
-        sb.append(String.format("const char* const enumStr%s[] PROGMEM  = { ", s.getStructName()));
+        sb.append(String.format("const char* const enumStr%s[] " + progMem() + " = { ", s.getStructName()));
         sb.append(IntStream.range(0, s.getStructElements().size())
                 .mapToObj(i -> "enumStr" + s.getStructName() + "_" + i)
                 .collect(Collectors.joining(", ")));

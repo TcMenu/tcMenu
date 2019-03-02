@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
@@ -88,7 +89,11 @@ public class ArduinoGenerator implements CodeGenerator {
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
             var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
-            CodeVariableExtractor extractor = new CodeVariableCppExtractor(new CodeConversionContext(root, allProps));
+            CodeVariableExtractor extractor = new CodeVariableCppExtractor(
+                    new CodeConversionContext(root, allProps),
+                    EmbeddedPlatforms.DEFAULT.getBoardId().equals(embeddedPlatform.getBoardId())
+            );
+
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
             generators.forEach(gen -> gen.initialise(root));
 

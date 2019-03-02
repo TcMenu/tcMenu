@@ -8,7 +8,7 @@
     {
       "id": "7daa6a81-dd09-422e-b83c-bda5045abaef",
       "subsystem": "INPUT",
-      "applicability": ["ARDUINO"],
+      "applicability": ["ARDUINO", "ARDUINO32"],
       "description": "Input from DfRobot Shield",
       "extendedDescription": "Uses the DfRobot shield switches to control the menu. These switches are connected to analog input A0 and will be managed by switches.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotAnalogInputCreator",
@@ -17,7 +17,7 @@
     {
       "id": "bcd5fe34-9e9f-4fcb-9edf-f4e3caca0674",
       "subsystem": "DISPLAY",
-      "applicability": ["ARDUINO"],
+      "applicability": ["ARDUINO", "ARDUINO32"],
       "description": "Output to DfRobot Shield LCD",
       "extendedDescription": "Uses the LCD panel on the DfRobot shield via the LiquidCrystalIO library without needing to specify any configuration at all. This provides a menu item per line menu view supporting submenus.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.dfrobot.DfRobotLcdCreator",
