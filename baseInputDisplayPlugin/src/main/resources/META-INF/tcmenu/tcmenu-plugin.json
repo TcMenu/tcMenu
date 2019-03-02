@@ -30,7 +30,7 @@
       "description": "LiquidCrystalIO display direct or other i2c",
       "extendedDescription": "LiquidCrystal based display driver that can be configured to work with any pin arrangement. Just set the EN, RS, Data pins at a minimum. It also has optional inbuilt backlight and PWM contrast support.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.LiquidCrystalDisplayCreator",
-      "imageFileName": ""
+      "imageFileName": "lcd-display.jpg"
     },
     {
       "id": "d4c84106-fa87-4024-b91e-053e17a52b8f",
@@ -39,7 +39,7 @@
       "description": "LiquidCrystalIO for commonly available I2C backpacks",
       "extendedDescription": "LiquidCrystal based display driver that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement use the general version",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.I2cLiquidCrystalDisplayCreator",
-      "imageFileName": ""
+      "imageFileName": "lcd-display.jpg"
     },
     {
       "id": "cdd0be35-f6ff-40ae-86fc-f9d04a6e8679",
