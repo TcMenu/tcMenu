@@ -15,7 +15,6 @@
 #include <header1.h>
 
 // all define statements needed
-#define TCMENU_USING_PROGMEM true
 #define A_DEFINE 2
 
 // all variables that need exporting

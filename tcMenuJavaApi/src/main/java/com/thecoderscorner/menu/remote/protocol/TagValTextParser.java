@@ -72,7 +72,7 @@ public class TagValTextParser {
             return keyToValue.get(keyMsgType);
         }
         else {
-            throw new IOException("Key doesn't exist in message " + keyMsgType);
+            throw new IOException("Key " + keyMsgType + " doesn't exist in " + keyToValue);
         }
     }
 

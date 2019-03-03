@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.VARIABLE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.*;
 
@@ -37,8 +37,8 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
                                 DISPLAY, pinValidator()),
             new CreatorProperty("LCD_PWM_PIN", "Advanced: PWM control contrast (-1 off)", "-1",
                                 DISPLAY, optPinValidator()),
-            new CreatorProperty("LCD_IO_DEVICE", "Advanced: IoDevice to use (default blank)", "",
-                                DISPLAY, TEXTUAL, variableValidator()))
+            new CreatorProperty("LCD_IO_DEVICE", "Advanced: IoAbstractionRef for custom i2c (default blank)",
+                                "", DISPLAY, VARIABLE, variableValidator()))
     );
 
     @Override
@@ -47,12 +47,14 @@ public class LiquidCrystalDisplayCreator extends AbstractCodeCreator {
                         .requiresHeader("LiquidCrystalIO.h", false)
                         .requiresHeader("tcMenuLiquidCrystal.h", true, HeaderDefinition.PRIORITY_MIN)
                         .exportNeeded().param("LCD_RS").param("LCD_EN")
-                        .param("LCD_D4").param("LCD_D5").param("LCD_D6").param("LCD_D7")
-                        .paramFromPropertyWithDefault("IO_DEVICE", "ioUsingArduino()"));
+                        .param("LCD_D4").param("LCD_D5").param("LCD_D6").param("LCD_D7"));
 
         addVariable(new CodeVariableBuilder().variableName("renderer").variableType("LiquidCrystalRenderer")
                                 .requiresHeader("LiquidCrystalIO.h", false)
                                 .exportNeeded().param("lcd").param("LCD_WIDTH").param("LCD_HEIGHT"));
+
+        addFunctionCall(new FunctionCallBuilder().functionName("setIoAbstraction").objectName("lcd")
+                .paramFromPropertyWithDefault("LCD_IO_DEVICE", "ioUsingArduino()"));
 
         addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd")
                                 .param("LCD_WIDTH").param("LCD_HEIGHT"));

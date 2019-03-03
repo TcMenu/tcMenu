@@ -51,7 +51,7 @@ public class FileBasedProjectPersistorTest {
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
         MenuTree tree = TestUtils.buildCompleteTree();
         CodeGeneratorOptions options = new CodeGeneratorOptions(
-                EmbeddedPlatforms.DEFAULT.getBoardId(),
+                EmbeddedPlatforms.ARDUINO_AVR.getBoardId(),
                 "uuid1",
                 "uuid2",
                 "uuid3",
@@ -64,7 +64,7 @@ public class FileBasedProjectPersistorTest {
         compareTrees(tree, openResult.getMenuTree());
 
 
-        assertEquals(EmbeddedPlatforms.DEFAULT.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
+        assertEquals(EmbeddedPlatforms.ARDUINO_AVR.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
         assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
         assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
         assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuid());

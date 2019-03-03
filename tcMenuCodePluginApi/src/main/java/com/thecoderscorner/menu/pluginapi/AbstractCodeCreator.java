@@ -25,6 +25,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     private List<FunctionCallBuilder> functionCalls = new ArrayList<>();
     private List<CodeVariableBuilder> variables = new ArrayList<>();
     private List<String> libraryFiles = new ArrayList<>();
+    private List<HeaderDefinition> headerDefinitions = new ArrayList<>();
 
     @Override
     public void initialise(String root) {
@@ -42,7 +43,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     @Override
     public List<HeaderDefinition> getIncludes() {
-        var allHeaders = new ArrayList<HeaderDefinition>();
+        var allHeaders = new ArrayList<>(headerDefinitions);
         allHeaders.addAll(variables.stream()
                 .flatMap(var -> var.getHeaders().stream()).collect(Collectors.toList()));
 
@@ -74,6 +75,10 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     protected void addFunctionCall(FunctionCallBuilder call) {
         functionCalls.add(call);
+    }
+
+    protected void addHeader(HeaderDefinition headerDefinition) {
+        headerDefinitions.add(headerDefinition);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.List;
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(DEFAULT, ARDUINO32);
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32);
 
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
@@ -31,7 +31,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform) {
-        if(platform.equals(DEFAULT) || platform.equals(ARDUINO32)) {
+        if(platform.equals(ARDUINO_AVR) || platform.equals(ARDUINO32)) {
             return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(), platform);
         }
         else {
@@ -41,8 +41,8 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public EmbeddedPlatform getEmbeddedPlatformFromId(String id) {
-        if(id.equals(DEFAULT.getBoardId())) {
-            return DEFAULT;
+        if(id.equals(ARDUINO_AVR.getBoardId())) {
+            return ARDUINO_AVR;
         }
         else if(id.equals(ARDUINO32.getBoardId())) {
             return ARDUINO32;

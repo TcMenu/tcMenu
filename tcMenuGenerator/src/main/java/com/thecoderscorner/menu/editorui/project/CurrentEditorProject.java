@@ -27,7 +27,7 @@ import java.util.Optional;
 public class CurrentEditorProject {
 
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            EmbeddedPlatforms.DEFAULT.getBoardId(), "", "", "", Collections.emptyList()
+            EmbeddedPlatforms.ARDUINO_AVR.getBoardId(), "", "", "", Collections.emptyList()
     );
 
 

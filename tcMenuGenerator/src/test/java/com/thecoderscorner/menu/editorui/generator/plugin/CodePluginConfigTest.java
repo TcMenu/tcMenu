@@ -33,7 +33,7 @@ class CodePluginConfigTest {
         assertThat(config.getPlugins()).hasSize(1);
 
         EmbeddedPlatforms platforms = mock(EmbeddedPlatforms.class);
-        when(platforms.getEmbeddedPlatformFromId("ARDUINO")).thenReturn(EmbeddedPlatforms.DEFAULT);
+        when(platforms.getEmbeddedPlatformFromId("ARDUINO")).thenReturn(EmbeddedPlatforms.ARDUINO_AVR);
 
         CodePluginItem item = config.getPlugins().get(0);
         assertEquals("always-use-uuids", item.getId());
@@ -43,6 +43,6 @@ class CodePluginConfigTest {
         assertEquals("com.thecoderscorner.tcmenu.unitest.ExamplePlugin", item.getCodeCreatorClass());
         assertEquals("example.jpg", item.getImageFileName());
 
-        assertThat(item.getApplicability(platforms)).containsExactlyInAnyOrder(EmbeddedPlatforms.DEFAULT);
+        assertThat(item.getApplicability(platforms)).containsExactlyInAnyOrder(EmbeddedPlatforms.ARDUINO_AVR);
     }
 }

@@ -10,6 +10,7 @@ import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.VARIABLE;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
@@ -43,11 +44,12 @@ class LiquidCrystalDisplayCreatorTest {
         );
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-            "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
+            "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);\n" +
             "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);\n"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    lcd.setIoAbstraction(ioUsingArduino());\n" +
                 "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n"
         );
 
@@ -65,6 +67,7 @@ class LiquidCrystalDisplayCreatorTest {
         setupStandardProperties(creator);
         findAndSetValueOnProperty(creator, "LCD_BACKLIGHT", DISPLAY, USE_IN_DEFINE, 9);
         findAndSetValueOnProperty(creator, "LCD_PWM_PIN", DISPLAY, USE_IN_DEFINE, 8);
+        findAndSetValueOnProperty(creator, "LCD_IO_DEVICE", DISPLAY, VARIABLE, "io23017");
         creator.initialise("root");
         var extractor = TestUtil.extractorFor(creator);
 
@@ -82,17 +85,20 @@ class LiquidCrystalDisplayCreatorTest {
         );
 
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
-                "extern LiquidCrystal lcd;\nextern LiquidCrystalRenderer renderer;"
+                "extern LiquidCrystal lcd;\n" +
+                "extern LiquidCrystalRenderer renderer;" +
+                "extern IoAbstractionRef io23017;"
         );
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, ioUsingArduino());\n" +
+                "LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);\n" +
                 "LiquidCrystalRenderer renderer(lcd, LCD_WIDTH, LCD_HEIGHT);"
         );
 
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
-                "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
+                 "    lcd.setIoAbstraction(io23017);\n" +
+                 "    lcd.begin(LCD_WIDTH, LCD_HEIGHT);\n" +
                  "    lcd.configureBacklightPin(LCD_BACKLIGHT);\n" +
                  "    lcd.backlight();\n" +
                  "    pinMode(LCD_PWM_PIN, OUTPUT);\n" +

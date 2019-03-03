@@ -17,7 +17,6 @@ import com.thecoderscorner.menu.pluginapi.TcMenuConversionException;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableExtractor;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.io.BufferedWriter;
@@ -37,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
-import static com.thecoderscorner.menu.pluginapi.model.HeaderDefinition.PRIORITY_MAX;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -76,8 +74,10 @@ public class ArduinoGenerator implements CodeGenerator {
     }
 
     @Override
-    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree) {
+    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
+
+        boolean avrArch = EmbeddedPlatforms.ARDUINO_AVR.getBoardId().equals(embeddedPlatform.getBoardId());
 
         // get the file names that we are going to modify.
         String inoFile = toSourceFile(directory, ".ino");
@@ -85,13 +85,16 @@ public class ArduinoGenerator implements CodeGenerator {
         String headerFile = toSourceFile(directory, "_menu.h");
         String projectName = directory.getFileName().toString();
 
+        var generators = new ArrayList<EmbeddedCodeCreator>();
+        generators.add(new ArduinoGlobalsCreator(avrArch));
+        generators.addAll(codeGenerators);
+
         try {
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
             var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
             CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    new CodeConversionContext(root, allProps),
-                    EmbeddedPlatforms.DEFAULT.getBoardId().equals(embeddedPlatform.getBoardId())
+                    new CodeConversionContext(root, allProps), avrArch
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
@@ -195,9 +198,6 @@ public class ArduinoGenerator implements CodeGenerator {
             includeList.addAll(menuStructure.stream()
                     .flatMap(s-> s.getHeaderRequirements().stream())
                     .collect(Collectors.toList()));
-
-            // and lastly add the tcMenu header file.
-            includeList.add(new HeaderDefinition("tcMenu.h", false, PRIORITY_MAX - 1));
 
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));

@@ -9,10 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
-import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import org.junit.jupiter.api.AfterEach;
@@ -53,22 +50,31 @@ public class ArduinoGeneratorTest {
     }
 
     @Test
-    public void testArduinoConversion() throws IOException {
+    void testConversionForAvr() throws IOException {
+        runConversionWith(EmbeddedPlatforms.ARDUINO_AVR, "/generator/template");
+    }
+
+    @Test
+    void testConversionForSamd() throws IOException {
+        runConversionWith(EmbeddedPlatforms.ARDUINO32, "/generator/template32");
+    }
+
+    private void runConversionWith(EmbeddedPlatform platform, String templateToUse) throws IOException {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildSimpleTree();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, EmbeddedPlatforms.DEFAULT);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
         assertTrue(generator.startConversion(dir, generators, tree));
 
         String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
         String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
 
-        String cppTemplate = new String(getClass().getResourceAsStream("/generator/template.cpp").readAllBytes());
-        String hTemplate = new String(getClass().getResourceAsStream("/generator/template.h").readAllBytes());
+        String cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
+        String hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");

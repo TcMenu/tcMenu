@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.DEFAULT;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -77,8 +77,8 @@ public class GenerateDialogTestCases {
 
     private void defaultCodePluginManagerSettings() throws ClassNotFoundException {
         // we only sim one board type at the moment
-        when(platforms.getEmbeddedPlatformFromId(DEFAULT.getBoardId())).thenReturn(DEFAULT);
-        when(platforms.getEmbeddedPlatforms()).thenReturn(List.of(DEFAULT));
+        when(platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId())).thenReturn(ARDUINO_AVR);
+        when(platforms.getEmbeddedPlatforms()).thenReturn(List.of(ARDUINO_AVR));
 
         when(project.getFileName()).thenReturn("var/filename.emf");
 
@@ -94,36 +94,36 @@ public class GenerateDialogTestCases {
         // set up the plugins that are available for each subsystem
         //
         CodePluginItem inputPlugin1 = new CodePluginItem("123456", "in description 1", "extended description 1",
-                List.of(DEFAULT.getBoardId()), SubSystem.INPUT, "no-display.png", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "no-display.png", "clazz");
         CodePluginItem inputPlugin2 = new CodePluginItem("123457", "in description 2", "extended description 2",
-                List.of(DEFAULT.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "clazz");
         CodePluginItem inputBad = new CodePluginItem("99997", "input bad", "boom",
-                List.of(DEFAULT.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "bang");
-        when(manager.getPluginsThatMatch(DEFAULT, SubSystem.INPUT)).thenReturn(List.of(
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "bang");
+        when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.INPUT)).thenReturn(List.of(
                 inputPlugin1,
                 inputPlugin2,
                 inputBad
         ));
 
         CodePluginItem displayPlugin1 = new CodePluginItem("123458", "display description 1", "extended description 3",
-                List.of(DEFAULT.getBoardId()), SubSystem.DISPLAY, "no-display.png", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "no-display.png", "clazz");
         CodePluginItem displayPlugin2 = new CodePluginItem("123459", "display description 2", "extended description 4",
-                List.of(DEFAULT.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "clazz");
         CodePluginItem displayBad = new CodePluginItem("99998", "display bad", "boom",
-                List.of(DEFAULT.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "bang");
-        when(manager.getPluginsThatMatch(DEFAULT, SubSystem.DISPLAY)).thenReturn(List.of(
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "bang");
+        when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.DISPLAY)).thenReturn(List.of(
                 displayPlugin1,
                 displayPlugin2,
                 displayBad
         ));
 
         CodePluginItem remotePlugin1 = new CodePluginItem("123460", "remote 1", "extended description 5",
-                List.of(DEFAULT.getBoardId()), SubSystem.REMOTE, "no-display.png", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "no-display.png", "clazz");
         CodePluginItem remotePlugin2 = new CodePluginItem("123461", "remote 2", "extended description 6",
-                List.of(DEFAULT.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "clazz");
         CodePluginItem remotePluginBad = new CodePluginItem("99999", "remote bad", "Boom",
-                List.of(DEFAULT.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "bang");
-        when(manager.getPluginsThatMatch(DEFAULT, SubSystem.REMOTE)).thenReturn(List.of(
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "bang");
+        when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.REMOTE)).thenReturn(List.of(
                 remotePlugin1,
                 remotePlugin2,
                 remotePluginBad
@@ -185,7 +185,7 @@ public class GenerateDialogTestCases {
         // and away we go - now we should properly start the runner
         robot.clickOn("#GenerateButton");
         ArgumentCaptor<List<EmbeddedCodeCreator>> creatorCapture = ArgumentCaptor.forClass(List.class);
-        verify(runner).startCodeGeneration(eq(stage), eq(DEFAULT), eq("var"), creatorCapture.capture(), eq(true));
+        verify(runner).startCodeGeneration(eq(stage), eq(ARDUINO_AVR), eq("var"), creatorCapture.capture(), eq(true));
 
         // check every property against the table
         creatorCapture.getValue().stream()

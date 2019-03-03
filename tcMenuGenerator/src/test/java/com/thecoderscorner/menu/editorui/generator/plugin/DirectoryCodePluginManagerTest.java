@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.DEFAULT;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,7 +35,7 @@ class DirectoryCodePluginManagerTest {
         Files.copy(getClass().getResourceAsStream("/unitTestPlugin.jar"), dir.resolve("unitTestPlugin.jar"));
 
         EmbeddedPlatforms platforms = mock(EmbeddedPlatforms.class);
-        when(platforms.getEmbeddedPlatformFromId(DEFAULT.getBoardId())).thenReturn(DEFAULT);
+        when(platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId())).thenReturn(ARDUINO_AVR);
         TestDirectoryCodePluginManager manager = new TestDirectoryCodePluginManager(platforms);
 
         manager.loadPlugins(dir.toString());
@@ -58,8 +58,8 @@ class DirectoryCodePluginManagerTest {
         var maybeItem = manager.getPluginConfigForItem(item);
         assertTrue(maybeItem.isPresent());
         assertEquals(config, maybeItem.get());
-        assertThat(manager.getPluginsThatMatch(DEFAULT, SubSystem.INPUT)).hasSize(1);
-        assertThat(manager.getPluginsThatMatch(DEFAULT, SubSystem.REMOTE)).isEmpty();
+        assertThat(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.INPUT)).hasSize(1);
+        assertThat(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.REMOTE)).isEmpty();
     }
 
     @AfterEach
