@@ -239,6 +239,11 @@ public class ArduinoLibraryInstaller {
             Files.createDirectory(dest);
         }
 
+        Path gitRepoDir = dest.resolve(".git");
+        if(Files.exists(gitRepoDir)) {
+            throw new IOException("Git repository inside " + libraryName+ "! Not proceeding to update path : " + dest);
+        }
+
         copyLibraryRecursive(source, dest);
     }
 

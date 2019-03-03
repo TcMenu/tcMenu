@@ -430,7 +430,7 @@ public class MenuEditorController {
             onTreeChangeSelection(MenuTree.ROOT);
         } catch (IOException e) {
             logger.log(ERROR, "Exception copying library", e);
-            editorUI.alertOnError("Failed copying library", "The libraries could not be copied");
+            editorUI.alertOnError("Failed copying library", "More detailed error\n" + e.getMessage() );
         }
     }
 }
