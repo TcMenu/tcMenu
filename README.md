@@ -44,7 +44,7 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
 
 ## TcMenu saves memory in many ways
