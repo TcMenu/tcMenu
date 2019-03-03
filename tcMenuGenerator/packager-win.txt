@@ -5,8 +5,12 @@
 # step 1 before maven build - a version of GSON that has a module-info.class file (must override local repo version)
 #
 
+!!todo next version - update to latest gson that has module file.
+
 jdeps --generate-module-info . .\gson-2.8.5.jar
+mv gson/module-info.java .
 javac --patch-module gson=gson-2.8.5.jar module-info.java
+mv gson/module-info.class gson
 jar -uf .\gson-2.8.5.jar -C gson module-info.class
 jar tvf .\gson-2.8.5.jar | findstr module
 
@@ -22,6 +26,8 @@ java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.t
 
 jpackager create-image --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI --version 1.1 --icon classes/img/tcMenuDesigner.ico --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner --jvm-args "-Djava.util.logging.config.file=logging.properties" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
+Copy the plugins into the tcMenuDesigner/app dir at the same level as embedded.
+
 Move the inno setup for windows into target/tcMenuDesigner folder, and then run the setup
 
 Rename the setup.exe to setupTcMenu.exe (setup.exe is unsafe)
@@ -33,6 +39,8 @@ Job done on windows!
 #
 
 $JAVA_HOME/bin/jpackager create-image --output tcMenuDesigner --input jfx/app --name tcMenuDesigner --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI --version 1.1 --icon classes/img/Icon.icns --identifier com.thecoderscorner.menu.editorui --vendor TheCodersCorner --jvm-args "-Djava.util.logging.config.file=logging.properties"  --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
+
+add the plugins to the .app file in the same directory as embedded.
 
 Create a new diskimage and open called tcMenuDesigner-version.dmg with name tcMenuDesigner
 Open shell in that directory

@@ -21,7 +21,7 @@ class PluginEmbeddedPlatformsImplTest {
     @Test
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR);
+        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));

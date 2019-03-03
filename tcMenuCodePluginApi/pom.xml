@@ -11,7 +11,7 @@
     <groupId>com.thecoderscorner.tcmenu</groupId>
     <artifactId>tcMenuCodePluginApi</artifactId>
     <name>tcMenuCodePluginApi</name>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <description>The components needed to create and work with a code generator plugin</description>
     <url>http://www.thecoderscorner.com/products/arduino-libraries/tc-menu/</url>
 
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
