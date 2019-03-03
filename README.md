@@ -12,7 +12,7 @@ You can get help from the community forum, there are also support options availa
 * [TCC Libraries community discussion forum](https://www.thecoderscorner.com/jforum/)
 * [Consultancy pages on the coders corner](https://www.thecoderscorner.com/products/consultancy/)
 
-## Installation
+## Installation and documentation
 
 There are pre-built packages for Windows and MacOS that include the Generator UI and the UI can copy over the libraries automatically. However, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
 
@@ -30,12 +30,12 @@ There are pre-built packages for Windows and MacOS that include the Generator UI
 * Complete support for most types of OLED display.
 * Complete support for the Nokia 5110 display.
 * Improve the 16x2 LCD support to have an additional renderer with one item per page.
-* Make the plugin system modular so that anyone can add additional designer UI plugins without understanding the Java language.
 
 ## Coming in the next version V1.2
 
 * Acceleration on rotary encoders and repeat-key switches.
 * Support for DfRobot LCD shield input switches on analog input.
+* Plugin support to make it easy to support new devices, programming languages and boards.
 
 ## The Java API
 
