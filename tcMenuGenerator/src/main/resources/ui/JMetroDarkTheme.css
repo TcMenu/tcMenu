@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 .eepromEntry {
@@ -113,9 +114,27 @@
   -fx-border-width: 1px;
 }
 
+.uiCodeGen {
+  -fx-background-color: #f6edff;
+  -fx-padding: 3px;
+  -fx-border-width: 1px;
+  -fx-border-style: solid;
+  -fx-border-color: #4a4252
+}
+
 #uiItemErrors {
   -fx-background-color: #ff2718;
   -fx-text-fill: white;
   -fx-font-weight: bold;
   -fx-padding: 4;
+}
+
+.popupWindow {
+  -fx-background-color: #f4f0ff;
+  -fx-border-style: solid;
+  -fx-border-color: black;
+  -fx-border-width: 1px;
+  -fx-border-insets: 2px;
+  -fx-background-insets: 2px;
+  -fx-padding: 5px;
 }

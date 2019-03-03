@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.editorui.controller;
@@ -23,10 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 public class RegistrationController {
-    // use the below URL only for local testing.
-    //private static final String REGISTRATION_URL = "http://localhost:8080/tcc/registerTcMenu";
-    private static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/registerTcMenu";
-
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Pattern emailPattern = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
 
@@ -38,9 +35,11 @@ public class RegistrationController {
     public Button generateButton;
     public Button cancelButton;
     private AtomicReference<String> errorStore = new AtomicReference<>(null);
+    private String registrationUrl;
 
 
-    public void init() {
+    public void init(String registrationUrl) {
+        this.registrationUrl = registrationUrl;
         yourName.textProperty().addListener(this::onTextChanged);
         emailAddress.textProperty().addListener(this::onTextChanged);
         onTextChanged(null, null, null);
@@ -127,7 +126,7 @@ public class RegistrationController {
         @Override
         public void run() {
             try {
-                URL tccUrl = new URL(REGISTRATION_URL);
+                URL tccUrl = new URL(registrationUrl);
                 HttpURLConnection con = (HttpURLConnection) tccUrl.openConnection();
                 con.setRequestMethod("POST");
                 con.setRequestProperty("Content-Type","application/json");

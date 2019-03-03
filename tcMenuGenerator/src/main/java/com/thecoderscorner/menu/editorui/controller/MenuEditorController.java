@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.editorui.controller;
@@ -12,6 +13,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
@@ -21,18 +23,12 @@ import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,12 +37,16 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
+import static com.thecoderscorner.menu.editorui.util.BuildVersionUtil.printableRegistrationInformation;
 import static java.lang.System.Logger.Level.ERROR;
 
+@SuppressWarnings("unused")
 public class MenuEditorController {
+    public static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/registerTcMenu";
     public static final String RECENT_DEFAULT = "Recent";
     public static final String REGISTERED_KEY = "Registered";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
+    public Label statusField;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -75,12 +75,14 @@ public class MenuEditorController {
     private Optional<UIMenuItem> currentEditor = Optional.empty();
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
+    private CodePluginManager pluginManager;
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
-                           CurrentProjectEditorUI editorUI) {
+                           CurrentProjectEditorUI editorUI, CodePluginManager pluginManager) {
         this.editorProject = editorProject;
         this.installer = installer;
         this.editorUI = editorUI;
+        this.pluginManager = pluginManager;
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
@@ -94,7 +96,12 @@ public class MenuEditorController {
             sortOutToolButtons();
             sortOutMenuForMac();
             redrawTreeControl();
+            redrawStatus();
         });
+    }
+
+    private void redrawStatus() {
+        statusField.setText("TcMenu Designer \u00A9 thecoderscorner.com. " + printableRegistrationInformation());
     }
 
     private void sortOutMenuForMac() {
@@ -143,7 +150,7 @@ public class MenuEditorController {
                     currentEditor = Optional.of(uiMenuItem);
                 },
                 () -> {
-                    AppInformationPanel panel = new AppInformationPanel(installer, this);
+                    AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI);
                     editorBorderPane.setCenter(panel.showEmptyInfoPanel());
                     currentEditor = Optional.empty();
                 }
@@ -211,16 +218,11 @@ public class MenuEditorController {
     }
 
     public void onMenuDocumentation(ActionEvent actionEvent) {
-        try {
-            Desktop.getDesktop().browse(new URI(LIBRARY_DOCS_URL));
-        } catch (IOException | URISyntaxException e) {
-            // not much we can do here really!
-            logger.log(ERROR, "Could not open browser", e);
-        }
+        editorUI.browseToURL(LIBRARY_DOCS_URL);
     }
 
     public void registerMenuPressed(ActionEvent actionEvent) {
-        RegistrationDialog.showRegistration(getStage());
+        RegistrationDialog.showRegistration(getStage(), REGISTRATION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
@@ -346,7 +348,7 @@ public class MenuEditorController {
 
         if(prefs.get(REGISTERED_KEY, "").isEmpty()) {
             Platform.runLater(()-> {
-                RegistrationDialog.showRegistration(getStage());
+                RegistrationDialog.showRegistration(getStage(), REGISTRATION_URL);
                 TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
                     onTreeChangeSelection(item.getValue());
@@ -427,10 +429,8 @@ public class MenuEditorController {
             installer.copyLibraryFromPackage("LiquidCrystalIO");
             onTreeChangeSelection(MenuTree.ROOT);
         } catch (IOException e) {
-            logger.log(ERROR, "Did not complete copying embedded files", e);
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to copy embedded files");
-            alert.setTitle("Error while copying");
-            alert.showAndWait();
+            logger.log(ERROR, "Exception copying library", e);
+            editorUI.alertOnError("Failed copying library", "The libraries could not be copied");
         }
     }
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
@@ -6,8 +12,12 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
@@ -19,9 +29,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -33,8 +41,10 @@ import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.LabeledMatchers;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +70,7 @@ public class MenuEditorTestCases {
     private ArduinoLibraryInstaller installer;
     private CurrentEditorProject project;
     private Stage stage;
+    private CodePluginManager simulatedCodeManager;
 
     @Start
     public void onStart(Stage stage) throws Exception {
@@ -75,6 +86,9 @@ public class MenuEditorTestCases {
         persistor = mock(ProjectPersistor.class);
         installer = mock(ArduinoLibraryInstaller.class);
 
+        simulatedCodeManager = mock(CodePluginManager.class);
+        when(simulatedCodeManager.getLoadedPlugins()).thenReturn(Arrays.asList(generateCodePluginConfig()));
+
         // and we are always up to date library wise in unit test land
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
@@ -86,12 +100,17 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager);
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
         stage.setScene(myScene);
         stage.show();
+    }
+
+    private CodePluginConfig generateCodePluginConfig() {
+        return new CodePluginConfig("module.name", "PluginName", "1.0.0",
+                                    Arrays.asList());
     }
 
     @AfterEach
@@ -339,6 +358,57 @@ public class MenuEditorTestCases {
 
         // check the tree is updated
         checkTheTreeMatchesMenuTree(robot, adjustedItem);
+    }
+
+    @Test
+    void testTheRootAreaInformationPanel(FxRobot robot) throws Exception {
+        openTheCompleteMenuTree(robot);
+        SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
+        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+
+        assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
+
+        when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", false)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", false)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", false)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true));
+        assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
+
+        verifyThat("#libdocsurl", (Hyperlink hl) -> hl.getText().equals("Browse docs and watch starter videos (F1 at any time)"));
+        verifyThat("#githuburl", (Hyperlink hl) -> hl.getText().equals("Please give us a star on github if you like this tool"));
+
+        robot.clickOn("#libdocsurl");
+        verify(editorProjectUI).browseToURL(AppInformationPanel.LIBRARY_DOCS_URL);
+        robot.clickOn("#githuburl");
+        verify(editorProjectUI).browseToURL(AppInformationPanel.GITHUB_PROJECT_URL);
+
+        List<String> pluginSet = robot.lookup(".pluginInfoLbl").queryAll().stream()
+                .map(p -> ((Label)p).getText())
+                .collect(Collectors.toList());
+        assertThat(pluginSet).containsExactlyInAnyOrder("- PluginName (1.0.0)");
+
+        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: V1.0.1 installed: V1.0.0"));
+        verifyThat("#IoAbstractionLib", LabeledMatchers.hasText(" - Arduino Library IoAbstraction available: V1.0.0 installed: V1.0.0"));
+        verifyThat("#LiquidCrystalIOLib", LabeledMatchers.hasText(" - Arduino Library LiquidCrystalIO available: V1.0.0 installed: V1.0.0"));
+        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries need updating"));
+
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+        when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", false)).thenReturn(new VersionInfo("1.0.1"));
+
+        robot.clickOn("#installLibUpdates");
+
+        // ensure that the libraries are now copied and root is then selected afterwards.
+        verify(installer).copyLibraryFromPackage("IoAbstraction");
+        verify(installer).copyLibraryFromPackage("tcMenu");
+        verify(installer).copyLibraryFromPackage("LiquidCrystalIO");
+        checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
+
+        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: V1.0.1 installed: V1.0.1"));
+        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries all up-to-date"));
     }
 
     /**

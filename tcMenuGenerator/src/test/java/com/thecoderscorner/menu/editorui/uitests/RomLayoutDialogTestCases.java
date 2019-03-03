@@ -1,3 +1,9 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
@@ -24,14 +30,13 @@ public class RomLayoutDialogTestCases {
 
     @Start
     public void onStart(Stage stage) {
-        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree());
-        romDialog.show();
+        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree(), false);
 
         this.stage = stage;
     }
 
     @Test
-    void testCheckingDialog(FxRobot robot) throws InterruptedException {
+    void testCheckingDialog(FxRobot robot) {
 
         // get all the heading labels and check them.
         List<String> idTitle = getStringsFromNodeQuery(robot, "#idContainer > .label-bright");

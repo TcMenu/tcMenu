@@ -1,49 +1,50 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
-import com.thecoderscorner.menu.editorui.generator.input.InputType;
-import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
 import java.util.List;
 
 public class CodeGeneratorOptions {
-    private final EmbeddedPlatform embeddedPlatform;
-    private final int lastDisplayKey;
-    private final int lastInputKey;
-    private final int lastRemoteKey;
-    private final List<CreatorProperty> lastProperties;
+    private String embeddedPlatform;
+    private String lastDisplayUuid;
+    private String lastInputUuid;
+    private String lastRemoteUuid;
+    private List<CreatorProperty> lastProperties;
 
-    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, DisplayType displayType,
-                                InputType inputType, RemoteCapabilities remoteCapabilities,
+    public CodeGeneratorOptions() {
+        // for serialisation
+    }
+
+    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId,
+                                String inputTypeId, String remoteCapabilitiesId,
                                 List<CreatorProperty> lastProperties) {
         this.embeddedPlatform = embeddedPlatform;
-        this.lastDisplayKey = displayType.getKey();
-        this.lastInputKey = inputType.getKey();
-        this.lastRemoteKey = remoteCapabilities.getKey();
+        this.lastDisplayUuid = displayTypeId;
+        this.lastInputUuid = inputTypeId;
+        this.lastRemoteUuid = remoteCapabilitiesId;
         this.lastProperties = lastProperties;
     }
 
-    public EmbeddedPlatform getEmbeddedPlatform() {
+    public String getEmbeddedPlatform() {
         return embeddedPlatform;
     }
 
-    public DisplayType getLastDisplayType() {
-        return DisplayType.values.get(lastDisplayKey);
+    public String getLastDisplayUuid() {
+        return lastDisplayUuid;
     }
 
-    public InputType getLastInputType() {
-        return InputType.values.get(lastInputKey);
+    public String getLastInputUuid() {
+        return lastInputUuid;
     }
 
-    public RemoteCapabilities getLastRemoteCapabilities() {
-        return RemoteCapabilities.values.get(lastRemoteKey);
+    public String getLastRemoteCapabilitiesUuid() {
+        return lastRemoteUuid;
     }
 
     public List<CreatorProperty> getLastProperties() {

@@ -12,8 +12,11 @@
 replacedInclude
 
 // Global variable declarations
-global vars
+
+VarType varName(1234.34);
+
 // Global Menu Item declarations
+
 const PROGMEM AnalogMenuInfo minfoTest = { "test", 2, 4, 100, callback1, 0, 1, "dB" };
 AnalogMenuItem menuTest(&minfoTest, 0, NULL);
 const PROGMEM SubMenuInfo minfoSub = { "sub", 100, 0xffff, 0, NO_CALLBACK };
@@ -27,6 +30,8 @@ const PROGMEM EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, NO_CALLBACK, enumSt
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
 
 // Set up code
+
 void setupMenu() {
-setup code}
+    lcd.begin(16, 2);
+}
 

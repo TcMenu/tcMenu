@@ -1,5 +1,12 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
@@ -7,13 +14,11 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
-import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorDialog;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
+import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
@@ -22,17 +27,27 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
-import java.util.Map;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
-
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private Stage mainStage;
+    private CodePluginManager manager;
+    private EmbeddedPlatforms platforms;
 
-    public CurrentProjectEditorUIImpl(Stage mainStage) {
+    public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms) {
+        this.manager = manager;
         this.mainStage = mainStage;
+        this.platforms = platforms;
     }
 
     @Override
@@ -55,6 +70,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void alertOnError(String heading, String description) {
+        logger.log(ERROR, "Show error with heading: {0}, description: {1}", heading, description);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(heading);
         alert.setHeaderText(heading);
@@ -64,6 +80,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public boolean questionYesNo(String title, String header) {
+        logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
@@ -77,36 +94,56 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public Optional<MenuItem> showNewItemDialog(MenuTree tree) {
-        NewItemDialog dlg = new NewItemDialog(mainStage, tree, this);
-        return dlg.showAndWait();
+        logger.log(INFO, "Showing new item dialog");
+        NewItemDialog dlg = new NewItemDialog(mainStage, tree, this, true);
+        return dlg.getResultOrEmpty();
     }
 
     @Override
     public void showRomLayoutDialog(MenuTree tree) {
-        RomLayoutDialog rld = new RomLayoutDialog(mainStage, tree);
-        rld.showAndWait();
+        logger.log(INFO, "Showing rom layout dialog");
+        new RomLayoutDialog(mainStage, tree, false);
     }
 
     @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
-        AboutDialog ad = new AboutDialog(mainStage, installer);
-        ad.showAndWait();
+        logger.log(INFO, "Showing about dialog");
+        AboutDialog ad = new AboutDialog(mainStage, installer, true);
     }
 
     @Override
     public void showCodeGeneratorDialog(CurrentEditorProject project, ArduinoLibraryInstaller installer) {
-        CodeGeneratorDialog dialog = new CodeGeneratorDialog();
-        Map<EmbeddedPlatform, CodeGenerator> generators = Map.of(
-                EmbeddedPlatform.ARDUINO, new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer)
-        );
-        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, generators);
-        dialog.showCodeGenerator(mainStage, this, project, codeGeneratorRunner, true);
+        logger.log(INFO, "Start - show code generator dialog");
+        if(!project.isFileNameSet()) {
+            this.alertOnError("No filename set", "Please set a filename to continue");
+            return;
+        }
+
+        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, platforms);
+        GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, project, codeGeneratorRunner, platforms);
+        dialog.showCodeGenerator(mainStage, true);
+
+        logger.log(INFO, "End - show code generator dialog");
+    }
+
+    @Override
+    public void browseToURL(String urlToVisit) {
+        try {
+            Desktop.getDesktop().browse(new URI(urlToVisit));
+        } catch (IOException | URISyntaxException e) {
+            // not much we can do here really!
+            logger.log(ERROR, "Could not open browser", e);
+        }
+
     }
 
 
     public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
         RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree);
-        return MenuItemHelper.visitWithResult(menuItem, renderingChooserVisitor);
+        var ret = MenuItemHelper.visitWithResult(menuItem, renderingChooserVisitor);
+        ret.ifPresent(uiMenuItem -> logger.log(INFO, "created panel " + uiMenuItem.getClass().getSimpleName()));
+        return ret;
     }
 
     class RenderingChooserVisitor extends AbstractMenuItemVisitor<UIMenuItem> {

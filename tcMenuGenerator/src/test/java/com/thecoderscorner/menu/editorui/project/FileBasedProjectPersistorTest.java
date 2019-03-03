@@ -1,13 +1,16 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.display.DisplayType;
-import com.thecoderscorner.menu.editorui.generator.input.InputType;
-import com.thecoderscorner.menu.editorui.generator.remote.RemoteCapabilities;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.editorui.generator.CreatorProperty.SubSystem.DISPLAY;
+import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBasedProjectPersistorTest {
@@ -49,11 +51,11 @@ public class FileBasedProjectPersistorTest {
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
         MenuTree tree = TestUtils.buildCompleteTree();
         CodeGeneratorOptions options = new CodeGeneratorOptions(
-                EmbeddedPlatform.ARDUINO,
-                DisplayType.values.get(1),
-                InputType.values.get(1),
-                RemoteCapabilities.values.get(1),
-                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY, TEXTUAL))
+                EmbeddedPlatforms.ARDUINO_AVR.getBoardId(),
+                "uuid1",
+                "uuid2",
+                "uuid3",
+                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY))
         );
         persistor.save(projFile.toString(), tree, options);
 
@@ -61,10 +63,11 @@ public class FileBasedProjectPersistorTest {
 
         compareTrees(tree, openResult.getMenuTree());
 
-        assertEquals(EmbeddedPlatform.ARDUINO, openResult.getOptions().getEmbeddedPlatform());
-        assertEquals(1, openResult.getOptions().getLastDisplayType().getKey());
-        assertEquals(1, openResult.getOptions().getLastInputType().getKey());
-        assertEquals(1, openResult.getOptions().getLastRemoteCapabilities().getKey());
+
+        assertEquals(EmbeddedPlatforms.ARDUINO_AVR.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
+        assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
+        assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
+        assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuid());
 
         List<CreatorProperty> returnedProps = openResult.getOptions().getLastProperties();
         assertEquals("123", returnedProps.get(0).getLatestValue());

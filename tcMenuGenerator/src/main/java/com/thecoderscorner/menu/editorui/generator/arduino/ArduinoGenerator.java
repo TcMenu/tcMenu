@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
@@ -8,8 +9,15 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.generator.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.pluginapi.CodeGenerator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.TcMenuConversionException;
+import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableExtractor;
+import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -23,17 +31,20 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoItemGenerator.makeNameToVar;
+import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoGenerator implements CodeGenerator {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    public static final String LINE_BREAK = System.getProperty("line.separator");
+    public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
+
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
             .withLocale(Locale.getDefault())
             .withZone(ZoneId.systemDefault());
@@ -47,57 +58,92 @@ public class ArduinoGenerator implements CodeGenerator {
             " */" + LINE_BREAK + LINE_BREAK;
 
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
-            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
-            "#include<IoAbstraction.h>" + LINE_BREAK +
-            "#include<Wire.h>" + LINE_BREAK +
-            "#include<tcMenu.h>" + LINE_BREAK + LINE_BREAK;
-
+                                             "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK;
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
+    private final EmbeddedPlatform embeddedPlatform;
 
     private Consumer<String> uiLogger = null;
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
-                            ArduinoLibraryInstaller installer) {
+                            ArduinoLibraryInstaller installer,
+                            EmbeddedPlatform embeddedPlatform) {
         this.installer = installer;
         this.arduinoSketchAdjuster = adjuster;
+        this.embeddedPlatform = embeddedPlatform;
     }
 
     @Override
-    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree) {
+    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
 
+        boolean avrArch = EmbeddedPlatforms.ARDUINO_AVR.getBoardId().equals(embeddedPlatform.getBoardId());
+
+        // get the file names that we are going to modify.
         String inoFile = toSourceFile(directory, ".ino");
-        String cppFile = toSourceFile(directory, ".cpp");
-        String headerFile = toSourceFile(directory, ".h");
+        String cppFile = toSourceFile(directory, "_menu.cpp");
+        String headerFile = toSourceFile(directory, "_menu.h");
         String projectName = directory.getFileName().toString();
 
-        checkIfUpToDateWarningNeeded();
+        var generators = new ArrayList<EmbeddedCodeCreator>();
+        generators.add(new ArduinoGlobalsCreator(avrArch));
+        generators.addAll(codeGenerators);
 
-        String root = getFirstMenuVariable(menuTree);
+        try {
+            // Prepare the generator by initialising all the structures ready for conversion.
+            String root = getFirstMenuVariable(menuTree);
+            var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
+            CodeVariableExtractor extractor = new CodeVariableCppExtractor(
+                    new CodeConversionContext(root, allProps), avrArch
+            );
 
-        Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
+            Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
+            generators.forEach(gen -> gen.initialise(root));
 
-        if (generateHeaders(generators, menuTree, headerFile, menuStructure) &&
-                generateSource(generators, cppFile, menuStructure, projectName, root)) {
-
+            // generate the source by first generating the CPP and H for the menu definition and then
+            // update the sketch. Also, if any plugins have changed, then update them.
+            generateHeaders(generators, menuTree, headerFile, menuStructure, extractor);
+            generateSource(generators, cppFile, menuStructure, projectName, extractor);
             updateArduinoSketch(inoFile, projectName, menuTree);
-
             addAnyRequiredPluginsToSketch(generators, directory);
 
-        } else {
-            return false;
-        }
+            // do a couple of final checks and put out warnings if need be
+            checkIfUpToDateWarningNeeded();
+            checkIfLegacyFilesAreOnPath(directory);
 
-        logLine("Process has completed, make sure the code in your IDE is up-to-date.");
-        logLine("You may need to close the project and then re-open it to pick up changes..");
+            logLine("Process has completed, make sure the code in your IDE is up-to-date.");
+            logLine("You may need to close the project and then re-open it to pick up changes..");
+        }
+        catch(Exception e) {
+            logLine("ERROR during conversion---------------------------------------------");
+            logLine("The conversion process has failed with an error: " + e.getMessage());
+            logLine("A more complete error can be found in the log file in <Home>/.tcMenu");
+            logger.log(ERROR, "Exception caught while converting code: ", e);
+        }
 
         return true;
     }
 
-    private boolean generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
+    private void checkIfLegacyFilesAreOnPath(Path directory) {
+        if(Files.exists(Paths.get(toSourceFile(directory, ".h")))
+                || Files.exists(Paths.get(toSourceFile(directory, ".cpp")))) {
+
+            Path fileName = directory.getFileName();
+            logLine("ERROR: OLD FILES FOUND !!!!!!!!!!==========================================");
+            logLine("POTENTIAL COMPILE ERROR IN IDE - Non backward compatible change");
+            logLine("From V1.2 onwards the source files containing menu definitions have changed");
+            logLine("from " + fileName + ".h/.cpp to " + fileName + "_menu.h/_menu.cpp");
+            logLine("To avoid errors in your IDE you will need to open the directory and remove");
+            logLine("the files " + fileName + ".h/.cpp");
+            logLine("Also remove the line #include <" + fileName + "_tcmenu.h> from your sketch" );
+            logLine("The directory is: " + directory);
+            logLine("===========================================================================");
+        }
+    }
+
+    private void generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
                                    Collection<BuildStructInitializer> menuStructure,
-                                   String projectName, String root) {
+                                   String projectName, CodeVariableExtractor extractor) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
             logLine("Writing out source CPP file: " + cppFile);
@@ -106,74 +152,78 @@ public class ArduinoGenerator implements CodeGenerator {
 
             writer.write("#include <tcMenu.h>");
             writer.write(LINE_BREAK);
-            writer.write("#include \"" + projectName + ".h\"");
-            writer.write(LINE_BREAK + LINE_BREAK);
+            writer.write("#include \"" + projectName + "_menu.h\"");
 
-            writer.write("// Global variable declarations" + LINE_BREAK);
-            writer.write(generators.stream()
-                    .map(EmbeddedCodeCreator::getGlobalVariables)
-                    .collect(Collectors.joining(LINE_BREAK)));
+            writer.write(TWO_LINES + "// Global variable declarations" + TWO_LINES);
+            writer.write(extractor.mapVariables(
+                    generators.stream().flatMap(ecc->ecc.getVariables().stream()).collect(Collectors.toList())
+            ));
 
-            writer.write(LINE_BREAK);
-
-            writer.write("// Global Menu Item declarations" + LINE_BREAK);
+            writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
             writer.write(menuStructure.stream()
-                    .map(BuildStructInitializer::toSource)
+                    .map(extractor::mapStructSource)
                     .collect(Collectors.joining(LINE_BREAK)));
 
-            writer.write(LINE_BREAK);
-
-            writer.write(LINE_BREAK + "// Set up code" + LINE_BREAK);
+            writer.write(TWO_LINES + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
-            writer.write(generators.stream()
-                    .map(ecc -> ecc.getSetupCode(root))
-                    .collect(Collectors.joining(LINE_BREAK)));
+            writer.write(extractor.mapFunctions(
+                    generators.stream().flatMap(ecc->ecc.getFunctionCalls().stream()).collect(Collectors.toList())
+            ));
 
-            writer.write("}" + LINE_BREAK);
+            writer.write(LINE_BREAK + "}" + LINE_BREAK);
             writer.write(LINE_BREAK);
 
             logLine("Finished processing source file.");
 
         } catch (Exception e) {
             logLine("Failed to generate CPP: " + e.getMessage());
-            logger.log(ERROR, "CPP Code Generation failed", e);
-            return false;
+            throw new TcMenuConversionException("Header Generation failed", e);
         }
 
-        return true;
     }
 
-    private boolean generateHeaders(List<EmbeddedCodeCreator> generators, MenuTree menuTree,
-                                    String headerFile, Collection<BuildStructInitializer> menuStructure) {
+    private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators, MenuTree menuTree,
+                                    String headerFile, Collection<BuildStructInitializer> menuStructure,
+                                    CodeVariableExtractor extractor) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
             logLine("Writing out header file: " + headerFile);
 
             writer.write(COMMENT_HEADER);
             writer.write(HEADER_TOP);
 
-            writer.write(generators.stream()
-                    .flatMap(g -> g.getIncludes().stream())
-                    .collect(Collectors.joining(LINE_BREAK))
-            );
+            // first get a list of includes to add to the header file from the creators
+            var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// all export definitions" + LINE_BREAK);
+            // now add any extra headers needed for the menu structure items.
+            includeList.addAll(menuStructure.stream()
+                    .flatMap(s-> s.getHeaderRequirements().stream())
+                    .collect(Collectors.toList()));
 
-            writer.write(generators.stream()
-                    .map(EmbeddedCodeCreator::getExportDefinitions)
-                    .collect(Collectors.joining(LINE_BREAK))
-            );
+            // and write out the includes
+            writer.write(extractor.mapIncludes(includeList));
 
+            writer.write(LINE_BREAK + LINE_BREAK + "// all define statements needed" + LINE_BREAK);
+
+            // now get all the #defines that we need to add.
+            writer.write(extractor.mapDefines());
+
+            writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
+
+            // and put the exports in the file too
+            writer.write(extractor.mapExports(
+                    embeddedCreators.stream().flatMap(ecc->ecc.getVariables().stream()).collect(Collectors.toList())
+            ));
             writer.write(LINE_BREAK + LINE_BREAK + "// all menu item forward references." + LINE_BREAK);
 
             writer.write(menuStructure.stream()
-                    .map(BuildStructInitializer::toHeader)
+                    .map(extractor::mapStructHeader)
                     .filter(item-> !item.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
 
-            writer.write(LINE_BREAK + LINE_BREAK);
+            writer.write(TWO_LINES);
 
-            writer.write("// all callback functions must have this define on them, it is what the menu designer looks for."
+            writer.write("// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();"
                             + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 
             for (String callback : callBackFunctions(menuTree)) {
@@ -186,11 +236,8 @@ public class ArduinoGenerator implements CodeGenerator {
             logLine("Finished processing header file.");
         } catch (Exception e) {
             logLine("Failed to generate header file: " + e.getMessage());
-            logger.log(ERROR, "Header Code Generation failed", e);
-            return false;
+            throw new TcMenuConversionException("Header Generation failed", e);
         }
-
-        return true;
     }
 
     private void checkIfUpToDateWarningNeeded() {
@@ -202,31 +249,38 @@ public class ArduinoGenerator implements CodeGenerator {
         }
     }
 
-    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) {
+    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) throws TcMenuConversionException {
         logLine("Making adjustments to " + inoFile);
 
         try {
             arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions(menuTree));
         } catch (IOException e) {
-            logLine("Failed to make changes to sketch" +  e.getMessage());
             logger.log(ERROR, "Sketch modification failed", e);
+            throw new TcMenuConversionException("Could not modify sketch", e);
         }
     }
 
-    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) {
+    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
         logLine("Finding any required rendering / remote plugins to add to project");
+
+        AtomicReference<Exception> possibleException = new AtomicReference<>();
 
         generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
             try {
-                Path fileToCopy = installer.findLibraryInstall("tcMenu").get().resolve(file);
+                Path fileToCopy = installer.findLibraryInstall("tcMenu")
+                        .orElseThrow(IOException::new).resolve(file);
+
                 Path nameOfFile = Paths.get(file).getFileName();
                 Files.copy(fileToCopy, directory.resolve(nameOfFile), REPLACE_EXISTING);
                 logLine("Copied with replacement " + file);
             } catch (IOException e) {
                 logLine("Copy failed for required plugin: " + file);
-                logger.log(ERROR, "Copy failed for " + file, e);
+                possibleException.set(e);
             }
         });
+        if(possibleException.get() != null) {
+            throw new TcMenuConversionException("Plugin copy failed", possibleException.get());
+        }
     }
 
     @Override
@@ -261,13 +315,13 @@ public class ArduinoGenerator implements CodeGenerator {
                 List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
                 String nextChild = (!childItems.isEmpty()) ? childItems.get(0).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new ArduinoItemGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
                 String next = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new ArduinoItemGenerator(next)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(next)).orElse(Collections.emptyList()));
             }
         }
         return itemsInOrder;

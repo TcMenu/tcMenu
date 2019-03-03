@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.domain.util;
@@ -8,10 +9,10 @@ package com.thecoderscorner.menu.domain.util;
 import com.thecoderscorner.menu.domain.*;
 import org.junit.Test;
 
-import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.domain.DomainFixtures.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class AbstractMenuItemVisitorTest {
 
@@ -19,7 +20,7 @@ public class AbstractMenuItemVisitorTest {
     public void testAnyItemCall() {
         SubMenuItem subItem = aSubMenu("123", 1);
 
-        AbstractMenuItemVisitor<Integer> visitor = new AbstractMenuItemVisitor<Integer>() {
+        AbstractMenuItemVisitor<Integer> visitor = new AbstractMenuItemVisitor<>() {
             @Override
             public void anyItem(MenuItem item) {
                 setResult(1);
@@ -31,7 +32,7 @@ public class AbstractMenuItemVisitorTest {
 
     @Test
     public void testAllOutrightCall() {
-        AbstractMenuItemVisitor<String> visitor = new AbstractMenuItemVisitor<String>() {
+        AbstractMenuItemVisitor<String> visitor = new AbstractMenuItemVisitor<>() {
             @Override
             public void visit(SubMenuItem item) {
                 setResult(getResult().orElse("") + "1");
@@ -56,14 +57,17 @@ public class AbstractMenuItemVisitorTest {
             public void visit(TextMenuItem item) {
                 setResult(getResult().orElse("") + "5");
             }
+
             @Override
             public void visit(RemoteMenuItem item) {
                 setResult(getResult().orElse("") + "6");
             }
+
             @Override
             public void visit(FloatMenuItem item) {
                 setResult(getResult().orElse("") + "7");
             }
+
             @Override
             public void visit(ActionMenuItem item) {
                 setResult(getResult().orElse("") + "8");
@@ -93,7 +97,7 @@ public class AbstractMenuItemVisitorTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testExceptionOnUnimplementedCase() {
-        AbstractMenuItemVisitor<String> visitor = new AbstractMenuItemVisitor<String>() {
+        AbstractMenuItemVisitor<String> visitor = new AbstractMenuItemVisitor<>() {
             // intentionally empty
         };
         SubMenuItem item = aSubMenu("123", 1);

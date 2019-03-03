@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.remote.protocol;
@@ -10,8 +11,9 @@ package com.thecoderscorner.menu.remote.protocol;
  * of the connectee.
  */
 public enum ApiPlatform {
-    ARDUINO(0, "Arduino"),
-    JAVA_API(1, "Java API");
+    ARDUINO(0, "Arduino 8-bit"),
+    JAVA_API(1, "Java API"),
+    ARDUINO32(2, "Arduino 32-bit");
 
     private final int key;
     private final String description;

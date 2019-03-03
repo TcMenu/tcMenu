@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
  */
 
 package com.thecoderscorner.menu.domain;
@@ -30,8 +31,7 @@ public class TextMenuItem extends MenuItem<String> {
     }
 
     /**
-     * The maximum length allowable.
-     * @return
+     * @return The maximum length allowable.
      */
     public int getTextLength() {
         return textLength;
@@ -42,7 +42,7 @@ public class TextMenuItem extends MenuItem<String> {
      * @param value the new value
      * @param changed if the value has changed
      * @param active if the value is active.
-     * @return
+     * @return the new menu state object
      */
     @Override
     public MenuState<String> newMenuState(String value, boolean changed, boolean active) {

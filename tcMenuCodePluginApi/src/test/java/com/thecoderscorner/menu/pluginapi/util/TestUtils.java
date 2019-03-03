@@ -1,0 +1,27 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.pluginapi.util;
+
+import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestUtils {
+    public static void assertEqualsIgnoringCRLF(String expected, String actual) {
+        expected = expected.replaceAll("\\r\\n", "\n");
+        actual = actual.replaceAll("\\r\\n", "\n");
+        assertEquals(expected, actual);
+    }
+
+    public static List<String> includeToString(List<HeaderDefinition> includes) {
+        return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
+    }
+
+}

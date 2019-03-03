@@ -1,3 +1,9 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.uimodel;
 
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -79,4 +85,10 @@ public interface CurrentProjectEditorUI {
      * @param installer the arduino installer object.
      */
     void showCodeGeneratorDialog(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer);
+
+    /**
+     * Browses to a URL using the default external browser
+     * @param urlToVisit the URL to be visited
+     */
+    void browseToURL(String urlToVisit);
 }

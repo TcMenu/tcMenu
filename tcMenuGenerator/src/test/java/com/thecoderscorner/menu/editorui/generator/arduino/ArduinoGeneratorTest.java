@@ -1,10 +1,17 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.AbstractCodeCreator;
-import com.thecoderscorner.menu.editorui.generator.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.EmbeddedCodeCreator;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.pluginapi.*;
+import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
+import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,22 +50,31 @@ public class ArduinoGeneratorTest {
     }
 
     @Test
-    public void testArduinoConversion() throws IOException {
+    void testConversionForAvr() throws IOException {
+        runConversionWith(EmbeddedPlatforms.ARDUINO_AVR, "/generator/template");
+    }
+
+    @Test
+    void testConversionForSamd() throws IOException {
+        runConversionWith(EmbeddedPlatforms.ARDUINO32, "/generator/template32");
+    }
+
+    private void runConversionWith(EmbeddedPlatform platform, String templateToUse) throws IOException {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildSimpleTree();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
         assertTrue(generator.startConversion(dir, generators, tree));
 
-        String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".cpp")));
-        String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + ".h")));
+        String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
+        String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
 
-        String cppTemplate = new String(getClass().getResourceAsStream("/generator/template.cpp").readAllBytes());
-        String hTemplate = new String(getClass().getResourceAsStream("/generator/template.h").readAllBytes());
+        String cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
+        String hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
@@ -77,23 +93,19 @@ public class ArduinoGeneratorTest {
     private List<EmbeddedCodeCreator> unitTestGenerator() {
         EmbeddedCodeCreator gen = new AbstractCodeCreator() {
             @Override
-            public List<String> getIncludes() {
-                return Collections.singletonList("includes section");
-            }
-
-            @Override
-            public String getGlobalVariables() {
-                return "global vars";
-            }
-
-            @Override
-            public String getSetupCode(String rootItem) {
-                return "setup code";
-            }
-
-            @Override
             public List<CreatorProperty> properties() {
-                return Collections.emptyList();
+                return List.of(new CreatorProperty("A_DEFINE", "blah", "2", SubSystem.INPUT));
+            }
+
+            @Override
+            protected void initCreator(String root) {
+                addVariable(new CodeVariableBuilder()
+                        .requiresHeader("header1.h", false)
+                        .variableName("varName").variableType("VarType")
+                        .param("1234.34")
+                        .exportNeeded()
+                );
+                addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd").param(16).param(2));
             }
         };
         return Collections.singletonList(gen);

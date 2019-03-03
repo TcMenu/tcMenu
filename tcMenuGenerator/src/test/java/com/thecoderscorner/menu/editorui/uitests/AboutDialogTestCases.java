@@ -1,3 +1,9 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
@@ -28,9 +34,7 @@ public class AboutDialogTestCases {
         when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.2"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
 
-        AboutDialog dialog = new AboutDialog(stage, installer);
-
-        dialog.show();
+        AboutDialog dialog = new AboutDialog(stage, installer, false);
     }
 
     @Test
