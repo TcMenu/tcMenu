@@ -25,13 +25,13 @@ There are pre-built packages for Windows and MacOS that include the Generator UI
 ## Current Priorities to get the menu out of BETA
 
 * Some more videos on youtube showing how to generate menus.
-* More complete documentation on the coders corner showing how to use it.
-* Better and more configurable options for the AdaGfx display range.
+* More complete documentation on the coders corner showing how to use it - in progress
+* Better and more configurable options for the AdaGfx display range - in progress
 * Complete support for most types of OLED display.
 * Complete support for the Nokia 5110 display.
 * Improve the 16x2 LCD support to have an additional renderer with one item per page.
 
-## Coming in the next version V1.2
+## New in the latest version
 
 * Acceleration on rotary encoders and repeat-key switches.
 * Support for DfRobot LCD shield input switches on analog input.
