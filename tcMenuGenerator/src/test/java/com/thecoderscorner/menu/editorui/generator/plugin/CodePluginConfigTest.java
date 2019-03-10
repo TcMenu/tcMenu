@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStreamReader;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.INPUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +34,7 @@ class CodePluginConfigTest {
         assertThat(config.getPlugins()).hasSize(1);
 
         EmbeddedPlatforms platforms = mock(EmbeddedPlatforms.class);
-        when(platforms.getEmbeddedPlatformFromId("ARDUINO")).thenReturn(EmbeddedPlatforms.ARDUINO_AVR);
+        when(platforms.getEmbeddedPlatformFromId("ARDUINO")).thenReturn(ARDUINO_AVR);
 
         CodePluginItem item = config.getPlugins().get(0);
         assertEquals("always-use-uuids", item.getId());
@@ -43,6 +44,6 @@ class CodePluginConfigTest {
         assertEquals("com.thecoderscorner.tcmenu.unitest.ExamplePlugin", item.getCodeCreatorClass());
         assertEquals("example.jpg", item.getImageFileName());
 
-        assertThat(item.getApplicability(platforms)).containsExactlyInAnyOrder(EmbeddedPlatforms.ARDUINO_AVR);
+        assertThat(item.getApplicability(platforms)).containsExactlyInAnyOrder(ARDUINO_AVR);
     }
 }

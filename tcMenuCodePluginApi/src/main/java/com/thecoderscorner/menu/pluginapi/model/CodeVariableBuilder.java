@@ -115,6 +115,17 @@ public class CodeVariableBuilder {
     }
 
     /**
+     * describes a property in the form of a reference to an object. For C++ &amp; will be added to the start
+     * @param ref the reference parameter
+     * @return this for chaining calls.
+     */
+    public CodeVariableBuilder paramRef(String ref) {
+        params.add(new ReferenceCodeParameter(ref));
+        return this;
+    }
+
+
+    /**
      * Adds the root item variable that defines the top level item in the tree as a parameter.
      * @return this for chaining.
      */

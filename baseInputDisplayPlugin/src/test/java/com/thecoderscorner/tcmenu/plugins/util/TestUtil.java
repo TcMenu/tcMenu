@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -37,7 +38,7 @@ public class TestUtil {
     }
 
     public static CodeVariableCppExtractor extractorFor(EmbeddedCodeCreator creator) {
-        return new CodeVariableCppExtractor(new CodeConversionContext("root", creator.properties()));
+        return new CodeVariableCppExtractor(new CodeConversionContext(ARDUINO_AVR, "root", creator.properties()));
     }
 
     public static List<String> includeToString(List<HeaderDefinition> includes) {

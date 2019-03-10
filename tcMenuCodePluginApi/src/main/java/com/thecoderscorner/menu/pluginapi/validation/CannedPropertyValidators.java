@@ -11,7 +11,7 @@ package com.thecoderscorner.menu.pluginapi.validation;
  */
 public class CannedPropertyValidators {
     /**
-     * @return a standard boolean validator
+     * @return a standard boolean validator with choices for true and false.
      */
     public static BooleanPropertyValidationRules boolValidator() {
         return new BooleanPropertyValidationRules();
@@ -31,6 +31,10 @@ public class CannedPropertyValidators {
         return new IntegerPropertyValidationRules(-1, 254);
     }
 
+    /**
+     * @param max the largest value
+     * @return a zero based unsigned int validator
+     */
     public static IntegerPropertyValidationRules uintValidator(int max) {
         return new IntegerPropertyValidationRules(0, max);
     }

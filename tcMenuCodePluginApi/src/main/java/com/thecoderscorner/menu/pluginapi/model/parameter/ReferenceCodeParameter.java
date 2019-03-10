@@ -7,16 +7,15 @@
 package com.thecoderscorner.menu.pluginapi.model.parameter;
 
 /**
- * a CodeParameter extension that renders the variable representing the root of the tree.
+ * A reference code parameter
  */
-public class RootItemCodeParameter extends CodeParameter {
+public class ReferenceCodeParameter extends CodeParameter{
 
-    public RootItemCodeParameter() {
-        super("");
+    public ReferenceCodeParameter(Object value) {
+        super(value);
     }
 
-    @Override
     public String getParameterValue(CodeConversionContext context) {
-        return "&" + context.getRootObject();
+        return "&" + value;
     }
 }

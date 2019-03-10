@@ -40,7 +40,7 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
                             .requiresHeader("EthernetTransport.h", true));
 
         addFunctionCall(new FunctionCallBuilder().objectName("remoteServer").functionName("begin")
-                       .param("&server").param("applicationName"));
+                       .paramRef("server").param("applicationName"));
 
         addLibraryFiles("remotes/ethernet/EthernetTransport.cpp","remotes/ethernet/EthernetTransport.h");
     }

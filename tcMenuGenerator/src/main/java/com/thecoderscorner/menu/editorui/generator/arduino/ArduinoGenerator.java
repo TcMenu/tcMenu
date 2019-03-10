@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
@@ -36,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -77,7 +77,7 @@ public class ArduinoGenerator implements CodeGenerator {
     public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
 
-        boolean avrArch = EmbeddedPlatforms.ARDUINO_AVR.getBoardId().equals(embeddedPlatform.getBoardId());
+        boolean avrArch = embeddedPlatform.getLanguage() == EmbeddedLanguage.CPP_AVR;
 
         // get the file names that we are going to modify.
         String inoFile = toSourceFile(directory, ".ino");
@@ -94,7 +94,7 @@ public class ArduinoGenerator implements CodeGenerator {
             String root = getFirstMenuVariable(menuTree);
             var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
             CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    new CodeConversionContext(root, allProps), avrArch
+                    new CodeConversionContext(embeddedPlatform, root, allProps), avrArch
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);

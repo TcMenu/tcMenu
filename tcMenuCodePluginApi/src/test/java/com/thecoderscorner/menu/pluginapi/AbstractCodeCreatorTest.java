@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +26,7 @@ class AbstractCodeCreatorTest {
     @Test
     void testCodeCreation() {
         var creator = new ExampleCodeCreator();
-        var extractor = new CodeVariableCppExtractor(new CodeConversionContext("root", creator.properties()));
+        var extractor = new CodeVariableCppExtractor(new CodeConversionContext(ARDUINO_AVR, "root", creator.properties()));
         creator.initCreator("root");
 
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines("extern Type test;\n");

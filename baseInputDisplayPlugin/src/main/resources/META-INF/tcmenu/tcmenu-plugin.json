@@ -24,6 +24,15 @@
       "imageFileName": "up-down-encoder.jpg"
     },
     {
+      "id": "89cd7f70-0457-4884-97c2-0db904ccb0ba",
+      "subsystem": "INPUT",
+      "applicability": ["ARDUINO", "ARDUINO32"],
+      "description": "No input or custom input module",
+      "extendedDescription": "Use this option when you either don't want a local input method, or you are providing a custom one.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.NoInputModeCreator",
+      "imageFileName": "no-display.png"
+    },
+    {
       "id": "61f370f4-0294-41cf-8988-1458f242914a",
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO", "ARDUINO32"],

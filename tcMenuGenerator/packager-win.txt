@@ -42,12 +42,12 @@ $JAVA_HOME/bin/jpackager create-image --output tcMenuDesigner --input jfx/app --
 
 add the plugins to the .app file in the same directory as embedded.
 
-Create a new diskimage and open called tcMenuDesigner-version.dmg with name tcMenuDesigner
+Create a new diskimage and open called tcMenuDesigner-<version>.dmg with name tcMenuDesigner
 Open shell in that directory
 
 Shell: cp /Users/dave/IdeaProjects/tcMenu/tcMenuGenerator/macos-diskimg.png logo.png
 
-View Settings: Change the background to the logo. Resize the window, select icon view as default. Scale icons to 88px
+From Popup menu -> View Settings: Change the background to the logo. Resize the window, select icon view as default. Scale icons to 88px
 
 Shell: mv logo.png .logo.png
 

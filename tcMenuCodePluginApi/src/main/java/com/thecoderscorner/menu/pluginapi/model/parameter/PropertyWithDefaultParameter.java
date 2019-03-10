@@ -8,6 +8,9 @@ package com.thecoderscorner.menu.pluginapi.model.parameter;
 
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
+/**
+ * An extension of CodeParameter that gets the value from a given property, with possible default.
+ */
 public class PropertyWithDefaultParameter extends CodeParameter {
 
     private String defVal;

@@ -42,7 +42,7 @@ public class RotaryEncoderInputCreator extends AbstractCodeCreator {
                 .paramFromPropertyWithDefault("PULLUP_LOGIC", "true"));
 
         addFunctionCall(new FunctionCallBuilder().objectName("menuMgr").functionName("initForEncoder")
-                .param("&renderer").paramMenuRoot().param("ENCODER_PIN_A").param("ENCODER_PIN_B")
+                .paramRef("renderer").paramMenuRoot().param("ENCODER_PIN_A").param("ENCODER_PIN_B")
                 .param("ENCODER_PIN_OK"));
     }
 

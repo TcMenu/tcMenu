@@ -34,7 +34,7 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
         addFunctionCall(new FunctionCallBuilder().objectName("remoteServer").functionName("begin")
                         .requiresHeader("RemoteConnector.h", false)
                         .requiresHeader("SerialTransport.h", true)
-                        .param("&" + serialPort).param("applicationName"));
+                        .paramRef(serialPort).param("applicationName"));
 
 
 

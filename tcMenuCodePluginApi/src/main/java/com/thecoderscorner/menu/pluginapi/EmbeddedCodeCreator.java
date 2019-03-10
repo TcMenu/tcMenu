@@ -12,6 +12,10 @@ import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.List;
 
+/**
+ * Only use this class when {@link AbstractCodeCreator} doesnt work for you. Purposely not documented,
+ * see the abstract class linked above instead.
+ */
 public interface EmbeddedCodeCreator {
     /**
      * Called at the very beginning of conversion to allow the creator to prepare any late bound fields and variables.
@@ -23,5 +27,13 @@ public interface EmbeddedCodeCreator {
     List<CodeVariableBuilder> getVariables();
     List<FunctionCallBuilder> getFunctionCalls();
     List<String> getRequiredFiles();
+
+    /**
+     * Each code creator has a list of properties, these properties are provided by the properties method
+     * which should be overridden to provide this list. The properties can be referred to during code
+     * conversion, and they are set by the user during code creation.
+     *
+     * @return a list of properties, these should not change during object lifetime
+     */
     List<CreatorProperty> properties();
 }

@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * A property validator that can validate string fields, prefer using {@link CannedPropertyValidators} when possible
+ */
 public class StringPropertyValidationRules implements PropertyValidationRules {
     private final static Pattern STR_PATTERN = Pattern.compile("^[\\p{L}\\p{N}\\s\\-_*%()]*$");
     private final static Pattern VAR_PATTERN = Pattern.compile("^[\\p{L}\\p{N}_]*$");
@@ -17,6 +20,11 @@ public class StringPropertyValidationRules implements PropertyValidationRules {
     private boolean variable;
     private int maxLen;
 
+    /**
+     * Create a string validator that can also be used for variables
+     * @param variable true if a variable, otherwise false
+     * @param maxLen the maximum allowed length
+     */
     public StringPropertyValidationRules(boolean variable, int maxLen) {
         this.variable = variable;
         this.maxLen = maxLen;

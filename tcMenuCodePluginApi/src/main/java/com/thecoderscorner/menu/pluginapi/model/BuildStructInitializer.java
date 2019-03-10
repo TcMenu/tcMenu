@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This represents the menu info structure as used on a lot of boards. It is a code independent way of expressing
+ * the structures needed for menu items and the tree on at least all Arduino boards.
+ */
 public class BuildStructInitializer {
     private String structName;
     private String structType;

@@ -9,6 +9,9 @@ package com.thecoderscorner.menu.pluginapi.validation;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A boolean property validator that has choices for true and false. Prefer {@link CannedPropertyValidators} when possible
+ */
 public class BooleanPropertyValidationRules implements PropertyValidationRules {
     @Override
     public boolean isValueValid(String value) {

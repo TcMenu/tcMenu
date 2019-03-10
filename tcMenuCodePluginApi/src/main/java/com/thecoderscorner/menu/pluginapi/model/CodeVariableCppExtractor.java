@@ -67,6 +67,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             }
             paramList = " = " + params.get(0).getParameterValue(context);
         }
+        else if(params.isEmpty()) {
+            paramList = "";
+        }
         else {
             paramList = "(" + params.stream()
                     .map(p -> p.getParameterValue(context))

@@ -8,6 +8,11 @@ package com.thecoderscorner.menu.pluginapi.model;
 
 import java.util.List;
 
+/**
+ * This interface defines a method to map structures into code. This provides plugins with a means of defining variables,
+ * functions, exports etc for a specific language.
+ * @see CppCode
+ */
 public interface CodeVariableExtractor {
     String mapFunctions(List<FunctionCallBuilder> functions);
     String mapVariables(List<CodeVariableBuilder> variables);

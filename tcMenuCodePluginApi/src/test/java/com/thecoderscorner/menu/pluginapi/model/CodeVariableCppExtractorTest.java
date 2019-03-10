@@ -15,11 +15,12 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.LINE_BREAK;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeVariableCppExtractorTest {
     private CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(
-            new CodeConversionContext("root", Collections.emptyList())
+            new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList())
     );
 
     @Test

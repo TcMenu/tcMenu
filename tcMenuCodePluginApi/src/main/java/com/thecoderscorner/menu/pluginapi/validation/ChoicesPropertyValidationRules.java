@@ -12,10 +12,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A property validator based on a list of choices.
+ */
 public class ChoicesPropertyValidationRules implements PropertyValidationRules {
 
     final private Set<String> enumValues;
 
+    /**
+     * Create an instance with an array of values, generally from an Enum.
+     * @param values the value array
+     * @param <T> the type is automatically captured
+     */
     public <T extends Enum> ChoicesPropertyValidationRules(T[] values) {
         enumValues = Arrays.stream(values)
                 .map(Enum::toString).collect(Collectors.toSet());

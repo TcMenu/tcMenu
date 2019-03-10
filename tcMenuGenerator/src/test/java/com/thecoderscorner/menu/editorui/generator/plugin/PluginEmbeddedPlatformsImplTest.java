@@ -10,8 +10,8 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.ARDUINO32;
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms.ARDUINO_AVR;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +21,7 @@ class PluginEmbeddedPlatformsImplTest {
     @Test
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32);
+        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, EmbeddedPlatform.ARDUINO32);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));

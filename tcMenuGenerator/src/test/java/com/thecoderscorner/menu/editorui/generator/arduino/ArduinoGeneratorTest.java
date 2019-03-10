@@ -7,7 +7,6 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
@@ -28,6 +27,8 @@ import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTree;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,12 +52,12 @@ public class ArduinoGeneratorTest {
 
     @Test
     void testConversionForAvr() throws IOException {
-        runConversionWith(EmbeddedPlatforms.ARDUINO_AVR, "/generator/template");
+        runConversionWith(ARDUINO_AVR, "/generator/template");
     }
 
     @Test
     void testConversionForSamd() throws IOException {
-        runConversionWith(EmbeddedPlatforms.ARDUINO32, "/generator/template32");
+        runConversionWith(ARDUINO32, "/generator/template32");
     }
 
     private void runConversionWith(EmbeddedPlatform platform, String templateToUse) throws IOException {

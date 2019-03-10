@@ -6,12 +6,16 @@
 
 package com.thecoderscorner.menu.pluginapi.model.parameter;
 
+/**
+ * An extension of CodeParameter used to represent function arguments.
+ */
 public class FunctionCodeParameter extends CodeParameter{
 
     public FunctionCodeParameter(Object value) {
         super(value);
     }
 
+    @Override
     public String getParameterValue(CodeConversionContext context) {
         return value + "()";
     }

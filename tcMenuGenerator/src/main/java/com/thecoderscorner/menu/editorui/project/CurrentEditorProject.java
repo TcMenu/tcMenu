@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -19,6 +18,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
  * with all the required functionality to both alter and persist project files. The controller should never perform any
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class CurrentEditorProject {
 
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            EmbeddedPlatforms.ARDUINO_AVR.getBoardId(), "", "", "", Collections.emptyList()
+            ARDUINO_AVR.getBoardId(), "", "", "", Collections.emptyList()
     );
 
 

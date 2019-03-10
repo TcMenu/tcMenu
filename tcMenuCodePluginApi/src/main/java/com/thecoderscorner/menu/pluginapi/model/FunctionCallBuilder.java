@@ -11,7 +11,8 @@ import com.thecoderscorner.menu.pluginapi.model.parameter.*;
 import java.util.*;
 
 /**
- * Builder pattern way of building function calls that will be made during setup, to avoid writing code in strings.
+ * Builder pattern way of building function calls that will be made during setup, to avoid writing code in strings. It
+ * also provides a level of independence from a specific platform.
  */
 public class FunctionCallBuilder {
     private Optional<String> objectName = Optional.empty();
@@ -88,8 +89,23 @@ public class FunctionCallBuilder {
         return this;
     }
 
+    /**
+     * describes a property in the form of a function with no params, ( ) will be added to the end
+     * @param fn the function
+     * @return this for chainging.
+     */
     public FunctionCallBuilder fnparam(String fn) {
         params.add(new FunctionCodeParameter(fn));
+        return this;
+    }
+
+    /**
+     * describes a property in the form of a reference to an object. For C++ '&amp;' will be added to the start
+     * @param ref the reference parameter
+     * @return this for chaining calls.
+     */
+    public FunctionCallBuilder paramRef(String ref) {
+        params.add(new ReferenceCodeParameter(ref));
         return this;
     }
 

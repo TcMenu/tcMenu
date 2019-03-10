@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DfRobotCodeGeneratorTests {
@@ -76,6 +77,6 @@ public class DfRobotCodeGeneratorTests {
     }
 
     private CodeVariableCppExtractor aDefaultExtractorFor(EmbeddedCodeCreator creator) {
-        return new CodeVariableCppExtractor(new CodeConversionContext("rootMenuItem", creator.properties()));
+        return new CodeVariableCppExtractor(new CodeConversionContext(ARDUINO_AVR, "rootMenuItem", creator.properties()));
     }
 }

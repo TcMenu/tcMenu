@@ -14,6 +14,9 @@ import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 
 import java.util.List;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+
 /**
  * This implementation of the embedded platforms creator has now been broken out in such a way that as there
  * are other board types, it will be easier to support them by means of plugins. In this release only arduino is

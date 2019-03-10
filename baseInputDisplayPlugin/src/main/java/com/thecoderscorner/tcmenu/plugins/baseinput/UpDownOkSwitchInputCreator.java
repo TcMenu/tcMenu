@@ -43,7 +43,7 @@ public class UpDownOkSwitchInputCreator extends AbstractCodeCreator {
                 .paramFromPropertyWithDefault("PULLUP_LOGIC", "true"));
 
         addFunctionCall(new FunctionCallBuilder().objectName("menuMgr").functionName("initForUpDownOk")
-                .param("&renderer").paramMenuRoot().param("ENCODER_UP_PIN").param("ENCODER_DOWN_PIN")
+                .paramRef("renderer").paramMenuRoot().param("ENCODER_UP_PIN").param("ENCODER_DOWN_PIN")
                 .param("ENCODER_OK_PIN"));
     }
 

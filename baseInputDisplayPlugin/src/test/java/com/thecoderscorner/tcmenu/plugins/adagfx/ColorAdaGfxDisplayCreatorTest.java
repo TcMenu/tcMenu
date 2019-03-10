@@ -38,12 +38,15 @@ class ColorAdaGfxDisplayCreatorTest {
         );
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "AdaFruitGfxMenuRenderer renderer(&gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+                "AdaColorGfxMenuConfig gfxConfig;\n" +
+                "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    prepareDefaultGfxConfig(gfxConfig);\n" +
                 "    gfx.begin();\n" +
-                "    gfx.setRotation(0);\n"
+                "    gfx.setRotation(0);\n" +
+                "    renderer.setGraphicsDevice(&gfx, &gfxConfig);"
         );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/adafruit/tcMenuAdaFruitGfx.cpp",

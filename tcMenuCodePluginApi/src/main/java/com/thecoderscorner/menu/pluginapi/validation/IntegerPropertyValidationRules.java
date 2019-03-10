@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * An integer property validator that will validate between a given range of values
+ * Prefer {@link CannedPropertyValidators} when possible
+ */
 public class IntegerPropertyValidationRules implements PropertyValidationRules {
 
     private final static Pattern INT_MATCHER = Pattern.compile("(-?[\\d]+|0x[\\dABCDEFabcdef]+)");
@@ -17,6 +21,11 @@ public class IntegerPropertyValidationRules implements PropertyValidationRules {
     private final int minVal;
     private final int maxVal;
 
+    /**
+     * Create an integer validator for a range of values.
+     * @param minVal min allowed
+     * @param maxVal max allowed
+     */
     public IntegerPropertyValidationRules(int minVal, int maxVal) {
         this.minVal = minVal;
         this.maxVal = maxVal;

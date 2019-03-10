@@ -23,7 +23,7 @@ public class DfRobotAnalogInputCreator extends AbstractCodeCreator {
 
         addFunctionCall(new FunctionCallBuilder().functionName("initForUpDownOk").objectName("menuMgr")
                                 .requiresHeader("DfRobotInputAbstraction.h", false)
-                                .param("&renderer").param("&" + root).param("DF_KEY_DOWN").param("DF_KEY_UP")
+                                .paramRef("renderer").paramRef(root).param("DF_KEY_DOWN").param("DF_KEY_UP")
                                 .param("DF_KEY_SELECT"));
     }
 

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,14 +26,14 @@ class FunctionCallBuilderTest {
     public void testSimpleFunction() {
         FunctionCallBuilder builder = new FunctionCallBuilder()
                 .functionName("analogWrite").param("A0").paramFromPropertyWithDefault("PARAM1", "1")
-                .fnparam("func");
+                .fnparam("func").paramRef("ptrVar");
 
-        CodeConversionContext context = new CodeConversionContext("root", singletonList(
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", singletonList(
                 new CreatorProperty("PARAM1", "Desc", "1.01", SubSystem.INPUT)
         ));
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
-        assertEqualsIgnoringCRLF("    analogWrite(A0, 1.01, func());", extractor.mapFunctions(singletonList(builder)));
+        assertEqualsIgnoringCRLF("    analogWrite(A0, 1.01, func(), &ptrVar);", extractor.mapFunctions(singletonList(builder)));
         assertThat(builder.getHeaders()).isEmpty();
     }
 
@@ -41,7 +42,7 @@ class FunctionCallBuilderTest {
         FunctionCallBuilder builder = new FunctionCallBuilder()
                 .functionName("callMe").pointerType().objectName("pObject");
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertEqualsIgnoringCRLF("    pObject->callMe();", extractor.mapFunctions(singletonList(builder)));
@@ -54,7 +55,7 @@ class FunctionCallBuilderTest {
                 .paramMenuRoot().param(16).param(2).quoted("abcdef")
                 .requiresHeader("abc.h", true);
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertEqualsIgnoringCRLF("    lcd.setup(&root, 16, 2, \"abcdef\");", extractor.mapFunctions(singletonList(builder)));

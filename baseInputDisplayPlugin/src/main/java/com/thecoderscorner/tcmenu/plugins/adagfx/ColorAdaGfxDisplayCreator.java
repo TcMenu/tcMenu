@@ -33,12 +33,25 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
             new CreatorProperty("DISPLAY_HEIGHT", "The display height", "240",
                                 DISPLAY, uintValidator(4096)),
             new CreatorProperty("DISPLAY_ROTATION", "The display rotation - see AdaGFX docs", "0",
-                                DISPLAY, uintValidator(3))
+                                DISPLAY, uintValidator(3)),
+            new CreatorProperty("DISPLAY_CONFIG", "The display configuration (empty for the default)", "",
+                                DISPLAY, TEXTUAL, variableValidator())
     ));
 
     @Override
     protected void initCreator(String root) {
         addLibraryFiles("renderers/adafruit/tcMenuAdaFruitGfx.cpp", "renderers/adafruit/tcMenuAdaFruitGfx.h");
+
+        String configVar = findPropertyValue("DISPLAY_CONFIG").getLatestValue();
+        if(configVar.isEmpty()) {
+            addVariable(new CodeVariableBuilder().variableType("AdaColorGfxMenuConfig").variableName("gfxConfig"));
+            addFunctionCall(new FunctionCallBuilder().functionName("prepareDefaultGfxConfig").param("gfxConfig"));
+            configVar = "gfxConfig";
+        }
+        else {
+            addVariable(new CodeVariableBuilder().variableType("AdaColorGfxMenuConfig").variableName(configVar)
+                        .exportOnly());
+        }
 
         String graphicsType = findPropertyValue("DISPLAY_TYPE").getLatestValue();
         String graphicsVar = findPropertyValue("DISPLAY_VARIABLE").getLatestValue();
@@ -47,12 +60,14 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
                             .requiresHeader(graphicsType + ".h", false));
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
-                            .exportNeeded().param("&" + graphicsVar).param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
+                            .exportNeeded().param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
                             .requiresHeader("tcMenuAdaFruitGfx.h", true, HeaderDefinition.PRIORITY_MIN));
 
         addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName(graphicsVar));
         addFunctionCall(new FunctionCallBuilder().functionName("setRotation").objectName(graphicsVar)
                                 .paramFromPropertyWithDefault("DISPLAY_ROTATION", "0"));
+        addFunctionCall(new FunctionCallBuilder().functionName("setGraphicsDevice").objectName("renderer")
+                .paramRef(graphicsVar).paramRef(configVar));
     }
 
     @Override

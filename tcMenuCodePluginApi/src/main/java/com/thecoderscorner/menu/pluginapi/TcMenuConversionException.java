@@ -6,6 +6,9 @@
 
 package com.thecoderscorner.menu.pluginapi;
 
+/**
+ * An exception that expresses an error that has occurred during code conversion
+ */
 public class TcMenuConversionException extends Exception {
     public TcMenuConversionException(String message) {
         super(message);

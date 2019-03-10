@@ -6,6 +6,9 @@
 
 package com.thecoderscorner.menu.pluginapi.model.parameter;
 
+/**
+ * An extension of CodeParameter that quotes any string provided, except if the value is NULL.
+ */
 public class QuotedCodeParameter extends CodeParameter {
     private final char quoteCharacter;
 

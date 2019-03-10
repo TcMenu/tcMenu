@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,18 +22,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeVariableBuilderTest {
+
+    @Test
+    public void testVariableWithNoParameters() {
+        CodeVariableBuilder builder = new CodeVariableBuilder().variableType("SomeType").variableName("abc");
+
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
+        CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
+
+        assertEqualsIgnoringCRLF("SomeType abc;", extractor.mapVariables(singletonList(builder)));
+    }
+
     @Test
     public void testVariableOnly() {
         CodeVariableBuilder builder = new CodeVariableBuilder()
                 .variableType("SomeType").variableName("var")
-                .param(23).quoted("Abc").fnparam("func");
+                .param(23).quoted("Abc").paramRef("ptrVar").fnparam("func");
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertEqualsIgnoringCRLF("", extractor.mapExports(singletonList(builder)));
         assertEqualsIgnoringCRLF("var", builder.getName());
-        assertEqualsIgnoringCRLF("SomeType var(23, \"Abc\", func());", extractor.mapVariables(singletonList(builder)));
+        assertEqualsIgnoringCRLF("SomeType var(23, \"Abc\", &ptrVar, func());", extractor.mapVariables(singletonList(builder)));
         assertThat(builder.getHeaders()).isEmpty();
     }
 
@@ -43,7 +55,7 @@ class CodeVariableBuilderTest {
                 .param(33).exportNeeded().requiresHeader("abc.h", false)
                 .requiresHeader("abc.h", false);
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertEqualsIgnoringCRLF("extern SomeType var;", extractor.mapExports(singletonList(builder)));
@@ -61,7 +73,7 @@ class CodeVariableBuilderTest {
                 .paramFromPropertyWithDefault("PARAM1", "abc")
                 .paramFromPropertyWithDefault("PARAM2", "def");
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.singletonList(
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.singletonList(
                 new CreatorProperty("PARAM1", "Desc", "1.01", SubSystem.INPUT)
         ));
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
@@ -74,7 +86,7 @@ class CodeVariableBuilderTest {
     public void testByAssignmentProgmem() {
         CodeVariableBuilder builder = new CodeVariableBuilder().variableName("abc").variableType("Type").exportNeeded()
                 .byAssignment().progmem().quoted("Super");
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertThat(extractor.mapVariables(singletonList(builder))).isEqualToIgnoringNewLines(
@@ -90,7 +102,7 @@ class CodeVariableBuilderTest {
         CodeVariableBuilder builder = new CodeVariableBuilder()
                 .variableName("var").variableType("Type").exportOnly();
 
-        CodeConversionContext context = new CodeConversionContext("root", Collections.emptyList());
+        CodeConversionContext context = new CodeConversionContext(ARDUINO_AVR, "root", Collections.emptyList());
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(context);
 
         assertEqualsIgnoringCRLF("extern Type var;", extractor.mapExports(singletonList(builder)));
