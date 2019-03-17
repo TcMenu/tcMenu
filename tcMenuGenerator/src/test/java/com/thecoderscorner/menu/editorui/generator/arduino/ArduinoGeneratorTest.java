@@ -23,12 +23,14 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTree;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -66,16 +68,19 @@ public class ArduinoGeneratorTest {
         MenuTree tree = buildSimpleTree();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
         assertTrue(generator.startConversion(dir, generators, tree));
 
-        String cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
-        String hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
+        var cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
+        var pluginGenerated = new String(Files.readAllBytes(dir.resolve("replacementSource.h")));
 
-        String cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
-        String hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
+        var cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
+        var hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
+        var expectedPlugin = new String(getClass().getResourceAsStream("/generator/replacementExpected.h").readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
@@ -84,7 +89,7 @@ public class ArduinoGeneratorTest {
         // then make sure the change is good before adjusting the templates.
         assertEqualsIgnoringCRLF(cppTemplate, cppGenerated);
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
-
+        assertEqualsIgnoringCRLF(expectedPlugin, pluginGenerated);
 
         Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
                 eq(dir.resolve(dir.resolve(dir.getFileName() + ".ino")).toString()),
@@ -106,7 +111,16 @@ public class ArduinoGeneratorTest {
                         .param("1234.34")
                         .exportNeeded()
                 );
+
                 addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd").param(16).param(2));
+
+                addLibraryFiles(new PluginFileDependency(
+                        "testSrc/replacementSource.h",
+                        PackagingType.WITH_PLUGIN,
+                        Map.of(
+                                "Replacement1.h", "ChangedHeader.h",
+                                "ReplacementServer", "ChangedServer")
+                ));
             }
         };
         return Collections.singletonList(gen);

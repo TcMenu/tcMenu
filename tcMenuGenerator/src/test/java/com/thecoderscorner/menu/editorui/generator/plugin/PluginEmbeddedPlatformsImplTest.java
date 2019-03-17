@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,15 +26,13 @@ class PluginEmbeddedPlatformsImplTest {
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));
-        assertThrows(IllegalArgumentException.class, () -> {
-            platforms.getEmbeddedPlatformFromId("invalidId");
-        });
+        assertThrows(IllegalArgumentException.class, () -> platforms.getEmbeddedPlatformFromId("invalidId"));
 
         var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR);
         assertThat(generator).isOfAnyClassIn(ArduinoGenerator.class);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid");
+            EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid", CPP_AVR);
             platforms.getCodeGeneratorFor(invalidPlatform);
         });
     }

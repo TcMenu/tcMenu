@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.pluginapi;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_32;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_AVR;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.INPUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -36,9 +38,9 @@ class CreatorPropertyTest {
 
     @Test
     void testArduinoPlatformEnum() {
-        EmbeddedPlatform emb1 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO");
-        EmbeddedPlatform emb2 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO");
-        EmbeddedPlatform emb3 = new EmbeddedPlatform("NotUsedEquality", "SAMD");
+        EmbeddedPlatform emb1 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO", CPP_AVR);
+        EmbeddedPlatform emb2 = new EmbeddedPlatform("NotUsedEquality", "ARDUINO", CPP_AVR);
+        EmbeddedPlatform emb3 = new EmbeddedPlatform("NotUsedEquality", "SAMD", CPP_32);
         assertEquals(emb1, emb2);
         assertEquals(emb1.hashCode(), emb2.hashCode());
         assertNotEquals(emb2, emb3);

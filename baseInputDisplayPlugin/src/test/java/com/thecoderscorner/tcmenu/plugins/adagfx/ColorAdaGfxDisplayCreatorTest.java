@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.tcmenu.plugins.adagfx;
 
+import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
 import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
@@ -29,28 +30,30 @@ class ColorAdaGfxDisplayCreatorTest {
 
         assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
                 "#define DISPLAY_WIDTH 320\n" +
-                "#define DISPLAY_HEIGHT 240\n" +
-                "#define DISPLAY_ROTATION 0"
+                        "#define DISPLAY_HEIGHT 240\n" +
+                        "#define DISPLAY_ROTATION 0"
         );
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
-                    "extern Adafruit_ILI9341 gfx;\n" +
-                    "extern AdaFruitGfxMenuRenderer renderer;"
+                "extern Adafruit_ILI9341 gfx;\n" +
+                        "extern AdaFruitGfxMenuRenderer renderer;"
         );
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
                 "AdaColorGfxMenuConfig gfxConfig;\n" +
-                "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+                        "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
                 "    prepareDefaultGfxConfig(gfxConfig);\n" +
-                "    gfx.begin();\n" +
-                "    gfx.setRotation(0);\n" +
-                "    renderer.setGraphicsDevice(&gfx, &gfxConfig);"
+                        "    gfx.begin();\n" +
+                        "    gfx.setRotation(0);\n" +
+                        "    renderer.setGraphicsDevice(&gfx, &gfxConfig);"
         );
 
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("renderers/adafruit/tcMenuAdaFruitGfx.cpp",
-                                                                         "renderers/adafruit/tcMenuAdaFruitGfx.h");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                PluginFileDependency.fileInTcMenu("renderers/adafruit/tcMenuAdaFruitGfx.cpp"),
+                PluginFileDependency.fileInTcMenu("renderers/adafruit/tcMenuAdaFruitGfx.h")
+        );
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_ILI9341.h>"
         );

@@ -38,6 +38,7 @@ public class UICodePluginItem extends BorderPane {
     private HBox infoContainer;
     private Label whichPlugin;
     private Hyperlink licenseLink;
+    private Hyperlink vendorLink;
     private CodePluginManager mgr;
     private CodePluginItem item;
     private Button actionButton;
@@ -63,14 +64,21 @@ public class UICodePluginItem extends BorderPane {
         whichPlugin.setStyle("-fx-font-size: 90%;");
         whichPlugin.setPadding(new Insets(10, 5, 5, 5));
 
-        licenseLink = new Hyperlink("Not set");
+        licenseLink = new Hyperlink("License unknown");
+        licenseLink.setDisable(true);
         licenseLink.setPadding(new Insets(10, 0, 5, 0));
         licenseLink.setStyle("-fx-font-size: 90%;");
+
+        vendorLink = new Hyperlink("Vendor unknown");
+        vendorLink.setDisable(true);
+        vendorLink.setPadding(new Insets(10, 0, 5, 0));
+        vendorLink.setStyle("-fx-font-size: 90%;");
 
         infoContainer = new HBox(5);
         infoContainer.setAlignment(Pos.CENTER_LEFT);
         infoContainer.getChildren().add(whichPlugin);
         infoContainer.getChildren().add(licenseLink);
+        infoContainer.getChildren().add(vendorLink);
 
         innerBorder = new BorderPane();
         innerBorder.setPadding(new Insets(4));
@@ -106,10 +114,23 @@ public class UICodePluginItem extends BorderPane {
                     LOGGER.log(ERROR,"Unable to locate license URL" + config.getLicenseUrl());
                 }
             });
+            if(config.getVendor() != null) {
+                vendorLink.setText(config.getVendor());
+                vendorLink.setDisable(false);
+                vendorLink.setOnAction((event) -> {
+                    try {
+                        Desktop.getDesktop().browse(new URI(config.getVendorUrl()));
+                    } catch (Exception e) {
+                        LOGGER.log(ERROR, "Unable to locate vendor URL" + config.getVendorUrl());
+                    }
+                });
+            }
         }, ()->{
             whichPlugin.setText("Unknown plugin");
             licenseLink.setText("Unknown plugin");
             licenseLink.setDisable(true);
+            vendorLink.setText("Unknown vendor");
+            vendorLink.setDisable(true);
         });
 
         imagePanel = mgr.getImageForName(item.getImageFileName())
@@ -125,7 +146,7 @@ public class UICodePluginItem extends BorderPane {
                     noImg.setAlignment(Pos.CENTER);
                     noImg.setPrefSize(IMG_THUMB_WIDTH, IMG_THUMB_WIDTH / 2.0);
                     noImg.setStyle("-fx-background-color: #e0ccff;-fx-fill: #000000;");
-                    return (Node)noImg;
+                    return noImg;
                 });
         setLeft(imagePanel);
     }

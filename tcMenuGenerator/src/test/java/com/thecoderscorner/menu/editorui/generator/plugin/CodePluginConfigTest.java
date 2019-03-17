@@ -30,6 +30,8 @@ class CodePluginConfigTest {
         assertEquals("Apache 2.0", config.getLicense());
         assertEquals("com.thecoderscorner.tcmenu.unittest", config.getModuleName());
         assertEquals("1.2.0", config.getVersion());
+        assertEquals("UnitTester", config.getVendor());
+        assertEquals("http://localhost", config.getVendorUrl());
 
         assertThat(config.getPlugins()).hasSize(1);
 

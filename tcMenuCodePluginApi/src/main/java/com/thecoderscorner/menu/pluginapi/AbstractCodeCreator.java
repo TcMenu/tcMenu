@@ -40,7 +40,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
 
     private List<FunctionCallBuilder> functionCalls = new ArrayList<>();
     private List<CodeVariableBuilder> variables = new ArrayList<>();
-    private List<String> libraryFiles = new ArrayList<>();
+    private List<PluginFileDependency> libraryFiles = new ArrayList<>();
     private List<HeaderDefinition> headerDefinitions = new ArrayList<>();
 
     /**
@@ -105,10 +105,25 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
     }
 
     /**
-     * adds requirements on one or more files that must be copied into the project
+     * adds requirements on one or more files that must be copied into the project,
+     * this is only for files that already exist in tcMenu library, prefer to use the
+     * other version that takes `PluiginFileDependency`
+     * @see PluginFileDependency
      * @param files the list of library files.
      */
     protected void addLibraryFiles(String... files) {
+        libraryFiles.addAll(Arrays.stream(files)
+                .map(PluginFileDependency::fileInTcMenu)
+                .collect(Collectors.toList())
+        );
+    }
+
+    /**
+     * adds requirements on one or more files describing if they are located in
+     * the library or plugin, and a map of possible replacements.
+     * @param files the list of dependencies
+     */
+    protected void addLibraryFiles(PluginFileDependency... files) {
         libraryFiles.addAll(Arrays.asList(files));
     }
 
@@ -140,7 +155,7 @@ public abstract class AbstractCodeCreator implements EmbeddedCodeCreator {
      * @return the list of required files
      */
     @Override
-    public List<String> getRequiredFiles() {
+    public List<PluginFileDependency> getRequiredFiles() {
         return Collections.unmodifiableList(libraryFiles);
     }
 

@@ -14,6 +14,8 @@ public class CodePluginConfig {
     private String version;
     private String license;
     private String licenseUrl;
+    private String vendor;
+    private String vendorUrl;
     private List<CodePluginItem> plugins;
 
     public CodePluginConfig() {
@@ -25,6 +27,10 @@ public class CodePluginConfig {
         this.name = name;
         this.version = version;
         this.plugins = plugins;
+        this.vendor = "Not set";
+        this.vendorUrl = "https://www.thecoderscorner.com";
+        this.license= "Unspecified";
+        this.licenseUrl = "https://";
     }
 
     public String getModuleName() {
@@ -50,6 +56,14 @@ public class CodePluginConfig {
 
     public String getLicenseUrl() {
         return licenseUrl;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public String getVendorUrl() {
+        return vendorUrl;
     }
 
     @Override

@@ -54,8 +54,12 @@ public class CannedPropertyValidators {
     }
 
     /**
+     * This method returns a choices validator based on a java enum. It takes the values from such an item and converts
+     * them into string choices in a combo. It also validates against these choices.
+     *
      * @return a choices validator based on an enum
-     * @param values
+     * @param values the values that will both be validated against, and displayed in the combo.
+     * @param <T> any enum class.
      */
     public static <T extends Enum> ChoicesPropertyValidationRules choicesValidator(T[] values) {
         return new ChoicesPropertyValidationRules(values);

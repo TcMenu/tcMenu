@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.fileInTcMenu;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.pluginapi.util.TestUtils.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,8 @@ class AbstractCodeCreatorTest {
         assertEqualsIgnoringCRLF("    testFunc(&root);", extractor.mapFunctions(creator.getFunctionCalls()));
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder("#include <ac.h>", "#include <ab.h>");
-        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder("file1.cpp", "file2.h");
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                fileInTcMenu("file1.cpp"), fileInTcMenu("file2.h"));
     }
 
     class ExampleCodeCreator extends AbstractCodeCreator {

@@ -1,7 +1,9 @@
 {
   "name": "General IO CodeGen Plugin",
   "moduleName": "com.thecoderscorner.tcmenu.plugin.baseio",
-  "version": "1.2.0",
+  "version": "1.3.0",
+  "vendor": "TheCodersCorner.com",
+  "vendorUrl": "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/",
   "license": "Apache 2.0",
   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
   "plugins": [
@@ -90,8 +92,8 @@
       "id": "0877131c-e03e-426b-8eaf-228e01f5e7f1",
       "subsystem": "REMOTE",
       "applicability": ["ARDUINO", "ARDUINO32"],
-      "description": "Ethernet2 library control for Ethernet shields",
-      "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds that are compatible with Ethernet2 library. The full menu structure will be available to the remote using either the protocol or the API.",
+      "description": "Ethernet control of your menu using popular libraries",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds and devices. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.EthernetRemoteCapabilitiesCreator",
       "imageFileName": "ethernet-shield.jpg"
     }

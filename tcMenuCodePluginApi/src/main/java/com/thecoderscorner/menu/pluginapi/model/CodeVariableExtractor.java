@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * This interface defines a method to map structures into code. This provides plugins with a means of defining variables,
- * functions, exports etc for a specific language.
- * @see CppCode
+ * functions, exports etc for a specific language. For example the {@link CodeVariableCppExtractor} is the C++ extractor
+ * that can convert the below structures into C++ code.
  */
 public interface CodeVariableExtractor {
     String mapFunctions(List<FunctionCallBuilder> functions);

@@ -6,11 +6,13 @@
 
 package com.thecoderscorner.tcmenu.plugins.basedisplay;
 
+import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.fileInTcMenu;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
@@ -47,8 +49,9 @@ public class I2cLiquidCrystalDisplayCreatorTest {
         );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+                fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp"),
+                fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.h")
+        );
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",
@@ -86,8 +89,9 @@ public class I2cLiquidCrystalDisplayCreatorTest {
         );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+                PluginFileDependency.fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp"),
+                PluginFileDependency.fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.h")
+        );
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include <LiquidCrystalIO.h>",

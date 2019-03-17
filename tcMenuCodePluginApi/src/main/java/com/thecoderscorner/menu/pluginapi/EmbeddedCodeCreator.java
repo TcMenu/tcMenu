@@ -13,8 +13,8 @@ import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import java.util.List;
 
 /**
- * Only use this class when {@link AbstractCodeCreator} doesnt work for you. Purposely not documented,
- * see the abstract class linked above instead.
+ * Only use this class when {@link AbstractCodeCreator} doesnt work for you. It is the interface underneath
+ * the aforementioned class.
  */
 public interface EmbeddedCodeCreator {
     /**
@@ -23,10 +23,25 @@ public interface EmbeddedCodeCreator {
      */
     void initialise(String root);
 
+    /**
+     * @return a list of header definitions that will be turned into items to include.
+     */
     List<HeaderDefinition> getIncludes();
+
+    /**
+     * @return a list of variables that will be added to the sketch as globals
+     */
     List<CodeVariableBuilder> getVariables();
+
+    /**
+     * @return a list of function calls that need to be made during setup
+     */
     List<FunctionCallBuilder> getFunctionCalls();
-    List<String> getRequiredFiles();
+
+    /**
+     * @return a list of file dependencies or plugins needed for this creator to function
+     */
+    List<PluginFileDependency> getRequiredFiles();
 
     /**
      * Each code creator has a list of properties, these properties are provided by the properties method

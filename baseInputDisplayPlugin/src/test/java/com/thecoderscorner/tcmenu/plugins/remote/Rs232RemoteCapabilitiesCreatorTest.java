@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.fileInTcMenu;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
@@ -46,8 +47,8 @@ class Rs232RemoteCapabilitiesCreatorTest {
         );
 
         assertThat(creator.getRequiredFiles()).containsExactly(
-                "remotes/serial/SerialTransport.cpp",
-                "remotes/serial/SerialTransport.h"
+                fileInTcMenu("remotes/serial/SerialTransport.cpp"),
+                fileInTcMenu("remotes/serial/SerialTransport.h")
         );
     }
 }

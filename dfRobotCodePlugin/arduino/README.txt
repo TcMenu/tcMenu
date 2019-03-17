@@ -1,3 +1,4 @@
-If there were Arduino code that was not packaged in the IDE, then it would be added here. The arduino directory is
-simulated as a library and should be loadable by most C++ editors as such. I've tried it with VSCode which handles it
-fine. The tests package allows you to have tests for any of the Arduino code.
+When you have embedded code to go with your plugin, that does not reside in the library, then this code should
+be put into a directory under this folder. There is a job as part of the build script that copies anything except
+this readme file and .INO files into the META-INF/tcmenu directory. This is where the generator will look for those
+files. The files should be in the form directoryName/fileName.ext. Not including the META-INF/tcmenu.

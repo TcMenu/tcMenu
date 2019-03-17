@@ -120,6 +120,27 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-arduino-to-jar</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/tcmenu</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/arduino</directory>
+                                    <filtering>false</filtering>
+                                    <excludes>
+                                        <exclude>**/*.ino</exclude>
+                                        <exclude>**/README.txt</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
             <plugin>

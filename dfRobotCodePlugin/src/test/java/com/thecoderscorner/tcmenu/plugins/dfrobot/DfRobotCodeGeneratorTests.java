@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.fileInTcMenu;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DfRobotCodeGeneratorTests {
@@ -27,8 +28,9 @@ public class DfRobotCodeGeneratorTests {
         var extractor = aDefaultExtractorFor(creator);
         assertThat(creator.properties()).isEmpty();
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.cpp",
-                "renderers/liquidcrystal/tcMenuLiquidCrystal.h");
+                fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.cpp"),
+                fileInTcMenu("renderers/liquidcrystal/tcMenuLiquidCrystal.h")
+        );
 
         assertThat(includeConverter(creator.getIncludes())).containsExactly(
                 "#include <LiquidCrystalIO.h>",

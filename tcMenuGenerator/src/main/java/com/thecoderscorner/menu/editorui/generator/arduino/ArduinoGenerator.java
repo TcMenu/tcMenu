@@ -30,15 +30,16 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public class ArduinoGenerator implements CodeGenerator {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -263,23 +264,47 @@ public class ArduinoGenerator implements CodeGenerator {
     private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
         logLine("Finding any required rendering / remote plugins to add to project");
 
-        AtomicReference<Exception> possibleException = new AtomicReference<>();
+        for(var gen : generators) {
+            generatePluginsForCreator(gen, directory);
+        }
+    }
 
-        generators.stream().flatMap(gen-> gen.getRequiredFiles().stream()).forEach(file -> {
+    private void generatePluginsForCreator(EmbeddedCodeCreator creator, Path directory) throws TcMenuConversionException{
+        for(var file : creator.getRequiredFiles()) {
             try {
-                Path fileToCopy = installer.findLibraryInstall("tcMenu")
-                        .orElseThrow(IOException::new).resolve(file);
 
-                Path nameOfFile = Paths.get(file).getFileName();
-                Files.copy(fileToCopy, directory.resolve(nameOfFile), REPLACE_EXISTING);
+                // get the source (either from the plugin or from the tcMenu library)
+                String fileNamePart;
+                String fileData;
+                if (file.getPackaging() == PackagingType.WITH_PLUGIN) {
+                    String jarFileName = "META-INF/tcmenu/" + file.getFileName();
+                    try(var sourceInputStream = creator.getClass().getClassLoader().getResourceAsStream(jarFileName)) {
+                        if(sourceInputStream == null) throw new IOException("File not found: " + jarFileName);
+                        fileData = new String(sourceInputStream.readAllBytes());
+                        fileNamePart = Paths.get(file.getFileName()).getFileName().toString();
+                    }
+                    catch(Exception e) {
+                        throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
+                    }
+                } else {
+                    Path path = installer.findLibraryInstall("tcMenu")
+                            .orElseThrow(IOException::new).resolve(file.getFileName());
+                    fileData = new String(Files.readAllBytes(path));
+                    fileNamePart = path.getFileName().toString();
+                }
+
+                // and apply the replacements one at a time
+                for (Map.Entry<String, String> entry : file.getReplacements().entrySet()) {
+                    fileData = fileData.replaceAll(entry.getKey(), entry.getValue());
+                }
+
+                // and copy into the destination
+                Files.write(directory.resolve(fileNamePart), fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
                 logLine("Copied with replacement " + file);
-            } catch (IOException e) {
-                logLine("Copy failed for required plugin: " + file);
-                possibleException.set(e);
             }
-        });
-        if(possibleException.get() != null) {
-            throw new TcMenuConversionException("Plugin copy failed", possibleException.get());
+            catch(Exception e) {
+                throw new TcMenuConversionException("Unexpected exception processing " + file, e);
+            }
         }
     }
 
