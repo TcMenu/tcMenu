@@ -57,6 +57,7 @@ EthernetTagValServer::EthernetTagValServer() : connector(&transport, 0) {
 void EthernetTagValServer::begin(EthernetServer* server, const char* namePgm) {
 	this->server = server;
 	this->connector.setName(namePgm);
+	this->server->begin();
 	taskManager.scheduleFixedRate(TICK_INTERVAL, []{remoteServer.runLoop();}, TIME_MILLIS);
 }
 
