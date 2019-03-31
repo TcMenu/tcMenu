@@ -102,6 +102,7 @@ public class GenerateCodeDialog {
             vbox.getChildren().add(currentInput);
         } catch (ClassNotFoundException e) {
             logger.log(ERROR, "Class loading problem", e);
+
         }
 
 

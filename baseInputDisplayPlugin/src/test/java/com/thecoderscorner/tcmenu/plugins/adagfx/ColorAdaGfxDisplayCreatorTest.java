@@ -11,8 +11,11 @@ import com.thecoderscorner.menu.pluginapi.SubSystem;
 import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,15 +47,15 @@ class ColorAdaGfxDisplayCreatorTest {
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
-                "    prepareDefaultGfxConfig(gfxConfig);\n" +
+                "    prepareAdaColorDefaultGfxConfig(&gfxConfig);\n" +
                         "    gfx.begin();\n" +
                         "    gfx.setRotation(0);\n" +
                         "    renderer.setGraphicsDevice(&gfx, &gfxConfig);"
         );
 
         assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
-                PluginFileDependency.fileInTcMenu("renderers/adafruit/tcMenuAdaFruitGfx.cpp"),
-                PluginFileDependency.fileInTcMenu("renderers/adafruit/tcMenuAdaFruitGfx.h")
+                new PluginFileDependency("adaGfxColor/tcMenuAdaFruitGfx.cpp", WITH_PLUGIN, Map.of()),
+                new PluginFileDependency("adaGfxColor/tcMenuAdaFruitGfx.h", WITH_PLUGIN, Map.of())
         );
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
                 "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_ILI9341.h>"

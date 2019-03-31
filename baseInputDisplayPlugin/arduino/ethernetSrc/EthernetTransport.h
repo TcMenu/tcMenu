@@ -15,11 +15,11 @@
 #define _TCMENU_ETHERNETTRANSPORT_H_
 
 #include <RemoteConnector.h>
-
+#include <TaskManager.h>
 #include <Ethernet.h>
 
 /**
- * An implementation of TagValueTransport that works over an ethernet connection.
+ * An implementation of TagValueTransport that is able to read and write using sockets.
  */
 class EthernetTagValTransport : public TagValueTransport {
 private:
@@ -40,31 +40,45 @@ public:
 };
 
 /**
- * This is the actual server component that keeps the ethernet connections
- * open and handles them.
+ * This is the actual server component that manages all the ethernet connections.
+ * It holds the connector, transport and processors that are needed to be able
+ * to service messages. To initialise it one calls begin(..) passing an ethernet
+ * server to listen on and the name (which on AVR is in PROGMEM).
  */
-class EthernetTagValServer {
+class EthernetTagValServer : public Executable {
 private:
-	EthernetTagValTransport transport;
 	TagValueRemoteConnector connector;
+	EthernetTagValTransport transport;
+	CombinedMessageProcessor messageProcessor;
 	EthernetServer *server;
 public:
-	/** Empty constructor - see begin. */
+
+	/**
+	 * Empty constructor - see begin.
+	 */
 	EthernetTagValServer();
+
 	/**
 	 * Creates the ethernet client manager components.
 	 * @param server a ready configured ethernet server instance.
-	 * @param namePgm the local name in program memory
+	 * @param namePgm the local name in program memory on AVR
 	 */
 	void begin(EthernetServer* server, const char* namePgm);
+
 	/**
-	 * returns the EthernetTagValTransport
+	 * @return the EthernetTagValTransport for the given connection number - zero based
 	 */
-	EthernetTagValTransport* getTransport() { return &transport; }
-	/** returns the selected connector by remoteNo - default 0 */
-	TagValueRemoteConnector* getRemoteConnector(int num) { return &connector; }
-	/** do not manually call, called by taskManager */
-	void runLoop();
+	EthernetTagValTransport* getTransport(int /*num*/) { return &transport; }
+
+	/**
+	 * @return the selected connector by remoteNo - zero based
+	 */
+	TagValueRemoteConnector* getRemoteConnector(int /*num*/) { return &connector; }
+
+	/**
+	 * do not manually call, called by taskManager to poll the connection
+	 */
+	void exec();
 };
 
 /**

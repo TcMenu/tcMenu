@@ -26,19 +26,22 @@ class CannedPropertyValidatorsTest {
 
     @Test
     public void testPinIntegerValidator() {
-        IntegerPropertyValidationRules validator = CannedPropertyValidators.pinValidator();
+        PinPropertyValidationRules validator = CannedPropertyValidators.pinValidator();
         assertFalse(validator.hasChoices());
         assertThat(validator.choices()).isEmpty();
         assertTrue(validator.isValueValid("1"));
         assertTrue(validator.isValueValid("254"));
+        assertTrue(validator.isValueValid("A0"));
         assertFalse(validator.isValueValid("1024"));
         assertFalse(validator.isValueValid("-1"));
 
         validator = CannedPropertyValidators.optPinValidator();
+        assertTrue(validator.isValueValid("-1"));
         assertTrue(validator.isValueValid("1"));
         assertTrue(validator.isValueValid("254"));
         assertFalse(validator.isValueValid("1024"));
-        assertTrue(validator.isValueValid("-1"));
+        assertTrue(validator.isValueValid("A12"));
+        assertFalse(validator.isValueValid("A1200"));
     }
 
     @Test

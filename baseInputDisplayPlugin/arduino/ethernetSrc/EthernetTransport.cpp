@@ -50,15 +50,15 @@ bool EthernetTagValTransport::readAvailable() {
 	return client && client.connected() && client.available();
 }
 
-EthernetTagValServer::EthernetTagValServer() : connector(&transport, 0) {
+EthernetTagValServer::EthernetTagValServer() : messageProcessor(msgHandlers, MSG_HANDLERS_SIZE) {
 	this->server = NULL;
 }
 
 void EthernetTagValServer::begin(EthernetServer* server, const char* namePgm) {
 	this->server = server;
-	this->connector.setName(namePgm);
 	this->server->begin();
-	taskManager.scheduleFixedRate(TICK_INTERVAL, []{remoteServer.runLoop();}, TIME_MILLIS);
+	this->connector.initialise(&transport, &messageProcessor, namePgm, 0);
+	taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
 }
 
 void EthernetTagValTransport::close() {
@@ -67,7 +67,7 @@ void EthernetTagValTransport::close() {
 	client.stop();
 }
 
-void EthernetTagValServer::runLoop() {
+void EthernetTagValServer::exec() {
 	if(transport.connected()) {
 		connector.tick();
 	}

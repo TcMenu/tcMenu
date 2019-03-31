@@ -20,15 +20,15 @@ public class CannedPropertyValidators {
     /**
      * @return a validator useful for arduino pins
      */
-    public static IntegerPropertyValidationRules pinValidator() {
-        return new IntegerPropertyValidationRules(0, 254);
+    public static PinPropertyValidationRules pinValidator() {
+        return new PinPropertyValidationRules(false);
     }
 
     /**
      * @return a pin validator that allows -1 to indicate optionality
      */
-    public static IntegerPropertyValidationRules optPinValidator() {
-        return new IntegerPropertyValidationRules(-1, 254);
+    public static PinPropertyValidationRules optPinValidator() {
+        return new PinPropertyValidationRules(true);
     }
 
     /**

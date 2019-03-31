@@ -8,6 +8,7 @@ package com.thecoderscorner.tcmenu.plugins.adagfx;
 
 import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
@@ -15,8 +16,10 @@ import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
+import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.uintValidator;
 import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.variableValidator;
@@ -40,12 +43,15 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
 
     @Override
     protected void initCreator(String root) {
-        addLibraryFiles("renderers/adafruit/tcMenuAdaFruitGfx.cpp", "renderers/adafruit/tcMenuAdaFruitGfx.h");
+        addLibraryFiles(
+                new PluginFileDependency("adaGfxColor/tcMenuAdaFruitGfx.cpp", WITH_PLUGIN, Map.of()),
+                new PluginFileDependency("adaGfxColor/tcMenuAdaFruitGfx.h", WITH_PLUGIN, Map.of())
+        );
 
         String configVar = findPropertyValue("DISPLAY_CONFIG").getLatestValue();
         if(configVar.isEmpty()) {
             addVariable(new CodeVariableBuilder().variableType("AdaColorGfxMenuConfig").variableName("gfxConfig"));
-            addFunctionCall(new FunctionCallBuilder().functionName("prepareDefaultGfxConfig").param("gfxConfig"));
+            addFunctionCall(new FunctionCallBuilder().functionName("prepareAdaColorDefaultGfxConfig").paramRef("gfxConfig"));
             configVar = "gfxConfig";
         }
         else {
