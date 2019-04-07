@@ -29,12 +29,14 @@ bool EthernetTagValTransport::connected() {
 }
 
 int EthernetTagValTransport::writeChar(char data) {
-	serdebug2("writing ", data);
+    // only uncomment below for worst case debugging..
+//	serdebug2("writing ", data);
 	return client.write(data);
 }
 
 int EthernetTagValTransport::writeStr(const char* data) {
-	serdebug2("writing ", data);
+    // only uncomment below for worst case debugging..
+//	serdebug2("writing ", data);
 	return client.write(data);
 }
 
@@ -55,8 +57,10 @@ EthernetTagValServer::EthernetTagValServer() : messageProcessor(msgHandlers, MSG
 }
 
 void EthernetTagValServer::begin(EthernetServer* server, const char* namePgm) {
+    serdebugFHex("Initialising ethernet", (unsigned int)server);
 	this->server = server;
 	this->server->begin();
+    serdebugF("Initialising connector");
 	this->connector.initialise(&transport, &messageProcessor, namePgm, 0);
 	taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
 }
@@ -68,12 +72,12 @@ void EthernetTagValTransport::close() {
 }
 
 void EthernetTagValServer::exec() {
-	if(transport.connected()) {
-		connector.tick();
-	}
-	else {
+    connector.tick();
+
+    if(!transport.connected()) {
 		EthernetClient client = server->available();
 		if(client) {
+            serdebugF("Client found");
 			transport.setClient(client);
 		}
 	}

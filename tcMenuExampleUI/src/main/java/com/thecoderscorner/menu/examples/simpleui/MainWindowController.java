@@ -23,6 +23,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -504,14 +505,18 @@ public class MainWindowController {
      * any UI fields on the connection thread.
      */
     private void updateConnectionDetails() {
+        Stage stage = (Stage)platformLabel.getScene().getWindow();
+
         connectedLabel.setText(connected ? "YES" : "NO");
         remoteInfo.ifPresent(remote -> {
             remoteNameLabel.setText(remote.getName());
             versionLabel.setText(remote.getMajorVersion() + "." + remote.getMinorVersion());
             platformLabel.setText(remote.getPlatform().getDescription());
+            stage.setTitle("Connected to " + remote.getName());
         });
 
         if (!connected) {
+            stage.setTitle("Disconnected [" + remoteControl.getConnector().getConnectionName() + "]");
             menuLoadLabel.setText("NO");
             versionLabel.setText("");
             remoteNameLabel.setText("");

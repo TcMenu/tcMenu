@@ -37,7 +37,7 @@ public class SimpleFxApp extends Application {
 
         if(remote != null) {
             // At this point we build a JavaFX stage and load up our main window
-            primaryStage.setTitle("JavaAPI -> tcMenu Arduino");
+            primaryStage.setTitle("Connecting to remote system");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
             Pane myPane = loader.load();
 
@@ -59,7 +59,7 @@ public class SimpleFxApp extends Application {
         controller.init(tree);
 
         Stage dialogStage = new Stage();
-        dialogStage.setTitle("Create new item");
+        dialogStage.setTitle("Connect to tcMenu device");
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(null);
         Scene scene = new Scene(pane);

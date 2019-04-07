@@ -137,7 +137,6 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     }
 
-
     public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
         RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree);

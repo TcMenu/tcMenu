@@ -6,8 +6,9 @@
 #include <tcMenu.h>
 #include "EthernetTransport.h"
 #include "tcm_test/testFixtures.h"
+//#include "utility/logging.h"
 
-const char applicationName[] = "Testdevice";
+const char applicationName[] PROGMEM = "Testdevice";
 NoRenderer noRenderer;
 
 byte mac[] = {
@@ -16,8 +17,8 @@ byte mac[] = {
 IPAddress ip(192, 168, 0, 96);
 EthernetServer server(3333);
 
-void onCommsNotify(CommsNotificationType status) {
-    serdebugF2("Comms notify: ", status);
+void onCommsNotify(CommunicationInfo status) {
+    serdebugF4("Comms notify: (rNo, connected, errNo)", status.remoteNo, status.connected, status.errorMode);
 }
  
 void setup() {
@@ -25,24 +26,32 @@ void setup() {
     Serial.begin(115200);
 
     Ethernet.begin(mac, ip);
-    TagValueTransport::setNoificationFn(onCommsNotify);
+
+    serdebugF("started ethernet");
 
     menuMgr.initWithoutInput(&noRenderer, &menuVolume);
     remoteServer.begin(&server, applicationName);
+    remoteServer.getRemoteConnector(0)->setCommsNotificationCallback(onCommsNotify);
 
-    taskManager.scheduleFixedRate(250, []{
-        int vol = menuVolume.getCurrentValue();
+    serdebugF("started app");
+
+    taskManager.scheduleFixedRate(150, []{
+        cycleAnalogMenu(menuVolume);
+        cycleAnalogMenu(menuLHSTemp);
+        cycleAnalogMenu(menuRHSTemp);
+        cycleAnalogMenu(menuContrast);
+    });
+}
+
+void cycleAnalogMenu(AnalogMenuItem& item) {
+        unsigned int vol = item.getCurrentValue();
         vol++;
-        if(vol > menuVolume.getMaximumValue()) vol = 0;
-        menuVolume.setCurrentValue(vol);
-    });
+        if(vol > item.getMaximumValue()) vol = 0;
+        item.setCurrentValue(vol);
 
-    taskManager.scheduleFixedRate(2000, []{
-        serdebugF2("12VStandby: ", menu12VStandby.getBoolean());
-        serdebugF2("Contrast: ", menuContrast.getCurrentValue());
-    });
 }
 
 void loop() {
     taskManager.runLoop();
+    Ethernet.maintain();
 }

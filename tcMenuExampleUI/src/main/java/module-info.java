@@ -1,4 +1,4 @@
-module com.thecoderscorner.tcmenu.tcMenuExampleUI {
+module com.thecoderscorner.tcmenu.exampleui {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.base;
@@ -8,6 +8,8 @@ module com.thecoderscorner.tcmenu.tcMenuExampleUI {
     requires com.fazecast.jSerialComm;
 
     requires com.thecoderscorner.tcmenu.javaapi;
+    requires java.prefs;
+    requires java.desktop;
 
     exports com.thecoderscorner.menu.examples.simpleui;
 }

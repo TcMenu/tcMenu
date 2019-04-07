@@ -17,17 +17,31 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 /**
- * This controller manages the choice of remote that will be used at startup. Kept as simple as possible.
+ * At start up this class asks the user to define the tcMenu that they wish to connect to.
+ * It does so by displaying a simple dialog. To make things less annoying, this dialog
+ * tries to remember the last settings used.
  */
 public class RemoteSelectorController {
     public static final String LOCAL_NAME = "JavaUI";
+    public static final String PREF_KEY_CONNECTOR_TYPE = "ConnectorType";
+    public static final String PREF_KEY_SERIAL_PORT = "serialPort";
+    public static final String PREF_KEY_SERIAL_BAUD = "SerialBaud";
+    public static final String PREF_KEY_IP_ADDRESS = "IpAddress";
+    public static final String PREF_KEY_IP_PORT = "IpPort";
+    private static final String HELP_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/";
+
     public Label portLabel;
     public Label baudLabel;
     public TextField baudText;
@@ -46,6 +60,25 @@ public class RemoteSelectorController {
         portCombo.setItems(FXCollections.observableArrayList(
                 Arrays.stream(SerialPort.getCommPorts()).map(SerialPort::getSystemPortName).collect(Collectors.toList()))
         );
+        Preferences prefs = Preferences.userNodeForPackage(RemoteSelectorController.class);
+        var connector = prefs.get(PREF_KEY_CONNECTOR_TYPE, "serial");
+        if(connector.equals("serial")) {
+            chooseNetwork.setSelected(false);
+            chooseSerial.setSelected(true);
+            var port = prefs.get(PREF_KEY_SERIAL_PORT, "");
+            var baud = prefs.get(PREF_KEY_SERIAL_BAUD, "115200");
+            if(!port.isEmpty()) portCombo.getSelectionModel().select(port);
+            baudText.setText(baud);
+        }
+        else {
+            chooseSerial.setSelected(false);
+            chooseNetwork.setSelected(true);
+            var eth = prefs.get(PREF_KEY_IP_ADDRESS, "192.168.0.96");
+            var port = prefs.get(PREF_KEY_IP_PORT, "3333");
+            addrText.setText(eth);
+            ipPortText.setText(port);
+        }
+        onCommChoiceChange(new ActionEvent());
     }
 
     public void onCommChoiceChange(ActionEvent actionEvent) {
@@ -68,6 +101,9 @@ public class RemoteSelectorController {
     }
 
     public void onStart(ActionEvent actionEvent) {
+
+        saveLastSettings();
+
         if(chooseSerial.isSelected()) {
             int baud = Integer.parseInt(baudText.getText());
             String port = portCombo.getSelectionModel().getSelectedItem();
@@ -96,7 +132,30 @@ public class RemoteSelectorController {
         s.close();
     }
 
+    private void saveLastSettings() {
+        Preferences prefs = Preferences.userNodeForPackage(RemoteSelectorController.class);
+        prefs.put(PREF_KEY_CONNECTOR_TYPE, chooseSerial.isSelected() ? "serial" : "ethernet");
+        if(chooseSerial.isSelected()) {
+            prefs.put(PREF_KEY_SERIAL_PORT, portCombo.getValue());
+            prefs.put(PREF_KEY_SERIAL_BAUD, baudText.getText());
+        }
+        else {
+            prefs.put(PREF_KEY_IP_ADDRESS, addrText.getText());
+            prefs.put(PREF_KEY_IP_PORT, ipPortText.getText());
+        }
+
+    }
+
     public RemoteMenuController getResult() {
         return result;
+    }
+
+    public void onClickHelp(MouseEvent mouseEvent) {
+        try {
+            Desktop.getDesktop().browse(new URI(HELP_URL));
+        } catch (IOException | URISyntaxException e) {
+            // not much we can do here really!
+        }
+
     }
 }
