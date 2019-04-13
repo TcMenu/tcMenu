@@ -21,10 +21,16 @@
 #include <tcUtil.h>
 #include <BaseRenderers.h>
 #include <Adafruit_GFX.h>
+#include <Adafruit_ILI9341.h>
 #include <gfxfont.h>
 #include <GfxMenuConfig.h>
 
+#define DISPLAY_HAS_MEMBUFFER false
+
 extern const char applicationName[];
+
+#define RGB_BLACK RGB(0,0,0)
+#define RGB_WHITE RGB(255,255,255)
 
 /**
  * A standard menu render configuration that describes how to renderer each item and the title.
@@ -64,7 +70,7 @@ public:
 private:
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
 	void renderTitleArea();
-	void renderWidgets(bool forceDraw);
+	bool renderWidgets(bool forceDraw);
 	Coord textExtents(const char* text, int16_t x, int16_t y);
 };
 
@@ -73,5 +79,10 @@ private:
  * for 100 - 150 dpi displays.
  */
 void prepareAdaColorDefaultGfxConfig(AdaColorGfxMenuConfig* config);
+
+/**
+ * A graphics configuration suitable for lower resolution displays such as the 5110, these settings may be appropriate
+ */
+void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config);
 
 #endif /* _TCMENU_TCMENUADAFRUITGFX_H_ */

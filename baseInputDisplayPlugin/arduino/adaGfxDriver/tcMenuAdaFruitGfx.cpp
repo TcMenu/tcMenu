@@ -16,10 +16,32 @@
 
 //#define DEBUG_GFX
 
+const uint8_t loResEditingIcon[] PROGMEM = {
+		0b00000000,
+		0b01111110,
+		0b00000000,
+		0b00000000,
+		0b01111110,
+		0b00000000,
+};
+const uint8_t loResActiveIcon[] PROGMEM = {
+		0b00011000,
+		0b00011100,
+		0b11111110,
+		0b11111110,
+		0b00011100,
+		0b00011000,
+};
 
 extern const char applicationName[];
 
 int drawingCount = 0;
+
+#if DISPLAY_HAS_MEMBUFFER == true
+    #define refreshDisplayIfNeeded(gr, needUpd) {if(needUpd) reinterpret_cast<Adafruit_ILI9341*>(gr)->display();}
+#else
+    #define refreshDisplayIfNeeded(g, n)
+#endif
 
 void AdaFruitGfxMenuRenderer::setGraphicsDevice(Adafruit_GFX* graphics, AdaColorGfxMenuConfig *gfxConfig) {
 	this->graphics = graphics;
@@ -66,20 +88,23 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 	titleHeight += gfxConfig->titleBottomMargin;
 }
 
-void AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
+bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 	TitleWidget* widget = firstWidget;
 	int xPos = xSize - gfxConfig->widgetPadding.right;
+    bool redrawNeeded = forceDraw;
 	while(widget) {
 		xPos -= widget->getWidth();
 
 		if(widget->isChanged() || forceDraw) {
-			graphics->drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(), 
+            redrawNeeded = true;
+			graphics->drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(),
 								 gfxConfig->widgetColor, gfxConfig->bgTitleColor);
 		}
 
 		widget = widget->getNext();
 		xPos -= gfxConfig->widgetPadding.left;
 	}
+    return redrawNeeded;
 }
 
 void AdaFruitGfxMenuRenderer::render() {
@@ -87,6 +112,7 @@ void AdaFruitGfxMenuRenderer::render() {
 
 	uint8_t locRedrawMode = redrawMode;
 	redrawMode = MENUDRAW_NO_CHANGE;
+    boolean requiresUpdate = false;
 
 	countdownToDefaulting();
 
@@ -96,9 +122,10 @@ void AdaFruitGfxMenuRenderer::render() {
 		renderTitleArea();
 		renderWidgets(true);
 		taskManager.yieldForMicros(0);
+        requiresUpdate = true;
 	}
 	else {
-		renderWidgets(false);
+		requiresUpdate = renderWidgets(false);
 	}
 
 	graphics->setFont(gfxConfig->itemFont);
@@ -128,6 +155,7 @@ void AdaFruitGfxMenuRenderer::render() {
 	int ypos = titleHeight;
 	while (item && (ypos + menuHeight) < ySize ) {
 		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+            requiresUpdate = true;
 			renderMenuItem(ypos, menuHeight, item);
 			taskManager.yieldForMicros(0);
 		}
@@ -136,17 +164,16 @@ void AdaFruitGfxMenuRenderer::render() {
 	}
 
 #ifdef DEBUG_GFX
-#define BACKGROUND_DEBUG RGB(0, 0, 0)
-#define COLOR_DEBUG RGB(200, 200, 200)
-
 	// when debug graphics are on we draw a total count rendered to the bottom of the display
-	graphics->setTextColor(COLOR_DEBUG);
-	graphics->setCursor(200, 220);
-	graphics->setTextSize(2);
-	graphics->fillRect(200, 220, 80, 20, BACKGROUND_DEBUG);
+	graphics->setTextColor(RGB_WHITE);
+	graphics->setCursor(0, 0);
+	graphics->setTextSize(1);
+	graphics->fillRect(0, 0, 15, 10, RGB_BLACK);
 	itoa(drawingCount, buffer, 10);
 	graphics->print(buffer);
 #endif
+
+    refreshDisplayIfNeeded(graphics, requiresUpdate);
 }
 
 void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) {
@@ -191,4 +218,31 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 
 void prepareAdaColorDefaultGfxConfig(AdaColorGfxMenuConfig* config) { 
     prepareDefaultGfxConfig((ColorGfxMenuConfig<void*>*)config);
+}
+
+
+void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
+	makePadding(config->titlePadding, 2, 1, 1, 1);
+	makePadding(config->itemPadding, 1, 1, 1, 1);
+	makePadding(config->widgetPadding, 2, 2, 0, 2);
+
+	config->bgTitleColor = RGB_WHITE;
+	config->fgTitleColor = RGB_BLACK;
+	config->titleFont = NULL;
+	config->titleBottomMargin = 2;
+
+	config->bgItemColor = RGB_BLACK;
+	config->fgItemColor = RGB_WHITE;
+	config->itemFont = NULL;
+
+	config->bgSelectColor = RGB_WHITE;
+	config->fgSelectColor = RGB_BLACK;
+	config->widgetColor = RGB_BLACK;
+    config->editIcon = loResEditingIcon;
+    config->activeIcon = loResActiveIcon;
+    config->editIconHeight = 6;
+    config->editIconWidth = 8;
+
+	config->titleFontMagnification = 1;
+	config->itemFontMagnification = 1;
 }

@@ -65,8 +65,8 @@
       "id": "7c486068-9879-459f-89ee-9522366524a3",
       "subsystem": "DISPLAY",
       "applicability": ["ARDUINO", "ARDUINO32"],
-      "description": "Color Adafruit GFX based display",
-      "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version is optimised for colour screens of 320x240 or greater. It will place a rendering configuration file into your project.",
+      "description": "Adafruit GFX based display",
+      "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version works with most displays and is very configurable. You can easily override the drawing configuration.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.adagfx.ColorAdaGfxDisplayCreator",
       "imageFileName": "adagfx-color.jpg"
     },
