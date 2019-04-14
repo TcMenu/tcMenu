@@ -62,7 +62,7 @@ class ColorAdaGfxDisplayCreatorTest {
                 new PluginFileDependency("adaGfxDriver/tcMenuAdaFruitGfx.h", WITH_PLUGIN, replacements)
         );
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
-                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_PCD8544.h>"
+                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_PCD8544.h>", "#include <Adafruit_GFX.h>"
         );
     }
 
@@ -106,7 +106,7 @@ class ColorAdaGfxDisplayCreatorTest {
                 new PluginFileDependency("adaGfxDriver/tcMenuAdaFruitGfx.h", WITH_PLUGIN, replacements)
         );
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
-                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_SSD1306.h>"
+                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_SSD1306.h>", "#include <Adafruit_GFX.h>"
         );
     }
 
@@ -148,7 +148,7 @@ class ColorAdaGfxDisplayCreatorTest {
                 new PluginFileDependency("adaGfxDriver/tcMenuAdaFruitGfx.h", WITH_PLUGIN, replacements)
         );
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
-                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_ILI9341.h>"
+                "#include \"tcMenuAdaFruitGfx.h\"", "#include <Adafruit_ILI9341.h>", "#include <Adafruit_GFX.h>"
         );
     }
 }

@@ -43,11 +43,14 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private Stage mainStage;
     private CodePluginManager manager;
     private EmbeddedPlatforms platforms;
+    private ArduinoLibraryInstaller installer;
 
-    public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms) {
+    public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
+                                      ArduinoLibraryInstaller installer) {
         this.manager = manager;
         this.mainStage = mainStage;
         this.platforms = platforms;
+        this.installer = installer;
     }
 
     @Override
@@ -55,6 +58,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose a Menu File");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Embedded menu", "*.emf"));
+        installer.getArduinoDirectory().ifPresent(path-> fileChooser.setInitialDirectory(path.toFile()));
         File f;
         if (open) {
             f = fileChooser.showOpenDialog(mainStage);

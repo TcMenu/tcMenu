@@ -71,7 +71,8 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
         }
 
         addVariable(new CodeVariableBuilder().variableType(graphicsType).variableName(graphicsVar).exportOnly()
-                            .requiresHeader(graphicsType + ".h", false));
+                            .requiresHeader(graphicsType + ".h", false)
+                            .requiresHeader("Adafruit_GFX.h", false));
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
                             .exportNeeded().param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")

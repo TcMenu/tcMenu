@@ -52,13 +52,15 @@ public class MenuEditorApp extends Application {
         manager.loadPlugins("plugins");
 
 
-        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms);
+        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
+
+        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer);
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
 
-        controller.initialise(project, new ArduinoLibraryInstaller(), editorUI, manager);
+        controller.initialise(project, installer, editorUI, manager);
 
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);

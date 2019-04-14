@@ -80,7 +80,7 @@ public class ArduinoLibraryInstaller {
      *
      * @return the arduino directory.
      */
-    private Optional<Path> getArduinoDirectory() {
+    public Optional<Path> getArduinoDirectory() {
         if (arduinoDirectory != null) {
             return Optional.ofNullable(Paths.get(arduinoDirectory));
         }
