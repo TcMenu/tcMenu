@@ -1,4 +1,4 @@
-# tcMenu - An embedded menu system for Arduino
+# tcMenu - A menu system for Arduino with IoT capabilities
 
 A menu system for Arduino that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
