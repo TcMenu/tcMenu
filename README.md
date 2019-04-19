@@ -61,14 +61,14 @@ This means:
 ## Display types that are supported
 
 * LiquidCrystal 20x4 or 16x2 displays - can be either directly connected, i2c or on a shift register.
-* Adafruit_GFX - can render onto a display compatible with this library.
+* Adafruit_GFX - can render onto a display compatible with this library, tested with Color ILI9341 and Nokia 5110 display.
 
 ## Remote endpoints that are supported
 
 This menu library provides complete remote control, presently over serial and ethernet. The full menu structure is sent over the wire and the Java API provides it as a tree that can be manipulated. There is also a defined protocol for other languages. In addition to this the menu can be programatically manipulated very easily on the device.
 
 * RS232 endpoint that supports full control of the menu items using a Java API - example app included.
-* Ethernet endpoint that supports the Ethernet library specification.
+* Ethernet endpoint that supports either Ethernet2 library or UipEthernet.
 
 ## Ready built remote control for tcMenu
 
