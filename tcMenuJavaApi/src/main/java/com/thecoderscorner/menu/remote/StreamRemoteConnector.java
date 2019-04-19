@@ -24,6 +24,8 @@ import static java.lang.System.Logger.Level.*;
  * with stream like semantics can use this as the base for building out an adapter.
  */
 public abstract class StreamRemoteConnector implements RemoteConnector {
+    public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
+
     private static final int MAX_MSG_EXPECTED = 1024;
     public static final byte START_OF_MSG = 0x01;
 
@@ -143,7 +145,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      * @throws IOException if there are problems reading data.
      */
     private byte nextByte(ByteBuffer inputBuffer) throws IOException {
-        getAtLeastBytes(inputBuffer, 1);
+        getAtLeastBytes(inputBuffer, 1, ReadMode.ONLY_WHEN_EMPTY);
         return inputBuffer.get();
     }
 
@@ -153,12 +155,12 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      * @param len the minimum number of bytes needed
      * @throws IOException if there are problems reading.
      */
-    protected abstract void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException;
+    protected abstract void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException;
 
     protected void readCompleteMessage(ByteBuffer inputBuffer) throws IOException {
         while(!doesBufferHaveEOM(inputBuffer)) {
             if(inputBuffer.remaining() > MAX_MSG_EXPECTED) throw new TcProtocolException("Message corrupt, no EOM");
-            getAtLeastBytes(inputBuffer, 1);
+            getAtLeastBytes(inputBuffer, 1, ReadMode.READ_MORE);
         }
     }
 
@@ -210,9 +212,15 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
 
         byte[] byData = new byte[512];
         int len = Math.min(byData.length, bb.remaining());
-        bb.get(byData, 0, len);
+        byte dataByte = bb.get();
+        int pos = 0;
+        while(pos < len && dataByte != '~') {
+            byData[pos] = dataByte;
+            pos++;
+            dataByte = bb.get();
+        }
 
-        logger.log(DEBUG, () -> msg + ". Content: " + new String(byData, 0, len));
+        logger.log(DEBUG, msg + ". Content: " + new String(byData, 0, pos));
     }
 
     public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {

@@ -43,6 +43,22 @@ public class TagValTextParserTest {
         // should throw exception, blank key.
     }
 
+    @Test
+    public void testDefaultValueRetrieval() throws IOException {
+        TagValTextParser parser = toBuffer("MT=HB|AB=123|DE=ABCDEF GH|~");
+        assertEquals(1000, parser.getValueAsIntWithDefault("HI", 1000));
+        assertEquals("Abc", parser.getValueWithDefault("WO", "Abc"));
+        assertEquals(123, parser.getValueAsIntWithDefault("AB", 42));
+        assertEquals("ABCDEF GH", parser.getValueWithDefault("DE", "notUsed"));
+    }
+
+    @Test
+    public void testThatPipeCanBeEscaped() throws IOException {
+        TagValTextParser parser = toBuffer("MT=HB|DE=ABCDEF\\|GH|AB=123|~");
+        assertEquals("ABCDEF|GH", parser.getValue("DE"));
+        assertEquals(123, parser.getValueAsIntWithDefault("AB", 42));
+    }
+
     private TagValTextParser toBuffer(String s) throws IOException {
         return new TagValTextParser(ByteBuffer.wrap(s.getBytes()));
     }

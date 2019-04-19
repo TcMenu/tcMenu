@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import java.util.Objects;
+
 public class MenuChangeCommand implements MenuCommand {
     public enum ChangeType { ABSOLUTE, DELTA }
     private final int menuItemId;
@@ -57,5 +59,21 @@ public class MenuChangeCommand implements MenuCommand {
                 ", changeType=" + changeType +
                 ", value='" + value + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuChangeCommand that = (MenuChangeCommand) o;
+        return getMenuItemId() == that.getMenuItemId() &&
+                getParentItemId() == that.getParentItemId() &&
+                getChangeType() == that.getChangeType() &&
+                Objects.equals(getValue(), that.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getMenuItemId(), getParentItemId(), getChangeType(), getValue());
     }
 }

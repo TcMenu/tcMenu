@@ -50,7 +50,7 @@ public class RemoteMenuControllerTest {
         executor = Mockito.mock(ScheduledExecutorService.class);
         clock = Mockito.mock(Clock.class);
         remoteListener = Mockito.mock(RemoteControllerListener.class);
-        controller = new RemoteMenuController(connector, menuTree, executor, "test", clock, 5000);
+        controller = new RemoteMenuController(connector, menuTree, executor, "test", clock);
         controller.addListener(remoteListener);
         controller.start();
 
@@ -178,7 +178,7 @@ public class RemoteMenuControllerTest {
     public void testHeartbeatOnNoTx() throws IOException {
         when(connector.isConnected()).thenReturn(true);
         heartbeatMon.getValue().run();
-        when(clock.millis()).thenReturn(6000L);
+        when(clock.millis()).thenReturn(20000L);
         heartbeatMon.getValue().run();
         Mockito.verify(connector).sendMenuCommand(isA(MenuHeartbeatCommand.class));
     }

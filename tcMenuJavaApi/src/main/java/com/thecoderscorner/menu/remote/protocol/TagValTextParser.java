@@ -51,10 +51,17 @@ public class TagValTextParser {
             if(ch == '~') {
                 return sb.append(ch).toString();
             }
-            if(ch == '=' || ch == '|') {
+            else if(ch == '\\') {
+                // special escape case allows | or ~ to be sent
+                ch = (char) buffer.get();
+                sb.append(ch);
+            }
+            else if(ch == '=' || ch == '|') {
+                // end of current token
                 return sb.toString();
             }
             else {
+                // within current token
                 sb.append(ch);
             }
         }
@@ -77,12 +84,34 @@ public class TagValTextParser {
     }
 
     /**
+     * Gets the value associated with the key from the message if it exists in the underlying map.
+     * This version returns the default value if it does not exist.
+     * @param keyMsgType the key to obtain
+     * @return the associated value or the default
+     */
+    public String getValueWithDefault(String keyMsgType, String defaultVal) {
+        return keyToValue.getOrDefault(keyMsgType, defaultVal);
+    }
+
+    /**
      * Calls the getValue method first and the converts to an integer.
      * @param keyIdField the key to obtain
      * @return the integer value associated
      */
     public int getValueAsInt(String keyIdField) throws IOException {
         return Integer.parseInt(getValue(keyIdField));
+    }
+
+    /**
+     * Calls the getValue method first and the converts to an integer.
+     * @param keyIdField the key to obtain
+     * @return the integer value associated
+     */
+    public int getValueAsIntWithDefault(String keyIdField, int defaultVal) throws IOException {
+        if(keyToValue.containsKey(keyIdField)) {
+            return Integer.parseInt(getValue(keyIdField));
+        }
+        else return defaultVal;
     }
 
     @Override

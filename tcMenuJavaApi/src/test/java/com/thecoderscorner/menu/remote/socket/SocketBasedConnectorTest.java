@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.remote.socket;
 
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.junit.After;
@@ -23,9 +24,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.domain.DomainFixtures.*;
 import static com.thecoderscorner.menu.remote.StreamRemoteConnector.START_OF_MSG;
 import static com.thecoderscorner.menu.remote.StreamRemoteConnector.doesBufferHaveEOM;
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static java.lang.System.Logger.Level.INFO;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -33,6 +38,13 @@ public class SocketBasedConnectorTest {
     private static final int PORT_FOR_TESTING = 3546;
     private RemoteServer remoteServer;
     private SocketBasedConnector socket;
+
+    // these queues record the items we sent to our channel, and the items we actually got on the channels callback
+    LinkedBlockingDeque<MenuCommand> messagesReadBack = new LinkedBlockingDeque<>(32);
+    LinkedBlockingDeque<MenuCommand> itemsSent = new LinkedBlockingDeque<>(32);
+
+    // this is the total expected sent and received messages.
+    CountDownLatch messageProcessingLatch = new CountDownLatch(10);
 
     @Before
     public void setUp() {
@@ -54,11 +66,9 @@ public class SocketBasedConnectorTest {
 
     @Test
     public void initiateConnectionAndSend() throws Exception {
-        CountDownLatch messageReadFromServerLatch = new CountDownLatch(2);
-        LinkedBlockingDeque<MenuCommand> messagesReadBack = new LinkedBlockingDeque<>(32);
 
         socket.registerConnectorListener((connector, command) -> {
-            messageReadFromServerLatch.countDown();
+            messageProcessingLatch.countDown();
             messagesReadBack.offer(command);
         });
 
@@ -70,20 +80,21 @@ public class SocketBasedConnectorTest {
         Thread.sleep(500);
 
         // then we initiate our mock server by sending a few commands - it sends 2 back for each command it gets
-        socket.sendMenuCommand(CommandFactory.newHeartbeatCommand());
-        socket.sendMenuCommand(CommandFactory.newDeltaChangeCommand(0, 1, 10));
+        socket.sendMenuCommand(newHeartbeatCommand(10000));
+        socket.sendMenuCommand(newDeltaChangeCommand(0, 1, 10));
+        socket.sendMenuCommand(newJoinCommand("dave"));
 
         // and at this point our callback will receive two messages from the mock server
-        messageReadFromServerLatch.await(15, TimeUnit.SECONDS);
-        assertTrue(messagesReadBack.size() >= 2);
-        assertTrue(messagesReadBack.take() instanceof MenuHeartbeatCommand);
-        assertTrue(messagesReadBack.take() instanceof MenuJoinCommand);
+        messageProcessingLatch.await(10, TimeUnit.SECONDS);
 
         // make sure all ended successfully.
         assertFalse(remoteServer.hasFailed());
         assertTrue(remoteServer.takeLastCommand() instanceof MenuHeartbeatCommand);
         assertTrue(remoteServer.takeLastCommand() instanceof MenuChangeCommand);
+        assertTrue(remoteServer.takeLastCommand() instanceof MenuJoinCommand);
 
+        // make sure that we we wrote to the socket is read back.
+        assertThat(messagesReadBack).containsExactlyElementsOf(itemsSent);
     }
 
     class RemoteServer {
@@ -129,24 +140,30 @@ public class SocketBasedConnectorTest {
                 startLatch.countDown();
                 logger.log(INFO, "Remote Server has connected to client");
 
+                // send some messages to the client in a single buffer.
+                sendMessage(writeBuffer, proto, newJoinCommand("Fred"));
+                sendMessage(writeBuffer, proto, newHeartbeatCommand(10000));
+                sendMessage(writeBuffer, proto, newBootstrapCommand(MenuBootstrapCommand.BootType.START));
+                sendMessage(writeBuffer, proto, newMenuBooleanBootCommand(0,
+                        aBooleanMenu("name", 1, BooleanNaming.ON_OFF), true)
+                );
+                sendMessage(writeBuffer, proto, newMenuTextBootCommand(0,
+                        aTextMenu("txt", 1), "abc")
+                );
+                sendMessage(writeBuffer, proto, newMenuFloatBootCommand(0,
+                        aFloatMenu("name", 1), (float)1.029)
+                );
+                sendMessage(writeBuffer, proto, newBootstrapCommand(MenuBootstrapCommand.BootType.END));
+                writeBuffer.flip();
+                while (socket.isConnected() && writeBuffer.hasRemaining()) {
+                    logger.log(INFO, "Sending messages to socket client");
+                    socket.write(writeBuffer);
+                }
+                writeBuffer.compact();
+
                 // and now read messages until the socket closes.
                 int len = socket.read(readBuffer);
                 while (socket.isConnected() && len > 0) {
-
-                    // send two messages to the client.
-                    writeBuffer.put(START_OF_MSG);
-                    writeBuffer.put(proto.getKeyIdentifier());
-                    proto.toChannel(writeBuffer, CommandFactory.newHeartbeatCommand());
-                    writeBuffer.put(START_OF_MSG);
-                    writeBuffer.put(proto.getKeyIdentifier());
-                    proto.toChannel(writeBuffer, CommandFactory.newJoinCommand("Fred"));
-                    writeBuffer.flip();
-                    while (socket.isConnected() && writeBuffer.hasRemaining()) {
-                        logger.log(INFO, "Sending messages to socket client");
-                        socket.write(writeBuffer);
-                    }
-                    writeBuffer.compact();
-
                     // and read what was sent to us and put it onto the queue.
                     readBuffer.flip();
                     while (doesBufferHaveEOM(readBuffer)) {
@@ -155,6 +172,7 @@ public class SocketBasedConnectorTest {
                         }
                         logger.log(INFO, "Reading back messages sent to us..");
                         messagesReceived.offer(proto.fromChannel(readBuffer));
+                        messageProcessingLatch.countDown();
                     }
 
                     readBuffer.compact();
@@ -167,10 +185,17 @@ public class SocketBasedConnectorTest {
                     if (socket != null) socket.close();
                     if (serverSock != null) serverSock.close();
                 } catch (IOException e) {
-                    failure.set(true);
+                    // if we can't close, just ignore the exception, not much we can do at this point.
                 }
                 logger.log(INFO,"Remote Server Tester thread ending");
             }
+        }
+
+        public void sendMessage(ByteBuffer writeBuffer, MenuCommandProtocol proto, MenuCommand cmd) {
+            writeBuffer.put(START_OF_MSG);
+            writeBuffer.put(proto.getKeyIdentifier());
+            proto.toChannel(writeBuffer, cmd);
+            itemsSent.add(cmd);
         }
 
         public boolean hasFailed() {

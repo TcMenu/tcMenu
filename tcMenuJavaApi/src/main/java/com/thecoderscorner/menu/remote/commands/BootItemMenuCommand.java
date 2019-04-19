@@ -9,6 +9,8 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
+import java.util.Objects;
+
 public abstract class BootItemMenuCommand<T extends MenuItem, V> implements MenuCommand {
     private final T menuItem;
     private final V currentValue;
@@ -44,10 +46,25 @@ public abstract class BootItemMenuCommand<T extends MenuItem, V> implements Menu
 
     @Override
     public String toString() {
-        return "BootItemMenuCommand{" +
+        return "BootItemMenuCommand[" + getCommandType() + "] {" +
                 "menuItem=" + menuItem +
                 ", currentValue=" + currentValue +
                 ", subMenuId=" + subMenuId +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BootItemMenuCommand<?, ?> that = (BootItemMenuCommand<?, ?>) o;
+        return getSubMenuId() == that.getSubMenuId() &&
+                Objects.equals(getMenuItem(), that.getMenuItem()) &&
+                Objects.equals(getCurrentValue(), that.getCurrentValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getMenuItem(), getCurrentValue(), getSubMenuId());
     }
 }

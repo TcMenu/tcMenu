@@ -32,7 +32,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * </pre>
  */
 public class SocketControllerBuilder {
-    private int heartbeatFrequency = 10000;
     private ScheduledExecutorService executorService;
     private MenuTree menuTree;
     private MenuCommandProtocol protocol;
@@ -58,16 +57,6 @@ public class SocketControllerBuilder {
      */
     public SocketControllerBuilder withExecutor(ScheduledExecutorService executor) {
         this.executorService = executor;
-        return this;
-    }
-
-    /**
-     * Optional, defaults to 10 seconds between heartbeats. This must be the same at both sides.
-     * @param frequency the frequency, must align with remote device.
-     * @return itself, suitable for chaining.
-     */
-    public SocketControllerBuilder withHeartbeatFrequency(int frequency) {
-        this.heartbeatFrequency = frequency;
         return this;
     }
 
@@ -137,6 +126,6 @@ public class SocketControllerBuilder {
                     new NamedDaemonThreadFactory("remote-socket"));
         }
         SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
-        return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);
+        return new RemoteMenuController(connector, menuTree, executorService, name, clock);
     }
 }

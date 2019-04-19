@@ -20,8 +20,8 @@ public class CommandFactory {
         return new MenuJoinCommand(name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties());
     }
 
-    public static MenuHeartbeatCommand newHeartbeatCommand() {
-        return new MenuHeartbeatCommand();
+    public static MenuHeartbeatCommand newHeartbeatCommand(int frequency) {
+        return new MenuHeartbeatCommand(frequency);
     }
 
     public static MenuBootstrapCommand newBootstrapCommand(MenuBootstrapCommand.BootType type) {

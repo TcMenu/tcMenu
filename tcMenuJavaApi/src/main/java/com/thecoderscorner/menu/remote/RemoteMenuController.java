@@ -43,20 +43,19 @@ public class RemoteMenuController {
     private final AtomicLong lastRx = new AtomicLong();
     private final AtomicLong lastTx = new AtomicLong();
     private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
-    private final int heartbeatFrequency;
     private final String localName;
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
     private volatile boolean treeFullyPopulated = false;
+    private volatile int heartbeatFrequency = 10000;
 
     public RemoteMenuController(RemoteConnector connector, MenuTree managedMenu,
                                 ScheduledExecutorService executor, String localName,
-                                Clock clock, int heartbeatFrequency) {
+                                Clock clock) {
         this.connector = connector;
         this.managedMenu = managedMenu;
         this.executor = executor;
         this.clock = clock;
         this.localName = localName;
-        this.heartbeatFrequency = heartbeatFrequency;
     }
 
     /**
@@ -81,7 +80,7 @@ public class RemoteMenuController {
 
         if((clock.millis() - lastTx.get()) > heartbeatFrequency) {
             logger.log(INFO, "Sending heartbeat to " + getConnector().getConnectionName() + " port");
-            sendCommand(newHeartbeatCommand());
+            sendCommand(newHeartbeatCommand(heartbeatFrequency));
         }
     }
 
@@ -151,6 +150,7 @@ public class RemoteMenuController {
         lastRx.set(clock.millis());
         switch(menuCommand.getCommandType()) {
             case HEARTBEAT:
+                onHeartbeat((MenuHeartbeatCommand)menuCommand);
                 break;
             case JOIN:
                 onJoinCommand((MenuJoinCommand) menuCommand);
@@ -170,6 +170,13 @@ public class RemoteMenuController {
                 break;
             case CHANGE_INT_FIELD:
                 onChangeField((MenuChangeCommand) menuCommand);
+        }
+    }
+
+    private void onHeartbeat(MenuHeartbeatCommand hbCommand) {
+        if(heartbeatFrequency != hbCommand.getHearbeatInterval()) {
+            logger.log(INFO, "Heartbeat interval is now " + hbCommand.getHearbeatInterval());
+            heartbeatFrequency = hbCommand.getHearbeatInterval();
         }
     }
 

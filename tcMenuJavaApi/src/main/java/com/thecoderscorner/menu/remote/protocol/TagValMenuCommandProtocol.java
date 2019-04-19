@@ -47,8 +47,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     @Override
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
         TagValTextParser parser = new TagValTextParser(buffer);
-        String ty = parser.getValue(KEY_MSG_TYPE);
         logger.log(DEBUG, "Protocol convert in: {0}", parser);
+        String ty = parser.getValue(KEY_MSG_TYPE);
         MenuCommandType cmdType = codeToCmdType.get(ty);
         if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
 
@@ -104,6 +104,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processBoolBootItem(TagValTextParser parser) throws IOException {
         BooleanMenuItem item = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withNaming(toNaming(parser.getValueAsInt(KEY_BOOLEAN_NAMING)))
@@ -117,6 +118,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processTextItem(TagValTextParser parser) throws IOException {
         TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withLength(parser.getValueAsInt(KEY_MAX_LENGTH))
@@ -130,6 +132,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processFloatItem(TagValTextParser parser) throws IOException {
         FloatMenuItem item = FloatMenuItemBuilder.aFloatMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
@@ -143,6 +146,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processRemoteItem(TagValTextParser parser) throws IOException {
         RemoteMenuItem item = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withRemoteNo(parser.getValueAsInt(KEY_REMOTE_NUM))
@@ -175,6 +179,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
         EnumMenuItem item = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withEnumList(choices)
@@ -188,6 +193,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processSubMenuBootItem(TagValTextParser parser) throws IOException {
         SubMenuItem item = aSubMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .menuItem();
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
@@ -197,6 +203,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private MenuCommand processActionItem(TagValTextParser parser) throws IOException {
         ActionMenuItem item = ActionMenuItemBuilder.anActionMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .menuItem();
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
@@ -208,6 +215,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withDivisor(parser.getValueAsInt(KEY_ANALOG_DIVISOR_FIELD))
                 .withMaxValue(parser.getValueAsInt(KEY_ANALOG_MAX_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withOffset(parser.getValueAsInt(KEY_ANALOG_OFFSET_FIELD))
                 .withUnit(parser.getValue(KEY_ANALOG_UNIT_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
@@ -229,8 +237,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 parser.getValueAsInt(KEY_VER_FIELD));
     }
 
-    private MenuCommand processHeartbeat(TagValTextParser parser) {
-        return newHeartbeatCommand();
+    private MenuCommand processHeartbeat(TagValTextParser parser) throws IOException {
+        return newHeartbeatCommand(parser.getValueAsIntWithDefault(HB_FREQUENCY_FIELD, 10000));
     }
 
     @Override
@@ -240,7 +248,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
         switch(cmd.getCommandType()) {
             case HEARTBEAT:
-                // empty message - nothing extra to be added
+                writeHeartbeat(sb, (MenuHeartbeatCommand)cmd);
                 break;
             case JOIN:
                 writeJoin(sb, (MenuJoinCommand)cmd);
@@ -284,6 +292,10 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         buffer.put(msgStr.getBytes());
     }
 
+    private void writeHeartbeat(StringBuilder sb, MenuHeartbeatCommand cmd) {
+        appendField(sb, HB_FREQUENCY_FIELD, cmd.getHearbeatInterval());
+    }
+
     @Override
     public byte getKeyIdentifier() {
         return PROTOCOL_TAG_VAL;
@@ -324,7 +336,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private void writeCommonBootFields(StringBuilder sb, BootItemMenuCommand cmd) {
         appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
+        appendField(sb, KEY_EEPROM_FIELD, cmd.getMenuItem().getEepromAddress());
         appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
+        appendField(sb, KEY_READONLY_FIELD, cmd.getMenuItem().isReadOnly() ? 1 : 0);
     }
 
     private void writeRemoteBootItem(StringBuilder sb, MenuRemoteBootCommand cmd) {

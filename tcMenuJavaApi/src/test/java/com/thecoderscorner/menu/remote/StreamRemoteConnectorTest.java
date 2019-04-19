@@ -43,7 +43,7 @@ public class StreamRemoteConnectorTest {
 
     @Test
     public void testReceiveMessageFromStream() throws InterruptedException {
-        streamConnector.appendTagValMsg(CommandFactory.newHeartbeatCommand());
+        streamConnector.appendTagValMsg(CommandFactory.newHeartbeatCommand(10000));
         streamConnector.start();
         Thread.sleep(500);
 
@@ -56,7 +56,7 @@ public class StreamRemoteConnectorTest {
 
     @Test
     public void testReceiveTwoMessageFromStream() {
-        streamConnector.appendTagValMsg(CommandFactory.newHeartbeatCommand());
+        streamConnector.appendTagValMsg(CommandFactory.newHeartbeatCommand(10000));
         streamConnector.appendTagValMsg(CommandFactory.newJoinCommand("UnitTest"));
         streamConnector.start();
         streamConnector.processMessagesOnConnection();
@@ -69,13 +69,13 @@ public class StreamRemoteConnectorTest {
     @Test(expected = IOException.class)
     public void testSendWhenClosedThrowsExceptionIO() throws IOException {
         streamConnector.close();
-        streamConnector.sendMenuCommand(CommandFactory.newHeartbeatCommand());
+        streamConnector.sendMenuCommand(CommandFactory.newHeartbeatCommand(10000));
     }
 
     @Test
     public void testSendMessageToRemote() throws IOException {
         streamConnector.start();
-        streamConnector.sendMenuCommand(CommandFactory.newHeartbeatCommand());
+        streamConnector.sendMenuCommand(CommandFactory.newHeartbeatCommand(10000));
         ByteBuffer bb = streamConnector.getLastBufferRx();
         bb.flip();
 
@@ -129,7 +129,7 @@ public class StreamRemoteConnectorTest {
         }
 
         @Override
-        protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
+        protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException {
             if(dataToSend.remaining() < len) {
                 throw new IOException("Closed");
             }

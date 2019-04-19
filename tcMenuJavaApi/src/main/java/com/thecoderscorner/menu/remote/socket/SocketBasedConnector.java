@@ -28,10 +28,10 @@ import static java.lang.System.Logger.Level.INFO;
 public class SocketBasedConnector extends StreamRemoteConnector {
     private final String remoteHost;
     private final int remotePort;
-
     private final AtomicReference<SocketChannel> socketChannel = new AtomicReference<>();
 
-    public SocketBasedConnector(ScheduledExecutorService executor, MenuCommandProtocol protocol, String remoteHost, int remotePort) {
+    public SocketBasedConnector(ScheduledExecutorService executor, MenuCommandProtocol protocol, String remoteHost,
+                                int remotePort) {
         super(protocol, executor);
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
@@ -88,7 +88,9 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     }
 
     @Override
-    protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
+    protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException {
+        if(mode == ReadMode.ONLY_WHEN_EMPTY && inputBuffer.remaining() >= len) return;
+
         SocketChannel sc = socketChannel.get();
         if(sc == null || !isConnected()) throw new IOException("Socket closed during read");
         do {

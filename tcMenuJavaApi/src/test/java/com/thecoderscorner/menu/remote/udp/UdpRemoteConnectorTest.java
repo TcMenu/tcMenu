@@ -70,9 +70,9 @@ public class UdpRemoteConnectorTest {
     @Test
     public void testSendingAndReceivingMultiMsg() throws Exception {
         latch = new CountDownLatch(4);
-        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand());
-        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand());
-        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand());
+        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand(10000));
+        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand(10000));
+        connector.sendMenuCommand(CommandFactory.newHeartbeatCommand(10000));
         connector.sendMenuCommand(CommandFactory.newJoinCommand("Dave"));
         latch.await(1, TimeUnit.MINUTES);
         assertEquals(3, commands.stream().filter(c-> c.getCommandType() == MenuCommandType.HEARTBEAT).count());

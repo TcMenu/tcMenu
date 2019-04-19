@@ -6,7 +6,18 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import java.util.Objects;
+
 public class MenuHeartbeatCommand implements MenuCommand {
+    private final int hearbeatInterval;
+
+    public MenuHeartbeatCommand(int hearbeatInterval) {
+        this.hearbeatInterval = hearbeatInterval;
+    }
+
+    public int getHearbeatInterval() {
+        return hearbeatInterval;
+    }
 
     @Override
     public MenuCommandType getCommandType() {
@@ -16,5 +27,18 @@ public class MenuHeartbeatCommand implements MenuCommand {
     @Override
     public String toString() {
         return "MenuHeartbeatCommand{}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuHeartbeatCommand that = (MenuHeartbeatCommand) o;
+        return getHearbeatInterval() == that.getHearbeatInterval();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getHearbeatInterval());
     }
 }

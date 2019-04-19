@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import java.util.Objects;
+
 public class MenuBootstrapCommand implements MenuCommand {
     public enum BootType {START, END}
     private final BootType bootType;
@@ -26,5 +28,19 @@ public class MenuBootstrapCommand implements MenuCommand {
     @Override
     public String toString() {
         return "MenuBootstrapCommand{bootType=" + bootType + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuBootstrapCommand that = (MenuBootstrapCommand) o;
+        return getBootType() == that.getBootType()
+                && this.getCommandType() == that.getCommandType();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBootType(), getCommandType());
     }
 }

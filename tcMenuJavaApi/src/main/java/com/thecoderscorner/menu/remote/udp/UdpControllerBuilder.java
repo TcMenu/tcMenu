@@ -25,7 +25,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class UdpControllerBuilder {
     private short deviceId;
-    private int heartbeatFrequency = 10000;
     private ScheduledExecutorService executorService;
     private MenuTree menuTree;
     private MenuCommandProtocol protocol;
@@ -74,16 +73,6 @@ public class UdpControllerBuilder {
      */
     public UdpControllerBuilder withExecutor(ScheduledExecutorService executor) {
         this.executorService = executor;
-        return this;
-    }
-
-    /**
-     * Optional, defaults to 10 seconds between heartbeats. This must be the same at both sides.
-     * @param frequency the frequency, must align with remote device.
-     * @return itself, suitable for chaining.
-     */
-    public UdpControllerBuilder withHeartbeatFrequency(int frequency) {
-        this.heartbeatFrequency = frequency;
         return this;
     }
 
@@ -163,6 +152,6 @@ public class UdpControllerBuilder {
                     new NamedDaemonThreadFactory("udp-remote"));
         }
         UdpRemoteConnector connector = new UdpRemoteConnector(executorService, sendFreq, address, port, protocol, deviceId, sendAsDevice);
-        return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);
+        return new RemoteMenuController(connector, menuTree, executorService, name, clock);
     }
 }

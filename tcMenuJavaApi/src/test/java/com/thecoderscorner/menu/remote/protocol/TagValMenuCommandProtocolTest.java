@@ -206,8 +206,8 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingHeartbeat() {
-        protocol.toChannel(bb, newHeartbeatCommand());
-        testBufferAgainstExpected("MT=HB|~");
+        protocol.toChannel(bb, newHeartbeatCommand(10000));
+        testBufferAgainstExpected("MT=HB|HI=10000|~");
     }
 
     @Test
@@ -227,7 +227,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuAnalogBootCommand(321,
                 DomainFixtures.anAnalogItem("Test", 123),
                 25));
-        testBufferAgainstExpected("MT=BA|PI=321|ID=123|NM=Test|AO=102|AD=2|AM=255|AU=dB|VC=25|~");
+        testBufferAgainstExpected("MT=BA|PI=321|ID=123|IE=104|NM=Test|RO=0|AO=102|AD=2|AM=255|AU=dB|VC=25|~");
     }
 
     @Test
@@ -235,7 +235,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuEnumBootCommand(22,
                 DomainFixtures.anEnumItem("Test", 2),
                 1));
-        testBufferAgainstExpected("MT=BE|PI=22|ID=2|NM=Test|VC=1|NC=2|CA=Item1|CB=Item2|~");
+        testBufferAgainstExpected("MT=BE|PI=22|ID=2|IE=101|NM=Test|RO=0|VC=1|NC=2|CA=Item1|CB=Item2|~");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuSubBootCommand(22,
                 DomainFixtures.aSubMenu("Sub", 1),
                 false));
-        testBufferAgainstExpected("MT=BM|PI=22|ID=1|NM=Sub|VC=0|~");
+        testBufferAgainstExpected("MT=BM|PI=22|ID=1|IE=102|NM=Sub|RO=0|VC=0|~");
     }
 
     @Test
@@ -251,35 +251,35 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.TRUE_FALSE),
                 false));
-        testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=0|VC=0|~");
+        testBufferAgainstExpected("MT=BB|PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=0|VC=0|~");
     }
 
     @Test
     public void testWritingFloatItem() {
         protocol.toChannel(bb, new MenuFloatBootCommand(22,
                 DomainFixtures.aFloatMenu("FloatMenu", 1), (float)12.0));
-        testBufferAgainstExpected("MT=BF|PI=22|ID=1|NM=FloatMenu|FD=3|VC=12.0|~");
+        testBufferAgainstExpected("MT=BF|PI=22|ID=1|IE=105|NM=FloatMenu|RO=0|FD=3|VC=12.0|~");
     }
 
     @Test
     public void testWritingRemoteItem() {
         protocol.toChannel(bb, new MenuRemoteBootCommand(22,
                 DomainFixtures.aRemoteMenuItem("Remo", 1), "ABC"));
-        testBufferAgainstExpected("MT=BR|PI=22|ID=1|NM=Remo|RN=2|VC=ABC|~");
+        testBufferAgainstExpected("MT=BR|PI=22|ID=1|IE=110|NM=Remo|RO=0|RN=2|VC=ABC|~");
     }
 
     @Test
     public void testWritingActionItem() {
         protocol.toChannel(bb, new MenuActionBootCommand(22,
                 DomainFixtures.anActionMenu("Action", 1), false));
-        testBufferAgainstExpected("MT=BC|PI=22|ID=1|NM=Action|VC=|~");
+        testBufferAgainstExpected("MT=BC|PI=22|ID=1|IE=20|NM=Action|RO=0|VC=|~");
     }
 
     @Test
     public void testWritingTextItem() {
         protocol.toChannel(bb, new MenuTextBootCommand(22,
                 DomainFixtures.aTextMenu("TextItem", 1), "ABC"));
-        testBufferAgainstExpected("MT=BT|PI=22|ID=1|NM=TextItem|ML=10|VC=ABC|~");
+        testBufferAgainstExpected("MT=BT|PI=22|ID=1|IE=101|NM=TextItem|RO=0|ML=10|VC=ABC|~");
     }
 
     @Test
@@ -287,7 +287,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.ON_OFF),
                 true));
-        testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=1|VC=1|~");
+        testBufferAgainstExpected("MT=BB|PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=1|VC=1|~");
     }
 
     @Test
@@ -295,7 +295,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.YES_NO),
                 true));
-        testBufferAgainstExpected("MT=BB|PI=22|ID=1|NM=Bool|BN=2|VC=1|~");
+        testBufferAgainstExpected("MT=BB|PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=2|VC=1|~");
     }
 
     @Test

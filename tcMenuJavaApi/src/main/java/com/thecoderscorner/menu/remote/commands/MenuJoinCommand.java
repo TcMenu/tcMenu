@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 
+import java.util.Objects;
+
 public class MenuJoinCommand implements MenuCommand {
     private final String myName;
     private final int apiVer;
@@ -43,5 +45,20 @@ public class MenuJoinCommand implements MenuCommand {
                 ", apiVer=" + apiVer +
                 ", platform=" + platform +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuJoinCommand that = (MenuJoinCommand) o;
+        return apiVer == that.apiVer &&
+                Objects.equals(getMyName(), that.getMyName()) &&
+                getPlatform() == that.getPlatform();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getMyName(), apiVer, getPlatform());
     }
 }

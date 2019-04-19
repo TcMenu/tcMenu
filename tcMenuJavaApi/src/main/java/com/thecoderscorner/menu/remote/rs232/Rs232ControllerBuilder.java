@@ -32,7 +32,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public class Rs232ControllerBuilder {
     private String portName;
     private int baud;
-    private int heartbeatFrequency = 10000;
     private ScheduledExecutorService executorService;
     private MenuTree menuTree;
     private MenuCommandProtocol protocol;
@@ -68,16 +67,6 @@ public class Rs232ControllerBuilder {
      */
     public Rs232ControllerBuilder withExecutor(ScheduledExecutorService executor) {
         this.executorService = executor;
-        return this;
-    }
-
-    /**
-     * Optional, defaults to 10 seconds between heartbeats. This must be the same at both sides.
-     * @param frequency the frequency, must align with remote device.
-     * @return itself, suitable for chaining.
-     */
-    public Rs232ControllerBuilder withHeartbeatFrequency(int frequency) {
-        this.heartbeatFrequency = frequency;
         return this;
     }
 
@@ -127,6 +116,6 @@ public class Rs232ControllerBuilder {
                     new NamedDaemonThreadFactory("rs232-remote"));
         }
         Rs232RemoteConnector connector = new Rs232RemoteConnector(portName, baud, protocol, executorService);
-        return new RemoteMenuController(connector, menuTree, executorService, name, clock, heartbeatFrequency);
+        return new RemoteMenuController(connector, menuTree, executorService, name, clock);
     }
 }

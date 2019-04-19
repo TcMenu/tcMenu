@@ -88,7 +88,8 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     @Override
-    protected void getAtLeastBytes(ByteBuffer inputBuffer, int len) throws IOException {
+    protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException {
+        if(mode == ReadMode.ONLY_WHEN_EMPTY && inputBuffer.remaining() >= len) return;
         do {
             inputBuffer.compact();
 
