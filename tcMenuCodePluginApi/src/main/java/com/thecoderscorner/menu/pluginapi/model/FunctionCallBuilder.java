@@ -133,6 +133,16 @@ public class FunctionCallBuilder {
         return this;
     }
 
+    /**
+     * Describes a parameter provided in the form of a lambda function.
+     * @see LambdaCodeParameter
+     * @return this for chaining
+     */
+    public FunctionCallBuilder lambdaParam(LambdaCodeParameter lambda) {
+        params.add(lambda);
+        return this;
+    }
+
     public Set<HeaderDefinition> getHeaders() {
         return Collections.unmodifiableSet(headers);
     }

@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.pluginapi.model;
 
 import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 import com.thecoderscorner.menu.pluginapi.model.parameter.CodeParameter;
+import com.thecoderscorner.menu.pluginapi.model.parameter.LambdaCodeParameter;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +21,7 @@ import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType;
 public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private final CodeConversionContext context;
     private final boolean progMemNeeded;
+    private int levels = 1;
 
     public CodeVariableCppExtractor(CodeConversionContext context) {
         this(context, true);
@@ -40,15 +42,52 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private String functionToCode(FunctionCallBuilder func) {
         var memberAccessor = (func.isPointerType()) ? "->" : ".";
 
-        String fn = "    ";
+        String fn = indentCode();
         if(func.getObjectName().isPresent()) {
             fn += func.getObjectName().get() + memberAccessor;
         }
         fn += func.getFunctionName() + "(";
-        var parameters = func.getParams().stream().map(p -> p.getParameterValue(context)).collect(Collectors.joining(", "));
+        var parameters = func.getParams().stream()
+                .map(this::transformParam)
+                .collect(Collectors.joining(", "));
         fn += parameters;
         fn += ");";
         return fn;
+    }
+
+    private String indentCode() {
+        return "    ".repeat(levels);
+    }
+
+    private String transformLambda(LambdaCodeParameter lambda) {
+        var builder = new StringBuilder(64);
+        builder.append("[](");
+        builder.append(lambda.getParameters().stream().map(p -> {
+                    if(p.isParamUsed()) {
+                        return p.getType() + " " + p.getParameterValue(context);
+                    }
+                    else {
+                        return p.getType() + " /*" + p.getParameterValue(context) + "*/";
+                    }
+                })
+                .collect(Collectors.joining(", "))
+        );
+        builder.append(") {").append(LINE_BREAK);
+        levels+=2;
+        builder.append(mapFunctions(lambda.getFunctions()));
+        levels--;
+        builder.append(LINE_BREAK).append(indentCode()).append("}");
+        levels--;
+        return builder.toString();
+    }
+
+    private String transformParam(CodeParameter p) {
+        if(p instanceof LambdaCodeParameter) {
+            return transformLambda((LambdaCodeParameter) p);
+        }
+        else {
+            return p.getParameterValue(context);
+        }
     }
 
     @Override

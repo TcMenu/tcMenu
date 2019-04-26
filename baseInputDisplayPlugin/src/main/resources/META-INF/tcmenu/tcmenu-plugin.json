@@ -1,7 +1,7 @@
 {
   "name": "General IO CodeGen Plugin",
   "moduleName": "com.thecoderscorner.tcmenu.plugin.baseio",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "vendor": "TheCodersCorner.com",
   "vendorUrl": "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/",
   "license": "Apache 2.0",
@@ -24,6 +24,15 @@
       "extendedDescription": "Switches that represent up, down and OK controlled by switches library. These are fully debounced either pull up or pull down switches and can either be connected direct to Arduino or via an i2c expander.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
       "imageFileName": "up-down-encoder.jpg"
+    },
+    {
+      "id": "20409bb8-b8a1-4d1d-b632-2cf9b57353e3",
+      "subsystem": "INPUT",
+      "applicability": ["ARDUINO", "ARDUINO32"],
+      "description": "Control menu with analog joystick & button",
+      "extendedDescription": "Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.AnalogJoystickInputCreator",
+      "imageFileName": "joystick.jpg"
     },
     {
       "id": "89cd7f70-0457-4884-97c2-0db904ccb0ba",

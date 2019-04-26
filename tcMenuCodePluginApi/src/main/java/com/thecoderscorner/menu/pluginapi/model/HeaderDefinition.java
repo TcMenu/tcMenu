@@ -51,4 +51,14 @@ public class HeaderDefinition {
     public String getHeaderCode() {
         return "#include " + startQuote + headerName + endQuote;
     }
+
+    @Override
+    public String toString() {
+        return "HeaderDefinition{" +
+                "headerName='" + headerName + '\'' +
+                ", startQuote=" + startQuote +
+                ", endQuote=" + endQuote +
+                ", priority=" + priority +
+                '}';
+    }
 }

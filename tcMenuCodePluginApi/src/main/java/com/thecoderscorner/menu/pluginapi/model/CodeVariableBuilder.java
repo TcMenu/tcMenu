@@ -40,6 +40,10 @@ public class CodeVariableBuilder {
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public CodeVariableBuilder byAssignment() {
         this.byAssignment = true;
         return this;
@@ -78,6 +82,16 @@ public class CodeVariableBuilder {
      */
     public CodeVariableBuilder param(Object param) {
         params.add(new CodeParameter(param));
+        return this;
+    }
+
+    /**
+     * Describes a parameter provided in the form of a lambda function.
+     * @see LambdaCodeParameter
+     * @return this for chaining
+     */
+    public CodeVariableBuilder lambdaParam(LambdaCodeParameter lambda) {
+        params.add(lambda);
         return this;
     }
 

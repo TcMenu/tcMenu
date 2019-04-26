@@ -12,13 +12,28 @@ package com.thecoderscorner.menu.pluginapi.model.parameter;
  */
 public class CodeParameter {
     protected String value;
+    protected String type;
+    protected boolean paramUsed;
 
     /**
-     * Define the parameter to have this value.
+     * Define the parameter to have this value. The value can be null, and it will be converted to "NULL"
      * @param value the value to be represented ( toString will be used )
      */
     public CodeParameter(Object value) {
         this.value = value == null ? "NULL" : value.toString();
+    }
+
+    /**
+     * Define a parameter and it's type, only used by the lambda code parameter type.
+     * In this case, value must not be null.
+     * @param value the name of the parameter
+     * @param type the type of the parameter
+     * @param used if the value is used within it's context.
+     */
+    public CodeParameter(String value, String type, boolean used) {
+        this.type = type;
+        this.value = value;
+        this.paramUsed = used;
     }
 
     /**
@@ -27,5 +42,19 @@ public class CodeParameter {
      */
     public String getParameterValue(CodeConversionContext context) {
         return value;
+    }
+
+    /**
+     * @return the type associated with this parameter, or null if it was not defined.
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @return true if the parameter is marked as used, otherwise false.
+     */
+    public boolean isParamUsed() {
+        return paramUsed;
     }
 }
