@@ -27,6 +27,9 @@
 
 #define DISPLAY_HAS_MEMBUFFER false
 
+extern const uint8_t loResEditingIcon[];
+extern const uint8_t loResActiveIcon[];
+
 extern const char applicationName[];
 
 #define RGB_BLACK RGB(0,0,0)
@@ -53,12 +56,9 @@ class AdaFruitGfxMenuRenderer : public BaseMenuRenderer {
 private:
 	Adafruit_GFX* graphics;
 	AdaColorGfxMenuConfig *gfxConfig;
-	int16_t xSize, ySize;
 	int16_t titleHeight;
 public:
-	AdaFruitGfxMenuRenderer(int xSize, int ySize, uint8_t bufferSize = 20) : BaseMenuRenderer(bufferSize) {
-		this->xSize = xSize;
-		this->ySize = ySize;
+	AdaFruitGfxMenuRenderer(uint8_t bufferSize = 20) : BaseMenuRenderer(bufferSize) {
 		this->graphics = NULL;
 		this->gfxConfig = NULL;
 	}

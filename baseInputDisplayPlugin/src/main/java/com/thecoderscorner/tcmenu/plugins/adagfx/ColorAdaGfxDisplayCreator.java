@@ -21,7 +21,8 @@ import java.util.Map;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
-import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.*;
+import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.boolValidator;
+import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.variableValidator;
 
 public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
     private List<CreatorProperty> creatorProperties = new ArrayList<>(Arrays.asList(
@@ -29,10 +30,6 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
                                 "gfx", DISPLAY, TEXTUAL, variableValidator()),
             new CreatorProperty("DISPLAY_TYPE", "The type of the AdaGfx variable used",
                     "Adafruit_ILI9341", DISPLAY, TEXTUAL, variableValidator()),
-            new CreatorProperty("DISPLAY_WIDTH", "The display width", "320",
-                                DISPLAY, uintValidator(4096)),
-            new CreatorProperty("DISPLAY_HEIGHT", "The display height", "240",
-                                DISPLAY, uintValidator(4096)),
             new CreatorProperty("DISPLAY_CONFIG", "Display configuration variable (empty for default)", "",
                                 DISPLAY, TEXTUAL, variableValidator()),
             new CreatorProperty("DISPLAY_BUFFERED", "Display is buffered by library (eg 5110, 1306)", "false",
@@ -75,8 +72,8 @@ public class ColorAdaGfxDisplayCreator extends AbstractCodeCreator {
                             .requiresHeader("Adafruit_GFX.h", false));
 
         addVariable(new CodeVariableBuilder().variableType("AdaFruitGfxMenuRenderer").variableName("renderer")
-                            .exportNeeded().param("DISPLAY_WIDTH").param("DISPLAY_HEIGHT")
-                            .requiresHeader("tcMenuAdaFruitGfx.h", true, HeaderDefinition.PRIORITY_MIN));
+                .exportNeeded()
+                .requiresHeader("tcMenuAdaFruitGfx.h", true, HeaderDefinition.PRIORITY_MIN));
 
         addFunctionCall(new FunctionCallBuilder().functionName("setGraphicsDevice").objectName("renderer")
                 .paramRef(graphicsVar).paramRef(configVar));

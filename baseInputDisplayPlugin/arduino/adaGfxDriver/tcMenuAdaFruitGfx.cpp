@@ -62,7 +62,9 @@ Coord AdaFruitGfxMenuRenderer::textExtents(const char* text, int16_t x, int16_t 
 	int16_t x1, y1;
 	uint16_t w, h;
 	graphics->getTextBounds((char*)text, x, y, &x1, &y1, &w, &h);
-	return MakeCoord(w, h);
+
+    serdebugF4("Textbounds y1, w, h", y1, w, h);
+	return Coord(w, h);
 }
 
 void AdaFruitGfxMenuRenderer::renderTitleArea() {
@@ -72,31 +74,46 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 	else {
 		currentRoot->copyNameToBuffer(buffer, bufferSize);
 	}
+
+    serdebugF2("Render title: ", buffer);
+
 	graphics->setFont(gfxConfig->titleFont);
 	graphics->setTextSize(gfxConfig->titleFontMagnification);
 
+    serdebugF2("mag: ", gfxConfig->titleFontMagnification);
+
 	int fontYStart = gfxConfig->titlePadding.top;
-	Coord extents = textExtents(buffer, 0, 50);
-	titleHeight = CoordY(extents) + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
+	Coord extents = textExtents(buffer, 0, gfxConfig->titleFont ? graphics->height() : 0);
+
+    serdebugF4("extent.y, paddingtop, paddingbottom: ", extents.y, gfxConfig->titlePadding.top, gfxConfig->titlePadding.bottom);
+
+	titleHeight = extents.y + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
 	if (gfxConfig->titleFont) {
-		fontYStart = titleHeight - (gfxConfig->titlePadding.bottom + 6);
+		fontYStart = titleHeight - (gfxConfig->titlePadding.bottom);
+        serdebugF2("Custom font used start is ", fontYStart);
 	}
-	graphics->fillRect(0, 0, xSize, titleHeight, gfxConfig->bgTitleColor);
+
+    serdebugF3("Title rectangle ", graphics->width(), titleHeight);
+	graphics->fillRect(0, 0, graphics->width(), titleHeight, gfxConfig->bgTitleColor);
 	graphics->setTextColor(gfxConfig->fgTitleColor);
 	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
 	graphics->print(buffer);
 	titleHeight += gfxConfig->titleBottomMargin;
+    serdebugF2("Font rendering end title height ", titleHeight);
 }
 
 bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 	TitleWidget* widget = firstWidget;
-	int xPos = xSize - gfxConfig->widgetPadding.right;
+	int xPos = graphics->width() - gfxConfig->widgetPadding.right;
     bool redrawNeeded = forceDraw;
 	while(widget) {
 		xPos -= widget->getWidth();
 
 		if(widget->isChanged() || forceDraw) {
             redrawNeeded = true;
+
+            serdebugF3("Drawing widget pos,icon: ", xPos, widget->getCurrentState());
+
 			graphics->drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(),
 								 gfxConfig->widgetColor, gfxConfig->bgTitleColor);
 		}
@@ -108,6 +125,8 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 }
 
 void AdaFruitGfxMenuRenderer::render() {
+    serdebugF("render start");
+
 	if (graphics == NULL) return;
 
 	uint8_t locRedrawMode = redrawMode;
@@ -130,9 +149,11 @@ void AdaFruitGfxMenuRenderer::render() {
 
 	graphics->setFont(gfxConfig->itemFont);
 	graphics->setTextSize(gfxConfig->itemFontMagnification);
-	Coord coord = textExtents("Aaygj", gfxConfig->itemPadding.left, 20);
-	int menuHeight = CoordY(coord) + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
-	int maxItemsY = ((ySize-titleHeight) / menuHeight);
+	Coord coord = textExtents("Aaygj", gfxConfig->itemPadding.left, gfxConfig->itemFont ? graphics->height() : 0);
+	int menuHeight = coord.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
+	int maxItemsY = ((graphics->height()-titleHeight) / menuHeight);
+
+    serdebugF3("menuHeight, numItems: ", menuHeight, maxItemsY);
 
 	MenuItem* item = currentRoot;
 	// first we find the first currently active item in our single linked list
@@ -153,7 +174,7 @@ void AdaFruitGfxMenuRenderer::render() {
 
 	// and then we start drawing items until we run out of screen or items
 	int ypos = titleHeight;
-	while (item && (ypos + menuHeight) < ySize ) {
+	while (item && (ypos + menuHeight) < graphics->height() ) {
 		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
             requiresUpdate = true;
 			renderMenuItem(ypos, menuHeight, item);
@@ -173,7 +194,7 @@ void AdaFruitGfxMenuRenderer::render() {
 	graphics->print(buffer);
 #endif
 
-    refreshDisplayIfNeeded(graphics, requiresUpdate);
+   refreshDisplayIfNeeded(graphics, requiresUpdate);
 }
 
 void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) {
@@ -186,16 +207,16 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 
 	if(item->isEditing()) {
 		graphics->setTextColor(gfxConfig->fgSelectColor);
-		graphics->fillRect(0, yPos, xSize, menuHeight, gfxConfig->bgSelectColor);
+		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
 		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
 	}
 	else if(item->isActive()) {
 		graphics->setTextColor(gfxConfig->fgSelectColor);
-		graphics->fillRect(0, yPos, xSize, menuHeight, gfxConfig->bgSelectColor);
+		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
 		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
 	}
 	else {
-		graphics->fillRect(0, yPos, xSize, menuHeight, gfxConfig->bgItemColor);
+		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgItemColor);
 		graphics->setTextColor(gfxConfig->fgItemColor);
 	}
 
@@ -203,23 +224,26 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 	
 	int drawingPositionY = yPos + gfxConfig->itemPadding.top;
 	if (gfxConfig->itemFont) {
-		drawingPositionY = yPos + (menuHeight - (gfxConfig->itemPadding.bottom + 6));
+		drawingPositionY = yPos + (menuHeight - (gfxConfig->itemPadding.bottom));
 	}
 	graphics->setCursor(textPos, drawingPositionY);
 	item->copyNameToBuffer(buffer, bufferSize);
+
+    serdebugF3("Printing menu item (name, ypos)", buffer, yPos);
+
 	graphics->print(buffer);
 
 	menuValueToText(item, JUSTIFY_TEXT_LEFT);
 	Coord coord = textExtents(buffer, textPos, yPos);
-	int16_t right = xSize - (CoordX(coord) + gfxConfig->itemPadding.right);
+	int16_t right = graphics->width() - (coord.x + gfxConfig->itemPadding.right);
 	graphics->setCursor(right, drawingPositionY);
  	graphics->print(buffer);
+    serdebugF2("Value ", buffer);
 }
 
 void prepareAdaColorDefaultGfxConfig(AdaColorGfxMenuConfig* config) { 
     prepareDefaultGfxConfig((ColorGfxMenuConfig<void*>*)config);
 }
-
 
 void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
 	makePadding(config->titlePadding, 2, 1, 1, 1);
@@ -230,19 +254,18 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
 	config->fgTitleColor = RGB_BLACK;
 	config->titleFont = NULL;
 	config->titleBottomMargin = 2;
+	config->widgetColor = RGB_BLACK;
+	config->titleFontMagnification = 1;
 
 	config->bgItemColor = RGB_BLACK;
 	config->fgItemColor = RGB_WHITE;
-	config->itemFont = NULL;
-
 	config->bgSelectColor = RGB_WHITE;
 	config->fgSelectColor = RGB_BLACK;
-	config->widgetColor = RGB_BLACK;
+	config->itemFont = NULL;
+	config->itemFontMagnification = 1;
+
     config->editIcon = loResEditingIcon;
     config->activeIcon = loResActiveIcon;
     config->editIconHeight = 6;
     config->editIconWidth = 8;
-
-	config->titleFontMagnification = 1;
-	config->itemFontMagnification = 1;
 }

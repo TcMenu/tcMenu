@@ -26,7 +26,7 @@ void SerialTagValueTransport::close() {
 
 void SerialTagValServer::begin(Stream* portStream, const char* namePgm) {
 	serPort.setStream(portStream);
-    connector.initialise(&serPort, &messageProcessor, namePgm, 0);
+    connector.initialise(&serPort, &messageProcessor, namePgm);
 	taskManager.scheduleFixedRate(TICK_INTERVAL, []{remoteServer.runLoop();}, TIME_MILLIS);
 }
 

@@ -8,9 +8,6 @@ package com.thecoderscorner.menu.pluginapi;
 
 import java.util.Objects;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_32;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_AVR;
-
 /**
  * Defines an embedded platform. For example boardId of ARDUINO defines the 8 bit AVR based Arduino. Whereas
  * ARDUINO32 defines 32 bit SAMD variants. These embedded platforms can be loaded up at runtime and the list
@@ -19,22 +16,22 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLangua
 public class EmbeddedPlatform {
 
 
-    public enum EmbeddedLanguage {CPP_32, CPP_AVR;}
-
     /** Defines the AVR based 8 bit platform */
-    public final static EmbeddedPlatform ARDUINO_AVR = new EmbeddedPlatform("Arduino AVR/Uno/Mega", "ARDUINO", CPP_AVR);
+    public final static EmbeddedPlatform ARDUINO_AVR = new EmbeddedPlatform("Arduino AVR/Uno/Mega", "ARDUINO", true);
     /** Defines the 32 bit arduino platform */
-    public final static EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino SAMD/ESP", "ARDUINO32", CPP_32);
+    public final static EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino SAMD", "ARDUINO32", false);
+    /** Defines the 32 bit arduino platform */
+    public final static EmbeddedPlatform ARDUINOESP = new EmbeddedPlatform("Arduino ESP8266", "ARDUINOESP", true);
 
 
     private final String friendlyName;
     private final String boardId;
-    private final EmbeddedLanguage language;
+    private final boolean usesProgmem;
 
-    public EmbeddedPlatform(String friendlyName, String boardId, EmbeddedLanguage language) {
+    public EmbeddedPlatform(String friendlyName, String boardId, boolean usesProgmem) {
         this.friendlyName = friendlyName;
         this.boardId = boardId;
-        this.language = language;
+        this.usesProgmem = usesProgmem;
     }
 
     @Override
@@ -59,7 +56,7 @@ public class EmbeddedPlatform {
         return boardId;
     }
 
-    public EmbeddedLanguage getLanguage() {
-        return language;
+    public boolean isUsesProgmem() {
+        return usesProgmem;
     }
 }

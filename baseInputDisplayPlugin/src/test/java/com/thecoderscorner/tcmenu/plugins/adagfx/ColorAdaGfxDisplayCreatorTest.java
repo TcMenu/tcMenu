@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
-import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.USE_IN_DEFINE;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
@@ -25,8 +24,6 @@ class ColorAdaGfxDisplayCreatorTest {
     @Test
     public void testAdaGfxMono5110() {
         ColorAdaGfxDisplayCreator creator = new ColorAdaGfxDisplayCreator();
-        findAndSetValueOnProperty(creator, "DISPLAY_WIDTH", SubSystem.DISPLAY, USE_IN_DEFINE, "84");
-        findAndSetValueOnProperty(creator, "DISPLAY_HEIGHT", SubSystem.DISPLAY, USE_IN_DEFINE, "48");
         findAndSetValueOnProperty(creator, "DISPLAY_BUFFERED", SubSystem.DISPLAY, TEXTUAL, "true");
         findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
         findAndSetValueOnProperty(creator, "DISPLAY_TYPE", SubSystem.DISPLAY, TEXTUAL, "Adafruit_PCD8544");
@@ -34,10 +31,7 @@ class ColorAdaGfxDisplayCreatorTest {
         creator.initCreator("root");
         var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
-                "#define DISPLAY_WIDTH 84\n" +
-                        "#define DISPLAY_HEIGHT 48\n"
-        );
+        assertThat(extractor.mapDefines()).isEmpty();
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
                 "extern Adafruit_PCD8544 gfx;\n" +
                         "extern AdaFruitGfxMenuRenderer renderer;"
@@ -45,7 +39,7 @@ class ColorAdaGfxDisplayCreatorTest {
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
                 "AdaColorGfxMenuConfig gfxConfig;\n" +
-                        "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+                        "AdaFruitGfxMenuRenderer renderer;"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
@@ -69,8 +63,6 @@ class ColorAdaGfxDisplayCreatorTest {
     @Test
     public void testAdaGfxOled1306() {
         ColorAdaGfxDisplayCreator creator = new ColorAdaGfxDisplayCreator();
-        findAndSetValueOnProperty(creator, "DISPLAY_WIDTH", SubSystem.DISPLAY, USE_IN_DEFINE, "128");
-        findAndSetValueOnProperty(creator, "DISPLAY_HEIGHT", SubSystem.DISPLAY, USE_IN_DEFINE, "32");
         findAndSetValueOnProperty(creator, "DISPLAY_BUFFERED", SubSystem.DISPLAY, TEXTUAL, "true");
         findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
         findAndSetValueOnProperty(creator, "DISPLAY_CONFIG", SubSystem.DISPLAY, TEXTUAL, "configFor1306");
@@ -79,10 +71,8 @@ class ColorAdaGfxDisplayCreatorTest {
         creator.initCreator("root");
         var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
-                "#define DISPLAY_WIDTH 128\n" +
-                        "#define DISPLAY_HEIGHT 32\n"
-        );
+        assertThat(extractor.mapDefines()).isEmpty();
+
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
                 "extern AdaColorGfxMenuConfig configFor1306;\n" +
                         "extern Adafruit_SSD1306 gfx;\n" +
@@ -90,7 +80,7 @@ class ColorAdaGfxDisplayCreatorTest {
         );
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+                "AdaFruitGfxMenuRenderer renderer;"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
@@ -113,17 +103,13 @@ class ColorAdaGfxDisplayCreatorTest {
     @Test
     public void testAdaGfxColourIli9341() {
         ColorAdaGfxDisplayCreator creator = new ColorAdaGfxDisplayCreator();
-        findAndSetValueOnProperty(creator, "DISPLAY_WIDTH", SubSystem.DISPLAY, USE_IN_DEFINE, "320");
-        findAndSetValueOnProperty(creator, "DISPLAY_HEIGHT", SubSystem.DISPLAY, USE_IN_DEFINE, "240");
         findAndSetValueOnProperty(creator, "DISPLAY_BUFFERED", SubSystem.DISPLAY, TEXTUAL, "false");
         findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
         creator.initCreator("root");
         var extractor = TestUtil.extractorFor(creator);
 
-        assertThat(extractor.mapDefines()).isEqualToIgnoringNewLines(
-                "#define DISPLAY_WIDTH 320\n" +
-                        "#define DISPLAY_HEIGHT 240\n"
-        );
+        assertThat(extractor.mapDefines()).isEmpty();
+
         assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
                 "extern Adafruit_ILI9341 gfx;\n" +
                         "extern AdaFruitGfxMenuRenderer renderer;"
@@ -131,7 +117,7 @@ class ColorAdaGfxDisplayCreatorTest {
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
                 "AdaColorGfxMenuConfig gfxConfig;\n" +
-                        "AdaFruitGfxMenuRenderer renderer(DISPLAY_WIDTH, DISPLAY_HEIGHT);"
+                        "AdaFruitGfxMenuRenderer renderer;"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(

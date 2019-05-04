@@ -19,8 +19,7 @@ import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUA
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
 import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.*;
-import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.ETHERNET_2;
-import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.UIP_ENC28J60;
+import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.*;
 
 public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final List<CreatorProperty> creatorProperties = List.of(
@@ -49,7 +48,7 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
                        .paramRef("server").param("applicationName"));
 
         EthernetAdapterType type = EthernetAdapterType.valueOf(findPropertyValue("LIBRARY_TYPE").getLatestValue());
-        Map<String, String> repl = Map.of();
+        Map<String, String> repl;
 
         if(type == UIP_ENC28J60) {
             // there are some replacements that must be done for UIP Ethernet to work.
@@ -58,6 +57,17 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
                     "EthernetClient", "UIPClient",
                     "EthernetServer", "UIPServer"
             );
+        }
+        else if(type == ESP_8266) {
+            // for ESP8266 we need to change the ethernet references to wifi references
+            repl = Map.of(
+                    "Ethernet.h", "ESP8266WiFi.h",
+                    "EthernetClient", "WifiClient",
+                    "EthernetServer", "WifiServer"
+            );
+        }
+        else {
+            repl = Map.of();
         }
 
         addLibraryFiles(

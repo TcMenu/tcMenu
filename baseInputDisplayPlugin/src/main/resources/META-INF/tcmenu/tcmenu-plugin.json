@@ -10,7 +10,7 @@
     {
       "id": "6dd87e7d-e751-4912-a70d-91793b1d3d87",
       "subsystem": "INPUT",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Control menu with rotary encoder & button",
       "extendedDescription": "Hardware rotary encoder with acceleration that needs no external components in most cases. It can either be connected direct to Arduino or on an i2c expander (8574, 23017). With long wire runs may need stronger pull up resistors near the device.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.RotaryEncoderInputCreator",
@@ -19,7 +19,7 @@
     {
       "id": "2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049",
       "subsystem": "INPUT",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Control menu with Up / Down / OK buttons",
       "extendedDescription": "Switches that represent up, down and OK controlled by switches library. These are fully debounced either pull up or pull down switches and can either be connected direct to Arduino or via an i2c expander.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.UpDownOkSwitchInputCreator",
@@ -28,7 +28,7 @@
     {
       "id": "20409bb8-b8a1-4d1d-b632-2cf9b57353e3",
       "subsystem": "INPUT",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Control menu with analog joystick & button",
       "extendedDescription": "Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.AnalogJoystickInputCreator",
@@ -37,7 +37,7 @@
     {
       "id": "89cd7f70-0457-4884-97c2-0db904ccb0ba",
       "subsystem": "INPUT",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "No input or custom input module",
       "extendedDescription": "Use this option when you either don't want a local input method, or you are providing a custom one.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.baseinput.NoInputModeCreator",
@@ -46,7 +46,7 @@
     {
       "id": "61f370f4-0294-41cf-8988-1458f242914a",
       "subsystem": "DISPLAY",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "LiquidCrystalIO display direct or other i2c",
       "extendedDescription": "LiquidCrystal based display driver that can be configured to work with any pin arrangement. Just set the EN, RS, Data pins at a minimum. It also has optional inbuilt backlight and PWM contrast support.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.LiquidCrystalDisplayCreator",
@@ -55,7 +55,7 @@
     {
       "id": "d4c84106-fa87-4024-b91e-053e17a52b8f",
       "subsystem": "DISPLAY",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "LiquidCrystalIO for commonly available I2C backpacks",
       "extendedDescription": "LiquidCrystal based display driver that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement use the general version",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.I2cLiquidCrystalDisplayCreator",
@@ -64,16 +64,25 @@
     {
       "id": "cdd0be35-f6ff-40ae-86fc-f9d04a6e8679",
       "subsystem": "DISPLAY",
-      "applicability": ["ARDUINO", "ARDUINO32"],
-      "description": "No display or custom display module",
-      "extendedDescription": "This is for cases where either no local display, or a custom display is going to be used. If you are using a custom display, just make sure the renderer is created and registered during setup.",
-      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.DoNotDefineDisplayCreator",
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
+      "description": "No display module attached to this device",
+      "extendedDescription": "This is for cases where you do not desire to display anything locally. A no-operation renderer will be created for you",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.NoDisplayNeededCreator",
       "imageFileName": "no-display.png"
+    },
+    {
+      "id": "8f4821df-c98e-4761-b824-898482df33a5",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
+      "description": "Custom display module with custom rendering",
+      "extendedDescription": "This is for cases where you've written your own renderer. Just provide the header file name and class name. It's expected that you'll create the object and name it renderer, we just declare an export.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.basedisplay.NoDisplayNeededCreator",
+      "imageFileName": "custom-display.jpg"
     },
     {
       "id": "7c486068-9879-459f-89ee-9522366524a3",
       "subsystem": "DISPLAY",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Adafruit GFX based display",
       "extendedDescription": "Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version works with most displays and is very configurable. You can easily override the drawing configuration.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.adagfx.ColorAdaGfxDisplayCreator",
@@ -82,7 +91,7 @@
     {
       "id": "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb",
       "subsystem": "REMOTE",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "No Remote Control",
       "extendedDescription": "Use this option when you don't want any remote control capabilities",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.NoRemoteCapability",
@@ -91,7 +100,7 @@
     {
       "id": "1e38dc42-672d-4c1c-a393-2c7632bf6c5c",
       "subsystem": "REMOTE",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Serial remote control (Rs232 / USB / Bluetooth)",
       "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Rs232RemoteCapabilitiesCreator",
@@ -100,11 +109,21 @@
     {
       "id": "0877131c-e03e-426b-8eaf-228e01f5e7f1",
       "subsystem": "REMOTE",
-      "applicability": ["ARDUINO", "ARDUINO32"],
+      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINOESP"],
       "description": "Ethernet control of your menu using popular libraries",
       "extendedDescription": "Use this option to be able to control the menu over many kinds of ethernet sheilds and devices. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.EthernetRemoteCapabilitiesCreator",
       "imageFileName": "ethernet-shield.jpg"
+    },
+    {
+      "id": "",
+      "subsystem": "REMOTE",
+      "applicability": ["ARDUINOESP"],
+      "description": "Ethernet control of your menu using ESP8266 Wifi",
+      "extendedDescription": "Use this option to be able to control the menu using the inbuilt ESP8266 Wifi device.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.",
+      "imageFileName": "ethernet-shield.jpg"
     }
+
   ]
 }

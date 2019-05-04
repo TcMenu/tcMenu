@@ -43,7 +43,8 @@ class AnalogJoystickInputCreatorTest {
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
                 "    switches.initialiseInterrupt(ioUsingArduino(), false);\n" +
                         "    menuMgr.initWithoutInput(&renderer, &root);\n" +
-                        "    switches.addSwitch(20, [](int /*id*/, bool held) {\n" +
+                        "    switches.addSwitch(20, NULL);\n" +
+                        "    switches.onRelease(20, [](uint8_t /*key*/, bool held) {\n" +
                         "            menuMgr.onMenuSelect(held);\n" +
                         "        });\n" +
                         "    setupAnalogJoystickEncoder(&analogDevice, A0, [](int val) {\n" +

@@ -16,6 +16,7 @@ public class ReferenceCodeParameter extends CodeParameter{
     }
 
     public String getParameterValue(CodeConversionContext context) {
-        return "&" + value;
+        if(value.equals("NULL")) return value;
+        else return "&" + value;
     }
 }

@@ -34,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -78,7 +77,7 @@ public class ArduinoGenerator implements CodeGenerator {
     public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree) {
         logLine("Starting Arduino generate: " + directory);
 
-        boolean avrArch = embeddedPlatform.getLanguage() == EmbeddedLanguage.CPP_AVR;
+        boolean usesProgMem = embeddedPlatform.isUsesProgmem();
 
         // get the file names that we are going to modify.
         String inoFile = toSourceFile(directory, ".ino");
@@ -87,7 +86,7 @@ public class ArduinoGenerator implements CodeGenerator {
         String projectName = directory.getFileName().toString();
 
         var generators = new ArrayList<EmbeddedCodeCreator>();
-        generators.add(new ArduinoGlobalsCreator(avrArch));
+        generators.add(new ArduinoGlobalsCreator(usesProgMem));
         generators.addAll(codeGenerators);
 
         try {
@@ -95,7 +94,7 @@ public class ArduinoGenerator implements CodeGenerator {
             String root = getFirstMenuVariable(menuTree);
             var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
             CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    new CodeConversionContext(embeddedPlatform, root, allProps), avrArch
+                    new CodeConversionContext(embeddedPlatform, root, allProps), usesProgMem
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);

@@ -61,7 +61,7 @@ void EthernetTagValServer::begin(EthernetServer* server, const char* namePgm) {
 	this->server = server;
 	this->server->begin();
     serdebugF("Initialising connector");
-	this->connector.initialise(&transport, &messageProcessor, namePgm, 0);
+	this->connector.initialise(&transport, &messageProcessor, namePgm);
 	taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
 }
 

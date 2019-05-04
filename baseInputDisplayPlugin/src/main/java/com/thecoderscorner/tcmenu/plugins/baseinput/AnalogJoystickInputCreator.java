@@ -46,13 +46,17 @@ public class AnalogJoystickInputCreator extends AbstractCodeCreator {
                 .paramRef("renderer").paramMenuRoot());
 
         var buttonPressLambda = new LambdaCodeParameter()
-                .addParameter(new CodeParameter("id", "int", false))
+                .addParameter(new CodeParameter("key", "uint8_t", false))
                 .addParameter(new CodeParameter("held", "bool", true))
                 .addFunctionCall(new FunctionCallBuilder().objectName("menuMgr").functionName("onMenuSelect")
                         .param("held"));
 
         addFunctionCall(new FunctionCallBuilder().objectName("switches").functionName("addSwitch")
-                .paramFromPropertyWithDefault("BUTTON_PIN", "10").lambdaParam(buttonPressLambda));
+                .paramFromPropertyWithDefault("BUTTON_PIN", "10")
+                .paramRef(null));
+        addFunctionCall(new FunctionCallBuilder().objectName("switches").functionName("onRelease")
+                .paramFromPropertyWithDefault("BUTTON_PIN", "10")
+                .lambdaParam(buttonPressLambda));
 
         var analogReadingLambda = new LambdaCodeParameter()
                 .addParameter(new CodeParameter("val", "int", true))

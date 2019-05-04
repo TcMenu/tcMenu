@@ -11,5 +11,6 @@ package com.thecoderscorner.tcmenu.plugins.remote;
  */
 public enum EthernetAdapterType {
     ETHERNET_2,
-    UIP_ENC28J60
+    UIP_ENC28J60,
+    ESP_8266
 }

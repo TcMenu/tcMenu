@@ -10,9 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.EmbeddedLanguage.CPP_AVR;
+import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,17 +20,18 @@ class PluginEmbeddedPlatformsImplTest {
     @Test
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, EmbeddedPlatform.ARDUINO32);
+        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINOESP);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));
+        assertEquals(ARDUINOESP, platforms.getEmbeddedPlatformFromId(ARDUINOESP.getBoardId()));
         assertThrows(IllegalArgumentException.class, () -> platforms.getEmbeddedPlatformFromId("invalidId"));
 
         var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR);
         assertThat(generator).isOfAnyClassIn(ArduinoGenerator.class);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid", CPP_AVR);
+            EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid", false);
             platforms.getCodeGeneratorFor(invalidPlatform);
         });
     }
