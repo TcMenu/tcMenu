@@ -58,14 +58,6 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
                     "EthernetServer", "UIPServer"
             );
         }
-        else if(type == ESP_8266) {
-            // for ESP8266 we need to change the ethernet references to wifi references
-            repl = Map.of(
-                    "Ethernet.h", "ESP8266WiFi.h",
-                    "EthernetClient", "WifiClient",
-                    "EthernetServer", "WifiServer"
-            );
-        }
         else {
             repl = Map.of();
         }

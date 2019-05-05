@@ -116,14 +116,13 @@
       "imageFileName": "ethernet-shield.jpg"
     },
     {
-      "id": "",
+      "id": "46c30011-cac6-4598-a7b8-b0630d55daab",
       "subsystem": "REMOTE",
       "applicability": ["ARDUINOESP"],
       "description": "Ethernet control of your menu using ESP8266 Wifi",
       "extendedDescription": "Use this option to be able to control the menu using the inbuilt ESP8266 Wifi device.",
-      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.",
-      "imageFileName": "ethernet-shield.jpg"
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Esp8266WifiRemoteCreator",
+      "imageFileName": "esp8266.jpg"
     }
-
   ]
 }
