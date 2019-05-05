@@ -87,8 +87,8 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 
     serdebugF3("titleHeight, fontYStart: ",  titleHeight, fontYStart);
 
-	graphics->fillRect(0, 0, graphics->width(), titleHeight, WHITE);
-	graphics->setTextColor(BLACK);
+	graphics->fillRect(0, 0, graphics->width(), titleHeight, gfxConfig->bgTitleColor);
+	graphics->setTextColor(gfxConfig->fgTitleColor);
 	graphics->setCursor(1, 1);
 	graphics->print(buffer);
 	titleHeight += gfxConfig->titleBottomMargin;
@@ -130,7 +130,7 @@ void AdaFruitGfxMenuRenderer::render() {
        	itemHeight = itemExtents.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
         serdebugF2("Redraw all, new item height ", itemHeight);
 
-		graphics->fillScreen(BLACK);
+		graphics->fillScreen(gfxConfig->bgItemColor);
 		renderTitleArea();
 
         taskManager.yieldForMicros(0);
@@ -240,17 +240,17 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
 	makePadding(config->itemPadding, 1, 1, 1, 1);
 	makePadding(config->widgetPadding, 2, 2, 0, 2);
 
-	config->bgTitleColor = WHITE;
-	config->fgTitleColor = BLACK;
+	config->bgTitleColor = BLACK;
+	config->fgTitleColor = WHITE;
 	config->titleFont = NULL;
 	config->titleBottomMargin = 2;
-	config->widgetColor = BLACK;
+	config->widgetColor = WHITE;
 	config->titleFontMagnification = 1;
 
-	config->bgItemColor = BLACK;
-	config->fgItemColor = WHITE;
-	config->bgSelectColor = WHITE;
-	config->fgSelectColor = BLACK;
+	config->bgItemColor = WHITE;
+	config->fgItemColor = BLACK;
+	config->bgSelectColor = BLACK;
+	config->fgSelectColor = WHITE;
 	config->itemFont = NULL;
 	config->itemFontMagnification = 1;
 
