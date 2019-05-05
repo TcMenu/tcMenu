@@ -14,8 +14,6 @@
 
 #include "tcMenuAdaFruitGfx.h"
 
-//#define DEBUG_GFX
-
 const uint8_t loResEditingIcon[] PROGMEM = {
 		0b00000000,
 		0b01111110,
@@ -63,7 +61,7 @@ Coord AdaFruitGfxMenuRenderer::textExtents(const char* text, int16_t x, int16_t 
 	uint16_t w, h;
 	graphics->getTextBounds((char*)text, x, y, &x1, &y1, &w, &h);
 
-    serdebugF4("Textbounds y1, w, h", y1, w, h);
+    serdebugF4("Textbounds (y1, w, h): ", y1, w, h);
 	return Coord(w, h);
 }
 
@@ -75,31 +73,25 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 		currentRoot->copyNameToBuffer(buffer, bufferSize);
 	}
 
-    serdebugF2("Render title: ", buffer);
+    serdebugF3("Render title, fontMag: ", buffer, gfxConfig->titleFontMagnification);
 
-	graphics->setFont(gfxConfig->titleFont);
+    graphics->setFont(gfxConfig->titleFont);
 	graphics->setTextSize(gfxConfig->titleFontMagnification);
-
-    serdebugF2("mag: ", gfxConfig->titleFontMagnification);
 
 	int fontYStart = gfxConfig->titlePadding.top;
 	Coord extents = textExtents(buffer, 0, gfxConfig->titleFont ? graphics->height() : 0);
-
-    serdebugF4("extent.y, paddingtop, paddingbottom: ", extents.y, gfxConfig->titlePadding.top, gfxConfig->titlePadding.bottom);
-
 	titleHeight = extents.y + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
 	if (gfxConfig->titleFont) {
-		fontYStart = titleHeight - (gfxConfig->titlePadding.bottom);
-        serdebugF2("Custom font used start is ", fontYStart);
+	 	fontYStart = titleHeight - (gfxConfig->titlePadding.bottom);
 	}
 
-    serdebugF3("Title rectangle ", graphics->width(), titleHeight);
-	graphics->fillRect(0, 0, graphics->width(), titleHeight, gfxConfig->bgTitleColor);
-	graphics->setTextColor(gfxConfig->fgTitleColor);
-	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
+    serdebugF3("titleHeight, fontYStart: ",  titleHeight, fontYStart);
+
+	graphics->fillRect(0, 0, graphics->width(), titleHeight, WHITE);
+	graphics->setTextColor(BLACK);
+	graphics->setCursor(1, 1);
 	graphics->print(buffer);
 	titleHeight += gfxConfig->titleBottomMargin;
-    serdebugF2("Font rendering end title height ", titleHeight);
 }
 
 bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
@@ -125,22 +117,27 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 }
 
 void AdaFruitGfxMenuRenderer::render() {
-    serdebugF("render start");
-
-	if (graphics == NULL) return;
+ 	if (graphics == NULL) return;
 
 	uint8_t locRedrawMode = redrawMode;
 	redrawMode = MENUDRAW_NO_CHANGE;
-    boolean requiresUpdate = false;
+    bool requiresUpdate = false;
 
 	countdownToDefaulting();
 
 	if (locRedrawMode == MENUDRAW_COMPLETE_REDRAW) {
-		graphics->fillScreen(gfxConfig->bgItemColor);
-		taskManager.yieldForMicros(0);
+	    Coord itemExtents = textExtents("Aaygj", gfxConfig->itemPadding.left, gfxConfig->itemFont ? graphics->height() : 0);
+       	itemHeight = itemExtents.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
+        serdebugF2("Redraw all, new item height ", itemHeight);
+
+		graphics->fillScreen(BLACK);
 		renderTitleArea();
-		renderWidgets(true);
-		taskManager.yieldForMicros(0);
+
+        taskManager.yieldForMicros(0);
+
+        renderWidgets(true);
+
+        taskManager.yieldForMicros(0);
         requiresUpdate = true;
 	}
 	else {
@@ -149,11 +146,7 @@ void AdaFruitGfxMenuRenderer::render() {
 
 	graphics->setFont(gfxConfig->itemFont);
 	graphics->setTextSize(gfxConfig->itemFontMagnification);
-	Coord coord = textExtents("Aaygj", gfxConfig->itemPadding.left, gfxConfig->itemFont ? graphics->height() : 0);
-	int menuHeight = coord.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
-	int maxItemsY = ((graphics->height()-titleHeight) / menuHeight);
-
-    serdebugF3("menuHeight, numItems: ", menuHeight, maxItemsY);
+	int maxItemsY = ((graphics->height()-titleHeight) / itemHeight);
 
 	MenuItem* item = currentRoot;
 	// first we find the first currently active item in our single linked list
@@ -174,51 +167,46 @@ void AdaFruitGfxMenuRenderer::render() {
 
 	// and then we start drawing items until we run out of screen or items
 	int ypos = titleHeight;
-	while (item && (ypos + menuHeight) < graphics->height() ) {
+	while (item && (ypos + itemHeight) < graphics->height() ) {
 		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
             requiresUpdate = true;
-			renderMenuItem(ypos, menuHeight, item);
-			taskManager.yieldForMicros(0);
-		}
-		ypos += menuHeight;
+
+            taskManager.yieldForMicros(0);
+
+			renderMenuItem(ypos, itemHeight, item);
+        }
+		ypos += itemHeight;
 		item = item->getNext();
 	}
 
-#ifdef DEBUG_GFX
-	// when debug graphics are on we draw a total count rendered to the bottom of the display
-	graphics->setTextColor(RGB_WHITE);
-	graphics->setCursor(0, 0);
-	graphics->setTextSize(1);
-	graphics->fillRect(0, 0, 15, 10, RGB_BLACK);
-	itoa(drawingCount, buffer, 10);
-	graphics->print(buffer);
-#endif
-
-   refreshDisplayIfNeeded(graphics, requiresUpdate);
+    refreshDisplayIfNeeded(graphics, requiresUpdate);
 }
 
 void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) {
-	drawingCount++;
-
 	int icoWid = gfxConfig->editIconWidth;
 	int icoHei = gfxConfig->editIconHeight;
 
 	item->setChanged(false); // we are drawing the item so it's no longer changed.
 
 	if(item->isEditing()) {
-		graphics->setTextColor(gfxConfig->fgSelectColor);
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
 		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+		graphics->setTextColor(gfxConfig->fgSelectColor);
+        serdebugF("Item Editing");
 	}
 	else if(item->isActive()) {
 		graphics->setTextColor(gfxConfig->fgSelectColor);
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
 		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+        serdebugF("Item Active");
 	}
 	else {
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgItemColor);
 		graphics->setTextColor(gfxConfig->fgItemColor);
+        serdebugF("Item Normal");
 	}
+
+    taskManager.yieldForMicros(0);
 
 	int textPos = gfxConfig->itemPadding.left + icoWid + gfxConfig->itemPadding.left;
 	
@@ -229,7 +217,7 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 	graphics->setCursor(textPos, drawingPositionY);
 	item->copyNameToBuffer(buffer, bufferSize);
 
-    serdebugF3("Printing menu item (name, ypos)", buffer, yPos);
+    serdebugF4("Printing menu item (name, ypos, drawingPositionY)", buffer, yPos, drawingPositionY);
 
 	graphics->print(buffer);
 
@@ -239,6 +227,8 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 	graphics->setCursor(right, drawingPositionY);
  	graphics->print(buffer);
     serdebugF2("Value ", buffer);
+
+    taskManager.yieldForMicros(0);
 }
 
 void prepareAdaColorDefaultGfxConfig(AdaColorGfxMenuConfig* config) { 
@@ -250,17 +240,17 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
 	makePadding(config->itemPadding, 1, 1, 1, 1);
 	makePadding(config->widgetPadding, 2, 2, 0, 2);
 
-	config->bgTitleColor = RGB_WHITE;
-	config->fgTitleColor = RGB_BLACK;
+	config->bgTitleColor = WHITE;
+	config->fgTitleColor = BLACK;
 	config->titleFont = NULL;
 	config->titleBottomMargin = 2;
-	config->widgetColor = RGB_BLACK;
+	config->widgetColor = BLACK;
 	config->titleFontMagnification = 1;
 
-	config->bgItemColor = RGB_BLACK;
-	config->fgItemColor = RGB_WHITE;
-	config->bgSelectColor = RGB_WHITE;
-	config->fgSelectColor = RGB_BLACK;
+	config->bgItemColor = BLACK;
+	config->fgItemColor = WHITE;
+	config->bgSelectColor = WHITE;
+	config->fgSelectColor = BLACK;
 	config->itemFont = NULL;
 	config->itemFontMagnification = 1;
 

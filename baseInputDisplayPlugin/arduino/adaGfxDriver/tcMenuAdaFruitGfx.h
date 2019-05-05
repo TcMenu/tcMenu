@@ -27,13 +27,10 @@
 
 #define DISPLAY_HAS_MEMBUFFER false
 
-extern const uint8_t loResEditingIcon[];
-extern const uint8_t loResActiveIcon[];
+extern const unsigned char PROGMEM loResEditingIcon[];
+extern const unsigned char PROGMEM loResActiveIcon[];
 
 extern const char applicationName[];
-
-#define RGB_BLACK RGB(0,0,0)
-#define RGB_WHITE RGB(255,255,255)
 
 /**
  * A standard menu render configuration that describes how to renderer each item and the title.
@@ -57,6 +54,7 @@ private:
 	Adafruit_GFX* graphics;
 	AdaColorGfxMenuConfig *gfxConfig;
 	int16_t titleHeight;
+    int16_t itemHeight;
 public:
 	AdaFruitGfxMenuRenderer(uint8_t bufferSize = 20) : BaseMenuRenderer(bufferSize) {
 		this->graphics = NULL;
