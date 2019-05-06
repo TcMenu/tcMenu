@@ -33,8 +33,6 @@ public class Esp8266WifiRemoteCreator extends AbstractCodeCreator {
                 .quoted(deviceName).progmem().byAssignment().exportNeeded()
                 .requiresHeader("RemoteConnector.h", false));
 
-        //#include <>
-        //#include ""
         addVariable(new CodeVariableBuilder().variableType("WiFiServer").variableName("server")
                 .paramFromPropertyWithDefault("LISTEN_PORT", "3333")
                 .requiresHeader("ESP8266WiFi.h", false));
