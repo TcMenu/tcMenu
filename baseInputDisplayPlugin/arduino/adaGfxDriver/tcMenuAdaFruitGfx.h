@@ -14,6 +14,7 @@
  * This library requires the AdaGfx library along with a suitable driver.
  */
 
+
 #ifndef _TCMENU_TCMENUADAFRUITGFX_H_
 #define _TCMENU_TCMENUADAFRUITGFX_H_
 
@@ -26,6 +27,16 @@
 #include <GfxMenuConfig.h>
 
 #define DISPLAY_HAS_MEMBUFFER false
+
+// some colour displays don't create this value
+#ifndef BLACK
+#define BLACK 0
+#endif
+
+// some colour displays don't create this value
+#ifndef WHITE
+#define WHITE 0xffff
+#endif
 
 extern const unsigned char PROGMEM loResEditingIcon[];
 extern const unsigned char PROGMEM loResActiveIcon[];

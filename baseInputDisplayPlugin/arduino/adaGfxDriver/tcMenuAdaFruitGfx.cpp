@@ -42,15 +42,16 @@ int drawingCount = 0;
 #endif
 
 void AdaFruitGfxMenuRenderer::setGraphicsDevice(Adafruit_GFX* graphics, AdaColorGfxMenuConfig *gfxConfig) {
-	this->graphics = graphics;
-	this->gfxConfig = gfxConfig;
-	
+
 	if (gfxConfig->editIcon == NULL || gfxConfig->activeIcon == NULL) {
 		gfxConfig->editIcon = defEditingIcon;
 		gfxConfig->activeIcon = defActiveIcon;
 		gfxConfig->editIconWidth = 16;
 		gfxConfig->editIconHeight = 12;
 	}
+
+	this->graphics = graphics;
+	this->gfxConfig = gfxConfig;
 }
 
 AdaFruitGfxMenuRenderer::~AdaFruitGfxMenuRenderer() {
@@ -89,7 +90,7 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 
 	graphics->fillRect(0, 0, graphics->width(), titleHeight, gfxConfig->bgTitleColor);
 	graphics->setTextColor(gfxConfig->fgTitleColor);
-	graphics->setCursor(1, 1);
+	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
 	graphics->print(buffer);
 	titleHeight += gfxConfig->titleBottomMargin;
 }
@@ -126,7 +127,12 @@ void AdaFruitGfxMenuRenderer::render() {
 	countdownToDefaulting();
 
 	if (locRedrawMode == MENUDRAW_COMPLETE_REDRAW) {
-	    Coord itemExtents = textExtents("Aaygj", gfxConfig->itemPadding.left, gfxConfig->itemFont ? graphics->height() : 0);
+	    // pre-populate the font.
+        graphics->setFont(gfxConfig->itemFont);
+        graphics->setTextSize(gfxConfig->itemFontMagnification);
+        int yLocation = gfxConfig->itemFont ? graphics->height() : 0;
+        Coord itemExtents = textExtents("Aaygj", gfxConfig->itemPadding.left, yLocation);
+
        	itemHeight = itemExtents.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
         serdebugF2("Redraw all, new item height ", itemHeight);
 
