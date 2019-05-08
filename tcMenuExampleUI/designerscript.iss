@@ -11,7 +11,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{DBA6DC9A-49F6-4B0C-9EDB-A7C69F458226}
+AppId={{CE47AC1B-1538-430A-A25C-107EE4F25679}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=C:\Users\dave\IdeaProjects\tcMenu\LICENSE
-OutputBaseFilename=setupTcMenu
+OutputBaseFilename=setupTcMenuController
 Compression=lzma
 SolidCompression=yes
 
