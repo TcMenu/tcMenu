@@ -15,6 +15,7 @@ import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.project.MenuItemChange.Command;
@@ -29,6 +30,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,13 +56,12 @@ public class MenuEditorController {
     public javafx.scene.control.MenuItem menuPaste;
     public javafx.scene.control.MenuItem menuUndo;
     public javafx.scene.control.MenuItem menuRedo;
-    public javafx.scene.control.MenuItem menuRecent1;
-    public javafx.scene.control.MenuItem menuRecent2;
-    public javafx.scene.control.MenuItem menuRecent3;
-    public javafx.scene.control.MenuItem menuRecent4;
+    public javafx.scene.control.Menu menuRecents;
+    public javafx.scene.control.Menu menuSketches;
     public javafx.scene.control.MenuItem exitMenuItem;
     public javafx.scene.control.MenuItem aboutMenuItem;
 
+    public Menu examplesMenu;
     public TextArea prototypeTextArea;
     public BorderPane rootPane;
     public TreeView<MenuItem> menuTree;
@@ -76,6 +78,7 @@ public class MenuEditorController {
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
+    private LinkedList<String> recentItems = new LinkedList<>();
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager) {
@@ -97,7 +100,53 @@ public class MenuEditorController {
             sortOutMenuForMac();
             redrawTreeControl();
             redrawStatus();
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
+            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
         });
+    }
+
+    private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir) {
+        if(maybeDir.isPresent()) {
+            try {
+                Files.list(maybeDir.get().resolve(subDir))
+                        .filter(Files::isDirectory)
+                        .filter(this::hasEmfFile)
+                        .forEach(path -> {
+                            var item = new javafx.scene.control.MenuItem(path.getFileName().toString());
+                            item.setOnAction(e-> openFirstEMF(path));
+                            toPopulate.getItems().add(item);
+                        });
+            } catch (IOException e) {
+                logger.log(ERROR, "Unable to traverse examples due to exception", e);
+            }
+
+        }
+        else {
+            logger.log(ERROR, "Examples directory not found");
+        }
+    }
+
+    private boolean hasEmfFile(Path path) {
+        try {
+            return Files.list(path).anyMatch(p -> p.toString().toUpperCase().endsWith(".EMF"));
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private void openFirstEMF(Path path) {
+        try {
+            handleRecents();
+            Files.list(path)
+                    .filter(p -> p.toString().toUpperCase().endsWith(".EMF"))
+                    .findFirst()
+                    .ifPresent(example -> {
+                        editorProject.openProject(example.toString());
+                        redrawTreeControl();
+                    });
+        } catch (IOException e) {
+            logger.log(ERROR, "Failed to locate ino in example " + path);
+        }
     }
 
     private void redrawStatus() {
@@ -299,6 +348,7 @@ public class MenuEditorController {
     }
 
     public void onFileOpen(ActionEvent event) {
+        handleRecents();
         if (editorProject.openProject()) {
             redrawTreeControl();
             handleRecents();
@@ -315,13 +365,13 @@ public class MenuEditorController {
     }
 
     public void onFileSave(ActionEvent event) {
-        editorProject.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+        editorProject.saveProject(EditorSaveMode.SAVE);
         redrawTreeControl();
         handleRecents();
     }
 
     public void onFileSaveAs(ActionEvent event) {
-        editorProject.saveProject(CurrentEditorProject.EditorSaveMode.SAVE_AS);
+        editorProject.saveProject(EditorSaveMode.SAVE_AS);
         redrawTreeControl();
         handleRecents();
     }
@@ -336,15 +386,22 @@ public class MenuEditorController {
 
     public void onGenerateCode(ActionEvent event) {
         editorUI.showCodeGeneratorDialog(editorProject, installer);
+        editorProject.saveProject(EditorSaveMode.SAVE);
+        redrawTreeControl();
+        handleRecents();
     }
 
     public void loadPreferences() {
         Preferences prefs = Preferences.userNodeForPackage(getClass());
 
-        menuRecent1.setText(prefs.get(RECENT_DEFAULT + "1", RECENT_DEFAULT));
-        menuRecent2.setText(prefs.get(RECENT_DEFAULT + "2", RECENT_DEFAULT));
-        menuRecent3.setText(prefs.get(RECENT_DEFAULT + "3", RECENT_DEFAULT));
-        menuRecent4.setText(prefs.get(RECENT_DEFAULT + "4", RECENT_DEFAULT));
+        for(int i=0;i<10;i++) {
+            var recent = prefs.get(RECENT_DEFAULT + i, RECENT_DEFAULT);
+            if(!recent.equals(RECENT_DEFAULT)) {
+                recentItems.add(recent);
+            }
+        }
+
+        Platform.runLater(this::handleRecents);
 
         if(prefs.get(REGISTERED_KEY, "").isEmpty()) {
             Platform.runLater(()-> {
@@ -359,10 +416,11 @@ public class MenuEditorController {
 
     public void persistPreferences() {
         Preferences prefs = Preferences.userNodeForPackage(getClass());
-        prefs.put(RECENT_DEFAULT + "1", menuRecent1.getText());
-        prefs.put(RECENT_DEFAULT + "2", menuRecent2.getText());
-        prefs.put(RECENT_DEFAULT + "3", menuRecent3.getText());
-        prefs.put(RECENT_DEFAULT + "4", menuRecent4.getText());
+        int i = 1;
+        for (var r : recentItems) {
+            prefs.put(RECENT_DEFAULT + i, r);
+            i++;
+        }
     }
 
     public void onUndo(ActionEvent event) {
@@ -403,22 +461,23 @@ public class MenuEditorController {
 
 
     private void handleRecents() {
-        if (!editorProject.isFileNameSet()) return;
+        if (editorProject.isFileNameSet()) {
+            recentItems.addFirst(editorProject.getFileName());
+        }
 
-        List<String> recents = Arrays.asList(editorProject.getFileName(), menuRecent1.getText(), menuRecent2.getText(),
-                                             menuRecent3.getText(), menuRecent4.getText());
-        LinkedList<String> cleanedRecents = recents.stream()
+        recentItems = recentItems.stream()
                 .filter(name -> !name.equals(RECENT_DEFAULT))
                 .distinct()
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        List<javafx.scene.control.MenuItem> recentItems = Arrays.asList(menuRecent1, menuRecent2, menuRecent3, menuRecent4);
-        recentItems.forEach(menuItem -> {
-            if (cleanedRecents.isEmpty()) {
-                menuItem.setText(RECENT_DEFAULT);
-            } else {
-                menuItem.setText(cleanedRecents.removeFirst());
-            }
+        menuRecents.getItems().clear();
+        recentItems.forEach(path-> {
+            var item = new javafx.scene.control.MenuItem(path);
+            item.setOnAction(e-> {
+                editorProject.openProject(path);
+                redrawTreeControl();
+            });
+            menuRecents.getItems().add(item);
         });
     }
 

@@ -256,4 +256,8 @@ public class RemoteMenuController {
         listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), true));
         executor.execute(() -> sendCommand(newJoinCommand(localName)) );
     }
+
+    public MenuTree getManagedMenu() {
+        return managedMenu;
+    }
 }

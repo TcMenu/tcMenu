@@ -1,0 +1,48 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.controller.manageditem;
+
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.remote.RemoteMenuController;
+import javafx.scene.Node;
+
+public abstract class ManagedMenuItem<T, I extends MenuItem> {
+    private static final int TICKS_HIGHLIGHT_ON_CHANGE = 30; // about 3 seconds.
+
+    protected final I item;
+    protected boolean animating;
+    protected int ticks;
+
+    public ManagedMenuItem(I item) {
+        this.item = item;
+        ticks = 0;
+        animating = false;
+    }
+
+
+    public boolean isAnimating() {
+        return animating;
+    }
+
+    public abstract Node createNodes(RemoteMenuController controller);
+    public abstract void internalChangeItem(MenuState<T> change);
+    public abstract void internalTick();
+
+    public synchronized void itemChanged(MenuState<T> change) {
+        animating = true;
+        ticks = TICKS_HIGHLIGHT_ON_CHANGE;
+        internalChangeItem(change);
+    }
+
+    public void tick() {
+        ticks--;
+        if(ticks == 0) animating = false;
+
+        internalTick();
+    }
+}

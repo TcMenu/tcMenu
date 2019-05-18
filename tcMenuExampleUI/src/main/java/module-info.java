@@ -11,5 +11,5 @@ module com.thecoderscorner.tcmenu.exampleui {
     requires java.prefs;
     requires java.desktop;
 
-    exports com.thecoderscorner.menu.examples.simpleui;
+    exports com.thecoderscorner.menu.controller;
 }

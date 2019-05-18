@@ -7,10 +7,9 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<BorderPane prefHeight="574.0" prefWidth="424.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.examples.simpleui.MainWindowController">
+<BorderPane prefHeight="574.0" prefWidth="424.0" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.controller.MainWindowController">
    <opaqueInsets>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </opaqueInsets>
@@ -30,44 +29,10 @@
          </padding>
       </GridPane>
    </center>
-   <top>
-      <Label fx:id="topLabel" text="TcMenu embedded to Java FX Example UI" BorderPane.alignment="CENTER">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-   </top>
    <padding>
       <Insets top="4.0" />
    </padding>
    <bottom>
-      <GridPane prefHeight="91.0" prefWidth="592.0" style="-fx-background-color: #bbb;" BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label text="Connected" />
-            <Label text="Remote name" GridPane.rowIndex="1" />
-            <Label text="Platform" GridPane.rowIndex="2" />
-            <Label fx:id="connectedLabel" text="NO" GridPane.columnIndex="1" />
-            <Label fx:id="remoteNameLabel" text="None" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label fx:id="platformLabel" text="None" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Version" GridPane.rowIndex="3" />
-            <Label fx:id="versionLabel" text="None" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="Menu loaded" GridPane.rowIndex="4" />
-            <Label fx:id="menuLoadLabel" text="NO" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-         </children>
-         <padding>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-         </padding>
-      </GridPane>
+      <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="433.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
    </bottom>
 </BorderPane>

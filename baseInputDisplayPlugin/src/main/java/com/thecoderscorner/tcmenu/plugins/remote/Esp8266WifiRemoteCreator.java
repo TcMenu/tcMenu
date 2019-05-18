@@ -5,7 +5,6 @@ import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
 
 import java.util.List;
 import java.util.Map;
@@ -13,21 +12,25 @@ import java.util.Map;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
-import static com.thecoderscorner.menu.pluginapi.model.HeaderDefinition.PRIORITY_NORMAL;
-import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.textValidator;
-import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.uintValidator;
+import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.*;
 
 public class Esp8266WifiRemoteCreator extends AbstractCodeCreator {
+    public enum EspProcessorType { ESP_8266, ESP_32 };
     private final List<CreatorProperty> creatorProperties = List.of(
             new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333",
                     REMOTE, TEXTUAL, uintValidator(65355)),
             new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device",
-                    REMOTE, TEXTUAL, textValidator())
+                    REMOTE, TEXTUAL, textValidator()),
+            new CreatorProperty("PROCESSOR_TYPE", "Choose the type of ESP processor in the board",
+                                EspProcessorType.ESP_8266.name(),
+                                REMOTE, TEXTUAL, choicesValidator(EspProcessorType.values()))
     );
 
     @Override
     protected void initCreator(String root) {
-        String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
+        var deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
+        var isEsp32 = findPropertyValue("PROCESSOR_TYPE").getLatestValue().equals(EspProcessorType.ESP_32.name());
+        var wifiInclude = isEsp32 ? "WiFi.h" : "ESP8266WiFi.h";
 
         addVariable(new CodeVariableBuilder().variableName("applicationName[]").variableType("char")
                 .quoted(deviceName).progmem().byAssignment().exportNeeded()
@@ -35,14 +38,14 @@ public class Esp8266WifiRemoteCreator extends AbstractCodeCreator {
 
         addVariable(new CodeVariableBuilder().variableType("WiFiServer").variableName("server")
                 .paramFromPropertyWithDefault("LISTEN_PORT", "3333")
-                .requiresHeader("ESP8266WiFi.h", false));
+                .requiresHeader(wifiInclude, false));
 
         addFunctionCall(new FunctionCallBuilder().objectName("remoteServer").functionName("begin")
                 .paramRef("server").param("applicationName")
                 .requiresHeader("EthernetTransport.h", true));
 
         var repl = Map.of(
-                "Ethernet.h", "ESP8266WiFi.h",
+                "Ethernet.h", wifiInclude,
                 "EthernetClient", "WiFiClient",
                 "EthernetServer", "WiFiServer"
         );

@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.examples.simpleui;
+package com.thecoderscorner.menu.controller;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.thecoderscorner.menu.domain.state.MenuTree;

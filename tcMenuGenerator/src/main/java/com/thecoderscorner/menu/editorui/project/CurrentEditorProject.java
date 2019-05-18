@@ -83,20 +83,24 @@ public class CurrentEditorProject {
         this.generatorOptions = generatorOptions;
     }
 
-    public void openProject(String file) {
+    public boolean openProject(String file) {
         try {
-            fileName = Optional.ofNullable(file);
-            MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
-            menuTree = openedProject.getMenuTree();
-            generatorOptions = openedProject.getOptions();
-            if(generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
-            setDirty(false);
-            changeHistory.clear();
+            if(checkIfWeShouldOverwrite()) {
+                fileName = Optional.ofNullable(file);
+                MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
+                menuTree = openedProject.getMenuTree();
+                generatorOptions = openedProject.getOptions();
+                if (generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
+                setDirty(false);
+                changeHistory.clear();
+                return true;
+            }
         } catch (IOException e) {
             fileName = Optional.empty();
             logger.log(Level.ERROR, "open operation failed on " + file, e);
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
+        return false;
     }
 
     public boolean openProject() {

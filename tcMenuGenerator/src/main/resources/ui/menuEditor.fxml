@@ -18,14 +18,13 @@
             <items>
               <MenuItem accelerator="Shortcut+N" mnemonicParsing="false" onAction="#onFileNew" text="New Project" />
                   <MenuItem accelerator="Shortcut+O" mnemonicParsing="false" onAction="#onFileOpen" text="Open Project.." />
+                  <Menu fx:id="examplesMenu" mnemonicParsing="false" text="Open tcMenu Example" />
+                  <Menu fx:id="menuRecents" mnemonicParsing="false" text="Open Recent" />
+                  <Menu fx:id="menuSketches" mnemonicParsing="false" text="Open from Sketches" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem accelerator="Shortcut+S" mnemonicParsing="false" onAction="#onFileSave" text="Save Project" />
                   <MenuItem accelerator="Shortcut+A" mnemonicParsing="false" onAction="#onFileSaveAs" text="Save Project As.." />
                   <MenuItem mnemonicParsing="false" onAction="#onFileNew" text="Close Project" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuRecent1" mnemonicParsing="false" onAction="#onRecent" text="Recent" />
-                  <MenuItem fx:id="menuRecent2" mnemonicParsing="false" onAction="#onRecent" text="Recent" />
-                  <MenuItem fx:id="menuRecent3" mnemonicParsing="false" onAction="#onRecent" text="Recent" />
-                  <MenuItem fx:id="menuRecent4" mnemonicParsing="false" onAction="#onRecent" text="Recent" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onFileExit" text="Exit" />
             </items>

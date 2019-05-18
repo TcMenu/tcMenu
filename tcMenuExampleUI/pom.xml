@@ -10,10 +10,10 @@
 
     <groupId>com.thecoderscorner.tcmenu</groupId>
 
-    <artifactId>tcMenuExampleUI</artifactId>
-    <name>tcMenuExampleUI</name>
-    <description>JavaFX based example tcMenu UI</description>
-    <version>1.3.1</version>
+    <artifactId>TcMenuController</artifactId>
+    <name>TcMenuController</name>
+    <description>TcMenu Remote Controller JavaFX UI for connecting to embedded menu apps</description>
+    <version>1.3.2-SNAPSHOT</version>
 
     <dependencies>
 
@@ -38,7 +38,7 @@
     </dependencies>
 
     <build>
-        <finalName>tcMenuConnector</finalName>
+        <finalName>tcMenuController</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -66,7 +66,7 @@
                                     <directory>${project.basedir}/target</directory>
                                     <filtering>false</filtering>
                                     <includes>
-                                        <include>tcMenuConnector.jar</include>
+                                        <include>tcMenuController.jar</include>
                                     </includes>
                                 </resource>
                             </resources>
