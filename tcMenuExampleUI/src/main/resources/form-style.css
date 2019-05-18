@@ -12,3 +12,13 @@
     -fx-border-insets: 0;
 }
 
+.updated {
+    -fx-background-color: #b5c182;
+    -fx-background-radius: 2;
+    -fx-background-insets: 0;
+}
+
+.labelMenuHdr {
+    -fx-font-size: 125%;
+    -fx-font-weight: bold;
+}

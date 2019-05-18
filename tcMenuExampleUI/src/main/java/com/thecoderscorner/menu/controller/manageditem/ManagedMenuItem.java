@@ -12,7 +12,7 @@ import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
 
 public abstract class ManagedMenuItem<T, I extends MenuItem> {
-    private static final int TICKS_HIGHLIGHT_ON_CHANGE = 30; // about 3 seconds.
+    private static final int TICKS_HIGHLIGHT_ON_CHANGE = 10; // about 1 second of update notification.
 
     protected final I item;
     protected boolean animating;

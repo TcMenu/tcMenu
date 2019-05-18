@@ -11,13 +11,10 @@ import com.thecoderscorner.menu.domain.TextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
+
+import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
 public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
 
@@ -47,10 +44,12 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
     public void internalTick() {
         if(ticks > 0) {
             ticks--;
-            text.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, new CornerRadii(3), Insets.EMPTY)));
+            if(!text.getStyleClass().contains(UPDATED_CLASS_NAME)) {
+                text.getStyleClass().add(UPDATED_CLASS_NAME);
+            }
         }
         else {
-            text.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(3), Insets.EMPTY)));
+            text.getStyleClass().remove("updated");
         }
 
     }

@@ -22,8 +22,9 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
     private static final int INCREASE = 1;
     private Button minusButton = new Button();
     private Button plusButton = new Button();
+    private long lastRepeatStart = 0;
 
-    enum RepeatTypes { REPEAT_NONE, REPEAT_UP, REPEAT_DOWN }
+    enum RepeatTypes { REPEAT_NONE, REPEAT_UP, REPEAT_DOWN, REPEAT_UP_WAIT, REPEAT_DOWN_WAIT }
     private RepeatTypes repeating;
 
 
@@ -51,9 +52,15 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
             menuController.sendCommand(newDeltaChangeCommand(parent.getId(), item.getId(), REDUCE));
         });
 
-        minusButton.setOnMousePressed(e-> repeating = RepeatTypes.REPEAT_DOWN);
+        minusButton.setOnMousePressed(e-> {
+            repeating = RepeatTypes.REPEAT_DOWN_WAIT;
+            lastRepeatStart = System.currentTimeMillis();
+        });
         minusButton.setOnMouseReleased(e-> repeating = RepeatTypes.REPEAT_NONE);
-        plusButton.setOnMousePressed(e-> repeating = RepeatTypes.REPEAT_UP);
+        plusButton.setOnMousePressed(e-> {
+            repeating = RepeatTypes.REPEAT_UP_WAIT;
+            lastRepeatStart = System.currentTimeMillis();
+        });
         plusButton.setOnMouseReleased(e-> repeating = RepeatTypes.REPEAT_NONE);
         plusButton.setOnAction(e-> {
             MenuItem parent = menuController.getManagedMenu().findParent(item);
@@ -75,6 +82,14 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
     @Override
     public void internalTick() {
         super.internalTick();
+
+        if(repeating == RepeatTypes.REPEAT_DOWN_WAIT && (System.currentTimeMillis() - lastRepeatStart) > 500 ) {
+            repeating = RepeatTypes.REPEAT_DOWN;
+        }
+
+        if(repeating == RepeatTypes.REPEAT_UP_WAIT && (System.currentTimeMillis() - lastRepeatStart) > 500 ) {
+            repeating = RepeatTypes.REPEAT_UP;
+        }
 
         if(repeating == RepeatTypes.REPEAT_UP) {
             Platform.runLater(()->plusButton.fire());

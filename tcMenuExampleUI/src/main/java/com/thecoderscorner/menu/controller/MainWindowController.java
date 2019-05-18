@@ -168,8 +168,8 @@ public class MainWindowController {
         // gridPosition is the row in the grid we populating.
         var nestedText = (nesting > 0) ? "> " : "";
         Label titleLbl = new Label(nestedText + name);
+        titleLbl.getStyleClass().add("labelMenuHdr");
         titleLbl.setPadding(new Insets(12, 10, 4, nesting * 15));
-        titleLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 120%;");
         itemGrid.add(titleLbl, 0, gridPosition++, 2, 1);
 
         // while there are more menuitems in the current level

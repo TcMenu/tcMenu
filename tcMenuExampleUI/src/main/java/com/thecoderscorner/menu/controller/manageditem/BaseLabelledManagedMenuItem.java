@@ -7,14 +7,11 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 
 public abstract class BaseLabelledManagedMenuItem<T, M extends MenuItem> extends ManagedMenuItem<T, M> {
+    public static final String UPDATED_CLASS_NAME = "updated";
     protected Label itemLabel = new Label();
     private Background baseBackground;
 
@@ -27,10 +24,12 @@ public abstract class BaseLabelledManagedMenuItem<T, M extends MenuItem> extends
     public void internalTick() {
         if(ticks > 0) {
             ticks--;
-            itemLabel.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, new CornerRadii(3), Insets.EMPTY)));
+            if(!itemLabel.getStyleClass().contains(UPDATED_CLASS_NAME)) {
+                itemLabel.getStyleClass().add(UPDATED_CLASS_NAME);
+            }
         }
         else {
-            itemLabel.setBackground(baseBackground);
+            itemLabel.getStyleClass().remove(UPDATED_CLASS_NAME);
         }
     }
 }
