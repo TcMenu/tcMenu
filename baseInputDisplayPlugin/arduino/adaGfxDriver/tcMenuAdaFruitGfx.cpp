@@ -14,23 +14,6 @@
 
 #include "tcMenuAdaFruitGfx.h"
 
-const uint8_t loResEditingIcon[] PROGMEM = {
-		0b00000000,
-		0b01111110,
-		0b00000000,
-		0b00000000,
-		0b01111110,
-		0b00000000,
-};
-const uint8_t loResActiveIcon[] PROGMEM = {
-		0b00011000,
-		0b00011100,
-		0b11111110,
-		0b11111110,
-		0b00011100,
-		0b00011000,
-};
-
 extern const char applicationName[];
 
 int drawingCount = 0;

@@ -12,30 +12,8 @@
 Adafruit_ILI9341 gfx(6, 7);
 AdaColorGfxMenuConfig config;
 
-AdaFruitGfxMenuRenderer renderer(320, 240);
+AdaFruitGfxMenuRenderer renderer;
 const char applicationName[] = "Graphics Test";
-
-void prepareGfxConfig() {
-	makePadding(config.titlePadding, 5, 5, 20, 5);
-	makePadding(config.itemPadding, 5, 5, 3, 5);
-	makePadding(config.widgetPadding, 5, 10, 0, 5);
-
-	config.bgTitleColor = RGB(255, 255, 0);
-	config.fgTitleColor = RGB(0, 0, 0);
-	config.titleFont = &FreeSans18pt7b;
-	config.titleBottomMargin = 10;
-
-	config.bgItemColor = RGB(0, 0, 0);
-	config.fgItemColor = RGB(222, 222, 222);
-	config.itemFont = &FreeSans9pt7b;
-
-	config.bgSelectColor = RGB(0, 0, 200);
-	config.fgSelectColor = RGB(255, 255, 255);
-	config.widgetColor = RGB(30, 30, 30);
-
-	config.titleFontMagnification = 1;
-	config.itemFontMagnification = 1;
-}
 
 const uint8_t iconWifiNotConnected[] PROGMEM = {
 	0b00000001, 0b10000000,
@@ -134,33 +112,60 @@ const uint8_t* iconsConnection[] PROGMEM = { iconConnectionNone, iconConnected }
 TitleWidget connectedWidget(iconsConnection, 2, 16, 10);
 TitleWidget wifiWidget(iconsWifi, 5, 16, 10, &connectedWidget);
 
+void prepareGfxConfig() {
+	makePadding(config.titlePadding, 5, 5, 20, 5);
+	makePadding(config.itemPadding, 5, 5, 3, 5);
+	makePadding(config.widgetPadding, 5, 10, 0, 5);
+
+	config.bgTitleColor = RGB(255, 255, 0);
+	config.fgTitleColor = RGB(0, 0, 0);
+	config.titleFont = &FreeSans18pt7b;
+	config.titleBottomMargin = 10;
+
+	config.bgItemColor = RGB(0, 0, 0);
+	config.fgItemColor = RGB(222, 222, 222);
+	config.itemFont = &FreeSans9pt7b;
+
+	config.bgSelectColor = RGB(0, 0, 200);
+	config.fgSelectColor = RGB(255, 255, 255);
+	config.widgetColor = RGB(30, 30, 30);
+
+	config.titleFontMagnification = 1;
+	config.itemFontMagnification = 1;
+
+	config.activeIcon = NULL;
+	config.editIcon = NULL;
+}
+
+
 void setup() {
 	while (!Serial);
 	Serial.begin(115200);
 	Serial.print("Testing adafruit driver");
 	Serial.println(applicationName);
 
-	// either one as needed for testing..
-	//prepareAdaColorDefaultGfxConfig(&config);
-	prepareGfxConfig();
 
 	gfx.begin();
 	gfx.setRotation(3);
 
+	// either one as needed for testing..
+	//prepareAdaColorDefaultGfxConfig(&config);
+	prepareGfxConfig();
 	renderer.setGraphicsDevice(&gfx, &config);
 	menuMgr.initWithoutInput(&renderer, &menuVolume);
+
 	menuVolume.setActive(true);
 	renderer.setFirstWidget(&wifiWidget);
 
 	taskManager.scheduleFixedRate(5, [] {
-		renderer.onSelectPressed(&menuVolume);
-		menuVolume.setCurrentValue(menuVolume.getCurrentValue() + 1);
+	 	renderer.onSelectPressed(&menuVolume);
+	 	menuVolume.setCurrentValue(menuVolume.getCurrentValue() + 1);
 
-		int wifiState = wifiWidget.getCurrentState() + 1;
-		if (wifiState == 5) wifiState = 0;
-		wifiWidget.setCurrentState(wifiState);
+	 	int wifiState = wifiWidget.getCurrentState() + 1;
+	 	if (wifiState == 5) wifiState = 0;
+	 	wifiWidget.setCurrentState(wifiState);
 
-		connectedWidget.setCurrentState(!connectedWidget.getCurrentState());
+	 	connectedWidget.setCurrentState(!connectedWidget.getCurrentState());
 	}, TIME_SECONDS);
 }
 
