@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class U8G2DisplayCreatorTest {
     @Test
-    public void testAdaGfxMono5110() {
+    public void testU8G2OverrideConfig() {
         U8G2DisplayCreator creator = new U8G2DisplayCreator();
         findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
         findAndSetValueOnProperty(creator, "DISPLAY_CONFIG", SubSystem.DISPLAY, TEXTUAL, "config1");
@@ -53,4 +53,40 @@ class U8G2DisplayCreatorTest {
                 "#include \"tcMenuU8g2.h\""
         );
     }
+
+    @Test
+    public void testU8G2NoConfig() {
+        U8G2DisplayCreator creator = new U8G2DisplayCreator();
+        findAndSetValueOnProperty(creator, "DISPLAY_VARIABLE", SubSystem.DISPLAY, TEXTUAL, "gfx");
+        findAndSetValueOnProperty(creator, "DISPLAY_CONFIG", SubSystem.DISPLAY, TEXTUAL, "");
+
+        creator.initCreator("root");
+        var extractor = TestUtil.extractorFor(creator);
+
+        assertThat(extractor.mapDefines()).isEmpty();
+        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
+                "extern U8G2_SSD1306_128X64_NONAME_F_SW_I2C gfx;\n" +
+                        "extern U8g2MenuRenderer renderer;"
+        );
+
+        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
+                "U8g2GfxMenuConfig gfxConfig;\n" +
+                        "U8g2MenuRenderer renderer;"
+        );
+
+        assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
+                "    prepareBasicU8x8Config(gfxConfig);\n" +
+                        "    renderer.setGraphicsDevice(&gfx, &gfxConfig);"
+        );
+
+        Map<String, String> replacements = Map.of();
+        assertThat(creator.getRequiredFiles()).containsExactlyInAnyOrder(
+                new PluginFileDependency("u8g2Driver/tcMenuU8g2.h", WITH_PLUGIN, replacements),
+                new PluginFileDependency("u8g2Driver/tcMenuU8g2.cpp", WITH_PLUGIN, replacements)
+        );
+        assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(
+                "#include \"tcMenuU8g2.h\""
+        );
+    }
+
 }

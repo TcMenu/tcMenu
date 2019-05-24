@@ -43,7 +43,7 @@ public class U8G2DisplayCreator extends AbstractCodeCreator {
         String configVar = findPropertyValue("DISPLAY_CONFIG").getLatestValue();
         if(configVar.isEmpty()) {
             addVariable(new CodeVariableBuilder().variableType("U8g2GfxMenuConfig").variableName("gfxConfig"));
-            addFunctionCall(new FunctionCallBuilder().functionName("prepareBasicU8x8Config").paramRef("gfxConfig"));
+            addFunctionCall(new FunctionCallBuilder().functionName("prepareBasicU8x8Config").param("gfxConfig"));
             configVar = "gfxConfig";
         }
         else {
@@ -56,7 +56,7 @@ public class U8G2DisplayCreator extends AbstractCodeCreator {
                 .requiresHeader("tcMenuU8g2.h", true, HeaderDefinition.PRIORITY_MIN));
 
         addFunctionCall(new FunctionCallBuilder().functionName("setGraphicsDevice").objectName("renderer")
-                .paramRef(graphicsVar).param(configVar));
+                .paramRef(graphicsVar).paramRef(configVar));
 
         Map<String, String> noReplacements = Map.of();
         addLibraryFiles(
