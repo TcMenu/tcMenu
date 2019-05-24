@@ -36,18 +36,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
-import static com.thecoderscorner.menu.editorui.util.BuildVersionUtil.printableRegistrationInformation;
 import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("unused")
 public class MenuEditorController {
     public static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/registerTcMenu";
-    public static final String RECENT_DEFAULT = "Recent";
-    public static final String REGISTERED_KEY = "Registered";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     private CurrentEditorProject editorProject;
@@ -78,14 +74,17 @@ public class MenuEditorController {
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
+    private ConfigurationStorage configStore;
     private LinkedList<String> recentItems = new LinkedList<>();
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
-                           CurrentProjectEditorUI editorUI, CodePluginManager pluginManager) {
+                           CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
+                           ConfigurationStorage storage) {
         this.editorProject = editorProject;
         this.installer = installer;
         this.editorUI = editorUI;
         this.pluginManager = pluginManager;
+        this.configStore = storage;
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
@@ -151,7 +150,8 @@ public class MenuEditorController {
     }
 
     private void redrawStatus() {
-        statusField.setText("TcMenu Designer \u00A9 thecoderscorner.com. " + printableRegistrationInformation());
+        statusField.setText("TcMenu Designer " + configStore. getVersion()
+                + " \u00A9 thecoderscorner.com. Registered to " + configStore.getRegisteredKey());
     }
 
     private void sortOutMenuForMac() {
@@ -272,7 +272,7 @@ public class MenuEditorController {
     }
 
     public void registerMenuPressed(ActionEvent actionEvent) {
-        RegistrationDialog.showRegistration(getStage(), REGISTRATION_URL);
+        RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
@@ -359,7 +359,7 @@ public class MenuEditorController {
     public void onRecent(ActionEvent event) {
         javafx.scene.control.MenuItem item = (javafx.scene.control.MenuItem) event.getSource();
         String recent = item.getText();
-        if (!RECENT_DEFAULT.equals(recent)) {
+        if (!PrefsConfigurationStorage.RECENT_DEFAULT.equals(recent)) {
             editorProject.openProject(recent);
             redrawTreeControl();
         }
@@ -393,34 +393,19 @@ public class MenuEditorController {
     }
 
     public void loadPreferences() {
-        Preferences prefs = Preferences.userNodeForPackage(getClass());
-
-        for(int i=0;i<10;i++) {
-            var recent = prefs.get(RECENT_DEFAULT + i, RECENT_DEFAULT);
-            if(!recent.equals(RECENT_DEFAULT)) {
-                recentItems.add(recent);
-            }
-        }
+        recentItems.clear();
+        recentItems.addAll(configStore.loadRecents());
 
         Platform.runLater(this::handleRecents);
 
-        if(prefs.get(REGISTERED_KEY, "").isEmpty()) {
+        if(configStore.getRegisteredKey().isEmpty()) {
             Platform.runLater(()-> {
-                RegistrationDialog.showRegistration(getStage(), REGISTRATION_URL);
+                RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
                 TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
                     onTreeChangeSelection(item.getValue());
                 }
             });
-        }
-    }
-
-    public void persistPreferences() {
-        Preferences prefs = Preferences.userNodeForPackage(getClass());
-        int i = 1;
-        for (var r : recentItems) {
-            prefs.put(RECENT_DEFAULT + i, r);
-            i++;
         }
     }
 
@@ -432,6 +417,10 @@ public class MenuEditorController {
     public void onRedo(ActionEvent event) {
         editorProject.redoChange();
         redrawTreeControl();
+    }
+
+    public void persistPreferences() {
+        configStore.saveUniqueRecents(recentItems);
     }
 
     public void onCut(ActionEvent event) {
@@ -467,7 +456,7 @@ public class MenuEditorController {
         }
 
         recentItems = recentItems.stream()
-                .filter(name -> !name.equals(RECENT_DEFAULT))
+                .filter(name -> !name.equals(ConfigurationStorage.RECENT_DEFAULT))
                 .distinct()
                 .collect(Collectors.toCollection(LinkedList::new));
 

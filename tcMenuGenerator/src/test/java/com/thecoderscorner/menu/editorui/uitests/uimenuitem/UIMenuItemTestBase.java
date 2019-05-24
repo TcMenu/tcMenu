@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
@@ -47,8 +48,9 @@ public abstract class UIMenuItemTestBase {
     @SuppressWarnings("unchecked")
     protected void init(Stage stage) {
         manager = mock(CodePluginManager.class);
+        ConfigurationStorage storage = mock(ConfigurationStorage.class);
         editorUI = new CurrentProjectEditorUIImpl(manager, stage, mock(EmbeddedPlatforms.class),
-                mock(ArduinoLibraryInstaller.class));
+                mock(ArduinoLibraryInstaller.class), storage);
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);
         this.stage = stage;

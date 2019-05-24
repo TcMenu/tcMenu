@@ -13,11 +13,18 @@ import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
 import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import org.testfx.api.FxRobot;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -59,6 +66,39 @@ public class TestUtils {
             ComboBox<T> combo = robot.lookup(query).queryComboBox();
             combo.getSelectionModel().select(value);
         });
+    }
+
+    public static Collection<MenuItem> findItemsInMenuWithId(FxRobot robot, String menuToFind) {
+        MenuBar menuBar = robot.lookup("#mainMenu").query();
+        MenuItem menu =  menuBar.getMenus().stream().flatMap(m-> m.getItems().stream())
+                .filter(m -> menuToFind.equals(m.getId()))
+                .findFirst().orElseThrow(RuntimeException::new);
+        return ((Menu)menu).getItems();
+    }
+
+    public static Collection<MenuItem> recurseGetAllMenus(FxRobot robot, Collection<MenuItem> items) {
+        var ret = new ArrayList<MenuItem>();
+        for (MenuItem item : items) {
+            ret.add(item);
+            if(item instanceof Menu) {
+                ret.addAll(recurseGetAllMenus(robot, ((Menu)item).getItems()));
+            }
+        }
+        return ret;
+    }
+
+    public static Collection<MenuItem> findAllMenuItems(FxRobot robot) {
+        MenuBar menuBar = robot.lookup("#mainMenu").query();
+        return menuBar.getMenus().stream()
+                .flatMap(m-> recurseGetAllMenus(robot, m.getItems()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static void clickOnMenuItemWithText(FxRobot robot, String menuToFind) throws InterruptedException {
+        var menu = findAllMenuItems(robot).stream()
+                .filter(menuItem -> menuToFind.equals(menuItem.getText()))
+                .findFirst().orElseThrow(RuntimeException::new);
+        runOnFxThreadAndWait(() -> menu.fire());
     }
 
     public static MenuTree buildSimpleTree() {

@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.AboutController;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
@@ -25,12 +26,12 @@ public class AboutDialog {
     private AboutController controller;
     private Stage dialogStage;
 
-    public AboutDialog(Stage stage, ArduinoLibraryInstaller installer, boolean modal) {
+    public AboutDialog(ConfigurationStorage storage, Stage stage, ArduinoLibraryInstaller installer, boolean modal) {
         try {
             FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/aboutDialog.fxml"));
             BorderPane pane = loader.load();
             controller = loader.getController();
-            controller.initialise(installer);
+            controller.initialise(storage, installer);
 
 
             createDialogStateAndShow(stage, pane, "About tcMenu Designer", modal);

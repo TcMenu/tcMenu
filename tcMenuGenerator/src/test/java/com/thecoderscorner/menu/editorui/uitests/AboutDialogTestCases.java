@@ -6,10 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,12 +29,16 @@ public class AboutDialogTestCases {
 
     @Start
     public void onStart(Stage stage) throws IOException {
+        ConfigurationStorage storage = mock(ConfigurationStorage.class);
+        when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
+        when(storage.getVersion()).thenReturn("V1.0.2");
+        when(storage.getBuildTimestamp()).thenReturn("20/10/2018 09:30");
         ArduinoLibraryInstaller installer = mock(ArduinoLibraryInstaller.class);
         when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.2"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
 
-        AboutDialog dialog = new AboutDialog(stage, installer, false);
+        AboutDialog dialog = new AboutDialog(storage, stage, installer, false);
     }
 
     @Test
@@ -43,9 +47,9 @@ public class AboutDialogTestCases {
         verifyThat("#ioAbstractionVersion", hasText("V1.0.2"));
         verifyThat("#liquidCrystalVersion", hasText("V1.0.0"));
 
-        String ver = BuildVersionUtil.getVersionInfo();
-
-        verifyThat("#apiVersion", hasText(ver));
+        verifyThat("#apiVersion", hasText("V1.0.2"));
+        verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));
+        verifyThat("#registeredLabel", hasText("UnitTesterII"));
 
         robot.clickOn(".button:default");
     }

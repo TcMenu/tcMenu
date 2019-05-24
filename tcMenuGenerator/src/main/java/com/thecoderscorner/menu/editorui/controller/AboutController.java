@@ -7,7 +7,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -19,12 +18,16 @@ public class AboutController {
     public Label tcMenuVersion;
     public Label ioAbstractionVersion;
     public Label liquidCrystalVersion;
+    public Label buildDateLabel;
+    public Label registeredLabel;
 
-    public void initialise(ArduinoLibraryInstaller installer) throws IOException {
+    public void initialise(ConfigurationStorage storage, ArduinoLibraryInstaller installer) throws IOException {
         tcMenuVersion.setText(installer.getVersionOfLibrary("tcMenu", true).toString());
         ioAbstractionVersion.setText(installer.getVersionOfLibrary("IoAbstraction", true).toString());
         liquidCrystalVersion.setText(installer.getVersionOfLibrary("LiquidCrystalIO", true).toString());
-        apiVersion.setText(BuildVersionUtil.getVersionInfo());
+        apiVersion.setText(storage.getVersion());
+        buildDateLabel.setText(storage.getBuildTimestamp());
+        if(!storage.getRegisteredKey().isEmpty()) registeredLabel.setText(storage.getRegisteredKey());
     }
 
     public void onClose(ActionEvent actionEvent) {

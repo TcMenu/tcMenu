@@ -6,22 +6,22 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.sun.javafx.scene.control.ContextMenuContent;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
-import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
-import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
+import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -44,15 +44,13 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.*;
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.NO_FUNCTION_DEFINED;
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.pushCtrlAndKey;
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
@@ -71,9 +69,17 @@ public class MenuEditorTestCases {
     private CurrentEditorProject project;
     private Stage stage;
     private CodePluginManager simulatedCodeManager;
+    private ArduinoDirectoryStructureHelper dirHelper = new ArduinoDirectoryStructureHelper();
 
     @Start
     public void onStart(Stage stage) throws Exception {
+
+        dirHelper.initialise();
+        dirHelper.createSketch(TCMENU_DIR, "exampleSketch1", true);
+        dirHelper.createSketch(TCMENU_DIR, "exampleSketch2", true);
+        dirHelper.createSketch(SKETCHES_DIR, "sketches1", true);
+        dirHelper.createSketch(SKETCHES_DIR, "sketches2", true);
+        dirHelper.createSketch(SKETCHES_DIR, "sketchesIgnore", false);
 
         // load the main window FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
@@ -91,6 +97,8 @@ public class MenuEditorTestCases {
 
         // and we are always up to date library wise in unit test land
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+        when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
+        when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
 
         // create a basic project, that has a few menu items in it.
         project = new CurrentEditorProject(
@@ -98,9 +106,14 @@ public class MenuEditorTestCases {
                 persistor
         );
 
+        ConfigurationStorage storage = mock(ConfigurationStorage.class);
+        when(storage.loadRecents()).thenReturn(List.of("recentItem1", "recentItem2"));
+        when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
+        when(storage.getVersion()).thenReturn("1.1.1");
+
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage);
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
@@ -108,13 +121,16 @@ public class MenuEditorTestCases {
         stage.show();
     }
 
+
+
     private CodePluginConfig generateCodePluginConfig() {
         return new CodePluginConfig("module.name", "PluginName", "1.0.0",
                                     Arrays.asList());
     }
 
     @AfterEach
-    public void tidyUp() {
+    public void tidyUp() throws IOException {
+        dirHelper.cleanUp();
         Platform.runLater(()-> stage.close());
     }
 
@@ -219,6 +235,30 @@ public class MenuEditorTestCases {
 
         // now project should be clean
         assertFalse(project.isDirty());
+    }
+
+    @Test
+    public void testRecentsExamplesAndSketches(FxRobot robot) throws InterruptedException {
+        var recentItems = TestUtils.findItemsInMenuWithId(robot, "menuRecents");
+        var itemStrings = recentItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        assertThat(itemStrings).containsExactlyInAnyOrder("recentItem1", "recentItem2");
+        project.applyCommand(MenuItemChange.Command.NEW, aNewMenuItem());
+        when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
+        TestUtils.clickOnMenuItemWithText(robot, "recentItem1");
+        verify(editorProjectUI).questionYesNo(any(), any());
+        clearInvocations(editorProjectUI);
+
+        var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
+        var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
+        project.applyCommand(MenuItemChange.Command.NEW, aNewMenuItem());
+        when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
+        TestUtils.clickOnMenuItemWithText(robot, "exampleSketch2");
+        verify(editorProjectUI).questionYesNo(any(), any());
+
+        var sketchItems = TestUtils.findItemsInMenuWithId(robot, "menuSketches");
+        var sketchStrings = sketchItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        assertThat(sketchStrings).containsExactlyInAnyOrder("sketches1", "sketches2");
     }
 
     @Test
@@ -399,6 +439,9 @@ public class MenuEditorTestCases {
         when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("tcMenu", false)).thenReturn(new VersionInfo("1.0.1"));
 
+        // simulate a new example being added during the upgrade
+        dirHelper.createSketch(TCMENU_DIR, "additionalExample", true);
+
         robot.clickOn("#installLibUpdates");
 
         // ensure that the libraries are now copied and root is then selected afterwards.
@@ -409,6 +452,11 @@ public class MenuEditorTestCases {
 
         verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: V1.0.1 installed: V1.0.1"));
         verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries all up-to-date"));
+
+        // and that newly available example should be added to the menu.
+        var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
+        var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2", "additionalExample");
     }
 
     /**

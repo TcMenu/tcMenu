@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.thecoderscorner.menu.editorui.util.BuildVersionUtil;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -35,10 +34,12 @@ public class RegistrationController {
     public Button generateButton;
     public Button cancelButton;
     private AtomicReference<String> errorStore = new AtomicReference<>(null);
+    private ConfigurationStorage configStorage;
     private String registrationUrl;
 
 
-    public void init(String registrationUrl) {
+    public void init(ConfigurationStorage configStorage, String registrationUrl) {
+        this.configStorage = configStorage;
         this.registrationUrl = registrationUrl;
         yourName.textProperty().addListener(this::onTextChanged);
         emailAddress.textProperty().addListener(this::onTextChanged);
@@ -140,7 +141,7 @@ public class RegistrationController {
                 JsonElement regWhoElement = element.getAsJsonObject().get("regUser");
                 JsonElement errorElement = element.getAsJsonObject().get("error");
                 if(regElement.getAsBoolean()) {
-                    BuildVersionUtil.storeRegistration(regWhoElement.getAsString());
+                    configStorage.setRegisteredKey(regWhoElement.getAsString());
                     Platform.runLater(RegistrationController.this::closeIt);
                 }
                 else {

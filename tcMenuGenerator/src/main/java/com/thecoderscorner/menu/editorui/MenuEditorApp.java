@@ -6,7 +6,9 @@
 
 package com.thecoderscorner.menu.editorui;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DirectoryCodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
@@ -54,13 +56,17 @@ public class MenuEditorApp extends Application {
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
 
-        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer);
+        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
+
+        CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms,
+                installer, prefsStore);
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
 
-        controller.initialise(project, installer, editorUI, manager);
+
+        controller.initialise(project, installer, editorUI, manager, prefsStore);
 
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);

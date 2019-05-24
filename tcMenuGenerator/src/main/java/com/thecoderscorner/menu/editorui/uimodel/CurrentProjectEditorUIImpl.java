@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
@@ -44,13 +45,15 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private CodePluginManager manager;
     private EmbeddedPlatforms platforms;
     private ArduinoLibraryInstaller installer;
+    private ConfigurationStorage configStore;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
-                                      ArduinoLibraryInstaller installer) {
+                                      ArduinoLibraryInstaller installer, ConfigurationStorage storage) {
         this.manager = manager;
         this.mainStage = mainStage;
         this.platforms = platforms;
         this.installer = installer;
+        this.configStore = storage;
     }
 
     @Override
@@ -112,7 +115,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Showing about dialog");
-        AboutDialog ad = new AboutDialog(mainStage, installer, true);
+        AboutDialog ad = new AboutDialog(configStore, mainStage, installer, true);
     }
 
     @Override
