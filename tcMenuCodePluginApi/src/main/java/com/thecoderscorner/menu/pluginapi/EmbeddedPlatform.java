@@ -21,7 +21,8 @@ public class EmbeddedPlatform {
     /** Defines the 32 bit arduino platform */
     public final static EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino SAMD", "ARDUINO32", false);
     /** Defines the 32 bit arduino platform */
-    public final static EmbeddedPlatform ARDUINOESP = new EmbeddedPlatform("Arduino ESP8266", "ARDUINOESP", true);
+    public final static EmbeddedPlatform ARDUINO_ESP8266 = new EmbeddedPlatform("Arduino ESP8266", "ARDUINO_ESP8266", true);
+    public final static EmbeddedPlatform ARDUINO_ESP32 = new EmbeddedPlatform("Arduino ESP32", "ARDUINO_ESP32", true);
 
 
     private final String friendlyName;

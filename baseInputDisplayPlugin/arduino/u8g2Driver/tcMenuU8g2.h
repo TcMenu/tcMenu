@@ -14,8 +14,8 @@
  * This library requires the u8g2 library available for download from your IDE library manager.
  */
 
-#ifndef _TCMENU_U8X8_H_
-#define _TCMENU_U8X8_H_
+#ifndef _TCMENU_U8G2_H_
+#define _TCMENU_U8G2_H_
 
 extern const char applicationName[];
 
@@ -80,4 +80,4 @@ private:
  */
 void prepareBasicU8x8Config(U8g2GfxMenuConfig& config);
 
-#endif // _TCMENU_U8X8_H_
+#endif // _TCMENU_U8G2_H_

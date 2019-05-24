@@ -24,7 +24,8 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINOESP);
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32);
+    private final List<EmbeddedPlatform> arduinoPlatforms = platforms; // at the moment all platforms are Arduino.
 
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
@@ -33,7 +34,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform) {
-        if(platform.equals(ARDUINO_AVR) || platform.equals(ARDUINO32) || platform.equals(ARDUINOESP)) {
+        if(arduinoPlatforms.contains(platform)) {
             return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(), platform);
         }
         else {
@@ -49,8 +50,11 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         else if(id.equals(ARDUINO32.getBoardId())) {
             return ARDUINO32;
         }
-        else if(id.equals(ARDUINOESP.getBoardId())) {
-            return ARDUINOESP;
+        else if(id.equals(ARDUINO_ESP8266.getBoardId())) {
+            return ARDUINO_ESP8266;
+        }
+        else if(id.equals(ARDUINO_ESP32.getBoardId())) {
+            return ARDUINO_ESP32;
         }
         else {
             throw new IllegalArgumentException("No such board type: " + id);

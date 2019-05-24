@@ -20,11 +20,12 @@ class PluginEmbeddedPlatformsImplTest {
     @Test
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINOESP);
+        assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
         assertEquals(ARDUINO32, platforms.getEmbeddedPlatformFromId(ARDUINO32.getBoardId()));
-        assertEquals(ARDUINOESP, platforms.getEmbeddedPlatformFromId(ARDUINOESP.getBoardId()));
+        assertEquals(ARDUINO_ESP8266, platforms.getEmbeddedPlatformFromId(ARDUINO_ESP8266.getBoardId()));
+        assertEquals(ARDUINO_ESP32, platforms.getEmbeddedPlatformFromId(ARDUINO_ESP32.getBoardId()));
         assertThrows(IllegalArgumentException.class, () -> platforms.getEmbeddedPlatformFromId("invalidId"));
 
         var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR);

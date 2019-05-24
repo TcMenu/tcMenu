@@ -200,7 +200,18 @@ public class GenerateCodeDialog {
         platformCombo = new ComboBox<>(observableArrayList(platforms.getEmbeddedPlatforms()));
         embeddedPane.setRight(platformCombo);
         vbox.getChildren().add(embeddedPane);
-        var platform = platforms.getEmbeddedPlatformFromId(project.getGeneratorOptions().getEmbeddedPlatform());
+        var platform = EmbeddedPlatform.ARDUINO_AVR;
+        String lastPlatform = project.getGeneratorOptions().getEmbeddedPlatform();
+        try {
+            platform = platforms.getEmbeddedPlatformFromId(lastPlatform);
+        }
+        catch (Exception e) {
+            logger.log(ERROR, "Chosen platform could not be loaded back." + lastPlatform, e);
+            editorUI.alertOnError(
+                    "Platform changed",
+                    "The platform " + lastPlatform + "is no longer available, defaulting to AVR"
+            );
+        }
         platformCombo.getSelectionModel().select(platform);
         platformCombo.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));

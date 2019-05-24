@@ -108,6 +108,7 @@ public class MenuEditorController {
     private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir) {
         if(maybeDir.isPresent()) {
             try {
+                toPopulate.getItems().clear();
                 Files.list(maybeDir.get().resolve(subDir))
                         .filter(Files::isDirectory)
                         .filter(this::hasEmfFile)
@@ -117,7 +118,7 @@ public class MenuEditorController {
                             toPopulate.getItems().add(item);
                         });
             } catch (IOException e) {
-                logger.log(ERROR, "Unable to traverse examples due to exception", e);
+                logger.log(ERROR, "Unable to populate menus due to exception", e);
             }
 
         }
@@ -486,6 +487,7 @@ public class MenuEditorController {
             installer.copyLibraryFromPackage("IoAbstraction");
             installer.copyLibraryFromPackage("tcMenu");
             installer.copyLibraryFromPackage("LiquidCrystalIO");
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
             onTreeChangeSelection(MenuTree.ROOT);
         } catch (IOException e) {
             logger.log(ERROR, "Exception copying library", e);
