@@ -14,11 +14,13 @@ package com.thecoderscorner.menu.remote.protocol;
 public interface TagValMenuFields {
     String KEY_MSG_TYPE = "MT";
     String KEY_NAME_FIELD = "NM";
+    String KEY_UUID_FIELD = "UU";
     String KEY_VER_FIELD = "VE";
     String HB_FREQUENCY_FIELD = "HI";
     String KEY_PLATFORM_ID = "PF";
     String KEY_BOOT_TYPE_FIELD = "BT";
     String KEY_ID_FIELD = "ID";
+    String KEY_CORRELATION_FIELD = "IC";
     String KEY_EEPROM_FIELD = "IE";
     String KEY_READONLY_FIELD = "RO";
     String KEY_PARENT_ID_FIELD = "PI";
@@ -34,4 +36,5 @@ public interface TagValMenuFields {
     String KEY_MAX_LENGTH = "ML";
     String KEY_PREPEND_CHOICE = "C"; // second char from A onwards.
     String KEY_CHANGE_TYPE = "TC";
+    String KEY_ACK_STATUS = "ST";
 }

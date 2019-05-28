@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
@@ -25,7 +26,7 @@ public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuIt
         Button button = new Button("Run " + item.getName());
         button.setOnAction(e-> {
             SubMenuItem parent = controller.getManagedMenu().findParent(item);
-            CommandFactory.newAbsoluteMenuChangeCommand(parent.getId(), item.getId(), true);
+            CommandFactory.newAbsoluteMenuChangeCommand(new CorrelationId(), item, true);
         });
 
         return button;

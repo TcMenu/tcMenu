@@ -35,5 +35,5 @@ public interface RemoteControllerListener {
      * @param remoteInformation the new connection information
      * @param connected true if connected, otherwise false.
      */
-    void connectionState(RemoteInformation remoteInformation, boolean connected);
+    void connectionState(RemoteInformation remoteInformation, AuthStatus connected);
 }

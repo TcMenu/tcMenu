@@ -6,11 +6,13 @@
 
 package com.thecoderscorner.menu.domain.state;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 /**
  * An implementation of menu state for Strings. This stores the current value in the MenuTree for an item
  */
 public class FloatMenuState extends MenuState<Float> {
-    public FloatMenuState(boolean changed, boolean active, Float value) {
-        super(changed, active, value);
+    public FloatMenuState(MenuItem<Float> item, boolean changed, boolean active, Float value) {
+        super(item, changed, active, value);
     }
 }

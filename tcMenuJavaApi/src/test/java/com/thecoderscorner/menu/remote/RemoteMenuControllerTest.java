@@ -9,11 +9,9 @@ package com.thecoderscorner.menu.remote;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand;
-import com.thecoderscorner.menu.remote.commands.MenuEnumBootCommand;
-import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
-import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
+import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,16 +20,18 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.remote.AuthStatus.AWAITING_CONNECTION;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
+import static com.thecoderscorner.menu.remote.protocol.CorrelationId.EMPTY_CORRELATION;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RemoteMenuControllerTest {
     private MenuTree menuTree;
@@ -42,6 +42,7 @@ public class RemoteMenuControllerTest {
     private ArgumentCaptor<RemoteConnectorListener> listener;
     private ArgumentCaptor<Runnable> heartbeatMon;
     private RemoteControllerListener remoteListener;
+    private UUID uuid = UUID.randomUUID();
 
     @Before
     public void setUp() {
@@ -50,7 +51,7 @@ public class RemoteMenuControllerTest {
         executor = Mockito.mock(ScheduledExecutorService.class);
         clock = Mockito.mock(Clock.class);
         remoteListener = Mockito.mock(RemoteControllerListener.class);
-        controller = new RemoteMenuController(connector, menuTree, executor, "test", clock);
+        controller = new RemoteMenuController(connector, menuTree, executor, "test", uuid, clock);
         controller.addListener(remoteListener);
         controller.start();
 
@@ -144,12 +145,13 @@ public class RemoteMenuControllerTest {
     public void testReceiveChangeCommands() {
         populateTreeWithAllTypes();
 
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 12, 42));
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 42, "Hello"));
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 11, 1));
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 43, 1));
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 239, 1.2943));
-        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(0, 233, "Connected"));
+        CorrelationId correlation = new CorrelationId();
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 12, 42));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 42, "Hello"));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 11, 1));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 43, 1));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 239, 1.2943));
+        listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 233, "Connected"));
 
         Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
         Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
@@ -199,16 +201,55 @@ public class RemoteMenuControllerTest {
     }
 
     @Test
-    public void testConnectionStatusChange() {
+    public void testConnectionStatusChangeAuthenticated() throws IOException {
         ArgumentCaptor<ConnectionChangeListener> ccl = ArgumentCaptor.forClass(ConnectionChangeListener.class);
         Mockito.verify(connector).registerConnectionChangeListener(ccl.capture());
 
+        // start disconnected
         ccl.getValue().connectionChange(connector, false);
+        Mockito.verify(remoteListener, atLeastOnce()).connectionState(isA(RemoteInformation.class), eq(AWAITING_CONNECTION));
+        Mockito.clearInvocations(remoteListener);
 
-        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(false));
+        // then simualte connection going live
+        ccl.getValue().connectionChange(connector, true);
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.AWAITING_JOIN));
+        Mockito.clearInvocations(remoteListener);
+
+        // and then receiving a join command
+        listener.getValue().onCommand(connector, newJoinCommand("ABC", UUID.randomUUID()));
+        verify(connector).sendMenuCommand(newJoinCommand("test", uuid));
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.SENT_JOIN));
+        Mockito.clearInvocations(remoteListener);
+
+        // then we would get back an ACK response.
+        listener.getValue().onCommand(connector, newAcknowledgementCommand(EMPTY_CORRELATION, AckStatus.SUCCESS));
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.AUTHENTICATED));
+
+    }
+
+    @Test
+    public void testConnectionStatusNotAuthenticated() throws IOException {
+        ArgumentCaptor<ConnectionChangeListener> ccl = ArgumentCaptor.forClass(ConnectionChangeListener.class);
+        Mockito.verify(connector).registerConnectionChangeListener(ccl.capture());
 
         ccl.getValue().connectionChange(connector, true);
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.AWAITING_JOIN));
+        Mockito.clearInvocations(remoteListener);
 
-        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(true));
+        // and then receiving a join command
+        listener.getValue().onCommand(connector, newJoinCommand("ABC", UUID.randomUUID()));
+        verify(connector).sendMenuCommand(newJoinCommand("test", uuid));
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.SENT_JOIN));
+        Mockito.clearInvocations(remoteListener);
+
+        // then we would get back an ACK response - this time failed auth.
+        listener.getValue().onCommand(connector, newAcknowledgementCommand(EMPTY_CORRELATION, AckStatus.INVALID_CREDENTIALS));
+        Mockito.verify(remoteListener).connectionState(isA(RemoteInformation.class), eq(AuthStatus.FAILED_AUTH));
+        Mockito.verify(connector).close();
+        Mockito.clearInvocations(remoteListener);
+
+        // and we should go back to disconnected
+        ccl.getValue().connectionChange(connector, false);
+        Mockito.verify(remoteListener, atLeastOnce()).connectionState(isA(RemoteInformation.class), eq(AWAITING_CONNECTION));
     }
 }

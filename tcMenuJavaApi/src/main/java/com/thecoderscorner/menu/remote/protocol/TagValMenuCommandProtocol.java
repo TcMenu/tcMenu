@@ -12,10 +12,7 @@ import com.thecoderscorner.menu.remote.commands.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
@@ -77,24 +74,48 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processFloatItem(parser);
             case ACTION_BOOT_ITEM:
                 return processActionItem(parser);
+            case ACKNOWLEDGEMENT:
+                return processAcknowledgement(parser);
+            case PAIRING_REQUEST:
+                return processPairingRequest(parser);
             default:
                 throw new TcProtocolException("Unknown message type " + cmdType);
         }
     }
 
+    private MenuCommand processPairingRequest(TagValTextParser parser) throws IOException {
+        return newPairingCommand(
+                parser.getValue(KEY_NAME_FIELD),
+                UUID.fromString(parser.getValue(KEY_UUID_FIELD))
+        );
+    }
+
+    private MenuCommand processAcknowledgement(TagValTextParser parser) throws IOException {
+        CorrelationId id = new CorrelationId(parser.getValueWithDefault(KEY_CORRELATION_FIELD, "0"));
+        return newAcknowledgementCommand(id, fromCode(parser.getValueAsInt(KEY_ACK_STATUS)));
+    }
+
+    private AckStatus fromCode(int codeIn) {
+        return Arrays.stream(AckStatus.values())
+                .filter(s-> s.getStatusCode() == codeIn)
+                .findFirst().orElse(AckStatus.UNKNOWN_ERROR);
+    }
+
     private MenuCommand processItemChange(TagValTextParser parser) throws IOException {
         ChangeType type = MenuChangeCommand.changeTypeFromInt(parser.getValueAsInt(KEY_CHANGE_TYPE));
 
+        var corStr = parser.getValueWithDefault( KEY_CORRELATION_FIELD, "");
+        var correlation = corStr.isEmpty() ? CorrelationId.EMPTY_CORRELATION : new CorrelationId(corStr);
         if(type == ChangeType.DELTA) {
             return newDeltaChangeCommand(
-                    parser.getValueAsInt(KEY_PARENT_ID_FIELD),
+                    correlation,
                     parser.getValueAsInt(KEY_ID_FIELD),
                     parser.getValueAsInt(KEY_CURRENT_VAL)
             );
         }
         else {
             return newAbsoluteMenuChangeCommand(
-                    parser.getValueAsInt(KEY_PARENT_ID_FIELD),
+                    correlation,
                     parser.getValueAsInt(KEY_ID_FIELD),
                     parser.getValue(KEY_CURRENT_VAL)
             );
@@ -232,7 +253,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private MenuCommand processJoin(TagValTextParser parser) throws IOException {
-        return new MenuJoinCommand(parser.getValue(KEY_NAME_FIELD),
+        var uuidStr = parser.getValueWithDefault(KEY_UUID_FIELD, "");
+        var uuid = uuidStr.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuidStr);
+        return new MenuJoinCommand(
+                uuid,
+                parser.getValue(KEY_NAME_FIELD),
                 ProtocolUtil.fromKeyToApiPlatform(parser.getValueAsInt(KEY_PLATFORM_ID)),
                 parser.getValueAsInt(KEY_VER_FIELD));
     }
@@ -283,6 +308,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case TEXT_BOOT_ITEM:
                 writeTextMenuItem(sb, (MenuTextBootCommand) cmd);
                 break;
+            case ACKNOWLEDGEMENT:
+                writeAcknowledgement(sb, (MenuAcknowledgementCommand)cmd);
+                break;
+            case PAIRING_REQUEST:
+                writePairingRequest(sb, (MenuPairingCommand)cmd);
+                break;
 
         }
         sb.append('~');
@@ -290,6 +321,16 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         String msgStr = sb.toString();
         logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
         buffer.put(msgStr.getBytes());
+    }
+
+    private void writePairingRequest(StringBuilder sb, MenuPairingCommand cmd) {
+        appendField(sb, KEY_NAME_FIELD, cmd.getName());
+        appendField(sb, KEY_UUID_FIELD, cmd.getUuid());
+    }
+
+    private void writeAcknowledgement(StringBuilder sb, MenuAcknowledgementCommand cmd) {
+        appendField(sb, KEY_CORRELATION_FIELD, cmd.getCorrelationId().toString());
+        appendField(sb, KEY_ACK_STATUS, cmd.getAckStatus().getStatusCode());
     }
 
     private void writeHeartbeat(StringBuilder sb, MenuHeartbeatCommand cmd) {
@@ -302,7 +343,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void writeChangeInt(StringBuilder sb, MenuChangeCommand cmd) {
-        appendField(sb, KEY_PARENT_ID_FIELD, cmd.getParentItemId());
+        appendField(sb, KEY_CORRELATION_FIELD, cmd.getCorrelationId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItemId());
         appendField(sb, KEY_CHANGE_TYPE, MenuChangeCommand.changeTypeToInt(cmd.getChangeType()));
         appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
@@ -388,6 +429,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
     private void writeJoin(StringBuilder sb, MenuJoinCommand cmd) {
         appendField(sb, KEY_NAME_FIELD, cmd.getMyName());
+        appendField(sb, KEY_UUID_FIELD, cmd.getAppUuid());
         appendField(sb, KEY_VER_FIELD, cmd.getApiVersion());
         appendField(sb, KEY_PLATFORM_ID, cmd.getPlatform().getKey());
     }

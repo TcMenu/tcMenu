@@ -15,6 +15,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
@@ -34,9 +35,10 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveJoinCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=NJ|NM=IoTdevice|VE=1223|PF=1|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=NJ|NM=IoTdevice|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=1223|PF=1|~"));
         assertTrue(cmd instanceof MenuJoinCommand);
         MenuJoinCommand join = (MenuJoinCommand) cmd;
+        assertEquals("07cd8bc6-734d-43da-84e7-6084990becfc", join.getAppUuid().toString());
         assertEquals("IoTdevice", join.getMyName());
         assertEquals(1223, join.getApiVersion());
         assertEquals(ApiPlatform.JAVA_API, join.getPlatform());
@@ -92,7 +94,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("menuName", remoteCmd.getMenuItem().getName());
         assertEquals(1, remoteCmd.getMenuItem().getId());
         assertEquals(2, remoteCmd.getSubMenuId());
-        assertFalse(remoteCmd.getMenuItem().isReadOnly());
+        assertTrue(remoteCmd.getMenuItem().isReadOnly());
     }
 
     @Test
@@ -105,7 +107,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("menuName", floatCmd.getMenuItem().getName());
         assertEquals(1, floatCmd.getMenuItem().getId());
         assertEquals(2, floatCmd.getSubMenuId());
-        assertFalse(floatCmd.getMenuItem().isReadOnly());
+        assertTrue(floatCmd.getMenuItem().isReadOnly());
     }
 
     @Test
@@ -175,26 +177,71 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceivePairing() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=PR|NM=someUI|UU=575d327e-fe76-4e68-b0b8-45eea154a126|~"));
+        assertTrue(cmd instanceof MenuPairingCommand);
+        MenuPairingCommand pairing = (MenuPairingCommand) cmd;
+        assertEquals("someUI", pairing.getName());
+        assertEquals("575d327e-fe76-4e68-b0b8-45eea154a126", pairing.getUuid().toString());
+    }
+
+    @Test
+    public void testReceiveAcknowledgementCases() throws IOException {
+        // success
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=AK|IC=FDE05CAD|ST=0"));
+        checkAckFields(cmd, AckStatus.SUCCESS);
+        assertFalse(AckStatus.SUCCESS.isError());
+
+        // warning.
+        cmd = protocol.fromChannel(toBuffer("MT=AK|IC=FDE05CAD|ST=-1"));
+        checkAckFields(cmd, AckStatus.VALUE_RANGE_WARNING);
+        assertFalse(AckStatus.VALUE_RANGE_WARNING.isError());
+
+        // error.
+        cmd = protocol.fromChannel(toBuffer("MT=AK|IC=FDE05CAD|ST=1"));
+        checkAckFields(cmd, AckStatus.ID_NOT_FOUND);
+        assertTrue(AckStatus.ID_NOT_FOUND.isError());
+
+        // bad login id.
+        cmd = protocol.fromChannel(toBuffer("MT=AK|IC=FDE05CAD|ST=2"));
+        checkAckFields(cmd, AckStatus.INVALID_CREDENTIALS);
+        assertTrue(AckStatus.INVALID_CREDENTIALS.isError());
+
+        // unknown error.
+        cmd = protocol.fromChannel(toBuffer("MT=AK|IC=FDE05CAD|ST=222"));
+        checkAckFields(cmd, AckStatus.UNKNOWN_ERROR);
+        assertTrue(AckStatus.UNKNOWN_ERROR.isError());
+    }
+
+    private void checkAckFields(MenuCommand cmd, AckStatus st) {
+        assertTrue(cmd instanceof MenuAcknowledgementCommand);
+        MenuAcknowledgementCommand ack = (MenuAcknowledgementCommand) cmd;
+        assertEquals("fde05cad", ack.getCorrelationId().toString());
+        assertEquals(st, ack.getAckStatus());
+    }
+
+
+    @Test
     public void testReceiveDeltaChange() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|PI=11|ID=22|TC=0|VC=1|~"));
-        verifyChangeFields(cmd, ChangeType.DELTA, 1);
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|IC=CA039424|ID=22|TC=0|VC=1|~"));
+        verifyChangeFields(cmd, ChangeType.DELTA, 1, "ca039424");
     }
 
     @Test
     public void testReceiveAbsoluteChange() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|PI=11|ID=22|TC=1|VC=-10000|~"));
-        verifyChangeFields(cmd, ChangeType.ABSOLUTE, -10000);
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|IC=ca039424|ID=22|TC=1|VC=-10000|~"));
+        verifyChangeFields(cmd, ChangeType.ABSOLUTE, -10000, "ca039424");
     }
 
-    private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value) {
+    private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value, String correlationId) {
         assertTrue(cmd instanceof MenuChangeCommand);
         MenuChangeCommand chg = (MenuChangeCommand) cmd;
 
         assertEquals(chType, chg.getChangeType());
         assertEquals(value, Integer.parseInt(chg.getValue()));
-        assertEquals(11, chg.getParentItemId());
         assertEquals(22, chg.getMenuItemId());
         assertEquals(MenuCommandType.CHANGE_INT_FIELD, chg.getCommandType());
+        assertEquals(correlationId, chg.getCorrelationId().toString());
     }
 
 
@@ -212,8 +259,9 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingJoin() {
-        protocol.toChannel(bb, new MenuJoinCommand("dave", ApiPlatform.ARDUINO, 101));
-        testBufferAgainstExpected("MT=NJ|NM=dave|VE=101|PF=0|~");
+        var uuid = UUID.fromString("07cd8bc6-734d-43da-84e7-6084990becfc");
+        protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101));
+        testBufferAgainstExpected("MT=NJ|NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|~");
     }
 
     @Test
@@ -300,14 +348,26 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingAnAbsoluteChange() {
-        protocol.toChannel(bb, newAbsoluteMenuChangeCommand(1, 2, 1));
-        testBufferAgainstExpected("MT=VC|PI=1|ID=2|TC=1|VC=1|~");
+        protocol.toChannel(bb, newAbsoluteMenuChangeCommand(new CorrelationId("00134654"), 2, 1));
+        testBufferAgainstExpected("MT=VC|IC=00134654|ID=2|TC=1|VC=1|~");
     }
 
     @Test
     public void testWritingADeltaChange() {
-        protocol.toChannel(bb, newDeltaChangeCommand(1, 2, 1));
-        testBufferAgainstExpected("MT=VC|PI=1|ID=2|TC=0|VC=1|~");
+        protocol.toChannel(bb, newDeltaChangeCommand(new CorrelationId("C04239"), 2, 1));
+        testBufferAgainstExpected("MT=VC|IC=00c04239|ID=2|TC=0|VC=1|~");
+    }
+
+    @Test
+    public void testWritingAck() {
+        protocol.toChannel(bb, newAcknowledgementCommand(new CorrelationId("1234567a"), AckStatus.ID_NOT_FOUND));
+        testBufferAgainstExpected("MT=AK|IC=1234567a|ST=1|~");
+    }
+
+    @Test
+    public void testWritingPairing() {
+        protocol.toChannel(bb, newPairingCommand("pairingtest", UUID.fromString("575d327e-fe76-4e68-b0b8-45eea154a126")));
+        testBufferAgainstExpected("MT=PR|NM=pairingtest|UU=575d327e-fe76-4e68-b0b8-45eea154a126|~");
     }
 
     private void testBufferAgainstExpected(String s2) {

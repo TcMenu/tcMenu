@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -49,7 +50,7 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
 
         minusButton.setOnAction(e-> {
             MenuItem parent = menuController.getManagedMenu().findParent(item);
-            menuController.sendCommand(newDeltaChangeCommand(parent.getId(), item.getId(), REDUCE));
+            menuController.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, REDUCE));
         });
 
         minusButton.setOnMousePressed(e-> {
@@ -64,7 +65,7 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
         plusButton.setOnMouseReleased(e-> repeating = RepeatTypes.REPEAT_NONE);
         plusButton.setOnAction(e-> {
             MenuItem parent = menuController.getManagedMenu().findParent(item);
-            menuController.sendCommand(newDeltaChangeCommand(parent.getId(), item.getId(), INCREASE));
+            menuController.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, INCREASE));
         });
 
         var border = new BorderPane();

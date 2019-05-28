@@ -12,12 +12,10 @@ import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.IndexRange;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -52,6 +50,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private TextField eepromField;
     private Label errorsField;
     private TextField functionNameTextField;
+    private CheckBox readOnlyCheck;
+    private CheckBox noRemoteCheck;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -118,7 +118,21 @@ public abstract class UIMenuItem<T extends MenuItem> {
         functionNameTextField.setId("functionNameTextField");
         grid.add(functionNameTextField, 1, idx);
 
-        internalInitPanel(grid, idx);
+        idx = internalInitPanel(grid, idx);
+
+        readOnlyCheck = new CheckBox("Read Only");
+        readOnlyCheck.setId("readOnlyField");
+        readOnlyCheck.setOnAction(this::checkboxChanged);
+        readOnlyCheck.setSelected(menuItem.isReadOnly());
+
+        noRemoteCheck = new CheckBox("Do not send remotely");
+        noRemoteCheck.setId("dontRemoteField");
+        noRemoteCheck.setOnAction(this::checkboxChanged);
+        noRemoteCheck.setSelected(menuItem.isLocalOnly());
+
+        idx++;
+        grid.add(readOnlyCheck, 0, idx);
+        grid.add(noRemoteCheck, 1, idx);
 
         textFieldsForCopy = grid.getChildren().stream()
                 .filter(node -> node instanceof TextField)
@@ -145,7 +159,9 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         builder.withFunctionName(getFunctionName(errorsBuilder))
                 .withEepromAddr(eeprom)
-                .withName(name);
+                .withName(name)
+                .withReadOnly(readOnlyCheck.isSelected())
+                .withLocalOnly(noRemoteCheck.isSelected());
     }
 
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {
@@ -165,7 +181,13 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
 
+    @SuppressWarnings("unused")
     protected void coreValueChanged(Observable observable, String oldVal, String newVal) {
+        callChangeConsumer();
+    }
+
+    @SuppressWarnings("unused")
+    private void checkboxChanged(ActionEvent actionEvent) {
         callChangeConsumer();
     }
 
@@ -177,7 +199,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     protected abstract Optional<T> getChangedMenuItem();
 
-    protected abstract void internalInitPanel(GridPane pane, int idx);
+    protected abstract int internalInitPanel(GridPane pane, int idx);
 
     public T getMenuItem() {
         return menuItem;

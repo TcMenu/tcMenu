@@ -25,12 +25,13 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
 
     public BooleanMenuItem() {
         // needed for serialisation
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         this.naming = BooleanNaming.ON_OFF;
     }
 
-    public BooleanMenuItem(String name, int id, int eepromAddress, String functionName, BooleanNaming naming, boolean readOnly) {
-        super(name, id, eepromAddress, functionName, readOnly);
+    public BooleanMenuItem(String name, int id, int eepromAddress, String functionName, BooleanNaming naming,
+                           boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly);
         this.naming = naming;
     }
 
@@ -51,7 +52,7 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
      */
     @Override
     public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
-        return new BooleanMenuState(changed, active, value);
+        return new BooleanMenuState(this, changed, active, value);
     }
 
     @Override
@@ -62,6 +63,7 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 getNaming() == that.getNaming() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());

@@ -8,18 +8,25 @@ package com.thecoderscorner.menu.examples;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.commands.CommandFactory;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 
 import java.util.Optional;
+import java.util.UUID;
 
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.newDeltaChangeCommand;
 import static java.lang.System.Logger.Level.INFO;
 
 public class StandaloneRs232Test {
+
     private final static System.Logger logger = System.getLogger("StandaloneRs232Test");
+
+    // Before use change the UUID shown below. From jshell run UUID.randomUUID() to get a new one
+    private final UUID uuid = UUID.fromString("575d327e-fe76-4e68-b0b8-45eea154a126");
 
     /**
      * A MenuTree object represents a hierarchy of MenuItem's in a tree like format.
@@ -58,6 +65,7 @@ public class StandaloneRs232Test {
                 .withRs232(portName, baud)
                 .withMenuTree(menuTree)
                 .withLocalName(myName)
+                .withUUID(uuid)
                 //.withHeartbeatFrequency(10000000) // uncomment when debugging to prevent timeouts.
                 .build();
 
@@ -97,13 +105,12 @@ public class StandaloneRs232Test {
             Optional<MenuItem> maybeItem = menuTree.getMenuById(MenuTree.ROOT, 1);
             maybeItem.ifPresent( item -> {
                 logger.log(INFO, "Retrieved {0} by its ID {1}, change by 5", item.getName(), item.getId());
-                 controller.sendCommand(CommandFactory.newDeltaChangeCommand(MenuTree.ROOT.getId(),
-                         item.getId(), +5));
+                 controller.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, +5));
             });
         }
 
         @Override
-        public void connectionState(RemoteInformation remoteInformation, boolean connected) {
+        public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
             logger.log(INFO, "Connection information: " + remoteInformation + ". Connected: " + connected);
         }
     }

@@ -6,11 +6,13 @@
 
 package com.thecoderscorner.menu.domain.state;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 /**
  * An implementation of menu state for Strings. This stores the current value in the MenuTree for an item
  */
 public class StringMenuState extends MenuState<String> {
-    public StringMenuState(boolean changed, boolean active, String value) {
-        super(changed, active, value);
+    public StringMenuState(MenuItem<String> item, boolean changed, boolean active, String value) {
+        super(item, changed, active, value);
     }
 }

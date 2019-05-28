@@ -22,3 +22,13 @@
     -fx-font-size: 125%;
     -fx-font-weight: bold;
 }
+
+.popupWindow {
+    -fx-background-color: #f4f0ff;
+    -fx-border-style: solid;
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 6px;
+    -fx-padding: 10px;
+}

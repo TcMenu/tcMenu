@@ -12,6 +12,7 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     int eepromAddr;
     String functionName;
     boolean readOnly;
+    boolean localOnly;
 
     abstract T getThis();
 
@@ -40,10 +41,17 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         return getThis();
     }
 
+    public T withLocalOnly(boolean localOnly) {
+        this.localOnly = localOnly;
+        return getThis();
+    }
+
     protected void baseFromExisting(MenuItem item) {
         name = item.getName();
         id = item.getId();
         eepromAddr = item.getEepromAddress();
         functionName = item.getFunctionName();
+        readOnly = item.isReadOnly();
+        localOnly = item.isLocalOnly();
     }
 }

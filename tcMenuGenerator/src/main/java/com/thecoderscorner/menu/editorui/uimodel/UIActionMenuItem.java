@@ -34,7 +34,8 @@ public class UIActionMenuItem extends UIMenuItem<ActionMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane pane, int idx) {
+    protected int internalInitPanel(GridPane pane, int idx) {
+        return idx;
         // nothing to add
     }
 }

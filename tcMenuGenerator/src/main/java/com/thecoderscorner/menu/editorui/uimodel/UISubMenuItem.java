@@ -32,7 +32,8 @@ public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane pane, int idx) {
+    protected int internalInitPanel(GridPane pane, int idx) {
         // nothing to add
+        return idx;
     }
 }

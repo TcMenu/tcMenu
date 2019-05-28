@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.domain.state;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 import java.util.Objects;
 
 /**
@@ -15,6 +17,7 @@ import java.util.Objects;
 public abstract class MenuState<T> {
     private final boolean changed;
     private final boolean active;
+    private final MenuItem<T> item;
     private final T value;
 
     /**
@@ -23,10 +26,19 @@ public abstract class MenuState<T> {
      * @param active if the item is active.
      * @param value the current value
      */
-    public MenuState(boolean changed, boolean active, T value) {
+    public MenuState(MenuItem<T> item, boolean changed, boolean active, T value) {
         this.changed = changed;
         this.active = active;
         this.value = value;
+        this.item = item;
+    }
+
+    /**
+     * Gets the menu item associated with this state.
+     * @return the menu item
+     */
+    public MenuItem<T> getItem() {
+        return item;
     }
 
     /**

@@ -19,12 +19,13 @@ import java.util.Objects;
 public class ActionMenuItem extends MenuItem<Boolean> {
 
     public ActionMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         // needed for serialisation
     }
 
-    public ActionMenuItem(String name, int id, String functionName, int eepromAddr) {
-        super(name, id, eepromAddr, functionName, false);
+    public ActionMenuItem(String name, int id, String functionName, int eepromAddr,
+                          boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddr, functionName, readOnly, localOnly);
     }
 
     /**
@@ -37,7 +38,7 @@ public class ActionMenuItem extends MenuItem<Boolean> {
 
     @Override
     public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
-        return new BooleanMenuState(changed, active, value);
+        return new BooleanMenuState(this, changed, active, value);
     }
 
     @Override
@@ -53,6 +54,7 @@ public class ActionMenuItem extends MenuItem<Boolean> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -38,7 +39,7 @@ public class BooleanManagedMenuItem extends BaseLabelledManagedMenuItem<Boolean,
             MenuTree menuTree = remoteControl.getManagedMenu();
             MenuState<Boolean> state = menuTree.getMenuState(item);
             var val = (state != null && !state.getValue()) ? 1 : 0;
-            remoteControl.sendCommand(newAbsoluteMenuChangeCommand(menuTree.findParent(item).getId(), item.getId(), val));
+            remoteControl.sendCommand(newAbsoluteMenuChangeCommand(new CorrelationId(), item, val));
         });
 
         // Now generate the label where we'll store everything

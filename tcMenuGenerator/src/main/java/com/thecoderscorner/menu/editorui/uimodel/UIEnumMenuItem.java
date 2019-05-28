@@ -53,7 +53,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane grid, int idx) {
+    protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Values"), 0, idx);
         ObservableList<String> list = FXCollections.observableArrayList(getMenuItem().getEnumEntries());
@@ -96,5 +96,6 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
                 removeButton.setDisable(newValue == null)
         );
         listView.getSelectionModel().selectFirst();
+        return idx;
     }
 }

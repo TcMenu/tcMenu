@@ -9,20 +9,34 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class MenuJoinCommand implements MenuCommand {
     private final String myName;
     private final int apiVer;
     private final ApiPlatform platform;
+    private final UUID appUuid;
+
+    public MenuJoinCommand(UUID uuid, String myName, ApiPlatform platform, int apiVer) {
+        this.myName = myName;
+        this.appUuid = uuid;
+        this.apiVer = apiVer;
+        this.platform = platform;
+    }
 
     public MenuJoinCommand(String myName, ApiPlatform platform, int apiVer) {
         this.myName = myName;
+        this.appUuid = UUID.randomUUID();
         this.apiVer = apiVer;
         this.platform = platform;
     }
 
     public String getMyName() {
         return myName;
+    }
+
+    public UUID getAppUuid() {
+        return appUuid;
     }
 
     public int getApiVersion() {
@@ -43,7 +57,8 @@ public class MenuJoinCommand implements MenuCommand {
         return "MenuJoinCommand{" +
                 "myName='" + myName + '\'' +
                 ", apiVer=" + apiVer +
-                ", platform=" + platform +
+                ", platform=" + platform + '\'' +
+                ", uuid=" + appUuid +
                 '}';
     }
 

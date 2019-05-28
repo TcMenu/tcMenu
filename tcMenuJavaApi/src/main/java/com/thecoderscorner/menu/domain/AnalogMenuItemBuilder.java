@@ -48,13 +48,12 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
         this.maxValue = other.getMaxValue();
         this.divisor = other.getDivisor();
         this.offset = other.getOffset();
-        this.readOnly = other.isReadOnly();
         return getThis();
     }
 
     public AnalogMenuItem menuItem() {
         return new AnalogMenuItem(this.name, this.id, this.eepromAddr, this.functionName, this.maxValue,
-                                  this.offset, this.divisor, this.unit, readOnly);
+                                  this.offset, this.divisor, this.unit, readOnly, localOnly);
     }
 
     public static AnalogMenuItemBuilder anAnalogMenuItemBuilder() {

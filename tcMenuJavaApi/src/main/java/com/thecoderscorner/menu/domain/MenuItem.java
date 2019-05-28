@@ -20,13 +20,16 @@ public abstract class MenuItem<T> {
     protected final int eepromAddress;
     protected final String functionName;
     protected final boolean readOnly;
+    protected final boolean localOnly;
 
-    public MenuItem(String name, int id, int eepromAddress, String functionName, boolean readOnly) {
+    public MenuItem(String name, int id, int eepromAddress, String functionName,
+                    boolean readOnly, boolean localOnly) {
         this.name = name;
         this.id = id;
         this.eepromAddress = eepromAddress;
         this.functionName = functionName;
         this.readOnly = readOnly;
+        this.localOnly = localOnly;
     }
 
     /**
@@ -51,6 +54,14 @@ public abstract class MenuItem<T> {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Returns if this menu item is only for local viewing and not to be sent remotely
+     * @return true if for local only, otherwise false.
+     */
+    public boolean isLocalOnly() {
+        return localOnly;
     }
 
     /**

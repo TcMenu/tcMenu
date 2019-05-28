@@ -22,13 +22,14 @@ public class EnumMenuItem extends MenuItem<Integer> {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         // needed for serialisation
         enumEntries = Collections.emptyList();
     }
 
-    public EnumMenuItem(String name, int id, int eepromAddress, String functionName, List<String> enumEntries, boolean readOnly) {
-        super(name, id, eepromAddress, functionName, readOnly);
+    public EnumMenuItem(String name, int id, int eepromAddress, String functionName, List<String> enumEntries,
+                        boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly);
         this.enumEntries = enumEntries;
     }
 
@@ -38,7 +39,7 @@ public class EnumMenuItem extends MenuItem<Integer> {
 
     @Override
     public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
-        return new IntegerMenuState(changed, active, value);
+        return new IntegerMenuState(this, changed, active, value);
     }
 
     @Override
@@ -49,6 +50,7 @@ public class EnumMenuItem extends MenuItem<Integer> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getEnumEntries(), that.getEnumEntries()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());

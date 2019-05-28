@@ -21,13 +21,13 @@ public class RemoteMenuItem extends MenuItem<String> {
     private final int remoteNum;
 
     public RemoteMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         this.remoteNum = 0;
         // needed for serialisation
     }
 
-    public RemoteMenuItem(String name, int id, int eepromAddr, int remoteNum) {
-        super(name, id, eepromAddr, null, false);
+    public RemoteMenuItem(String name, int id, int eepromAddr, int remoteNum, boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddr, null, readOnly, localOnly);
         this.remoteNum = remoteNum;
     }
 
@@ -38,7 +38,7 @@ public class RemoteMenuItem extends MenuItem<String> {
 
     @Override
     public MenuState<String> newMenuState(String value, boolean changed, boolean active) {
-        return new StringMenuState(changed, active, value);
+        return new StringMenuState(this, changed, active, value);
     }
 
     @Override
@@ -55,6 +55,7 @@ public class RemoteMenuItem extends MenuItem<String> {
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }

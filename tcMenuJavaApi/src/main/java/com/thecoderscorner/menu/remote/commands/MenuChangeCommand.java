@@ -6,18 +6,20 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+
 import java.util.Objects;
 
 public class MenuChangeCommand implements MenuCommand {
     public enum ChangeType { ABSOLUTE, DELTA }
     private final int menuItemId;
-    private final int parentItemId;
+    private final CorrelationId correlationId;
     private final ChangeType changeType;
     private final String value;
 
-    public MenuChangeCommand(int subMenuId, int menuItemId, ChangeType changeType, String value) {
-        this.parentItemId = subMenuId;
-        this.menuItemId = menuItemId;
+    public MenuChangeCommand(CorrelationId correlationId, int itemId, ChangeType changeType, String value) {
+        this.correlationId = correlationId;
+        this.menuItemId = itemId;
         this.value = value;
         this.changeType = changeType;
     }
@@ -31,8 +33,8 @@ public class MenuChangeCommand implements MenuCommand {
         return menuItemId;
     }
 
-    public int getParentItemId() {
-        return parentItemId;
+    public CorrelationId getCorrelationId() {
+        return correlationId;
     }
 
     public String getValue() {
@@ -55,7 +57,7 @@ public class MenuChangeCommand implements MenuCommand {
     public String toString() {
         return "MenuChangeCommand{" +
                 "menuItemId=" + menuItemId +
-                ", parentItemId=" + parentItemId +
+                ", correlation=" + correlationId +
                 ", changeType=" + changeType +
                 ", value='" + value + '\'' +
                 '}';
@@ -67,13 +69,13 @@ public class MenuChangeCommand implements MenuCommand {
         if (o == null || getClass() != o.getClass()) return false;
         MenuChangeCommand that = (MenuChangeCommand) o;
         return getMenuItemId() == that.getMenuItemId() &&
-                getParentItemId() == that.getParentItemId() &&
+                getCorrelationId() == that.getCorrelationId() &&
                 getChangeType() == that.getChangeType() &&
                 Objects.equals(getValue(), that.getValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMenuItemId(), getParentItemId(), getChangeType(), getValue());
+        return Objects.hash(getMenuItemId(), getCorrelationId(), getChangeType(), getValue());
     }
 }

@@ -23,7 +23,7 @@ public class SubMenuItemBuilder extends MenuItemBuilder<SubMenuItemBuilder> {
     }
 
     public SubMenuItem menuItem() {
-        return new SubMenuItem(this.name, this.id, this.eepromAddr);
+        return new SubMenuItem(this.name, this.id, this.eepromAddr, this.localOnly);
     }
 
     public static SubMenuItemBuilder aSubMenuItemBuilder() {

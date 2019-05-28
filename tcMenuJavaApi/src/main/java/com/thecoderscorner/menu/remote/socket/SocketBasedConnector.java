@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -29,6 +30,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     private final String remoteHost;
     private final int remotePort;
     private final AtomicReference<SocketChannel> socketChannel = new AtomicReference<>();
+    private AtomicInteger disconnectionCount = new AtomicInteger(0);
 
     public SocketBasedConnector(ScheduledExecutorService executor, MenuCommandProtocol protocol, String remoteHost,
                                 int remotePort) {
@@ -52,11 +54,10 @@ public class SocketBasedConnector extends StreamRemoteConnector {
         while(!Thread.currentThread().isInterrupted()) {
             try {
                 if(attemptToConnect()) {
+                    disconnectionCount.set(0);
                     processMessagesOnConnection();
                 }
-                else {
-                    sleepResettingInterrupt();
-                }
+                sleepResettingInterrupt();
             }
             catch(Exception ex) {
                 logger.log(ERROR, "Exception on socket " + remoteHost + ":" + remotePort, ex);
@@ -70,7 +71,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
 
     private void sleepResettingInterrupt() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(Math.min(30000, 2000 * disconnectionCount.incrementAndGet()));
         } catch (InterruptedException e) {
             logger.log(INFO, "Thread has been interrupted");
             Thread.currentThread().interrupt();

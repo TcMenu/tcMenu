@@ -49,7 +49,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane grid, int idx) {
+    protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Offset from zero"), 0, idx);
         offsetField = new TextField(String.valueOf(getMenuItem().getOffset()));
@@ -80,5 +80,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::coreValueChanged);
         grid.add(unitNameField, 1, idx);
+
+        return idx;
     }
 }

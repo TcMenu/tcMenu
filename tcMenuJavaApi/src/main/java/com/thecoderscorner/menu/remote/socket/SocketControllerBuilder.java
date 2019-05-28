@@ -7,15 +7,19 @@
 package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.remote.ConnectorFactory;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
-import java.io.IOException;
 import java.time.Clock;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 /**
  * Creates an instance of a socket based controller to a given port, and connects it with the selected menu.
@@ -27,11 +31,12 @@ import java.util.concurrent.ScheduledExecutorService;
  *       .withPort(3333)
  *       .withMenuTree(myMenuTree)
  *       .withLocalName("My App")
+ *       .withUUID(myUUID)
  *       .build();
  *     controller.start();
  * </pre>
  */
-public class SocketControllerBuilder {
+public class SocketControllerBuilder implements ConnectorFactory {
     private ScheduledExecutorService executorService;
     private MenuTree menuTree;
     private MenuCommandProtocol protocol;
@@ -39,6 +44,7 @@ public class SocketControllerBuilder {
     private String name = "NoName";
     private String address;
     private int port;
+    private UUID uuid;
 
     /**
      * Optional, defaults to system clock but can be overriden
@@ -83,12 +89,22 @@ public class SocketControllerBuilder {
     }
 
     /**
-     * Optional, Set the name of this connection, defaults to NoName
+     * Mandatory, Set the name of this connection
      * @param name the name the remote will see.
      * @return itself, suitable for chaining.
      */
     public SocketControllerBuilder withLocalName(String name) {
         this.name = name;
+        return this;
+    }
+
+    /**
+     * Mandatory, Set the UUID of this instance of the client
+     * @param uuid the UUID for this instance of the App
+     * @return itself, suitable for chaining.
+     */
+    public SocketControllerBuilder withUUID(UUID uuid) {
+        this.uuid = uuid;
         return this;
     }
 
@@ -117,7 +133,17 @@ public class SocketControllerBuilder {
      * the actual instance.
      * @return the actual instance.
      */
-    public RemoteMenuController build() throws IOException {
+    public RemoteMenuController build() {
+        initialiseBasics();
+        SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
+        return new RemoteMenuController(connector, menuTree, executorService, name, uuid, clock);
+    }
+
+    private void initialiseBasics() {
+        if(uuid == null || name == null) {
+            throw new IllegalArgumentException("Name / UUID cannot be null (Call UUID.randomUUID() to get one)");
+        }
+
         if(protocol == null) {
             protocol = new TagValMenuCommandProtocol();
         }
@@ -125,7 +151,12 @@ public class SocketControllerBuilder {
             executorService = Executors.newScheduledThreadPool(2,
                     new NamedDaemonThreadFactory("remote-socket"));
         }
+    }
+
+    public boolean attemptPairing(Optional<Consumer<PairingHelper.PairingState>> maybePairingListener)  {
+        initialiseBasics();
         SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
-        return new RemoteMenuController(connector, menuTree, executorService, name, clock);
+        PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
+        return helper.attemptPairing(name, uuid);
     }
 }

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
+import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
@@ -23,8 +24,9 @@ import org.testfx.framework.junit5.Start;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -68,7 +70,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         verifyThatThereAreNoErrorsReported();
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
-        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
+        verify(mockedConsumer, atLeastOnce()).accept(isA(ActionMenuItem.class), captor.capture());
         assertEquals(4, captor.getValue().getEepromAddress());
         assertEquals("One Shot", captor.getValue().getName());
         assertEquals("onChange", captor.getValue().getFunctionName());
@@ -124,6 +126,38 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         MenuItem subItemCompare = menuTree.getSubMenuById(100).orElseThrow();
         assertEquals(-1, subItemCompare.getEepromAddress());
+    }
+
+    @Test
+    void testSelectingAndClearingReadonlyLocal(FxRobot robot) throws InterruptedException {
+        // now try selecting and clearing the readonly and local only checkboxes.
+        MenuItem actionItem = menuTree.getMenuById(MenuTree.ROOT, 8).orElseThrow();
+        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
+        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
+
+        // open the sub menu item editor panel
+        createMainPanel(uiActionItem);
+
+        assertFalse(actionItem.isReadOnly());
+        assertFalse(actionItem.isLocalOnly());
+
+        robot.clickOn("#readOnlyField");
+
+        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
+        assertTrue(captor.getValue().isReadOnly());
+        assertFalse(captor.getValue().isLocalOnly());
+
+        robot.clickOn("#dontRemoteField");
+
+        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
+        assertTrue(captor.getValue().isReadOnly());
+        assertTrue(captor.getValue().isLocalOnly());
+
+        robot.clickOn("#readOnlyField");
+
+        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
+        assertFalse(captor.getValue().isReadOnly());
+        assertTrue(captor.getValue().isLocalOnly());
 
         tryToEnterLettersIntoNumericField(robot, "eepromField");
     }

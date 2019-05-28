@@ -30,7 +30,7 @@ public class RemoteMenuItemBuilder extends MenuItemBuilder<RemoteMenuItemBuilder
     }
 
     public RemoteMenuItem menuItem() {
-        return new RemoteMenuItem(this.name, this.id, this.eepromAddr, remoteNo);
+        return new RemoteMenuItem(this.name, this.id, this.eepromAddr, remoteNo, readOnly, localOnly);
     }
 
     public static RemoteMenuItemBuilder aRemoteMenuItemBuilder() {

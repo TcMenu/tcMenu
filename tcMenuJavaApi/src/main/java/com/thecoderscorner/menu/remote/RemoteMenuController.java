@@ -8,19 +8,20 @@ package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.commands.*;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thecoderscorner.menu.remote.AuthStatus.*;
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
@@ -44,16 +45,19 @@ public class RemoteMenuController {
     private final AtomicLong lastTx = new AtomicLong();
     private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
     private final String localName;
+    private final UUID ourUUID;
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
     private volatile boolean treeFullyPopulated = false;
     private volatile int heartbeatFrequency = 10000;
+    private AtomicReference<AuthStatus> authenticatedState = new AtomicReference<>(AWAITING_CONNECTION);
 
     public RemoteMenuController(RemoteConnector connector, MenuTree managedMenu,
                                 ScheduledExecutorService executor, String localName,
-                                Clock clock) {
+                                UUID ourUUID, Clock clock) {
         this.connector = connector;
         this.managedMenu = managedMenu;
         this.executor = executor;
+        this.ourUUID = ourUUID;
         this.clock = clock;
         this.localName = localName;
     }
@@ -64,6 +68,7 @@ public class RemoteMenuController {
     public void start() {
         connector.registerConnectorListener(this::onCommandReceived);
         connector.registerConnectionChangeListener(this::onConnectionChange);
+        setConnectionState(AWAITING_CONNECTION);
         connector.start();
         executor.scheduleAtFixedRate(this::checkHeartbeat, 1000, 1000, TimeUnit.MILLISECONDS);
     }
@@ -87,9 +92,11 @@ public class RemoteMenuController {
     private void onConnectionChange(RemoteConnector remoteConnector, boolean b) {
         if(b) {
             lastRx.set(clock.millis());
-            sendCommand(CommandFactory.newJoinCommand(localName));
+            setConnectionState(AWAITING_JOIN);
         }
-        listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), b));
+        else {
+            setConnectionState(AWAITING_CONNECTION);
+        }
     }
 
     /**
@@ -158,6 +165,11 @@ public class RemoteMenuController {
             case BOOTSTRAP:
                 onBootstrapCommand((MenuBootstrapCommand) menuCommand);
                 break;
+            case ACKNOWLEDGEMENT:
+                onAcknowledgementCommand((MenuAcknowledgementCommand)menuCommand);
+                break;
+            case PAIRING_REQUEST:
+                break;
             case ANALOG_BOOT_ITEM:
             case ENUM_BOOT_ITEM:
             case BOOLEAN_BOOT_ITEM:
@@ -171,6 +183,29 @@ public class RemoteMenuController {
             case CHANGE_INT_FIELD:
                 onChangeField((MenuChangeCommand) menuCommand);
         }
+    }
+
+    private void onAcknowledgementCommand(MenuAcknowledgementCommand menuCommand) {
+        if(authenticatedState.get() == SENT_JOIN && menuCommand.getCorrelationId().getUnderlyingId() == 0) {
+            // we are processing the server response to the join request.
+            if(menuCommand.getAckStatus().isError()) {
+                logger.log(ERROR, "Disconnected due to failed authentication");
+                setConnectionState(FAILED_AUTH);
+                connector.close();
+            }
+            else {
+                logger.log(INFO, "Connected and authenticated.");
+                setConnectionState(AUTHENTICATED);
+            }
+        }
+        else {
+            // todo process ack..
+        }
+    }
+
+    private void setConnectionState(AuthStatus authStatus) {
+        authenticatedState.set(authStatus);
+        listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), authStatus));
     }
 
     private void onHeartbeat(MenuHeartbeatCommand hbCommand) {
@@ -192,8 +227,7 @@ public class RemoteMenuController {
         // we cannot process until the tree is populated
         if(!treeFullyPopulated) return;
 
-        SubMenuItem subMenuParent = MenuItemHelper.asSubMenu(managedMenu.getSubMenuById(menuCommand.getParentItemId()).orElse(MenuTree.ROOT));
-        managedMenu.getMenuById(subMenuParent, menuCommand.getMenuItemId()).ifPresent((item) -> {
+        managedMenu.getMenuById(null, menuCommand.getMenuItemId()).ifPresent((item) -> {
             item.accept(new MenuItemVisitor() {
                 @Override
                 public void visit(AnalogMenuItem item) {
@@ -253,8 +287,8 @@ public class RemoteMenuController {
     private void onJoinCommand(MenuJoinCommand join) {
         remoteParty.set(new RemoteInformation(join.getMyName(), join.getApiVersion() / 100,
                 join.getApiVersion() % 100, join.getPlatform()));
-        listeners.forEach(l-> l.connectionState(getRemotePartyInfo(), true));
-        executor.execute(() -> sendCommand(newJoinCommand(localName)) );
+        setConnectionState(SENT_JOIN);
+        executor.execute(() -> sendCommand(newJoinCommand(localName, ourUUID)) );
     }
 
     public MenuTree getManagedMenu() {

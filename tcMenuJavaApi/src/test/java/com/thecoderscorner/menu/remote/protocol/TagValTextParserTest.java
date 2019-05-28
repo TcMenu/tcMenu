@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.protocol;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,6 +20,8 @@ public class TagValTextParserTest {
     public void testParseSimpleMessage() throws IOException {
         TagValTextParser parser = toBuffer("MT=NJ");
         assertEquals("NJ", parser.getValue("MT"));
+        Assertions.assertThrows(IOException.class, ()-> parser.getValue("SL"));
+        Assertions.assertThrows(IOException.class, ()-> parser.getValueAsInt("IN"));
     }
 
     @Test

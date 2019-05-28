@@ -21,12 +21,13 @@ public class TextMenuItem extends MenuItem<String> {
 
     public TextMenuItem() {
         // needed for serialisation
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         textLength = 0;
     }
 
-    public TextMenuItem(String name, int id, int eepromAddress, String functionName, int length, boolean readOnly) {
-        super(name, id, eepromAddress, functionName, readOnly);
+    public TextMenuItem(String name, int id, int eepromAddress, String functionName, int length,
+                        boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly);
         this.textLength = length;
     }
 
@@ -46,7 +47,7 @@ public class TextMenuItem extends MenuItem<String> {
      */
     @Override
     public MenuState<String> newMenuState(String value, boolean changed, boolean active) {
-        return new StringMenuState(changed, active, value);
+        return new StringMenuState(this, changed, active, value);
     }
 
     @Override
@@ -57,6 +58,8 @@ public class TextMenuItem extends MenuItem<String> {
         return getTextLength() == that.getTextLength() &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }

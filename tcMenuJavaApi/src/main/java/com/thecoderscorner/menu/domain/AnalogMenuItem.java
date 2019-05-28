@@ -24,7 +24,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     private final String unitName;
 
     public AnalogMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         // needed for serialisation
         this.maxValue = -1;
         this.offset = -1;
@@ -33,8 +33,8 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     }
 
     public AnalogMenuItem(String name, int id, int eepromAddress, String functionName, int maxValue, int offset,
-                          int divisor, String unitName, boolean readOnly) {
-        super(name, id, eepromAddress, functionName, readOnly);
+                          int divisor, String unitName, boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly);
         this.maxValue = maxValue;
         this.offset = offset;
         this.divisor = divisor;
@@ -84,7 +84,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
      */
     @Override
     public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
-        return new IntegerMenuState(changed, active, value);
+        return new IntegerMenuState(this, changed, active, value);
     }
 
     /**
@@ -108,6 +108,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getUnitName(), that.getUnitName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }

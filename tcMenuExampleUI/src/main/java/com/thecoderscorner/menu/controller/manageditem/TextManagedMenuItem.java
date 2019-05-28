@@ -6,11 +6,11 @@
 
 package com.thecoderscorner.menu.controller.manageditem;
 
-import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.TextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 
@@ -29,8 +29,7 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
         text.setOnAction(e-> {
             var t = text.getText();
             var val = t.substring(0, Math.min(item.getTextLength(), t.length()));
-            SubMenuItem parent = controller.getManagedMenu().findParent(item);
-            controller.sendCommand(CommandFactory.newAbsoluteMenuChangeCommand(parent.getId(), item.getId(), val));
+            controller.sendCommand(CommandFactory.newAbsoluteMenuChangeCommand(new CorrelationId(), item, val));
         });
         return text;
     }

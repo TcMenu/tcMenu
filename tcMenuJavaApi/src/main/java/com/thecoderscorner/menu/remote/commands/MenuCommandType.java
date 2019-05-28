@@ -11,6 +11,7 @@ package com.thecoderscorner.menu.remote.commands;
  */
 public enum MenuCommandType {
     JOIN("NJ"),
+    PAIRING_REQUEST("PR"),
     HEARTBEAT("HB"),
     BOOTSTRAP("BS"),
     ANALOG_BOOT_ITEM("BA"),
@@ -21,6 +22,7 @@ public enum MenuCommandType {
     TEXT_BOOT_ITEM("BT"),
     FLOAT_BOOT_ITEM("BF"),
     REMOTE_BOOT_ITEM("BR"),
+    ACKNOWLEDGEMENT("AK"),
     CHANGE_INT_FIELD("VC");
 
     private final String code;

@@ -19,12 +19,12 @@ import java.util.Objects;
 public class SubMenuItem extends MenuItem<Boolean> {
 
     public SubMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         // needed for serialisation
     }
 
-    public SubMenuItem(String name, int id, int eepromAddr) {
-        super(name, id, eepromAddr, null, false);
+    public SubMenuItem(String name, int id, int eepromAddr, boolean localOnly) {
+        super(name, id, eepromAddr, null, false, localOnly);
     }
 
     /**
@@ -37,7 +37,7 @@ public class SubMenuItem extends MenuItem<Boolean> {
 
     @Override
     public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
-        return new BooleanMenuState(changed, active, value);
+        return new BooleanMenuState(this, changed, active, value);
     }
 
     @Override

@@ -24,7 +24,7 @@ public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenu
         String str;
         if (divisor < 2) {
             // in this case divisor was 0 or 1, this means treat as integer.
-            str = Integer.toString(value) + item.getUnitName();
+            str = value + item.getUnitName();
         }
         else {
             // so we can display as decimal, work out the nearest highest unit for 2dp, 3dp and 4dp.

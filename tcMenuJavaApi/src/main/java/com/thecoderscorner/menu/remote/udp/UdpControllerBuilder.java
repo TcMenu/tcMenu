@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -34,6 +35,7 @@ public class UdpControllerBuilder {
     private String address;
     private int port;
     private boolean sendAsDevice;
+    private UUID uuid;
 
     /**
      * Mandatory, specifies the device ID to listen for.
@@ -139,11 +141,25 @@ public class UdpControllerBuilder {
     }
 
     /**
+     * Mandatory, Set the UUID of this instance of the client
+     * @param uuid the UUID for this instance of the App
+     * @return itself, suitable for chaining.
+     */
+    public UdpControllerBuilder withUUID(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    /**
      * Once the above methods have been called to fill in the blanks, then call build to get
      * the actual instance.
      * @return the actual instance.
      */
     public RemoteMenuController build() throws IOException {
+        if(uuid == null || name == null) {
+            throw new IllegalArgumentException("Name / UUID cannot be null (Call UUID.randomUUID() to get one)");
+        }
+
         if(protocol == null) {
             protocol = new TagValMenuCommandProtocol();
         }
@@ -152,6 +168,6 @@ public class UdpControllerBuilder {
                     new NamedDaemonThreadFactory("udp-remote"));
         }
         UdpRemoteConnector connector = new UdpRemoteConnector(executorService, sendFreq, address, port, protocol, deviceId, sendAsDevice);
-        return new RemoteMenuController(connector, menuTree, executorService, name, clock);
+        return new RemoteMenuController(connector, menuTree, executorService, name, uuid, clock);
     }
 }

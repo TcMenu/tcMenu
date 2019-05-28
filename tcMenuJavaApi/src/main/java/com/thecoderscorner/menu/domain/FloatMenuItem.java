@@ -21,13 +21,14 @@ public class FloatMenuItem extends MenuItem<Float> {
     private final int numDecimalPlaces;
 
     public FloatMenuItem() {
-        super("", -1, -1, null, false);
+        super("", -1, -1, null, false, false);
         // needed for serialisation
         this.numDecimalPlaces = 0;
     }
 
-    public FloatMenuItem(String name, int id, String functionName, int eepromAddr, int numDecimalPlaces) {
-        super(name, id, eepromAddr, functionName, false);
+    public FloatMenuItem(String name, int id, String functionName, int eepromAddr, int numDecimalPlaces,
+                         boolean readOnly, boolean localOnly) {
+        super(name, id, eepromAddr, functionName, readOnly, localOnly);
         this.numDecimalPlaces = numDecimalPlaces;
     }
 
@@ -39,6 +40,8 @@ public class FloatMenuItem extends MenuItem<Float> {
         return getNumDecimalPlaces() == that.getNumDecimalPlaces() &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }
@@ -54,7 +57,7 @@ public class FloatMenuItem extends MenuItem<Float> {
 
     @Override
     public MenuState<Float> newMenuState(Float value, boolean changed, boolean active) {
-        return new FloatMenuState(changed, active, value);
+        return new FloatMenuState(this, changed, active, value);
     }
 
     @Override

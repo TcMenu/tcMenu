@@ -43,7 +43,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane pane, int idx) {
+    protected int internalInitPanel(GridPane pane, int idx) {
         idx++;
         pane.add(new Label("Responses"), 0, idx);
         ObservableList<BooleanNaming> list = FXCollections.observableArrayList(BooleanNaming.values());
@@ -51,5 +51,6 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         namingBox.getSelectionModel().select(getMenuItem().getNaming());
         namingBox.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
         pane.add(namingBox, 1, idx);
+        return idx;
     }
 }

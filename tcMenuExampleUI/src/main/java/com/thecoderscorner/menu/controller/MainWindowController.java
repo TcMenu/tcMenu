@@ -11,10 +11,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
-import com.thecoderscorner.menu.remote.RemoteControllerListener;
-import com.thecoderscorner.menu.remote.RemoteInformation;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.*;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -29,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +69,7 @@ public class MainWindowController {
     //
 
     // Holds the current connectivity state - boolean
-    private AtomicBoolean connected = new AtomicBoolean(false);
+    private AtomicReference<AuthStatus> authStatus = new AtomicReference<>(AuthStatus.AWAITING_CONNECTION);
     // Holds the remoteInformation, may be empty if there isn't anyone connected
     private Optional<RemoteInformation> remoteInfo = Optional.empty();
     // Indicates if there has been a bootstrap yet to populate the menu structure
@@ -131,12 +129,12 @@ public class MainWindowController {
              * When the connection state changes, we redraw the UI to show the remote information on the right.
              * Notice we don't do so immediately, rather we call Platform.runLater to make the changes.
              * @param remoteInformation the new connection information
-             * @param con the new connection state.
+             * @param status the new connection state.
              */
             @Override
-            public void connectionState(RemoteInformation remoteInformation, boolean con) {
+            public void connectionState(RemoteInformation remoteInformation, AuthStatus status) {
                 remoteInfo = Optional.ofNullable(remoteInformation);
-                connected.set(con);
+                authStatus.set(status);
                 bootstrapComplete.set(false);
                 Platform.runLater(MainWindowController.this::updateConnectionDetails);
             }
@@ -271,14 +269,14 @@ public class MainWindowController {
     private void updateConnectionDetails() {
         Stage stage = (Stage)statusLabel.getScene().getWindow();
 
-        if(connected.get() && remoteInfo.isPresent()) {
-            var remote = remoteInfo.get();
-            var connectionState = connected.get() ? "Connected to " : "Disconnected from ";
+        if(authStatus.get()!=AuthStatus.AWAITING_CONNECTION) {
+            var remote = remoteInfo.orElse(RemoteInformation.NOT_CONNECTED);
+            var connectionState = "Connection status: " + authStatus.get().getDescription();
             var bootState = bootstrapComplete.get() ? " - loaded." : " - not loaded";
-            statusLabel.setText(connectionState + remote.getName() + " (" +  remote.getMajorVersion() + "."
+            statusLabel.setText(connectionState + " to " + remote.getName() + " (" +  remote.getMajorVersion() + "."
                     + remote.getMinorVersion() + "), platform: " + remote.getPlatform().getDescription() + bootState);
 
-            stage.setTitle(connectionState + remote.getName());
+            stage.setTitle(connectionState + " to " + remote.getName());
 
         }
         else {

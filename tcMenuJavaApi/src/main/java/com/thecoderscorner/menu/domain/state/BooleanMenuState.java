@@ -6,11 +6,13 @@
 
 package com.thecoderscorner.menu.domain.state;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 /**
  * An implementation of menu state for booleans. This stores the current value in the MenuTree for an item
  */
 public class BooleanMenuState extends MenuState<Boolean> {
-    public BooleanMenuState(boolean changed, boolean active, boolean value) {
-        super(changed, active, value);
+    public BooleanMenuState(MenuItem<Boolean> item, boolean changed, boolean active, boolean value) {
+        super(item, changed, active, value);
     }
 }

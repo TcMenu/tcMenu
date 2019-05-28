@@ -38,12 +38,13 @@ public class UITextMenuItem extends UIMenuItem<TextMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane grid, int idx) {
+    protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Max. length"), 0, idx);
         lenField = new TextField(String.valueOf(getMenuItem().getTextLength()));
         lenField.textProperty().addListener(this::coreValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(lenField);
         grid.add(lenField, 1, idx);
+        return idx;
     }
 }

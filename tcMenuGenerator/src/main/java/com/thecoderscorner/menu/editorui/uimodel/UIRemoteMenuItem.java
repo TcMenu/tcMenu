@@ -42,7 +42,7 @@ public class UIRemoteMenuItem extends UIMenuItem<RemoteMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane grid, int idx) {
+    protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Remote Num"), 0, idx);
         remoteNumField = new TextField(String.valueOf(getMenuItem().getRemoteNum()));
@@ -50,5 +50,6 @@ public class UIRemoteMenuItem extends UIMenuItem<RemoteMenuItem> {
         remoteNumField.setId("remoteNumField");
         TextFormatterUtils.applyIntegerFormatToField(remoteNumField);
         grid.add(remoteNumField, 1, idx);
+        return idx;
     }
 }

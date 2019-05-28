@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +82,7 @@ public class SocketBasedConnectorTest {
 
         // then we initiate our mock server by sending a few commands - it sends 2 back for each command it gets
         socket.sendMenuCommand(newHeartbeatCommand(10000));
-        socket.sendMenuCommand(newDeltaChangeCommand(0, 1, 10));
+        socket.sendMenuCommand(newDeltaChangeCommand(new CorrelationId("ABCDEF12"), 1, 10));
         socket.sendMenuCommand(newJoinCommand("dave"));
 
         // and at this point our callback will receive two messages from the mock server

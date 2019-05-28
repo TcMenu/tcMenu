@@ -31,6 +31,7 @@ public class MenuItemTest {
                 .withOffset(-20)
                 .withUnit("dB")
                 .withReadOnly(true)
+                .withLocalOnly(true)
                 .withMaxValue(10000).menuItem();
 
         assertBaseMenuFields(item, "Test Menu", 10, 100);
@@ -40,6 +41,7 @@ public class MenuItemTest {
         assertEquals(10000, item.getMaxValue());
         assertEquals("someFn", item.getFunctionName());
         assertTrue(item.isReadOnly());
+        assertTrue(item.isLocalOnly());
         assertFalse(item.hasChildren());
 
         assertEquals(item, anAnalogMenuItemBuilder().withExisting(item).menuItem());
@@ -59,6 +61,7 @@ public class MenuItemTest {
         assertTrue(item.getEnumEntries().contains("Enum1"));
         assertFalse(item.hasChildren());
         assertFalse(item.isReadOnly());
+        assertFalse(item.isLocalOnly());
         assertEquals("someFn", item.getFunctionName());
 
         assertEquals(item, anEnumMenuItemBuilder().withExisting(item).menuItem());
@@ -72,12 +75,14 @@ public class MenuItemTest {
                 .withEepromAddr(-1)
                 .withId(1)
                 .withReadOnly(false)
+                .withLocalOnly(false)
                 .withFunctionName("abc")
                 .menuItem();
         assertBaseMenuFields(item, "Test", 1, -1);
         assertEquals(10, item.getTextLength());
         assertFalse(item.hasChildren());
         assertFalse(item.isReadOnly());
+        assertFalse(item.isLocalOnly());
         assertEquals(item, aTextMenuItemBuilder().withExisting(item).menuItem());
     }
 
@@ -88,11 +93,13 @@ public class MenuItemTest {
                 .withId(30)
                 .withEepromAddr(104)
                 .withFunctionName("shouldntBeUsed")
+                .withLocalOnly(true)
                 .menuItem();
 
         assertBaseMenuFields(sub,"SomeName", 30, 104);
         assertTrue(sub.hasChildren());
         assertNull(sub.getFunctionName());
+        assertTrue(sub.isLocalOnly());
 
         assertEquals(sub, aSubMenuItemBuilder().withExisting(sub).menuItem());
     }

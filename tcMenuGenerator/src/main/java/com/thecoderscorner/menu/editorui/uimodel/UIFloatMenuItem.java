@@ -40,7 +40,7 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
     }
 
     @Override
-    protected void internalInitPanel(GridPane grid, int idx) {
+    protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Decimal Places"), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getNumDecimalPlaces()));
@@ -48,5 +48,6 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
         decimalPlaces.setId("decimalPlacesField");
         TextFormatterUtils.applyIntegerFormatToField(decimalPlaces);
         grid.add(decimalPlaces, 1, idx);
+        return idx;
     }
 }

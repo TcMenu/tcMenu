@@ -28,7 +28,7 @@ public class MenuTree {
     /**
      * This is the root menu item, the top level item on the display basically
      */
-    public static final SubMenuItem ROOT = new SubMenuItem("Root", 0, -1);
+    public static final SubMenuItem ROOT = new SubMenuItem("Root", 0, -1, false);
 
     /**
      * The maximum expected items in a typical menu.
@@ -100,18 +100,24 @@ public class MenuTree {
     }
 
     /**
-     * Gets the menu item with the specified ID, in a given submenu. If you don't know the sub menu call the findMenuItem
-     * to obtain the parent.
+     * Gets the menu item with the specified ID, finding the submenu if needed. In most cases the linkage between
+     * ID and item will be cached and therefore fast, if you don't know the sub menu set it to null and it will be
+     * determined.
      * @param root the sub menu
      * @param id the id of the object to find.
      * @return
      */
     public Optional<MenuItem> getMenuById(SubMenuItem root, int id) {
+        MenuState state = menuStates.get(id);
+        if(state != null) {
+            return Optional.of(state.getItem());
+        }
         return getMenuItems(root).stream().filter(item -> item.getId() == id).findFirst();
     }
 
     /**
      * Replace a menu item with the given ID. Helper to the version of the function that also needs a parent.
+     * This is an infrequent operation and not optimised.
      *
      * @param toReplace the item to replace, by ID
      */
@@ -122,7 +128,8 @@ public class MenuTree {
     }
 
     /**
-     * Replace the menu item that has a given parent with the one provided
+     * Replace the menu item that has a given parent with the one provided. This is an infrequent
+     * operation and therefore not optimised.
      * @param subMenu the parent
      * @param toReplace the menu item to replace by ID
      */
