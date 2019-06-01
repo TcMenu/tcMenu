@@ -7,14 +7,13 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.CommandFactory;
-import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+
+import java.util.Optional;
 
 public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuItem> {
 
@@ -26,10 +25,7 @@ public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuIt
     public Node createNodes(RemoteMenuController controller) {
         Button button = new Button("Run " + item.getName());
         button.setDisable(item.isReadOnly());
-        button.setOnAction(e-> {
-            SubMenuItem parent = controller.getManagedMenu().findParent(item);
-            CommandFactory.newAbsoluteMenuChangeCommand(new CorrelationId(), item, true);
-        });
+        button.setOnAction(e-> waitingFor = Optional.of(controller.sendAbsoluteUpdate(item, true)));
 
         return button;
     }
