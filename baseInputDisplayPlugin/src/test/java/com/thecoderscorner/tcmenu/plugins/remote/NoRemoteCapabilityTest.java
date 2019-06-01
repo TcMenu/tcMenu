@@ -6,12 +6,9 @@
 
 package com.thecoderscorner.tcmenu.plugins.remote;
 
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.tcmenu.plugins.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
-import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.findAndSetValueOnProperty;
 import static com.thecoderscorner.tcmenu.plugins.util.TestUtil.includeToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,23 +18,18 @@ class NoRemoteCapabilityTest {
     @Test
     public void testNoRemoteCapabilities() {
         NoRemoteCapability creator = new NoRemoteCapability();
-        assertEquals(1, creator.properties().size());
+        assertEquals(0, creator.properties().size());
         var extractor = TestUtil.extractorFor(creator);
 
-        findAndSetValueOnProperty(creator, "DEVICE_NAME", REMOTE, CreatorProperty.PropType.TEXTUAL, "Tester");
         creator.initCreator("root");
 
-        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "const char PROGMEM applicationName[] = \"Tester\";\n"
-        );
+        assertThat(extractor.mapVariables(creator.getVariables())).isEmpty();
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isBlank();
 
-        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
-            "extern const char applicationName[];\n"
-        );
+        assertThat(extractor.mapExports(creator.getVariables())).isEmpty();
 
-        assertThat(includeToString(creator.getIncludes())).containsExactly("#include \"RemoteConnector.h\"");
+        assertThat(includeToString(creator.getIncludes())).isEmpty();
         assertThat(creator.getRequiredFiles()).isEmpty();
         assertThat(extractor.mapDefines()).isEmpty();
     }

@@ -17,10 +17,10 @@ VarType varName(1234.34);
 
 // Global Menu Item declarations
 
-const AnalogMenuInfo minfoTest = { "test", 2, 4, 100, callback1, 0, 1, "dB" };
-AnalogMenuItem menuTest(&minfoTest, 0, NULL);
+const AnalogMenuInfo minfoTest2 = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
+AnalogMenuItem menuTest2(&minfoTest2, 0, NULL);
 const SubMenuInfo minfoSub = { "sub", 100, 0xffff, 0, NO_CALLBACK };
-BackMenuItem menuBackSub(&menuTest, (const AnyMenuInfo*)&minfoSub);
+BackMenuItem menuBackSub(&menuTest2, (const AnyMenuInfo*)&minfoSub);
 SubMenuItem menuSub(&minfoSub, &menuBackSub, NULL);
 const AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1, "dB" };
 AnalogMenuItem menuTest(&minfoTest, 0, &menuSub);
@@ -28,10 +28,17 @@ const char enumStrExtra_0[] = "test";
 const char* const enumStrExtra[]  = { enumStrExtra_0 };
 const EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, NO_CALLBACK, enumStrExtra };
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
+const ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 
 // Set up code
 
 void setupMenu() {
     lcd.begin(16, 2);
+
+    // Read only and local only function calls
+    menuTest2.setReadOnly(true);
+    menuTest.setReadOnly(true);
+    menuSub.setLocalOnly(true);
+    menuTest2.setLocalOnly(true);
 }
 

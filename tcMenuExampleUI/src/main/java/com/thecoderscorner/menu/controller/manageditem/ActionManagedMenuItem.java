@@ -24,6 +24,7 @@ public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuIt
     @Override
     public Node createNodes(RemoteMenuController controller) {
         Button button = new Button("Run " + item.getName());
+        button.setDisable(item.isReadOnly());
         button.setOnAction(e-> {
             SubMenuItem parent = controller.getManagedMenu().findParent(item);
             CommandFactory.newAbsoluteMenuChangeCommand(new CorrelationId(), item, true);

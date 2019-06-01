@@ -17,5 +17,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     // allow javafx components to see the editor UI packages that contain controllers etc.
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.controller;
+    exports com.thecoderscorner.menu.editorui.generator;
     exports com.thecoderscorner.menu.editorui.generator.ui;
 }

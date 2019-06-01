@@ -20,8 +20,9 @@ public class BuildStructInitializer {
     private List<HeaderDefinition> headerRequirement = new ArrayList<>();
     private List<String> structElements = new ArrayList<>();
     private boolean requiresExtern = false;
-    private boolean progMemInfo = false;
+    private boolean progMem = false;
     private boolean stringChoices = false;
+    private String prefix = " menu";
 
     public BuildStructInitializer(String structName, String structType) {
         this.structName = structName;
@@ -68,7 +69,14 @@ public class BuildStructInitializer {
     }
 
     public BuildStructInitializer progMemInfo() {
-        this.progMemInfo = true;
+        this.progMem = true;
+        this.prefix = " minfo";
+        return this;
+    }
+
+    public BuildStructInitializer progMemStruct() {
+        this.prefix = " ";
+        this.progMem = true;
         return this;
     }
 
@@ -107,11 +115,15 @@ public class BuildStructInitializer {
         return requiresExtern;
     }
 
-    public boolean isProgMemInfo() {
-        return progMemInfo;
+    public boolean isProgMem() {
+        return progMem;
     }
 
     public boolean isStringChoices() {
         return stringChoices;
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 }

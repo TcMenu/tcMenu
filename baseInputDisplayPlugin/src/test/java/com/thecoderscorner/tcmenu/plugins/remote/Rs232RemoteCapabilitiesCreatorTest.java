@@ -24,24 +24,19 @@ class Rs232RemoteCapabilitiesCreatorTest {
     @Test
     public void testSerialRemoteCapabilities() {
         Rs232RemoteCapabilitiesCreator creator = new Rs232RemoteCapabilitiesCreator();
-        assertEquals(2, creator.properties().size());
-        findAndSetValueOnProperty(creator, "DEVICE_NAME", REMOTE, CreatorProperty.PropType.TEXTUAL, "Tester");
+        assertEquals(1, creator.properties().size());
         findAndSetValueOnProperty(creator, "SERIAL_PORT", REMOTE, CreatorProperty.PropType.VARIABLE, "Serial");
         creator.initCreator("root");
         var extractor = TestUtil.extractorFor(creator);
 
         assertThat(extractor.mapDefines()).isBlank();
 
-        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
-                "extern const char applicationName[];"
-        );
+        assertThat(extractor.mapExports(creator.getVariables())).isEmpty();
 
-        assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "const char PROGMEM applicationName[] = \"Tester\";\n"
-        );
+        assertThat(extractor.mapVariables(creator.getVariables())).isEmpty();
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
-                "    remoteServer.begin(&Serial, applicationName);\n"
+                "    remoteServer.begin(&Serial, &applicationInfo);\n"
         );
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(

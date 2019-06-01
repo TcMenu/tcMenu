@@ -4,17 +4,20 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.project;
+package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 
 import java.util.List;
+import java.util.UUID;
 
 public class CodeGeneratorOptions {
     private String embeddedPlatform;
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
+    private UUID applicationUUID;
+    private String applicationName;
     private List<CreatorProperty> lastProperties;
 
     public CodeGeneratorOptions() {
@@ -23,12 +26,23 @@ public class CodeGeneratorOptions {
 
     public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId,
                                 String inputTypeId, String remoteCapabilitiesId,
-                                List<CreatorProperty> lastProperties) {
+                                List<CreatorProperty> lastProperties,
+                                UUID applicationUUID, String applicationName) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
         this.lastRemoteUuid = remoteCapabilitiesId;
         this.lastProperties = lastProperties;
+        this.applicationUUID = applicationUUID;
+        this.applicationName = applicationName;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public UUID getApplicationUUID() {
+        return applicationUUID;
     }
 
     public String getEmbeddedPlatform() {

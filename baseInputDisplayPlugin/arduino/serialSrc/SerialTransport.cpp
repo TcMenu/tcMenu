@@ -24,9 +24,9 @@ void SerialTagValueTransport::close() {
 	currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
 }
 
-void SerialTagValServer::begin(Stream* portStream, const char* namePgm) {
+void SerialTagValServer::begin(Stream* portStream, const ConnectorLocalInfo* localInfo) {
 	serPort.setStream(portStream);
-    connector.initialise(&serPort, &messageProcessor, namePgm);
+    connector.initialise(&serPort, &messageProcessor, localInfo);
 	taskManager.scheduleFixedRate(TICK_INTERVAL, []{remoteServer.runLoop();}, TIME_MILLIS);
 }
 

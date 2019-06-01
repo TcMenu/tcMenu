@@ -17,6 +17,7 @@
 #include <RemoteConnector.h>
 #include <TaskManager.h>
 #include <Ethernet.h>
+#include <tcUtil.h>
 
 /**
  * An implementation of TagValueTransport that is able to read and write using sockets.
@@ -63,7 +64,7 @@ public:
 	 * @param server a ready configured ethernet server instance.
 	 * @param namePgm the local name in program memory on AVR
 	 */
-	void begin(EthernetServer* server, const char* namePgm);
+	void begin(EthernetServer* server, const ConnectorLocalInfo* localInfo);
 
 	/**
 	 * @return the EthernetTagValTransport for the given connection number - zero based

@@ -159,13 +159,13 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
 
         StringBuilder sb = new StringBuilder(256);
-        if(s.isProgMemInfo()) {
-            sb.append("const ").append(progMem()).append(s.getStructType()).append(" minfo").append(s.getStructName()).append(" = { ");
+        if(s.isProgMem()) {
+            sb.append("const ").append(progMem()).append(s.getStructType()).append(s.getPrefix()).append(s.getStructName()).append(" = { ");
             sb.append(String.join(", ", s.getStructElements()));
             sb.append(" };");
         }
         else {
-            sb.append(s.getStructType()).append(" menu").append(s.getStructName()).append("(");
+            sb.append(s.getStructType()).append(s.getPrefix()).append(s.getStructName()).append("(");
             sb.append(String.join(", ", s.getStructElements()));
             sb.append(");");
         }

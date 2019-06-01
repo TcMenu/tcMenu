@@ -22,7 +22,7 @@
 extern VarType varName;
 
 // all menu item forward references.
-extern AnalogMenuItem menuTest;
+extern AnalogMenuItem menuTest2;
 extern BackMenuItem menuBackSub;
 extern SubMenuItem menuSub;
 extern AnalogMenuItem menuTest;

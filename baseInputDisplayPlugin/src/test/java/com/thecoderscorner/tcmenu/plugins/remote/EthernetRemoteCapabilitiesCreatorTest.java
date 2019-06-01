@@ -27,9 +27,8 @@ class EthernetRemoteCapabilitiesCreatorTest {
     @Test
     public void testEthernetLibrary() {
         EthernetRemoteCapabilitiesCreator creator = new EthernetRemoteCapabilitiesCreator();
-        assertEquals(3, creator.properties().size());
+        assertEquals(2, creator.properties().size());
 
-        findAndSetValueOnProperty(creator, "DEVICE_NAME", REMOTE, PropType.TEXTUAL, "Tester");
         findAndSetValueOnProperty(creator, "LISTEN_PORT", REMOTE, PropType.TEXTUAL, "3333");
         findAndSetValueOnProperty(creator, "LIBRARY_TYPE", REMOTE, PropType.TEXTUAL, ETHERNET_2.toString());
         creator.initCreator("root");
@@ -46,9 +45,8 @@ class EthernetRemoteCapabilitiesCreatorTest {
     @Test
     public void testUipEthernetLibrary() {
         EthernetRemoteCapabilitiesCreator creator = new EthernetRemoteCapabilitiesCreator();
-        assertEquals(3, creator.properties().size());
+        assertEquals(2, creator.properties().size());
 
-        findAndSetValueOnProperty(creator, "DEVICE_NAME", REMOTE, PropType.TEXTUAL, "Tester");
         findAndSetValueOnProperty(creator, "LISTEN_PORT", REMOTE, PropType.TEXTUAL, "3333");
         findAndSetValueOnProperty(creator, "LIBRARY_TYPE", REMOTE, PropType.TEXTUAL, UIP_ENC28J60.toString());
         creator.initCreator("root");
@@ -71,17 +69,14 @@ class EthernetRemoteCapabilitiesCreatorTest {
     private void assertStandardFields(EthernetRemoteCapabilitiesCreator creator, CodeVariableCppExtractor extractor) {
         assertThat(extractor.mapDefines()).isBlank();
 
-        assertThat(extractor.mapExports(creator.getVariables())).isEqualToIgnoringNewLines(
-                "extern const char applicationName[];"
-        );
+        assertThat(extractor.mapExports(creator.getVariables())).isEmpty();
 
         assertThat(extractor.mapVariables(creator.getVariables())).isEqualToIgnoringNewLines(
-                "const char PROGMEM applicationName[] = \"Tester\";\n" +
                         "EthernetServer server(3333);"
         );
 
         assertThat(extractor.mapFunctions(creator.getFunctionCalls())).isEqualToIgnoringNewLines(
-                "    remoteServer.begin(&server, applicationName);\n"
+                "    remoteServer.begin(&server, &applicationInfo);\n"
         );
 
         assertThat(includeToString(creator.getIncludes())).containsExactlyInAnyOrder(

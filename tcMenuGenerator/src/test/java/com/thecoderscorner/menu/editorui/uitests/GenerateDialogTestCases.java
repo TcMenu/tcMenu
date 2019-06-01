@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -20,9 +21,11 @@ import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.SubSystem;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -30,10 +33,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.testfx.api.FxAssert;
+import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.TextInputControlMatchers;
 import org.testfx.service.finder.NodeFinder;
 import org.testfx.service.query.NodeQuery;
 
@@ -42,10 +46,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.BLANK_GEN_OPTIONS;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.testfx.api.FxAssert.assertContext;
+import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class GenerateDialogTestCases {
@@ -68,7 +75,7 @@ public class GenerateDialogTestCases {
         runner = mock(CodeGeneratorRunner.class);
         platforms = mock(EmbeddedPlatforms.class);
 
-        when(project.getGeneratorOptions()).thenReturn(CurrentEditorProject.BLANK_GEN_OPTIONS);
+        when(project.getGeneratorOptions()).thenReturn(BLANK_GEN_OPTIONS);
 
         defaultCodePluginManagerSettings();
 
@@ -177,6 +184,8 @@ public class GenerateDialogTestCases {
 
         checkCreatorChangeIsValid(robot, tableView);
 
+        checkTheNameAndUUIDFields(robot);
+
         // change the cell values to simulate editing them
         changeValueOfCell(robot, tableView, "1.0", "2.0");
         changeValueOfCell(robot, tableView, "false", "true");
@@ -187,19 +196,41 @@ public class GenerateDialogTestCases {
         ArgumentCaptor<List<EmbeddedCodeCreator>> creatorCapture = ArgumentCaptor.forClass(List.class);
         verify(runner).startCodeGeneration(eq(stage), eq(ARDUINO_AVR), eq("var"), creatorCapture.capture(), eq(true));
 
+        ArgumentCaptor<CodeGeneratorOptions> optionsCapture = ArgumentCaptor.forClass(CodeGeneratorOptions.class);
+        verify(project).setGeneratorOptions(optionsCapture.capture());
+
+        assertEquals("Super App", optionsCapture.getValue().getApplicationName());
+        assertNotEquals(BLANK_GEN_OPTIONS.getApplicationUUID(), optionsCapture.getValue().getApplicationUUID());
+
         // check every property against the table
         creatorCapture.getValue().stream()
                 .flatMap(codeGen-> codeGen.properties().stream())
                 .forEach(creatorProp -> validateTableFor(tableView, creatorProp));
     }
 
+    private void checkTheNameAndUUIDFields(FxRobot robot) {
+        verifyThat("#appname", TextInputControlMatchers.hasText(BLANK_GEN_OPTIONS.getApplicationName()));
+        verifyThat("#appuuid", TextInputControlMatchers.hasText(BLANK_GEN_OPTIONS.getApplicationUUID().toString()));
+        verifyThat("#appuuid", Node::isDisabled);
+
+        // try changing the app name.
+        robot.clickOn("#appname");
+        robot.eraseText(10);
+        robot.write("Super App");
+
+        // try pressing the new UUID button, and ensure there's a warning.
+        Mockito.when(editorUI.questionYesNo(eq("Really change the UUID?"), any())).thenReturn(true);
+        robot.clickOn("#newuuidbtn");
+        verifyThat("#appuuid", (TextField t) -> !t.getText().equals(BLANK_GEN_OPTIONS.getApplicationUUID().toString()));
+    }
+
     private void checkStartingValuesInCreator(FxRobot robot) {
         // now check the selections for input output and remote
-        FxAssert.verifyThat("#currentInputUI", new UICodePluginItemMatcher("123456", "in description 1",
+        verifyThat("#currentInputUI", new UICodePluginItemMatcher("123456", "in description 1",
                 "extended description 1"));
-        FxAssert.verifyThat("#currentDisplayUI", new UICodePluginItemMatcher("123458", "display description 1",
+        verifyThat("#currentDisplayUI", new UICodePluginItemMatcher("123458", "display description 1",
                 "extended description 3"));
-        FxAssert.verifyThat("#currentRemoteUI", new UICodePluginItemMatcher("123460", "remote 1",
+        verifyThat("#currentRemoteUI", new UICodePluginItemMatcher("123460", "remote 1",
                 "extended description 5"));
 
     }
@@ -209,7 +240,7 @@ public class GenerateDialogTestCases {
         // change the input mode and check over the result
         robot.clickOn("#currentInputUI Button");
         robot.clickOn("#sel-123457 Button");
-        FxAssert.verifyThat("#currentInputUI", new UICodePluginItemMatcher("123457", "in description 2",
+        verifyThat("#currentInputUI", new UICodePluginItemMatcher("123457", "in description 2",
                 "extended description 2"));
 
         verifyPropertyRemovedAndAdded(tableView,"prop5", "prop1");
@@ -217,7 +248,7 @@ public class GenerateDialogTestCases {
         // change the display mode and check over the result
         robot.clickOn("#currentDisplayUI Button");
         robot.clickOn("#sel-123459 Button");
-        FxAssert.verifyThat("#currentDisplayUI", new UICodePluginItemMatcher("123459", "display description 2",
+        verifyThat("#currentDisplayUI", new UICodePluginItemMatcher("123459", "display description 2",
                 "extended description 4"));
 
         verifyPropertyRemovedAndAdded(tableView,"prop6", "prop2");
@@ -225,7 +256,7 @@ public class GenerateDialogTestCases {
         // change the remote mode and check over the result
         robot.clickOn("#currentRemoteUI Button");
         robot.clickOn("#sel-123461 Button");
-        FxAssert.verifyThat("#currentRemoteUI", new UICodePluginItemMatcher("123461", "remote 2",
+        verifyThat("#currentRemoteUI", new UICodePluginItemMatcher("123461", "remote 2",
                 "extended description 6"));
 
         verifyPropertyRemovedAndAdded(tableView,"prop7", "prop3");
@@ -293,7 +324,7 @@ public class GenerateDialogTestCases {
     }
 
     private TableCell findTableCellWithValue(TableView tableView, Object value) {
-        NodeFinder nodeFinder = FxAssert.assertContext().getNodeFinder();
+        NodeFinder nodeFinder = assertContext().getNodeFinder();
 
         NodeQuery nodeQuery = nodeFinder.from(tableView);
         Optional<TableCell> maybeCell = nodeQuery.lookup(".table-cell")

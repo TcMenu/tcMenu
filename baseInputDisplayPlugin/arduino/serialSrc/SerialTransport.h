@@ -17,6 +17,7 @@
 #include <Arduino.h>
 #include <RemoteConnector.h>
 #include <MessageProcessors.h>
+#include <tcUtil.h>
 
 /**
  * Serial transport is an implementation of TagValueTransport that works over a serial port
@@ -59,7 +60,7 @@ public:
 	 * @param portStream the stream upon which to communicate, it must be already opened.
 	 * @param namePgm the local name of the application (may be program memory on AVR use safeCopyStr)
 	 */ 
-	void begin(Stream* portStream, const char* namePgm);
+	void begin(Stream* portStream, const ConnectorLocalInfo* localInfo);
 
 	/**
 	 * Arranged internally don't call yourself.

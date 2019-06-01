@@ -9,14 +9,12 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
 import java.lang.System.Logger.Level;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 
@@ -27,8 +25,11 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
  */
 public class CurrentEditorProject {
 
+    private static final String NO_CREATOR_SELECTED = "";
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            ARDUINO_AVR.getBoardId(), "", "", "", Collections.emptyList()
+            ARDUINO_AVR.getBoardId(),
+            NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED,
+            Collections.emptyList(), UUID.randomUUID(), "New Device"
     );
 
 

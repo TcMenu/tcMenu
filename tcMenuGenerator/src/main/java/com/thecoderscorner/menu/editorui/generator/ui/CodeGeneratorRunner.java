@@ -13,6 +13,9 @@ import javafx.stage.Stage;
 import java.util.List;
 
 public interface CodeGeneratorRunner {
-    void startCodeGeneration(Stage stage, EmbeddedPlatform platform, String  path,
-                             List<EmbeddedCodeCreator> creators, boolean modal);
+    void startCodeGeneration(Stage stage,
+                             EmbeddedPlatform platform,
+                             String  path,
+                             List<EmbeddedCodeCreator> creators,
+                             boolean modal);
 }

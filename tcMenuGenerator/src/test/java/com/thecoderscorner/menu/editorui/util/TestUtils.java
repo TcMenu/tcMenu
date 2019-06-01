@@ -20,7 +20,6 @@ import org.testfx.api.FxRobot;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -99,6 +98,47 @@ public class TestUtils {
                 .filter(menuItem -> menuToFind.equals(menuItem.getText()))
                 .findFirst().orElseThrow(RuntimeException::new);
         runOnFxThreadAndWait(() -> menu.fire());
+    }
+
+    public static MenuTree buildSimpleTreeReadOnly() {
+        MenuTree tree = new MenuTree();
+
+        AnalogMenuItem item = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withId(1)
+                .withName("test")
+                .withFunctionName(null)
+                .withEepromAddr(2)
+                .withOffset(0)
+                .withDivisor(1)
+                .withUnit("dB")
+                .withMaxValue(100)
+                .withReadOnly(true)
+                .menuItem();
+        AnalogMenuItem item2 = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withExisting(item)
+                .withName("test2")
+                .withId(2)
+                .withEepromAddr(4)
+                .withLocalOnly(true)
+                .withFunctionName("callback1")
+                .menuItem();
+        SubMenuItem sub = SubMenuItemBuilder.aSubMenuItemBuilder()
+                .withName("sub")
+                .withId(100)
+                .withEepromAddr(-1)
+                .withLocalOnly(true)
+                .menuItem();
+        EnumMenuItem extraItem = EnumMenuItemBuilder.anEnumMenuItemBuilder()
+                .withId(20)
+                .withName("Extra")
+                .withEepromAddr(5)
+                .withEnumList(List.of("test"))
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, extraItem);
+        tree.addMenuItem(MenuTree.ROOT, item);
+        tree.addMenuItem(MenuTree.ROOT, sub);
+        tree.addMenuItem(sub, item2);
+        return tree;
     }
 
     public static MenuTree buildSimpleTree() {

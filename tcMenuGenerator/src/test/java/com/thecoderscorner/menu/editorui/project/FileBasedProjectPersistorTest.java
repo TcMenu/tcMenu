@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import org.junit.jupiter.api.AfterEach;
@@ -18,16 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBasedProjectPersistorTest {
+    public static final UUID APPLICATION_UUID = UUID.randomUUID();
     private Path dir;
 
     @BeforeEach
@@ -55,7 +54,8 @@ public class FileBasedProjectPersistorTest {
                 "uuid1",
                 "uuid2",
                 "uuid3",
-                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY))
+                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY)),
+                APPLICATION_UUID, "app name"
         );
         persistor.save(projFile.toString(), tree, options);
 
@@ -68,6 +68,9 @@ public class FileBasedProjectPersistorTest {
         assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
         assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
         assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuid());
+        assertEquals("app name", openResult.getOptions().getApplicationName());
+        assertEquals("app name", openResult.getOptions().getApplicationName());
+        assertEquals(APPLICATION_UUID, openResult.getOptions().getApplicationUUID());
 
         List<CreatorProperty> returnedProps = openResult.getOptions().getLastProperties();
         assertEquals("123", returnedProps.get(0).getLatestValue());

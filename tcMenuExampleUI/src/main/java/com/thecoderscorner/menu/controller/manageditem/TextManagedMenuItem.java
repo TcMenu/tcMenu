@@ -26,6 +26,7 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
 
     @Override
     public Node createNodes(RemoteMenuController controller) {
+        text.setDisable(item.isReadOnly());
         text.setOnAction(e-> {
             var t = text.getText();
             var val = t.substring(0, Math.min(item.getTextLength(), t.length()));

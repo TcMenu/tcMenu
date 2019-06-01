@@ -254,6 +254,20 @@ public class MenuTree {
     }
 
     /**
+     * Gets every menu item held in this menu tree, will be unique
+     * @return every menu item in the tree.
+     */
+    public Collection<MenuItem> getAllMenuItems() {
+        var toReturn = new HashSet<MenuItem>(128);
+        var subs = getAllSubMenus();
+        for (MenuItem sub : subs) {
+            toReturn.add(sub);
+            toReturn.addAll(getMenuItems(sub));
+        }
+        return toReturn;
+    }
+
+    /**
      * Change the value that's associated with a menu item. if you are changing
      * a value, just send a command to the device, it will automatically update
      * the tree.

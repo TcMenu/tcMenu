@@ -18,15 +18,15 @@ import java.util.Map;
 import static com.thecoderscorner.menu.pluginapi.CreatorProperty.PropType.TEXTUAL;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType.WITH_PLUGIN;
 import static com.thecoderscorner.menu.pluginapi.SubSystem.REMOTE;
-import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.*;
-import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.*;
+import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.choicesValidator;
+import static com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators.uintValidator;
+import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.ETHERNET_2;
+import static com.thecoderscorner.tcmenu.plugins.remote.EthernetAdapterType.UIP_ENC28J60;
 
 public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
     private final List<CreatorProperty> creatorProperties = List.of(
             new CreatorProperty("LISTEN_PORT", "Port to listen on", "3333",
                                 REMOTE, TEXTUAL, uintValidator(65355)),
-            new CreatorProperty("DEVICE_NAME", "Name of this device", "New Device",
-                                REMOTE, TEXTUAL, textValidator()),
             new CreatorProperty("LIBRARY_TYPE", "The Arduino library for your device",
                                 ETHERNET_2.name(), REMOTE, TEXTUAL, choicesValidator(EthernetAdapterType.values()))
     );
@@ -34,18 +34,15 @@ public class EthernetRemoteCapabilitiesCreator extends AbstractCodeCreator {
 
     @Override
     protected void initCreator(String root) {
-        String deviceName = findPropertyValue("DEVICE_NAME").getLatestValue();
-
-        addVariable(new CodeVariableBuilder().variableName("applicationName[]").variableType("char")
-                            .quoted(deviceName).progmem().byAssignment().exportNeeded()
-                            .requiresHeader("RemoteConnector.h", false));
 
         addVariable(new CodeVariableBuilder().variableType("EthernetServer").variableName("server")
                             .paramFromPropertyWithDefault("LISTEN_PORT", "3333")
-                            .requiresHeader("EthernetTransport.h", true));
+                            .requiresHeader("EthernetTransport.h", true)
+                            .requiresHeader("RemoteConnector.h", false)
+        );
 
         addFunctionCall(new FunctionCallBuilder().objectName("remoteServer").functionName("begin")
-                       .paramRef("server").param("applicationName"));
+                       .paramRef("server").paramRef("applicationInfo"));
 
         EthernetAdapterType type = EthernetAdapterType.valueOf(findPropertyValue("LIBRARY_TYPE").getLatestValue());
         Map<String, String> repl;

@@ -6,10 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
-import com.thecoderscorner.menu.editorui.project.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
@@ -21,6 +21,8 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -63,6 +66,8 @@ public class GenerateCodeDialog {
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Button generateButton;
     private Button cancelButton;
+    private TextField appUuidField;
+    private TextField appNameField;
     private Stage mainStage;
 
     public TableView<CreatorProperty> propsTable;
@@ -104,7 +109,6 @@ public class GenerateCodeDialog {
             logger.log(ERROR, "Class loading problem", e);
 
         }
-
 
         addTitleLabel(vbox, "Select the display type:");
         try {
@@ -195,11 +199,55 @@ public class GenerateCodeDialog {
     }
 
     private void placeDirectoryAndEmbeddedPanels(VBox vbox) {
-        BorderPane embeddedPane = new BorderPane();
-        embeddedPane.setLeft(new Label("Embedded Platform"));
+        GridPane embeddedPane = new GridPane();
+        embeddedPane.setHgap(5);
+        embeddedPane.setVgap(3);
+        embeddedPane.add(new Label("Embedded Platform"), 0, 0);
+        embeddedPane.add(new Label("Application UUID"), 0, 1);
+        embeddedPane.add(new Label("Application Name"), 0, 2);
+
         platformCombo = new ComboBox<>(observableArrayList(platforms.getEmbeddedPlatforms()));
-        embeddedPane.setRight(platformCombo);
+        embeddedPane.add(platformCombo, 1, 0, 2, 1);
+        EmbeddedPlatform platform = getLastEmbeddedPlatform();
+        platformCombo.getSelectionModel().select(platform);
+        platformCombo.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal)
+        );
+
+        var uuid = project.getGeneratorOptions().getApplicationUUID();
+        if(uuid == null) uuid = UUID.randomUUID();
+        appUuidField = new TextField(uuid.toString());
+        appUuidField.setDisable(true);
+        appUuidField.setId("appuuid");
+        embeddedPane.add(appUuidField, 1, 1);
+        Button newAppUuidButton = new Button("Change");
+        newAppUuidButton.setTooltip(new Tooltip("Application UUID's identify your app to remote API/UI's, avoid changing"));
+        newAppUuidButton.setOnAction(this::onNewUUIDRequired);
+        newAppUuidButton.setId("newuuidbtn");
+        embeddedPane.add(newAppUuidButton, 2, 1);
+
+        var appName = project.getGeneratorOptions().getApplicationName();
+        if(appName == null || appName.isEmpty()) {
+            appName = "New app";
+        }
+        appNameField = new TextField(appName);
+        appNameField.setId("appname");
+        appNameField.setTooltip(new Tooltip("Application names appear on the display and also on remote connections"));
+
+        embeddedPane.add(appNameField, 1, 2);
+
+
+        ColumnConstraints column1 = new ColumnConstraints(120);
+        ColumnConstraints column2 = new ColumnConstraints(350);
+        ColumnConstraints column3 = new ColumnConstraints(80);
+        embeddedPane.getColumnConstraints().add(column1);
+        embeddedPane.getColumnConstraints().add(column2);
+        embeddedPane.getColumnConstraints().add(column3);
         vbox.getChildren().add(embeddedPane);
+
+    }
+
+    private EmbeddedPlatform getLastEmbeddedPlatform() {
         var platform = EmbeddedPlatform.ARDUINO_AVR;
         String lastPlatform = project.getGeneratorOptions().getEmbeddedPlatform();
         try {
@@ -212,9 +260,15 @@ public class GenerateCodeDialog {
                     "The platform " + lastPlatform + "is no longer available, defaulting to AVR"
             );
         }
-        platformCombo.getSelectionModel().select(platform);
-        platformCombo.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal));
+        return platform;
+    }
+
+    private void onNewUUIDRequired(ActionEvent actionEvent) {
+        if(editorUI.questionYesNo(
+                "Really change the UUID?",
+                "The application will be treated as new by all remote and API apps.")) {
+            appUuidField.setText(UUID.randomUUID().toString());
+        }
     }
 
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
@@ -255,14 +309,16 @@ public class GenerateCodeDialog {
         allProps.addAll(inputCreator.properties());
         allProps.addAll(remoteCreator.properties());
 
+        UUID applicationUUID = UUID.fromString(appUuidField.getText());
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
-                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), allProps));
+                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(),
+                allProps, applicationUUID, appNameField.getText())
+        );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
-                                   Arrays.asList(displayCreator, inputCreator, remoteCreator),
-                                   true);
+                                   Arrays.asList(displayCreator, inputCreator, remoteCreator), true);
 
         dialogStage.close();
     }

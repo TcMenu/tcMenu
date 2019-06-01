@@ -56,12 +56,12 @@ EthernetTagValServer::EthernetTagValServer() : messageProcessor(msgHandlers, MSG
 	this->server = NULL;
 }
 
-void EthernetTagValServer::begin(EthernetServer* server, const char* namePgm) {
-    serdebugFHex("Initialising ethernet", (unsigned int)server);
+void EthernetTagValServer::begin(EthernetServer* server, const ConnectorLocalInfo* localInfo) {
+    serdebugFHex("Initialising server ", (unsigned int)server);
 	this->server = server;
 	this->server->begin();
     serdebugF("Initialising connector");
-	this->connector.initialise(&transport, &messageProcessor, namePgm);
+	this->connector.initialise(&transport, &messageProcessor, localInfo);
 	taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
 }
 

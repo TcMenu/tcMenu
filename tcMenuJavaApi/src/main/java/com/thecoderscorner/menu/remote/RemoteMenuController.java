@@ -288,7 +288,7 @@ public class RemoteMenuController {
         remoteParty.set(new RemoteInformation(join.getMyName(), join.getApiVersion() / 100,
                 join.getApiVersion() % 100, join.getPlatform()));
         setConnectionState(SENT_JOIN);
-        executor.execute(() -> sendCommand(newJoinCommand(localName, ourUUID)) );
+        sendCommand(newJoinCommand(localName, ourUUID));
     }
 
     public MenuTree getManagedMenu() {

@@ -26,7 +26,7 @@ public interface CodeGenerator {
      * @param menuTree the tree of menu items to be represented
      * @return
      */
-    boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree);
+    boolean startConversion(Path directory, List<EmbeddedCodeCreator> generators, MenuTree menuTree, NameAndKey nameKey);
 
     /**
      * Called before the conversion starts to set the logger to use for the rest of the conversion.

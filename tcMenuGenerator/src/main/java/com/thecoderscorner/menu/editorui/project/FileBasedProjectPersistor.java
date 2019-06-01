@@ -10,6 +10,7 @@ import com.google.gson.*;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 
 import java.io.*;
 import java.lang.reflect.Type;

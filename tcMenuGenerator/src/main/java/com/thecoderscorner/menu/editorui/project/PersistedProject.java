@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -46,7 +46,8 @@ public class ArduinoItemGeneratorTest {
     }
 
     private void checkTheBasicsOfInfo(BuildStructInitializer info, String type, String name) {
-        assertTrue(info.isProgMemInfo());
+        assertTrue(info.isProgMem());
+        assertEquals(" minfo", info.getPrefix());
         assertFalse(info.isRequiresExtern());
         assertFalse(info.isStringChoices());
         assertEquals(name, info.getStructName());
@@ -54,7 +55,8 @@ public class ArduinoItemGeneratorTest {
     }
 
     private void checkTheBasicsOfItem(BuildStructInitializer item, String type, String name) {
-        assertFalse(item.isProgMemInfo());
+        assertFalse(item.isProgMem());
+        assertEquals(" menu", item.getPrefix());
         assertTrue(item.isRequiresExtern());
         assertFalse(item.isStringChoices());
         assertEquals(name, item.getStructName());

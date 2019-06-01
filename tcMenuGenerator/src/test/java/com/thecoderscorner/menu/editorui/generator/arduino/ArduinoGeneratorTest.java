@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTree;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
@@ -65,14 +65,14 @@ public class ArduinoGeneratorTest {
     private void runConversionWith(EmbeddedPlatform platform, String templateToUse) throws IOException {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
-        MenuTree tree = buildSimpleTree();
+        MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
-        assertTrue(generator.startConversion(dir, generators, tree));
+        assertTrue(generator.startConversion(dir, generators, tree, new NameAndKey("uuid1", "tester")));
 
         var cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
         var hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));

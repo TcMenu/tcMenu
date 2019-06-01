@@ -14,7 +14,7 @@
 
 #include "tcMenuAdaFruitGfx.h"
 
-extern const char applicationName[];
+extern const ConnectorLocalInfo applicationInfo;
 
 int drawingCount = 0;
 
@@ -51,7 +51,7 @@ Coord AdaFruitGfxMenuRenderer::textExtents(const char* text, int16_t x, int16_t 
 
 void AdaFruitGfxMenuRenderer::renderTitleArea() {
 	if(currentRoot == menuMgr.getRoot()) {
-		safeProgCpy(buffer, applicationName, bufferSize);
+		safeProgCpy(buffer, applicationInfo->name, bufferSize);
 	}
 	else {
 		currentRoot->copyNameToBuffer(buffer, bufferSize);
