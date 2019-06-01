@@ -19,9 +19,9 @@ import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
@@ -115,12 +115,25 @@ public class MainWindowController {
             }
 
             public void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2) {
-                if(mode == DialogMode.SHOW) {
-                    mainBorderPane.setTop(new Label(header + ", " + buffer + " " + btn1.getButtonName() + ", " + btn2.getButtonName()));
-                }
-                else if(mode ==DialogMode.HIDE) {
-                    mainBorderPane.setTop(null);
-                }
+                Platform.runLater(()-> {
+                    if (mode == DialogMode.SHOW) {
+                        VBox textPane = new VBox();
+                        textPane.setStyle("-fx-background-color: #7ec4ff; -fx-border-color: black; -fx-border-style: solid;-fx-border-width:1;");
+                        Label hdrLbl = new Label(header);
+                        hdrLbl.getStyleClass().add("labelMenuHdr");
+                        textPane.getChildren().add(hdrLbl);
+                        Label bufLbl = new Label(buffer);
+                        bufLbl.getStyleClass().add("labelMenuHdr");
+                        textPane.getChildren().add(bufLbl);
+                        HBox buttonArea = new HBox();
+                        buildDialogButton(btn1, buttonArea);
+                        buildDialogButton(btn2, buttonArea);
+                        textPane.getChildren().add(buttonArea);
+                        mainBorderPane.setTop(textPane);
+                    } else if (mode == DialogMode.HIDE) {
+                        mainBorderPane.setTop(null);
+                    }
+                });
             }
 
             /**
@@ -157,17 +170,18 @@ public class MainWindowController {
 
             @Override
             public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
-                var managedItem = item == null ? null : managedMenuItems.get(item.getId());
+                Platform.runLater(()-> {
+                    var managedItem = item == null ? null : managedMenuItems.get(item.getId());
 
-                if(managedItem != null) {
-                    managedItem.correltationReceived(key, status);
-                    if(status.isError()) {
-                        mainBorderPane.setTop(new Label("Item Update failed: correlation " + key + " item " + item));
+                    if (managedItem != null) {
+                        managedItem.correltationReceived(key, status);
+                        if (status.isError()) {
+                            mainBorderPane.setTop(new Label("Item Update failed: correlation " + key + " item " + item));
+                        }
+                    } else if (status.isError()) {
+                        mainBorderPane.setTop(new Label("Update failed: correlation " + key));
                     }
-                }
-                else if(status.isError()) {
-                    mainBorderPane.setTop(new Label("Update failed: correlation " + key));
-                }
+                });
             }
         });
 
@@ -175,6 +189,17 @@ public class MainWindowController {
         // start the comms
         //
         remoteControl.start();
+    }
+
+    private void buildDialogButton(MenuButtonType btn1, HBox buttonArea) {
+        if(btn1 != MenuButtonType.NONE) {
+            Button btn = new Button(btn1.getButtonName());
+            btn.setOnAction((e)-> remoteControl.sendDialogAction(btn1));
+            btn.getStyleClass().add("flatButton");
+            HBox.setHgrow(btn, Priority.ALWAYS);
+            btn.setMaxWidth(Double.MAX_VALUE);
+            buttonArea.getChildren().add(btn);
+        }
     }
 
     private void updatedFieldChecker() {
