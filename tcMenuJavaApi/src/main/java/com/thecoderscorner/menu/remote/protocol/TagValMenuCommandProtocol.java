@@ -78,9 +78,41 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processAcknowledgement(parser);
             case PAIRING_REQUEST:
                 return processPairingRequest(parser);
+            case DIALOG_UPDATE:
+                return processDialogUpdate(parser);
             default:
                 throw new TcProtocolException("Unknown message type " + cmdType);
         }
+    }
+
+    private MenuCommand processDialogUpdate(TagValTextParser parser) throws IOException {
+        var cor = parser.getValueWithDefault(KEY_CORRELATION_FIELD, "");
+        var correlationId = (cor.isEmpty()) ? CorrelationId.EMPTY_CORRELATION : new CorrelationId(cor);
+
+        return newDialogCommand(
+                asDialogMode(parser.getValue(KEY_MODE_FIELD)),
+                parser.getValueWithDefault(KEY_HEADER_FIELD, ""),
+                parser.getValueWithDefault(KEY_BUFFER_FIELD, ""),
+                asButton(parser.getValueAsIntWithDefault(KEY_BUTTON1_FIELD, 0)),
+                asButton(parser.getValueAsIntWithDefault(KEY_BUTTON2_FIELD, 0)),
+                correlationId
+        );
+    }
+
+    private DialogMode asDialogMode(String mode) {
+        if(mode.equals("S")) {
+            return DialogMode.SHOW;
+        }
+        else if(mode.equals("H")) {
+            return DialogMode.HIDE;
+        }
+        else return DialogMode.ACTION;
+    }
+
+    private MenuButtonType asButton(int req) {
+        return Arrays.stream(MenuButtonType.values())
+                .filter(b -> b.getTypeVal() == req)
+                .findFirst().orElse(MenuButtonType.NONE);
     }
 
     private MenuCommand processPairingRequest(TagValTextParser parser) throws IOException {
@@ -314,6 +346,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case PAIRING_REQUEST:
                 writePairingRequest(sb, (MenuPairingCommand)cmd);
                 break;
+            case DIALOG_UPDATE:
+                writeDialogUpdate(sb, (MenuDialogCommand)cmd);
+                break;
 
         }
         sb.append('~');
@@ -321,6 +356,21 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         String msgStr = sb.toString();
         logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
         buffer.put(msgStr.getBytes());
+    }
+
+    private void writeDialogUpdate(StringBuilder sb, MenuDialogCommand cmd) {
+        appendField(sb, KEY_MODE_FIELD, asWireMode(cmd.getDialogMode()));
+        if(cmd.getHeader() != null) appendField(sb, KEY_HEADER_FIELD, cmd.getHeader());
+        if(cmd.getBuffer() != null) appendField(sb, KEY_BUFFER_FIELD, cmd.getBuffer());
+        appendField(sb, KEY_BUTTON1_FIELD, cmd.getButton1().getTypeVal());
+        appendField(sb, KEY_BUTTON2_FIELD, cmd.getButton2().getTypeVal());
+        appendField(sb, KEY_CORRELATION_FIELD, cmd.getCorrelationId());
+    }
+
+    private String asWireMode(DialogMode dialogMode) {
+        if(dialogMode == DialogMode.SHOW) return "S";
+        else if(dialogMode == DialogMode.HIDE) return "H";
+        else return "A";
     }
 
     private void writePairingRequest(StringBuilder sb, MenuPairingCommand cmd) {

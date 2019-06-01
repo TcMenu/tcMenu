@@ -23,7 +23,8 @@ public enum MenuCommandType {
     FLOAT_BOOT_ITEM("BF"),
     REMOTE_BOOT_ITEM("BR"),
     ACKNOWLEDGEMENT("AK"),
-    CHANGE_INT_FIELD("VC");
+    CHANGE_INT_FIELD("VC"),
+    DIALOG_UPDATE("DM");
 
     private final String code;
 

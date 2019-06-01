@@ -13,6 +13,8 @@ import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.commands.DialogMode;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 
@@ -118,6 +120,11 @@ public class StandaloneRs232Test {
         @Override
         public void ackReceived(CorrelationId key, MenuItem item, AckStatus st) {
             logger.log(INFO, "Ack -" + key + " item " + item + " status " + st);
+        }
+
+        @Override
+        public void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2) {
+            // not interested in dialog updates.
         }
     }
 }

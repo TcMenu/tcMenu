@@ -13,11 +13,14 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.commands.DialogMode;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -50,7 +53,7 @@ public class MainWindowController {
     //
     public Label statusLabel;
     public GridPane itemGrid;
-    public Label errors;
+    public BorderPane mainBorderPane;
 
     private Map<Integer, ManagedMenuItem> managedMenuItems = new HashMap<>();
     //
@@ -111,6 +114,15 @@ public class MainWindowController {
                 Platform.runLater(() -> renderItemValue(item));
             }
 
+            public void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2) {
+                if(mode == DialogMode.SHOW) {
+                    mainBorderPane.setTop(new Label(header + ", " + buffer + " " + btn1.getButtonName() + ", " + btn2.getButtonName()));
+                }
+                else if(mode ==DialogMode.HIDE) {
+                    mainBorderPane.setTop(null);
+                }
+            }
+
             /**
              * When the tree is fully populated, and therefore the menuTree has all items in it, we get this callback
              * so we can do whatever we need to do with the information.
@@ -150,11 +162,11 @@ public class MainWindowController {
                 if(managedItem != null) {
                     managedItem.correltationReceived(key, status);
                     if(status.isError()) {
-                        errors.setText("Item Update failed: correlation " + key + " item " + item);
+                        mainBorderPane.setTop(new Label("Item Update failed: correlation " + key + " item " + item));
                     }
                 }
                 else if(status.isError()) {
-                    errors.setText("General error for correlation: " + key);
+                    mainBorderPane.setTop(new Label("Update failed: correlation " + key));
                 }
             }
         });

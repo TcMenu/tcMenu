@@ -192,6 +192,22 @@ public class RemoteMenuControllerTest {
     }
 
     @Test
+    public void testDialogUpdates() throws IOException {
+        populateTreeWithAllTypes();
+        listener.getValue().onCommand(connector, newDialogCommand(DialogMode.SHOW, "hello", "world",
+                MenuButtonType.NONE, MenuButtonType.CLOSE, EMPTY_CORRELATION));
+        verify(remoteListener).dialogUpdate(DialogMode.SHOW, "hello", "world", MenuButtonType.NONE,
+                MenuButtonType.CLOSE);
+
+        controller.sendDialogAction(MenuButtonType.ACCEPT);
+        ArgumentCaptor<MenuDialogCommand> captor = ArgumentCaptor.forClass(MenuDialogCommand.class);
+        verify(connector).sendMenuCommand(captor.capture());
+        assertEquals(MenuButtonType.ACCEPT, captor.getValue().getButton1());
+        assertEquals(MenuButtonType.ACCEPT, captor.getValue().getButton2());
+        assertEquals(DialogMode.ACTION, captor.getValue().getDialogMode());
+    }
+
+    @Test
     public void testSendingUpdatesAndGettingAcksAbs() throws IOException {
         populateTreeWithAllTypes();
         MenuItem item = menuTree.getMenuById(12).orElseThrow();

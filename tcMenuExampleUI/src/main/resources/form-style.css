@@ -18,6 +18,14 @@
     -fx-background-insets: 0;
 }
 
+.ackError {
+    -fx-background-color: #c12933;
+    -fx-background-radius: 2;
+    -fx-background-insets: 0;
+    -fx-text-fill: #f4f0ff;
+
+}
+
 .labelMenuHdr {
     -fx-font-size: 125%;
     -fx-font-weight: bold;

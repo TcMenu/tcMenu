@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.commands.DialogMode;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 /**
@@ -40,4 +42,6 @@ public interface RemoteControllerListener {
     void connectionState(RemoteInformation remoteInformation, AuthStatus connected);
 
     void ackReceived(CorrelationId key, MenuItem item, AckStatus status);
+
+    void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2);
 }

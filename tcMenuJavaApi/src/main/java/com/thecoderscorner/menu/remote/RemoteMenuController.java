@@ -124,6 +124,17 @@ public class RemoteMenuController {
         }
     }
 
+
+    /**
+     * Send a dialog update
+     * @param buttonType
+     */
+    public CorrelationId sendDialogAction(MenuButtonType buttonType) {
+        CorrelationId correlationId = new CorrelationId();
+        sendCommand(newDialogCommand(DialogMode.ACTION, "", "", buttonType, buttonType, correlationId));
+        return correlationId;
+    }
+
     /**
      * Send a delta change for the given menuitem
      * @param item the item to change
@@ -210,7 +221,17 @@ public class RemoteMenuController {
                 break;
             case CHANGE_INT_FIELD:
                 onChangeField((MenuChangeCommand) menuCommand);
+                break;
+            case DIALOG_UPDATE:
+                onDialogChange((MenuDialogCommand) menuCommand);
         }
+    }
+
+    private void onDialogChange(MenuDialogCommand menuCommand) {
+        listeners.forEach(l -> l.dialogUpdate(
+                menuCommand.getDialogMode(),
+                menuCommand.getHeader(), menuCommand.getBuffer(),
+                menuCommand.getButton1(), menuCommand.getButton2()));
     }
 
     private void onAcknowledgementCommand(MenuAcknowledgementCommand menuCommand) {

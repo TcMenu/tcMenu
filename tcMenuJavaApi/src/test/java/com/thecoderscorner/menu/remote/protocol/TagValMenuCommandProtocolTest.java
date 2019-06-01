@@ -46,6 +46,18 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveDialogCommand() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=DM|MO=S|HF=Hello|BU=Buffer|B1=0|B2=4|~"));
+        assertTrue(cmd instanceof MenuDialogCommand);
+        MenuDialogCommand dlg = (MenuDialogCommand) cmd;
+        assertEquals(DialogMode.SHOW, dlg.getDialogMode());
+        assertEquals("Hello", dlg.getHeader());
+        assertEquals("Buffer", dlg.getBuffer());
+        assertEquals(MenuButtonType.NONE, dlg.getButton1());
+        assertEquals(MenuButtonType.CLOSE, dlg.getButton2());
+    }
+
+    @Test
     public void testReceiveHeartbeatCommand() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer("MT=HB|~"));
         assertTrue(cmd instanceof MenuHeartbeatCommand);
@@ -369,6 +381,15 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, newPairingCommand("pairingtest", UUID.fromString("575d327e-fe76-4e68-b0b8-45eea154a126")));
         testBufferAgainstExpected("MT=PR|NM=pairingtest|UU=575d327e-fe76-4e68-b0b8-45eea154a126|~");
     }
+
+    @Test
+    public void testWritingDialogUpdate() throws IOException {
+
+        protocol.toChannel(bb, newDialogCommand(DialogMode.SHOW, "Hello", "Buffer", MenuButtonType.NONE,
+                MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
+        testBufferAgainstExpected("MT=DM|MO=S|HF=Hello|BU=Buffer|B1=0|B2=4|IC=00000000|~");
+    }
+
 
     private void testBufferAgainstExpected(String s2) {
         bb.flip();

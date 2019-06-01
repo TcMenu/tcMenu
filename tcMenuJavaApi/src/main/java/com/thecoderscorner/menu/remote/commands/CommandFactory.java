@@ -48,12 +48,24 @@ public class CommandFactory {
         return new MenuHeartbeatCommand(frequency);
     }
 
+    /**
+     * create an acknowledgement message for a given correlation and status
+     * @param correlationId the correlation
+     * @param status the status
+     * @return the message
+     */
     public static MenuAcknowledgementCommand newAcknowledgementCommand(CorrelationId correlationId, AckStatus status) {
         return new MenuAcknowledgementCommand(correlationId, status);
     }
 
     public static MenuPairingCommand newPairingCommand(String name, UUID uuid) {
         return new MenuPairingCommand(name, uuid);
+    }
+
+    public static MenuDialogCommand newDialogCommand(DialogMode mode, String header, String msg,
+                                                     MenuButtonType b1, MenuButtonType b2,
+                                                     CorrelationId correlationId) {
+        return new MenuDialogCommand(mode, header, msg, b1, b2, correlationId);
     }
 
     /**

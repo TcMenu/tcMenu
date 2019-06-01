@@ -37,4 +37,10 @@ public interface TagValMenuFields {
     String KEY_PREPEND_CHOICE = "C"; // second char from A onwards.
     String KEY_CHANGE_TYPE = "TC";
     String KEY_ACK_STATUS = "ST";
+    String KEY_MODE_FIELD = "MO";
+    String KEY_BUFFER_FIELD = "BU";
+    String KEY_HEADER_FIELD = "HF";
+    String KEY_BUTTON1_FIELD = "B1";
+    String KEY_BUTTON2_FIELD = "B2";
 }
+

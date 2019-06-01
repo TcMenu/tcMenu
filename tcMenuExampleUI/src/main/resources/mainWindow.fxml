@@ -9,7 +9,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<BorderPane prefHeight="574.0" prefWidth="424.0" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.controller.MainWindowController">
+<BorderPane fx:id="mainBorderPane" prefHeight="574.0" prefWidth="424.0" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.controller.MainWindowController">
    <opaqueInsets>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </opaqueInsets>
@@ -35,7 +35,4 @@
    <bottom>
       <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="433.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
    </bottom>
-   <top>
-      <Label fx:id="errors" BorderPane.alignment="TOP_LEFT" />
-   </top>
 </BorderPane>
