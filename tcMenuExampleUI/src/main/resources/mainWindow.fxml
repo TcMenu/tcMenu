@@ -35,4 +35,7 @@
    <bottom>
       <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="433.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
    </bottom>
+   <top>
+      <Label fx:id="errors" BorderPane.alignment="TOP_LEFT" />
+   </top>
 </BorderPane>

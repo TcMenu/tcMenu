@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 
@@ -30,6 +31,16 @@ public abstract class BaseLabelledManagedMenuItem<T, M extends MenuItem> extends
         }
         else {
             itemLabel.getStyleClass().remove(UPDATED_CLASS_NAME);
+        }
+    }
+
+    @Override
+    protected void internalCorrelationUpdate(AckStatus status) {
+        if(status.isError()) {
+            itemLabel.getStyleClass().add("ackError");
+        }
+        else {
+            itemLabel.getStyleClass().remove("ackError");
         }
     }
 }

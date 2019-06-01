@@ -196,7 +196,8 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         String header = "";
 
         if(s.isRequiresExtern()) {
-            header = header + "extern " + s.getStructType() + " menu" + s.getStructName() + ";";
+            var constant = s.isProgMem() ? "const " : "";
+            header = header + "extern " + constant + s.getStructType() + " " + s.getPrefix() + s.getStructName() + ";";
         }
 
         return header;

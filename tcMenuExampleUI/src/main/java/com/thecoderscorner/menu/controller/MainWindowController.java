@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -48,6 +50,8 @@ public class MainWindowController {
     //
     public Label statusLabel;
     public GridPane itemGrid;
+    public Label errors;
+
     private Map<Integer, ManagedMenuItem> managedMenuItems = new HashMap<>();
     //
     // End JavaFX field bindings
@@ -137,6 +141,21 @@ public class MainWindowController {
                 authStatus.set(status);
                 bootstrapComplete.set(false);
                 Platform.runLater(MainWindowController.this::updateConnectionDetails);
+            }
+
+            @Override
+            public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
+                var managedItem = item == null ? null : managedMenuItems.get(item.getId());
+
+                if(managedItem != null) {
+                    managedItem.correltationReceived(key, status);
+                    if(status.isError()) {
+                        errors.setText("Item Update failed: correlation " + key + " item " + item);
+                    }
+                }
+                else if(status.isError()) {
+                    errors.setText("General error for correlation: " + key);
+                }
             }
         });
 

@@ -10,21 +10,19 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.commands.*;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.remote.AuthStatus.*;
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newHeartbeatCommand;
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newJoinCommand;
+import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static java.lang.System.Logger.Level.*;
 
 /**
@@ -46,6 +44,7 @@ public class RemoteMenuController {
     private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
     private final String localName;
     private final UUID ourUUID;
+    private final ConcurrentMap<CorrelationId, MenuItem> itemsInProgress = new ConcurrentHashMap<>();
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
     private volatile boolean treeFullyPopulated = false;
     private volatile int heartbeatFrequency = 10000;
@@ -96,6 +95,10 @@ public class RemoteMenuController {
         }
         else {
             setConnectionState(AWAITING_CONNECTION);
+            itemsInProgress.forEach((key, item) ->
+                    listeners.forEach(rcl -> rcl.ackReceived(key, item, AckStatus.UNKNOWN_ERROR))
+            );
+            itemsInProgress.clear();
         }
     }
 
@@ -107,10 +110,11 @@ public class RemoteMenuController {
     }
 
     /**
-     * send a command to the Arduino, normally use the CommandFactory to generate the command
+     * Use to send commands directly. Should not be used outside of this class, instead
+     * prefer the helper methods to send each type of item.
      * @param command a command to send to the remote side.
      */
-    public void sendCommand(MenuCommand command) {
+    protected void sendCommand(MenuCommand command) {
         lastTx.set(clock.millis());
         try {
             connector.sendMenuCommand(command);
@@ -118,6 +122,30 @@ public class RemoteMenuController {
             logger.log(ERROR, "Error while writing out command", e);
             connector.close();
         }
+    }
+
+    /**
+     * Send a delta change for the given menuitem
+     * @param item the item to change
+     * @param deltaChange the amount to change by
+     */
+    public CorrelationId sendDeltaUpdate(MenuItem item, int deltaChange) {
+        CorrelationId correlationId = new CorrelationId();
+        itemsInProgress.put(correlationId, item);
+        sendCommand(newDeltaChangeCommand(correlationId, item, deltaChange));
+        return correlationId;
+    }
+
+    /**
+     * Send an asbolute change for the given item
+     * @param item the item
+     * @param newValue the absolute change
+     */
+    public CorrelationId sendAbsoluteUpdate(MenuItem item, Object newValue) {
+        CorrelationId correlationId = new CorrelationId();
+        itemsInProgress.put(correlationId, item);
+        sendCommand(newAbsoluteMenuChangeCommand(correlationId, item, newValue));
+        return correlationId;
     }
 
     /**
@@ -199,7 +227,10 @@ public class RemoteMenuController {
             }
         }
         else {
-            // todo process ack..
+            var item = itemsInProgress.get(menuCommand.getCorrelationId());
+            listeners.forEach(rcl->
+                    rcl.ackReceived(menuCommand.getCorrelationId(), item, menuCommand.getAckStatus())
+            );
         }
     }
 
@@ -227,7 +258,7 @@ public class RemoteMenuController {
         // we cannot process until the tree is populated
         if(!treeFullyPopulated) return;
 
-        managedMenu.getMenuById(null, menuCommand.getMenuItemId()).ifPresent((item) -> {
+        managedMenu.getMenuById(menuCommand.getMenuItemId()).ifPresent((item) -> {
             item.accept(new MenuItemVisitor() {
                 @Override
                 public void visit(AnalogMenuItem item) {

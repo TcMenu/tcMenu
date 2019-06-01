@@ -32,7 +32,7 @@ public class CorrelationId {
      * Creates a new correlation ID that is relatively unique
      */
     public CorrelationId() {
-        int counterModulo = counter.get() % COUNTER_MODULO;
+        int counterModulo = counter.incrementAndGet() % COUNTER_MODULO;
         int timePart = (int) (System.currentTimeMillis() % (Integer.MAX_VALUE - COUNTER_MODULO));
         this.correlation = timePart + counterModulo;
     }
@@ -52,5 +52,18 @@ public class CorrelationId {
      */
     public long getUnderlyingId() {
         return correlation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CorrelationId that = (CorrelationId) o;
+        return correlation == that.correlation;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (correlation * 31);
     }
 }

@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
@@ -46,7 +45,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringAcceptableValuesIntoActionEditor(FxRobot robot) throws InterruptedException {
-        MenuItem actionItem = menuTree.getMenuById(MenuTree.ROOT, 8).orElseThrow();
+        MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
         Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -131,7 +130,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     @Test
     void testSelectingAndClearingReadonlyLocal(FxRobot robot) throws InterruptedException {
         // now try selecting and clearing the readonly and local only checkboxes.
-        MenuItem actionItem = menuTree.getMenuById(MenuTree.ROOT, 8).orElseThrow();
+        MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
         Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
 

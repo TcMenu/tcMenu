@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -16,7 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newDeltaChangeCommand;
+import java.util.Optional;
 
 public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends BaseLabelledManagedMenuItem<Integer, I> {
     private static final int REDUCE = -1;
@@ -49,8 +48,8 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
         plusButton.setDisable(item.isReadOnly());
 
         minusButton.setOnAction(e-> {
-            MenuItem parent = menuController.getManagedMenu().findParent(item);
-            menuController.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, REDUCE));
+            if(waitingFor.isPresent()) return;
+            waitingFor = Optional.of(menuController.sendDeltaUpdate(item, REDUCE));
         });
 
         minusButton.setOnMousePressed(e-> {
@@ -64,8 +63,8 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
         });
         plusButton.setOnMouseReleased(e-> repeating = RepeatTypes.REPEAT_NONE);
         plusButton.setOnAction(e-> {
-            MenuItem parent = menuController.getManagedMenu().findParent(item);
-            menuController.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, INCREASE));
+            if(waitingFor.isPresent()) return;
+            waitingFor = Optional.of(menuController.sendDeltaUpdate(item, INCREASE));
         });
 
         var border = new BorderPane();

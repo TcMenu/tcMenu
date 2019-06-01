@@ -56,7 +56,7 @@ public class CurrentEditorProjectTest {
     @Test
     public void testInsertFollowedByCleanDown() {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
         Mockito.when(editorUI.questionYesNo(any(), any())).thenReturn(true);
         assertTrue(project.isDirty());
         project.newProject();
@@ -68,11 +68,11 @@ public class CurrentEditorProjectTest {
     @Test
     public void testAddFollowedByUndo() {
         project.applyCommand(NEW, item1);
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
         project.undoChange();
-        assertFalse(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertFalse(project.getMenuTree().getMenuById(1).isPresent());
         project.redoChange();
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
 
         assertTrue(project.isDirty());
     }
@@ -105,30 +105,30 @@ public class CurrentEditorProjectTest {
     @Test
     public void testRemovingItemsThenUndo() {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
         project.applyCommand(REMOVE, item1, MenuTree.ROOT);
-        assertFalse(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertFalse(project.getMenuTree().getMenuById(1).isPresent());
 
         project.undoChange();
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
     }
 
     @Test
     public void testEditingAnItemAndUndoIt() {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, 1).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
 
         BooleanMenuItem itemEdit = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withExisting(item1)
                 .withName("Hello")
                 .menuItem();
         project.applyCommand(EDIT, itemEdit, MenuTree.ROOT);
-        Optional<MenuItem> itemReadBack = project.getMenuTree().getMenuById(MenuTree.ROOT, 1);
+        Optional<MenuItem> itemReadBack = project.getMenuTree().getMenuById(1);
         assertTrue(itemReadBack.isPresent());
         assertEquals("Hello", itemReadBack.get().getName());
 
         project.undoChange();
-        itemReadBack = project.getMenuTree().getMenuById(MenuTree.ROOT, 1);
+        itemReadBack = project.getMenuTree().getMenuById(1);
         assertTrue(itemReadBack.isPresent());
         assertEquals("name", itemReadBack.get().getName());
     }

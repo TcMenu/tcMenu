@@ -103,16 +103,15 @@ public class MenuTree {
      * Gets the menu item with the specified ID, finding the submenu if needed. In most cases the linkage between
      * ID and item will be cached and therefore fast, if you don't know the sub menu set it to null and it will be
      * determined.
-     * @param root the sub menu
      * @param id the id of the object to find.
      * @return
      */
-    public Optional<MenuItem> getMenuById(SubMenuItem root, int id) {
+    public Optional<MenuItem> getMenuById(int id) {
         MenuState state = menuStates.get(id);
         if(state != null) {
             return Optional.of(state.getItem());
         }
-        return getMenuItems(root).stream().filter(item -> item.getId() == id).findFirst();
+        return getAllMenuItems().stream().filter(item -> item.getId() == id).findFirst();
     }
 
     /**

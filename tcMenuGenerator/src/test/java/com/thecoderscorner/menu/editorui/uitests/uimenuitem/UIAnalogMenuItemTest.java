@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -42,7 +41,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringBadValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
-        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
+        MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -70,7 +69,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     void testEnteringValidValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
-        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
+        MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -108,7 +107,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     void testValidValuesNearLimits(FxRobot robot) throws InterruptedException {
-        MenuItem analogItem = menuTree.getMenuById(MenuTree.ROOT, 1).orElseThrow();
+        MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -151,6 +152,15 @@ public class MenuTreeTest {
     }
 
     @Test
+    public void testGetAllItems() {
+        menuTree.addMenuItem(MenuTree.ROOT, subMenu);
+        menuTree.addMenuItem(subMenu, item3);
+        menuTree.addMenuItem(MenuTree.ROOT, item1);
+        menuTree.addMenuItem(MenuTree.ROOT, item2);
+        assertThat(menuTree.getAllMenuItems(), containsInAnyOrder(MenuTree.ROOT, subMenu, item1, item2, item3));
+    }
+
+    @Test
     public void testAddOrUpdateMethod() {
         menuTree.addMenuItem(MenuTree.ROOT, item3);
         menuTree.addMenuItem(MenuTree.ROOT, item1);
@@ -158,7 +168,7 @@ public class MenuTreeTest {
         AnalogMenuItem item1Replacement = DomainFixtures.anAnalogItem("Replaced", 1);
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item1Replacement);
 
-        MenuItem item = menuTree.getMenuById(MenuTree.ROOT, 1).get();
+        MenuItem item = menuTree.getMenuById(1).get();
         assertEquals("Replaced", item.getName());
         assertEquals(1, item.getId());
         assertTrue(item instanceof AnalogMenuItem);
@@ -166,7 +176,7 @@ public class MenuTreeTest {
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item2);
 
         assertEquals(3, menuTree.getMenuItems(MenuTree.ROOT).size());
-        item = menuTree.getMenuById(MenuTree.ROOT, item3.getId()).get();
+        item = menuTree.getMenuById(item3.getId()).get();
         assertEquals(item, item3);
     }
 }

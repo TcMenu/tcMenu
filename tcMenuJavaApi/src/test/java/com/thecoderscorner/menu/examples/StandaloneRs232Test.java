@@ -12,13 +12,13 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newDeltaChangeCommand;
 import static java.lang.System.Logger.Level.INFO;
 
 public class StandaloneRs232Test {
@@ -102,16 +102,22 @@ public class StandaloneRs232Test {
 
             // how to get an item by its id, we look for ID 1 in the root menu, if it's there we log it and send
             // a delta change command.
-            Optional<MenuItem> maybeItem = menuTree.getMenuById(MenuTree.ROOT, 1);
+            Optional<MenuItem> maybeItem = menuTree.getMenuById(1);
             maybeItem.ifPresent( item -> {
                 logger.log(INFO, "Retrieved {0} by its ID {1}, change by 5", item.getName(), item.getId());
-                 controller.sendCommand(newDeltaChangeCommand(new CorrelationId(), item, +5));
+                CorrelationId id = controller.sendDeltaUpdate(item, +5);
+                logger.log(INFO, "Correlation id was " + id);
             });
         }
 
         @Override
         public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
             logger.log(INFO, "Connection information: " + remoteInformation + ". Connected: " + connected);
+        }
+
+        @Override
+        public void ackReceived(CorrelationId key, MenuItem item, AckStatus st) {
+            logger.log(INFO, "Ack -" + key + " item " + item + " status " + st);
         }
     }
 }

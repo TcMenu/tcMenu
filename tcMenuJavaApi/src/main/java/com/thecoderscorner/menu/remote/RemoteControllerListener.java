@@ -7,6 +7,8 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 /**
  * This interface is implemented when you wish to receive update events from a RemoteMenuController.
@@ -36,4 +38,6 @@ public interface RemoteControllerListener {
      * @param connected true if connected, otherwise false.
      */
     void connectionState(RemoteInformation remoteInformation, AuthStatus connected);
+
+    void ackReceived(CorrelationId key, MenuItem item, AckStatus status);
 }

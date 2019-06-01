@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.RemoteMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -43,7 +42,7 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
 
     @Test
     void testRemoteMenuItemEditing(FxRobot robot) throws InterruptedException {
-        MenuItem remoteItem = menuTree.getMenuById(MenuTree.ROOT, 7).get();
+        MenuItem remoteItem = menuTree.getMenuById(7).get();
         Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(remoteItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel
@@ -67,7 +66,7 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
 
     @Test
     void testFloatMenuItemEditing(FxRobot robot) throws InterruptedException {
-        MenuItem floatItem = menuTree.getMenuById(MenuTree.ROOT, 6).get();
+        MenuItem floatItem = menuTree.getMenuById(6).get();
         Optional<UIMenuItem> uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, mockedConsumer);
 
         // open the sub menu item editor panel

@@ -86,19 +86,19 @@ public class RemoteMenuControllerTest {
         populateTreeWithAllTypes();
 
         assertEquals(7, menuTree.getMenuItems(MenuTree.ROOT).size());
-        Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
+        Optional<MenuItem> menuById11 = menuTree.getMenuById(11);
         assertTrue(menuById11.isPresent());
-        Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
+        Optional<MenuItem> menuById12 = menuTree.getMenuById(12);
         assertTrue(menuById12.isPresent());
-        Optional<MenuItem> menuById42 = menuTree.getMenuById(MenuTree.ROOT, 42);
+        Optional<MenuItem> menuById42 = menuTree.getMenuById(42);
         assertTrue(menuById42.isPresent());
-        Optional<MenuItem> menuById43 = menuTree.getMenuById(MenuTree.ROOT, 43);
+        Optional<MenuItem> menuById43 = menuTree.getMenuById(43);
         assertTrue(menuById43.isPresent());
-        Optional<MenuItem> menuById239 = menuTree.getMenuById(MenuTree.ROOT, 239);
+        Optional<MenuItem> menuById239 = menuTree.getMenuById(239);
         assertTrue(menuById239.isPresent());
-        Optional<MenuItem> menuById233 = menuTree.getMenuById(MenuTree.ROOT, 233);
+        Optional<MenuItem> menuById233 = menuTree.getMenuById(233);
         assertTrue(menuById233.isPresent());
-        Optional<MenuItem> menuById9038 = menuTree.getMenuById(MenuTree.ROOT, 9038);
+        Optional<MenuItem> menuById9038 = menuTree.getMenuById(9038);
         assertTrue(menuById233.isPresent());
         assertEquals("Another", menuById11.get().getName());
         assertEquals("Test", menuById12.get().getName());
@@ -153,12 +153,12 @@ public class RemoteMenuControllerTest {
         listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 239, 1.2943));
         listener.getValue().onCommand(connector, newAbsoluteMenuChangeCommand(correlation, 233, "Connected"));
 
-        Optional<MenuItem> menuById11 = menuTree.getMenuById(MenuTree.ROOT, 11);
-        Optional<MenuItem> menuById12 = menuTree.getMenuById(MenuTree.ROOT, 12);
-        Optional<MenuItem> menuById42 = menuTree.getMenuById(MenuTree.ROOT, 42);
-        Optional<MenuItem> menuById43 = menuTree.getMenuById(MenuTree.ROOT, 43);
-        Optional<MenuItem> menuById239 = menuTree.getMenuById(MenuTree.ROOT, 239);
-        Optional<MenuItem> menuById233 = menuTree.getMenuById(MenuTree.ROOT, 233);
+        Optional<MenuItem> menuById11 = menuTree.getMenuById(11);
+        Optional<MenuItem> menuById12 = menuTree.getMenuById(12);
+        Optional<MenuItem> menuById42 = menuTree.getMenuById(42);
+        Optional<MenuItem> menuById43 = menuTree.getMenuById(43);
+        Optional<MenuItem> menuById239 = menuTree.getMenuById(239);
+        Optional<MenuItem> menuById233 = menuTree.getMenuById(233);
 
         assertTrue( menuById11.isPresent() && menuById12.isPresent() && menuById42.isPresent() && menuById43.isPresent());
 
@@ -174,6 +174,36 @@ public class RemoteMenuControllerTest {
         Mockito.verify(remoteListener).menuItemChanged(menuById42.get(), true);
         Mockito.verify(remoteListener).menuItemChanged(menuById43.get(), true);
 
+    }
+
+    @Test
+    public void testSendingUpdatesAndGettingAcksDelta() throws IOException {
+        populateTreeWithAllTypes();
+        MenuItem item = menuTree.getMenuById(11).orElseThrow();
+        CorrelationId idReturned = controller.sendDeltaUpdate(item, 2);
+        ArgumentCaptor<MenuChangeCommand> captor = ArgumentCaptor.forClass(MenuChangeCommand.class);
+        verify(connector).sendMenuCommand(captor.capture());
+        assertEquals(MenuCommandType.CHANGE_INT_FIELD, captor.getValue().getCommandType());
+        assertEquals(MenuChangeCommand.ChangeType.DELTA, captor.getValue().getChangeType());
+        CorrelationId id = captor.getValue().getCorrelationId();
+        assertEquals(id, idReturned);
+        listener.getValue().onCommand(connector, newAcknowledgementCommand(id, AckStatus.SUCCESS));
+        verify(remoteListener).ackReceived(id, item, AckStatus.SUCCESS);
+    }
+
+    @Test
+    public void testSendingUpdatesAndGettingAcksAbs() throws IOException {
+        populateTreeWithAllTypes();
+        MenuItem item = menuTree.getMenuById(12).orElseThrow();
+        CorrelationId idReturned = controller.sendAbsoluteUpdate(item, 0);
+        ArgumentCaptor<MenuChangeCommand> captor = ArgumentCaptor.forClass(MenuChangeCommand.class);
+        verify(connector).sendMenuCommand(captor.capture());
+        CorrelationId id = captor.getValue().getCorrelationId();
+        assertEquals(MenuCommandType.CHANGE_INT_FIELD, captor.getValue().getCommandType());
+        assertEquals(MenuChangeCommand.ChangeType.ABSOLUTE, captor.getValue().getChangeType());
+        assertEquals(id, idReturned);
+        listener.getValue().onCommand(connector, newAcknowledgementCommand(id, AckStatus.SUCCESS));
+        verify(remoteListener).ackReceived(id, item, AckStatus.SUCCESS);
     }
 
     @Test

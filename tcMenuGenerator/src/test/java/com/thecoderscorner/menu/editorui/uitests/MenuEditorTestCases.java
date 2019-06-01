@@ -191,7 +191,7 @@ public class MenuEditorTestCases {
 
         // now we get hold of the sub menu and the items in the submenu
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
-        MenuItem childItem = project.getMenuTree().getMenuById(subItem, 2).get();
+        MenuItem childItem = project.getMenuTree().getMenuById(2).get();
         TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
 
         // change selection in the tree to the submenu and press the add item button
@@ -328,15 +328,15 @@ public class MenuEditorTestCases {
         verifyThat("#menuTreeCopy", Node::isDisabled);
 
         // now select the first sub item of the sub menu, which can be copied
-        MenuItem itemToCopy = project.getMenuTree().getMenuById(subItem, 2).get();
+        MenuItem itemToCopy = project.getMenuTree().getMenuById(2).get();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), itemToCopy));
 
         // make sure there isn't an ID of 101 already in the tree and then copy it.
-        assertFalse(project.getMenuTree().getMenuById(subItem, 101).isPresent());
+        assertFalse(project.getMenuTree().getMenuById(101).isPresent());
         robot.clickOn("#menuTreeCopy");
 
         // now check that the new duplicate is created.
-        Optional<MenuItem> maybeItem = project.getMenuTree().getMenuById(subItem, 101);
+        Optional<MenuItem> maybeItem = project.getMenuTree().getMenuById(101);
         assertTrue(maybeItem.isPresent());
         assertThat(itemToCopy).isExactlyInstanceOf(maybeItem.get().getClass());
 
@@ -352,12 +352,12 @@ public class MenuEditorTestCases {
 
         // select item 1, in the ROOT menu
         TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
-        MenuItem item = project.getMenuTree().getMenuById(MenuTree.ROOT, 1).get();
+        MenuItem item = project.getMenuTree().getMenuById(1).get();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), item));
 
         MenuItem addedItem = addItemToTheTreeUsingPlusButton(robot);
         checkTheTreeMatchesMenuTree(robot, addedItem);
-        assertTrue(project.getMenuTree().getMenuById(MenuTree.ROOT, addedItem.getId()).isPresent());
+        assertTrue(project.getMenuTree().getMenuById(addedItem.getId()).isPresent());
     }
 
     @SuppressWarnings("unchecked")
@@ -395,7 +395,7 @@ public class MenuEditorTestCases {
         captor.getValue().accept(subItem, adjustedItem);
 
         // check it's been processed
-        MenuItem readBackAdjusted = project.getMenuTree().getMenuById(MenuTree.ROOT, 100).get();
+        MenuItem readBackAdjusted = project.getMenuTree().getMenuById(100).get();
         assertEquals(readBackAdjusted, adjustedItem);
         assertEquals("AdjustedName", readBackAdjusted.getName());
 

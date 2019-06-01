@@ -9,7 +9,11 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
+
+import java.util.Optional;
 
 public abstract class ManagedMenuItem<T, I extends MenuItem> {
     private static final int TICKS_HIGHLIGHT_ON_CHANGE = 10; // about 1 second of update notification.
@@ -17,6 +21,7 @@ public abstract class ManagedMenuItem<T, I extends MenuItem> {
     protected final I item;
     protected boolean animating;
     protected int ticks;
+    protected Optional<CorrelationId> waitingFor = Optional.empty();
 
     public ManagedMenuItem(I item) {
         this.item = item;
@@ -32,6 +37,7 @@ public abstract class ManagedMenuItem<T, I extends MenuItem> {
     public abstract Node createNodes(RemoteMenuController controller);
     public abstract void internalChangeItem(MenuState<T> change);
     public abstract void internalTick();
+    protected abstract void internalCorrelationUpdate(AckStatus status);
 
     public synchronized void itemChanged(MenuState<T> change) {
         animating = true;
@@ -45,4 +51,14 @@ public abstract class ManagedMenuItem<T, I extends MenuItem> {
 
         internalTick();
     }
+
+    public void correltationReceived(CorrelationId key, AckStatus status) {
+        waitingFor.ifPresent(correlationId -> {
+            if(key.equals(correlationId)) {
+                waitingFor = Optional.empty();
+                internalCorrelationUpdate(status);
+            }
+        });
+    }
+
 }

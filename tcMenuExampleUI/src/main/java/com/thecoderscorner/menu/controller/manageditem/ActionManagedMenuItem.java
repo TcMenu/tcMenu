@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
@@ -41,5 +42,10 @@ public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuIt
     @Override
     public void internalTick() {
         // do nothing.
+    }
+
+    @Override
+    protected void internalCorrelationUpdate(AckStatus status) {
+        // TODO ignored for now, work out a reasonable way to indicate.
     }
 }

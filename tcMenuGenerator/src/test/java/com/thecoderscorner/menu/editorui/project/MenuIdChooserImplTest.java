@@ -60,17 +60,17 @@ public class MenuIdChooserImplTest {
     public void testSortingIdAndEeprom() {
         SubMenuItem sub = tree.getSubMenuById(100).orElseThrow(RuntimeException::new);
         assertThat(chooser.getItemsSortedById()).containsExactly(
-                tree.getMenuById(MenuTree.ROOT, 1).orElse(null),
-                tree.getMenuById(sub, 2).orElse(null),
-                tree.getMenuById(MenuTree.ROOT, 20).orElse(null),
+                tree.getMenuById(1).orElse(null),
+                tree.getMenuById(2).orElse(null),
+                tree.getMenuById(20).orElse(null),
                 sub
         );
 
         assertThat(chooser.getItemsSortedByEeprom()).containsExactly(
                 sub,
-                tree.getMenuById(MenuTree.ROOT, 1).orElse(null),
-                tree.getMenuById(sub, 2).orElse(null),
-                tree.getMenuById(MenuTree.ROOT, 20).orElse(null)
+                tree.getMenuById(1).orElse(null),
+                tree.getMenuById(2).orElse(null),
+                tree.getMenuById(20).orElse(null)
         );
     }
 }

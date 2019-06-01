@@ -9,10 +9,11 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.TextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.commands.CommandFactory;
-import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
+
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
@@ -30,7 +31,7 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
         text.setOnAction(e-> {
             var t = text.getText();
             var val = t.substring(0, Math.min(item.getTextLength(), t.length()));
-            controller.sendCommand(CommandFactory.newAbsoluteMenuChangeCommand(new CorrelationId(), item, val));
+            waitingFor = Optional.of(controller.sendAbsoluteUpdate(item, val));
         });
         return text;
     }
@@ -51,6 +52,15 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
         else {
             text.getStyleClass().remove("updated");
         }
+    }
 
+    @Override
+    protected void internalCorrelationUpdate(AckStatus status) {
+        if(status.isError()) {
+            text.getStyleClass().add("ackError");
+        }
+        else {
+            text.getStyleClass().remove("ackError");
+        }
     }
 }
