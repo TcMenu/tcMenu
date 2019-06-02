@@ -39,7 +39,7 @@ U8g2MenuRenderer::~U8g2MenuRenderer() {
 
 void U8g2MenuRenderer::renderTitleArea() {
 	if(currentRoot == menuMgr.getRoot()) {
-		safeProgCpy(buffer, applicationName, bufferSize);
+		safeProgCpy(buffer, applicationInfo.name, bufferSize);
 	}
 	else {
 		currentRoot->copyNameToBuffer(buffer, bufferSize);
@@ -101,6 +101,10 @@ void U8g2MenuRenderer::render() {
         u8g2->setFont(gfxConfig->itemFont);
         u8g2->setFontPosBottom();
         itemHeight = u8g2->getMaxCharHeight();
+
+        // clear screen first in complete draw mode
+        u8g2->setColorIndex(gfxConfig->bgItemColor);
+        u8g2->drawBox(0,0,u8g2->getDisplayWidth(), u8g2->getDisplayHeight());
 
        	itemHeight = itemHeight + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
         serdebugF2("Redraw all, new item height ", itemHeight);
@@ -234,4 +238,84 @@ void prepareBasicU8x8Config(U8g2GfxMenuConfig& config) {
     config.activeIcon = loResActiveIcon;
     config.editIconHeight = 6;
     config.editIconWidth = 8;
+}
+
+BaseDialog* U8g2MenuRenderer::getDialog() {
+    if(dialog == NULL) {
+        dialog = new U8g2Dialog(this);
+    }
+    return dialog;
+}
+
+void U8g2Dialog::internalRender(int currentValue) {
+    U8g2MenuRenderer* adaRenderer = reinterpret_cast<U8g2MenuRenderer*>(renderer);
+    U8g2GfxMenuConfig* gfxConfig = adaRenderer->getGfxConfig();
+    U8G2* graphics = adaRenderer->getGraphics();
+
+    if(needsDrawing == MENUDRAW_COMPLETE_REDRAW) {
+        // clear screen first in complete draw mode
+        graphics->setColorIndex(gfxConfig->bgItemColor);
+        graphics->drawBox(0,0,graphics->getDisplayWidth(), graphics->getDisplayHeight());
+    }
+
+    graphics->setFont(gfxConfig->itemFont);
+
+    char data[20];
+    safeProgCpy(data, headerPgm, sizeof(data));
+
+	int fontYStart = gfxConfig->itemPadding.top;
+  	int extentY = graphics->getMaxCharHeight();
+	int dlgNextDraw = extentY + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
+	if (gfxConfig->itemFont) {
+	 	fontYStart = dlgNextDraw - (gfxConfig->titlePadding.bottom);
+	}
+
+    graphics->setColorIndex(gfxConfig->bgTitleColor);
+	graphics->drawBox(0, 0, graphics->getDisplayWidth(), dlgNextDraw);
+	graphics->setColorIndex(gfxConfig->fgTitleColor);
+	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
+	graphics->print(data);
+
+	dlgNextDraw += gfxConfig->titleBottomMargin;
+
+    int startingPosition = dlgNextDraw;
+    fontYStart = dlgNextDraw + gfxConfig->itemPadding.top;
+	dlgNextDraw = dlgNextDraw + extentY + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
+	if (gfxConfig->itemFont) {
+	 	fontYStart = dlgNextDraw - (gfxConfig->titlePadding.bottom);
+	}
+    graphics->setColorIndex(gfxConfig->bgItemColor);
+    graphics->drawBox(0, startingPosition, graphics->getDisplayWidth(), dlgNextDraw);
+	graphics->setColorIndex(gfxConfig->fgItemColor);
+	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
+
+	graphics->print(renderer->getBuffer());
+    
+    bool active;
+    if(button1 != BTNTYPE_NONE) {
+        active = copyButtonText(data, 0, currentValue);
+        drawButton(graphics, gfxConfig, data, 0, active);
+    }
+    if(button2 != BTNTYPE_NONE) {
+        active = copyButtonText(data, 1, currentValue);
+        drawButton(graphics, gfxConfig, data, 1, active);
+    }
+    graphics->sendBuffer();
+}
+
+void U8g2Dialog::drawButton(U8G2* gfx, U8g2GfxMenuConfig* config, const char* title, uint8_t num, bool active) {
+	int extentY = gfx->getMaxCharHeight();
+    int itemHeight = ( extentY + config->itemPadding.top + config->itemPadding.bottom);
+    int start = gfx->getDisplayHeight() - itemHeight;
+    int fontYStart = start + config->itemPadding.top;
+	if (config->itemFont) {
+        fontYStart += extentY;
+	}
+    int buttonWidth = gfx->getDisplayWidth() / 2;
+    int xOffset = (num == 0) ? 0 : buttonWidth;
+    gfx->setColorIndex(active ? config->bgSelectColor : config->bgItemColor);
+    gfx->drawBox(xOffset, start, buttonWidth, itemHeight);
+	gfx->setColorIndex(active ? config->fgSelectColor : config->fgItemColor);
+    gfx->setCursor(xOffset + ((buttonWidth - gfx->getStrWidth(title)) / 2), fontYStart);
+    gfx->print(title);
 }

@@ -25,6 +25,7 @@
 #include <Adafruit_ILI9341.h>
 #include <gfxfont.h>
 #include <GfxMenuConfig.h>
+#include <BaseDialog.h>
 
 #define DISPLAY_HAS_MEMBUFFER false
 
@@ -41,7 +42,7 @@
 extern const unsigned char PROGMEM loResEditingIcon[];
 extern const unsigned char PROGMEM loResActiveIcon[];
 
-extern const char applicationName[];
+extern const ConnectorLocalInfo applicationInfo;
 
 /**
  * A standard menu render configuration that describes how to renderer each item and the title.
@@ -76,11 +77,24 @@ public:
 
 	virtual ~AdaFruitGfxMenuRenderer();
 	virtual void render();
+    Adafruit_GFX* getGraphics() { return graphics; }
+    AdaColorGfxMenuConfig* getGfxConfig() { return gfxConfig; }
+    BaseDialog* getDialog() override;
+
 private:
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
 	void renderTitleArea();
 	bool renderWidgets(bool forceDraw);
-	Coord textExtents(const char* text, int16_t x, int16_t y);
+};
+
+class AdaGfxDialog : public BaseDialog {
+public:
+    AdaGfxDialog(AdaFruitGfxMenuRenderer* renderer) : BaseDialog(renderer) { 
+        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (renderer->getGraphics()->width() < 100));
+    }
+protected:
+    void internalRender(int currentValue) override;
+    void drawButton(Adafruit_GFX* gfx, AdaColorGfxMenuConfig* config, const char* title, uint8_t num, bool active);
 };
 
 /**

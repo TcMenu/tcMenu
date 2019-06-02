@@ -1,6 +1,7 @@
 #include <U8g2lib.h>
 #include <Wire.h>
 #include <IoAbstraction.h>
+#include <BaseDialog.h>
 #include "tcm_test/testFixtures.h"
 
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 15, 4, 16);
@@ -34,15 +35,16 @@ const uint8_t iconConnected[] PROGMEM = {
 	0b01111111, 0b11111110,
 };
 
+const ConnectorLocalInfo applicationInfo PROGMEM = {"Graphics Test", "b3371783-d35a-4fcd-9189-64192117e0c1"};
+
 const uint8_t* iconsConnection[] PROGMEM = { iconConnectionNone, iconConnected };
 TitleWidget connectedWidget(iconsConnection, 2, 16, 10);
 
-const char applicationName[] = "Graphics Test";
+const char headerPgm[] PROGMEM = "Really test this?";
 
 void setup() {
 	Serial.begin(115200);
 	Serial.print("Testing u8g2 driver");
-	Serial.println(applicationName);
 
     u8g2.begin();
 
@@ -55,6 +57,13 @@ void setup() {
 	menuMgr.initWithoutInput(&renderer, &menuVolume);
 	menuVolume.setActive(true);
 	renderer.setFirstWidget(&connectedWidget);
+
+    BaseDialog* dlg = renderer.getDialog();
+    if(dlg) {
+        dlg->setButtons(BTNTYPE_ACCEPT, BTNTYPE_CANCEL, 1);
+        dlg->show(headerPgm, true);
+        dlg->copyIntoBuffer("Some extra text..");
+    }
 
 	taskManager.scheduleFixedRate(5, [] {
 		renderer.onSelectPressed(&menuVolume);

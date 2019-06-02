@@ -24,6 +24,15 @@ int drawingCount = 0;
     #define refreshDisplayIfNeeded(g, n)
 #endif
 
+Coord textExtents(Adafruit_GFX* graphics, const char* text, int16_t x, int16_t y) {
+	int16_t x1, y1;
+	uint16_t w, h;
+	graphics->getTextBounds((char*)text, x, y, &x1, &y1, &w, &h);
+
+    serdebugF4("Textbounds (y1, w, h): ", y1, w, h);
+	return Coord(w, h);
+}
+
 void AdaFruitGfxMenuRenderer::setGraphicsDevice(Adafruit_GFX* graphics, AdaColorGfxMenuConfig *gfxConfig) {
 
 	if (gfxConfig->editIcon == NULL || gfxConfig->activeIcon == NULL) {
@@ -40,18 +49,9 @@ void AdaFruitGfxMenuRenderer::setGraphicsDevice(Adafruit_GFX* graphics, AdaColor
 AdaFruitGfxMenuRenderer::~AdaFruitGfxMenuRenderer() {
 }
 
-Coord AdaFruitGfxMenuRenderer::textExtents(const char* text, int16_t x, int16_t y) {
-	int16_t x1, y1;
-	uint16_t w, h;
-	graphics->getTextBounds((char*)text, x, y, &x1, &y1, &w, &h);
-
-    serdebugF4("Textbounds (y1, w, h): ", y1, w, h);
-	return Coord(w, h);
-}
-
 void AdaFruitGfxMenuRenderer::renderTitleArea() {
 	if(currentRoot == menuMgr.getRoot()) {
-		safeProgCpy(buffer, applicationInfo->name, bufferSize);
+		safeProgCpy(buffer, applicationInfo.name, bufferSize);
 	}
 	else {
 		currentRoot->copyNameToBuffer(buffer, bufferSize);
@@ -63,7 +63,7 @@ void AdaFruitGfxMenuRenderer::renderTitleArea() {
 	graphics->setTextSize(gfxConfig->titleFontMagnification);
 
 	int fontYStart = gfxConfig->titlePadding.top;
-	Coord extents = textExtents(buffer, 0, gfxConfig->titleFont ? graphics->height() : 0);
+	Coord extents = textExtents(graphics, buffer, 0, gfxConfig->titleFont ? graphics->height() : 0);
 	titleHeight = extents.y + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
 	if (gfxConfig->titleFont) {
 	 	fontYStart = titleHeight - (gfxConfig->titlePadding.bottom);
@@ -114,7 +114,7 @@ void AdaFruitGfxMenuRenderer::render() {
         graphics->setFont(gfxConfig->itemFont);
         graphics->setTextSize(gfxConfig->itemFontMagnification);
         int yLocation = gfxConfig->itemFont ? graphics->height() : 0;
-        Coord itemExtents = textExtents("Aaygj", gfxConfig->itemPadding.left, yLocation);
+        Coord itemExtents = textExtents(graphics, "Aaygj", gfxConfig->itemPadding.left, yLocation);
 
        	itemHeight = itemExtents.y + gfxConfig->itemPadding.top + gfxConfig->itemPadding.bottom;
         serdebugF2("Redraw all, new item height ", itemHeight);
@@ -211,7 +211,7 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 	graphics->print(buffer);
 
 	menuValueToText(item, JUSTIFY_TEXT_LEFT);
-	Coord coord = textExtents(buffer, textPos, yPos);
+	Coord coord = textExtents(graphics, buffer, textPos, yPos);
 	int16_t right = graphics->width() - (coord.x + gfxConfig->itemPadding.right);
 	graphics->setCursor(right, drawingPositionY);
  	graphics->print(buffer);
@@ -248,3 +248,80 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
     config->editIconHeight = 6;
     config->editIconWidth = 8;
 }
+
+BaseDialog* AdaFruitGfxMenuRenderer::getDialog() {
+    if(dialog == NULL) {
+        dialog = new AdaGfxDialog(this);
+    }
+    return dialog;
+}
+
+void AdaGfxDialog::internalRender(int currentValue) {
+    AdaFruitGfxMenuRenderer* adaRenderer = reinterpret_cast<AdaFruitGfxMenuRenderer*>(renderer);
+    AdaColorGfxMenuConfig* gfxConfig = adaRenderer->getGfxConfig();
+    Adafruit_GFX* graphics = adaRenderer->getGraphics();
+
+    if(needsDrawing == MENUDRAW_COMPLETE_REDRAW) {
+        graphics->fillScreen(gfxConfig->bgItemColor);
+    }
+
+    graphics->setFont(gfxConfig->itemFont);
+	graphics->setTextSize(gfxConfig->itemFontMagnification);
+
+    char data[20];
+    safeProgCpy(data, headerPgm, sizeof(data));
+
+	int fontYStart = gfxConfig->itemPadding.top;
+	Coord extents = textExtents(graphics, data, 0, gfxConfig->itemFont ? graphics->height() : 0);
+	int dlgNextDraw = extents.y + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
+	if (gfxConfig->itemFont) {
+	 	fontYStart = dlgNextDraw - (gfxConfig->titlePadding.bottom);
+	}
+
+	graphics->fillRect(0, 0, graphics->width(), dlgNextDraw, gfxConfig->bgTitleColor);
+	graphics->setTextColor(gfxConfig->fgTitleColor);
+	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
+	graphics->print(data);
+
+	dlgNextDraw += gfxConfig->titleBottomMargin;
+
+    int startingPosition = dlgNextDraw;
+    fontYStart = dlgNextDraw + gfxConfig->itemPadding.top;
+	dlgNextDraw = dlgNextDraw + extents.y + gfxConfig->titlePadding.top + gfxConfig->titlePadding.bottom;
+	if (gfxConfig->itemFont) {
+	 	fontYStart = dlgNextDraw - (gfxConfig->titlePadding.bottom);
+	}
+    graphics->fillRect(0, startingPosition, graphics->width(), dlgNextDraw, gfxConfig->bgItemColor);
+	graphics->setTextColor(gfxConfig->fgItemColor);
+	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
+
+	graphics->print(renderer->getBuffer());
+    
+    bool active;
+    if(button1 != BTNTYPE_NONE) {
+        active = copyButtonText(data, 0, currentValue);
+        drawButton(graphics, gfxConfig, data, 0, active);
+    }
+    if(button2 != BTNTYPE_NONE) {
+        active = copyButtonText(data, 1, currentValue);
+        drawButton(graphics, gfxConfig, data, 1, active);
+    }
+
+    refreshDisplayIfNeeded(graphics, true);
+}
+void AdaGfxDialog::drawButton(Adafruit_GFX* gfx, AdaColorGfxMenuConfig* config, const char* title, uint8_t num, bool active) {
+	Coord extents = textExtents(gfx, title, 0, config->itemFont ? gfx->height() : 0);
+    int itemHeight = ( extents.y + config->itemPadding.top + config->itemPadding.bottom);
+    int start = gfx->height() - itemHeight;
+    int fontYStart = start + config->itemPadding.top;
+	if (config->itemFont) {
+        fontYStart += extents.y;
+	}
+    int buttonWidth = gfx->width() / 2;
+    int xOffset = (num == 0) ? 0 : buttonWidth;
+    gfx->fillRect(xOffset, start, buttonWidth, itemHeight, active ? config->bgSelectColor : config->bgItemColor);
+	gfx->setTextColor(active ? config->fgSelectColor : config->fgItemColor);
+    gfx->setCursor(xOffset + ((buttonWidth - extents.x) / 2), fontYStart);
+    gfx->print(title);
+}
+

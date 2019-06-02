@@ -3,17 +3,20 @@
 
 #include <tcMenu.h>
 #include <Adafruit_ILI9341.h>
+//#include <Adafruit_PCD8544.h>
 #include <Fonts/FreeSans18pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
 #include "tcMenuAdaFruitGfx.h"
+#include <tcUtil.h>
 
 #include "tcm_test/testFixtures.h"
 
 Adafruit_ILI9341 gfx(6, 7);
+//Adafruit_PCD8544 gfx = Adafruit_PCD8544(35, 34, 38, 37, 36);
 AdaColorGfxMenuConfig config;
 
 AdaFruitGfxMenuRenderer renderer;
-const char applicationName[] = "Graphics Test";
+const ConnectorLocalInfo applicationInfo PROGMEM = {"Graphics Test", "b3371783-d35a-4fcd-9189-64192117e0c1"};
 
 const uint8_t iconWifiNotConnected[] PROGMEM = {
 	0b00000001, 0b10000000,
@@ -106,8 +109,8 @@ const uint8_t iconConnected[] PROGMEM = {
 	0b01111111, 0b11111110,
 };
 
-const uint8_t* iconsWifi[] PROGMEM = { iconWifiNotConnected, iconWifiOneBar, iconWifiTwoBar, iconWifiThreeBar, iconWifiFourBar };
-const uint8_t* iconsConnection[] PROGMEM = { iconConnectionNone, iconConnected };
+const uint8_t* const iconsWifi[]  PROGMEM = { iconWifiNotConnected, iconWifiOneBar, iconWifiTwoBar, iconWifiThreeBar, iconWifiFourBar };
+const uint8_t* const iconsConnection[] PROGMEM = { iconConnectionNone, iconConnected };
 
 TitleWidget connectedWidget(iconsConnection, 2, 16, 10);
 TitleWidget wifiWidget(iconsWifi, 5, 16, 10, &connectedWidget);
@@ -137,25 +140,40 @@ void prepareGfxConfig() {
 	config.editIcon = NULL;
 }
 
+const char myHeaderPgm[] PROGMEM = "Really test menu";
 
 void setup() {
 	while (!Serial);
 	Serial.begin(115200);
 	Serial.print("Testing adafruit driver");
-	Serial.println(applicationName);
-
 
 	gfx.begin();
 	gfx.setRotation(3);
+    //gfx.setContrast(50);
+	//gfx.clearDisplay();
+    //gfx.display();
 
 	// either one as needed for testing..
 	//prepareAdaColorDefaultGfxConfig(&config);
 	prepareGfxConfig();
+    //prepareAdaMonoGfxConfigLoRes(&config);
+
 	renderer.setGraphicsDevice(&gfx, &config);
 	menuMgr.initWithoutInput(&renderer, &menuVolume);
 
 	menuVolume.setActive(true);
 	renderer.setFirstWidget(&wifiWidget);
+
+    BaseDialog* dlg = renderer.getDialog();
+    if(dlg != NULL) {
+        serdebugF("Show dialog");
+        dlg->setButtons(BTNTYPE_ACCEPT, BTNTYPE_CANCEL);
+        Serial.println("Buttons set");
+        dlg->show(myHeaderPgm, true);
+        Serial.println("Show done");
+        dlg->copyIntoBuffer("Testing proceeding");
+        Serial.println("Show dialog complete");
+    }
 
 	taskManager.scheduleFixedRate(5, [] {
 	 	renderer.onSelectPressed(&menuVolume);

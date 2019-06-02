@@ -17,13 +17,15 @@
 #ifndef _TCMENU_U8G2_H_
 #define _TCMENU_U8G2_H_
 
-extern const char applicationName[];
-
 #include <tcMenu.h>
 #include <tcUtil.h>
 #include <BaseRenderers.h>
 #include <U8g2lib.h>
 #include <GfxMenuConfig.h>
+#include <BaseDialog.h>
+#include <tcUtil.h>
+
+extern const ConnectorLocalInfo applicationInfo;
 
 /**
  * A standard menu render configuration that describes how to renderer each item and the title.
@@ -68,10 +70,24 @@ public:
 
 	virtual ~U8g2MenuRenderer();
 	virtual void render();
+
+    U8G2* getGraphics() { return u8g2; }
+    U8g2GfxMenuConfig* getGfxConfig() { return gfxConfig; }
+    BaseDialog* getDialog() override;
 private:
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
 	void renderTitleArea();
 	bool renderWidgets(bool forceDraw);
+};
+
+class U8g2Dialog : public BaseDialog {
+public:
+    U8g2Dialog(U8g2MenuRenderer* renderer) : BaseDialog(renderer) { 
+        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (renderer->getGraphics()->getDisplayWidth() < 100));
+    }
+protected:
+    void internalRender(int currentValue) override;
+    void drawButton(U8G2* gfx, U8g2GfxMenuConfig* config, const char* title, uint8_t num, bool active);
 };
 
 /**
