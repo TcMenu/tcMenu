@@ -82,8 +82,9 @@ private:
 
 class U8g2Dialog : public BaseDialog {
 public:
-    U8g2Dialog(U8g2MenuRenderer* renderer) : BaseDialog(renderer) { 
-        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (renderer->getGraphics()->getDisplayWidth() < 100));
+    U8g2Dialog() {
+        U8g2MenuRenderer* r = reinterpret_cast<U8g2MenuRenderer*>(MenuRenderer::getInstance());
+        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (r->getGraphics()->getDisplayWidth() < 100));
     }
 protected:
     void internalRender(int currentValue) override;

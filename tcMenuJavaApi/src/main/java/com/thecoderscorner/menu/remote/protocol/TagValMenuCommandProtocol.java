@@ -30,6 +30,7 @@ import static java.lang.System.Logger.Level.DEBUG;
  */
 public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private static final byte PROTOCOL_TAG_VAL = 1;
+    private static final boolean DEBUG_ALL_MESSAGES = false;
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Map<String, MenuCommandType> codeToCmdType;
@@ -44,7 +45,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     @Override
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
         TagValTextParser parser = new TagValTextParser(buffer);
-        logger.log(DEBUG, "Protocol convert in: {0}", parser);
+        if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert in: {0}", parser);
         String ty = parser.getValue(KEY_MSG_TYPE);
         MenuCommandType cmdType = codeToCmdType.get(ty);
         if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
@@ -354,7 +355,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         sb.append('~');
 
         String msgStr = sb.toString();
-        logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
+        if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
         buffer.put(msgStr.getBytes());
     }
 

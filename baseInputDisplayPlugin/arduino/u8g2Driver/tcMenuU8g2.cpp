@@ -248,7 +248,7 @@ BaseDialog* U8g2MenuRenderer::getDialog() {
 }
 
 void U8g2Dialog::internalRender(int currentValue) {
-    U8g2MenuRenderer* adaRenderer = reinterpret_cast<U8g2MenuRenderer*>(renderer);
+    U8g2MenuRenderer* adaRenderer = reinterpret_cast<U8g2MenuRenderer*>(MenuRenderer::getInstance());
     U8g2GfxMenuConfig* gfxConfig = adaRenderer->getGfxConfig();
     U8G2* graphics = adaRenderer->getGraphics();
 
@@ -289,7 +289,7 @@ void U8g2Dialog::internalRender(int currentValue) {
 	graphics->setColorIndex(gfxConfig->fgItemColor);
 	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
 
-	graphics->print(renderer->getBuffer());
+	graphics->print(MenuRenderer::getInstance()->getBuffer());
     
     bool active;
     if(button1 != BTNTYPE_NONE) {

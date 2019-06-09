@@ -89,8 +89,9 @@ private:
 
 class AdaGfxDialog : public BaseDialog {
 public:
-    AdaGfxDialog(AdaFruitGfxMenuRenderer* renderer) : BaseDialog(renderer) { 
-        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (renderer->getGraphics()->width() < 100));
+    AdaGfxDialog() {
+        AdaFruitGfxMenuRenderer* r = reinterpret_cast<AdaFruitGfxMenuRenderer*>(MenuRenderer::getInstance());
+        bitWrite(flags, DLG_FLAG_SMALLDISPLAY, (r->getGraphics()->width() < 100));
     }
 protected:
     void internalRender(int currentValue) override;

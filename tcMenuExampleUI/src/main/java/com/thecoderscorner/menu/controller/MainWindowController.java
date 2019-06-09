@@ -179,7 +179,8 @@ public class MainWindowController {
                             mainBorderPane.setTop(new Label("Item Update failed: correlation " + key + " item " + item));
                         }
                     } else if (status.isError()) {
-                        mainBorderPane.setTop(new Label("Update failed: correlation " + key));
+                        // where there's no item, it's generally a failed login or dialog
+                        mainBorderPane.setTop(new Label("Operation failed: correlation " + key));
                     }
                 });
             }
@@ -332,7 +333,7 @@ public class MainWindowController {
             statusLabel.setText(connectionState + " to " + remote.getName() + " (" +  remote.getMajorVersion() + "."
                     + remote.getMinorVersion() + "), platform: " + remote.getPlatform().getDescription() + bootState);
 
-            stage.setTitle(connectionState + " to " + remote.getName());
+            stage.setTitle((bootstrapComplete.get() ?  "Connected to " : "Waiting for ") + remote.getName());
 
         }
         else {

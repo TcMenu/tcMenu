@@ -42,9 +42,6 @@ public class AnalogJoystickInputCreator extends AbstractCodeCreator {
                 .paramFromPropertyWithDefault("SWITCH_IODEVICE", "ioUsingArduino()")
                 .paramFromPropertyWithDefault("PULLUP_LOGIC", "true"));
 
-        addFunctionCall(new FunctionCallBuilder().objectName("menuMgr").functionName("initWithoutInput")
-                .paramRef("renderer").paramMenuRoot());
-
         var buttonPressLambda = new LambdaCodeParameter()
                 .addParameter(new CodeParameter("key", "uint8_t", false))
                 .addParameter(new CodeParameter("held", "bool", true))
@@ -65,6 +62,10 @@ public class AnalogJoystickInputCreator extends AbstractCodeCreator {
         addFunctionCall(new FunctionCallBuilder().functionName("setupAnalogJoystickEncoder")
                 .paramRef("analogDevice").paramFromPropertyWithDefault("JOYSTICK_PIN", "A0")
                 .lambdaParam(analogReadingLambda));
+
+        // this must be last to avoid ordering issues.
+        addFunctionCall(new FunctionCallBuilder().objectName("menuMgr").functionName("initWithoutInput")
+                .paramRef("renderer").paramMenuRoot());
     }
 
     @Override

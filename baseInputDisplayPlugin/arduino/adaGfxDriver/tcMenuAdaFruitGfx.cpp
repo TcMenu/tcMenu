@@ -251,13 +251,13 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
 
 BaseDialog* AdaFruitGfxMenuRenderer::getDialog() {
     if(dialog == NULL) {
-        dialog = new AdaGfxDialog(this);
+        dialog = new AdaGfxDialog();
     }
     return dialog;
 }
 
 void AdaGfxDialog::internalRender(int currentValue) {
-    AdaFruitGfxMenuRenderer* adaRenderer = reinterpret_cast<AdaFruitGfxMenuRenderer*>(renderer);
+    AdaFruitGfxMenuRenderer* adaRenderer = reinterpret_cast<AdaFruitGfxMenuRenderer*>(MenuRenderer::getInstance());
     AdaColorGfxMenuConfig* gfxConfig = adaRenderer->getGfxConfig();
     Adafruit_GFX* graphics = adaRenderer->getGraphics();
 
@@ -295,7 +295,7 @@ void AdaGfxDialog::internalRender(int currentValue) {
 	graphics->setTextColor(gfxConfig->fgItemColor);
 	graphics->setCursor(gfxConfig->titlePadding.left, fontYStart);
 
-	graphics->print(renderer->getBuffer());
+	graphics->print(MenuRenderer::getInstance()->getBuffer());
     
     bool active;
     if(button1 != BTNTYPE_NONE) {

@@ -18,6 +18,7 @@
 #include <RemoteConnector.h>
 #include <MessageProcessors.h>
 #include <tcUtil.h>
+#include <RemoteAuthentication.h>
 
 /**
  * Serial transport is an implementation of TagValueTransport that works over a serial port
@@ -55,6 +56,18 @@ private:
 public:
 	/** Empty constructor - configured in begin */
 	SerialTagValServer();
+
+    /**
+     * Sets the mode of authentication used with your remote, if you don't call this the system will
+     * default to no authentication; which is probably fine for serial / bluetooth serial.
+     *
+     * This should always be called before begin(), to ensure this in your code always ensure this
+     * is called BEFORE setupMenu().
+     *
+     * @param authManager a reference to an authentication manager.
+     */
+    void setAuthenticator(AuthenticationManager* authManager) { connector.setAuthManager(authManager); }
+
 	/**
 	 * Begins serial communication on the given port. You must call begin on the stream first.
 	 * @param portStream the stream upon which to communicate, it must be already opened.

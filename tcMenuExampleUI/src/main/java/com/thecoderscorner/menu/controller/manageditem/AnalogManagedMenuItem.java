@@ -29,7 +29,6 @@ public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenu
         else {
             // so we can display as decimal, work out the nearest highest unit for 2dp, 3dp and 4dp.
             int fractMax = (divisor > 1000) ? 10000 : (divisor > 100) ? 1000 : (divisor > 10) ? 100 : 10;
-            int dpNeeded = (divisor > 1000) ? 4 : (divisor > 100) ? 3 : (divisor > 10) ? 2 : 1;
 
             // when divisor is greater than 10 we need to deal with both parts using itoa
             int whole = value / divisor;
@@ -37,9 +36,7 @@ public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenu
 
             NumberFormat format = NumberFormat.getInstance();
             format.setGroupingUsed(false);
-            format.setMinimumFractionDigits(dpNeeded);
-            format.setMaximumFractionDigits(dpNeeded);
-            str = whole + "." + format.format(fraction) + item.getUnitName();
+            str = whole + "." + fraction + item.getUnitName();
         }
         itemLabel.setText(str);
     }
