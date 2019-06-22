@@ -47,6 +47,30 @@ public class MenuItemHelper {
     }
 
     /**
+     * Check if the item is based on a runtime item
+     * @param item the item to check
+     * @return true if runtime based, otherwise false.
+     */
+    public static boolean isRuntimeMenu(MenuItem item) {
+        return visitWithResult(item, new AbstractMenuItemVisitor<Boolean>() {
+            @Override
+            public void visit(RuntimeListMenuItem listItem) {
+                setResult(true);
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                setResult(true);
+            }
+
+            @Override
+            public void anyItem(MenuItem item) {
+                setResult(false);
+            }
+        }).orElse(false);
+    }
+
+    /**
      * creates a copy of the menu item chosen, with the ID changed to newId
      * @param selected the item to copy
      * @param newId the ID for the copy

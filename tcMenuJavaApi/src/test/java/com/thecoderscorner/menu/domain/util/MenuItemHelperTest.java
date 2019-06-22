@@ -35,6 +35,14 @@ public class MenuItemHelperTest {
     }
 
     @Test
+    public void testIsRuntimeItem() {
+        assertTrue(MenuItemHelper.isRuntimeMenu(textItem));
+        assertTrue(MenuItemHelper.isRuntimeMenu(ipItem));
+        assertFalse(MenuItemHelper.isRuntimeMenu(floatItem));
+        assertFalse(MenuItemHelper.isRuntimeMenu(boolMenuItem));
+    }
+
+    @Test
     public void testCreateFromExisting() {
         MenuItem newAnalog = MenuItemHelper.createFromExistingWithId(analogItem, 11);
         MenuItem newEnum = MenuItemHelper.createFromExistingWithId(enumItem, 94);

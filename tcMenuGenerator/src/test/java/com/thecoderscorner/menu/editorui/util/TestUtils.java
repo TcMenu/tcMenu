@@ -134,10 +134,32 @@ public class TestUtils {
                 .withEepromAddr(5)
                 .withEnumList(List.of("test"))
                 .menuItem();
+        EditableTextMenuItem textItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(99)
+                .withEepromAddr(-1)
+                .withName("Text Item")
+                .withLength(10)
+                .withEditItemType(EditItemType.PLAIN_TEXT)
+                .menuItem();
+        EditableTextMenuItem ipItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(79)
+                .withEepromAddr(-1)
+                .withName("Ip Item")
+                .withLength(20)
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .menuItem();
+        RuntimeListMenuItem listItem = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withId(1043)
+                .withInitialRows(2)
+                .withName("Abc")
+                .menuItem();
         tree.addMenuItem(MenuTree.ROOT, extraItem);
         tree.addMenuItem(MenuTree.ROOT, item);
+        tree.addMenuItem(MenuTree.ROOT, listItem);
         tree.addMenuItem(MenuTree.ROOT, sub);
         tree.addMenuItem(sub, item2);
+        tree.addMenuItem(sub, textItem);
+        tree.addMenuItem(sub, ipItem);
         return tree;
     }
 

@@ -60,21 +60,23 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(EditableTextMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "TextMenuInfo")
-                .addQuoted(item.getName())
-                .addElement(item.getId())
-                .addEeprom(item.getEepromAddress())
-                .addElement(item.getTextLength())
-                .addPossibleFunction(item.getFunctionName())
-                .progMemInfo();
-
-        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "EditableTextMenuItem")
-                .addElement("&minfo" + nameNoSpaces)
-                .addElement(nextMenuName)
-                .requiresExtern();
-
-        setResult(Arrays.asList(info, menu));
-
+        if(item.getItemType() == EditItemType.IP_ADDRESS) {
+            BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "IpAddressMenuItem")
+                    .addElement(nameNoSpaces + "RtCall")
+                    .addElement(item.getId())
+                    .addElement(nextMenuName)
+                    .requiresExtern();
+            setResult(List.of(menu));
+        }
+        else {
+            BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "TextMenuItem")
+                    .addElement(nameNoSpaces + "RtCall")
+                    .addElement(item.getId())
+                    .addElement(item.getTextLength())
+                    .addElement(nextMenuName)
+                    .requiresExtern();
+            setResult(List.of(menu));
+        }
     }
 
     @Override
@@ -224,8 +226,8 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .progMemInfo();
 
         BuildStructInitializer menuBack = new BuildStructInitializer(item, "Back" + nameNoSpaces, "BackMenuItem")
+                .addElement(nameNoSpaces + "RtCall")
                 .addElement(nextChild)
-                .addElement("(const AnyMenuInfo*)&minfo" + nameNoSpaces)
                 .requiresExtern();
 
         BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "SubMenuItem")

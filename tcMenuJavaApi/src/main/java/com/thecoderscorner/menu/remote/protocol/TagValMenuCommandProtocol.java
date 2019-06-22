@@ -148,11 +148,19 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                     parser.getValueAsInt(KEY_CURRENT_VAL)
             );
         }
-        else {
+        else if(type == ChangeType.ABSOLUTE) {
             return newAbsoluteMenuChangeCommand(
                     correlation,
                     parser.getValueAsInt(KEY_ID_FIELD),
                     parser.getValue(KEY_CURRENT_VAL)
+            );
+        }
+        else {
+            List<String> choices = choicesFromMsg(parser);
+            return newAbsoluteListChangeCommand(
+                    correlation,
+                    parser.getValueAsInt(KEY_ID_FIELD),
+                    choices
             );
         }
     }
@@ -426,7 +434,10 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_CORRELATION_FIELD, cmd.getCorrelationId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItemId());
         appendField(sb, KEY_CHANGE_TYPE, MenuChangeCommand.changeTypeToInt(cmd.getChangeType()));
-        appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
+        if(cmd.getValues() != null) {
+            appendChoices(sb, cmd.getValues());
+        }
+        else appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {

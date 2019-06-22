@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
@@ -32,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.*;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -201,12 +203,14 @@ public class ArduinoGenerator implements CodeGenerator {
                 if(callback != null) {
                     var srcList = callback.generateSource();
                     if(!srcList.isEmpty()) toWrite.append(String.join(LINE_BREAK, srcList));
+                    toWrite.append(LINE_BREAK);
                 }
                 toWrite.append(extractor.mapStructSource(struct));
+                toWrite.append(LINE_BREAK);
             });
             writer.write(toWrite.toString());
 
-            writer.write(TWO_LINES + "// Set up code" + TWO_LINES);
+            writer.write(LINE_BREAK + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
             writer.write(extractor.mapFunctions(
                     generators.stream().flatMap(ecc -> ecc.getFunctionCalls().stream()).collect(Collectors.toList())
@@ -402,7 +406,7 @@ public class ArduinoGenerator implements CodeGenerator {
     private Map<MenuItem, CallbackRequirement> callBackFunctions(MenuTree menuTree) {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
-                .filter(menuItem -> menuItem.getFunctionName() != null && !menuItem.getFunctionName().isEmpty())
+                .filter(mi -> isStringEmptyOrNull(mi.getFunctionName()) || MenuItemHelper.isRuntimeMenu(mi))
                 .map(i-> new CallbackRequirement(i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }

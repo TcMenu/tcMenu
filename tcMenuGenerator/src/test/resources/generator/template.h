@@ -29,7 +29,7 @@ extern AnalogMenuItem  menuTest;
 extern EnumMenuItem  menuExtra;
 extern const ConnectorLocalInfo  applicationInfo;
 
-// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();
+// Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION
 
 void CALLBACK_FUNCTION callback1(int id);

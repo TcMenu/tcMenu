@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -274,7 +275,14 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveListChange() throws IOException {
-        fail();
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|IC=ca039424|ID=22|TC=2|NC=2|CA=123|CB=456|~"));
+        MenuChangeCommand chg = (MenuChangeCommand) cmd;
+
+        assertEquals(MenuCommandType.CHANGE_INT_FIELD, chg.getCommandType());
+        assertEquals("ca039424", chg.getCorrelationId().toString());
+        assertEquals(22, chg.getMenuItemId());
+        assertEquals(ChangeType.ABSOLUTE_LIST, chg.getChangeType());
+        assertThat(chg.getValues(), containsInAnyOrder("123", "456"));
     }
 
     private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value, String correlationId) {
@@ -412,7 +420,9 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingListChange() {
-        fail();
+        protocol.toChannel(bb, newAbsoluteListChangeCommand(new CorrelationId("C04239"), 2,
+                List.of("123", "456")));
+        testBufferAgainstExpected("MT=VC|IC=00c04239|ID=2|TC=2|NC=2|CA=123|CB=456|~");
     }
 
     @Test
