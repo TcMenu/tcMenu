@@ -48,7 +48,12 @@ public class PersistedMenu {
             public void visit(ActionMenuItem item) { type = ACTION_PERSIST_TYPE; }
 
             @Override
-            public void visit(TextMenuItem item) { type = TEXT_PERSIST_TYPE; }
+            public void visit(RuntimeListMenuItem listItem) {
+                type = RUNTIME_LIST_PERSIST_TYPE;
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) { type = TEXT_PERSIST_TYPE; }
 
             @Override
             public void visit(RemoteMenuItem item) {

@@ -20,7 +20,9 @@ public class MenuItemHelperTest {
     private SubMenuItem subItem = aSubMenu("321", 2);
     private BooleanMenuItem boolMenuItem = aBooleanMenu("321", 33, BooleanNaming.TRUE_FALSE);
     private RemoteMenuItem remoteItem = aRemoteMenuItem("2432", 22);
-    private TextMenuItem textItem = aTextMenu("2222", 33);
+    private RuntimeListMenuItem listItem= aRuntimeListMenu("2002", 20002, 3);
+    private EditableTextMenuItem textItem = aTextMenu("2222", 33);
+    private EditableTextMenuItem ipItem = anIpAddressMenu("127.0.0.1", 99);
     private FloatMenuItem floatItem = aFloatMenu("fkgo", 223);
     private ActionMenuItem actionItem = anActionMenu("act", 333);
 
@@ -42,6 +44,10 @@ public class MenuItemHelperTest {
         MenuItem newRemote = MenuItemHelper.createFromExistingWithId(remoteItem, 2222);
         MenuItem newText = MenuItemHelper.createFromExistingWithId(textItem, 1111);
         MenuItem newAction = MenuItemHelper.createFromExistingWithId(actionItem, 9999);
+        MenuItem newList = MenuItemHelper.createFromExistingWithId(listItem, 20093);
+
+        assertTrue(newList instanceof RuntimeListMenuItem);
+        assertEquals(20093, newList.getId());
 
         assertTrue(newAnalog instanceof AnalogMenuItem);
         assertEquals(11, newAnalog.getId());
@@ -64,17 +70,19 @@ public class MenuItemHelperTest {
         assertTrue((newAction instanceof ActionMenuItem));
         assertEquals(9999, newAction.getId());
 
-        assertTrue(newText instanceof TextMenuItem);
+        assertTrue(newText instanceof EditableTextMenuItem);
         assertEquals(1111, newText.getId());
     }
 
     @Test
     public void testEeepromSizeForItem() {
+        assertEquals(0, MenuItemHelper.eepromSizeForItem(listItem));
         assertEquals(2, MenuItemHelper.eepromSizeForItem(analogItem));
         assertEquals(2, MenuItemHelper.eepromSizeForItem(enumItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(subItem));
         assertEquals(1, MenuItemHelper.eepromSizeForItem(boolMenuItem));
         assertEquals(10, MenuItemHelper.eepromSizeForItem(textItem));
+        assertEquals(4, MenuItemHelper.eepromSizeForItem(ipItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(remoteItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(floatItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(actionItem));

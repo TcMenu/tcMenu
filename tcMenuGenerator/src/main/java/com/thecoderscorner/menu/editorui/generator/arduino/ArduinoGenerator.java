@@ -103,9 +103,10 @@ public class ArduinoGenerator implements CodeGenerator {
 
             // generate the source by first generating the CPP and H for the menu definition and then
             // update the sketch. Also, if any plugins have changed, then update them.
-            generateHeaders(generators, menuTree, headerFile, menuStructure, extractor);
-            generateSource(generators, cppFile, menuStructure, projectName, extractor, menuTree);
-            updateArduinoSketch(inoFile, projectName, menuTree);
+            Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
+            generateHeaders(generators, headerFile, menuStructure, extractor, callbackFunctions);
+            generateSource(generators, cppFile, menuStructure, projectName, extractor, menuTree, callbackFunctions);
+            updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
             addAnyRequiredPluginsToSketch(generators, directory);
 
             // do a couple of final checks and put out warnings if need be
@@ -148,7 +149,7 @@ public class ArduinoGenerator implements CodeGenerator {
 
     private List<BuildStructInitializer> addNameAndKeyToStructure(Collection<BuildStructInitializer> menuStructure,
                                                                   NameAndKey nameKey) {
-        var bsi = new BuildStructInitializer("applicationInfo", "ConnectorLocalInfo");
+        var bsi = new BuildStructInitializer(MenuTree.ROOT, "applicationInfo", "ConnectorLocalInfo");
         var list = new ArrayList<>(menuStructure);
         list.add(bsi.addQuoted(nameKey.getName())
                 .addQuoted(nameKey.getUuid())
@@ -176,7 +177,8 @@ public class ArduinoGenerator implements CodeGenerator {
     private void generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
                                 Collection<BuildStructInitializer> menuStructure,
                                 String projectName, CodeVariableExtractor extractor,
-                                MenuTree menuTree) throws TcMenuConversionException {
+                                MenuTree menuTree,
+                                Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
             logLine("Writing out source CPP file: " + cppFile);
@@ -193,9 +195,16 @@ public class ArduinoGenerator implements CodeGenerator {
             ));
 
             writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
-            writer.write(menuStructure.stream()
-                    .map(extractor::mapStructSource)
-                    .collect(Collectors.joining(LINE_BREAK)));
+            StringBuilder toWrite = new StringBuilder(255);
+            menuStructure.forEach(struct -> {
+                var callback = callbackRequirements.get(struct.getMenuItem());
+                if(callback != null) {
+                    var srcList = callback.generateSource();
+                    if(!srcList.isEmpty()) toWrite.append(String.join(LINE_BREAK, srcList));
+                }
+                toWrite.append(extractor.mapStructSource(struct));
+            });
+            writer.write(toWrite.toString());
 
             writer.write(TWO_LINES + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
@@ -221,9 +230,10 @@ public class ArduinoGenerator implements CodeGenerator {
 
     }
 
-    private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators, MenuTree menuTree,
+    private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators,
                                  String headerFile, Collection<BuildStructInitializer> menuStructure,
-                                 CodeVariableExtractor extractor) throws TcMenuConversionException {
+                                 CodeVariableExtractor extractor,
+                                 Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
             logLine("Writing out header file: " + headerFile);
 
@@ -262,11 +272,11 @@ public class ArduinoGenerator implements CodeGenerator {
 
             writer.write(TWO_LINES);
 
-            writer.write("// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();"
+            writer.write("// Callback functions must always include CALLBACK_FUNCTION after the return type"
                     + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 
-            for (String callback : callBackFunctions(menuTree)) {
-                writer.write("void CALLBACK_FUNCTION " + callback + "(int id);" + LINE_BREAK);
+            for (CallbackRequirement callback : callbackRequirements.values()) {
+                writer.write(callback.generateHeader() + LINE_BREAK);
             }
 
             writer.write(LINE_BREAK + "void setupMenu();" + LINE_BREAK);
@@ -288,11 +298,12 @@ public class ArduinoGenerator implements CodeGenerator {
         }
     }
 
-    private void updateArduinoSketch(String inoFile, String projectName, MenuTree menuTree) throws TcMenuConversionException {
+    private void updateArduinoSketch(String inoFile, String projectName,
+                                     Collection<CallbackRequirement> callbackFunctions) throws TcMenuConversionException {
         logLine("Making adjustments to " + inoFile);
 
         try {
-            arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callBackFunctions(menuTree));
+            arduinoSketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callbackFunctions);
         } catch (IOException e) {
             logger.log(ERROR, "Sketch modification failed", e);
             throw new TcMenuConversionException("Could not modify sketch", e);
@@ -388,13 +399,12 @@ public class ArduinoGenerator implements CodeGenerator {
         return itemsInOrder;
     }
 
-    private List<String> callBackFunctions(MenuTree menuTree) {
+    private Map<MenuItem, CallbackRequirement> callBackFunctions(MenuTree menuTree) {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(menuItem -> menuItem.getFunctionName() != null && !menuItem.getFunctionName().isEmpty())
-                .map(MenuItem::getFunctionName)
-                .collect(Collectors.toList());
-
+                .map(i-> new CallbackRequirement(i.getFunctionName(), i))
+                .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
     private String toSourceFile(Path directory, String ext) {

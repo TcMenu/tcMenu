@@ -97,7 +97,7 @@ public class NewItemController {
             );
         }
         else if(textSelect.isSelected()) {
-            result = Optional.of(TextMenuItemBuilder.aTextMenuItemBuilder()
+            result = Optional.of(EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                     .withName("New TextItem")
                     .withId(id)
                     .withEepromAddr(-1)

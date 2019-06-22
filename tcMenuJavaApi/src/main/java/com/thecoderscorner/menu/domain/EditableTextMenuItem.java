@@ -16,19 +16,22 @@ import java.util.Objects;
  * An implementation of menu item that can store text strings. Currently, the are always stored in RAM on the Arduino
  * so choose the size carefully.
  */
-public class TextMenuItem extends MenuItem<String> {
+public class EditableTextMenuItem extends MenuItem<String> {
     private final int textLength;
+    private final EditItemType itemType;
 
-    public TextMenuItem() {
+    public EditableTextMenuItem() {
         // needed for serialisation
         super("", -1, -1, null, false, false);
         textLength = 0;
+        itemType = EditItemType.PLAIN_TEXT;
     }
 
-    public TextMenuItem(String name, int id, int eepromAddress, String functionName, int length,
-                        boolean readOnly, boolean localOnly) {
+    public EditableTextMenuItem(String name, int id, int eepromAddress, String functionName, int length, EditItemType itemType,
+                                boolean readOnly, boolean localOnly) {
         super(name, id, eepromAddress, functionName, readOnly, localOnly);
         this.textLength = length;
+        this.itemType = itemType;
     }
 
     /**
@@ -36,6 +39,14 @@ public class TextMenuItem extends MenuItem<String> {
      */
     public int getTextLength() {
         return textLength;
+    }
+
+    /**
+     *  @return the type of values that can be represented by this control.
+     * @see EditItemType
+     */
+    public EditItemType getItemType() {
+        return itemType;
     }
 
     /**
@@ -54,7 +65,7 @@ public class TextMenuItem extends MenuItem<String> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TextMenuItem that = (TextMenuItem) o;
+        EditableTextMenuItem that = (EditableTextMenuItem) o;
         return getTextLength() == that.getTextLength() &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&

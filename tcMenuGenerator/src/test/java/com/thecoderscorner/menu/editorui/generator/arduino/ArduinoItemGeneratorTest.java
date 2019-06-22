@@ -93,7 +93,7 @@ public class ArduinoItemGeneratorTest {
 
     @Test
     public void testGenerateTextItem() {
-        TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
+        EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(10)
                 .withName("Gen &^%State")
                 .withEepromAddr(22)
@@ -110,7 +110,7 @@ public class ArduinoItemGeneratorTest {
 
         checkTheBasicsOfInfo(info, "TextMenuInfo", "GenState");
         assertThat(info.getStructElements()).containsExactly("\"Gen &^%State\"", "10", "22", "10", "NO_CALLBACK");
-        checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
+        checkTheBasicsOfItem(menu, "EditableTextMenuItem", "GenState");
         assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "NULL");
 
     }

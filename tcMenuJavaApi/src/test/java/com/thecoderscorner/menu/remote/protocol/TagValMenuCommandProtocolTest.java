@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.protocol;
 
 import com.thecoderscorner.menu.domain.DomainFixtures;
+import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
@@ -123,16 +125,41 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveRuntimeListBootCommand() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BL|PI=2|RO=1|NM=runList|ID=1|NC=3|CA=abc|CB=def|CC=ghi|~"));
+        assertEquals(MenuCommandType.RUNTIME_LIST_BOOT,  cmd.getCommandType());
+        MenuRuntimeListBootCommand ipCmd = (MenuRuntimeListBootCommand) cmd;
+        assertEquals("runList", ipCmd.getMenuItem().getName());
+        assertEquals(1, ipCmd.getMenuItem().getId());
+        assertEquals(2, ipCmd.getSubMenuId());
+        assertEquals(3, ipCmd.getCurrentValue().size());
+        assertEquals("abc", ipCmd.getCurrentValue().get(0));
+        assertEquals("def", ipCmd.getCurrentValue().get(1));
+        assertEquals("ghi", ipCmd.getCurrentValue().get(2));
+        assertTrue(ipCmd.getMenuItem().isReadOnly());
+    }
+
+    @Test
     public void testReceiveTextBootCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|RO=0|NM=menuName|ID=1|ML=10|VC=12345678|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|RO=0|NM=menuName|ID=1|ML=10|ET=1|VC=12345678|~"));
         assertEquals(MenuCommandType.TEXT_BOOT_ITEM,  cmd.getCommandType());
         MenuTextBootCommand textCmd = (MenuTextBootCommand) cmd;
         assertEquals("12345678", textCmd.getCurrentValue());
         assertEquals(10, textCmd.getMenuItem().getTextLength());
         assertEquals("menuName", textCmd.getMenuItem().getName());
+        assertEquals(EditItemType.IP_ADDRESS, textCmd.getMenuItem().getItemType());
         assertEquals(1, textCmd.getMenuItem().getId());
         assertEquals(2, textCmd.getSubMenuId());
         assertFalse(textCmd.getMenuItem().isReadOnly());
+    }
+
+    @Test
+    public void testReceiveTextBootCommandInvalidEditMode() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=BT|PI=2|RO=0|NM=menuName|ID=1|ML=10|ET=99999|VC=12345678|~"));
+        assertEquals(MenuCommandType.TEXT_BOOT_ITEM,  cmd.getCommandType());
+        MenuTextBootCommand textCmd = (MenuTextBootCommand) cmd;
+        // the edit mode in the message was corrupt, should be set to plain text by default.
+        assertEquals(EditItemType.PLAIN_TEXT, textCmd.getMenuItem().getItemType());
     }
 
     @Test
@@ -245,6 +272,11 @@ public class TagValMenuCommandProtocolTest {
         verifyChangeFields(cmd, ChangeType.ABSOLUTE, -10000, "ca039424");
     }
 
+    @Test
+    public void testReceiveListChange() throws IOException {
+        fail();
+    }
+
     private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value, String correlationId) {
         assertTrue(cmd instanceof MenuChangeCommand);
         MenuChangeCommand chg = (MenuChangeCommand) cmd;
@@ -329,6 +361,14 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testWritingRuntimeListItem() {
+        protocol.toChannel(bb, new MenuRuntimeListBootCommand(22,
+                DomainFixtures.aRuntimeListMenu("List", 1, 2),
+                List.of("ABC", "DEF")));
+        testBufferAgainstExpected("MT=BL|PI=22|ID=1|IE=88|NM=List|RO=0|NC=2|CA=ABC|CB=DEF|~");
+    }
+
+    @Test
     public void testWritingActionItem() {
         protocol.toChannel(bb, new MenuActionBootCommand(22,
                 DomainFixtures.anActionMenu("Action", 1), false));
@@ -339,7 +379,7 @@ public class TagValMenuCommandProtocolTest {
     public void testWritingTextItem() {
         protocol.toChannel(bb, new MenuTextBootCommand(22,
                 DomainFixtures.aTextMenu("TextItem", 1), "ABC"));
-        testBufferAgainstExpected("MT=BT|PI=22|ID=1|IE=101|NM=TextItem|RO=0|ML=10|VC=ABC|~");
+        testBufferAgainstExpected("MT=BT|PI=22|ID=1|IE=101|NM=TextItem|RO=0|ML=10|ET=0|VC=ABC|~");
     }
 
     @Test
@@ -368,6 +408,11 @@ public class TagValMenuCommandProtocolTest {
     public void testWritingADeltaChange() {
         protocol.toChannel(bb, newDeltaChangeCommand(new CorrelationId("C04239"), 2, 1));
         testBufferAgainstExpected("MT=VC|IC=00c04239|ID=2|TC=0|VC=1|~");
+    }
+
+    @Test
+    public void testWritingListChange() {
+        fail();
     }
 
     @Test

@@ -35,6 +35,8 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String ENUM_PERSIST_TYPE = "enumItem";
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String ACTION_PERSIST_TYPE = "actionMenu";
+    public static final String RUNTIME_LIST_PERSIST_TYPE = "runtimeList";
+    public static final String IP_ADDR_PERSIST_TYPE = "ipAddrItem";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
     public static final String TEXT_PERSIST_TYPE = "textItem";
     public static final String REMOTE_PERSIST_TYPE = "remoteItem";
@@ -130,8 +132,9 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 ANALOG_PERSIST_TYPE, AnalogMenuItem.class,
                 BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class,
                 ACTION_PERSIST_TYPE, ActionMenuItem.class,
-                TEXT_PERSIST_TYPE, TextMenuItem.class,
+                TEXT_PERSIST_TYPE, EditableTextMenuItem.class,
                 SUB_PERSIST_TYPE, SubMenuItem.class,
+                RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class,
                 REMOTE_PERSIST_TYPE, RemoteMenuItem.class,
                 FLOAT_PERSIST_TYPE, FloatMenuItem.class);
 

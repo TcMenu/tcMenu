@@ -91,8 +91,8 @@ public class MenuItemHelper {
             }
 
             @Override
-            public void visit(TextMenuItem item) {
-                setResult(TextMenuItemBuilder.aTextMenuItemBuilder()
+            public void visit(EditableTextMenuItem item) {
+                setResult(EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                         .withExisting(item)
                         .withId(newId)
                         .menuItem()
@@ -124,6 +124,15 @@ public class MenuItemHelper {
                         .menuItem()
                 );
             }
+
+            @Override
+            public void visit(RuntimeListMenuItem item) {
+                setResult(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
         }).orElse(null);
     }
 
@@ -150,8 +159,11 @@ public class MenuItemHelper {
             }
 
             @Override
-            public void visit(TextMenuItem item) {
-                setResult(item.getTextLength());
+            public void visit(EditableTextMenuItem item) {
+                if(item.getItemType() == EditItemType.IP_ADDRESS) {
+                    setResult(4);
+                }
+                else setResult(item.getTextLength());
             }
 
             @Override

@@ -217,6 +217,7 @@ public class RemoteMenuController {
             case REMOTE_BOOT_ITEM:
             case FLOAT_BOOT_ITEM:
             case ACTION_BOOT_ITEM:
+            case RUNTIME_LIST_BOOT:
                 onMenuItemBoot((BootItemMenuCommand)menuCommand);
                 break;
             case CHANGE_INT_FIELD:
@@ -303,7 +304,7 @@ public class RemoteMenuController {
                 public void visit(SubMenuItem item) { /*ignored*/ }
 
                 @Override
-                public void visit(TextMenuItem item) {
+                public void visit(EditableTextMenuItem item) {
                     managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
@@ -323,6 +324,11 @@ public class RemoteMenuController {
                 @Override
                 public void visit(ActionMenuItem item) {
                     /* ignored, there is no state for this type */
+                }
+
+                @Override
+                public void visit(RuntimeListMenuItem listItem) {
+                    // todo
                 }
             });
 

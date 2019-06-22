@@ -39,12 +39,31 @@ public class DomainFixtures {
                 .menuItem();
     }
 
-    public static TextMenuItem aTextMenu(String name, int id) {
-        return TextMenuItemBuilder.aTextMenuItemBuilder()
+    public static RuntimeListMenuItem aRuntimeListMenu(String name, int id, int rows) {
+        return RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withEepromAddr(88)
+                .withName(name)
+                .withId(id)
+                .withInitialRows(rows)
+                .menuItem();
+    }
+
+    public static EditableTextMenuItem aTextMenu(String name, int id) {
+        return EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withEepromAddr(101)
                 .withName(name)
                 .withId(id)
                 .withLength(10)
+                .menuItem();
+    }
+
+    public static EditableTextMenuItem anIpAddressMenu(String name, int id) {
+        return EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withEepromAddr(110)
+                .withName(name)
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .withId(id)
+                .withLength(20)
                 .menuItem();
     }
 

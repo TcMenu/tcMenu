@@ -188,7 +188,7 @@ public class TestUtils {
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, boolItem);
 
-        TextMenuItem textItem = TextMenuItemBuilder.aTextMenuItemBuilder()
+        EditableTextMenuItem textItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(5)
                 .withLength(10)
                 .withName("TextTest")
@@ -215,6 +215,22 @@ public class TestUtils {
                 .withName("ActionTest")
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, actionItem);
+
+        EditableTextMenuItem ipItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(9)
+                .withName("Subnet Mask")
+                .withLength(20)
+                .withFunctionName("onIpChange")
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, ipItem);
+
+        RuntimeListMenuItem listItem = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withId(10)
+                .withName("List")
+                .withFunctionName("onListItem")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, listItem);
 
         return tree;
     }

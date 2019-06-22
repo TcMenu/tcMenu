@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
@@ -89,6 +90,17 @@ public class CommandFactory {
     }
 
     /**
+     * Create a new runtime list boot command
+     * @param parentId the parent onto which this will be placed
+     * @param item the item itself.
+     * @param val the current value
+     * @return a new runtime list boot command
+     */
+    public static MenuRuntimeListBootCommand newRuntimeListBootCommand(int parentId, RuntimeListMenuItem item, List<String> val) {
+        return new MenuRuntimeListBootCommand(parentId, item, val);
+    }
+
+    /**
      * create a new submenu bootstrap command.
      * @param parentId the parent onto which the item will be placed.
      * @param item the item itself.
@@ -159,7 +171,7 @@ public class CommandFactory {
      * @param currentVal the current value
      * @return a new text boot command
      */
-    public static MenuTextBootCommand newMenuTextBootCommand(int parentId, TextMenuItem item, String currentVal) {
+    public static MenuTextBootCommand newMenuTextBootCommand(int parentId, EditableTextMenuItem item, String currentVal) {
         return new MenuTextBootCommand(parentId, item, currentVal);
     }
 
@@ -206,4 +218,16 @@ public class CommandFactory {
     public static MenuChangeCommand newAbsoluteMenuChangeCommand(CorrelationId correlation, int itemId, Object value) {
         return new MenuChangeCommand(correlation, itemId, ChangeType.ABSOLUTE, value.toString());
     }
+
+    /**
+     * Creates a new absolute change command given the menu item ID and the absolute change in value.
+     * @param correlation a correlation ID that will be returned in the subsequent acknowledgement.
+     * @param itemId the item ID for which to send
+     * @param values the new value
+     * @return a new change message
+     */
+    public static MenuChangeCommand newAbsoluteListChangeCommand(CorrelationId correlation, int itemId, List<String> values) {
+        return new MenuChangeCommand(correlation, itemId, values);
+    }
+
 }

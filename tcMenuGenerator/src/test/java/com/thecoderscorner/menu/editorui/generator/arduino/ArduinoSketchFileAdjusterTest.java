@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ArduinoSketchFileAdjusterTest {
     private Path dir;
+    private MenuTree tree;
     private ArduinoSketchFileAdjuster adjuster;
-    private List<String> callbacks = List.of("callback1", "callback2");
+    private List<CallbackRequirement> callbacks;
     private Path inoFile;
     private Consumer<String> emptyLogger;
 
@@ -33,9 +36,16 @@ public class ArduinoSketchFileAdjusterTest {
     @BeforeEach
     public void setUp() throws Exception {
         dir = Files.createTempDirectory("tcmenu");
+        tree = TestUtils.buildCompleteTree();
         inoFile = dir.resolve("superProject.ino");
         emptyLogger = Mockito.mock(Consumer.class);
         adjuster = new ArduinoSketchFileAdjuster();
+
+        callbacks = List.of(
+                new CallbackRequirement("callback1", tree.getMenuById(8).orElseThrow()),
+                new CallbackRequirement("", tree.getMenuById(5).orElseThrow()),
+                new CallbackRequirement("onIpChange", tree.getMenuById(9).orElseThrow())
+        );
     }
 
     @AfterEach
@@ -56,12 +66,19 @@ public class ArduinoSketchFileAdjusterTest {
         ensureLinesContaining(lines,"#include \"superProject_menu.h\"");
 
         // we should have a basic set up and loop method ready prepared
-        ensureLinesContaining(lines,"void setup() {", "setupMenu();", "}");
-        ensureLinesContaining(lines,"void loop() {", "taskManager.runLoop();", "}");
+        ensureLinesContaining(lines,"void setup() {",
+                "setupMenu();",
+                "}");
+        ensureLinesContaining(lines,"void loop() {",
+                "taskManager.runLoop();",
+                "}");
 
         // we should have both callbacks created.
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback1(int id) {", "// TODO - your menu change code", "}");
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback2(int id) {", "// TODO - your menu change code", "}");
+        ensureLinesContaining(lines,
+                "void CALLBACK_FUNCTION callback1(int id) {",
+                "// TODO - your menu change code",
+                "}");
+        ensureLinesContaining(lines,"void CALLBACK_FUNCTION onChangeIp(int id) {", "// TODO - your menu change code", "}");
     }
 
     @Test
@@ -89,8 +106,12 @@ public class ArduinoSketchFileAdjusterTest {
         ensureLinesContaining(lines,"void loop() {", "taskManager.runLoop();", "}");
 
         // we should have both callbacks created.
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback1(int id) {", "superObj.doIt();", "}");
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback2(int id) {", "// TODO - your menu change code", "}");
+        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback1(int id) {",
+                "superObj.doIt();",
+                "}");
+        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback2(int id) {",
+                "// TODO - your menu change code",
+                "}");
 
         // and very importantly, make sure the backup is made
         Path backup = inoFile.resolveSibling("superProject.ino.backup");

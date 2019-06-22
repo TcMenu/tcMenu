@@ -42,7 +42,7 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
     }
 
     @Override
-    public void visit(TextMenuItem item) {
+    public void visit(EditableTextMenuItem item) {
         anyItem(item);
     }
 
@@ -59,6 +59,11 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
     @Override
     public void visit(FloatMenuItem item) {
         anyItem(item);
+    }
+
+    @Override
+    public void visit(RuntimeListMenuItem listItem) {
+        anyItem(listItem);
     }
 
     /**

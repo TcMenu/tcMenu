@@ -39,7 +39,7 @@ public interface MenuItemVisitor {
      * This will be called during visit for a text item
      * @param item the item
      */
-    void visit(TextMenuItem item);
+    void visit(EditableTextMenuItem item);
     /**
      * This will be called during visit for a remote item
      * @param item the item
@@ -55,4 +55,9 @@ public interface MenuItemVisitor {
      * @param item the item
      */
     void visit(ActionMenuItem item);
+    /**
+     * this will be called during visit for a list item
+     * @param listItem the list item
+     */
+    void visit(RuntimeListMenuItem listItem);
 }

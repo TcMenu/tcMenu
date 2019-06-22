@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi.model;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +17,9 @@ import java.util.stream.Collectors;
  * the structures needed for menu items and the tree on at least all Arduino boards.
  */
 public class BuildStructInitializer {
-    private String structName;
-    private String structType;
+    private final MenuItem menuItem;
+    private final String structName;
+    private final String structType;
     private List<HeaderDefinition> headerRequirement = new ArrayList<>();
     private List<String> structElements = new ArrayList<>();
     private boolean requiresExtern = false;
@@ -24,7 +27,8 @@ public class BuildStructInitializer {
     private boolean stringChoices = false;
     private String prefix = " menu";
 
-    public BuildStructInitializer(String structName, String structType) {
+    public BuildStructInitializer(MenuItem item, String structName, String structType) {
+        this.menuItem = item;
         this.structName = structName;
         this.structType = structType;
     }
@@ -125,5 +129,9 @@ public class BuildStructInitializer {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public MenuItem getMenuItem() {
+        return menuItem;
     }
 }

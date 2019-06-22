@@ -20,6 +20,7 @@ public enum MenuCommandType {
     ENUM_BOOT_ITEM("BE"),
     BOOLEAN_BOOT_ITEM("BB"),
     TEXT_BOOT_ITEM("BT"),
+    RUNTIME_LIST_BOOT("BL"),
     FLOAT_BOOT_ITEM("BF"),
     REMOTE_BOOT_ITEM("BR"),
     ACKNOWLEDGEMENT("AK"),

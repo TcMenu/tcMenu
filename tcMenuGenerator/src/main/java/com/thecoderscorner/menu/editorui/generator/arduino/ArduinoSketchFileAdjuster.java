@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -48,7 +49,8 @@ public class ArduinoSketchFileAdjuster {
      * @param callbacks the list of callbacks.
      * @throws IOException in the event of an error
      */
-    public void makeAdjustments(Consumer<String> logger, String inoFile, String projectName, List<String> callbacks) throws IOException {
+    public void makeAdjustments(Consumer<String> logger, String inoFile, String projectName,
+                                Collection<CallbackRequirement> callbacks) throws IOException {
 
         this.logger = logger;
         changed = false;
@@ -62,6 +64,7 @@ public class ArduinoSketchFileAdjuster {
         boolean needsInclude = true;
         boolean needsTaskMgr = true;
         boolean needsSetup = true;
+
         List<String> callbacksDefined = new ArrayList<>();
 
         for(String line : Files.lines(source).collect(Collectors.toList())) {
@@ -90,8 +93,10 @@ public class ArduinoSketchFileAdjuster {
         if(needsInclude) addIncludeToTopOfFile(lines, projectName);
         if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
         if(needsTaskMgr) addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
-        List<String> callbacksToMake = new ArrayList<>(callbacks);
-        callbacksToMake.removeAll(callbacksDefined);
+        List<CallbackRequirement> callbacksToMake = new ArrayList<>(callbacks);
+        callbacksToMake = callbacksToMake.stream()
+                .filter(cb-> callbacksDefined.contains(cb.getCallbackName()))
+                .collect(Collectors.toList());
 
         makeNewCallbacks(lines, callbacksToMake);
 
@@ -107,13 +112,11 @@ public class ArduinoSketchFileAdjuster {
         }
     }
 
-    private void makeNewCallbacks(ArrayList<String> lines, List<String> callbacksToMake) {
-        for (String callbackName : callbacksToMake) {
-            logger.accept("Adding new callback to sketch: " + callbackName);
+    private void makeNewCallbacks(ArrayList<String> lines, List<CallbackRequirement> callbacksToMake) {
+        for (CallbackRequirement cb : callbacksToMake) {
+            logger.accept("Adding new callback to sketch: " + cb.getCallbackName());
             lines.add("");
-            lines.add("void CALLBACK_FUNCTION " + callbackName + "(int id) {");
-            lines.add("    // TODO - your menu change code");
-            lines.add("}");
+            lines.addAll(cb.generateSketchCallback());
             changed = true;
         }
     }

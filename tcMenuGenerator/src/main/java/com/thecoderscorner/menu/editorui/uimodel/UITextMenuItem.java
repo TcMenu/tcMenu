@@ -6,9 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.menu.domain.EditableTextMenuItem;
+import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.TextMenuItem;
-import com.thecoderscorner.menu.domain.TextMenuItemBuilder;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -19,18 +19,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-public class UITextMenuItem extends UIMenuItem<TextMenuItem> {
+public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
 
     private TextField lenField;
 
-    public UITextMenuItem(TextMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+    public UITextMenuItem(EditableTextMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, changeConsumer);
     }
 
     @Override
-    protected Optional<TextMenuItem> getChangedMenuItem() {
+    protected Optional<EditableTextMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
-        TextMenuItemBuilder builder = TextMenuItemBuilder.aTextMenuItemBuilder()
+        EditableTextMenuItemBuilder builder = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withExisting(getMenuItem())
                 .withLength(safeIntFromProperty(lenField.textProperty(), "MaxLength", errors, 1, 256));
         getChangedDefaults(builder, errors);

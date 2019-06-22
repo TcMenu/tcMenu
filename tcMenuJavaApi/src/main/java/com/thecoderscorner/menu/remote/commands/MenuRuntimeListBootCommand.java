@@ -6,22 +6,24 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.EditableTextMenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class MenuTextBootCommand extends BootItemMenuCommand<EditableTextMenuItem, String> {
+import java.util.List;
 
-    public MenuTextBootCommand(int subMenuId, EditableTextMenuItem menuItem, String currentVal) {
+public class MenuRuntimeListBootCommand extends BootItemMenuCommand<RuntimeListMenuItem, List<String>> {
+
+    public MenuRuntimeListBootCommand(int subMenuId, RuntimeListMenuItem menuItem, List<String> currentVal) {
         super(subMenuId, menuItem, currentVal);
     }
 
     @Override
     public MenuCommandType getCommandType() {
-        return MenuCommandType.TEXT_BOOT_ITEM;
+        return MenuCommandType.RUNTIME_LIST_BOOT;
     }
 
     @Override
-    public MenuState<String> internalNewMenuState(MenuState<String> oldState) {
+    public MenuState<List<String>> internalNewMenuState(MenuState<List<String>> oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
         return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
     }

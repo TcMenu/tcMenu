@@ -24,7 +24,7 @@ public class MenuTreeTest {
     private EnumMenuItem item1 = DomainFixtures.anEnumItem("Item1", 1);
     private EnumMenuItem item2 = DomainFixtures.anEnumItem("Item2", 2);
     private AnalogMenuItem item3 = DomainFixtures.anAnalogItem("Item3", 3);
-    private TextMenuItem itemText = DomainFixtures.aTextMenu("ItemText", 10);
+    private EditableTextMenuItem itemText = DomainFixtures.aTextMenu("ItemText", 10);
     private SubMenuItem subMenu = DomainFixtures.aSubMenu("Sub1", 4);
 
     @Before

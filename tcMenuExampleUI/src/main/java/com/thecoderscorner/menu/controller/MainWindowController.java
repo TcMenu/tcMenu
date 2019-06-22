@@ -291,7 +291,7 @@ public class MainWindowController {
             }
 
             @Override
-            public void visit(TextMenuItem item) {
+            public void visit(EditableTextMenuItem item) {
                 setResult(new TextManagedMenuItem(item));
             }
 

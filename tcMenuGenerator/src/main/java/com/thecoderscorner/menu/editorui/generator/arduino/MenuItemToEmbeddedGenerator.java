@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class follows the visitor pattern to generate code for
+ * This class follows the visitor pattern to generate code for each item
  */
 public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
     private final String nextMenuName;
@@ -36,7 +36,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(AnalogMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnalogMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "AnalogMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -47,7 +47,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addQuoted(item.getUnitName())
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "AnalogMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "AnalogMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(0)
                 .addElement(nextMenuName)
@@ -57,10 +57,10 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     }
 
     @Override
-    public void visit(TextMenuItem item) {
+    public void visit(EditableTextMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "TextMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "TextMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -68,7 +68,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addPossibleFunction(item.getFunctionName())
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "TextMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "EditableTextMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(nextMenuName)
                 .requiresExtern();
@@ -81,7 +81,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(RemoteMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "RemoteMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "RemoteMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -89,7 +89,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addPossibleFunction(item.getFunctionName())
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "RemoteMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "RemoteMenuItem")
                 .addHeaderFileRequirement("RemoteMenuItem.h", false)
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement("remoteServer.getRemoteConnector(" + item.getRemoteNum() + ")")
@@ -103,7 +103,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(ActionMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "AnyMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "AnyMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -111,7 +111,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addPossibleFunction(item.getFunctionName())
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "ActionMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "ActionMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(nextMenuName)
                 .requiresExtern();
@@ -123,7 +123,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(FloatMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "FloatMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "FloatMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -131,7 +131,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addPossibleFunction(item.getFunctionName())
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "FloatMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "FloatMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(nextMenuName)
                 .requiresExtern();
@@ -156,7 +156,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 break;
         }
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "BooleanMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "BooleanMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -165,7 +165,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(itemNaming)
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "BooleanMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "BooleanMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(false)
                 .addElement(nextMenuName)
@@ -178,11 +178,11 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(EnumMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer choices = new BuildStructInitializer(nameNoSpaces, "")
+        BuildStructInitializer choices = new BuildStructInitializer(item, nameNoSpaces, "")
                 .stringChoices()
                 .collectionOfElements(item.getEnumEntries(), true);
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "EnumMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "EnumMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -191,7 +191,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement("enumStr" + nameNoSpaces)
                 .progMemInfo();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "EnumMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "EnumMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement(0)
                 .addElement(nextMenuName)
@@ -200,11 +200,22 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         setResult(Arrays.asList(choices, info, menu));
     }
 
+   @Override
+    public void visit(RuntimeListMenuItem listItem) {
+        String nameNoSpaces = makeNameToVar(listItem.getName());
+        BuildStructInitializer listStruct = new BuildStructInitializer(listItem, nameNoSpaces, "ListRuntimeMenuItem")
+                .addElement(listItem.getId())
+                .addElement(listItem.getInitialRows())
+                .addElement(nameNoSpaces + "RtCall")
+                .addElement(nextMenuName);
+        setResult(List.of(listStruct));
+    }
+
     @Override
     public void visit(SubMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 
-        BuildStructInitializer info = new BuildStructInitializer(nameNoSpaces, "SubMenuInfo")
+        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "SubMenuInfo")
                 .addQuoted(item.getName())
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
@@ -212,12 +223,12 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addPossibleFunction(item.getFunctionName())
                 .progMemInfo();
 
-        BuildStructInitializer menuBack = new BuildStructInitializer("Back" + nameNoSpaces, "BackMenuItem")
+        BuildStructInitializer menuBack = new BuildStructInitializer(item, "Back" + nameNoSpaces, "BackMenuItem")
                 .addElement(nextChild)
                 .addElement("(const AnyMenuInfo*)&minfo" + nameNoSpaces)
                 .requiresExtern();
 
-        BuildStructInitializer menu = new BuildStructInitializer(nameNoSpaces, "SubMenuItem")
+        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "SubMenuItem")
                 .addElement("&minfo" + nameNoSpaces)
                 .addElement("&menuBack" + nameNoSpaces)
                 .addElement(nextMenuName)

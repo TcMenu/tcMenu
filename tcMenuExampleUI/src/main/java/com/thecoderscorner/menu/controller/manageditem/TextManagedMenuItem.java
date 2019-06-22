@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.controller.manageditem;
 
-import com.thecoderscorner.menu.domain.TextMenuItem;
+import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
@@ -17,11 +17,11 @@ import java.util.Optional;
 
 import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
-public class TextManagedMenuItem extends ManagedMenuItem<String, TextMenuItem> {
+public class TextManagedMenuItem extends ManagedMenuItem<String, EditableTextMenuItem> {
 
     TextField text = new TextField();
 
-    public TextManagedMenuItem(TextMenuItem item) {
+    public TextManagedMenuItem(EditableTextMenuItem item) {
         super(item);
     }
 

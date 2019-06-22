@@ -91,9 +91,11 @@ public class ArduinoGeneratorTest {
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
         assertEqualsIgnoringCRLF(expectedPlugin, pluginGenerated);
 
+        var callbackRequirement = new CallbackRequirement("callback1", tree.getMenuById(2).orElse(null));
+        
         Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
                 eq(dir.resolve(dir.resolve(dir.getFileName() + ".ino")).toString()),
-                eq(dir.getFileName().toString()), eq(List.of("callback1")));
+                eq(dir.getFileName().toString()), eq(List.of(callbackRequirement)));
     }
 
     private List<EmbeddedCodeCreator> unitTestGenerator() {

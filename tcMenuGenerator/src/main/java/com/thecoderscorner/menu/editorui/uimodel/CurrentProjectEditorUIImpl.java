@@ -168,7 +168,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         @Override
-        public void visit(TextMenuItem item) {
+        public void visit(EditableTextMenuItem item) {
             setResult(new UITextMenuItem(item, menuIdChooser, changeConsumer));
         }
 
@@ -195,6 +195,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         @Override
         public void visit(ActionMenuItem item) {
             setResult(new UIActionMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
+        public void visit(RuntimeListMenuItem listItem) {
+            // todo
         }
 
         @Override

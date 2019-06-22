@@ -53,7 +53,7 @@ public class AddDialogTestCases {
 
     @Test
     void testSelectingText(FxRobot robot) {
-        checkForItem(TextMenuItem.class, DEFAULT_ID, "textSelect", robot);
+        checkForItem(EditableTextMenuItem.class, DEFAULT_ID, "textSelect", robot);
     }
 
     @Test

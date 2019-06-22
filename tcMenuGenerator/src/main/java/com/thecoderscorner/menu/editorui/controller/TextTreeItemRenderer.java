@@ -65,9 +65,12 @@ public class TextTreeItemRenderer {
         }
 
         @Override
-        public void visit(TextMenuItem item) {
+        public void visit(EditableTextMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             String it = StringHelper.repeat("A", Math.max(1, item.getTextLength()));
+            if(item.getItemType() == EditItemType.IP_ADDRESS) {
+                it = "127.0.0.1";
+            }
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
             setResult(sb.toString());
@@ -136,6 +139,14 @@ public class TextTreeItemRenderer {
             fmt.setMinimumFractionDigits(item.getNumDecimalPlaces());
             fmt.setMaximumFractionDigits(item.getNumDecimalPlaces());
             String s = fmt.format(-12345.123456);
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
+            setResult(sb.toString());
+        }
+
+        @Override
+        public void visit(RuntimeListMenuItem item) {
+            StringBuilder sb = createBuilderWithName(item.getName());
+            String s = ">>>";
             sb.replace(spaces.length() - s.length(), spaces.length(), s);
             setResult(sb.toString());
         }

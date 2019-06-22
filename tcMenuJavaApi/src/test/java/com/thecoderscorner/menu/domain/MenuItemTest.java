@@ -12,11 +12,14 @@ import java.util.Collections;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.domain.DomainFixtures.aBooleanMenu;
+import static com.thecoderscorner.menu.domain.DomainFixtures.anActionMenu;
+import static com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder.aTextMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.aFloatMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.RemoteMenuItemBuilder.aRemoteMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
-import static com.thecoderscorner.menu.domain.TextMenuItemBuilder.aTextMenuItemBuilder;
 import static org.junit.Assert.*;
 
 public class MenuItemTest {
@@ -69,13 +72,14 @@ public class MenuItemTest {
 
     @Test
     public void testTextItem() {
-        TextMenuItem item = aTextMenuItemBuilder()
+        EditableTextMenuItem item = aTextMenuItemBuilder()
                 .withName("Test")
                 .withLength(10)
                 .withEepromAddr(-1)
                 .withId(1)
                 .withReadOnly(false)
                 .withLocalOnly(false)
+                .withEditItemType(EditItemType.IP_ADDRESS)
                 .withFunctionName("abc")
                 .menuItem();
         assertBaseMenuFields(item, "Test", 1, -1);
@@ -83,6 +87,7 @@ public class MenuItemTest {
         assertFalse(item.hasChildren());
         assertFalse(item.isReadOnly());
         assertFalse(item.isLocalOnly());
+        assertEquals(EditItemType.IP_ADDRESS, item.getItemType());
         assertEquals(item, aTextMenuItemBuilder().withExisting(item).menuItem());
     }
 
@@ -131,8 +136,21 @@ public class MenuItemTest {
     }
 
     @Test
+    public void testListMenuItem() {
+        RuntimeListMenuItem ip = aRuntimeListMenuItemBuilder()
+                .withName("runList")
+                .withId(2909)
+                .withEepromAddr(-1)
+                .withFunctionName("runListFn")
+                .menuItem();
+        assertBaseMenuFields(ip, "runList", 2909, -1);
+        assertEquals("runListFn", ip.getFunctionName());
+        assertEquals(ip, aRuntimeListMenuItemBuilder().withExisting(ip).menuItem());
+    }
+
+    @Test
     public void testBooleanMenu() {
-        BooleanMenuItem item = DomainFixtures.aBooleanMenu("Bool1", 22, BooleanNaming.TRUE_FALSE);
+        BooleanMenuItem item = aBooleanMenu("Bool1", 22, BooleanNaming.TRUE_FALSE);
         assertBaseMenuFields(item, "Bool1", 22, 102);
         assertFalse(item.hasChildren());
         assertEquals(item, BooleanMenuItemBuilder.aBooleanMenuItemBuilder().withExisting(item).menuItem());
@@ -140,7 +158,7 @@ public class MenuItemTest {
 
     @Test
     public void testActionMenu() {
-        ActionMenuItem item = DomainFixtures.anActionMenu("Act1", 448);
+        ActionMenuItem item = anActionMenu("Act1", 448);
         assertBaseMenuFields(item, "Act1", 448, 20);
         assertFalse(item.hasChildren());
         assertEquals(item, ActionMenuItemBuilder.anActionMenuItemBuilder().withExisting(item).menuItem());

@@ -75,6 +75,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processFloatItem(parser);
             case ACTION_BOOT_ITEM:
                 return processActionItem(parser);
+            case RUNTIME_LIST_BOOT:
+                return processRuntimeListBoot(parser);
             case ACKNOWLEDGEMENT:
                 return processAcknowledgement(parser);
             case PAIRING_REQUEST:
@@ -155,6 +157,24 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         }
     }
 
+    private MenuCommand processRuntimeListBoot(TagValTextParser parser) throws IOException {
+        RuntimeListMenuItem item = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withInitialRows(parser.getValueAsInt(KEY_NO_OF_CHOICES))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        List<String> choices = choicesFromMsg(parser);
+        return newRuntimeListBootCommand(
+                parentId,
+                item,
+                choices
+        );
+    }
+
     private MenuCommand processBoolBootItem(TagValTextParser parser) throws IOException {
         BooleanMenuItem item = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
@@ -170,11 +190,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private MenuCommand processTextItem(TagValTextParser parser) throws IOException {
-        TextMenuItem item = TextMenuItemBuilder.aTextMenuItemBuilder()
+        EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withEditItemType(EditItemType.fromId(parser.getValueAsInt(KEY_EDIT_TYPE)))
                 .withLength(parser.getValueAsInt(KEY_MAX_LENGTH))
                 .menuItem();
 
@@ -224,12 +245,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
     private MenuCommand processEnumBootItem(TagValTextParser parser) throws IOException {
 
-        List<String> choices = new ArrayList<>();
-        int noOfItems = parser.getValueAsInt(KEY_NO_OF_CHOICES);
-        for(int i=0;i<noOfItems;i++) {
-            String key = KEY_PREPEND_CHOICE + (char)(i + 'A');
-            choices.add(parser.getValue(key));
-        }
+        List<String> choices = choicesFromMsg(parser);
 
         EnumMenuItem item = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
@@ -242,6 +258,16 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
         int currentVal = parser.getValueAsInt(KEY_CURRENT_VAL);
         return newMenuEnumBootCommand(parentId, item, currentVal);
+    }
+
+    private List<String> choicesFromMsg(TagValTextParser parser) throws IOException {
+        List<String> choices = new ArrayList<>();
+        int noOfItems = parser.getValueAsInt(KEY_NO_OF_CHOICES);
+        for(int i=0;i<noOfItems;i++) {
+            String key = KEY_PREPEND_CHOICE + (char)(i + 'A');
+            choices.add(parser.getValue(key));
+        }
+        return choices;
     }
 
     private MenuCommand processSubMenuBootItem(TagValTextParser parser) throws IOException {
@@ -334,6 +360,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 break;
             case BOOLEAN_BOOT_ITEM:
                 writeBoolMenuItem(sb, (MenuBooleanBootCommand) cmd);
+                break;
+            case RUNTIME_LIST_BOOT:
+                writeRuntimeListBootItem(sb, (MenuRuntimeListBootCommand) cmd);
                 break;
             case CHANGE_INT_FIELD:
                 writeChangeInt(sb, (MenuChangeCommand)cmd);
@@ -433,6 +462,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_READONLY_FIELD, cmd.getMenuItem().isReadOnly() ? 1 : 0);
     }
 
+    private void writeRuntimeListBootItem(StringBuilder sb, MenuRuntimeListBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendChoices(sb, cmd.getCurrentValue());
+
+    }
+
     private void writeRemoteBootItem(StringBuilder sb, MenuRemoteBootCommand cmd) {
         writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_REMOTE_NUM, cmd.getMenuItem().getRemoteNum());
@@ -448,6 +483,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private void writeTextMenuItem(StringBuilder sb, MenuTextBootCommand cmd) {
         writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getTextLength());
+        appendField(sb, KEY_EDIT_TYPE, cmd.getMenuItem().getItemType().getMsgId());
         appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
     }
 
@@ -468,6 +504,10 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         writeCommonBootFields(sb, cmd);
         appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
         List<String> entries = cmd.getMenuItem().getEnumEntries();
+        appendChoices(sb, entries);
+    }
+
+    private void appendChoices(StringBuilder sb, List<String> entries) {
         appendField(sb, KEY_NO_OF_CHOICES, entries.size());
         for(int i=0;i<entries.size();++i) {
             appendField(sb, KEY_PREPEND_CHOICE + (char)('A' + i), entries.get(i));

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
 import static com.thecoderscorner.menu.pluginapi.AbstractCodeCreator.LINE_BREAK;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ public class CodeVariableCppExtractorTest {
 
     @Test
     public void testIntialiseInfoStructure() {
-        BuildStructInitializer initializer = new BuildStructInitializer("MyStruct", "StructType")
+        BuildStructInitializer initializer = new BuildStructInitializer(ROOT,"MyStruct", "StructType")
                 .addQuoted("Test1")
                 .addEeprom(-1)
                 .addElement(22)
@@ -39,7 +40,7 @@ public class CodeVariableCppExtractorTest {
 
     @Test
     public void testInitialiseItemStructure() {
-        BuildStructInitializer initializer = new BuildStructInitializer("MyItem", "MenuItem")
+        BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "MyItem", "MenuItem")
                 .addElement(42)
                 .addHeaderFileRequirement("SomeHeader.h", false)
                 .addElement("someVar")
@@ -53,7 +54,7 @@ public class CodeVariableCppExtractorTest {
 
     @Test
     public void testRenderingEnumString() {
-        BuildStructInitializer initializer = new BuildStructInitializer("Enums", "")
+        BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "")
                 .collectionOfElements(List.of("INPUT", "OUTPUT"), true)
                 .stringChoices();
         assertEquals("", extractor.mapStructHeader(initializer));

@@ -8,20 +8,32 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class MenuChangeCommand implements MenuCommand {
-    public enum ChangeType { ABSOLUTE, DELTA }
+    public enum ChangeType { ABSOLUTE, ABSOLUTE_LIST, DELTA }
     private final int menuItemId;
     private final CorrelationId correlationId;
     private final ChangeType changeType;
     private final String value;
+    private final List<String> values;
 
     public MenuChangeCommand(CorrelationId correlationId, int itemId, ChangeType changeType, String value) {
         this.correlationId = correlationId;
         this.menuItemId = itemId;
         this.value = value;
         this.changeType = changeType;
+        this.values = null;
+    }
+
+    public MenuChangeCommand(CorrelationId correlation, int itemId, List<String> values) {
+        this.correlationId = correlation;
+        this.menuItemId = itemId;
+        this.value = null;
+        this.values = new ArrayList<>(values);
+        this.changeType = ChangeType.ABSOLUTE_LIST;
     }
 
     @Override
@@ -41,16 +53,28 @@ public class MenuChangeCommand implements MenuCommand {
         return value;
     }
 
+    public List<String> getValues() {
+        return values;
+    }
+
     public ChangeType getChangeType() {
         return changeType;
     }
 
     public static int changeTypeToInt(ChangeType changeType) {
-        return changeType == ChangeType.ABSOLUTE ? 1 : 0;
+
+        if(changeType == ChangeType.DELTA) return 0;
+        else if(changeType == ChangeType.ABSOLUTE) return 1;
+        else return 2;
     }
 
     public static ChangeType changeTypeFromInt(int changeType) {
-        return changeType == 0 ? ChangeType.DELTA : ChangeType.ABSOLUTE;
+        switch(changeType) {
+            case 1: return ChangeType.ABSOLUTE;
+            case 2: return ChangeType.ABSOLUTE_LIST;
+            default:
+            case 0: return ChangeType.DELTA;
+        }
     }
 
     @Override
