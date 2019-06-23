@@ -272,8 +272,16 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         List<String> choices = new ArrayList<>();
         int noOfItems = parser.getValueAsInt(KEY_NO_OF_CHOICES);
         for(int i=0;i<noOfItems;i++) {
-            String key = KEY_PREPEND_CHOICE + (char)(i + 'A');
-            choices.add(parser.getValue(key));
+            String keyVal = KEY_PREPEND_CHOICE + (char)(i + 'A');
+            String keyName = KEY_PREPEND_NAMECHOICE + (char)(i + 'A');
+            String keyText = parser.getValueWithDefault(keyName, "");
+            String valText = parser.getValueWithDefault(keyVal, "");
+            if(keyText.isEmpty()) {
+                choices.add(valText);
+            }
+            else {
+                choices.add(keyText + "\t" + valText);
+            }
         }
         return choices;
     }

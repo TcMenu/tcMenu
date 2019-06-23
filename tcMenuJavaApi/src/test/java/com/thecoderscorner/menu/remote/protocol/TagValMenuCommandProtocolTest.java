@@ -275,14 +275,14 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveListChange() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|IC=ca039424|ID=22|TC=2|NC=2|CA=123|CB=456|~"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer("MT=VC|IC=ca039424|ID=22|TC=2|NC=2|cA=R1|CA=123|cB=R2|CB=456|~"));
         MenuChangeCommand chg = (MenuChangeCommand) cmd;
 
         assertEquals(MenuCommandType.CHANGE_INT_FIELD, chg.getCommandType());
         assertEquals("ca039424", chg.getCorrelationId().toString());
         assertEquals(22, chg.getMenuItemId());
         assertEquals(ChangeType.ABSOLUTE_LIST, chg.getChangeType());
-        assertThat(chg.getValues(), containsInAnyOrder("123", "456"));
+        assertThat(chg.getValues(), containsInAnyOrder("R1\t123", "R2\t456"));
     }
 
     private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value, String correlationId) {

@@ -36,6 +36,7 @@ public interface TagValMenuFields {
     String KEY_MAX_LENGTH = "ML";
     String KEY_EDIT_TYPE = "ET";
     String KEY_PREPEND_CHOICE = "C"; // second char from A onwards.
+    String KEY_PREPEND_NAMECHOICE = "c"; // second char from A onwards.
     String KEY_CHANGE_TYPE = "TC";
     String KEY_ACK_STATUS = "ST";
     String KEY_MODE_FIELD = "MO";
