@@ -138,6 +138,7 @@ public class TestUtils {
                 .withId(99)
                 .withEepromAddr(-1)
                 .withName("Text Item")
+                .withFunctionName("callback2")
                 .withLength(10)
                 .withEditItemType(EditItemType.PLAIN_TEXT)
                 .menuItem();

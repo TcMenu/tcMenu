@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.domain;
 
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+
 /**
  * Constructs a FloatMenuItem using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
@@ -13,6 +15,10 @@ package com.thecoderscorner.menu.domain;
 public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuItemBuilder> {
 
     private int initialRows;
+
+    public static String makeRtCallName(String functionName) {
+        return "fn" + MenuItemHelper.makeNameToVar(functionName) + "RtCall";
+    }
 
     @Override
     public RuntimeListMenuItemBuilder getThis() {
@@ -30,7 +36,7 @@ public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuI
     }
 
     public RuntimeListMenuItem menuItem() {
-        return new RuntimeListMenuItem(name, id, eepromAddr, functionName, readOnly, localOnly, initialRows);
+        return new RuntimeListMenuItem(name, id, eepromAddr, makeRtCallName(name), readOnly, localOnly, initialRows);
     }
 
     public static RuntimeListMenuItemBuilder aRuntimeListMenuItemBuilder() {

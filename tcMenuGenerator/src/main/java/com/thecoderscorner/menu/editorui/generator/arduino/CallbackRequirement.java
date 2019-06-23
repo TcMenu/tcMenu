@@ -6,10 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.menu.domain.EditItemType;
-import com.thecoderscorner.menu.domain.EditableTextMenuItem;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -17,6 +14,9 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.makeRtCallName;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.makeNameToVar;
 
 public class CallbackRequirement {
     public static final String RUNTIME_CALLBACK_PARAMS = "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize)";
@@ -42,7 +42,7 @@ public class CallbackRequirement {
             @Override
             public void visit(RuntimeListMenuItem item) {
                 setResult(List.of(
-                        "// see ",
+                        "// see tcMenu list documentation on thecoderscorner.com",
                         "int CALLBACK_FUNCTION " + callbackName + RUNTIME_CALLBACK_PARAMS + " {",
                         "   switch(mode) {",
                         "    case RENDERFN_INVOKE:",
@@ -56,7 +56,8 @@ public class CallbackRequirement {
                         "        // TODO - each row can has its own value - 0xff is the parent item",
                         "        buffer[0] = row + '0'; buffer[1]=0;",
                         "        return true;",
-                        "    case RENDERFN_EEPROM: return 0xffff; // lists are generally not saved to EEPROM",
+                        "    case RENDERFN_EEPROM_POS: return 0xffff; // lists are generally not saved to EEPROM",
+                        "    default: return false;",
                         "    }",
                         "}"
                 ));
@@ -84,17 +85,30 @@ public class CallbackRequirement {
 
             @Override
             public void visit(EditableTextMenuItem item) {
-
-                var cbItem = MenuItemToEmbeddedGenerator.makeNameToVar(item.getName());
-                var callbackPresent = StringHelper.isStringEmptyOrNull(item.getFunctionName());
+                var cbItem = makeNameToVar(item.getName());
+                var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
                 var baseCbFn = item.getItemType() == EditItemType.IP_ADDRESS ? "ipAddressRenderFn" : "textItemRenderFn";
 
                 var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                        + cbItem + "RtCall, "
+                        + makeRtCallName(cbItem) + ", "
                         + baseCbFn + ", \""
                         + item.getName() + "\", "
                         + item.getEepromAddress() + ", "
                         + (callbackPresent ? callbackName : "NULL") + ")";
+
+                setResult(List.of(renderingMacroDef));
+            }
+
+            @Override
+            public void visit(SubMenuItem item) {
+                var cbItem = makeNameToVar(item.getName());
+
+                var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
+                        + makeRtCallName(cbItem) + ", "
+                        + "backSubItemRenderFn, \""
+                        + item.getName() + "\", "
+                        + item.getEepromAddress() + ", "
+                        + "NULL)";
 
                 setResult(List.of(renderingMacroDef));
             }
@@ -109,16 +123,15 @@ public class CallbackRequirement {
     String generateHeader() {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
             @Override
-            public void visit(EditableTextMenuItem item) {
-            }
-
-            @Override
             public void visit(RuntimeListMenuItem listItem) {
-                setResult("void " + callbackName + "RtCall" + RUNTIME_CALLBACK_PARAMS + ";");
+                var name = makeNameToVar(listItem.getName());
+                setResult("int " + makeRtCallName(name) + RUNTIME_CALLBACK_PARAMS + ";");
             }
             @Override
             public void anyItem(MenuItem item) {
-                setResult("void CALLBACK_FUNCTION " + callbackName + "(int id);");
+                if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
+                    setResult("void CALLBACK_FUNCTION " + callbackName + "(int id);");
+                }
             }
         }).orElse("");
     }

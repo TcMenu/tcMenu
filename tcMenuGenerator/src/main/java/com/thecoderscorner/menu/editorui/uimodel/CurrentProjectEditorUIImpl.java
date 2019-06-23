@@ -199,7 +199,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
         @Override
         public void visit(RuntimeListMenuItem listItem) {
-            // todo
+            setResult(new UIRuntimeListMenuItem(listItem, menuIdChooser, changeConsumer));
         }
 
         @Override

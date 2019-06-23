@@ -32,8 +32,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator.makeNameToVar;
-import static com.thecoderscorner.menu.editorui.util.StringHelper.*;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.makeNameToVar;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -196,14 +196,18 @@ public class ArduinoGenerator implements CodeGenerator {
                     generators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
             ));
 
+            var localCbReq = new HashMap<>(callbackRequirements);
+
             writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
             StringBuilder toWrite = new StringBuilder(255);
             menuStructure.forEach(struct -> {
-                var callback = callbackRequirements.get(struct.getMenuItem());
+                var callback = localCbReq.remove(struct.getMenuItem());
                 if(callback != null) {
                     var srcList = callback.generateSource();
-                    if(!srcList.isEmpty()) toWrite.append(String.join(LINE_BREAK, srcList));
-                    toWrite.append(LINE_BREAK);
+                    if(!srcList.isEmpty()) {
+                        toWrite.append(String.join(LINE_BREAK, srcList));
+                        toWrite.append(LINE_BREAK);
+                    }
                 }
                 toWrite.append(extractor.mapStructSource(struct));
                 toWrite.append(LINE_BREAK);
@@ -237,8 +241,9 @@ public class ArduinoGenerator implements CodeGenerator {
     private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators,
                                  String headerFile, Collection<BuildStructInitializer> menuStructure,
                                  CodeVariableExtractor extractor,
-                                 Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
+                                 Map<MenuItem, CallbackRequirement> allCallbacks) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
+
             logLine("Writing out header file: " + headerFile);
 
             writer.write(COMMENT_HEADER);
@@ -279,8 +284,18 @@ public class ArduinoGenerator implements CodeGenerator {
             writer.write("// Callback functions must always include CALLBACK_FUNCTION after the return type"
                     + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 
-            for (CallbackRequirement callback : callbackRequirements.values()) {
-                writer.write(callback.generateHeader() + LINE_BREAK);
+            List<CallbackRequirement> callbackRequirements = new ArrayList<>(allCallbacks.values());
+            callbackRequirements.sort((CallbackRequirement o1, CallbackRequirement o2) -> {
+                if (o1.getCallbackName() == null) return -1;
+                if (o2.getCallbackName() == null) return 1;
+                return o1.getCallbackName().compareTo(o2.getCallbackName());
+            });
+
+            for (CallbackRequirement callback : callbackRequirements) {
+                var header = callback.generateHeader();
+                if(!StringHelper.isStringEmptyOrNull(header)) {
+                    writer.write(header + LINE_BREAK);
+                }
             }
 
             writer.write(LINE_BREAK + "void setupMenu();" + LINE_BREAK);
@@ -406,7 +421,7 @@ public class ArduinoGenerator implements CodeGenerator {
     private Map<MenuItem, CallbackRequirement> callBackFunctions(MenuTree menuTree) {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
-                .filter(mi -> isStringEmptyOrNull(mi.getFunctionName()) || MenuItemHelper.isRuntimeMenu(mi))
+                .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
                 .map(i-> new CallbackRequirement(i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }

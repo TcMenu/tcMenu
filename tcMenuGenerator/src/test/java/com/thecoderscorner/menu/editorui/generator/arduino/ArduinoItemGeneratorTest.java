@@ -94,7 +94,7 @@ public class ArduinoItemGeneratorTest {
     @Test
     public void testGenerateTextItem() {
         EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
-                .withId(10)
+                .withId(11)
                 .withName("Gen &^%State")
                 .withEepromAddr(22)
                 .withFunctionName(null)
@@ -104,15 +104,30 @@ public class ArduinoItemGeneratorTest {
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
         assertTrue(result.isPresent());
 
-        assertEquals(2, result.get().size());
-        BuildStructInitializer info = result.get().get(0);
-        BuildStructInitializer menu = result.get().get(1);
+        assertEquals(1, result.get().size());
+        BuildStructInitializer menu = result.get().get(0);
 
-        checkTheBasicsOfInfo(info, "TextMenuInfo", "GenState");
-        assertThat(info.getStructElements()).containsExactly("\"Gen &^%State\"", "10", "22", "10", "NO_CALLBACK");
-        checkTheBasicsOfItem(menu, "EditableTextMenuItem", "GenState");
-        assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "NULL");
+        checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
+        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "11", "10", "NULL");
 
+
+        EditableTextMenuItem ip = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(12)
+                .withName("Ip:Address")
+                .withEepromAddr(22)
+                .withFunctionName(null)
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .withLength(20)
+                .menuItem();
+
+        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(null));
+        assertTrue(result.isPresent());
+
+        assertEquals(1, result.get().size());
+        menu = result.get().get(0);
+
+        checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
+        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "12", "NULL");
     }
 
     @Test
@@ -207,7 +222,7 @@ public class ArduinoItemGeneratorTest {
         assertThat(menu.getStructElements()).containsExactly("&minfoSubMenu", "&menuBackSubMenu", "NULL");
 
         checkTheBasicsOfItem(back, "BackMenuItem", "BackSubMenu");
-        assertThat(back.getStructElements()).containsExactly("&menuSubItem", "(const AnyMenuInfo*)&minfoSubMenu");
+        assertThat(back.getStructElements()).containsExactly("fnSubMenuRtCall", "&menuSubItem");
     }
 
 

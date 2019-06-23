@@ -27,7 +27,7 @@ public class ArduinoSketchFileAdjuster {
     public static final String EMPTY_SKETCH = "\nvoid setup() {\n\n}\n\n" + "void loop() {\n\n}\n";
 
     /** The pattern to look for call back functions */
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("void\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(void|int)\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
     /** the pattern to look for set up */
     private static final Pattern SETUP_PATTERN = Pattern.compile("void\\s+setup\\(\\)(.*)");
     /** the pattern to loop for the loop method */
@@ -67,24 +67,23 @@ public class ArduinoSketchFileAdjuster {
 
         List<String> callbacksDefined = new ArrayList<>();
 
-        for(String line : Files.lines(source).collect(Collectors.toList())) {
-            if(line.contains("#include") && line.contains(projectName + "_menu.h")) {
-                logger.accept("found include in INO");
-                needsInclude = false;
-            }
-            else if(line.contains("taskManager.runLoop()")) {
-                logger.accept("found runLoop in INO");
-                needsTaskMgr = false;
-            }
-            else if(line.contains("setupMenu(")) {
-                logger.accept("found setup in INO");
-                needsSetup = false;
-            }
-            else if(line.contains("CALLBACK_FUNCTION")) {
-                Matcher fnMatch = FUNCTION_PATTERN.matcher(line);
-                if(fnMatch.matches()) {
-                    logger.accept("found callback for " + fnMatch.group(1));
-                    callbacksDefined.add(fnMatch.group(1));
+        try(var fileLines = Files.lines(source)) {
+            for (String line : fileLines.collect(Collectors.toList())) {
+                if (line.contains("#include") && line.contains(projectName + "_menu.h")) {
+                    logger.accept("found include in INO");
+                    needsInclude = false;
+                } else if (line.contains("taskManager.runLoop()")) {
+                    logger.accept("found runLoop in INO");
+                    needsTaskMgr = false;
+                } else if (line.contains("setupMenu(")) {
+                    logger.accept("found setup in INO");
+                    needsSetup = false;
+                } else if (line.contains("CALLBACK_FUNCTION")) {
+                    Matcher fnMatch = FUNCTION_PATTERN.matcher(line);
+                    if (fnMatch.matches()) {
+                        logger.accept("found callback for " + fnMatch.group(2));
+                        callbacksDefined.add(fnMatch.group(2));
+                    }
                 }
             }
         }
@@ -94,11 +93,7 @@ public class ArduinoSketchFileAdjuster {
         if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
         if(needsTaskMgr) addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
         List<CallbackRequirement> callbacksToMake = new ArrayList<>(callbacks);
-        callbacksToMake = callbacksToMake.stream()
-                .filter(cb-> callbacksDefined.contains(cb.getCallbackName()))
-                .collect(Collectors.toList());
-
-        makeNewCallbacks(lines, callbacksToMake);
+        makeNewCallbacks(lines, callbacksToMake, callbacksDefined);
 
         if(changed) {
             logger.accept("INO Previously existed, backup existing file");
@@ -112,12 +107,23 @@ public class ArduinoSketchFileAdjuster {
         }
     }
 
-    private void makeNewCallbacks(ArrayList<String> lines, List<CallbackRequirement> callbacksToMake) {
-        for (CallbackRequirement cb : callbacksToMake) {
-            logger.accept("Adding new callback to sketch: " + cb.getCallbackName());
-            lines.add("");
-            lines.addAll(cb.generateSketchCallback());
-            changed = true;
+    private void makeNewCallbacks(ArrayList<String> lines, List<CallbackRequirement> callbacksToMake,
+                                  List<String> alreadyDefined) {
+
+        var filteredCb = callbacksToMake.stream()
+                .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()))
+                .collect(Collectors.toList());
+
+        for (CallbackRequirement cb : filteredCb) {
+            if(!alreadyDefined.contains(cb.getCallbackName())) {
+                logger.accept("Adding new callback to sketch: " + cb.getCallbackName());
+                lines.add("");
+                lines.addAll(cb.generateSketchCallback());
+                changed = true;
+            }
+            else {
+                logger.accept("Skip callback generation for " + cb.getCallbackName());
+            }
         }
     }
 

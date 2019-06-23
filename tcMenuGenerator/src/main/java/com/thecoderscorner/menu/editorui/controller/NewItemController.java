@@ -37,6 +37,8 @@ public class NewItemController {
     public RadioButton actionSelect;
     public Button okButton;
     public TextField idField;
+    public RadioButton ipAddrSelect;
+    public RadioButton listSelect;
     private Optional<MenuItem> result = Optional.empty();
     private MenuIdChooserImpl menuIdChooser;
     private CurrentProjectEditorUI editorUI;
@@ -101,6 +103,7 @@ public class NewItemController {
                     .withName("New TextItem")
                     .withId(id)
                     .withEepromAddr(-1)
+                    .withEditItemType(EditItemType.PLAIN_TEXT)
                     .menuItem()
             );
         }
@@ -123,6 +126,14 @@ public class NewItemController {
         else if(actionSelect.isSelected()) {
             result = Optional.of(ActionMenuItemBuilder.anActionMenuItemBuilder()
                     .withName("New ActionItem")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(listSelect.isSelected()) {
+            result = Optional.of(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                    .withName("New Runtime List")
                     .withId(id)
                     .withEepromAddr(-1)
                     .menuItem()

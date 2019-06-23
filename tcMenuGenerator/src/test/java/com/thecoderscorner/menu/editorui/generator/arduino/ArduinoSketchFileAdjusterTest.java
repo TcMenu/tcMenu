@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.makeRtCallName;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -42,8 +43,8 @@ public class ArduinoSketchFileAdjusterTest {
         adjuster = new ArduinoSketchFileAdjuster();
 
         callbacks = List.of(
-                new CallbackRequirement("callback1", tree.getMenuById(8).orElseThrow()),
-                new CallbackRequirement("", tree.getMenuById(5).orElseThrow()),
+                new CallbackRequirement("callback", tree.getMenuById(8).orElseThrow()),
+                new CallbackRequirement(makeRtCallName("List"), tree.getMenuById(10).orElseThrow()),
                 new CallbackRequirement("onIpChange", tree.getMenuById(9).orElseThrow())
         );
     }
@@ -75,10 +76,14 @@ public class ArduinoSketchFileAdjusterTest {
 
         // we should have both callbacks created.
         ensureLinesContaining(lines,
-                "void CALLBACK_FUNCTION callback1(int id) {",
+                "void CALLBACK_FUNCTION callback(int id) {",
                 "// TODO - your menu change code",
                 "}");
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION onChangeIp(int id) {", "// TODO - your menu change code", "}");
+
+        ensureLinesContaining(lines,
+                "void CALLBACK_FUNCTION onIpChange(int id) {",
+                "// TODO - your menu change code",
+                "}");
     }
 
     @Test
@@ -89,7 +94,7 @@ public class ArduinoSketchFileAdjusterTest {
                 + "}\n\n"
                 + "void loop() {\n"
                 + "}\n\n"
-                + "void CALLBACK_FUNCTION callback1(int id) {\n"
+                + "void CALLBACK_FUNCTION callback(int id) {\n"
                 + "  superObj.doIt();\n"
                 + "}\n\n";
         Files.write(inoFile, inoContent.getBytes());
@@ -106,10 +111,10 @@ public class ArduinoSketchFileAdjusterTest {
         ensureLinesContaining(lines,"void loop() {", "taskManager.runLoop();", "}");
 
         // we should have both callbacks created.
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback1(int id) {",
+        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback(int id) {",
                 "superObj.doIt();",
                 "}");
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback2(int id) {",
+        ensureLinesContaining(lines,"void CALLBACK_FUNCTION onIpChange(int id) {",
                 "// TODO - your menu change code",
                 "}");
 
@@ -130,12 +135,20 @@ public class ArduinoSketchFileAdjusterTest {
                 + "void loop() {\n"
                 + "  taskManager.runLoop();"
                 + "}\n\n"
-                + "void CALLBACK_FUNCTION callback1(int id) {\n"
+                + "void CALLBACK_FUNCTION callback(int id) {\n"
                 + "  superObj.doIt();\n"
                 + "}\n\n"
-                + "void CALLBACK_FUNCTION callback2(int id) {\n"
+                + "void CALLBACK_FUNCTION onIpChange(int id) {\n"
                 + "  superObj.doIt();\n"
-                + "}\n\n";
+                + "}\n\n"
+                + "int CALLBACK_FUNCTION fnListRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* , int ) {\n"
+                + "   switch(mode) {\n"
+                + "    case RENDERFN_INVOKE:\n"
+                + "        return true;\n"
+                + "    case RENDERFN_NAME:\n"
+                + "        return true;\n"
+                + "    }\n"
+                + "}\n";
         Files.write(inoFile, inoContent.getBytes());
 
         adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks);

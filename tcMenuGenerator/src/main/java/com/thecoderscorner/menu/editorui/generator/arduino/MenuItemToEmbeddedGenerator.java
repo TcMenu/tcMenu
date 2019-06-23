@@ -11,9 +11,10 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.makeRtCallName;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.makeNameToVar;
 
 /**
  * This class follows the visitor pattern to generate code for each item
@@ -62,7 +63,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         if(item.getItemType() == EditItemType.IP_ADDRESS) {
             BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "IpAddressMenuItem")
-                    .addElement(nameNoSpaces + "RtCall")
+                    .addElement(makeRtCallName(nameNoSpaces))
                     .addElement(item.getId())
                     .addElement(nextMenuName)
                     .requiresExtern();
@@ -70,11 +71,12 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         }
         else {
             BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "TextMenuItem")
-                    .addElement(nameNoSpaces + "RtCall")
+                    .addElement(makeRtCallName(nameNoSpaces))
                     .addElement(item.getId())
                     .addElement(item.getTextLength())
                     .addElement(nextMenuName)
-                    .requiresExtern();
+                    .requiresExtern()
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false);
             setResult(List.of(menu));
         }
     }
@@ -208,8 +210,10 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         BuildStructInitializer listStruct = new BuildStructInitializer(listItem, nameNoSpaces, "ListRuntimeMenuItem")
                 .addElement(listItem.getId())
                 .addElement(listItem.getInitialRows())
-                .addElement(nameNoSpaces + "RtCall")
-                .addElement(nextMenuName);
+                .addElement(makeRtCallName(nameNoSpaces))
+                .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                .addElement(nextMenuName)
+                .requiresExtern();
         setResult(List.of(listStruct));
     }
 
@@ -226,7 +230,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .progMemInfo();
 
         BuildStructInitializer menuBack = new BuildStructInitializer(item, "Back" + nameNoSpaces, "BackMenuItem")
-                .addElement(nameNoSpaces + "RtCall")
+                .addElement(makeRtCallName(nameNoSpaces))
                 .addElement(nextChild)
                 .requiresExtern();
 
@@ -237,16 +241,5 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menuBack, menu));
-    }
-
-    public static String makeNameToVar(String name) {
-        Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
-        return parts.stream().map(MenuItemToEmbeddedGenerator::capitaliseFirst).collect(Collectors.joining());
-    }
-
-    private static String capitaliseFirst(String s) {
-        if(s.isEmpty()) return s;
-
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 }

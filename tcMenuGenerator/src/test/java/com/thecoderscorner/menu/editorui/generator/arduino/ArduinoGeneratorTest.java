@@ -11,19 +11,19 @@ import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
 import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import javax.lang.model.util.Types;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -31,7 +31,6 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeRe
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 
@@ -92,16 +91,9 @@ public class ArduinoGeneratorTest {
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
         assertEqualsIgnoringCRLF(expectedPlugin, pluginGenerated);
 
-        ArgumentCaptor<Collection<CallbackRequirement>> callbackCaptor = ArgumentCaptor.forClass(Collection.class);
-
         Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
                 eq(dir.resolve(dir.resolve(dir.getFileName() + ".ino")).toString()),
-                eq(dir.getFileName().toString()), callbackCaptor.capture());
-
-        assertEquals(1, callbackCaptor.getValue().size());
-        Assertions.assertThat(callbackCaptor.getValue()).containsExactlyInAnyOrder(
-                new CallbackRequirement("callback1", tree.getMenuById(2).orElse(null))
-        );
+                eq(dir.getFileName().toString()), anyCollection());
     }
 
     private List<EmbeddedCodeCreator> unitTestGenerator() {

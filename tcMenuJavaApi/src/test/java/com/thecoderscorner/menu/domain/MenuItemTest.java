@@ -141,10 +141,10 @@ public class MenuItemTest {
                 .withName("runList")
                 .withId(2909)
                 .withEepromAddr(-1)
-                .withFunctionName("runListFn")
+                .withFunctionName("runListFn") // this will be overridden for lists using name based defaulting.
                 .menuItem();
         assertBaseMenuFields(ip, "runList", 2909, -1);
-        assertEquals("runListFn", ip.getFunctionName());
+        assertEquals("fnrunListRtCall", ip.getFunctionName());
         assertEquals(ip, aRuntimeListMenuItemBuilder().withExisting(ip).menuItem());
     }
 

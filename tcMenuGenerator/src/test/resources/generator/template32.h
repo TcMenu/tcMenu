@@ -21,17 +21,21 @@
 extern VarType varName;
 
 // all menu item forward references.
-extern AnalogMenuItem  menuTest2;
-extern BackMenuItem  menuBackSub;
-extern SubMenuItem  menuSub;
-extern AnalogMenuItem  menuTest;
-extern EnumMenuItem  menuExtra;
-extern const ConnectorLocalInfo  applicationInfo;
+extern IpAddressMenuItem menuIpItem;
+extern TextMenuItem menuTextItem;
+extern AnalogMenuItem menuTest2;
+extern BackMenuItem menuBackSub;
+extern SubMenuItem menuSub;
+extern AnalogMenuItem menuTest;
+extern EnumMenuItem menuExtra;
+extern const ConnectorLocalInfo applicationInfo;
 
-// Callback functions always follow this pattern: void CALLBACK_FUNCTION myCallback();
+// Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION
 
 void CALLBACK_FUNCTION callback1(int id);
+void CALLBACK_FUNCTION callback2(int id);
+void fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
 
 void setupMenu();
 

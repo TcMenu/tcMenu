@@ -197,7 +197,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
         if(s.isRequiresExtern()) {
             var constant = s.isProgMem() ? "const " : "";
-            header = header + "extern " + constant + s.getStructType() + " " + s.getPrefix() + s.getStructName() + ";";
+            header = header + "extern " + constant + s.getStructType() + s.getPrefix() + s.getStructName() + ";";
         }
 
         return header;

@@ -69,6 +69,7 @@ public class EditableTextMenuItem extends MenuItem<String> {
         return getTextLength() == that.getTextLength() &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
+                getItemType() == that.getItemType() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
@@ -77,7 +78,7 @@ public class EditableTextMenuItem extends MenuItem<String> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTextLength(), getName(), getId(), getEepromAddress(), getFunctionName());
+        return Objects.hash(getTextLength(), getName(), getId(), getEepromAddress(), getFunctionName(), getItemType());
     }
 
     @Override

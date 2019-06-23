@@ -36,10 +36,11 @@ public class MenuItemHelperTest {
 
     @Test
     public void testIsRuntimeItem() {
-        assertTrue(MenuItemHelper.isRuntimeMenu(textItem));
-        assertTrue(MenuItemHelper.isRuntimeMenu(ipItem));
-        assertFalse(MenuItemHelper.isRuntimeMenu(floatItem));
-        assertFalse(MenuItemHelper.isRuntimeMenu(boolMenuItem));
+        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(textItem));
+        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(ipItem));
+        assertFalse(MenuItemHelper.isRuntimeStructureNeeded(floatItem));
+        assertFalse(MenuItemHelper.isRuntimeStructureNeeded(boolMenuItem));
+        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(subItem));
     }
 
     @Test

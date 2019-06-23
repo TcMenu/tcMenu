@@ -41,15 +41,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL}
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
 
-    private final T menuItem;
     private final MenuIdChooser chooser;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
+    private T menuItem;
 
     private TextField idField;
-    private TextField nameField;
+    protected TextField nameField;
+    protected TextField functionNameTextField;
     private TextField eepromField;
     private Label errorsField;
-    private TextField functionNameTextField;
     private CheckBox readOnlyCheck;
     private CheckBox noRemoteCheck;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
@@ -192,9 +192,10 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected void callChangeConsumer() {
-        getChangedMenuItem().ifPresent(newItem ->
-                changeConsumer.accept(menuItem, newItem)
-        );
+        getChangedMenuItem().ifPresent(newItem -> {
+            changeConsumer.accept(menuItem, newItem);
+            menuItem = newItem;
+        });
     }
 
     protected abstract Optional<T> getChangedMenuItem();
