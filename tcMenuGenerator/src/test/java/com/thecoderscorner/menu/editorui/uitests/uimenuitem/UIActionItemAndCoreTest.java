@@ -103,7 +103,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(eq(subItem), captor.capture());
-        assertEquals(4000, captor.getValue().getEepromAddress());
+        assertEquals(0, captor.getValue().getEepromAddress());
 
         tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "-2",
                 "EEPROM - Value must be between -1 and 32767");

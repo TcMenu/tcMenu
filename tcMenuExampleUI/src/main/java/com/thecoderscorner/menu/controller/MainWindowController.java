@@ -296,6 +296,11 @@ public class MainWindowController {
             }
 
             @Override
+            public void visit(RuntimeListMenuItem listItem) {
+                setResult(new RuntimeListManagedMenuItem(listItem));
+            }
+
+            @Override
             public void visit(SubMenuItem item) { /*ignored*/ }
 
         });

@@ -61,6 +61,6 @@ public class ActionMenuItem extends MenuItem<Boolean> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isLocalOnly());
     }
 }

@@ -26,7 +26,6 @@ AnalogMenuItem menuTest2(&minfoTest2, 0, &menuTextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NULL)
 const PROGMEM SubMenuInfo minfoSub = { "sub", 100, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackSub(fnSubRtCall, &menuTest2);
-RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NULL)
 SubMenuItem menuSub(&minfoSub, &menuBackSub, NULL);
 ListRuntimeMenuItem menuAbc(1043, 2, fnAbcRtCall, &menuSub);
 const PROGMEM AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1, "dB" };

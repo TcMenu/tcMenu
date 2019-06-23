@@ -13,6 +13,7 @@
 
 #include <tcMenu.h>
 #include <header1.h>
+#include <RuntimeMenuItem.h>
 
 // all define statements needed
 #define A_DEFINE 2
@@ -26,6 +27,7 @@ extern TextMenuItem menuTextItem;
 extern AnalogMenuItem menuTest2;
 extern BackMenuItem menuBackSub;
 extern SubMenuItem menuSub;
+extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;
 extern const ConnectorLocalInfo applicationInfo;
@@ -35,7 +37,7 @@ extern const ConnectorLocalInfo applicationInfo;
 
 void CALLBACK_FUNCTION callback1(int id);
 void CALLBACK_FUNCTION callback2(int id);
-void fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
+int fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
 
 void setupMenu();
 
