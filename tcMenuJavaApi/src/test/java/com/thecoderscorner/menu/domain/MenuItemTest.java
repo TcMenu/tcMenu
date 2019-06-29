@@ -17,7 +17,6 @@ import static com.thecoderscorner.menu.domain.DomainFixtures.anActionMenu;
 import static com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder.aTextMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.aFloatMenuItemBuilder;
-import static com.thecoderscorner.menu.domain.RemoteMenuItemBuilder.aRemoteMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static org.junit.Assert.*;
@@ -110,20 +109,6 @@ public class MenuItemTest {
     }
 
     @Test
-    public void testRemoteMenuItem() {
-        RemoteMenuItem rem = aRemoteMenuItemBuilder()
-                .withName("RemoteName")
-                .withId(22)
-                .withEepromAddr(-1)
-                .withFunctionName("someFunc")
-                .withRemoteNo(0)
-                .menuItem();
-
-        assertBaseMenuFields(rem, "RemoteName", 22, -1);
-        assertEquals(rem, aRemoteMenuItemBuilder().withExisting(rem).menuItem());
-    }
-
-    @Test
     public void testFloatMenuItem() {
         FloatMenuItem fl = aFloatMenuItemBuilder()
                 .withName("Flt")
@@ -144,7 +129,7 @@ public class MenuItemTest {
                 .withFunctionName("runListFn") // this will be overridden for lists using name based defaulting.
                 .menuItem();
         assertBaseMenuFields(ip, "runList", 2909, -1);
-        assertEquals("fnrunListRtCall", ip.getFunctionName());
+        assertEquals("fnRunListRtCall", ip.getFunctionName());
         assertEquals(ip, aRuntimeListMenuItemBuilder().withExisting(ip).menuItem());
     }
 

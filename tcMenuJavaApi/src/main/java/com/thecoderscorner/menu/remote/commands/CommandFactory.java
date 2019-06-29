@@ -144,17 +144,6 @@ public class CommandFactory {
     }
 
     /**
-     * create a new remote bootstrap command.
-     * @param parentId the parent onto which the item will be placed.
-     * @param item the item itself.
-     * @param currentVal the current value
-     * @return a new remote boot command
-     */
-    public static MenuRemoteBootCommand newMenuRemoteBootCommand(int parentId, RemoteMenuItem item, String currentVal) {
-        return new MenuRemoteBootCommand(parentId, item, currentVal);
-    }
-
-    /**
      * create a new action bootstrap command.
      * @param parentId the parent onto which the item will be placed.
      * @param item the item itself.

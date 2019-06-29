@@ -271,11 +271,6 @@ public class MainWindowController {
             }
 
             @Override
-            public void visit(RemoteMenuItem item) {
-                setResult(new RemoteManagedMenuItem(item));
-            }
-
-            @Override
             public void visit(FloatMenuItem item) {
                 setResult(new FloatManagedMenuItem(item));
             }

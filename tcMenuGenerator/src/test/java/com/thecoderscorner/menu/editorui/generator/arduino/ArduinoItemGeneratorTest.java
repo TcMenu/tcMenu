@@ -131,29 +131,6 @@ public class ArduinoItemGeneratorTest {
     }
 
     @Test
-    public void testGenerateRemoteItem() {
-        RemoteMenuItem item = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                .withId(10)
-                .withName("Remote 0")
-                .withEepromAddr(22)
-                .withFunctionName(null)
-                .withRemoteNo(0)
-                .menuItem();
-
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
-        assertTrue(result.isPresent());
-
-        assertEquals(2, result.get().size());
-        BuildStructInitializer info = result.get().get(0);
-        BuildStructInitializer menu = result.get().get(1);
-
-        checkTheBasicsOfInfo(info, "RemoteMenuInfo", "Remote0");
-        assertThat(info.getStructElements()).containsExactly("\"Remote 0\"", "10", "22", "0", "NO_CALLBACK");
-        checkTheBasicsOfItem(menu, "RemoteMenuItem", "Remote0");
-        assertThat(menu.getStructElements()).containsExactly("&minfoRemote0", "remoteServer.getRemoteConnector(0)", "NULL");
-    }
-
-    @Test
     public void testGenerateActionItem() {
         ActionMenuItem item = ActionMenuItemBuilder.anActionMenuItemBuilder()
                 .withId(10)

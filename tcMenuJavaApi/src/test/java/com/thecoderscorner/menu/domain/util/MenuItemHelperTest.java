@@ -19,7 +19,6 @@ public class MenuItemHelperTest {
     private EnumMenuItem enumItem = anEnumItem("111", 3);
     private SubMenuItem subItem = aSubMenu("321", 2);
     private BooleanMenuItem boolMenuItem = aBooleanMenu("321", 33, BooleanNaming.TRUE_FALSE);
-    private RemoteMenuItem remoteItem = aRemoteMenuItem("2432", 22);
     private RuntimeListMenuItem listItem= aRuntimeListMenu("2002", 20002, 3);
     private EditableTextMenuItem textItem = aTextMenu("2222", 33);
     private EditableTextMenuItem ipItem = anIpAddressMenu("127.0.0.1", 99);
@@ -50,7 +49,6 @@ public class MenuItemHelperTest {
         MenuItem newSub = MenuItemHelper.createFromExistingWithId(subItem, 97);
         MenuItem newBool = MenuItemHelper.createFromExistingWithId(boolMenuItem, 99);
         MenuItem newFloat = MenuItemHelper.createFromExistingWithId(floatItem, 3333);
-        MenuItem newRemote = MenuItemHelper.createFromExistingWithId(remoteItem, 2222);
         MenuItem newText = MenuItemHelper.createFromExistingWithId(textItem, 1111);
         MenuItem newAction = MenuItemHelper.createFromExistingWithId(actionItem, 9999);
         MenuItem newList = MenuItemHelper.createFromExistingWithId(listItem, 20093);
@@ -73,9 +71,6 @@ public class MenuItemHelperTest {
         assertTrue(newFloat instanceof FloatMenuItem);
         assertEquals(3333, newFloat.getId());
 
-        assertTrue(newRemote instanceof RemoteMenuItem);
-        assertEquals(2222, newRemote.getId());
-
         assertTrue((newAction instanceof ActionMenuItem));
         assertEquals(9999, newAction.getId());
 
@@ -92,7 +87,6 @@ public class MenuItemHelperTest {
         assertEquals(1, MenuItemHelper.eepromSizeForItem(boolMenuItem));
         assertEquals(10, MenuItemHelper.eepromSizeForItem(textItem));
         assertEquals(4, MenuItemHelper.eepromSizeForItem(ipItem));
-        assertEquals(0, MenuItemHelper.eepromSizeForItem(remoteItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(floatItem));
         assertEquals(0, MenuItemHelper.eepromSizeForItem(actionItem));
     }

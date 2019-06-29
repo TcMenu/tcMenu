@@ -59,23 +59,18 @@ public class AbstractMenuItemVisitorTest {
             }
 
             @Override
-            public void visit(RemoteMenuItem item) {
+            public void visit(FloatMenuItem item) {
                 setResult(getResult().orElse("") + "6");
             }
 
             @Override
-            public void visit(FloatMenuItem item) {
+            public void visit(ActionMenuItem item) {
                 setResult(getResult().orElse("") + "7");
             }
 
             @Override
-            public void visit(ActionMenuItem item) {
-                setResult(getResult().orElse("") + "8");
-            }
-
-            @Override
             public void visit(RuntimeListMenuItem item) {
-                setResult(getResult().orElse("") + "9");
+                setResult(getResult().orElse("") + "8");
             }
         };
 
@@ -84,7 +79,6 @@ public class AbstractMenuItemVisitorTest {
         EnumMenuItem enumItem = anEnumItem("111", 3);
         BooleanMenuItem boolItem = aBooleanMenu("222", 2, BooleanNaming.TRUE_FALSE);
         EditableTextMenuItem textItem = aTextMenu("123", 2);
-        RemoteMenuItem remoteItem = aRemoteMenuItem("123", 222);
         FloatMenuItem floatItem = aFloatMenu("123", 223);
         ActionMenuItem actionItem = anActionMenu("123", 347);
         RuntimeListMenuItem runList = aRuntimeListMenu("1232", 153, 1);
@@ -94,12 +88,11 @@ public class AbstractMenuItemVisitorTest {
         enumItem.accept(visitor);
         boolItem.accept(visitor);
         textItem.accept(visitor);
-        remoteItem.accept(visitor);
         floatItem.accept(visitor);
         actionItem.accept(visitor);
         runList.accept(visitor);
 
-        assertThat(visitor.getResult().orElse(""), is("123456789"));
+        assertThat(visitor.getResult().orElse(""), is("12345678"));
     }
 
     @Test(expected = UnsupportedOperationException.class)

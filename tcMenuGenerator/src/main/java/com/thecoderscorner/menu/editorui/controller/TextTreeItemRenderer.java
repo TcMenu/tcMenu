@@ -118,14 +118,6 @@ public class TextTreeItemRenderer {
         }
 
         @Override
-        public void visit(RemoteMenuItem item) {
-            StringBuilder sb = createBuilderWithName(item.getName());
-            String s = "No Link";
-            sb.replace(spaces.length() - s.length(), spaces.length(), s);
-            setResult(sb.toString());
-        }
-
-        @Override
         public void visit(ActionMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             setResult(sb.toString());

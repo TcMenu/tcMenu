@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
+import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
 /**
@@ -36,10 +37,8 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String ACTION_PERSIST_TYPE = "actionMenu";
     public static final String RUNTIME_LIST_PERSIST_TYPE = "runtimeList";
-    public static final String IP_ADDR_PERSIST_TYPE = "ipAddrItem";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
     public static final String TEXT_PERSIST_TYPE = "textItem";
-    public static final String REMOTE_PERSIST_TYPE = "remoteItem";
     public static final String FLOAT_PERSIST_TYPE = "floatItem";
 
     private static final String PARENT_ID = "parentId";
@@ -135,7 +134,6 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 TEXT_PERSIST_TYPE, EditableTextMenuItem.class,
                 SUB_PERSIST_TYPE, SubMenuItem.class,
                 RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class,
-                REMOTE_PERSIST_TYPE, RemoteMenuItem.class,
                 FLOAT_PERSIST_TYPE, FloatMenuItem.class);
 
         @Override
@@ -147,15 +145,17 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 String ty = ele.getAsJsonObject().get(TYPE_ID).getAsString();
                 int parentId = ele.getAsJsonObject().get("parentId").getAsInt();
                 Class<? extends MenuItem> c = mapOfTypes.get(ty);
-                if(c==null) throw new JsonParseException("Unknown type " + type);
-                MenuItem item = ctx.deserialize(ele.getAsJsonObject().getAsJsonObject(ITEM_ID), c);
-
-                PersistedMenu m = new PersistedMenu();
-                m.setItem(item);
-                m.setParentId(parentId);
-                m.setType(ty);
-
-                list.add(m);
+                if(c!=null) {
+                    MenuItem item = ctx.deserialize(ele.getAsJsonObject().getAsJsonObject(ITEM_ID), c);
+                    PersistedMenu m = new PersistedMenu();
+                    m.setItem(item);
+                    m.setParentId(parentId);
+                    m.setType(ty);
+                    list.add(m);
+                }
+                else {
+                    logger.log(ERROR, "Item of type " + ty + " was not reloaded - skipping");
+                }
             });
 
             return list;

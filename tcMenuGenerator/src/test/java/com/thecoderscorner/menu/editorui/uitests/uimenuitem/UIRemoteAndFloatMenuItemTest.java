@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.RemoteMenuItem;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -38,30 +37,6 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
     @AfterEach
     protected void closeWindow() {
         Platform.runLater(() -> stage.close());
-    }
-
-    @Test
-    void testRemoteMenuItemEditing(FxRobot robot) throws InterruptedException {
-        MenuItem remoteItem = menuTree.getMenuById(7).get();
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(remoteItem, menuTree, mockedConsumer);
-
-        // open the sub menu item editor panel
-        createMainPanel(uiSubItem);
-
-        // firstly check that all the fields are populated properly
-        performAllCommonChecks(remoteItem);
-
-        tryToEnterBadValueIntoField(robot, "remoteNumField", "nameField", "100",
-                "Remote No - Value must be between 0 and 3");
-
-        robot.clickOn("#remoteNumField");
-        robot.eraseText(4);
-        robot.write("2");
-
-        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
-        verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
-        RemoteMenuItem item = (RemoteMenuItem) captor.getValue();
-        assertEquals(2, item.getRemoteNum());
     }
 
     @Test

@@ -24,6 +24,8 @@ int drawingCount = 0;
     #define refreshDisplayIfNeeded(g, n)
 #endif
 
+const char MENU_BACK_TEXT[] PROGMEM = "[..]";
+
 Coord textExtents(Adafruit_GFX* graphics, const char* text, int16_t x, int16_t y) {
 	int16_t x1, y1;
 	uint16_t w, h;
@@ -100,6 +102,30 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
     return redrawNeeded;
 }
 
+void AdaFruitGfxMenuRenderer::renderListMenu(int titleHeight) {
+    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(currentRoot);
+	
+    int maxY = (graphics->height() - titleHeight) / itemHeight; 
+	maxY = min(maxY, runList->getNumberOfParts());
+	uint8_t currentActive = runList->getActiveIndex();
+	
+	uint8_t offset = 0;
+	if (currentActive >= maxY) {
+		offset = (currentActive+1) - maxY;
+	}
+
+    int yPos = titleHeight;
+	for (int i = 0; i < maxY; i++) {
+		uint8_t current = offset + i;
+		RuntimeMenuItem* toDraw = (current==0) ? runList->asBackMenu() : runList->getChildItem(current - 1);
+		renderMenuItem(yPos, itemHeight, toDraw);
+        yPos += itemHeight;
+	}
+
+	// reset the list item to a normal list again.
+	runList->asParent();
+}
+
 void AdaFruitGfxMenuRenderer::render() {
  	if (graphics == NULL) return;
 
@@ -137,36 +163,44 @@ void AdaFruitGfxMenuRenderer::render() {
 	graphics->setTextSize(gfxConfig->itemFontMagnification);
 	int maxItemsY = ((graphics->height()-titleHeight) / itemHeight);
 
-	MenuItem* item = currentRoot;
-	// first we find the first currently active item in our single linked list
-	if (offsetOfCurrentActive() >= maxItemsY) {
-		uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
-
-		if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
-		lastOffset = toOffsetBy;
-
-		while (item != NULL && toOffsetBy--) {
-			item = item->getNext();
-		}
-	}
-	else {
-		if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
-		lastOffset = 0xff;
-	}
-
-	// and then we start drawing items until we run out of screen or items
-	int ypos = titleHeight;
-	while (item && (ypos + itemHeight) < graphics->height() ) {
-		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+    if(currentRoot->getMenuType() == MENUTYPE_RUNTIME_LIST) {
+        if(currentRoot->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
             requiresUpdate = true;
-
-            taskManager.yieldForMicros(0);
-
-			renderMenuItem(ypos, itemHeight, item);
+            renderListMenu(titleHeight);
         }
-		ypos += itemHeight;
-		item = item->getNext();
-	}
+    }
+    else {
+        MenuItem* item = currentRoot;
+        // first we find the first currently active item in our single linked list
+        if (offsetOfCurrentActive() >= maxItemsY) {
+            uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
+
+            if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+            lastOffset = toOffsetBy;
+
+            while (item != NULL && toOffsetBy--) {
+                item = item->getNext();
+            }
+        }
+        else {
+            if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+            lastOffset = 0xff;
+        }
+
+        // and then we start drawing items until we run out of screen or items
+        int ypos = titleHeight;
+        while (item && (ypos + itemHeight) < graphics->height() ) {
+            if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+                requiresUpdate = true;
+
+                taskManager.yieldForMicros(0);
+
+                renderMenuItem(ypos, itemHeight, item);
+            }
+            ypos += itemHeight;
+            item = item->getNext();
+        }
+    }
 
     refreshDisplayIfNeeded(graphics, requiresUpdate);
 }
@@ -177,16 +211,17 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 
 	item->setChanged(false); // we are drawing the item so it's no longer changed.
 
+    int imgMiddleY = yPos + ((menuHeight - icoHei) / 2);
 	if(item->isEditing()) {
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
-		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+		graphics->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
 		graphics->setTextColor(gfxConfig->fgSelectColor);
         serdebugF("Item Editing");
 	}
 	else if(item->isActive()) {
 		graphics->setTextColor(gfxConfig->fgSelectColor);
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
-		graphics->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+		graphics->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
         serdebugF("Item Active");
 	}
 	else {
@@ -210,7 +245,17 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 
 	graphics->print(buffer);
 
-	menuValueToText(item, JUSTIFY_TEXT_LEFT);
+    if(isItemActionable(item)) {
+        int rightOffset = graphics->width() - (gfxConfig->itemPadding.right + icoWid);
+		graphics->drawBitmap(rightOffset, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);        
+        buffer[0] = 0;
+    }
+    else if(item->getMenuType() == MENUTYPE_BACK_VALUE) {
+        safeProgCpy(buffer, MENU_BACK_TEXT, bufferSize);
+    }
+    else {
+	    menuValueToText(item, JUSTIFY_TEXT_LEFT);
+    }
 	Coord coord = textExtents(graphics, buffer, textPos, yPos);
 	int16_t right = graphics->width() - (coord.x + gfxConfig->itemPadding.right);
 	graphics->setCursor(right, drawingPositionY);

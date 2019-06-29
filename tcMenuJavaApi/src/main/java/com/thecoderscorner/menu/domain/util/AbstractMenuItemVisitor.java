@@ -52,11 +52,6 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
     }
 
     @Override
-    public void visit(RemoteMenuItem item) {
-        anyItem(item);
-    }
-
-    @Override
     public void visit(FloatMenuItem item) {
         anyItem(item);
     }

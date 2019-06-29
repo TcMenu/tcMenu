@@ -76,15 +76,6 @@ public class DomainFixtures {
                 .menuItem();
     }
 
-    public static RemoteMenuItem aRemoteMenuItem(String name, int id) {
-        return RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                .withEepromAddr(110)
-                .withName(name)
-                .withId(id)
-                .withRemoteNo(2)
-                .menuItem();
-    }
-
     public static BooleanMenuItem aBooleanMenu(String name, int id, BooleanMenuItem.BooleanNaming naming) {
         return BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withEepromAddr(102)

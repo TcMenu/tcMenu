@@ -225,13 +225,6 @@ public class TestUtils {
                 .menuItem();
         tree.addMenuItem(MenuTree.ROOT, floatItem);
 
-        RemoteMenuItem remoteItem = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                .withId(7)
-                .withRemoteNo(2)
-                .withName("RemoteTest")
-                .menuItem();
-        tree.addMenuItem(MenuTree.ROOT, remoteItem);
-
         ActionMenuItem actionItem = ActionMenuItemBuilder.anActionMenuItemBuilder()
                 .withId(8)
                 .withFunctionName("callback")

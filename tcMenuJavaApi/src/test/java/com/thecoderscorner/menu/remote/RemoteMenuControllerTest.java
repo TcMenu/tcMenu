@@ -86,7 +86,7 @@ public class RemoteMenuControllerTest {
     public void testPopulatingTheTree() {
         populateTreeWithAllTypes();
 
-        assertEquals(8, menuTree.getMenuItems(MenuTree.ROOT).size());
+        assertEquals(7, menuTree.getMenuItems(MenuTree.ROOT).size());
         Optional<MenuItem> menuById11 = menuTree.getMenuById(11);
         assertTrue(menuById11.isPresent());
         Optional<MenuItem> menuById12 = menuTree.getMenuById(12);
@@ -97,8 +97,6 @@ public class RemoteMenuControllerTest {
         assertTrue(menuById43.isPresent());
         Optional<MenuItem> menuById239 = menuTree.getMenuById(239);
         assertTrue(menuById239.isPresent());
-        Optional<MenuItem> menuById233 = menuTree.getMenuById(233);
-        assertTrue(menuById233.isPresent());
         Optional<MenuItem> menuById9038 = menuTree.getMenuById(9038);
         assertTrue(menuById9038.isPresent());
         Optional<MenuItem> menuById3249 = menuTree.getMenuById(3249);
@@ -108,21 +106,18 @@ public class RemoteMenuControllerTest {
         assertEquals("Text", menuById42.get().getName());
         assertEquals("Bool", menuById43.get().getName());
         assertEquals("Float", menuById239.get().getName());
-        assertEquals("Remo", menuById233.get().getName());
         assertEquals("Action", menuById9038.get().getName());
         assertEquals("RunList", menuById3249.get().getName());
         assertEquals(menuTree.getMenuState(menuById11.get()).getValue(), 2);
         assertEquals(menuTree.getMenuState(menuById12.get()).getValue(), 25);
         assertEquals(menuTree.getMenuState(menuById42.get()).getValue(), "Abc");
         assertEquals((float)menuTree.getMenuState(menuById239.get()).getValue(), (float)102.23, 0.0001);
-        assertEquals(menuTree.getMenuState(menuById233.get()).getValue(), "No Link");
 
         Mockito.verify(remoteListener).menuItemChanged(menuById11.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById12.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById42.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById43.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById239.get(), false);
-        Mockito.verify(remoteListener).menuItemChanged(menuById233.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById9038.get(), false);
         Mockito.verify(remoteListener).menuItemChanged(menuById3249.get(), false);
     }
@@ -141,8 +136,6 @@ public class RemoteMenuControllerTest {
                 DomainFixtures.aFloatMenu("Float", 239), (float)102.23));
         listener.getValue().onCommand(connector, newRuntimeListBootCommand(MenuTree.ROOT.getId(),
                 DomainFixtures.aRuntimeListMenu("RunList", 3249, 2), List.of("ABC", "DEF")));
-        listener.getValue().onCommand(connector, newMenuRemoteBootCommand(MenuTree.ROOT.getId(),
-                DomainFixtures.aRemoteMenuItem("Remo", 233),"No Link"));
         listener.getValue().onCommand(connector, newMenuActionBootCommand(MenuTree.ROOT.getId(),
                 DomainFixtures.anActionMenu("Action", 9038)));
         listener.getValue().onCommand(connector, newBootstrapCommand(MenuBootstrapCommand.BootType.END));
@@ -175,7 +168,6 @@ public class RemoteMenuControllerTest {
         assertEquals("Hello", menuTree.getMenuState(menuById42.get()).getValue());
         assertEquals(true, menuTree.getMenuState(menuById43.get()).getValue());
         assertEquals((float)1.2943, (float)menuTree.getMenuState(menuById239.get()).getValue(), 0.00001);
-        assertEquals("Connected", menuTree.getMenuState(menuById233.get()).getValue());
 
         Mockito.verify(remoteListener).menuItemChanged(menuById11.get(), true);
         Mockito.verify(remoteListener).menuItemChanged(menuById12.get(), true);

@@ -132,15 +132,6 @@ public class MenuItemHelper {
             }
 
             @Override
-            public void visit(RemoteMenuItem item) {
-                setResult(RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
             public void visit(FloatMenuItem item) {
                 setResult(FloatMenuItemBuilder.aFloatMenuItemBuilder()
                         .withExisting(item)

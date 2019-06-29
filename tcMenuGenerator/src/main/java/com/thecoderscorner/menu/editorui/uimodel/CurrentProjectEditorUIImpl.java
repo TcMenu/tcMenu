@@ -183,11 +183,6 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         @Override
-        public void visit(RemoteMenuItem item) {
-            setResult(new UIRemoteMenuItem(item, menuIdChooser, changeConsumer));
-        }
-
-        @Override
         public void visit(FloatMenuItem item) {
             setResult(new UIFloatMenuItem(item, menuIdChooser, changeConsumer));
         }

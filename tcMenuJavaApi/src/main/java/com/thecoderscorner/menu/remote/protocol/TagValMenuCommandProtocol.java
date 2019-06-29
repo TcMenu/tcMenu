@@ -69,8 +69,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processItemChange(parser);
             case TEXT_BOOT_ITEM:
                 return processTextItem(parser);
-            case REMOTE_BOOT_ITEM:
-                return processRemoteItem(parser);
             case FLOAT_BOOT_ITEM:
                 return processFloatItem(parser);
             case ACTION_BOOT_ITEM:
@@ -226,19 +224,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuFloatBootCommand(parentId, item, Float.valueOf(currentVal));
     }
 
-    private MenuCommand processRemoteItem(TagValTextParser parser) throws IOException {
-        RemoteMenuItem item = RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                .withId(parser.getValueAsInt(KEY_ID_FIELD))
-                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
-                .withName(parser.getValue(KEY_NAME_FIELD))
-                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
-                .withRemoteNo(parser.getValueAsInt(KEY_REMOTE_NUM))
-                .menuItem();
-
-        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
-        String currentVal = parser.getValue(KEY_CURRENT_VAL);
-        return newMenuRemoteBootCommand(parentId, item, currentVal);
-    }
     private BooleanMenuItem.BooleanNaming toNaming(int i) {
         if(i==0) {
             return BooleanMenuItem.BooleanNaming.TRUE_FALSE;
@@ -365,9 +350,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case ENUM_BOOT_ITEM:
                 writeEnumMenuItem(sb, (MenuEnumBootCommand) cmd);
                 break;
-            case REMOTE_BOOT_ITEM:
-                writeRemoteBootItem(sb, (MenuRemoteBootCommand) cmd);
-                break;
             case ACTION_BOOT_ITEM:
                 writeActionBootItem(sb, (MenuActionBootCommand) cmd);
                 break;
@@ -485,12 +467,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         writeCommonBootFields(sb, cmd);
         appendChoices(sb, cmd.getCurrentValue());
 
-    }
-
-    private void writeRemoteBootItem(StringBuilder sb, MenuRemoteBootCommand cmd) {
-        writeCommonBootFields(sb, cmd);
-        appendField(sb, KEY_REMOTE_NUM, cmd.getMenuItem().getRemoteNum());
-        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
     }
 
     private void writeFloatBootItem(StringBuilder sb, MenuFloatBootCommand cmd) {

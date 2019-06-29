@@ -41,11 +41,6 @@ public interface MenuItemVisitor {
      */
     void visit(EditableTextMenuItem item);
     /**
-     * This will be called during visit for a remote item
-     * @param item the item
-     */
-    void visit(RemoteMenuItem item);
-    /**
      * This will be called during visit for an floating point item
      * @param item the item
      */

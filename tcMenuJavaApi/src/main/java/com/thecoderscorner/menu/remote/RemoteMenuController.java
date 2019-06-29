@@ -310,12 +310,6 @@ public class RemoteMenuController {
                 }
 
                 @Override
-                public void visit(RemoteMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
                 public void visit(FloatMenuItem item) {
                     managedMenu.changeItem(item, item.newMenuState(Float.valueOf(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));

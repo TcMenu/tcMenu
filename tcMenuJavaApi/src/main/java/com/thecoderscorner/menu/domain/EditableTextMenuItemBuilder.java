@@ -23,6 +23,7 @@ public class EditableTextMenuItemBuilder extends MenuItemBuilder<EditableTextMen
     public EditableTextMenuItemBuilder withExisting(EditableTextMenuItem item) {
         baseFromExisting(item);
         textLength = item.getTextLength();
+        itemType = item.getItemType();
         return getThis();
     }
 

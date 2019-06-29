@@ -57,11 +57,6 @@ public class AddDialogTestCases {
     }
 
     @Test
-    void testSelectingRemote(FxRobot robot) {
-        checkForItem(RemoteMenuItem.class, DEFAULT_ID, "remoteSelect", robot);
-    }
-
-    @Test
     void testSelectingFloat(FxRobot robot) {
         checkForItem(FloatMenuItem.class, DEFAULT_ID, "floatSelect", robot);
     }

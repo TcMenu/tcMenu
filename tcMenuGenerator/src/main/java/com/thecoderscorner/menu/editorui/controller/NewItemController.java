@@ -32,12 +32,10 @@ public class NewItemController {
     public RadioButton enumSelect;
     public RadioButton boolSelect;
     public RadioButton textSelect;
-    public RadioButton remoteSelect;
     public RadioButton floatSelect;
     public RadioButton actionSelect;
     public Button okButton;
     public TextField idField;
-    public RadioButton ipAddrSelect;
     public RadioButton listSelect;
     private Optional<MenuItem> result = Optional.empty();
     private MenuIdChooserImpl menuIdChooser;
@@ -104,14 +102,6 @@ public class NewItemController {
                     .withId(id)
                     .withEepromAddr(-1)
                     .withEditItemType(EditItemType.PLAIN_TEXT)
-                    .menuItem()
-            );
-        }
-        else if(remoteSelect.isSelected()) {
-            result = Optional.of(RemoteMenuItemBuilder.aRemoteMenuItemBuilder()
-                    .withName("New RemoteItem")
-                    .withId(id)
-                    .withEepromAddr(-1)
                     .menuItem()
             );
         }

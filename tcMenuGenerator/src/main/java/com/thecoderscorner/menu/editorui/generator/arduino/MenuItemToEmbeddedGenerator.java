@@ -82,28 +82,6 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     }
 
     @Override
-    public void visit(RemoteMenuItem item) {
-        String nameNoSpaces = makeNameToVar(item.getName());
-
-        BuildStructInitializer info = new BuildStructInitializer(item, nameNoSpaces, "RemoteMenuInfo")
-                .addQuoted(item.getName())
-                .addElement(item.getId())
-                .addEeprom(item.getEepromAddress())
-                .addElement(item.getRemoteNum())
-                .addPossibleFunction(item.getFunctionName())
-                .progMemInfo();
-
-        BuildStructInitializer menu = new BuildStructInitializer(item, nameNoSpaces, "RemoteMenuItem")
-                .addHeaderFileRequirement("RemoteMenuItem.h", false)
-                .addElement("&minfo" + nameNoSpaces)
-                .addElement("remoteServer.getRemoteConnector(" + item.getRemoteNum() + ")")
-                .addElement(nextMenuName)
-                .requiresExtern();
-
-        setResult(Arrays.asList(info, menu));
-    }
-
-    @Override
     public void visit(ActionMenuItem item) {
         String nameNoSpaces = makeNameToVar(item.getName());
 

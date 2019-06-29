@@ -26,7 +26,6 @@ class TextTreeItemRendererTest {
                         " BoolTest                   ON\n" +
                         " TextTest           AAAAAAAAAA\n" +
                         " FloatTest         -12345.1235\n" +
-                        " RemoteTest            No Link\n" +
                         " ActionTest                  \n" +
                         " Subnet Mask         127.0.0.1\n" +
                         " List                      >>>\n",

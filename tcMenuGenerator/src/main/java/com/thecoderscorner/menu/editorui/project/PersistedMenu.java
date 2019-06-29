@@ -56,11 +56,6 @@ public class PersistedMenu {
             public void visit(EditableTextMenuItem item) { type = TEXT_PERSIST_TYPE; }
 
             @Override
-            public void visit(RemoteMenuItem item) {
-                type = REMOTE_PERSIST_TYPE;
-            }
-
-            @Override
             public void visit(FloatMenuItem item) {
                 type = FLOAT_PERSIST_TYPE;
             }
