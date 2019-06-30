@@ -17,6 +17,8 @@
 #include <U8g2lib.h>
 #include "tcMenuU8g2.h"
 
+const char MENU_BACK_TEXT[] PROGMEM = "[..]";
+
 void U8g2MenuRenderer::setGraphicsDevice(U8G2* u8g2, U8g2GfxMenuConfig *gfxConfig) {
 
 	this->u8g2 = u8g2;
@@ -87,6 +89,30 @@ bool U8g2MenuRenderer::renderWidgets(bool forceDraw) {
     return redrawNeeded;
 }
 
+void U8g2MenuRenderer::renderListMenu(int titleHeight) {
+    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(currentRoot);
+
+    uint8_t maxY = uint8_t((u8g2->getDisplayHeight() - titleHeight) / itemHeight);
+	maxY = min(maxY, runList->getNumberOfParts());
+	uint8_t currentActive = runList->getActiveIndex();
+
+	uint8_t offset = 0;
+	if (currentActive >= maxY) {
+		offset = (currentActive+1) - maxY;
+	}
+
+    int yPos = titleHeight;
+	for (int i = 0; i < maxY; i++) {
+		uint8_t current = offset + i;
+		RuntimeMenuItem* toDraw = (current==0) ? runList->asBackMenu() : runList->getChildItem(current - 1);
+		renderMenuItem(yPos, itemHeight, toDraw);
+        yPos += itemHeight;
+	}
+
+	// reset the list item to a normal list again.
+	runList->asParent();
+}
+
 void U8g2MenuRenderer::render() {
  	if (u8g2 == NULL) return;
 
@@ -123,39 +149,46 @@ void U8g2MenuRenderer::render() {
 	u8g2->setFont(gfxConfig->itemFont);
 	int maxItemsY = ((u8g2->getDisplayHeight()-titleHeight) / itemHeight);
 
-
-	MenuItem* item = currentRoot;
-	// first we find the first currently active item in our single linked list
-	if (offsetOfCurrentActive() >= maxItemsY) {
-		uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
-
-		if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
-		lastOffset = toOffsetBy;
-
-		while (item != NULL && toOffsetBy--) {
-			item = item->getNext();
-		}
-	}
-	else {
-		if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
-		lastOffset = 0xff;
-	}
-
-    //serdebugF3("Offset chosen, on display", lastOffset, maxItemsY);
-
-	// and then we start drawing items until we run out of screen or items
-	int ypos = titleHeight;
-	while (item && (ypos + itemHeight) < u8g2->getDisplayHeight() ) {
-		if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+    if(currentRoot->getMenuType() == MENUTYPE_RUNTIME_LIST) {
+        if(currentRoot->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
             requiresUpdate = true;
-
-            taskManager.yieldForMicros(0);
-
-			renderMenuItem(ypos, itemHeight, item);
+            renderListMenu(titleHeight);
         }
-		ypos += itemHeight;
-		item = item->getNext();
-	}
+    }
+    else {
+        MenuItem* item = currentRoot;
+        // first we find the first currently active item in our single linked list
+        if (offsetOfCurrentActive() >= maxItemsY) {
+            uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
+
+            if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+            lastOffset = toOffsetBy;
+
+            while (item != NULL && toOffsetBy--) {
+                item = item->getNext();
+            }
+        }
+        else {
+            if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
+            lastOffset = 0xff;
+        }
+
+        //serdebugF3("Offset chosen, on display", lastOffset, maxItemsY);
+
+        // and then we start drawing items until we run out of screen or items
+        int ypos = titleHeight;
+        while (item && (ypos + itemHeight) < u8g2->getDisplayHeight() ) {
+            if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+                requiresUpdate = true;
+
+                taskManager.yieldForMicros(0);
+
+                renderMenuItem(ypos, itemHeight, item);
+            }
+            ypos += itemHeight;
+            item = item->getNext();
+        }
+    }
 
     if(requiresUpdate) u8g2->sendBuffer();
 }
@@ -166,18 +199,20 @@ void U8g2MenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) 
 
 	item->setChanged(false); // we are drawing the item so it's no longer changed.
 
+    int imgMiddleY = yPos + ((menuHeight - icoHei) / 2);
+
 	if(item->isEditing()) {
         u8g2->setColorIndex(gfxConfig->bgSelectColor);
 		u8g2->drawBox(0, yPos, u8g2->getDisplayWidth(), menuHeight);
 		u8g2->setColorIndex(gfxConfig->fgSelectColor);
-		u8g2->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), icoWid / 8, icoHei, gfxConfig->editIcon);
+		u8g2->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid / 8, icoHei, gfxConfig->editIcon);
         serdebugF("Item Editing");
 	}
 	else if(item->isActive()) {
 		u8g2->setColorIndex(gfxConfig->bgSelectColor);
 		u8g2->drawBox(0, yPos, u8g2->getDisplayWidth(), menuHeight);
 		u8g2->setColorIndex(gfxConfig->fgSelectColor);
-		u8g2->drawBitmap(gfxConfig->itemPadding.left, yPos + ((menuHeight - icoHei) / 2), icoWid / 8, icoHei, gfxConfig->activeIcon);
+		u8g2->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid / 8, icoHei, gfxConfig->activeIcon);
         serdebugF("Item Active");
 	}
 	else {
@@ -202,7 +237,19 @@ void U8g2MenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) 
 
 	u8g2->print(buffer);
 
-	menuValueToText(item, JUSTIFY_TEXT_LEFT);
+    if(isItemActionable(item)) {
+        int rightOffset = u8g2->getDisplayWidth() - (gfxConfig->itemPadding.right + icoWid);
+		u8g2->setColorIndex(gfxConfig->fgSelectColor);
+		u8g2->drawBitmap(rightOffset, imgMiddleY, icoWid / 8, icoHei, gfxConfig->activeIcon);
+        buffer[0] = 0;
+    } 
+    else if(item->getMenuType() == MENUTYPE_BACK_VALUE) {
+        safeProgCpy(buffer, MENU_BACK_TEXT, bufferSize);
+    }
+    else {
+	    menuValueToText(item, JUSTIFY_TEXT_LEFT);
+    }
+
 	int16_t right = u8g2->getDisplayWidth() - (u8g2->getStrWidth(buffer) + gfxConfig->itemPadding.right);
 	u8g2->setCursor(right, drawingPositionY);
  	u8g2->print(buffer);
@@ -242,7 +289,7 @@ void prepareBasicU8x8Config(U8g2GfxMenuConfig& config) {
 
 BaseDialog* U8g2MenuRenderer::getDialog() {
     if(dialog == NULL) {
-        dialog = new U8g2Dialog(this);
+        dialog = new U8g2Dialog();
     }
     return dialog;
 }

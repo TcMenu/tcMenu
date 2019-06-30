@@ -105,7 +105,7 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 void AdaFruitGfxMenuRenderer::renderListMenu(int titleHeight) {
     ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(currentRoot);
 	
-    int maxY = (graphics->height() - titleHeight) / itemHeight; 
+    uint8_t maxY = uint8_t((graphics->height() - titleHeight) / itemHeight);
 	maxY = min(maxY, runList->getNumberOfParts());
 	uint8_t currentActive = runList->getActiveIndex();
 	

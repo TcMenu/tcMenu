@@ -78,6 +78,7 @@ private:
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
 	void renderTitleArea();
 	bool renderWidgets(bool forceDraw);
+    void renderListMenu(int titleHeight);
 };
 
 class U8g2Dialog : public BaseDialog {
