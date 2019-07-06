@@ -58,11 +58,13 @@ public class CurrentEditorProject {
         menuTree = new MenuTree();
         fileName = Optional.empty();
         setDirty(false);
+        updateTitle();
     }
 
     public void newProject() {
         if(checkIfWeShouldOverwrite()) {
             cleanDown();
+            updateTitle();
             changeHistory.clear();
         }
     }
@@ -93,6 +95,7 @@ public class CurrentEditorProject {
                 generatorOptions = openedProject.getOptions();
                 if (generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
                 setDirty(false);
+                updateTitle();
                 changeHistory.clear();
                 return true;
             }
@@ -144,8 +147,12 @@ public class CurrentEditorProject {
     private void setDirty(boolean dirty) {
         if(this.dirty != dirty) {
             this.dirty = dirty;
-            editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
+            updateTitle();
         }
+    }
+
+    private void updateTitle() {
+        editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
     }
 
     public MenuTree getMenuTree() {
