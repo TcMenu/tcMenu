@@ -37,9 +37,6 @@ The Generator is capable of round trip development too - most of the code is off
 
 * Some more videos on youtube showing how to generate menus.
 * More complete documentation on the coders corner showing how to use it - in progress
-* Support for most types of OLED display.
-* Support for ESP boards
-* Improve the 16x2 LCD support to have an additional renderer with one item per page.
 
 ## TcMenu saves memory in many ways
 
@@ -83,7 +80,7 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.3</version>
+            <version>1.3.2</version>
         </dependency>
 
 ## Loading and saving menu items
