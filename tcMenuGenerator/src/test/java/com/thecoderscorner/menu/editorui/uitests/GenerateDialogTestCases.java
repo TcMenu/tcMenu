@@ -101,23 +101,28 @@ public class GenerateDialogTestCases {
         // set up the plugins that are available for each subsystem
         //
         CodePluginItem inputPlugin1 = new CodePluginItem("123456", "in description 1", "extended description 1",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "no-display.png", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "no-display.png", "clazz", null);
         CodePluginItem inputPlugin2 = new CodePluginItem("123457", "in description 2", "extended description 2",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "clazz",
+                "http://localhost");
         CodePluginItem inputBad = new CodePluginItem("99997", "input bad", "boom",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "bang");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.INPUT, "invalid-other.jpg", "bang",
+                "http://localhost");
         when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.INPUT)).thenReturn(List.of(
                 inputPlugin1,
                 inputPlugin2,
                 inputBad
         ));
 
-        CodePluginItem displayPlugin1 = new CodePluginItem("123458", "display description 1", "extended description 3",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "no-display.png", "clazz");
-        CodePluginItem displayPlugin2 = new CodePluginItem("123459", "display description 2", "extended description 4",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "clazz");
+        CodePluginItem displayPlugin1 = new CodePluginItem("123458", "display description 1",
+                "extended description 3", List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY,
+                "no-display.png", "clazz", null);
+        CodePluginItem displayPlugin2 = new CodePluginItem("123459", "display description 2",
+                "extended description 4", List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY,
+                "invalid-other.jpg", "clazz", "http://localhost");
         CodePluginItem displayBad = new CodePluginItem("99998", "display bad", "boom",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg", "bang");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.DISPLAY, "invalid-other.jpg",
+                "bang", null);
         when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.DISPLAY)).thenReturn(List.of(
                 displayPlugin1,
                 displayPlugin2,
@@ -125,11 +130,11 @@ public class GenerateDialogTestCases {
         ));
 
         CodePluginItem remotePlugin1 = new CodePluginItem("123460", "remote 1", "extended description 5",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "no-display.png", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "no-display.png", "clazz", null);
         CodePluginItem remotePlugin2 = new CodePluginItem("123461", "remote 2", "extended description 6",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "clazz");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "clazz", null);
         CodePluginItem remotePluginBad = new CodePluginItem("99999", "remote bad", "Boom",
-                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "bang");
+                List.of(ARDUINO_AVR.getBoardId()), SubSystem.REMOTE, "invalid-other.jpg", "bang", null);
         when(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.REMOTE)).thenReturn(List.of(
                 remotePlugin1,
                 remotePlugin2,

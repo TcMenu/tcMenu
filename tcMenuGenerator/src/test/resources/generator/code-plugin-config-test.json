@@ -15,6 +15,16 @@
       "extendedDescription": "A unit test example",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.unitest.ExamplePlugin",
       "imageFileName": "example.jpg"
+    },
+    {
+      "id": "always-use-uuidsII",
+      "subsystem": "DISPLAY",
+      "applicability": ["ARDUINO", "ARDUINO32"],
+      "description": "AnotherUnitTest",
+      "extendedDescription": "example",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.unitest.ExamplePlugin",
+      "imageFileName": "example.jpg",
+      "docsLink": "http://localhost"
     }
   ]
 }

@@ -92,7 +92,7 @@ public class DirectoryCodePluginManager implements CodePluginManager {
     public synchronized List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem) {
         return configurationsLoaded.stream()
                 .flatMap(module -> module.getPlugins().stream())
-                .filter(item -> item.getApplicability(platforms).contains(platform) && item.getSubsystem() == subSystem)
+                .filter(item -> item. getApplicability(platforms).contains(platform) && item.getSubsystem() == subSystem)
                 .collect(Collectors.toList());
     }
 

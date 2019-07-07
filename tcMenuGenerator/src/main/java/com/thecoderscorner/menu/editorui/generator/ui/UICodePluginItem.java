@@ -39,6 +39,7 @@ public class UICodePluginItem extends BorderPane {
     private Label whichPlugin;
     private Hyperlink licenseLink;
     private Hyperlink vendorLink;
+    private Hyperlink docsLink;
     private CodePluginManager mgr;
     private CodePluginItem item;
     private Button actionButton;
@@ -74,9 +75,15 @@ public class UICodePluginItem extends BorderPane {
         vendorLink.setPadding(new Insets(10, 0, 5, 0));
         vendorLink.setStyle("-fx-font-size: 90%;");
 
+        docsLink = new Hyperlink("No Docs");
+        docsLink.setDisable(true);
+        docsLink.setPadding(new Insets(10, 0, 5, 0));
+        docsLink.setStyle("-fx-font-size: 90%;");
+
         infoContainer = new HBox(5);
         infoContainer.setAlignment(Pos.CENTER_LEFT);
         infoContainer.getChildren().add(whichPlugin);
+        infoContainer.getChildren().add(docsLink);
         infoContainer.getChildren().add(licenseLink);
         infoContainer.getChildren().add(vendorLink);
 
@@ -102,6 +109,18 @@ public class UICodePluginItem extends BorderPane {
 
         descriptionArea.setText(item.getExtendedDescription());
         titleLabel.setText(item.getDescription());
+
+        if(item.getDocsLink() != null) {
+            docsLink.setText("Click for documentation");
+            docsLink.setDisable(false);
+            docsLink.setOnAction((event)-> {
+                try {
+                    Desktop.getDesktop().browse(new URI(item.getDocsLink()));
+                } catch (Exception e) {
+                    LOGGER.log(ERROR,"Unable to locate docs URL" + item.getDocsLink());
+                }
+            });
+        }
 
         mgr.getPluginConfigForItem(item).ifPresentOrElse(config -> {
             whichPlugin.setText(config.getName() + " - " + config.getVersion());

@@ -58,6 +58,9 @@ class DirectoryCodePluginManagerTest {
         var maybeItem = manager.getPluginConfigForItem(item);
         assertTrue(maybeItem.isPresent());
         assertEquals(config, maybeItem.get());
+        assertEquals("http://localhost", item.getDocsLink());
+        assertEquals("UnitTest", item.getDescription());
+        assertEquals("A unit test example", item.getExtendedDescription());
         assertThat(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.INPUT)).hasSize(1);
         assertThat(manager.getPluginsThatMatch(ARDUINO_AVR, SubSystem.REMOTE)).isEmpty();
     }

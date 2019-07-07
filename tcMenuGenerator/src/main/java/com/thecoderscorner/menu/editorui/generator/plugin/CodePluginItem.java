@@ -20,9 +20,10 @@ public class CodePluginItem {
     private SubSystem subsystem;
     private String imageFileName;
     private String codeCreatorClass;
+    private String docsLink;
 
     public CodePluginItem(String id, String description, String extendedDescription, List<String> applicability,
-                          SubSystem subsystem, String imageFileName, String codeCreatorClass) {
+                          SubSystem subsystem, String imageFileName, String codeCreatorClass, String docsLink) {
         this.id = id;
         this.description = description;
         this.extendedDescription = extendedDescription;
@@ -30,6 +31,7 @@ public class CodePluginItem {
         this.subsystem = subsystem;
         this.imageFileName = imageFileName;
         this.codeCreatorClass = codeCreatorClass;
+        this.docsLink = docsLink;
     }
 
     public String getId() {
@@ -52,6 +54,10 @@ public class CodePluginItem {
         return applicability.stream()
                 .map(platforms::getEmbeddedPlatformFromId)
                 .collect(Collectors.toList());
+    }
+
+    public String getDocsLink() {
+        return docsLink;
     }
 
     public String getImageFileName() {
