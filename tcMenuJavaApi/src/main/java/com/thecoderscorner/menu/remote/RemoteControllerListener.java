@@ -41,7 +41,21 @@ public interface RemoteControllerListener {
      */
     void connectionState(RemoteInformation remoteInformation, AuthStatus connected);
 
+    /**
+     * Indicates that an acknowledgment has been received from the embedded device.
+     * @param key the correlation ID of the acknowledgement
+     * @param item the item it corresponds to (may be null)
+     * @param status the status associated with the ack.
+     */
     void ackReceived(CorrelationId key, MenuItem item, AckStatus status);
 
+    /**
+     * Called when a dialog event occurs on the remote, be it to show or hide a dialog
+     * @param mode the mode of the dialog update
+     * @param header the text for the header
+     * @param buffer the text for the buffer
+     * @param btn1 the first button type
+     * @param btn2 the second button type
+     */
     void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2);
 }
