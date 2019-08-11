@@ -31,7 +31,7 @@ public class ArduinoItemGeneratorTest {
                 .withUnit("dB")
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("channel"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("Volume", "Channel"));
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
@@ -73,7 +73,7 @@ public class ArduinoItemGeneratorTest {
                 .withEnumList(List.of("Turntable", "Computer"))
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("ChannelÖôóò", null));
         assertTrue(result.isPresent());
         assertEquals(3, result.get().size());
         BuildStructInitializer choices = result.get().get(0);
@@ -101,7 +101,7 @@ public class ArduinoItemGeneratorTest {
                 .withLength(10)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("GenState", null));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -120,7 +120,7 @@ public class ArduinoItemGeneratorTest {
                 .withLength(20)
                 .menuItem();
 
-        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(null));
+        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator("IpAddress", null));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -138,7 +138,7 @@ public class ArduinoItemGeneratorTest {
                 .withLength(20)
                 .menuItem();
 
-        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(null));
+        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator("Time", null));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -157,7 +157,7 @@ public class ArduinoItemGeneratorTest {
                 .withFunctionName("onPressMe")
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("PressMe", null));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -180,7 +180,7 @@ public class ArduinoItemGeneratorTest {
                 .withDecimalPlaces(5)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("CalcVal", null));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -202,7 +202,7 @@ public class ArduinoItemGeneratorTest {
                 .withFunctionName(null)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null, "subItem"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("SubMenu", "NextItem", "ChildItem"));
         assertTrue(result.isPresent());
 
         assertEquals(3, result.get().size());
@@ -214,10 +214,10 @@ public class ArduinoItemGeneratorTest {
         assertThat(info.getStructElements()).containsExactly("\"Sub Menu\"", "10", "0xffff", "0", "NO_CALLBACK");
 
         checkTheBasicsOfItem(menu, "SubMenuItem", "SubMenu");
-        assertThat(menu.getStructElements()).containsExactly("&minfoSubMenu", "&menuBackSubMenu", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("&minfoSubMenu", "&menuBackSubMenu", "&menuNextItem");
 
         checkTheBasicsOfItem(back, "BackMenuItem", "BackSubMenu");
-        assertThat(back.getStructElements()).containsExactly("fnSubMenuRtCall", "&menuSubItem");
+        assertThat(back.getStructElements()).containsExactly("fnSubMenuRtCall", "&menuChildItem");
     }
 
 
@@ -237,7 +237,7 @@ public class ArduinoItemGeneratorTest {
                 .withNaming(naming)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(null));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("Enabled", null));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());

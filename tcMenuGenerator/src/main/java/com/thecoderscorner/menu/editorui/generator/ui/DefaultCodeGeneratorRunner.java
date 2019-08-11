@@ -41,7 +41,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                                     List<EmbeddedCodeCreator> creators, boolean modal) {
         try {
             logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
-            CodeGenerator gen = platforms.getCodeGeneratorFor(platform);
+            CodeGenerator gen = platforms.getCodeGeneratorFor(platform, project.getGeneratorOptions());
             if(gen != null) {
                 FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/generatorLog.fxml"));
                 BorderPane pane = loader.load();

@@ -29,7 +29,8 @@ public class CurrentEditorProject {
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
             ARDUINO_AVR.getBoardId(),
             NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED,
-            Collections.emptyList(), UUID.randomUUID(), "New Device"
+            Collections.emptyList(), UUID.randomUUID(), "New Device",
+            true
     );
 
 

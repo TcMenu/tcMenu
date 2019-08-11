@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.pluginapi.CodeGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 
@@ -25,7 +26,7 @@ public interface EmbeddedPlatforms {
      * @param platform the platform
      * @return the generator ready for use.
      */
-    CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform);
+    CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options);
 
     /**
      * @param id the to be found

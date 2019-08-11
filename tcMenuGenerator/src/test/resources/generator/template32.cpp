@@ -17,15 +17,15 @@ VarType varName(1234.34);
 
 // Global Menu Item declarations
 
-RENDERING_CALLBACK_NAME_INVOKE(fnIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NULL)
-IpAddressMenuItem menuIpItem(fnIpItemRtCall, 79, NULL);
-RENDERING_CALLBACK_NAME_INVOKE(fnTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
-TextMenuItem menuTextItem(fnTextItemRtCall, 99, 10, &menuIpItem);
-const AnalogMenuInfo minfoTest2 = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
-AnalogMenuItem menuTest2(&minfoTest2, 0, &menuTextItem);
+RENDERING_CALLBACK_NAME_INVOKE(fnSubIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NULL)
+IpAddressMenuItem menuSubIpItem(fnSubIpItemRtCall, 79, NULL);
+RENDERING_CALLBACK_NAME_INVOKE(fnSubTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
+TextMenuItem menuSubTextItem(fnSubTextItemRtCall, 99, 10, &menuSubIpItem);
+const AnalogMenuInfo minfoSubTest2 = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
+AnalogMenuItem menuSubTest2(&minfoSubTest2, 0, &menuSubTextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NULL)
 const SubMenuInfo minfoSub = { "sub", 100, 0xffff, 0, NO_CALLBACK };
-BackMenuItem menuBackSub(fnSubRtCall, &menuTest2);
+BackMenuItem menuBackSub(fnSubRtCall, &menuSubTest2);
 SubMenuItem menuSub(&minfoSub, &menuBackSub, NULL);
 ListRuntimeMenuItem menuAbc(1043, 2, fnAbcRtCall, &menuSub);
 const AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1, "dB" };
@@ -42,9 +42,9 @@ void setupMenu() {
     lcd.begin(16, 2);
 
     // Read only and local only function calls
-    menuTest2.setReadOnly(true);
+    menuSubTest2.setReadOnly(true);
     menuTest.setReadOnly(true);
     menuSub.setLocalOnly(true);
-    menuTest2.setLocalOnly(true);
+    menuSubTest2.setLocalOnly(true);
 }
 

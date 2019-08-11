@@ -68,6 +68,7 @@ public class GenerateCodeDialog {
     private Button cancelButton;
     private TextField appUuidField;
     private TextField appNameField;
+    private CheckBox recursiveNamingCheckBox;
     private Stage mainStage;
 
     public TableView<CreatorProperty> propsTable;
@@ -233,9 +234,11 @@ public class GenerateCodeDialog {
         appNameField = new TextField(appName);
         appNameField.setId("appname");
         appNameField.setTooltip(new Tooltip("Application names appear on the display and also on remote connections"));
-
         embeddedPane.add(appNameField, 1, 2);
 
+        recursiveNamingCheckBox = new CheckBox("Use menu names that are fully qualified (EG: menuSubNameChildName)");
+        recursiveNamingCheckBox.setSelected(project.getGeneratorOptions().isNamingRecursive());
+        embeddedPane.add(recursiveNamingCheckBox, 1, 3, 2, 1);
 
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(350);
@@ -313,7 +316,7 @@ public class GenerateCodeDialog {
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
                 currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(),
-                allProps, applicationUUID, appNameField.getText())
+                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected())
         );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),

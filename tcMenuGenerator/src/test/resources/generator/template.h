@@ -36,9 +36,9 @@ extern const ConnectorLocalInfo applicationInfo;
 // Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION
 
+int fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
 void CALLBACK_FUNCTION callback1(int id);
 void CALLBACK_FUNCTION callback2(int id);
-int fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
 
 void setupMenu();
 

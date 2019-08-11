@@ -6,7 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
@@ -20,10 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -31,6 +31,7 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeRe
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 
@@ -53,16 +54,26 @@ public class ArduinoGeneratorTest {
 
     @Test
     void testConversionForAvr() throws IOException {
-        runConversionWith(ARDUINO_AVR, "/generator/template");
+        runConversionWith(ARDUINO_AVR, "/generator/template", false);
+    }
+
+    private MenuItem generateItemWithName(String name) {
+        return EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(11)
+                .withName(name)
+                .withEepromAddr(22)
+                .withFunctionName(null)
+                .withLength(10)
+                .menuItem();
     }
 
     @Test
     void testConversionForSamd() throws IOException {
-        runConversionWith(ARDUINO32, "/generator/template32");
+        runConversionWith(ARDUINO32, "/generator/template32", true);
     }
 
     @SuppressWarnings("unchecked")
-    private void runConversionWith(EmbeddedPlatform platform, String templateToUse) throws IOException {
+    private void runConversionWith(EmbeddedPlatform platform, String templateToUse, boolean recursiveName) throws IOException {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildSimpleTreeReadOnly();
@@ -70,9 +81,19 @@ public class ArduinoGeneratorTest {
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
         List<EmbeddedCodeCreator> generators = unitTestGenerator();
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
+        CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
+                ARDUINO32.getBoardId(),
+                "", "", "",
+                List.<CreatorProperty>of(),
+                UUID.randomUUID(),
+                "app",
+                recursiveName);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
         assertTrue(generator.startConversion(dir, generators, tree, new NameAndKey("uuid1", "tester")));
+
+        assertEquals("GenState", generator.makeNameToVar(generateItemWithName("Gen &^%State")));
+        assertEquals("ChannelÖôóò", generator.makeNameToVar(generateItemWithName("ChannelÖôóò")));
 
         var cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
         var hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));

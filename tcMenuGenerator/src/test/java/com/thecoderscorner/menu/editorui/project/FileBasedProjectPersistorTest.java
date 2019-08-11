@@ -55,7 +55,7 @@ public class FileBasedProjectPersistorTest {
                 "uuid2",
                 "uuid3",
                 Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY)),
-                APPLICATION_UUID, "app name"
+                APPLICATION_UUID, "app name", false
         );
         persistor.save(projFile.toString(), tree, options);
 

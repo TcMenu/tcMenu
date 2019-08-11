@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -21,8 +22,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.makeRtCallName;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 
 public class ArduinoSketchFileAdjusterTest {
@@ -42,10 +43,17 @@ public class ArduinoSketchFileAdjusterTest {
         emptyLogger = Mockito.mock(Consumer.class);
         adjuster = new ArduinoSketchFileAdjuster();
 
+        MenuItem itemId8 = tree.getMenuById(8).orElseThrow();
+        MenuItem itemId9 = tree.getMenuById(9).orElseThrow();
+        MenuItem itemId10 = tree.getMenuById(10).orElseThrow();
+        ArduinoGenerator generator = Mockito.mock(ArduinoGenerator.class);
+        when(generator.makeNameToVar(itemId8)).thenReturn("ActionTest");
+        when(generator.makeNameToVar(itemId9)).thenReturn("SubnetMask");
+        when(generator.makeNameToVar(itemId10)).thenReturn("List");
         callbacks = List.of(
-                new CallbackRequirement("callback", tree.getMenuById(8).orElseThrow()),
-                new CallbackRequirement(makeRtCallName("List"), tree.getMenuById(10).orElseThrow()),
-                new CallbackRequirement("onIpChange", tree.getMenuById(9).orElseThrow())
+                new CallbackRequirement(generator, "callback", itemId8),
+                new CallbackRequirement(generator, "fnListRtCall", itemId10),
+                new CallbackRequirement(generator, "onIpChange", itemId9)
         );
     }
 

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
@@ -28,12 +29,13 @@ class PluginEmbeddedPlatformsImplTest {
         assertEquals(ARDUINO_ESP32, platforms.getEmbeddedPlatformFromId(ARDUINO_ESP32.getBoardId()));
         assertThrows(IllegalArgumentException.class, () -> platforms.getEmbeddedPlatformFromId("invalidId"));
 
-        var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR);
+        CodeGeneratorOptions standardOptions = new CodeGeneratorOptions();
+        var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR, standardOptions);
         assertThat(generator).isOfAnyClassIn(ArduinoGenerator.class);
 
         assertThrows(IllegalArgumentException.class, () -> {
             EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid", false);
-            platforms.getCodeGeneratorFor(invalidPlatform);
+            platforms.getCodeGeneratorFor(invalidPlatform, standardOptions);
         });
     }
 }

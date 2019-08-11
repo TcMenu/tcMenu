@@ -8,10 +8,7 @@ package com.thecoderscorner.menu.domain.util;
 
 import com.thecoderscorner.menu.domain.*;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * A helper class for dealing with MenuItem objects. This class provides the helper for visiting
@@ -198,16 +195,4 @@ public class MenuItemHelper {
             }
         }).orElse(0);
     }
-
-    public static String makeNameToVar(String name) {
-        Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
-        return parts.stream().map(MenuItemHelper::capitaliseFirst).collect(Collectors.joining());
-    }
-
-    private static String capitaliseFirst(String s) {
-        if(s.isEmpty()) return s;
-
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-    }
-
 }

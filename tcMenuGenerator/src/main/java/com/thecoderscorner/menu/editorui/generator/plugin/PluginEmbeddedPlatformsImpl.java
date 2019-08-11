@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
@@ -33,9 +34,10 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     }
 
     @Override
-    public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform) {
+    public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
         if(arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(), platform);
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(),
+                                        platform, options);
         }
         else {
             throw new IllegalArgumentException("No such board type: " + platform);

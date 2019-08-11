@@ -15,15 +15,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.makeRtCallName;
-import static com.thecoderscorner.menu.domain.util.MenuItemHelper.makeNameToVar;
-
 public class CallbackRequirement {
     public static final String RUNTIME_CALLBACK_PARAMS = "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize)";
+    private final MenuNamingGenerator generator;
     private final String callbackName;
     private final MenuItem callbackItem;
 
-    public CallbackRequirement(String callbackName, MenuItem callbackItem) {
+    public CallbackRequirement(MenuNamingGenerator generator, String callbackName, MenuItem callbackItem) {
+        this.generator = generator;
         this.callbackName = callbackName;
         this.callbackItem = callbackItem;
     }
@@ -86,12 +85,11 @@ public class CallbackRequirement {
 
             @Override
             public void visit(EditableTextMenuItem item) {
-                var cbItem = makeNameToVar(item.getName());
                 var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
                 var baseCbFn = functionFromEditType(item.getItemType());
 
                 var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                        + makeRtCallName(cbItem) + ", "
+                        + generator.makeRtFunctionName(item) + ", "
                         + baseCbFn + ", \""
                         + item.getName() + "\", "
                         + item.getEepromAddress() + ", "
@@ -102,10 +100,8 @@ public class CallbackRequirement {
 
             @Override
             public void visit(SubMenuItem item) {
-                var cbItem = makeNameToVar(item.getName());
-
                 var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                        + makeRtCallName(cbItem) + ", "
+                        + generator.makeRtFunctionName(item) + ", "
                         + "backSubItemRenderFn, \""
                         + item.getName() + "\", "
                         + item.getEepromAddress() + ", "
@@ -133,8 +129,7 @@ public class CallbackRequirement {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
             @Override
             public void visit(RuntimeListMenuItem listItem) {
-                var name = makeNameToVar(listItem.getName());
-                setResult("int " + makeRtCallName(name) + RUNTIME_CALLBACK_PARAMS + ";");
+                setResult("int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
             }
             @Override
             public void anyItem(MenuItem item) {

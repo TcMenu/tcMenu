@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.pluginapi.*;
 import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
@@ -32,7 +33,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.domain.util.MenuItemHelper.makeNameToVar;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
@@ -40,7 +40,7 @@ import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-public class ArduinoGenerator implements CodeGenerator {
+public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final String LINE_BREAK = System.getProperty("line.separator");
     public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
@@ -62,20 +62,25 @@ public class ArduinoGenerator implements CodeGenerator {
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
     private final EmbeddedPlatform embeddedPlatform;
+    private final CodeGeneratorOptions options;
 
     private Consumer<String> uiLogger = null;
+    private MenuTree menuTree;
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
-                            EmbeddedPlatform embeddedPlatform) {
+                            EmbeddedPlatform embeddedPlatform,
+                            CodeGeneratorOptions options) {
         this.installer = installer;
         this.arduinoSketchAdjuster = adjuster;
         this.embeddedPlatform = embeddedPlatform;
+        this.options = options;
     }
 
     @Override
     public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree,
                                    NameAndKey nameKey) {
+        this.menuTree = menuTree;
         logLine("Starting Arduino generate: " + directory);
 
         boolean usesProgMem = embeddedPlatform.isUsesProgmem();
@@ -107,7 +112,7 @@ public class ArduinoGenerator implements CodeGenerator {
             // update the sketch. Also, if any plugins have changed, then update them.
             Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
             generateHeaders(generators, headerFile, menuStructure, extractor, callbackFunctions);
-            generateSource(generators, cppFile, menuStructure, projectName, extractor, menuTree, callbackFunctions);
+            generateSource(generators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
             addAnyRequiredPluginsToSketch(generators, directory);
 
@@ -127,13 +132,13 @@ public class ArduinoGenerator implements CodeGenerator {
         return true;
     }
 
-    private List<FunctionCallBuilder> generateReadOnlyLocal(MenuTree menuTree) {
+    private List<FunctionCallBuilder> generateReadOnlyLocal() {
         var allFunctions = new ArrayList<FunctionCallBuilder>();
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> new FunctionCallBuilder()
                         .functionName("setReadOnly")
-                        .objectName("menu" + makeNameToVar(item.getName()))
+                        .objectName("menu" + makeNameToVar(item))
                         .param("true"))
                 .collect(Collectors.toList())
         );
@@ -141,7 +146,7 @@ public class ArduinoGenerator implements CodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> new FunctionCallBuilder()
                         .functionName("setLocalOnly")
-                        .objectName("menu" + makeNameToVar(item.getName()))
+                        .objectName("menu" + makeNameToVar(item))
                         .param("true"))
                 .collect(Collectors.toList())
         );
@@ -179,7 +184,6 @@ public class ArduinoGenerator implements CodeGenerator {
     private void generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
                                 Collection<BuildStructInitializer> menuStructure,
                                 String projectName, CodeVariableExtractor extractor,
-                                MenuTree menuTree,
                                 Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
@@ -220,7 +224,7 @@ public class ArduinoGenerator implements CodeGenerator {
                     generators.stream().flatMap(ecc -> ecc.getFunctionCalls().stream()).collect(Collectors.toList())
             ));
 
-            List<FunctionCallBuilder> readOnlyLocal = generateReadOnlyLocal(menuTree);
+            List<FunctionCallBuilder> readOnlyLocal = generateReadOnlyLocal();
             if(!readOnlyLocal.isEmpty()) {
                 writer.write(LINE_BREAK + LINE_BREAK + "    // Read only and local only function calls" + LINE_BREAK);
                 writer.write(extractor.mapFunctions(readOnlyLocal));
@@ -381,7 +385,7 @@ public class ArduinoGenerator implements CodeGenerator {
 
     private String getFirstMenuVariable(MenuTree menuTree) {
         return menuTree.getMenuItems(MenuTree.ROOT).stream().findFirst()
-                .map(menuItem -> "menu" + makeNameToVar(menuItem.getName()))
+                .map(menuItem -> "menu" + makeNameToVar(menuItem))
                 .orElse("");
     }
 
@@ -401,18 +405,20 @@ public class ArduinoGenerator implements CodeGenerator {
 
             if (items.get(i).hasChildren()) {
                 int nextIdx = i + 1;
-                String nextSub = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
+                String nextSub = (nextIdx < items.size()) ? makeNameToVar(items.get(nextIdx)) : "NULL";
 
                 List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
-                String nextChild = (!childItems.isEmpty()) ? childItems.get(0).getName() : null;
+                String nextChild = (!childItems.isEmpty()) ? makeNameToVar(childItems.get(0)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(nextSub, nextChild)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(makeNameToVar(items.get(i)), nextSub, nextChild))
+                        .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
-                String next = (nextIdx < items.size()) ? items.get(nextIdx).getName() : null;
+                String next = (nextIdx < items.size()) ? makeNameToVar(items.get(nextIdx)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(next)).orElse(Collections.emptyList()));
+                        new MenuItemToEmbeddedGenerator(makeNameToVar(items.get(i)), next))
+                        .orElse(Collections.emptyList()));
             }
         }
         return itemsInOrder;
@@ -422,7 +428,7 @@ public class ArduinoGenerator implements CodeGenerator {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
-                .map(i-> new CallbackRequirement(i.getFunctionName(), i))
+                .map(i-> new CallbackRequirement(this, i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
@@ -435,4 +441,43 @@ public class ArduinoGenerator implements CodeGenerator {
         if (uiLogger != null) uiLogger.accept(DATE_TIME_FORMATTER.format(Instant.now()) + " - " + s);
         logger.log(INFO, s);
     }
+
+    public String makeNameToVar(MenuItem item) {
+        // shortcut for null..
+        if(item == null) return "NULL";
+
+        // shortcut simple naming.
+        var parent = menuTree.findParent(item);
+        if(!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
+            return makeNameFromVariable(item.getName());
+        }
+
+        // get all submenu names together.
+        var items = new ArrayList<String>();
+        var par = item;
+        while(par != null && !par.equals(MenuTree.ROOT)) {
+            items.add(makeNameFromVariable(par.getName()));
+            par = menuTree.findParent(par);
+        }
+
+        // reverse and then join.
+        Collections.reverse(items);
+        return String.join("", items);
+
+    }
+
+    public String makeRtFunctionName(MenuItem item) {
+        return "fn" + makeNameToVar(item) + "RtCall";
+    }
+
+    private String makeNameFromVariable(String name) {
+        Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
+        return parts.stream().map(this::capitaliseFirst).collect(Collectors.joining());
+    }
+
+    private String capitaliseFirst(String s) {
+        if(s.isEmpty()) return s;
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
 }
