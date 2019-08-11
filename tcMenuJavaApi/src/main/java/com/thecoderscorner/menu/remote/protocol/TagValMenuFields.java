@@ -12,7 +12,6 @@ package com.thecoderscorner.menu.remote.protocol;
  * reserved. Letters starting with digits 0 to 9 are not reserved. Fields must be exactly two letters.
  */
 public interface TagValMenuFields {
-    String KEY_MSG_TYPE = "MT";
     String KEY_NAME_FIELD = "NM";
     String KEY_UUID_FIELD = "UU";
     String KEY_VER_FIELD = "VE";

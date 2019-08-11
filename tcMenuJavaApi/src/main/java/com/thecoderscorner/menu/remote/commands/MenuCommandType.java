@@ -36,4 +36,6 @@ public enum MenuCommandType {
     public String getCode() {
         return code;
     }
+    public char getHigh() { return code.charAt(0);}
+    public char getLow() { return code.charAt(1);}
 }

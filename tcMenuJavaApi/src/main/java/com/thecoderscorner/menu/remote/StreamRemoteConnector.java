@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.*;
 import static java.lang.System.Logger.Level.*;
 
 /**
@@ -27,7 +28,6 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
     public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
 
     private static final int MAX_MSG_EXPECTED = 1024;
-    public static final byte START_OF_MSG = 0x01;
 
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
@@ -118,6 +118,8 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
                 outputBuffer.clear();
                 outputBuffer.put(START_OF_MSG);
                 outputBuffer.put(protocol.getKeyIdentifier());
+                outputBuffer.put((byte) msg.getCommandType().getHigh());
+                outputBuffer.put((byte) msg.getCommandType().getLow());
                 outputBuffer.put(cmdBuffer);
                 outputBuffer.flip();
                 logByteBuffer("Sending message on " + getConnectionName(), outputBuffer);
@@ -213,7 +215,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
         int len = Math.min(byData.length, bb.remaining());
         byte dataByte = bb.get();
         int pos = 0;
-        while(pos < len && dataByte != '~') {
+        while(pos < len && dataByte != END_OF_MSG) {
             byData[pos] = dataByte;
             pos++;
             dataByte = bb.get();
@@ -226,7 +228,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
         ByteBuffer bbCopy = inputBuffer.slice();
         boolean foundMsg = false;
         while(!foundMsg && bbCopy.hasRemaining()) {
-            foundMsg = (bbCopy.get() == '|' && bbCopy.hasRemaining() && bbCopy.get() == '~');
+            foundMsg = (bbCopy.get() == FIELD_TERMINATOR && bbCopy.hasRemaining() && bbCopy.get() == END_OF_MSG);
         }
         return foundMsg;
     }

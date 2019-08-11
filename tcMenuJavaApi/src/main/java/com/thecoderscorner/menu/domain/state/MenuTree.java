@@ -111,6 +111,11 @@ public class MenuTree {
         if(state != null) {
             return Optional.of(state.getItem());
         }
+
+        // short cut to find the submenu by ID if possible before going through everything.
+        var maybeSubMenuId = getAllSubMenus().stream().filter(item -> item.getId() == id).findFirst();
+        if(maybeSubMenuId.isPresent()) return maybeSubMenuId;
+
         return getAllMenuItems().stream().filter(item -> item.getId() == id).findFirst();
     }
 

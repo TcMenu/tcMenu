@@ -29,7 +29,10 @@ import static java.lang.System.Logger.Level.DEBUG;
  * the end of the message.
  */
 public class TagValMenuCommandProtocol implements MenuCommandProtocol {
-    private static final byte PROTOCOL_TAG_VAL = 1;
+    public static final byte PROTOCOL_TAG_VAL = 1;
+    public static final byte START_OF_MSG = 0x01;
+    public static final byte END_OF_MSG = 0x02;
+    public static final byte FIELD_TERMINATOR = '|';
     private static final boolean DEBUG_ALL_MESSAGES = false;
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -44,9 +47,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
     @Override
     public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
+        String ty = getMsgTypeFromBuffer(buffer);
         TagValTextParser parser = new TagValTextParser(buffer);
         if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert in: {0}", parser);
-        String ty = parser.getValue(KEY_MSG_TYPE);
         MenuCommandType cmdType = codeToCmdType.get(ty);
         if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
 
@@ -84,6 +87,13 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             default:
                 throw new TcProtocolException("Unknown message type " + cmdType);
         }
+    }
+
+    private String getMsgTypeFromBuffer(ByteBuffer buffer) {
+        StringBuilder sb = new StringBuilder();
+        return sb.append((char)buffer.get())
+                .append((char)buffer.get())
+                .toString();
     }
 
     private MenuCommand processDialogUpdate(TagValTextParser parser) throws IOException {
@@ -329,7 +339,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     @Override
     public void toChannel(ByteBuffer buffer, MenuCommand cmd) {
         StringBuilder sb = new StringBuilder(128);
-        appendField(sb, KEY_MSG_TYPE, cmd.getCommandType().getCode());
 
         switch(cmd.getCommandType()) {
             case HEARTBEAT:
@@ -379,7 +388,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 break;
 
         }
-        sb.append('~');
+        sb.append((char)0x02);
 
         String msgStr = sb.toString();
         if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
@@ -521,9 +530,20 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void appendField(StringBuilder sb, String key, Object value) {
+        if(value instanceof String) {
+            String val = (String) value;
+            if(val.indexOf('|') != -1) {
+                val = val.replace("|", "\\|");
+            }
+            if(val.indexOf('=') != -1) {
+                val = val.replace("=", "\\=");
+            }
+            value = val;
+        }
         sb.append(key);
         sb.append('=');
         sb.append(value);
         sb.append('|');
     }
+
 }

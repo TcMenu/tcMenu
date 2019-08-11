@@ -28,15 +28,15 @@ public class TagValTextParser {
         boolean foundEnd = false;
         while(buffer.hasRemaining() && !foundEnd) {
             String key = readString(buffer);
-            if(key.equals("~")) {
+            if(key.isEmpty()) {
+                throw new TcProtocolException("Key is empty in protocol");
+            }
+            else if(key.charAt(0) == TagValMenuCommandProtocol.END_OF_MSG) {
                 foundEnd = true;
             }
             else {
-                if(key.isEmpty()) {
-                    throw new TcProtocolException("Key is empty in protocol");
-                }
                 String value = readString(buffer);
-                if(value.equals("~")) {
+                if (!value.isEmpty() && value.charAt(0) == TagValMenuCommandProtocol.END_OF_MSG) {
                     foundEnd = true;
                 }
                 keyToValue.put(key, value);
@@ -48,15 +48,15 @@ public class TagValTextParser {
         StringBuilder sb = new StringBuilder(32);
         while(buffer.hasRemaining()) {
             char ch = (char) buffer.get();
-            if(ch == '~') {
-                return sb.append(ch).toString();
+            if(ch == TagValMenuCommandProtocol.END_OF_MSG) {
+                return "\u0002";
             }
             else if(ch == '\\') {
-                // special escape case allows | or ~ to be sent
+                // special escape case allows anything to be sent
                 ch = (char) buffer.get();
                 sb.append(ch);
             }
-            else if(ch == '=' || ch == '|') {
+            else if(ch == '=' || ch == TagValMenuCommandProtocol.FIELD_TERMINATOR) {
                 // end of current token
                 return sb.toString();
             }

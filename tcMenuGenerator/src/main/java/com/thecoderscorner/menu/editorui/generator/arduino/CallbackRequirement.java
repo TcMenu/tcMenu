@@ -88,7 +88,7 @@ public class CallbackRequirement {
             public void visit(EditableTextMenuItem item) {
                 var cbItem = makeNameToVar(item.getName());
                 var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
-                var baseCbFn = item.getItemType() == EditItemType.IP_ADDRESS ? "ipAddressRenderFn" : "textItemRenderFn";
+                var baseCbFn = functionFromEditType(item.getItemType());
 
                 var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
                         + makeRtCallName(cbItem) + ", "
@@ -119,6 +119,14 @@ public class CallbackRequirement {
                 setResult(List.of());
             }
         }).orElse(List.of());
+    }
+
+    private String functionFromEditType(EditItemType itemType) {
+        switch(itemType) {
+            case PLAIN_TEXT: return "textItemRenderFn";
+            case IP_ADDRESS: return "ipAddressRenderFn";
+            default: return "timeItemRenderFn";
+        }
     }
 
     String generateHeader() {

@@ -186,7 +186,10 @@ public class MenuItemHelper {
                 if(item.getItemType() == EditItemType.IP_ADDRESS) {
                     setResult(4);
                 }
-                else setResult(item.getTextLength());
+                else if(item.getItemType() == EditItemType.PLAIN_TEXT) {
+                    setResult(item.getTextLength());
+                }
+                else setResult(4); // all time types are 4 bytes long
             }
 
             @Override

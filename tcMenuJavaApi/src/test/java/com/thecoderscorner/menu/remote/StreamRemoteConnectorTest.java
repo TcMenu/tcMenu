@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.Executors;
 
+import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.START_OF_MSG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,7 +80,7 @@ public class StreamRemoteConnectorTest {
         ByteBuffer bb = streamConnector.getLastBufferRx();
         bb.flip();
 
-        assertEquals(StreamRemoteConnector.START_OF_MSG, bb.get());
+        assertEquals(START_OF_MSG, bb.get());
 
         int proto = bb.get();
         assertEquals(proto, protocol.getKeyIdentifier());
@@ -100,10 +101,13 @@ public class StreamRemoteConnectorTest {
 
         public void appendTagValMsg(MenuCommand command) {
             ByteBuffer cmdBuffer = ByteBuffer.allocate(1000);
+
             protocol.toChannel(cmdBuffer, command);
             cmdBuffer.flip();
             dataToSend.put(START_OF_MSG);
             dataToSend.put(protocol.getKeyIdentifier());
+            dataToSend.put((byte) command.getCommandType().getHigh());
+            dataToSend.put((byte) command.getCommandType().getLow());
             dataToSend.put(cmdBuffer);
         }
 

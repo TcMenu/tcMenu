@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.domain.DomainFixtures.*;
-import static com.thecoderscorner.menu.remote.StreamRemoteConnector.START_OF_MSG;
 import static com.thecoderscorner.menu.remote.StreamRemoteConnector.doesBufferHaveEOM;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
+import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.START_OF_MSG;
 import static java.lang.System.Logger.Level.INFO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -86,7 +86,7 @@ public class SocketBasedConnectorTest {
         socket.sendMenuCommand(newJoinCommand("dave"));
 
         // and at this point our callback will receive two messages from the mock server
-        messageProcessingLatch.await(10, TimeUnit.SECONDS);
+        messageProcessingLatch.await(2, TimeUnit.MINUTES);
 
         // make sure all ended successfully.
         assertFalse(remoteServer.hasFailed());
@@ -195,6 +195,8 @@ public class SocketBasedConnectorTest {
         public void sendMessage(ByteBuffer writeBuffer, MenuCommandProtocol proto, MenuCommand cmd) {
             writeBuffer.put(START_OF_MSG);
             writeBuffer.put(proto.getKeyIdentifier());
+            writeBuffer.put((byte) cmd.getCommandType().getHigh());
+            writeBuffer.put((byte) cmd.getCommandType().getLow());
             proto.toChannel(writeBuffer, cmd);
             itemsSent.add(cmd);
         }

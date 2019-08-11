@@ -128,6 +128,24 @@ public class ArduinoItemGeneratorTest {
 
         checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
         assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "12", "NULL");
+
+        EditableTextMenuItem time = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(66)
+                .withName("Time")
+                .withEepromAddr(22)
+                .withFunctionName(null)
+                .withEditItemType(EditItemType.TIME_12H)
+                .withLength(20)
+                .menuItem();
+
+        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(null));
+        assertTrue(result.isPresent());
+
+        assertEquals(1, result.get().size());
+        menu = result.get().get(0);
+
+        checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
+        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "66", "3", "NULL");
     }
 
     @Test

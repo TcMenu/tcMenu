@@ -12,8 +12,9 @@ package com.thecoderscorner.menu.remote.protocol;
  */
 public enum ApiPlatform {
     ARDUINO(0, "Arduino 8-bit"),
+    ARDUINO32(2, "Arduino 32-bit"),
     JAVA_API(1, "Java API"),
-    ARDUINO32(2, "Arduino 32-bit");
+    DNET_API(3, "Arduino 32-bit");
 
     private final int key;
     private final String description;

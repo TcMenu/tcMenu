@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.controller.manageditem;
 
-import com.thecoderscorner.menu.domain.EditItemType;
-import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
@@ -16,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ListView;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
