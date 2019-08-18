@@ -31,7 +31,7 @@ public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenu
             int fractMax = (divisor > 1000) ? 10000 : (divisor > 100) ? 1000 : (divisor > 10) ? 100 : 10;
 
             // when divisor is greater than 10 we need to deal with both parts using itoa
-            int whole = value / divisor;
+            int whole = (item.getOffset() + value) / divisor;
             int fraction = Math.abs((value % divisor)) * (fractMax / divisor);
 
             NumberFormat format = NumberFormat.getInstance();
