@@ -80,7 +80,7 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.3.2</version>
+            <version>1.3.3</version>
         </dependency>
 
 ## Loading and saving menu items
