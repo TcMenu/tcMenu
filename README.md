@@ -36,7 +36,7 @@ The Generator is capable of round trip development too - most of the code is off
 ## Priorities for the next versions
 
 * Some more videos on youtube showing how to generate menus.
-* More complete documentation on the coders corner showing how to use it - in progress
+* A C# API and the ability to secure certain submenus.
 
 ## TcMenu saves memory in many ways
 
@@ -53,12 +53,14 @@ This means:
 
 * Button based rotary encoder emulation (Up, Down and OK buttons) either local, i2c expander, shift register, or DfRobot analog.  
 * Rotary encoder based input with no need any additional components in many cases. Either local or i2c expander.
+* Matrix Keyboards of configurable size and key combination. Pre-canned options for 4x3 and 4x4 layouts.
 * No local input facilities if your application is completely controlled remotely.
 
 ## Display types that are supported
 
 * LiquidCrystal 20x4 or 16x2 displays - can be either directly connected, i2c or on a shift register.
 * Adafruit_GFX - can render onto a display compatible with this library, tested with Color ILI9341 and Nokia 5110 display.
+* U8G2 - can render onto most buffered displays using this library. Tested with OLED devices.
 
 ## Remote endpoints that are supported
 
@@ -66,6 +68,7 @@ This menu library provides complete remote control, presently over serial and et
 
 * RS232 endpoint that supports full control of the menu items using a Java API - example app included.
 * Ethernet endpoint that supports either Ethernet2 library or UipEthernet.
+* ESP8266 and ESP32 based WiFi both supported.
 
 ## Ready built remote control for tcMenu
 
@@ -73,7 +76,9 @@ Is now included from 1.3 onwards and provides complete control of a menu without
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
-## Accessing TcMenu remotely with the Java API
+## Accessing TcMenu remotely using an API
+
+## Java / JVM API
 
 There is a java API for accessing the menu remotely, source includes JavaDoc to help getting started. There is an example JavaFX UI built with it within the above Repo. Include the following into your maven build file:
 
@@ -82,6 +87,10 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>1.3.3</version>
         </dependency>
+
+## Coming Soon C# / .NET API
+
+We are currently quite far along on a C# port of the API. There's an issue in the issue track for the port and we'll let you know when it's further along.
 
 ## Loading and saving menu items
 tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 
