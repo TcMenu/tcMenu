@@ -12,6 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.fazecast:jSerialComm:2.4.0" level="project" />
     <orderEntry type="module" module-name="tcMenuJavaAPI" />
     <orderEntry type="module" module-name="tcMenuCodePluginApi" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.5" level="project" />

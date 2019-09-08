@@ -40,11 +40,11 @@ U8g2MenuRenderer::~U8g2MenuRenderer() {
 }
 
 void U8g2MenuRenderer::renderTitleArea() {
-	if(currentRoot == menuMgr.getRoot()) {
+	if(menuMgr.getCurrentMenu() == menuMgr.getRoot()) {
 		safeProgCpy(buffer, applicationInfo.name, bufferSize);
 	}
 	else {
-		currentRoot->copyNameToBuffer(buffer, bufferSize);
+		menuMgr.getCurrentMenu()->copyNameToBuffer(buffer, bufferSize);
 	}
 
     serdebugF3("Render title, fontMag: ", buffer, gfxConfig->titleFontMagnification);
@@ -90,7 +90,7 @@ bool U8g2MenuRenderer::renderWidgets(bool forceDraw) {
 }
 
 void U8g2MenuRenderer::renderListMenu(int titleHeight) {
-    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(currentRoot);
+    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(menuMgr.getCurrentMenu());
 
     uint8_t maxY = uint8_t((u8g2->getDisplayHeight() - titleHeight) / itemHeight);
 	maxY = min(maxY, runList->getNumberOfParts());
@@ -149,17 +149,18 @@ void U8g2MenuRenderer::render() {
 	u8g2->setFont(gfxConfig->itemFont);
 	int maxItemsY = ((u8g2->getDisplayHeight()-titleHeight) / itemHeight);
 
-    if(currentRoot->getMenuType() == MENUTYPE_RUNTIME_LIST) {
-        if(currentRoot->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
+    if(menuMgr.getCurrentMenu()->getMenuType() == MENUTYPE_RUNTIME_LIST) {
+        if(menuMgr.getCurrentMenu()->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
             requiresUpdate = true;
             renderListMenu(titleHeight);
         }
     }
     else {
-        MenuItem* item = currentRoot;
+        MenuItem* item = menuMgr.getCurrentMenu();
         // first we find the first currently active item in our single linked list
-        if (offsetOfCurrentActive() >= maxItemsY) {
-            uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
+        uint8_t currActiveOffs = offsetOfCurrentActive(item);
+        if (currActiveOffs >= maxItemsY) {
+            uint8_t toOffsetBy = (currActiveOffs - maxItemsY) + 1;
 
             if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
             lastOffset = toOffsetBy;
