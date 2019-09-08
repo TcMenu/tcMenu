@@ -9,8 +9,6 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-import java.text.NumberFormat;
-
 public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenuItem> {
     public AnalogManagedMenuItem(AnalogMenuItem item) {
         super(item);
@@ -34,8 +32,6 @@ public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenu
             int whole = (item.getOffset() + value) / divisor;
             int fraction = Math.abs((value % divisor)) * (fractMax / divisor);
 
-            NumberFormat format = NumberFormat.getInstance();
-            format.setGroupingUsed(false);
             str = whole + "." + fraction + item.getUnitName();
         }
         itemLabel.setText(str);

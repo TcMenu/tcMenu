@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -151,7 +152,20 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
                 .collect(Collectors.toList())
         );
 
+        allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
+                .map(item -> new FunctionCallBuilder()
+                        .functionName("setSecured")
+                        .objectName("menu" + makeNameToVar(item))
+                        .param("true"))
+                .collect(Collectors.toList())
+        );
+
         return allFunctions;
+    }
+
+    private boolean isSecureSubMenu(MenuItem toCheck) {
+        SubMenuItem item = MenuItemHelper.asSubMenu(toCheck);
+        return item != null && item.isSecured();
     }
 
     private List<BuildStructInitializer> addNameAndKeyToStructure(Collection<BuildStructInitializer> menuStructure,

@@ -52,11 +52,11 @@ AdaFruitGfxMenuRenderer::~AdaFruitGfxMenuRenderer() {
 }
 
 void AdaFruitGfxMenuRenderer::renderTitleArea() {
-	if(currentRoot == menuMgr.getRoot()) {
+	if(menuMgr.getCurrentMenu() == menuMgr.getRoot()) {
 		safeProgCpy(buffer, applicationInfo.name, bufferSize);
 	}
 	else {
-		currentRoot->copyNameToBuffer(buffer, bufferSize);
+		menuMgr.getCurrentMenu()->copyNameToBuffer(buffer, bufferSize);
 	}
 
     serdebugF3("Render title, fontMag: ", buffer, gfxConfig->titleFontMagnification);
@@ -103,7 +103,7 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 }
 
 void AdaFruitGfxMenuRenderer::renderListMenu(int titleHeight) {
-    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(currentRoot);
+    ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(menuMgr.getCurrentMenu());
 	
     uint8_t maxY = uint8_t((graphics->height() - titleHeight) / itemHeight);
 	maxY = min(maxY, runList->getNumberOfParts());
@@ -163,17 +163,18 @@ void AdaFruitGfxMenuRenderer::render() {
 	graphics->setTextSize(gfxConfig->itemFontMagnification);
 	int maxItemsY = ((graphics->height()-titleHeight) / itemHeight);
 
-    if(currentRoot->getMenuType() == MENUTYPE_RUNTIME_LIST) {
-        if(currentRoot->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
+    if(menuMgr.getCurrentMenu()->getMenuType() == MENUTYPE_RUNTIME_LIST) {
+        if(menuMgr.getCurrentMenu()->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
             requiresUpdate = true;
             renderListMenu(titleHeight);
         }
     }
     else {
-        MenuItem* item = currentRoot;
+        MenuItem* item = menuMgr.getCurrentMenu();
+        int activeOffset = offsetOfCurrentActive(item);
         // first we find the first currently active item in our single linked list
-        if (offsetOfCurrentActive() >= maxItemsY) {
-            uint8_t toOffsetBy = (offsetOfCurrentActive() - maxItemsY) + 1;
+        if (activeOffset >= maxItemsY) {
+            uint8_t toOffsetBy = (activeOffset - maxItemsY) + 1;
 
             if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
             lastOffset = toOffsetBy;

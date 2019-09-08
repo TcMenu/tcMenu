@@ -83,3 +83,11 @@ void EthernetTagValServer::exec() {
 	}
 }
 
+ int fromWiFiRSSITo4StateIndicator(int strength) {
+    int qualityIcon = 0;
+    if(strength > -50) qualityIcon = 4;
+    else if(strength > -60) qualityIcon = 3;
+    else if(strength > -75) qualityIcon = 2;
+    else if(strength > -90) qualityIcon = 1;
+    return qualityIcon;
+}

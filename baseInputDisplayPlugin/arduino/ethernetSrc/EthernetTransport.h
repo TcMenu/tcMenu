@@ -98,4 +98,14 @@ public:
  */
 extern EthernetTagValServer remoteServer;
 
+/**
+ * This function converts from a RSSI (Radio Strength indicator)
+ * measurement into a series of icons (of the ones we have defined
+ * in the stock icons. The input is the RSSI figure in dB as an
+ * integer.
+ * @param strength the signal strength (usually negative) as an int
+ * @return a state that can be used with the standard wifi TitleWidget
+ */
+int fromWiFiRSSITo4StateIndicator(int strength);
+
 #endif /* _TCMENU_ETHERNETTRANSPORT_H_ */

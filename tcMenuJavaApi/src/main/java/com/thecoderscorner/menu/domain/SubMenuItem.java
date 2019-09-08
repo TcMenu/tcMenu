@@ -17,14 +17,17 @@ import java.util.Objects;
  * methods that interact with items.
  */
 public class SubMenuItem extends MenuItem<Boolean> {
+    private final boolean secured;
 
     public SubMenuItem() {
         super("", -1, -1, null, false, false);
         // needed for serialisation
+        this.secured = false;
     }
 
-    public SubMenuItem(String name, int id, int eepromAddr, boolean localOnly) {
+    public SubMenuItem(String name, int id, int eepromAddr, boolean localOnly, boolean secured) {
         super(name, id, eepromAddr, null, false, localOnly);
+        this.secured = secured;
     }
 
     /**
@@ -33,6 +36,10 @@ public class SubMenuItem extends MenuItem<Boolean> {
     @Override
     public boolean hasChildren() {
         return true;
+    }
+
+    public boolean isSecured() {
+        return secured;
     }
 
     @Override
@@ -53,12 +60,13 @@ public class SubMenuItem extends MenuItem<Boolean> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isSecured() == that.isSecured() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isSecured());
     }
 }

@@ -11,7 +11,7 @@ package com.thecoderscorner.menu.domain;
  * an item from scratch, or start with an existing item and make changes.
  */
 public class SubMenuItemBuilder extends MenuItemBuilder<SubMenuItemBuilder> {
-
+    private boolean secured;
     @Override
     public SubMenuItemBuilder getThis() {
         return this;
@@ -19,11 +19,17 @@ public class SubMenuItemBuilder extends MenuItemBuilder<SubMenuItemBuilder> {
 
     public SubMenuItemBuilder withExisting(SubMenuItem item) {
         baseFromExisting(item);
+        this.secured = item.isSecured();
+        return getThis();
+    }
+
+    public SubMenuItemBuilder withSecured(boolean secured) {
+        this.secured = secured;
         return getThis();
     }
 
     public SubMenuItem menuItem() {
-        return new SubMenuItem(this.name, this.id, this.eepromAddr, this.localOnly);
+        return new SubMenuItem(name, id, eepromAddr, localOnly, secured);
     }
 
     public static SubMenuItemBuilder aSubMenuItemBuilder() {
