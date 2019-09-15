@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TcMenuDesigner"
-#define MyAppVersion "1.3.4"
+#define MyAppVersion "1.3.5"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuDesigner.exe"
