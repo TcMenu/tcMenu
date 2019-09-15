@@ -13,7 +13,7 @@
     <artifactId>TcMenuController</artifactId>
     <name>TcMenuController</name>
     <description>TcMenu Remote Controller JavaFX UI for connecting to embedded menu apps</description>
-    <version>1.3.4-SNAPSHOT</version>
+    <version>1.3.4</version>
 
     <dependencies>
 
