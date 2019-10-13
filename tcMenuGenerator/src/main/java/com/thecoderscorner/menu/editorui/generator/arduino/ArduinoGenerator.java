@@ -67,6 +67,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     private Consumer<String> uiLogger = null;
     private MenuTree menuTree;
+    private List<String> previousPluginFiles = List.of();
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
@@ -80,8 +81,9 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     @Override
     public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree,
-                                   NameAndKey nameKey) {
+                                   NameAndKey nameKey, List<String> previousPluginFiles) {
         this.menuTree = menuTree;
+        this.previousPluginFiles = previousPluginFiles;
         logLine("Starting Arduino generate: " + directory);
 
         boolean usesProgMem = embeddedPlatform.isUsesProgmem();
@@ -115,7 +117,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             generateHeaders(generators, headerFile, menuStructure, extractor, callbackFunctions);
             generateSource(generators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
-            addAnyRequiredPluginsToSketch(generators, directory);
+            dealWithRequiredPlugins(generators, directory);
 
             // do a couple of final checks and put out warnings if need be
             checkIfUpToDateWarningNeeded();
@@ -347,7 +349,29 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         }
     }
 
-    private void addAnyRequiredPluginsToSketch(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
+    private void dealWithRequiredPlugins(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
+        logLine("Checking if any plugins have been removed from the project and need removal");
+
+        var newPluginFileSet = generators.stream()
+                .flatMap(gen -> gen.getRequiredFiles().stream())
+                .map(PluginFileDependency::getFileName)
+                .collect(Collectors.toSet());
+
+        for(var plugin : previousPluginFiles) {
+            if(!newPluginFileSet.contains(plugin)) {
+                var fileNamePart = Paths.get(plugin).getFileName().toString();
+                var actualFile = directory.resolve(fileNamePart);
+                try {
+                    if(Files.exists(actualFile)) {
+                        logLine("Removing unused plugin: " + actualFile);
+                        Files.delete(actualFile);
+                    }
+                } catch (IOException e) {
+                    logLine("Could not delete plugin: " + actualFile + " error " + e.getMessage());
+                }
+            }
+        }
+
         logLine("Finding any required rendering / remote plugins to add to project");
 
         for (var gen : generators) {

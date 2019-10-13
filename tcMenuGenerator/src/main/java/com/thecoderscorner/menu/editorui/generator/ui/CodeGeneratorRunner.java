@@ -17,5 +17,6 @@ public interface CodeGeneratorRunner {
                              EmbeddedPlatform platform,
                              String  path,
                              List<EmbeddedCodeCreator> creators,
+                             List<String> previousPlugins,
                              boolean modal);
 }

@@ -82,7 +82,7 @@ public class RemoteMenuController {
             connector.close();
         }
 
-        if((clock.millis() - lastTx.get()) > heartbeatFrequency) {
+        if((clock.millis() - lastTx.get()) > heartbeatFrequency && authenticatedState.get() == AUTHENTICATED) {
             logger.log(INFO, "Sending heartbeat to " + getConnector().getConnectionName() + " port");
             sendCommand(newHeartbeatCommand(heartbeatFrequency));
         }

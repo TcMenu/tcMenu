@@ -145,7 +145,7 @@ public class ArduinoItemGeneratorTest {
         menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
-        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "66", "3", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "66", "(MultiEditWireType)3", "NULL");
     }
 
     @Test

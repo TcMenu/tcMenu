@@ -31,10 +31,6 @@ public class CallbackRequirement {
         return callbackItem;
     }
 
-    public String getCallbackName() {
-        return callbackName;
-    }
-
     public List<String> generateSketchCallback() {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<List<String>>() {
 
@@ -42,7 +38,7 @@ public class CallbackRequirement {
             public void visit(RuntimeListMenuItem item) {
                 setResult(List.of(
                         "// see tcMenu list documentation on thecoderscorner.com",
-                        "int CALLBACK_FUNCTION " + callbackName + RUNTIME_CALLBACK_PARAMS + " {",
+                        "int CALLBACK_FUNCTION " + generator.makeRtFunctionName(item) + RUNTIME_CALLBACK_PARAMS + " {",
                         "   switch(mode) {",
                         "    case RENDERFN_INVOKE:",
                         "        // TODO - your code to invoke goes here - row is the index of the item",
@@ -147,6 +143,20 @@ public class CallbackRequirement {
         CallbackRequirement that = (CallbackRequirement) o;
         return Objects.equals(getCallbackName(), that.getCallbackName()) &&
                 Objects.equals(callbackItem, that.callbackItem);
+    }
+
+    public String getCallbackName() {
+        return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
+            @Override
+            public void visit(RuntimeListMenuItem listItem) {
+                setResult(generator.makeRtFunctionName(listItem));
+            }
+            @Override
+            public void anyItem(MenuItem item) {
+                    setResult(callbackName);
+            }
+        }).orElse(null);
+
     }
 
     @Override

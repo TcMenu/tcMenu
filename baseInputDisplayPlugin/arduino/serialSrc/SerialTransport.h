@@ -31,16 +31,16 @@ public:
 	virtual ~SerialTagValueTransport() {}
 	void setStream(Stream* stream) {this->serialPort = stream; }
 
-	virtual void flush()                   {serialPort->flush();}
-	virtual int writeChar(char data)       { return serialPort->write(data); }
-	virtual int writeStr(const char* data) { return serialPort->write(data); }
+	void flush() override {serialPort->flush();}
+	int writeChar(char data) override;
+	int writeStr(const char* data) override;
 
-	virtual uint8_t readByte()   { return serialPort->read(); }
-	virtual bool readAvailable() { return serialPort->available(); }
-	virtual bool available()     { return serialPort->availableForWrite();}
-	virtual bool connected()     { return true;}
+	uint8_t readByte() override { return serialPort->read(); }
+	bool readAvailable() override { return serialPort->available(); }
+	bool available() override { return serialPort->availableForWrite() != 0;}
+	bool connected() override { return true;}
 
-	virtual void close();
+	void close() override;
 
 };
 

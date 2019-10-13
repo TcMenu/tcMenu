@@ -81,7 +81,6 @@ public class SocketBasedConnectorTest {
         Thread.sleep(500);
 
         // then we initiate our mock server by sending a few commands - it sends 2 back for each command it gets
-        socket.sendMenuCommand(newHeartbeatCommand(10000));
         socket.sendMenuCommand(newDeltaChangeCommand(new CorrelationId("ABCDEF12"), 1, 10));
         socket.sendMenuCommand(newJoinCommand("dave"));
 

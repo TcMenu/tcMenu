@@ -90,7 +90,7 @@ public class ArduinoGeneratorTest {
                 recursiveName);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
-        assertTrue(generator.startConversion(dir, generators, tree, new NameAndKey("uuid1", "tester")));
+        assertTrue(generator.startConversion(dir, generators, tree, new NameAndKey("uuid1", "tester"), List.of()));
 
         assertEquals("GenState", generator.makeNameToVar(generateItemWithName("Gen &^%State")));
         assertEquals("ChannelÖôóò", generator.makeNameToVar(generateItemWithName("ChannelÖôóò")));

@@ -190,7 +190,7 @@ void AdaFruitGfxMenuRenderer::render() {
 
         // and then we start drawing items until we run out of screen or items
         int ypos = titleHeight;
-        while (item && (ypos + itemHeight) < graphics->height() ) {
+        while (item && (ypos + itemHeight) <= graphics->height() ) {
             if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
                 requiresUpdate = true;
 

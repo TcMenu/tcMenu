@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoSketchFileAdjuster {
@@ -111,7 +112,7 @@ public class ArduinoSketchFileAdjuster {
                                   List<String> alreadyDefined) {
 
         var filteredCb = callbacksToMake.stream()
-                .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()))
+                .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) || isRuntimeStructureNeeded(cb.getCallbackItem()))
                 .collect(Collectors.toList());
 
         for (CallbackRequirement cb : filteredCb) {

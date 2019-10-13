@@ -120,10 +120,20 @@
     {
       "id": "1e38dc42-672d-4c1c-a393-2c7632bf6c5c",
       "subsystem": "REMOTE",
-      "applicability": ["ARDUINO", "ARDUINO32", "ARDUINO_ESP8266", "ARDUINO_ESP32"],
-      "description": "Serial remote control (Rs232 / USB / Bluetooth)",
+      "applicability": ["ARDUINO", "ARDUINO32"],
+      "description": "Arduino Serial remote control (Rs232 / USB / Bluetooth)",
       "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth. The full menu structure will be available to the remote using either the protocol or the API.",
       "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.Rs232RemoteCapabilitiesCreator",
+      "imageFileName": "serial-connection.jpg",
+      "docsLink": "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/serial-remote-plugin/"
+    },
+    {
+      "id": "1e38dc42-672d-4c1c-a393-2c7632bf6c5c",
+      "subsystem": "REMOTE",
+      "applicability": ["ARDUINO_ESP8266", "ARDUINO_ESP32"],
+      "description": "ESP Serial remote control (Rs232 / USB / Bluetooth)",
+      "extendedDescription": "Use this option to be able to control the menu over many kinds of serial link, for example RS232, USBSerial, Bluetooth. For ESP boards, we support hardware and non-hardware streams.",
+      "codeCreatorClass": "com.thecoderscorner.tcmenu.plugins.remote.ESPSerialRemoteCapabilitiesCreator",
       "imageFileName": "serial-connection.jpg",
       "docsLink": "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/serial-remote-plugin/"
     },

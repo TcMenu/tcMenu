@@ -25,7 +25,6 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
                     REMOTE, VARIABLE, variableValidator())
     );
 
-
     @Override
     public void initCreator(String root) {
         String serialPort = findPropertyValue("SERIAL_PORT").getLatestValue();
@@ -35,8 +34,14 @@ public class Rs232RemoteCapabilitiesCreator extends AbstractCodeCreator {
                         .requiresHeader("SerialTransport.h", true)
                         .paramRef(serialPort).paramRef("applicationInfo"));
 
-        addLibraryFiles(new PluginFileDependency("serialSrc/SerialTransport.cpp", WITH_PLUGIN, Map.of()),
-                        new PluginFileDependency("serialSrc/SerialTransport.h", WITH_PLUGIN, Map.of()));
+        var replacements = getReplacementMap();
+
+        addLibraryFiles(new PluginFileDependency("serialSrc/SerialTransport.cpp", WITH_PLUGIN, replacements),
+                        new PluginFileDependency("serialSrc/SerialTransport.h", WITH_PLUGIN, replacements));
+    }
+
+    public Map<String, String> getReplacementMap() {
+        return Map.of();
     }
 
     @Override

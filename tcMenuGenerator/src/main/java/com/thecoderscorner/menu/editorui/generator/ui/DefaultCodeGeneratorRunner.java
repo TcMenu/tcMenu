@@ -38,7 +38,8 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
 
     @Override
     public void startCodeGeneration(Stage stage, EmbeddedPlatform platform, String path,
-                                    List<EmbeddedCodeCreator> creators, boolean modal) {
+                                    List<EmbeddedCodeCreator> creators, List<String> previousPlugins,
+                                    boolean modal) {
         try {
             logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
             CodeGenerator gen = platforms.getCodeGeneratorFor(platform, project.getGeneratorOptions());
@@ -48,7 +49,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);
                 new Thread(() -> {
-                    gen.startConversion(Paths.get(path), creators, project.getMenuTree(), newNameAndKey(project));
+                    gen.startConversion(Paths.get(path), creators, project.getMenuTree(), newNameAndKey(project), previousPlugins);
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal);

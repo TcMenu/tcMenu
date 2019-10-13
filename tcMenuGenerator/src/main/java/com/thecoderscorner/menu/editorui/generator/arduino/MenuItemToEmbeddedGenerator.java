@@ -84,7 +84,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
-                    .addElement(item.getItemType().getMsgId())
+                    .addElement("(MultiEditWireType)" + item.getItemType().getMsgId())
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);

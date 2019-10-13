@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.util.UiHelper;
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -55,6 +56,7 @@ public class GenerateCodeDialog {
     private List<CodePluginItem> displaysSupported;
     private List<CodePluginItem> inputsSupported;
     private List<CodePluginItem> remotesSupported;
+    private List<String> initialPlugins = new ArrayList<>();
 
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentInput;
@@ -101,7 +103,7 @@ public class GenerateCodeDialog {
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         try {
             CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-            inputCreator = manager.makeCreator(itemInput);
+            inputCreator = makeCreatorAndRecordFiles(itemInput);
             currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
             currentInput.setId("currentInputUI");
             currentInput.getStyleClass().add("uiCodeGen");
@@ -116,7 +118,7 @@ public class GenerateCodeDialog {
             CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
             currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
             currentDisplay.setId("currentDisplayUI");
-            displayCreator = manager.makeCreator(itemDisplay);
+            displayCreator = makeCreatorAndRecordFiles(itemDisplay);
             currentDisplay.getStyleClass().add("uiCodeGen");
             vbox.getChildren().add(currentDisplay);
         } catch (ClassNotFoundException e) {
@@ -128,7 +130,7 @@ public class GenerateCodeDialog {
             CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
             currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
             currentRemote.setId("currentRemoteUI");
-            remoteCreator = manager.makeCreator(itemRemote);
+            remoteCreator = makeCreatorAndRecordFiles(itemRemote);
             currentRemote.getStyleClass().add("uiCodeGen");
             vbox.getChildren().add(currentRemote);
         } catch (ClassNotFoundException e) {
@@ -162,6 +164,16 @@ public class GenerateCodeDialog {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
+    }
+
+    private EmbeddedCodeCreator makeCreatorAndRecordFiles(CodePluginItem itemInput) throws ClassNotFoundException {
+        var tempCreator = manager.makeCreator(itemInput);
+        tempCreator.initialise(".");
+        initialPlugins.addAll(tempCreator.getRequiredFiles().stream()
+                .map(PluginFileDependency::getFileName)
+                .collect(Collectors.toList())
+        );
+        return manager.makeCreator(itemInput);
     }
 
     private void buildTable() {
@@ -321,7 +333,8 @@ public class GenerateCodeDialog {
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
-                                   Arrays.asList(displayCreator, inputCreator, remoteCreator), true);
+                                   Arrays.asList(displayCreator, inputCreator, remoteCreator), initialPlugins,
+                                   true);
 
         dialogStage.close();
     }

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.remote;
 
+import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 
@@ -56,6 +57,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
         try {
             logger.log(INFO, "Connected to " + getConnectionName());
             state.set(StreamState.CONNECTED);
+            sendMenuCommand(CommandFactory.newHeartbeatCommand(5000));
             notifyConnection();
             inputBuffer.flip();
 

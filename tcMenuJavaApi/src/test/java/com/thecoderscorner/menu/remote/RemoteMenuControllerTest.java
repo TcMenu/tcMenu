@@ -223,15 +223,6 @@ public class RemoteMenuControllerTest {
     }
 
     @Test
-    public void testHeartbeatOnNoTx() throws IOException {
-        when(connector.isConnected()).thenReturn(true);
-        heartbeatMon.getValue().run();
-        when(clock.millis()).thenReturn(20000L);
-        heartbeatMon.getValue().run();
-        Mockito.verify(connector).sendMenuCommand(isA(MenuHeartbeatCommand.class));
-    }
-
-    @Test
     public void testHeartbeatTimeoutOnNoRx() {
         when(connector.isConnected()).thenReturn(true);
         heartbeatMon.getValue().run();

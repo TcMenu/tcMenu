@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 
@@ -47,6 +48,7 @@ public class ArduinoSketchFileAdjusterTest {
         MenuItem itemId9 = tree.getMenuById(9).orElseThrow();
         MenuItem itemId10 = tree.getMenuById(10).orElseThrow();
         ArduinoGenerator generator = Mockito.mock(ArduinoGenerator.class);
+        when(generator.makeRtFunctionName(any())).thenReturn("fnListRtCall");
         when(generator.makeNameToVar(itemId8)).thenReturn("ActionTest");
         when(generator.makeNameToVar(itemId9)).thenReturn("SubnetMask");
         when(generator.makeNameToVar(itemId10)).thenReturn("List");

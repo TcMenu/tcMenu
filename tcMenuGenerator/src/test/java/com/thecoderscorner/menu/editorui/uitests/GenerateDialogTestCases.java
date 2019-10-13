@@ -199,7 +199,7 @@ public class GenerateDialogTestCases {
         // and away we go - now we should properly start the runner
         robot.clickOn("#GenerateButton");
         ArgumentCaptor<List<EmbeddedCodeCreator>> creatorCapture = ArgumentCaptor.forClass(List.class);
-        verify(runner).startCodeGeneration(eq(stage), eq(ARDUINO_AVR), eq("var"), creatorCapture.capture(), eq(true));
+        verify(runner).startCodeGeneration(eq(stage), eq(ARDUINO_AVR), eq("var"), creatorCapture.capture(), any(), eq(true));
 
         ArgumentCaptor<CodeGeneratorOptions> optionsCapture = ArgumentCaptor.forClass(CodeGeneratorOptions.class);
         verify(project).setGeneratorOptions(optionsCapture.capture());

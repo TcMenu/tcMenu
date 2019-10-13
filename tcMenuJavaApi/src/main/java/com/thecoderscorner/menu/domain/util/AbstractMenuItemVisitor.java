@@ -85,6 +85,6 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
      * @param res the result to store
      */
     protected void setResult(T res) {
-        result = Optional.of(res);
+        result = Optional.ofNullable(res);
     }
 }
