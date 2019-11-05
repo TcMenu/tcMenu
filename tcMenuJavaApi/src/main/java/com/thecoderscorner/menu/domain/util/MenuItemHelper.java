@@ -64,6 +64,11 @@ public class MenuItemHelper {
             }
 
             @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                setResult(true);
+            }
+
+            @Override
             public void visit(SubMenuItem item) {
                 setResult(true); // needed for the back menu item
             }
@@ -122,6 +127,15 @@ public class MenuItemHelper {
             @Override
             public void visit(EditableTextMenuItem item) {
                 setResult(EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                setResult(EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                         .withExisting(item)
                         .withId(newId)
                         .menuItem()

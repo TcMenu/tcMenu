@@ -13,7 +13,8 @@ public enum EditItemType {
     IP_ADDRESS(1),
     TIME_24H(2),
     TIME_12H(3),
-    TIME_24_HUNDREDS(4);
+    TIME_24_HUNDREDS(4),
+    LARGE_NUMBER(5);
 
     private final int msgId;
 

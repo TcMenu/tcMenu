@@ -11,11 +11,14 @@ package com.thecoderscorner.menu.remote;
  * one of these states, and this is just the exterior view of the state.
  */
 public enum AuthStatus {
+    NOT_STARTED("Not yet started, or stopped"),
     AWAITING_CONNECTION("Waiting for connection"),
-    AWAITING_JOIN("Waiting to Join"),
-    SENT_JOIN("Waiting for Response"),
+    ESTABLISHED_CONNECTION("Connection established"),
+    SEND_AUTH("Send Authentication"),
     AUTHENTICATED("Authenticated"),
-    FAILED_AUTH("Authentication failed");
+    FAILED_AUTH("Authentication failed"),
+    BOOTSTRAPPING("Bootstrap Started"),
+    CONNECTION_READY("Connection Ready");
 
     private final String description;
 

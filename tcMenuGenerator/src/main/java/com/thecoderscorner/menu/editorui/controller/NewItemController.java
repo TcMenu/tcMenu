@@ -34,9 +34,10 @@ public class NewItemController {
     public RadioButton textSelect;
     public RadioButton floatSelect;
     public RadioButton actionSelect;
+    public RadioButton largeNumSelect;
+    public RadioButton listSelect;
     public Button okButton;
     public TextField idField;
-    public RadioButton listSelect;
     private Optional<MenuItem> result = Optional.empty();
     private MenuIdChooserImpl menuIdChooser;
     private CurrentProjectEditorUI editorUI;
@@ -126,6 +127,16 @@ public class NewItemController {
                     .withName("New Runtime List")
                     .withId(id)
                     .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(largeNumSelect.isSelected()) {
+            result = Optional.of(EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
+                    .withName("New Large Number")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .withTotalDigits(12)
+                    .withDecimalPlaces(4)
                     .menuItem()
             );
         }

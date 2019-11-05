@@ -9,10 +9,14 @@ package com.thecoderscorner.menu.remote.commands;
 import java.util.Objects;
 
 public class MenuHeartbeatCommand implements MenuCommand {
-    private final int hearbeatInterval;
+    public enum HeartbeatMode { START, NORMAL, END }
 
-    public MenuHeartbeatCommand(int hearbeatInterval) {
-        this.hearbeatInterval = hearbeatInterval;
+    private final int hearbeatInterval;
+    private final HeartbeatMode mode;
+
+    public MenuHeartbeatCommand(int heartbeatInterval, HeartbeatMode mode) {
+        this.mode = mode;
+        this.hearbeatInterval = heartbeatInterval;
     }
 
     public int getHearbeatInterval() {
@@ -22,6 +26,10 @@ public class MenuHeartbeatCommand implements MenuCommand {
     @Override
     public MenuCommandType getCommandType() {
         return MenuCommandType.HEARTBEAT;
+    }
+
+    public HeartbeatMode getMode() {
+        return mode;
     }
 
     @Override
@@ -34,7 +42,7 @@ public class MenuHeartbeatCommand implements MenuCommand {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MenuHeartbeatCommand that = (MenuHeartbeatCommand) o;
-        return getHearbeatInterval() == that.getHearbeatInterval();
+        return getHearbeatInterval() == that.getHearbeatInterval() && mode == that.mode;
     }
 
     @Override

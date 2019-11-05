@@ -26,7 +26,6 @@ import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -77,8 +76,6 @@ public class MainWindowController {
 
     // Holds the current connectivity state - boolean
     private AtomicReference<AuthStatus> authStatus = new AtomicReference<>(AuthStatus.AWAITING_CONNECTION);
-    // Holds the remoteInformation, may be empty if there isn't anyone connected
-    private Optional<RemoteInformation> remoteInfo = Optional.empty();
     // Indicates if there has been a bootstrap yet to populate the menu structure
     private AtomicBoolean bootstrapComplete = new AtomicBoolean(false);
 
@@ -146,10 +143,7 @@ public class MainWindowController {
                     bootstrapComplete.set(true);
                     updateConnectionDetails();
                     itemGrid.getChildren().clear();
-                    var name = "Unknown";
-                    if(remoteInfo.isPresent()) {
-                        name = remoteInfo.get().getName();
-                    }
+                    var name = remoteControl.getConnector().getRemoteParty().getName();
                     buildGrid(MenuTree.ROOT, name,0, 0);
                 });
             }
@@ -162,7 +156,6 @@ public class MainWindowController {
              */
             @Override
             public void connectionState(RemoteInformation remoteInformation, AuthStatus status) {
-                remoteInfo = Optional.ofNullable(remoteInformation);
                 authStatus.set(status);
                 bootstrapComplete.set(false);
                 Platform.runLater(MainWindowController.this::updateConnectionDetails);
@@ -291,6 +284,11 @@ public class MainWindowController {
             }
 
             @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                setResult(new LargeNumberManagedMenuItem(item));
+            }
+
+            @Override
             public void visit(RuntimeListMenuItem listItem) {
                 setResult(new RuntimeListManagedMenuItem(listItem));
             }
@@ -327,7 +325,7 @@ public class MainWindowController {
         Stage stage = (Stage)statusLabel.getScene().getWindow();
 
         if(authStatus.get()!=AuthStatus.AWAITING_CONNECTION) {
-            var remote = remoteInfo.orElse(RemoteInformation.NOT_CONNECTED);
+            var remote = remoteControl.getConnector().getRemoteParty();
             var connectionState = "Connection status: " + authStatus.get().getDescription();
             var bootState = bootstrapComplete.get() ? " - loaded." : " - not loaded";
             statusLabel.setText(connectionState + " to " + remote.getName() + " (" +  remote.getMajorVersion() + "."

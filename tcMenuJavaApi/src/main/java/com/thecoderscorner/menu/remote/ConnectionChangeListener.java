@@ -15,7 +15,7 @@ public interface ConnectionChangeListener {
     /**
      * Called by the connector upon state change
      * @param connector the connector who's state has changed
-     * @param connected true if connected, otherwise false
+     * @param authStatus the current authentication status
      */
-    void connectionChange(RemoteConnector connector, boolean connected);
+    void connectionChange(RemoteConnector connector, AuthStatus authStatus);
 }

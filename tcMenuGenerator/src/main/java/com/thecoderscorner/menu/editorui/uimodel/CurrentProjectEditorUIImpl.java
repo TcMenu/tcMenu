@@ -173,6 +173,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         @Override
+        public void visit(EditableLargeNumberMenuItem item) {
+            setResult(new UILargeNumberMenuItem(item, menuIdChooser, changeConsumer));
+        }
+
+        @Override
         public void visit(EnumMenuItem item) {
             setResult(new UIEnumMenuItem(item, menuIdChooser, changeConsumer));
         }

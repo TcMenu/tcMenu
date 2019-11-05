@@ -6,9 +6,7 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.thecoderscorner.menu.remote.ConnectionChangeListener;
-import com.thecoderscorner.menu.remote.RemoteConnector;
-import com.thecoderscorner.menu.remote.RemoteConnectorListener;
+import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,7 +112,7 @@ class PairingHelperTest {
         @Override
         public void start() {
             socketStared = true;
-            connectionStateListener.connectionChange(simConnector, true);
+            connectionStateListener.connectionChange(simConnector, AuthStatus.ESTABLISHED_CONNECTION);
             connectorListener.onCommand(simConnector, CommandFactory.newJoinCommand("ABC", UUID.randomUUID()));
         }
 
@@ -132,8 +130,18 @@ class PairingHelperTest {
         }
 
         @Override
-        public boolean isConnected() {
+        public boolean isDeviceConnected() {
             return true;
+        }
+
+        @Override
+        public RemoteInformation getRemoteParty() {
+            return RemoteInformation.NOT_CONNECTED;
+        }
+
+        @Override
+        public AuthStatus getAuthenticationStatus() {
+            return AuthStatus.ESTABLISHED_CONNECTION;
         }
 
         @Override
@@ -149,7 +157,7 @@ class PairingHelperTest {
         @Override
         public void registerConnectionChangeListener(ConnectionChangeListener listener) {
             connectionStateListener = listener;
-            connectionStateListener.connectionChange(simConnector, false);
+            connectionStateListener.connectionChange(simConnector, AuthStatus.AWAITING_CONNECTION);
         }
 
         @Override

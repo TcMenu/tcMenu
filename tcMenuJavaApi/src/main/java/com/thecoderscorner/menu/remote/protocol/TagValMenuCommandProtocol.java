@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -19,6 +20,7 @@ import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBui
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.BootType;
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
+import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.*;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
 import static java.lang.System.Logger.Level.DEBUG;
 
@@ -68,6 +70,8 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processEnumBootItem(parser);
             case BOOLEAN_BOOT_ITEM:
                 return processBoolBootItem(parser);
+            case LARGE_NUM_BOOT_ITEM:
+                return processLargeNumBootItem(parser);
             case CHANGE_INT_FIELD:
                 return processItemChange(parser);
             case TEXT_BOOT_ITEM:
@@ -205,6 +209,21 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuBooleanBootCommand(parentId, item, currentVal != 0);
     }
 
+    private MenuCommand processLargeNumBootItem(TagValTextParser parser) throws IOException {
+        EditableLargeNumberMenuItem item = EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
+                .withTotalDigits(parser.getValueAsInt(KEY_MAX_LENGTH))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        var text = parser.getValue(KEY_CURRENT_VAL).replaceAll("[\\[\\]]", "");
+        return newLargeNumberBootItem(parentId, item, new BigDecimal(text));
+    }
+
     private MenuCommand processTextItem(TagValTextParser parser) throws IOException {
         EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
@@ -333,7 +352,22 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private MenuCommand processHeartbeat(TagValTextParser parser) throws IOException {
-        return newHeartbeatCommand(parser.getValueAsIntWithDefault(HB_FREQUENCY_FIELD, 10000));
+        return newHeartbeatCommand(
+                parser.getValueAsIntWithDefault(HB_FREQUENCY_FIELD, 10000),
+                toHbMode(parser.getValueAsIntWithDefault(HB_MODE_FIELD, 0))
+        );
+    }
+
+    private MenuHeartbeatCommand.HeartbeatMode toHbMode(int hbModeInt) {
+        switch (hbModeInt) {
+            case 1:
+                return START;
+            case 2:
+                return END;
+            case 0:
+            default:
+                return NORMAL;
+        }
     }
 
     @Override
@@ -370,6 +404,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 break;
             case RUNTIME_LIST_BOOT:
                 writeRuntimeListBootItem(sb, (MenuRuntimeListBootCommand) cmd);
+                break;
+            case LARGE_NUM_BOOT_ITEM:
+                writeLargeNumberBootItem(sb, (MenuLargeNumBootCommand) cmd);
                 break;
             case CHANGE_INT_FIELD:
                 writeChangeInt(sb, (MenuChangeCommand)cmd);
@@ -421,7 +458,21 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void writeHeartbeat(StringBuilder sb, MenuHeartbeatCommand cmd) {
+        int hbMode;
+        switch(cmd.getMode()) {
+            case START:
+                hbMode = 1;
+                break;
+            case END:
+                hbMode = 2;
+                break;
+            default:
+            case NORMAL:
+                hbMode = 0;
+                break;
+        }
         appendField(sb, HB_FREQUENCY_FIELD, cmd.getHearbeatInterval());
+        appendField(sb, HB_MODE_FIELD, hbMode);
     }
 
     @Override
@@ -437,6 +488,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             appendChoices(sb, cmd.getValues());
         }
         else appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
+    }
+
+    private void writeLargeNumberBootItem(StringBuilder sb, MenuLargeNumBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_FLOAT_DECIMAL_PLACES, cmd.getMenuItem().getDecimalPlaces());
+        appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getDigitsAllowed());
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {

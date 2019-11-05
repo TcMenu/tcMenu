@@ -7,10 +7,7 @@
 package com.thecoderscorner.menu.remote.rs232;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.remote.ConnectorFactory;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
@@ -126,8 +123,11 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
      */
     public RemoteMenuController build() {
         initialiseBasics();
-        Rs232RemoteConnector connector = new Rs232RemoteConnector(portName, baud, protocol, executorService);
-        return new RemoteMenuController(connector, menuTree, executorService, name, uuid, clock);
+        Rs232RemoteConnector connector = new Rs232RemoteConnector(
+                new LocalIdentifier(uuid, name),  portName, baud,
+                protocol, executorService, clock
+        );
+        return new RemoteMenuController(connector, menuTree);
     }
 
     private void initialiseBasics() {
@@ -154,7 +154,10 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
     public boolean attemptPairing(Optional<Consumer<PairingHelper.PairingState>> maybePairingListener)  {
         initialiseBasics();
 
-        Rs232RemoteConnector connector = new Rs232RemoteConnector(portName, baud, protocol, executorService);
+        Rs232RemoteConnector connector = new Rs232RemoteConnector(
+                new LocalIdentifier(uuid, name), portName, baud,
+                protocol, executorService, clock
+        );
         PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
         return helper.attemptPairing(name, uuid);
     }

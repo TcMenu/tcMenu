@@ -11,10 +11,12 @@ import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
+import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
 
 /**
  * These static helper methods are the preferred way to create command message that can be sent and received from
@@ -45,8 +47,8 @@ public class CommandFactory {
      * @param frequency the frequency
      * @return heartbeat command
      */
-    public static MenuHeartbeatCommand newHeartbeatCommand(int frequency) {
-        return new MenuHeartbeatCommand(frequency);
+    public static MenuHeartbeatCommand newHeartbeatCommand(int frequency, HeartbeatMode mode) {
+        return new MenuHeartbeatCommand(frequency, mode);
     }
 
     /**
@@ -164,6 +166,16 @@ public class CommandFactory {
         return new MenuTextBootCommand(parentId, item, currentVal);
     }
 
+    /**
+     * create a new large number bootstrap command.
+     * @param parentId the parent onto which the item will be placed.
+     * @param item the item itself.
+     * @param currentVal the current value
+     * @return a new number boot command
+     */
+    public static MenuLargeNumBootCommand newLargeNumberBootItem(int parentId, EditableLargeNumberMenuItem item, BigDecimal currentVal) {
+        return new MenuLargeNumBootCommand(parentId, item, currentVal);
+    }
     /**
      * Creates a new delta change command given the menu item and the delta change in value.
      * @param correlation a correlation ID that will be returned in the subsequent acknowledgement.

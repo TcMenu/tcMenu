@@ -53,6 +53,11 @@ public class PersistedMenu {
             }
 
             @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                type = RUNTIME_LARGE_NUM_PERSIST_TYPE;
+            }
+
+            @Override
             public void visit(EditableTextMenuItem item) { type = TEXT_PERSIST_TYPE; }
 
             @Override

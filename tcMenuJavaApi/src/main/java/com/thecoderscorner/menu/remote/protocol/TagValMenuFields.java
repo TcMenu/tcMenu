@@ -16,6 +16,7 @@ public interface TagValMenuFields {
     String KEY_UUID_FIELD = "UU";
     String KEY_VER_FIELD = "VE";
     String HB_FREQUENCY_FIELD = "HI";
+    String HB_MODE_FIELD = "HR";
     String KEY_PLATFORM_ID = "PF";
     String KEY_BOOT_TYPE_FIELD = "BT";
     String KEY_ID_FIELD = "ID";

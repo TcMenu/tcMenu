@@ -35,12 +35,6 @@ public interface RemoteConnector {
     void sendMenuCommand(MenuCommand msg) throws IOException;
 
     /**
-     * Gets the underlying connection state for this connector.
-     * @return the underlying connection state.
-     */
-    boolean isConnected();
-
-    /**
      * Gets the name of this connector locally
      */
     String getConnectionName();
@@ -62,4 +56,20 @@ public interface RemoteConnector {
      * establish a new connection.
      */
     void close();
+
+    /**
+     * Indicates if the underlying device is actually connected.
+     * @return true if the underlying device is connected
+     */
+    boolean isDeviceConnected();
+
+    /**
+     * @return the remote party information of the current connection
+     */
+    RemoteInformation getRemoteParty();
+
+    /**
+     * @return the status of the connection and authentication.
+     */
+    AuthStatus getAuthenticationStatus();
 }

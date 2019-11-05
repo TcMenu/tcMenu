@@ -40,6 +40,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
     public static final String TEXT_PERSIST_TYPE = "textItem";
     public static final String FLOAT_PERSIST_TYPE = "floatItem";
+    public static final String RUNTIME_LARGE_NUM_PERSIST_TYPE = "largeNumItem";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -136,6 +137,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 TEXT_PERSIST_TYPE, EditableTextMenuItem.class,
                 SUB_PERSIST_TYPE, SubMenuItem.class,
                 RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class,
+                RUNTIME_LARGE_NUM_PERSIST_TYPE, EditableLargeNumberMenuItem.class,
                 FLOAT_PERSIST_TYPE, FloatMenuItem.class);
 
         @Override

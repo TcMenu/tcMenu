@@ -7,11 +7,15 @@
 package com.thecoderscorner.menu.remote.rs232;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.thecoderscorner.menu.remote.AuthStatus;
+import com.thecoderscorner.menu.remote.LocalIdentifier;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.StreamRemoteConnector;
+import com.thecoderscorner.menu.remote.states.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.System.Logger.Level.INFO;
@@ -27,52 +31,37 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     private final SerialPort serialPort;
     private final int baud;
 
-    public Rs232RemoteConnector(String portName, int baud, MenuCommandProtocol protocol,
-                                ScheduledExecutorService executor) {
-        super(protocol, executor);
+    public Rs232RemoteConnector(LocalIdentifier localId, String portName, int baud, MenuCommandProtocol protocol,
+                                ScheduledExecutorService executor, Clock clock) {
+        super(localId, protocol, executor, clock);
         serialPort = SerialPort.getCommPort(portName);
         serialPort.setBaudRate(baud);
         this.portName = portName;
         this.baud = baud;
+
+        applyStates();
+
         logger.log(INFO, "Created RS232 connector with port {0} and baud {1}.", portName, baud);
+    }
+
+    private void applyStates() {
+        stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
+        stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
+        stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SerialAwaitFirstMsgState.class);
+        stateMachineMappings.put(AuthStatus.SEND_AUTH, JoinMessageArrivedState.class);
+        stateMachineMappings.put(AuthStatus.AUTHENTICATED, AwaitingBootstrapState.class);
+        stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
+        stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
+        stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
     }
 
     public void start() {
         logger.log(INFO, "Starting RS232 connector {0}", portName);
-        executor.execute(this::threadedReader);
+        changeState(new StreamNotConnectedState(this));
     }
 
     public void stop() {
         executor.shutdownNow();
-    }
-
-    private void threadedReader() {
-        logger.log(INFO, "RS232 Reading thread started");
-        while (!Thread.currentThread().isInterrupted()) {
-            if(reconnectWithWait()) {
-                processMessagesOnConnection();
-            }
-        }
-        logger.log(INFO, "RS232 Reading thread ended");
-    }
-
-    private boolean reconnectWithWait() {
-        try {
-            Thread.sleep(500); // we need a short break before attempting the first reconnect
-            logger.log(INFO, "Attempting to connect over rs232 to " + getConnectionName());
-            serialPort.openPort();
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 30000, 30000);
-            if(serialPort.isOpen()) {
-                notifyConnection();
-            }
-            else {
-                Thread.sleep(5000); // then re-try about every 5 seconds.
-            }
-            return serialPort.isOpen();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return false;
-        }
     }
 
     @Override
@@ -81,10 +70,26 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     @Override
+    public boolean isDeviceConnected() {
+        return serialPort.isOpen();
+    }
+
+    @Override
+    public void performConnection() throws IOException {
+        // already open, don't re-open.
+        if(serialPort.isOpen()) return;
+
+        if(!serialPort.openPort()) {
+            throw new IOException("Serial port " + portName + " not opened.");
+        }
+    }
+
+    @Override
     protected void sendInternal(ByteBuffer outputBuffer) throws IOException {
         byte[] data = new byte[outputBuffer.remaining()];
         outputBuffer.get(data, 0, data.length);
         serialPort.getOutputStream().write(data, 0, data.length);
+        serialPort.getOutputStream().flush();
     }
 
     @Override

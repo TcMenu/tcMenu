@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
+import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -297,7 +298,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingHeartbeat() {
-        protocol.toChannel(bb, newHeartbeatCommand(10000));
+        protocol.toChannel(bb, newHeartbeatCommand(10000, HeartbeatMode.NORMAL));
         testBufferAgainstExpected(HEARTBEAT, "HI=10000|\u0002");
     }
 

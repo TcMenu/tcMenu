@@ -55,4 +55,10 @@ public interface MenuItemVisitor {
      * @param listItem the list item
      */
     void visit(RuntimeListMenuItem listItem);
+
+    /**
+     * This will be called during visit for a large number item
+     * @param numItem the number item
+     */
+    void visit(EditableLargeNumberMenuItem numItem);
 }

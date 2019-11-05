@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
+import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteConnector;
 import com.thecoderscorner.menu.remote.commands.MenuAcknowledgementCommand;
 import com.thecoderscorner.menu.remote.commands.MenuCommandType;
@@ -51,7 +52,7 @@ public class PairingHelper {
 
         CountDownLatch latch = new CountDownLatch(1);
         connector.registerConnectionChangeListener((connector1, connected) -> {
-            if(connected) {
+            if(connected == AuthStatus.ESTABLISHED_CONNECTION) {
                 executorService.execute(() -> {
                     try {
                         logger.log(INFO, "Connected, sending pair request" + name);

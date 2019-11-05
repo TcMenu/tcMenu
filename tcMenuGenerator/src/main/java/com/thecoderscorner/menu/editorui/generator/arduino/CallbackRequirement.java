@@ -81,8 +81,12 @@ public class CallbackRequirement {
 
             @Override
             public void visit(EditableTextMenuItem item) {
-                var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
                 var baseCbFn = functionFromEditType(item.getItemType());
+                generateSourceForEditableRuntime(item, baseCbFn);
+            }
+
+            private void generateSourceForEditableRuntime(MenuItem item, String baseCbFn) {
+                var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
 
                 var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
                         + generator.makeRtFunctionName(item) + ", "
@@ -92,6 +96,11 @@ public class CallbackRequirement {
                         + (callbackPresent ? callbackName : "NULL") + ")";
 
                 setResult(List.of(renderingMacroDef));
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                generateSourceForEditableRuntime(item, "largeNumItemRenderFn");
             }
 
             @Override

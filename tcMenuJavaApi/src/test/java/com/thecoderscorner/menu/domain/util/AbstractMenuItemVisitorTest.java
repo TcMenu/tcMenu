@@ -72,6 +72,11 @@ public class AbstractMenuItemVisitorTest {
             public void visit(RuntimeListMenuItem item) {
                 setResult(getResult().orElse("") + "8");
             }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                setResult(getResult().orElse("") + "9");
+            }
         };
 
         AnalogMenuItem analog = anAnalogItem("123", 1);
@@ -82,6 +87,7 @@ public class AbstractMenuItemVisitorTest {
         FloatMenuItem floatItem = aFloatMenu("123", 223);
         ActionMenuItem actionItem = anActionMenu("123", 347);
         RuntimeListMenuItem runList = aRuntimeListMenu("1232", 153, 1);
+        EditableLargeNumberMenuItem numItem = aLargeNumber("1232", 153);
 
         subItem.accept(visitor);
         analog.accept(visitor);
@@ -91,8 +97,9 @@ public class AbstractMenuItemVisitorTest {
         floatItem.accept(visitor);
         actionItem.accept(visitor);
         runList.accept(visitor);
+        numItem.accept(visitor);
 
-        assertThat(visitor.getResult().orElse(""), is("12345678"));
+        assertThat(visitor.getResult().orElse(""), is("123456789"));
     }
 
     @Test(expected = UnsupportedOperationException.class)

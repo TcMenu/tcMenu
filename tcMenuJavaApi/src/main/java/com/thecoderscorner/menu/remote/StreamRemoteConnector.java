@@ -6,18 +6,28 @@
 
 package com.thecoderscorner.menu.remote;
 
+import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
+import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
+import com.thecoderscorner.menu.remote.states.RemoteConnectorContext;
+import com.thecoderscorner.menu.remote.states.RemoteConnectorState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Clock;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.*;
 import static java.lang.System.Logger.Level.*;
 
@@ -25,7 +35,7 @@ import static java.lang.System.Logger.Level.*;
  * Stream remote connector is the base class for all stream implementations, such as Socket and RS232. Any remote
  * with stream like semantics can use this as the base for building out an adapter.
  */
-public abstract class StreamRemoteConnector implements RemoteConnector {
+public abstract class StreamRemoteConnector implements RemoteConnector, RemoteConnectorContext {
     public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
 
     private static final int MAX_MSG_EXPECTED = 1024;
@@ -33,7 +43,8 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     protected final ScheduledExecutorService executor;
-    protected final AtomicReference<StreamState> state = new AtomicReference<>(StreamState.STARTED);
+    protected final Clock clock;
+    protected final Map<AuthStatus, Class<? extends RemoteConnectorState>> stateMachineMappings = new HashMap<>();
 
     private final MenuCommandProtocol protocol;
     private final List<RemoteConnectorListener> connectorListeners = new CopyOnWriteArrayList<>();
@@ -41,68 +52,52 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
     private final ByteBuffer inputBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
     private final ByteBuffer outputBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
     private final ByteBuffer cmdBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
+    private final LocalIdentifier ourLocalId;
+    private final AtomicReference<RemoteConnectorState> connectorState= new AtomicReference<>();
+    private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
 
-    protected StreamRemoteConnector(MenuCommandProtocol protocol, ScheduledExecutorService executor) {
+    protected StreamRemoteConnector(LocalIdentifier ourLocalId, MenuCommandProtocol protocol,
+                                    ScheduledExecutorService executor, Clock clock) {
+        this.ourLocalId = ourLocalId;
         this.protocol = protocol;
         this.executor = executor;
+        this.clock = clock;
+        changeState(new NoOperationInitialState(this));
     }
 
-    public enum StreamState {STARTED, CONNECTED, DISCONNECTED}
-
-    /**
-     * This is the loop that handles a connection by reading messages until there's an IOException, or the transport
-     * or thread change to an end state.
-     */
-    protected void processMessagesOnConnection() {
+    public MenuCommand readCommandFromStream() throws IOException {
         try {
-            logger.log(INFO, "Connected to " + getConnectionName());
-            state.set(StreamState.CONNECTED);
-            sendMenuCommand(CommandFactory.newHeartbeatCommand(5000));
-            notifyConnection();
-            inputBuffer.flip();
-
-            while (!Thread.currentThread().isInterrupted() && isConnected()) {
-                try {
-                    // Find the start of message
-                    byte byStart = 0;
-                    while(byStart != START_OF_MSG && !Thread.currentThread().isInterrupted() && isConnected()) {
-                        byStart = nextByte(inputBuffer);
-                    }
-
-                    // and then make sure there are enough bytes and read the protocol
-                    readCompleteMessage(inputBuffer);
-                    if(inputBuffer.get() != protocol.getKeyIdentifier()) throw new TcProtocolException("Bad protocol");
-
-                    logByteBuffer("Line read from stream", inputBuffer);
-
-                    // now we take a shallow buffer copy and process the message
-                    MenuCommand mc = protocol.fromChannel(inputBuffer);
-                    logger.log(INFO, "Command received: " + mc);
-                    notifyListeners(mc);
-                }
-                catch(TcProtocolException ex) {
-                    // a protocol problem shouldn't drop the connection
-                    logger.log(WARNING, "Protocol error: " + ex.getMessage() + ", remote=" + getConnectionName());
-                }
+            // Find the start of message
+            byte byStart = 0;
+            while(byStart != START_OF_MSG) {
+                if(Thread.currentThread().isInterrupted()) throw new IOException("Connection thread interrupted");
+                if(!isDeviceConnected()) throw new IOException("Connection thread not connected");
+                byStart = nextByte(inputBuffer);
             }
-            logger.log(INFO, "Disconnected from " + getConnectionName());
-        } catch (Exception e) {
-            logger.log(ERROR, "Problem with connectivity on " + getConnectionName(), e);
+
+            // and then make sure there are enough bytes and read the protocol
+            readCompleteMessage(inputBuffer);
+
+            logByteBuffer("Line read from stream", inputBuffer);
+
+            byte protoId = inputBuffer.get();
+            if(protoId != protocol.getKeyIdentifier()) throw new TcProtocolException("Bad protocol " + protoId);
+
+            // now we take a shallow buffer copy and process the message
+            MenuCommand mc = protocol.fromChannel(inputBuffer);
+            if(logger.isLoggable(DEBUG)) logger.log(DEBUG, "Menu command read: " + mc);
+            return mc;
         }
-        finally {
-            close();
+        catch(TcProtocolException ex) {
+            // a protocol problem shouldn't drop the connection
+            logger.log(WARNING, "Protocol error: " + ex.getMessage() + ", remote=" + getConnectionName());
+            return null;
         }
     }
 
     @Override
     public void close() {
-        state.set(StreamState.DISCONNECTED);
         notifyConnection();
-    }
-
-    @Override
-    public boolean isConnected() {
-        return state.get() == StreamState.CONNECTED;
     }
 
     /**
@@ -112,7 +107,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      */
     @Override
     public void sendMenuCommand(MenuCommand msg) throws IOException {
-        if (isConnected()) {
+        if (connectorState.get().canSendCommandToRemote(msg)) {
             synchronized (outputBuffer) {
                 cmdBuffer.clear();
                 protocol.toChannel(cmdBuffer, msg);
@@ -185,14 +180,14 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
     @Override
     public void registerConnectionChangeListener(ConnectionChangeListener listener) {
         connectionListeners.add(listener);
-        executor.execute(() -> listener.connectionChange(this, isConnected()));
+        executor.execute(() -> listener.connectionChange(this, getAuthenticationStatus()));
     }
 
     /**
      * Helper method that notifies all listeners of a new command message
      * @param mc the message to notify
      */
-    private void notifyListeners(MenuCommand mc) {
+    public void notifyListeners(MenuCommand mc) {
         connectorListeners.forEach(listener-> listener.onCommand(this, mc));
     }
 
@@ -200,7 +195,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
      * Helper method that notifies all connection listeners of a change in connectivity
      */
     protected void notifyConnection() {
-        connectionListeners.forEach(listener-> listener.connectionChange(this, isConnected()));
+        connectionListeners.forEach(listener-> listener.connectionChange(this, getAuthenticationStatus()));
     }
 
     /**
@@ -213,17 +208,23 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
 
         ByteBuffer bb = inBuffer.duplicate();
 
-        byte[] byData = new byte[512];
-        int len = Math.min(byData.length, bb.remaining());
-        byte dataByte = bb.get();
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(msg).append(". Content: ");
+
+        int len = Math.min(400, bb.remaining());
         int pos = 0;
-        while(pos < len && dataByte != END_OF_MSG) {
-            byData[pos] = dataByte;
+        while(pos < len) {
+            byte dataByte = bb.get();
+            if(dataByte > 31) {
+                sb.append((char)dataByte);
+            }
+            else {
+                sb.append(String.format("<0x%02x>", dataByte));
+            }
             pos++;
-            dataByte = bb.get();
         }
 
-        logger.log(DEBUG, msg + ". Content: " + new String(byData, 0, pos));
+        logger.log(DEBUG, sb.toString());
     }
 
     public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {
@@ -234,4 +235,75 @@ public abstract class StreamRemoteConnector implements RemoteConnector {
         }
         return foundMsg;
     }
+
+    @Override
+    public void changeState(AuthStatus desiredState) {
+        Class<? extends RemoteConnectorState> state = stateMachineMappings.get(desiredState);
+        if(state == null) throw new IllegalArgumentException(desiredState + " not available in mappings");
+        try {
+            changeState(state.getConstructor(RemoteConnectorContext.class).newInstance(this));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(desiredState + " caused an exception", e);
+        }
+    }
+
+    @Override
+    public void changeState(RemoteConnectorState newState) {
+        var oldState = connectorState.get();
+        logger.log(INFO, "Transition " + stateName(oldState) + "->" + stateName(newState) + " for " + getConnectionName());
+        if(oldState != null)  oldState.exitState(newState);
+        connectorState.set(newState);
+        newState.enterState();
+        notifyConnection();
+    }
+
+    private String stateName(RemoteConnectorState state) {
+        if(state == null) return "NoState";
+        return state.getClass().getSimpleName();
+    }
+
+    @Override
+    public RemoteInformation getRemoteParty() {
+        return remoteParty.get();
+    }
+
+    @Override
+    public void setRemoteParty(RemoteInformation remote) {
+        remoteParty.set(remote);
+    }
+
+    @Override
+    public AuthStatus getAuthenticationStatus() {
+        return connectorState.get().getAuthenticationStatus();
+    }
+
+    @Override
+    public void sendHeartbeat(int frequency, MenuHeartbeatCommand.HeartbeatMode mode) {
+        try {
+            sendMenuCommand(CommandFactory.newHeartbeatCommand(frequency, mode));
+        } catch (IOException e) {
+            logger.log(ERROR, "Exception sending heartbeat on channel", e);
+        }
+    }
+
+    @Override
+    public void sendJoin() throws IOException {
+        sendMenuCommand(CommandFactory.newJoinCommand(ourLocalId.getName(), ourLocalId.getUuid()));
+    }
+
+    @Override
+    public void sendAcknowledgement(AckStatus ackStatus) throws IOException {
+        sendMenuCommand(CommandFactory.newAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, ackStatus));
+    }
+
+    @Override
+    public ScheduledExecutorService getScheduledExecutor() {
+        return executor;
+    }
+
+    @Override
+    public Clock getClock() {
+        return clock;
+    }
+
 }

@@ -7,10 +7,7 @@
 package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.remote.ConnectorFactory;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.NamedDaemonThreadFactory;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
@@ -135,8 +132,11 @@ public class SocketControllerBuilder implements ConnectorFactory {
      */
     public RemoteMenuController build() {
         initialiseBasics();
-        SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
-        return new RemoteMenuController(connector, menuTree, executorService, name, uuid, clock);
+        SocketBasedConnector connector = new SocketBasedConnector(
+                new LocalIdentifier(uuid, name), executorService, clock,
+                protocol, address, port
+        );
+        return new RemoteMenuController(connector, menuTree);
     }
 
     private void initialiseBasics() {
@@ -155,7 +155,10 @@ public class SocketControllerBuilder implements ConnectorFactory {
 
     public boolean attemptPairing(Optional<Consumer<PairingHelper.PairingState>> maybePairingListener)  {
         initialiseBasics();
-        SocketBasedConnector connector = new SocketBasedConnector(executorService, protocol, address, port);
+        SocketBasedConnector connector = new SocketBasedConnector(
+                new LocalIdentifier(uuid, name), executorService, clock,
+                protocol, address, port
+        );
         PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
         return helper.attemptPairing(name, uuid);
     }

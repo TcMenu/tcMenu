@@ -111,6 +111,18 @@ public class TextTreeItemRenderer {
         }
 
         @Override
+        public void visit(EditableLargeNumberMenuItem numItem) {
+            StringBuilder sb = createBuilderWithName(numItem.getName());
+            NumberFormat fmt = NumberFormat.getInstance();
+            fmt.setGroupingUsed(false);
+            fmt.setMinimumFractionDigits(numItem.getDecimalPlaces());
+            fmt.setMaximumFractionDigits(numItem.getDecimalPlaces());
+            String s = fmt.format(-12345.123456);
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
+            setResult(sb.toString());
+        }
+
+        @Override
         public void visit(BooleanMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             String val ;

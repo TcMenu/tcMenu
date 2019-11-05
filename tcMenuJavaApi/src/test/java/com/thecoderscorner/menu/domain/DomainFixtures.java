@@ -67,6 +67,16 @@ public class DomainFixtures {
                 .menuItem();
     }
 
+    public static EditableLargeNumberMenuItem aLargeNumber(String name, int id) {
+        return EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
+                .withEepromAddr(64)
+                .withName(name)
+                .withDecimalPlaces(4)
+                .withTotalDigits(12)
+                .withId(id)
+                .menuItem();
+    }
+
     public static FloatMenuItem aFloatMenu(String name, int id) {
         return FloatMenuItemBuilder.aFloatMenuItemBuilder()
                 .withEepromAddr(105)
