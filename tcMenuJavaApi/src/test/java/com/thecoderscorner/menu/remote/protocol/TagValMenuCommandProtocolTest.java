@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -166,6 +167,19 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveLargeNumber() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|FD=4|ML=12|VC=11.1[2]34|\u0002"));
+        assertTrue(cmd instanceof MenuLargeNumBootCommand);
+        MenuLargeNumBootCommand numMenu = (MenuLargeNumBootCommand) cmd;
+        assertEquals(111, numMenu.getMenuItem().getId());
+        assertEquals("largeNum", numMenu.getMenuItem().getName());
+        assertEquals(10, numMenu.getSubMenuId());
+        assertEquals(4, numMenu.getMenuItem().getDecimalPlaces());
+        assertEquals(12, numMenu.getMenuItem().getDigitsAllowed());
+        assertEquals(11.1234, numMenu.getCurrentValue().doubleValue(), 0.00001);
+    }
+
+    @Test
     public void testReceiveSubMenuItem() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer(SUBMENU_BOOT_ITEM, "RO=0|PI=0|ID=1|NM=SubMenu|\u0002"));
         assertTrue(cmd instanceof MenuSubBootCommand);
@@ -299,7 +313,7 @@ public class TagValMenuCommandProtocolTest {
     @Test
     public void testWritingHeartbeat() {
         protocol.toChannel(bb, newHeartbeatCommand(10000, HeartbeatMode.NORMAL));
-        testBufferAgainstExpected(HEARTBEAT, "HI=10000|\u0002");
+        testBufferAgainstExpected(HEARTBEAT, "HI=10000|HR=0|\u0002");
     }
 
     @Test
@@ -307,6 +321,12 @@ public class TagValMenuCommandProtocolTest {
         var uuid = UUID.fromString("07cd8bc6-734d-43da-84e7-6084990becfc");
         protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101));
         testBufferAgainstExpected(JOIN, "NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|\u0002");
+    }
+
+    @Test
+    public void testWritingLargeIntegerBoot() {
+        protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111), BigDecimal.ONE));
+        testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|FD=4|ML=12|VC=1.0000|\u0002");
     }
 
     @Test

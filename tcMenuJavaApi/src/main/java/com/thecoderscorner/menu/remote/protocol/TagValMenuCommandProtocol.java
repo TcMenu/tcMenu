@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.remote.commands.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.text.NumberFormat;
 import java.util.*;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
@@ -492,8 +493,14 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
     private void writeLargeNumberBootItem(StringBuilder sb, MenuLargeNumBootCommand cmd) {
         writeCommonBootFields(sb, cmd);
-        appendField(sb, KEY_FLOAT_DECIMAL_PLACES, cmd.getMenuItem().getDecimalPlaces());
+        int decimalPlaces = cmd.getMenuItem().getDecimalPlaces();
+        appendField(sb, KEY_FLOAT_DECIMAL_PLACES, decimalPlaces);
         appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getDigitsAllowed());
+        NumberFormat fmt = NumberFormat.getInstance();
+        fmt.setGroupingUsed(false);
+        fmt.setMinimumFractionDigits(decimalPlaces);
+        fmt.setMaximumFractionDigits(decimalPlaces);
+        appendField(sb, KEY_CURRENT_VAL, fmt.format(cmd.getCurrentValue()));
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {
