@@ -94,7 +94,7 @@ public class RemoteMenuController {
 
     /**
      * Send a dialog update
-     * @param buttonType
+     * @param buttonType the type of button press to activate on the remote.
      */
     public CorrelationId sendDialogAction(MenuButtonType buttonType) {
         CorrelationId correlationId = new CorrelationId();
@@ -242,7 +242,13 @@ public class RemoteMenuController {
 
                 @Override
                 public void visit(EditableLargeNumberMenuItem item) {
-                    BigDecimal dec = new BigDecimal(menuCommand.getValue());
+                    String val = menuCommand.getValue();
+                    if(val != null && val.contains("[")) {
+                        val = val.replaceAll("[\\[\\]]", "");
+                    }
+                    else if(val == null) val = "0.0";
+
+                    BigDecimal dec = new BigDecimal(val);
                     managedMenu.changeItem(item, item.newMenuState(dec, true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
