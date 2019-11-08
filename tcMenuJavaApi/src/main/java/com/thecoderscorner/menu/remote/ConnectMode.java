@@ -6,10 +6,7 @@
 
 package com.thecoderscorner.menu.remote;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
-public interface ConnectorFactory {
-    RemoteMenuController build();
-    boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener);
+public enum ConnectMode {
+    FULLY_AUTHENTICATED,
+    PAIRING_CONNECTION
 }

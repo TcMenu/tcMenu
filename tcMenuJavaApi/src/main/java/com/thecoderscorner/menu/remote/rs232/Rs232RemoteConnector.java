@@ -7,11 +7,10 @@
 package com.thecoderscorner.menu.remote.rs232;
 
 import com.fazecast.jSerialComm.SerialPort;
-import com.thecoderscorner.menu.remote.AuthStatus;
-import com.thecoderscorner.menu.remote.LocalIdentifier;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.StreamRemoteConnector;
-import com.thecoderscorner.menu.remote.states.*;
+import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
+import com.thecoderscorner.menu.remote.states.SerialAwaitFirstMsgState;
+import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,27 +31,23 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     private final int baud;
 
     public Rs232RemoteConnector(LocalIdentifier localId, String portName, int baud, MenuCommandProtocol protocol,
-                                ScheduledExecutorService executor, Clock clock) {
+                                ScheduledExecutorService executor, Clock clock, ConnectMode connectMode) {
         super(localId, protocol, executor, clock);
         serialPort = SerialPort.getCommPort(portName);
         serialPort.setBaudRate(baud);
         this.portName = portName;
         this.baud = baud;
 
-        applyStates();
+        applyStates(connectMode);
 
         logger.log(INFO, "Created RS232 connector with port {0} and baud {1}.", portName, baud);
     }
 
-    private void applyStates() {
+    private void applyStates(ConnectMode connectMode) {
         stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
         stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
         stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SerialAwaitFirstMsgState.class);
-        stateMachineMappings.put(AuthStatus.SEND_AUTH, JoinMessageArrivedState.class);
-        stateMachineMappings.put(AuthStatus.AUTHENTICATED, AwaitingBootstrapState.class);
-        stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
-        stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
-        stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
+        handleCoreConnectionStates(connectMode);
     }
 
     public void start() {
@@ -61,7 +56,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     public void stop() {
-        executor.shutdownNow();
+        changeState(AuthStatus.NOT_STARTED);
     }
 
     @Override

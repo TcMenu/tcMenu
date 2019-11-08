@@ -108,7 +108,7 @@ public class SocketControllerBuilder implements ConnectorFactory {
     /**
      * Mandatory, the address on which this socket is to bind to receive and send datagrams.
      * @param address address on which to send and receive.
-     * @return
+     * @return itself, suitable for chaining.
      */
     public SocketControllerBuilder withAddress(String address) {
         this.address = address;
@@ -134,7 +134,7 @@ public class SocketControllerBuilder implements ConnectorFactory {
         initialiseBasics();
         SocketBasedConnector connector = new SocketBasedConnector(
                 new LocalIdentifier(uuid, name), executorService, clock,
-                protocol, address, port
+                protocol, address, port, ConnectMode.FULLY_AUTHENTICATED
         );
         return new RemoteMenuController(connector, menuTree);
     }
@@ -153,13 +153,13 @@ public class SocketControllerBuilder implements ConnectorFactory {
         }
     }
 
-    public boolean attemptPairing(Optional<Consumer<PairingHelper.PairingState>> maybePairingListener)  {
+    public boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener)  {
         initialiseBasics();
         SocketBasedConnector connector = new SocketBasedConnector(
                 new LocalIdentifier(uuid, name), executorService, clock,
-                protocol, address, port
+                protocol, address, port, ConnectMode.PAIRING_CONNECTION
         );
         PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
-        return helper.attemptPairing(name, uuid);
+        return helper.attemptPairing();
     }
 }

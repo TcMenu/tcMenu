@@ -53,13 +53,11 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
                     }
                 }
             } catch (Exception e) {
+                markDone();
                 logger.log(ERROR, "Exception while processing connection start on " + context.getConnectionName(), e);
+                context.changeState(AuthStatus.AWAITING_CONNECTION);
+                return;
             }
-        }
-
-        if(!context.isDeviceConnected()) {
-            logger.log(INFO, "Disconnect, assuming new connection needed for " + context.getConnectionName());
-            context.changeState(AuthStatus.AWAITING_CONNECTION);
         }
 
         taskDone.set(true);
@@ -75,6 +73,11 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
 
     @Override
     public void exitState(RemoteConnectorState nextState) {
+        if(!context.isDeviceConnected() && nextState.getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
+            logger.log(INFO, "Disconnect, assuming new connection needed for " + context.getConnectionName());
+            context.changeState(AuthStatus.AWAITING_CONNECTION);
+        }
+
         if (!taskDone.get()) {
             taskDone.set(true);
             logger.log(INFO, "Force closing connection " + context.getConnectionName());

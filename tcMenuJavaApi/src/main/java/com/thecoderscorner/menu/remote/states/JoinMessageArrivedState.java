@@ -34,9 +34,9 @@ public class JoinMessageArrivedState extends BaseMessageProcessingState {
 
     @Override
     protected void processTimeout() {
+        markDone();
         context.close();
         context.changeState(AuthStatus.AWAITING_CONNECTION);
-        markDone();
     }
 
     @Override

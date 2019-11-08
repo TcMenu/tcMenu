@@ -6,11 +6,10 @@
 
 package com.thecoderscorner.menu.remote.socket;
 
-import com.thecoderscorner.menu.remote.AuthStatus;
-import com.thecoderscorner.menu.remote.LocalIdentifier;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.StreamRemoteConnector;
-import com.thecoderscorner.menu.remote.states.*;
+import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
+import com.thecoderscorner.menu.remote.states.SocketAwaitJoinState;
+import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,23 +34,19 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     private final AtomicReference<SocketChannel> socketChannel = new AtomicReference<>();
 
     public SocketBasedConnector(LocalIdentifier localId, ScheduledExecutorService executor, Clock clock,
-                                MenuCommandProtocol protocol, String remoteHost, int remotePort) {
+                                MenuCommandProtocol protocol, String remoteHost, int remotePort, ConnectMode mode) {
         super(localId, protocol, executor, clock);
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
 
-        applyStates();
+        applyStates(mode);
     }
 
-    private void applyStates() {
+    private void applyStates(ConnectMode mode) {
         stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
         stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
         stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SocketAwaitJoinState.class);
-        stateMachineMappings.put(AuthStatus.SEND_AUTH, JoinMessageArrivedState.class);
-        stateMachineMappings.put(AuthStatus.AUTHENTICATED, AwaitingBootstrapState.class);
-        stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
-        stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
-        stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
+        handleCoreConnectionStates(mode);
     }
 
     @Override
@@ -62,7 +57,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
 
     @Override
     public void stop() {
-        changeState(new NoOperationInitialState(this));
+        changeState(AuthStatus.NOT_STARTED);
     }
 
 

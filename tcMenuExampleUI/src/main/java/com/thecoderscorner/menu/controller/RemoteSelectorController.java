@@ -8,9 +8,9 @@ package com.thecoderscorner.menu.controller;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.ConnectorFactory;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 import javafx.application.Platform;
@@ -182,13 +182,13 @@ public class RemoteSelectorController {
         pairingPopup.show(portCombo.getScene().getWindow());
 
         // this receives updates during the pairing process and displays them in the label.
-        Optional<Consumer<PairingHelper.PairingState>> stateConsumer = Optional.of((sts) -> {
-            Platform.runLater(() -> labelPairStatus.setText("Pairing status: " + sts.toString()));
-        });
+        Optional<Consumer<AuthStatus>> stateConsumer = Optional.of((sts) -> Platform.runLater(() -> {
+            if(sts != AuthStatus.NOT_STARTED) {
+                labelPairStatus.setText("Pairing status: " + sts.toString());
+            }
+        }));
 
-        new Thread(()-> {
-            pairCompleted(createBuilder().attemptPairing(stateConsumer));
-        }).start();
+        new Thread(()-> pairCompleted(createBuilder().attemptPairing(stateConsumer))).start();
     }
 
     private void pairCompleted(boolean success) {

@@ -12,9 +12,7 @@ import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
-import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
-import com.thecoderscorner.menu.remote.states.RemoteConnectorContext;
-import com.thecoderscorner.menu.remote.states.RemoteConnectorState;
+import com.thecoderscorner.menu.remote.states.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -126,6 +124,22 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
         } else {
             throw new IOException("Not connected to port");
         }
+    }
+
+    protected void handleCoreConnectionStates(ConnectMode connectMode) {
+        if(connectMode == ConnectMode.PAIRING_CONNECTION) {
+            stateMachineMappings.put(AuthStatus.SEND_AUTH, SendPairingMessageState.class);
+            stateMachineMappings.put(AuthStatus.AUTHENTICATED, PairingAuthSuccessState.class);
+            stateMachineMappings.put(AuthStatus.FAILED_AUTH, PairingAuthFailedState.class);
+        }
+        else {
+            stateMachineMappings.put(AuthStatus.SEND_AUTH, JoinMessageArrivedState.class);
+            stateMachineMappings.put(AuthStatus.AUTHENTICATED, AwaitingBootstrapState.class);
+            stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
+            stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
+            stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
+        }
+
     }
 
     /**
@@ -294,6 +308,11 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     @Override
     public void sendAcknowledgement(AckStatus ackStatus) throws IOException {
         sendMenuCommand(CommandFactory.newAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, ackStatus));
+    }
+
+    @Override
+    public void sendPairing() throws IOException {
+        sendMenuCommand(CommandFactory.newPairingCommand(ourLocalId.getName(), ourLocalId.getUuid()));
     }
 
     @Override

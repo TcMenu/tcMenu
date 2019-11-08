@@ -8,70 +8,50 @@ package com.thecoderscorner.menu.remote.protocol;
 
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteConnector;
-import com.thecoderscorner.menu.remote.commands.MenuAcknowledgementCommand;
 import com.thecoderscorner.menu.remote.commands.MenuCommandType;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static com.thecoderscorner.menu.remote.commands.CommandFactory.newPairingCommand;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
 public class PairingHelper {
-    public enum PairingState {
-        DISCONNECTED,
-        PAIRING_SENT,
-        NOT_ACCEPTED,
-        ACCEPTED,
-        TIMED_OUT
-    }
     private final System.Logger logger = System.getLogger("Pairing");
     private final RemoteConnector connector;
     private final ScheduledExecutorService executorService;
-    private final Optional<Consumer<PairingState>> statusConsumer;
-    private final AtomicReference<PairingState> pairingState = new AtomicReference<>(PairingState.DISCONNECTED);
+    private final Optional<Consumer<AuthStatus>> statusConsumer;
+    private volatile boolean authenticatedSuccessfully = false;
 
     public PairingHelper(RemoteConnector connector, ScheduledExecutorService executorService,
-                         Optional<Consumer<PairingState>> updateFn) {
+                         Optional<Consumer<AuthStatus>> updateFn) {
         this.connector = connector;
         this.executorService = executorService;
         statusConsumer = updateFn;
     }
 
 
-    public boolean attemptPairing(String name, UUID uuid) {
-        setPairingState(PairingState.DISCONNECTED);
-        logger.log(INFO, "Pairing process started for " + name);
+
+    public boolean attemptPairing() {
+        logger.log(INFO, "Pairing process started for " + connector.getConnectionName());
 
         CountDownLatch latch = new CountDownLatch(1);
-        connector.registerConnectionChangeListener((connector1, connected) -> {
-            if(connected == AuthStatus.ESTABLISHED_CONNECTION) {
-                executorService.execute(() -> {
-                    try {
-                        logger.log(INFO, "Connected, sending pair request" + name);
-                        connector.sendMenuCommand(newPairingCommand(name, uuid));
-                    } catch (IOException e) {
-                        logger.log(ERROR, "Failed to send pair request to " + name);
-                    }
-                });
-                setPairingState(PairingState.PAIRING_SENT);
+
+        connector.registerConnectionChangeListener((conn, authStatus) -> {
+            statusConsumer.ifPresent(consumer -> consumer.accept(authStatus));
+            if(authStatus == AuthStatus.AUTHENTICATED || authStatus == AuthStatus.FAILED_AUTH) {
+                authenticatedSuccessfully = authStatus == AuthStatus.AUTHENTICATED;
+                logger.log(INFO, "Pairing process completed for " + connector.getConnectionName() + " with " + authStatus);
+                latch.countDown();
             }
         });
 
-
-        connector.registerConnectorListener((connector12, command) -> {
-            if(command.getCommandType() == MenuCommandType.ACKNOWLEDGEMENT) {
-                MenuAcknowledgementCommand ack = (MenuAcknowledgementCommand) command;
-                logger.log(INFO, "Received ACK for request " + name + " - " + ack.getAckStatus());
-                setPairingState(ack.getAckStatus().isError() ? PairingState.NOT_ACCEPTED : PairingState.ACCEPTED);
-                latch.countDown();
+        connector.registerConnectorListener((connector1, command) -> {
+            if(command.getCommandType()==MenuCommandType.JOIN) {
+                logger.log(INFO, "Join msg from " + command);
             }
         });
 
@@ -79,26 +59,20 @@ public class PairingHelper {
 
         try {
             if(!latch.await(20, TimeUnit.SECONDS)) {
-                logger.log(INFO, "Timeout pairing with " + name);
-                setPairingState(PairingState.TIMED_OUT);
+                logger.log(INFO, "Timeout pairing with " + connector.getConnectionName());
             }
         } catch (InterruptedException e) {
             // remark interrupted state.
-            logger.log(ERROR, "Pairing thread interrupted: " + name);
+            logger.log(ERROR, "Pairing thread interrupted: " + connector.getConnectionName());
             Thread.currentThread().interrupt();
-            setPairingState(PairingState.TIMED_OUT);
         }
 
         // close the connection.
         connector.close();
         connector.stop();
 
-        logger.log(INFO, "Pairing finished for " + name + " - " + pairingState.get());
+        logger.log(INFO, "Pairing finished for " + connector.getConnectionName());
 
-        return pairingState.get() == PairingState.ACCEPTED;
-    }
-    private void setPairingState(PairingState s) {
-        pairingState.set(s);
-        statusConsumer.ifPresent(pairingStateConsumer -> pairingStateConsumer.accept(s));
+        return authenticatedSuccessfully;
     }
 }

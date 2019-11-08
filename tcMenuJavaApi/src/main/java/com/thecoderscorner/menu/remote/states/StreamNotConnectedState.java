@@ -38,14 +38,22 @@ public class StreamNotConnectedState implements RemoteConnectorState {
                 logger.log(INFO, "Connection established to " + context.getConnectionName());
                 context.changeState(AuthStatus.ESTABLISHED_CONNECTION);
             }
-            else {
-                synchronized (connectionWaiter) {
-                    connectionWaiter.wait(connectionDelay.get());
-                }
-                if(connectionDelay.get() < 10000) connectionDelay.addAndGet(connectionDelay.get());
-            }
         } catch (Exception e) {
             logger.log(ERROR, "Exception while trying to connect to " + context.getConnectionName(), e);
+        }
+        finally {
+            if(!context.isDeviceConnected()) {
+                synchronized (connectionWaiter) {
+                    try {
+                        connectionWaiter.wait(connectionDelay.get());
+                    } catch (InterruptedException e) {
+                        logger.log(INFO, "Thread exiting, interrupted during wait");
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                if(connectionDelay.get() < 10000) connectionDelay.addAndGet(connectionDelay.get());
+
+            }
         }
 
     }

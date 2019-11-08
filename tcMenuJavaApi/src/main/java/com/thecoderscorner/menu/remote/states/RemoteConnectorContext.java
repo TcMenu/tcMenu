@@ -24,6 +24,8 @@ public interface RemoteConnectorContext {
 
     void sendAcknowledgement(AckStatus ackStatus) throws IOException;
 
+    void sendPairing() throws IOException;
+
     MenuCommand readCommandFromStream() throws IOException;
 
     boolean isDeviceConnected();

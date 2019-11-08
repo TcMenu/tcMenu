@@ -125,7 +125,7 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
         initialiseBasics();
         Rs232RemoteConnector connector = new Rs232RemoteConnector(
                 new LocalIdentifier(uuid, name),  portName, baud,
-                protocol, executorService, clock
+                protocol, executorService, clock, ConnectMode.FULLY_AUTHENTICATED
         );
         return new RemoteMenuController(connector, menuTree);
     }
@@ -151,14 +151,14 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
      * @param maybePairingListener an optional of a consumer that can receive updates, mainly for UI's.
      * @return true if paired otherwise false.
      */
-    public boolean attemptPairing(Optional<Consumer<PairingHelper.PairingState>> maybePairingListener)  {
+    public boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener)  {
         initialiseBasics();
 
         Rs232RemoteConnector connector = new Rs232RemoteConnector(
                 new LocalIdentifier(uuid, name), portName, baud,
-                protocol, executorService, clock
+                protocol, executorService, clock, ConnectMode.PAIRING_CONNECTION
         );
         PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
-        return helper.attemptPairing(name, uuid);
+        return helper.attemptPairing();
     }
 }
