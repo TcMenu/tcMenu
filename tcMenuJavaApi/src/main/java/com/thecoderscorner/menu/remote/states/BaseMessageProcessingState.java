@@ -50,6 +50,7 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
                     if(!processMessage(cmd)) {
                         logger.log(WARNING, "Unexpected msg, resetting with HB close for " + context.getConnectionName());
                         context.sendHeartbeat(5000, MenuHeartbeatCommand.HeartbeatMode.END);
+                        context.changeState(AuthStatus.AWAITING_CONNECTION);
                     }
                 }
             } catch (Exception e) {

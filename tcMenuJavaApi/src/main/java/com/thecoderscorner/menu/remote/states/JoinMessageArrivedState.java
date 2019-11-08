@@ -53,6 +53,7 @@ public class JoinMessageArrivedState extends BaseMessageProcessingState {
         else if(cmd.getCommandType() == MenuCommandType.JOIN) {
             // we ignore additional join messages, they sometimes
             // are sent twice by the protocol on the device.
+            return true;
         }
         else if(cmd.getCommandType() == MenuCommandType.ACKNOWLEDGEMENT) {
             MenuAcknowledgementCommand ack = (MenuAcknowledgementCommand) cmd;
