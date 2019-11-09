@@ -10,6 +10,7 @@ You can get help from the community forum, there are also support and consultanc
 
 * [TCC Libraries community discussion forum](https://www.thecoderscorner.com/jforum/)
 * [Consultancy pages on the coders corner](https://www.thecoderscorner.com/support-services/consultancy/)
+* I also monitor the Arduino forum [https://forum.arduino.cc/], Arduino related questions can be asked there too.
 
 ## Installation and documentation
 
