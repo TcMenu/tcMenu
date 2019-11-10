@@ -47,6 +47,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
         stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
         stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
         stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SerialAwaitFirstMsgState.class);
+        stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
         handleCoreConnectionStates(connectMode);
     }
 

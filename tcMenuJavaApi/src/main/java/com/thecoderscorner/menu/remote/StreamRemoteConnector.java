@@ -135,7 +135,6 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
         else {
             stateMachineMappings.put(AuthStatus.SEND_AUTH, JoinMessageArrivedState.class);
             stateMachineMappings.put(AuthStatus.AUTHENTICATED, AwaitingBootstrapState.class);
-            stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
             stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
             stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
         }
