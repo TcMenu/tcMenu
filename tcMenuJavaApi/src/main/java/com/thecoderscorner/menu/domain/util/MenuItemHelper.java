@@ -193,6 +193,11 @@ public class MenuItemHelper {
             }
 
             @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                setResult(8);
+            }
+
+            @Override
             public void visit(EditableTextMenuItem item) {
                 if(item.getItemType() == EditItemType.IP_ADDRESS) {
                     setResult(4);
