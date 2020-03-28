@@ -184,6 +184,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withInitialRows(parser.getValueAsInt(KEY_NO_OF_CHOICES))
                 .menuItem();
 
@@ -202,6 +203,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withNaming(toNaming(parser.getValueAsInt(KEY_BOOLEAN_NAMING)))
                 .menuItem();
 
@@ -216,6 +218,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
                 .withTotalDigits(parser.getValueAsInt(KEY_MAX_LENGTH))
                 .menuItem();
@@ -231,6 +234,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withEditItemType(EditItemType.fromId(parser.getValueAsInt(KEY_EDIT_TYPE)))
                 .withLength(parser.getValueAsInt(KEY_MAX_LENGTH))
                 .menuItem();
@@ -246,6 +250,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
                 .menuItem();
 
@@ -275,6 +280,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withEnumList(choices)
                 .menuItem();
 
@@ -331,6 +337,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withUnit(parser.getValue(KEY_ANALOG_UNIT_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .menuItem();
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
         int currentVal = parser.getValueAsInt(KEY_CURRENT_VAL);
@@ -534,6 +541,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_EEPROM_FIELD, cmd.getMenuItem().getEepromAddress());
         appendField(sb, KEY_NAME_FIELD, cmd.getMenuItem().getName());
         appendField(sb, KEY_READONLY_FIELD, cmd.getMenuItem().isReadOnly() ? 1 : 0);
+        appendField(sb, KEY_VISIBLE_FIELD, cmd.getMenuItem().isVisible() ? 1 : 0);
     }
 
     private void writeRuntimeListBootItem(StringBuilder sb, MenuRuntimeListBootCommand cmd) {

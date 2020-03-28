@@ -22,14 +22,14 @@ public class EditableTextMenuItem extends MenuItem<String> {
 
     public EditableTextMenuItem() {
         // needed for serialisation
-        super("", -1, -1, null, false, false);
+        super("", -1, -1, null, false, false, true);
         textLength = 0;
         itemType = EditItemType.PLAIN_TEXT;
     }
 
     public EditableTextMenuItem(String name, int id, int eepromAddress, String functionName, int length, EditItemType itemType,
-                                boolean readOnly, boolean localOnly) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly);
+                                boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.textLength = length;
         this.itemType = itemType;
     }

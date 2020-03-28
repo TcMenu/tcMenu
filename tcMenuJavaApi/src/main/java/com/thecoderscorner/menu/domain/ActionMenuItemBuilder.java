@@ -23,7 +23,7 @@ public class ActionMenuItemBuilder extends MenuItemBuilder<ActionMenuItemBuilder
     }
 
     public ActionMenuItem menuItem() {
-        return new ActionMenuItem(name, id, functionName, eepromAddr, readOnly, localOnly);
+        return new ActionMenuItem(name, id, functionName, eepromAddr, readOnly, localOnly, visible);
     }
 
     public static ActionMenuItemBuilder anActionMenuItemBuilder() {

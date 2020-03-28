@@ -21,15 +21,17 @@ public abstract class MenuItem<T> {
     protected final String functionName;
     protected final boolean readOnly;
     protected final boolean localOnly;
+    protected final boolean visible;
 
     public MenuItem(String name, int id, int eepromAddress, String functionName,
-                    boolean readOnly, boolean localOnly) {
+                    boolean readOnly, boolean localOnly, boolean visible) {
         this.name = name;
         this.id = id;
         this.eepromAddress = eepromAddress;
         this.functionName = functionName;
         this.readOnly = readOnly;
         this.localOnly = localOnly;
+        this.visible = visible;
     }
 
     /**
@@ -78,6 +80,14 @@ public abstract class MenuItem<T> {
      */
     public String getFunctionName() {
         return functionName;
+    }
+
+    /**
+     * Flag indicates if the item should be visible on the UI
+     * @return true if visible, otherwise false.
+     */
+    public boolean isVisible() {
+        return visible;
     }
 
     /**

@@ -13,6 +13,7 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     String functionName;
     boolean readOnly;
     boolean localOnly;
+    boolean visible = true;
 
     abstract T getThis();
 
@@ -46,6 +47,11 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         return getThis();
     }
 
+    public T withVisible(boolean visible) {
+        this.visible = visible;
+        return getThis();
+    }
+
     protected void baseFromExisting(MenuItem item) {
         name = item.getName();
         id = item.getId();
@@ -53,5 +59,6 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         functionName = item.getFunctionName();
         readOnly = item.isReadOnly();
         localOnly = item.isLocalOnly();
+        visible = item.isVisible();
     }
 }

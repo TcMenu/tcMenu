@@ -29,7 +29,7 @@ public class EditableTextMenuItemBuilder extends MenuItemBuilder<EditableTextMen
 
     public EditableTextMenuItem menuItem() {
         return new EditableTextMenuItem(this.name, this.id, this.eepromAddr, this.functionName, textLength, itemType,
-                readOnly, localOnly);
+                readOnly, localOnly, visible);
     }
 
     public static EditableTextMenuItemBuilder aTextMenuItemBuilder() {

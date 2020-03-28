@@ -18,12 +18,12 @@ import java.math.BigDecimal;
  * fixed number of decimal places. They can be positive or negative.
  */
 public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
-    private int digitsAllowed;
-    private int decimalPlaces;
+    private final int digitsAllowed;
+    private final int decimalPlaces;
 
     public EditableLargeNumberMenuItem(String name, int id, int eepromAddress, String functionName, int digitsAllowed,
-                                       int decimalPlaces, boolean readOnly, boolean localOnly) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly);
+                                       int decimalPlaces, boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.digitsAllowed = digitsAllowed;
         this.decimalPlaces = decimalPlaces;
     }

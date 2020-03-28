@@ -24,7 +24,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     private final String unitName;
 
     public AnalogMenuItem() {
-        super("", -1, -1, null, false, false);
+        super("", -1, -1, null, false, false, true);
         // needed for serialisation
         this.maxValue = -1;
         this.offset = -1;
@@ -33,8 +33,8 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     }
 
     public AnalogMenuItem(String name, int id, int eepromAddress, String functionName, int maxValue, int offset,
-                          int divisor, String unitName, boolean readOnly, boolean localOnly) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly);
+                          int divisor, String unitName, boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.maxValue = maxValue;
         this.offset = offset;
         this.divisor = divisor;

@@ -28,7 +28,7 @@ public class EditableLargeNumberMenuItemBuilder extends MenuItemBuilder<Editable
 
     public EditableLargeNumberMenuItem menuItem() {
         return new EditableLargeNumberMenuItem(this.name, this.id, this.eepromAddr, this.functionName,
-                totalDigits, decimalPlaces, readOnly, localOnly);
+                totalDigits, decimalPlaces, readOnly, localOnly, visible);
     }
 
     public static EditableLargeNumberMenuItemBuilder aLargeNumberItemBuilder() {

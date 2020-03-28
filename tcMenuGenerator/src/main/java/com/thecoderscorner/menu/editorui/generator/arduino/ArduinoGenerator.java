@@ -162,6 +162,15 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
                 .collect(Collectors.toList())
         );
 
+        // lastly we deal with any INVISIBLE items, visible is the default.
+        allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
+                .map(item -> new FunctionCallBuilder()
+                        .functionName("setVisible")
+                        .objectName("menu" + makeNameToVar(item))
+                        .param("false"))
+                .collect(Collectors.toList())
+        );
+
         return allFunctions;
     }
 

@@ -43,7 +43,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("unused")
 public class MenuEditorController {
-    public static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/registerTcMenu";
+    public static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     private CurrentEditorProject editorProject;

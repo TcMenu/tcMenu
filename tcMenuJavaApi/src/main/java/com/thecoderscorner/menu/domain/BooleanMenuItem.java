@@ -25,13 +25,13 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
 
     public BooleanMenuItem() {
         // needed for serialisation
-        super("", -1, -1, null, false, false);
+        super("", -1, -1, null, false, false, true);
         this.naming = BooleanNaming.ON_OFF;
     }
 
     public BooleanMenuItem(String name, int id, int eepromAddress, String functionName, BooleanNaming naming,
-                           boolean readOnly, boolean localOnly) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly);
+                           boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.naming = naming;
     }
 

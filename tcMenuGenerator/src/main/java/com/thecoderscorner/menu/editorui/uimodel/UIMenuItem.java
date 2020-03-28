@@ -52,6 +52,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private Label errorsField;
     private CheckBox readOnlyCheck;
     private CheckBox noRemoteCheck;
+    private CheckBox visibleCheck;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -130,9 +131,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
         noRemoteCheck.setOnAction(this::checkboxChanged);
         noRemoteCheck.setSelected(menuItem.isLocalOnly());
 
+        visibleCheck = new CheckBox("Item is visible");
+        visibleCheck.setId("visibleItemField");
+        visibleCheck.setOnAction(this::checkboxChanged);
+        visibleCheck.setSelected(menuItem.isVisible());
+
         idx++;
         grid.add(readOnlyCheck, 0, idx);
         grid.add(noRemoteCheck, 1, idx);
+        grid.add(visibleCheck, 1, idx);
 
         textFieldsForCopy = grid.getChildren().stream()
                 .filter(node -> node instanceof TextField)
@@ -161,7 +168,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .withEepromAddr(eeprom)
                 .withName(name)
                 .withReadOnly(readOnlyCheck.isSelected())
-                .withLocalOnly(noRemoteCheck.isSelected());
+                .withLocalOnly(noRemoteCheck.isSelected())
+                .withVisible(noRemoteCheck.isVisible());
     }
 
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {

@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.remote.protocol;
 
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.FloatMenuItem;
+import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
@@ -89,7 +91,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveAnalogItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(ANALOG_BOOT_ITEM,"PI=321|ID=1|RO=1|AM=255|AO=-180|AD=2|AU=dB|NM=Volume|VC=22|\u0002"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer(ANALOG_BOOT_ITEM,"PI=321|ID=1|RO=1|VI=1|AM=255|AO=-180|AD=2|AU=dB|NM=Volume|VC=22|\u0002"));
         assertTrue(cmd instanceof MenuAnalogBootCommand);
         MenuAnalogBootCommand analog = (MenuAnalogBootCommand) cmd;
         assertEquals(-180, analog.getMenuItem().getOffset());
@@ -100,11 +102,12 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("Volume", analog.getMenuItem().getName());
         assertEquals(321, analog.getSubMenuId());
         assertTrue(analog.getMenuItem().isReadOnly());
+        assertTrue(analog.getMenuItem().isVisible());
     }
 
     @Test
     public void testReceiveFloatBootCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(FLOAT_BOOT_ITEM, "PI=2|RO=1|NM=menuName|ID=1|FD=5|VC=12.3456|\u0002"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer(FLOAT_BOOT_ITEM, "PI=2|RO=1|VI=0|NM=menuName|ID=1|FD=5|VC=12.3456|\u0002"));
         assertEquals(FLOAT_BOOT_ITEM,  cmd.getCommandType());
         MenuFloatBootCommand floatCmd = (MenuFloatBootCommand) cmd;
         assertEquals((float)12.3456, floatCmd.getCurrentValue(), 0.00001);
@@ -113,11 +116,12 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(1, floatCmd.getMenuItem().getId());
         assertEquals(2, floatCmd.getSubMenuId());
         assertTrue(floatCmd.getMenuItem().isReadOnly());
+        assertFalse(floatCmd.getMenuItem().isVisible());
     }
 
     @Test
     public void testReceiveRuntimeListBootCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(RUNTIME_LIST_BOOT, "PI=2|RO=1|NM=runList|ID=1|NC=3|CA=abc|CB=def|CC=ghi|\u0002"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer(RUNTIME_LIST_BOOT, "PI=2|RO=1|VI=1|NM=runList|ID=1|NC=3|CA=abc|CB=def|CC=ghi|\u0002"));
         assertEquals(RUNTIME_LIST_BOOT,  cmd.getCommandType());
         MenuRuntimeListBootCommand ipCmd = (MenuRuntimeListBootCommand) cmd;
         assertEquals("runList", ipCmd.getMenuItem().getName());
@@ -128,11 +132,12 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("def", ipCmd.getCurrentValue().get(1));
         assertEquals("ghi", ipCmd.getCurrentValue().get(2));
         assertTrue(ipCmd.getMenuItem().isReadOnly());
+        assertTrue(ipCmd.getMenuItem().isVisible());
     }
 
     @Test
     public void testReceiveTextBootCommand() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(TEXT_BOOT_ITEM, "PI=2|RO=0|NM=menuName|ID=1|ML=10|EM=1|VC=12345678|\u0002"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer(TEXT_BOOT_ITEM, "PI=2|RO=0|VI=0|NM=menuName|ID=1|ML=10|EM=1|VC=12345678|\u0002"));
         assertEquals(TEXT_BOOT_ITEM,  cmd.getCommandType());
         MenuTextBootCommand textCmd = (MenuTextBootCommand) cmd;
         assertEquals("12345678", textCmd.getCurrentValue());
@@ -141,6 +146,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(EditItemType.IP_ADDRESS, textCmd.getMenuItem().getItemType());
         assertEquals(1, textCmd.getMenuItem().getId());
         assertEquals(2, textCmd.getSubMenuId());
+        assertFalse(textCmd.getMenuItem().isReadOnly());
         assertFalse(textCmd.getMenuItem().isReadOnly());
     }
 
@@ -201,11 +207,11 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testReceiveBooleanMenuItem() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|RO=1|ID=1|BN=1|NM=BoolItem|VC=1|\u0002"));
+        MenuCommand cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|RO=1|VI=1|ID=1|BN=1|NM=BoolItem|VC=1|\u0002"));
         checkBooleanCmdFields(cmd, true, BooleanNaming.ON_OFF);
-        cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|RO=1|ID=1|BN=0|NM=BoolItem|VC=0|\u0002"));
+        cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|RO=1|VI=1|ID=1|BN=0|NM=BoolItem|VC=0|\u0002"));
         checkBooleanCmdFields(cmd, false, BooleanNaming.TRUE_FALSE);
-        cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|ID=1|RO=1|BN=2|NM=BoolItem|VC=0|\u0002"));
+        cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|ID=1|RO=1|VI=1|BN=2|NM=BoolItem|VC=0|\u0002"));
         checkBooleanCmdFields(cmd, false, BooleanNaming.YES_NO);
     }
 
@@ -326,7 +332,7 @@ public class TagValMenuCommandProtocolTest {
     @Test
     public void testWritingLargeIntegerBoot() {
         protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111), BigDecimal.ONE));
-        testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|FD=4|ML=12|VC=1.0000|\u0002");
+        testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|ML=12|VC=1.0000|\u0002");
     }
 
     @Test
@@ -340,7 +346,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuAnalogBootCommand(321,
                 DomainFixtures.anAnalogItem("Test", 123),
                 25));
-        testBufferAgainstExpected(ANALOG_BOOT_ITEM, "PI=321|ID=123|IE=104|NM=Test|RO=0|AO=102|AD=2|AM=255|AU=dB|VC=25|\u0002");
+        testBufferAgainstExpected(ANALOG_BOOT_ITEM, "PI=321|ID=123|IE=104|NM=Test|RO=0|VI=1|AO=102|AD=2|AM=255|AU=dB|VC=25|\u0002");
     }
 
     @Test
@@ -348,7 +354,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuEnumBootCommand(22,
                 DomainFixtures.anEnumItem("Test", 2),
                 1));
-        testBufferAgainstExpected(ENUM_BOOT_ITEM, "PI=22|ID=2|IE=101|NM=Test|RO=0|VC=1|NC=2|CA=Item1|CB=Item2|\u0002");
+        testBufferAgainstExpected(ENUM_BOOT_ITEM, "PI=22|ID=2|IE=101|NM=Test|RO=0|VI=1|VC=1|NC=2|CA=Item1|CB=Item2|\u0002");
     }
 
     @Test
@@ -356,7 +362,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuSubBootCommand(22,
                 DomainFixtures.aSubMenu("Sub", 1),
                 false));
-        testBufferAgainstExpected(SUBMENU_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Sub|RO=0|VC=0|\u0002");
+        testBufferAgainstExpected(SUBMENU_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Sub|RO=0|VI=1|VC=0|\u0002");
     }
 
     @Test
@@ -364,14 +370,16 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.TRUE_FALSE),
                 false));
-        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=0|VC=0|\u0002");
+        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|VI=1|BN=0|VC=0|\u0002");
     }
 
     @Test
     public void testWritingFloatItem() {
+        FloatMenuItem floatItem = DomainFixtures.aFloatMenu("FloatMenu", 1);
+        floatItem = new FloatMenuItemBuilder().withExisting(floatItem).withVisible(false).menuItem();
         protocol.toChannel(bb, new MenuFloatBootCommand(22,
-                DomainFixtures.aFloatMenu("FloatMenu", 1), (float)12.0));
-        testBufferAgainstExpected(FLOAT_BOOT_ITEM,"PI=22|ID=1|IE=105|NM=FloatMenu|RO=0|FD=3|VC=12.0|\u0002");
+                floatItem, (float)12.0));
+        testBufferAgainstExpected(FLOAT_BOOT_ITEM,"PI=22|ID=1|IE=105|NM=FloatMenu|RO=0|VI=0|FD=3|VC=12.0|\u0002");
     }
 
     @Test
@@ -379,21 +387,21 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuRuntimeListBootCommand(22,
                 DomainFixtures.aRuntimeListMenu("List", 1, 2),
                 List.of("ABC", "DEF")));
-        testBufferAgainstExpected(RUNTIME_LIST_BOOT, "PI=22|ID=1|IE=88|NM=List|RO=0|NC=2|CA=ABC|CB=DEF|\u0002");
+        testBufferAgainstExpected(RUNTIME_LIST_BOOT, "PI=22|ID=1|IE=88|NM=List|RO=0|VI=1|NC=2|CA=ABC|CB=DEF|\u0002");
     }
 
     @Test
     public void testWritingActionItem() {
         protocol.toChannel(bb, new MenuActionBootCommand(22,
                 DomainFixtures.anActionMenu("Action", 1), false));
-        testBufferAgainstExpected(ACTION_BOOT_ITEM, "PI=22|ID=1|IE=20|NM=Action|RO=0|VC=|\u0002");
+        testBufferAgainstExpected(ACTION_BOOT_ITEM, "PI=22|ID=1|IE=20|NM=Action|RO=0|VI=1|VC=|\u0002");
     }
 
     @Test
     public void testWritingTextItem() {
         protocol.toChannel(bb, new MenuTextBootCommand(22,
                 DomainFixtures.aTextMenu("TextItem", 1), "ABC"));
-        testBufferAgainstExpected(TEXT_BOOT_ITEM, "PI=22|ID=1|IE=101|NM=TextItem|RO=0|ML=10|EM=0|VC=ABC|\u0002");
+        testBufferAgainstExpected(TEXT_BOOT_ITEM, "PI=22|ID=1|IE=101|NM=TextItem|RO=0|VI=1|ML=10|EM=0|VC=ABC|\u0002");
     }
 
     @Test
@@ -401,7 +409,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.ON_OFF),
                 true));
-        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=1|VC=1|\u0002");
+        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|VI=1|BN=1|VC=1|\u0002");
     }
 
     @Test
@@ -409,7 +417,7 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.YES_NO),
                 true));
-        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|BN=2|VC=1|\u0002");
+        testBufferAgainstExpected(BOOLEAN_BOOT_ITEM, "PI=22|ID=1|IE=102|NM=Bool|RO=0|VI=1|BN=2|VC=1|\u0002");
     }
 
     @Test

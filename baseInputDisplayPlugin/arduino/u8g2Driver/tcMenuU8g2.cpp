@@ -165,9 +165,10 @@ void U8g2MenuRenderer::render() {
             if(lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
             lastOffset = toOffsetBy;
 
-            while (item != NULL && toOffsetBy--) {
-                item = item->getNext();
-            }
+			while (item != NULL && toOffsetBy) {
+                if(item->isVisible()) toOffsetBy = toOffsetBy - 1;
+				item = item->getNext();
+			}
         }
         else {
             if(lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
@@ -179,14 +180,17 @@ void U8g2MenuRenderer::render() {
         // and then we start drawing items until we run out of screen or items
         int ypos = titleHeight;
         while (item && (ypos + itemHeight) <= u8g2->getDisplayHeight() ) {
-            if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
-                requiresUpdate = true;
+            if(item->isVisible())
+            {
+                if (locRedrawMode != MENUDRAW_NO_CHANGE || item->isChanged()) {
+                    requiresUpdate = true;
 
-                taskManager.yieldForMicros(0);
+                    taskManager.yieldForMicros(0);
 
-                renderMenuItem(ypos, itemHeight, item);
+                    renderMenuItem(ypos, itemHeight, item);
+                }
+                ypos += itemHeight;
             }
-            ypos += itemHeight;
             item = item->getNext();
         }
     }

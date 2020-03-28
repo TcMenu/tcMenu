@@ -44,6 +44,7 @@ public class MenuItemTest {
         assertEquals("someFn", item.getFunctionName());
         assertTrue(item.isReadOnly());
         assertTrue(item.isLocalOnly());
+        assertTrue(item.isVisible());
         assertFalse(item.hasChildren());
 
         assertEquals(item, anAnalogMenuItemBuilder().withExisting(item).menuItem());
@@ -57,6 +58,7 @@ public class MenuItemTest {
                 .withEepromAddr(102)
                 .withEnumList(Collections.singletonList("Enum1"))
                 .withFunctionName("someFn")
+                .withVisible(false)
                 .menuItem();
 
         assertBaseMenuFields(item, "Enum Menu", 20, 102);
@@ -64,6 +66,7 @@ public class MenuItemTest {
         assertFalse(item.hasChildren());
         assertFalse(item.isReadOnly());
         assertFalse(item.isLocalOnly());
+        assertFalse(item.isVisible());
         assertEquals("someFn", item.getFunctionName());
 
         assertEquals(item, anEnumMenuItemBuilder().withExisting(item).menuItem());
@@ -78,6 +81,7 @@ public class MenuItemTest {
                 .withId(1)
                 .withReadOnly(false)
                 .withLocalOnly(false)
+                .withVisible(false)
                 .withEditItemType(EditItemType.IP_ADDRESS)
                 .withFunctionName("abc")
                 .menuItem();
@@ -86,6 +90,7 @@ public class MenuItemTest {
         assertFalse(item.hasChildren());
         assertFalse(item.isReadOnly());
         assertFalse(item.isLocalOnly());
+        assertFalse(item.isVisible());
         assertEquals(EditItemType.IP_ADDRESS, item.getItemType());
         assertEquals(item, aTextMenuItemBuilder().withExisting(item).menuItem());
     }
@@ -104,6 +109,7 @@ public class MenuItemTest {
         assertTrue(sub.hasChildren());
         assertNull(sub.getFunctionName());
         assertTrue(sub.isLocalOnly());
+        assertTrue(sub.isVisible());
 
         assertEquals(sub, aSubMenuItemBuilder().withExisting(sub).menuItem());
     }

@@ -19,13 +19,13 @@ import java.util.Objects;
 public class ActionMenuItem extends MenuItem<Boolean> {
 
     public ActionMenuItem() {
-        super("", -1, -1, null, false, false);
+        super("", -1, -1, null, false, false, true);
         // needed for serialisation
     }
 
     public ActionMenuItem(String name, int id, String functionName, int eepromAddr,
-                          boolean readOnly, boolean localOnly) {
-        super(name, id, eepromAddr, functionName, readOnly, localOnly);
+                          boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddr, functionName, readOnly, localOnly, visible);
     }
 
     /**

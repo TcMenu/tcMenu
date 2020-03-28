@@ -12,9 +12,74 @@
 #include "EthernetTransport.h"
 #include <TaskManager.h>
 
-EthernetTagValServer remoteServer = EthernetTagValServer();
+#if ETHERNET_BUFFER_SIZE > 0 // we need buffering when dealing with Ethernet2
 
 EthernetTagValTransport::EthernetTagValTransport() {
+    bufferPosition = 0;
+}
+
+EthernetTagValTransport::~EthernetTagValTransport() {
+}
+
+bool EthernetTagValTransport::available() {
+	return client && client.connected();
+}
+
+bool EthernetTagValTransport::connected() {
+	return client && client.connected();
+}
+
+int EthernetTagValTransport::writeChar(char data) {
+    // only uncomment below for worst case debugging..
+//	serdebug2("writing ", data);
+    if(bufferPosition >= sizeof(bufferData)) {
+        flush();
+        // if the buffer isn't empty, something went wrong.
+        if(bufferPosition != 0) return 0;
+    }
+
+	
+    // and lastly add the byte
+    return bufferData[bufferPosition++] = data;
+}
+
+int EthernetTagValTransport::writeStr(const char* data) {
+    // only uncomment below for worst case debugging..
+//	serdebug2("writing ", data);
+    int i  = 0;
+    int len = strlen(data);
+	for(int i = 0; i < len; ++i) {
+        if(writeChar(data[i]) == 0) {
+            return 0;
+        }
+    }
+    return len;
+}
+
+void EthernetTagValTransport::flush() {
+	if(!client || bufferPosition == 0) return;
+
+    if(client.write(bufferData, bufferPosition) == bufferPosition) {
+        serdebugF2("Buffer written ", bufferPosition);
+        bufferPosition = 0;
+    }
+    else {
+        serdebugF2("Buffer write fail ", bufferPosition);
+    }
+    client.flush();
+}
+
+uint8_t EthernetTagValTransport::readByte() {
+	return client.read();
+}
+
+bool EthernetTagValTransport::readAvailable() {
+	return client && client.connected() && client.available();
+}
+
+#else // unbuffed client for all fully implemented stacks
+
+EthernetTagValTransport::EthernetTagValTransport() {    
 }
 
 EthernetTagValTransport::~EthernetTagValTransport() {
@@ -52,6 +117,9 @@ bool EthernetTagValTransport::readAvailable() {
 	return client && client.connected() && client.available();
 }
 
+
+#endif
+
 EthernetTagValServer::EthernetTagValServer() : messageProcessor(msgHandlers, MSG_HANDLERS_SIZE) {
 	this->server = NULL;
 }
@@ -83,7 +151,7 @@ void EthernetTagValServer::exec() {
 	}
 }
 
- int fromWiFiRSSITo4StateIndicator(int strength) {
+int fromWiFiRSSITo4StateIndicator(int strength) {
     int qualityIcon = 0;
     if(strength > -50) qualityIcon = 4;
     else if(strength > -60) qualityIcon = 3;
@@ -91,3 +159,5 @@ void EthernetTagValServer::exec() {
     else if(strength > -90) qualityIcon = 1;
     return qualityIcon;
 }
+
+EthernetTagValServer remoteServer = EthernetTagValServer();

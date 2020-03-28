@@ -227,7 +227,7 @@ public class MainWindowController {
                 // for submenus, we make single label and call back on ourselves with the next level down
                 //
                 gridPosition = buildGrid(MenuItemHelper.asSubMenu(item), item.getName(),nesting + 1, gridPosition);
-            } else {
+            } else if(item.isVisible()){
                 //
                 // otherwise for child items we create the controls that display the value and allow
                 // editing.
