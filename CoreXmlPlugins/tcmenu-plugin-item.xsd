@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+           xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem">
+  <xs:element name="TcMenuPlugin" type="TcMenuPluginType"/>
+  <xs:complexType name="SupportedPlatformsType">
+    <xs:sequence>
+      <xs:element name="Platform" maxOccurs="unbounded" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="ARDUINO_UNO"/>
+            <xs:enumeration value="ARDUINO_AVR"/>
+            <xs:enumeration value="ARDUINO_32"/>
+            <xs:enumeration value="ARDUINO_ESP8266"/>
+            <xs:enumeration value="ARDUINO_ESP32"/>
+            <xs:enumeration value="ARDUINO_ESP8266"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DocumentationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="link"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="RequiredLibrariesType">
+    <xs:sequence>
+      <xs:element name="Library" maxOccurs="unbounded" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="Library1"/>
+            <xs:enumeration value="Library2"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PropertyType" mixed="true">
+    <xs:sequence>
+      <xs:element type="ChoicesType" name="Choices" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="id" use="required"/>
+    <xs:attribute type="xs:string" name="name" use="required"/>
+    <xs:attribute type="xs:string" name="initial" use="required"/>
+    <xs:attribute type="xs:string" name="desc" use="required"/>
+    <xs:attribute type="xs:string" name="type" use="required"/>
+    <xs:attribute type="xs:string" name="min" use="optional"/>
+    <xs:attribute type="xs:string" name="max" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="ChoicesType">
+    <xs:sequence>
+      <xs:element name="Choice" type="xs:string" maxOccurs="unbounded" minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PropertiesType">
+    <xs:sequence>
+      <xs:element type="PropertyType" name="Property" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReplacementType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="find" use="required"/>
+        <xs:attribute type="xs:string" name="replace" use="required"/>
+        <xs:attribute type="xs:string" name="whenProperty" use="optional"/>
+        <xs:attribute type="xs:string" name="isValue" use="optional"/>
+        <xs:attribute type="xs:string" name="isNotValue" use="optional"/>
+        <xs:attribute type="xs:string" name="applicabilityRef" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="SourceFileType" mixed="true">
+    <xs:attribute type="xs:string" name="name" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="SourceFilesType">
+    <xs:sequence>
+      <xs:element type="ReplacementType" name="Replacement" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="SourceFileType" name="SourceFile" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HeaderType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="inSource" use="required"/>
+        <xs:attribute type="xs:string" name="priority" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="IncludeFilesType">
+    <xs:sequence>
+      <xs:element type="HeaderType" name="Header" maxOccurs="unbounded" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ApplicabilityType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="whenProperty" use="optional"/>
+        <xs:attribute type="xs:string" name="isValue" use="optional"/>
+        <xs:attribute type="xs:string" name="isNotValue" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ApplicabilityDefType">
+    <xs:sequence>
+      <xs:element type="ApplicabilityType" name="Applicability" maxOccurs="unbounded" minOccurs="0" />
+      <xs:element type="ApplicabilityDefType" name="ApplicabilityDef" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="mode" use="optional"/>
+    <xs:attribute type="xs:string" name="key" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="ApplicabilityDefsType">
+    <xs:sequence>
+      <xs:element type="ApplicabilityDefType" name="ApplicabilityDef" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ParamType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="value" use="optional"/>
+        <xs:attribute type="xs:string" name="default" use="optional"/>
+        <xs:attribute type="xs:string" name="type" use="optional"/>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="used" use="optional"/>
+        <xs:attribute type="xs:string" name="ref" use="optional"/>
+        <xs:attribute type="xs:string" name="lambda" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="VariableType" mixed="true">
+    <xs:sequence>
+      <xs:element type="ParamType" name="Param" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="export" use="optional"/>
+    <xs:attribute type="xs:string" name="progmem" use="optional"/>
+    <xs:attribute type="xs:string" name="whenProperty" use="optional"/>
+    <xs:attribute type="xs:string" name="isValue" use="optional"/>
+    <xs:attribute type="xs:string" name="isNotValue" use="optional"/>
+    <xs:attribute type="xs:string" name="applicabilityRef" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="GlobalVariablesType">
+    <xs:sequence>
+      <xs:element type="VariableType" name="Variable" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FunctionType">
+    <xs:sequence>
+      <xs:element type="ParamType" name="Param" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="object" use="optional"/>
+    <xs:attribute type="xs:string" name="whenProperty" use="optional"/>
+    <xs:attribute type="xs:string" name="isValue" use="optional"/>
+    <xs:attribute type="xs:string" name="isNotValue" use="optional"/>
+    <xs:attribute type="xs:string" name="applicabilityRef" use="optional"/>
+    <xs:attribute type="xs:string" name="pointer" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="LambdaType">
+    <xs:sequence>
+      <xs:element type="ParamType" name="Param" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="FunctionType" name="Function" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="object" use="optional"/>
+    <xs:attribute type="xs:string" name="whenProperty" use="optional"/>
+    <xs:attribute type="xs:string" name="isValue" use="optional"/>
+    <xs:attribute type="xs:string" name="isNotValue" use="optional"/>
+    <xs:attribute type="xs:string" name="applicabilityRef" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="SetupFunctionsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="FunctionType" name="Function" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="LambdaType" name="Lambda"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="TcMenuPluginType">
+    <xs:sequence>
+      <xs:element type="SupportedPlatformsType" name="SupportedPlatforms"/>
+      <xs:element type="xs:string" name="Description"/>
+      <xs:element type="DocumentationType" name="Documentation"/>
+      <xs:element type="RequiredLibrariesType" name="RequiredLibraries"/>
+      <xs:element type="xs:string" name="ImageFile"/>
+      <xs:element type="PropertiesType" name="Properties"/>
+      <xs:element type="ApplicabilityDefsType" name="ApplicabilityDefs"/>
+      <xs:element type="SourceFilesType" name="SourceFiles"/>
+      <xs:element type="IncludeFilesType" name="IncludeFiles"/>
+      <xs:element type="GlobalVariablesType" name="GlobalVariables"/>
+      <xs:element type="SetupFunctionsType" name="SetupFunctions"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:attribute type="xs:string" name="id"/>
+    <xs:attribute type="xs:string" name="subsystem"/>
+  </xs:complexType>
+</xs:schema>

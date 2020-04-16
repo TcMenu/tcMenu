@@ -1,0 +1,71 @@
+<TcMenuPlugin name="AdaFruit_GFX based display" id="7c486068-9879-459f-89ee-9522366524a3" subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version works with most displays and is very configurable. You can easily override the drawing configuration.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>adagfx-color.jpg</ImageFile>
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Name of the AdaGfx display variable exactly as declared in sketch" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type" initial="Adafruit_ILI9341" desc="Type of the AdaGfx display variable as declared in sketch" type="variable" />
+        <Property id="DISPLAY_CONFIG" name="Display config (blank default)" initial="" desc="Optional, use to override the default graphics configuration" type="variable" />
+        <Property id="DISPLAY_BUFFERED" name="Library is memory buffered" initial="false" desc="If the display library is memory buffered" type="boolean" />
+    </Properties>
+
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="whenBlank5110" mode="and">
+            <Applicability whenProperty="DISPLAY_CONFIG" isValue=""/>
+            <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_PCD8544"/>
+        </ApplicabilityDef>
+        <ApplicabilityDef key="whenBlankNot5110" mode="and">
+            <Applicability whenProperty="DISPLAY_CONFIG" isValue=""/>
+            <Applicability whenProperty="DISPLAY_TYPE" isNotValue="Adafruit_PCD8544"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
+
+    <SourceFiles>
+        <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER ${DISPLAY_BUFFERED}"/>
+        <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="Adafruit_GFX.h" inSource="true"/>
+        <Header name="${DISPLAY_TYPE}.h" inSource="true"/>
+        <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="only" />
+        <Variable name="gfxConfig" type="AdaColorGfxMenuConfig" export="true" whenProperty="DISPLAY_CONFIG" isValue=""/>
+        <Variable name="${DISPLAY_CONFIG}" type="AdaColorGfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
+        <Variable name="renderer" type="AdaFruitGfxMenuRenderer" export="true" />
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="prepareAdaColorDefaultGfxConfig"  applicabilityRef="whenBlankNot5110" >
+            <Param ref="gfxConfig"/>
+        </Function>
+        <Function name="prepareAdaMonoGfxConfigLoRes"  applicabilityRef="whenBlank5110" >
+            <Param ref="gfxConfig"/>
+        </Function>
+
+        <Function name="setGraphicsDevice" object="renderer" whenProperty="DISPLAY_CONFIG" isNotValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="${DISPLAY_CONFIG}"/>
+        </Function>
+
+        <Function name="setGraphicsDevice" object="renderer" whenProperty="DISPLAY_CONFIG" isValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="gfxConfig"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

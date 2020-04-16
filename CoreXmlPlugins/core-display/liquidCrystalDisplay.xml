@@ -1,0 +1,85 @@
+<TcMenuPlugin name="LCD shield renderer for any configuration" id="61f370f4-0294-41cf-8988-1458f242914a" subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+<SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+       <Platform>ARDUINO_ESP8266</Platform>
+       <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>LiquidCrystal based display driver that can be configured to work with any pin arrangement. Just set the EN, RS, Data pins at a minimum. It also has optional inbuilt backlight and PWM contrast support.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/liquidcrystalio-hd44780-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>lcd-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="LCD_WIDTH" name="Lcd Width" initial="16" desc="Number of characters across the LCD" type="int" min="1" max="20"/>
+        <Property id="LCD_HEIGHT" name="Lcd Height" initial="2" desc="Number of rows on the LCD" type="int" min="1" max="4"/>
+        <Property id="LCD_EN" name="LCD EN Pin" initial="2" desc="EN Pin connection to LCD" type="pin"/>
+        <Property id="LCD_RS" name="LCD RS Pin" initial="1" desc="RS Pin connection to LCD" type="pin"/>
+        <Property id="LCD_D4" name="LCD D4 Pin" initial="4" desc="D4 Pin connection to LCD" type="pin"/>
+        <Property id="LCD_D5" name="LCD D5 Pin" initial="5" desc="D5 Pin connection to LCD" type="pin"/>
+        <Property id="LCD_D6" name="LCD D6 Pin" initial="6" desc="D6 Pin connection to LCD" type="pin"/>
+        <Property id="LCD_D7" name="LCD D7 Pin" initial="7" desc="D7 Pin connection to LCD" type="pin"/>
+        <Property id="LCD_BACKLIGHT" name="Backlight Pin" initial="-1" desc="Optional backlight pin, -1 for none" type="pin"/>
+        <Property id="LCD_PWM_PIN" name="PWM Contrast Pin" initial="-1" desc="Optional PWM contrast pin, -1 for none" type="pin"/>
+        <Property id="LCD_IO_DEVICE" name="LCD IO Device (default blank)" initial="" desc="This allows you to provide an IoAbstractionRef if your display is on a non-standard IO expander" type="variable"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="lcdSrc/tcMenuLiquidCrystal.cpp" />
+        <SourceFile name="lcdSrc/tcMenuLiquidCrystal.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="LiquidCrystalIO.h" inSource="false"/>
+        <Header name="tcMenuLiquidCrystal.h" inSource="true" priority="low"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${LCD_IO_DEVICE}" type="IoAbstractionRef" export="only" whenProperty="LCD_IO_DEVICE" isNotValue="" />
+
+        <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false">
+            <Param value="${LCD_RS}"/>
+            <Param value="${LCD_EN}"/>
+            <Param value="${LCD_D4}"/>
+            <Param value="${LCD_D5}"/>
+            <Param value="${LCD_D6}"/>
+            <Param value="${LCD_D7}"/>
+        </Variable>
+
+        <Variable name="renderer" type="LiquidCrystalRenderer" export="true" progmem="false">
+            <Param value="lcd"/>
+            <Param value="${LCD_WIDTH}"/>
+            <Param value="${LCD_HEIGHT}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="setIoAbstraction" object="lcd">
+            <Param value="${LCD_IO_DEVICE}" default="ioUsingArduino()"/>
+        </Function>
+
+        <Function name="begin" object="lcd">
+            <Param value="${LCD_WIDTH}"/>
+            <Param value="${LCD_HEIGHT}"/>
+        </Function>
+
+        <Function name="configureBacklightPin" object="lcd" whenProperty="LCD_BACKLIGHT" isNotValue="-1">
+            <Param value="${LCD_BACKLIGHT}"/>
+        </Function>
+        <Function name="backlight" object="lcd" whenProperty="LCD_BACKLIGHT" isNotValue="-1"/>
+
+        <Function name="pinMode" whenProperty="LCD_PWM_PIN" isNotValue="-1">
+            <Param value="${LCD_PWM_PIN}"/>
+            <Param value="INPUT"/>
+        </Function>
+        <Function name="analogWrite" whenProperty="LCD_PWM_PIN" isNotValue="-1">
+            <Param value="${LCD_PWM_PIN}"/>
+            <Param value="10"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>
