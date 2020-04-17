@@ -11,7 +11,6 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -59,14 +58,10 @@ public class AppInformationPanel {
             vbox.getChildren().add(lblTcMenuOK);
         }
         else {
-            Label libsNotOK = new Label("Embedded Arduino libraries need updating");
+            Label libsNotOK = new Label("Please update tcMenu library from Arduino IDE");
             libsNotOK.getStyleClass().add("libsNotOK");
             libsNotOK.setId("tcMenuStatusArea");
             vbox.getChildren().add(libsNotOK);
-            Button installUpdates = new Button("Install library updates");
-            installUpdates.setOnAction(controller::installLibraries);
-            installUpdates.setId("installLibUpdates");
-            vbox.getChildren().add(installUpdates);
         }
 
         try {

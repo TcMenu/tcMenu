@@ -139,6 +139,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idx++;
         grid.add(readOnlyCheck, 0, idx);
         grid.add(noRemoteCheck, 1, idx);
+        idx++;
         grid.add(visibleCheck, 1, idx);
 
         textFieldsForCopy = grid.getChildren().stream()

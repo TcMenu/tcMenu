@@ -470,17 +470,4 @@ public class MenuEditorController {
             menuRecents.getItems().add(item);
         });
     }
-
-    public void installLibraries(Event actionEvent) {
-        try {
-            installer.copyLibraryFromPackage("IoAbstraction");
-            installer.copyLibraryFromPackage("tcMenu");
-            installer.copyLibraryFromPackage("LiquidCrystalIO");
-            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
-            onTreeChangeSelection(MenuTree.ROOT);
-        } catch (IOException e) {
-            logger.log(ERROR, "Exception copying library", e);
-            editorUI.alertOnError("Failed copying library", "More detailed error\n" + e.getMessage() );
-        }
-    }
 }
