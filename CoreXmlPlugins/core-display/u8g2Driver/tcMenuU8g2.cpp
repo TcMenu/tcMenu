@@ -68,6 +68,14 @@ void U8g2MenuRenderer::renderTitleArea() {
 	titleHeight += gfxConfig->titleBottomMargin;
 }
 
+void U8g2MenuRenderer::drawBitmap(int x, int y, int w, int h, const unsigned char *bmp) {
+#if defined(__AVR__) || defined(ESP8266)
+    u8g2->drawXBMP(x, y, w, h, bmp);
+#else
+    u8g2->drawXBM(x, y, w, h, bmp);
+#endif
+}
+
 bool U8g2MenuRenderer::renderWidgets(bool forceDraw) {
 	TitleWidget* widget = firstWidget;
 	int xPos = u8g2->getDisplayWidth() - gfxConfig->widgetPadding.right;
@@ -80,7 +88,7 @@ bool U8g2MenuRenderer::renderWidgets(bool forceDraw) {
 
             serdebugF3("Drawing widget pos,icon: ", xPos, widget->getCurrentState());
             u8g2->setColorIndex(gfxConfig->widgetColor);
-			u8g2->drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getWidth() / 8, widget->getHeight(), widget->getCurrentIcon());
+			drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getWidth(), widget->getHeight(), widget->getCurrentIcon());
 		}
 
 		widget = widget->getNext();
@@ -210,14 +218,14 @@ void U8g2MenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) 
         u8g2->setColorIndex(gfxConfig->bgSelectColor);
 		u8g2->drawBox(0, yPos, u8g2->getDisplayWidth(), menuHeight);
 		u8g2->setColorIndex(gfxConfig->fgSelectColor);
-		u8g2->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid / 8, icoHei, gfxConfig->editIcon);
+		drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid, icoHei, gfxConfig->editIcon);
         serdebugF("Item Editing");
 	}
 	else if(item->isActive()) {
 		u8g2->setColorIndex(gfxConfig->bgSelectColor);
 		u8g2->drawBox(0, yPos, u8g2->getDisplayWidth(), menuHeight);
 		u8g2->setColorIndex(gfxConfig->fgSelectColor);
-		u8g2->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid / 8, icoHei, gfxConfig->activeIcon);
+		drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, icoWid, icoHei, gfxConfig->activeIcon);
         serdebugF("Item Active");
 	}
 	else {
@@ -245,7 +253,7 @@ void U8g2MenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem* item) 
     if(isItemActionable(item)) {
         int rightOffset = u8g2->getDisplayWidth() - (gfxConfig->itemPadding.right + icoWid);
 		u8g2->setColorIndex(gfxConfig->fgSelectColor);
-		u8g2->drawBitmap(rightOffset, imgMiddleY, icoWid / 8, icoHei, gfxConfig->activeIcon);
+		drawBitmap(rightOffset, imgMiddleY, icoWid, icoHei, gfxConfig->activeIcon);
         buffer[0] = 0;
     } 
     else if(item->getMenuType() == MENUTYPE_BACK_VALUE) {

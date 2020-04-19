@@ -92,8 +92,10 @@ bool AdaFruitGfxMenuRenderer::renderWidgets(bool forceDraw) {
 
             serdebugF3("Drawing widget pos,icon: ", xPos, widget->getCurrentState());
 
-			graphics->drawBitmap(xPos, gfxConfig->widgetPadding.top, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(),
-								 gfxConfig->widgetColor, gfxConfig->bgTitleColor);
+        	graphics->fillRect(xPos, gfxConfig->widgetPadding.top, widget->getWidth(), widget->getHeight(), gfxConfig->bgTitleColor);
+
+			graphics->drawXBitmap(xPos, gfxConfig->widgetPadding.top, widget->getCurrentIcon(), widget->getWidth(), widget->getHeight(),
+								 gfxConfig->widgetColor);
 		}
 
 		widget = widget->getNext();
@@ -219,14 +221,14 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
     int imgMiddleY = yPos + ((menuHeight - icoHei) / 2);
 	if(item->isEditing()) {
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
-		graphics->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+		graphics->drawXBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->editIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
 		graphics->setTextColor(gfxConfig->fgSelectColor);
         serdebugF("Item Editing");
 	}
 	else if(item->isActive()) {
 		graphics->setTextColor(gfxConfig->fgSelectColor);
 		graphics->fillRect(0, yPos, graphics->width(), menuHeight, gfxConfig->bgSelectColor);
-		graphics->drawBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
+		graphics->drawXBitmap(gfxConfig->itemPadding.left, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
         serdebugF("Item Active");
 	}
 	else {
@@ -252,7 +254,7 @@ void AdaFruitGfxMenuRenderer::renderMenuItem(int yPos, int menuHeight, MenuItem*
 
     if(isItemActionable(item)) {
         int rightOffset = graphics->width() - (gfxConfig->itemPadding.right + icoWid);
-		graphics->drawBitmap(rightOffset, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);        
+		graphics->drawXBitmap(rightOffset, imgMiddleY, gfxConfig->activeIcon, icoWid, icoHei, gfxConfig->fgSelectColor);
         buffer[0] = 0;
     }
     else if(item->getMenuType() == MENUTYPE_BACK_VALUE) {

@@ -75,6 +75,7 @@ public:
     U8g2GfxMenuConfig* getGfxConfig() { return gfxConfig; }
     BaseDialog* getDialog() override;
 private:
+    void drawBitmap(int x, int y, int w, int h, const unsigned char *bmp);
 	void renderMenuItem(int yPos, int menuHeight, MenuItem* item);
 	void renderTitleArea();
 	bool renderWidgets(bool forceDraw);
