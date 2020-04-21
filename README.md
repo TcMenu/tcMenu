@@ -2,7 +2,7 @@
 
 A menu system for Arduino that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
-Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows and MacOS. It should also be easy to run on Linux - contact me if interested. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
+Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows and MacOS. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
 
 ## Questions, community forum and support
 
@@ -16,7 +16,7 @@ You can get help from the community forum, there are also support and consultanc
 
 Nearly all users should probably choose the designer UI package; it's available for Windows and MacOS and includes all the embedded libraries. The designer UI will copy all the required libraries into place for you. However, should you wish to go it alone, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
 
-[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS and can probably be simply built for Linux desktop. Contact us if you desire a Linux build.
+[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS.
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 
