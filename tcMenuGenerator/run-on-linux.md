@@ -1,6 +1,6 @@
 ## How to run the java version of tcMenu Designer on Linux.
 
-Thanks to @ptapping for the linux instructions.
+Thanks to @ptapping for the linux instructions. Please note that running on Linux is supported on a best efforts community basis, as we don't have a desktop Linux build to test with.
 
     # Ensure java and maven build system installed
     # Arch Linux
