@@ -315,6 +315,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
             List<CallbackRequirement> callbackRequirements = new ArrayList<>(allCallbacks.values());
             callbackRequirements.sort((CallbackRequirement o1, CallbackRequirement o2) -> {
+                if (o1.getCallbackName() == null && o2.getCallbackName() == null) return 0;
                 if (o1.getCallbackName() == null) return -1;
                 if (o2.getCallbackName() == null) return 1;
                 return o1.getCallbackName().compareTo(o2.getCallbackName());
