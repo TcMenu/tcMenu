@@ -52,4 +52,8 @@ java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.t
 ENDHEREDOC
 chmod 755 "${BINDIR}/${BINNAME}"
 
-echo "Installed. Try running using ${BINNAME}"
+if [[ ! "${PATH}" =~ "${BINDIR}" ]] ; then
+  echo "Installed. Note that ${BINDIR} is not in your path. Add it then run with ${BINNAME}"
+else
+  echo "Installed. Try running using ${BINNAME}"
+fi
