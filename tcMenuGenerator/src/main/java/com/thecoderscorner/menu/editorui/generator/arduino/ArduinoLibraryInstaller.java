@@ -90,7 +90,11 @@ public class ArduinoLibraryInstaller {
         Path arduinoPath = Paths.get(homeDirectory, "Documents/Arduino");
         if (!Files.exists(arduinoPath)) {
             logger.log(Level.INFO, "Not found in " + arduinoPath);
-
+            // On Linux, Arduino directory defaults to home.
+            arduinoPath = Paths.get(homeDirectory, "Arduino");
+        }
+        if (!Files.exists(arduinoPath)) {
+            logger.log(Level.INFO, "Not found in " + arduinoPath);
             // try again in the onedrive folder, noticed it there on several windows machines
             arduinoPath = Paths.get(homeDirectory, "OneDrive/Documents/Arduino");
         }
@@ -99,12 +103,12 @@ public class ArduinoLibraryInstaller {
 
             Optional<String> path = getArduinoPathWithDialog();
             if (path.isPresent()) {
-                logger.log(Level.INFO, "Finally found in  " + path);
                 arduinoPath = Paths.get(path.get());
             }
         }
 
         if (!Files.exists(arduinoPath)) return Optional.empty();
+        logger.log(Level.INFO, "Arduino directory found at " + arduinoPath);
 
         logger.log(Level.INFO, "looking for libraries");
 

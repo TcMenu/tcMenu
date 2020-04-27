@@ -20,6 +20,7 @@ import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -35,6 +36,7 @@ public class DirectoryCodePluginManager implements CodePluginManager {
 
     private final EmbeddedPlatforms platforms;
 
+    private List<Path> pluginPaths = new ArrayList<>();
     private Map<String, Image> imagesLoaded = new HashMap<>();
     private List<CodePluginConfig> configurationsLoaded = new ArrayList<>();
     private Map<CodePluginItem, CodePluginConfig> itemToConfig = new HashMap<>();
@@ -46,36 +48,49 @@ public class DirectoryCodePluginManager implements CodePluginManager {
 
     @Override
     public synchronized void loadPlugins(String sourceDir) throws Exception {
+        loadPlugins(sourceDir, "");
+    }
+
+    public void loadPlugins(String paths, String sourceDir) throws Exception {
         itemToConfig.clear();
         configurationsLoaded.clear();
         imagesLoaded.clear();
 
-        Files.list(Paths.get(sourceDir)).filter(p->p.toString().endsWith(".jar")).forEach(p->{
-            try(ZipInputStream zipFile = new ZipInputStream(new FileInputStream(p.toFile()))) {
-                ZipEntry entry;
-                while((entry = zipFile.getNextEntry()) != null) {
-                    if(entry.getName().equals("META-INF/tcmenu/tcmenu-plugin.json")) {
-                        logger.log(Level.INFO, "Found configuration file " + entry.getName());
-                        CodePluginConfig config = parsePluginConfig(zipFile);
-                        configurationsLoaded.add(config);
-                        config.getPlugins().forEach(item -> itemToConfig.put(item, config));
+        String[] locations = paths.split(System.getProperty("path.separator"));
+        for (String location : locations) {
+            location = location + (sourceDir == "" ? "" : "/" + sourceDir);
+            logger.log(Level.INFO, "Looking for plugins at " + location);
+            pluginPaths.add(Paths.get(location));
+            try {
+                Files.list(Paths.get(location)).filter(p->p.toString().endsWith(".jar")).forEach(p->{
+                    try(ZipInputStream zipFile = new ZipInputStream(new FileInputStream(p.toFile()))) {
+                        ZipEntry entry;
+                        while((entry = zipFile.getNextEntry()) != null) {
+                            if(entry.getName().equals("META-INF/tcmenu/tcmenu-plugin.json")) {
+                                logger.log(Level.INFO, "Found configuration file " + entry.getName());
+                                CodePluginConfig config = parsePluginConfig(zipFile);
+                                configurationsLoaded.add(config);
+                                config.getPlugins().forEach(item -> itemToConfig.put(item, config));
+                            }
+                            else if(entry.getName().matches("META-INF/tcmenu/.*\\.(png|jpg)")) {
+                                logger.log(Level.INFO, "Found image file " + entry.getName());
+                                Image img = new Image(zipFile);
+                                logger.log(Level.INFO, "Image loaded, Width: {0}, height: {1}", img.getWidth(), img.getHeight());
+                                imagesLoaded.put(entry.getName().substring(16), img);
+                            }
+                        }
                     }
-                    else if(entry.getName().matches("META-INF/tcmenu/.*\\.(png|jpg)")) {
-                        logger.log(Level.INFO, "Found image file " + entry.getName());
-                        Image img = new Image(zipFile);
-                        logger.log(Level.INFO, "Image loaded, Width: {0}, height: {1}", img.getWidth(), img.getHeight());
-                        imagesLoaded.put(entry.getName().substring(16), img);
+                    catch(Exception e) {
+                        logger.log(Level.ERROR, "Unable to load JAR file", e);
                     }
-                }
+                });
+            } catch (java.nio.file.NoSuchFileException e) {
+                logger.log(Level.INFO, "No plugins found at " + location );
             }
-            catch(Exception e) {
-                logger.log(Level.ERROR, "Unable to load JAR file", e);
-            }
-        });
-
-        loadModules(sourceDir, configurationsLoaded.stream()
-                .map(CodePluginConfig::getModuleName)
-                .collect(Collectors.toList()));
+        }
+        loadModules(pluginPaths.toArray(new Path[]{}), configurationsLoaded.stream()
+            .map(CodePluginConfig::getModuleName)
+            .collect(Collectors.toList()));
     }
 
     @Override
@@ -128,6 +143,21 @@ public class DirectoryCodePluginManager implements CodePluginManager {
         Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), moduleNames);
         layer = parent.defineModulesWithOneLoader(cf, scl);
     }
+
+    /**
+     * Load all the modules that were configured into the main class loader, we don't want any additional class
+     * loaders, we just want to load the classes in.
+     * @param sourceDir An array of directories where the modules exist
+     * @param moduleNames the names of all the modules to load
+     */
+    protected void loadModules(Path[] sourcePaths, Collection<String> moduleNames) {
+        ModuleFinder finder = ModuleFinder.of(sourcePaths);
+        ClassLoader scl = ClassLoader.getSystemClassLoader();
+        ModuleLayer parent = ModuleLayer.boot();
+        Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), moduleNames);
+        layer = parent.defineModulesWithOneLoader(cf, scl);
+    }
+
 
     /**
      * Create a plugin config object from JSON format.

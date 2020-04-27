@@ -40,7 +40,7 @@ public class MenuEditorApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        createLogDirIfNeeded();
+        createDirsIfNeeded();
 
         primaryStage.setTitle("Embedded Menu Designer");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
@@ -51,8 +51,8 @@ public class MenuEditorApp extends Application {
         EmbeddedPlatforms platforms = new PluginEmbeddedPlatformsImpl();
 
         DirectoryCodePluginManager manager = new DirectoryCodePluginManager(platforms);
-        manager.loadPlugins("plugins");
-
+        manager.loadPlugins(System.getProperty("java.class.path") + System.getProperty("path.separator")
+                          + System.getProperty("user.home") + "/.tcmenu", "plugins");
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
 
@@ -88,16 +88,20 @@ public class MenuEditorApp extends Application {
         });
     }
 
-    private void createLogDirIfNeeded() {
+    private void createDirsIfNeeded() {
         var homeDir = Paths.get(System.getProperty("user.home"));
         try {
             Path menuDir = homeDir.resolve(".tcmenu/logs");
             if(!Files.exists(menuDir)) {
                 Files.createDirectories(menuDir);
             }
+            Path pluginDir = homeDir.resolve(".tcmenu/plugins");
+            if(!Files.exists(pluginDir)) {
+                Files.createDirectories(pluginDir);
+            }
         } catch (IOException e) {
-            Alert alert = new Alert(AlertType.ERROR, "Logging directory could not be created ", ButtonType.CLOSE);
-            alert.setContentText(e.getMessage());
+            Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
+            alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
         }
     }
