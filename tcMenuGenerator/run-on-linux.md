@@ -1,6 +1,12 @@
 ## How to run the java version of tcMenu Designer on Linux.
 
-Thanks to @ptapping for the linux instructions. Please note that running on Linux is supported on a best efforts community basis, as we don't have a desktop Linux build to test with.
+Thanks to @ptapping for the linux instructions and build script. *Please note that running on Linux is supported on a best efforts community basis, as we don't have a desktop Linux build to test with.*
+
+### Using the build script
+
+Run the `install_linux.sh` script in the `tcMenu/tcMenuGenerator` directory. Using the `--uninstall` option will remove the installed package. The script will tell you where the app has been installed. Take a look through the scripts before running to ensure you're happy with where it will place the files. 
+
+### Raw instructions
 
     # Ensure java and maven build system installed
     # Arch Linux
