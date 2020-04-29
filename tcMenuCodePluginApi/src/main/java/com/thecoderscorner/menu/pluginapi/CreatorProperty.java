@@ -31,7 +31,8 @@ public class CreatorProperty {
     private String name;
     private String latestValue;
     private SubSystem subsystem;
-    transient private String description;
+    transient private final String initialValue;
+    transient private final String description;
     transient private StringProperty property;
     transient private PropType propType = PropType.TEXTUAL;
     transient private PropertyValidationRules validationRules = BASE_RULE;
@@ -39,6 +40,8 @@ public class CreatorProperty {
     public CreatorProperty() {
         // for serialisation purposes.
         this.property = null;
+        this.initialValue = null;
+        this.description = null;
     }
 
     /**
@@ -77,6 +80,7 @@ public class CreatorProperty {
                            PropType propType, PropertyValidationRules rules) {
         this.name = name;
         this.description = description;
+        this.initialValue = latestValue;
         this.latestValue = latestValue;
         this.property = new SimpleStringProperty(latestValue);
         this.subsystem = subsystem;
@@ -128,6 +132,11 @@ public class CreatorProperty {
      */
     public int getLatestValueAsInt() {
         return Integer.parseInt(getLatestValue());
+    }
+
+    /** @return the initial value for this property */
+    public String getInitialValue() {
+        return initialValue;
     }
 
     /**

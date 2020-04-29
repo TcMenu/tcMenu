@@ -6,27 +6,32 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.Map;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 public class ArduinoLibraryInstallerTest {
     private ArduinoLibraryInstaller installer;
     private Path dirTmp;
     private Path dirArduino;
     private Path dirArduinoLibs;
-    private Path dirEmbedded;
+    private LibraryVersionDetector verDetector;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -37,10 +42,9 @@ public class ArduinoLibraryInstallerTest {
         dirArduinoLibs = dirArduino.resolve("libraries");
         // we don't create libraries, make sure the installer can do it.
 
-        dirEmbedded = dirTmp.resolve("Embedded");
-        Files.createDirectory(dirEmbedded);
+        verDetector = Mockito.mock(LibraryVersionDetector.class);
 
-        installer = new ArduinoLibraryInstaller(dirTmp.toString(), dirEmbedded.toString());
+        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector);
     }
 
     @AfterEach
@@ -52,70 +56,34 @@ public class ArduinoLibraryInstallerTest {
     }
 
     @Test
-    public void testInstaller() throws IOException {
-        // first there should be nothing there, blank created directory
-        assertEquals(Optional.empty(), installer.findLibraryInstall("tcMenu"));
-
-        // then we put tcMenu library in place.
-        putLibraryInPlace(dirArduinoLibs, "tcMenu", "1.0.0");
-
-        // now put tcMenu in the arduino libraries at V1.0
-        Path tcMenuPath = installer.findLibraryInstall("tcMenu").get();
-
-        // we should get it back
-        assertEquals(dirArduinoLibs.resolve("tcMenu"), tcMenuPath);
-
-        // now put tcMenu in the embedded source at 1.0.1, newer than arduino copy
-        putLibraryInPlace(dirEmbedded, "tcMenu", "1.0.1");
-
-        // the library is old and should not be marked up to date
-        assertFalse(installer.isLibraryUpToDate("tcMenu"));
-
-        // now lets update the library
-        installer.copyLibraryFromPackage("tcMenu");
-
-        // and on checking again it should now be up to date.
-        assertTrue(installer.isLibraryUpToDate("tcMenu"));
-        assertTrue(Files.exists(dirArduinoLibs.resolve("tcMenu/src")));
-        assertTrue(Files.exists(dirArduinoLibs.resolve("tcMenu/src/afile.txt")));
-    }
-
-    @Test
-    public void testCopyLibraryWithNoExistingLibrary() throws IOException {
-        // put only the tcMenu library in place.
-        putLibraryInPlace(dirEmbedded, "tcMenu", "1.0.0");
-
-        // certainly not up-to-date, not even there
-        assertFalse(installer.isLibraryUpToDate("tcMenu"));
-
-        // check get version doesnt crash when no lib present.
-        assertEquals(new VersionInfo("0.0.0"), installer.getVersionOfLibrary("tcMenu", false));
-
-        // now lets update the library
-        installer.copyLibraryFromPackage("tcMenu");
-
-        // and on checking again it should now be up to date.
-        assertTrue(installer.isLibraryUpToDate("tcMenu"));
-        assertTrue(Files.exists(dirArduinoLibs.resolve("tcMenu/src")));
-        assertTrue(Files.exists(dirArduinoLibs.resolve("tcMenu/src/afile.txt")));
-    }
-
-    @Test
     public void testGetAllLibraryStatus() throws IOException {
         // put libs in the embedded source at 1.0.1, newer than arduino copy
-        putLibraryInPlace(dirEmbedded, "tcMenu", "1.0.1");
-        putLibraryInPlace(dirEmbedded, "IoAbstraction", "1.0.0");
-        putLibraryInPlace(dirEmbedded, "LiquidCrystalIO", "1.0.2");
-
         putLibraryInPlace(dirArduinoLibs, "tcMenu", "1.0.1");
-        putLibraryInPlace(dirArduinoLibs, "IoAbstraction", "1.0.1");
-        putLibraryInPlace(dirArduinoLibs, "LiquidCrystalIO", "1.0.1");
+        putLibraryInPlace(dirArduinoLibs, "IoAbstraction", "1.2.1");
+        putLibraryInPlace(dirArduinoLibs, "LiquidCrystalIO", "1.4.1");
+
+        var versions = Map.of(
+                "tcMenu/Library", new VersionInfo("1.0.0"),
+                "IoAbstraction/Library", new VersionInfo("1.2.1"),
+                "LiquidCrystalIO/Library", new VersionInfo("1.5.1"),
+                "xyz/Plugin", new VersionInfo("7.8.9")
+        );
+        when(verDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE)).thenReturn(versions);
 
         LibraryStatus libraryStatus = installer.statusOfAllLibraries();
         assertFalse(libraryStatus.isUpToDate());
         assertTrue(libraryStatus.isIoAbstractionUpToDate());
         assertTrue(libraryStatus.isTcMenuUpToDate());
         assertFalse(libraryStatus.isLiquidCrystalIoUpToDate());
+
+        assertEquals("V1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
+        assertEquals("V1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
+        assertEquals("V1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
+
+        assertEquals("V1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
+        assertEquals("V1.2.1", installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
+        assertEquals("V1.5.1", installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
+        assertEquals("V7.8.9", installer.getVersionOfLibrary("xyz", AVAILABLE_PLUGIN).toString());
     }
 
     private void putLibraryInPlace(Path location, String name, String version) throws IOException {

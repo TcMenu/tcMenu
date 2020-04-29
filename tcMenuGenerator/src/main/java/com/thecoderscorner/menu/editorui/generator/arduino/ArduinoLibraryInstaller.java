@@ -6,8 +6,11 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.scene.control.TextInputDialog;
 
 import java.io.FileReader;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
  * and lastly also copying the library over from the package if needed.
  */
 public class ArduinoLibraryInstaller {
+    public enum InstallationType { AVAILABLE_LIB, CURRENT_LIB, AVAILABLE_PLUGIN, CURRENT_PLUGIN }
     /**
      * storage path of custom library directory, for when a non standard structure is detected only
      */
@@ -38,15 +42,12 @@ public class ArduinoLibraryInstaller {
     public static final String LIBRARY_PROPERTIES_NAME = "library.properties";
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
+    private final LibraryVersionDetector versionDetector;
+
     /**
      * the home directory
      */
     private final String homeDirectory;
-
-    /**
-     * the embedded directory that will be used as the source - default to embedded
-     */
-    private final String embeddedDirectory;
 
     /**
      * the directory located for arduino library storage
@@ -58,11 +59,10 @@ public class ArduinoLibraryInstaller {
      * normally used by unit testing to override the path so that the code can be tested better
      *
      * @param homeDirectory     the path to hardwire for the arduino directory
-     * @param embeddedDirectory the embedded source directory to override.
      */
-    public ArduinoLibraryInstaller(String homeDirectory, String embeddedDirectory) {
+    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector) {
         this.homeDirectory = homeDirectory;
-        this.embeddedDirectory = embeddedDirectory;
+        this.versionDetector = detector;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ArduinoLibraryInstaller {
     public ArduinoLibraryInstaller() {
         this.arduinoDirectory = null;
         this.homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        this.embeddedDirectory = "embedded";
+        this.versionDetector = new OnlineLibraryVersionDetector(new SimpleHttpClient());
     }
 
     /**
@@ -82,7 +82,7 @@ public class ArduinoLibraryInstaller {
      */
     public Optional<Path> getArduinoDirectory() {
         if (arduinoDirectory != null) {
-            return Optional.ofNullable(Paths.get(arduinoDirectory));
+            return Optional.of(Paths.get(arduinoDirectory));
         }
 
         logger.log(Level.INFO, "Looking for Árduino directory");
@@ -184,31 +184,32 @@ public class ArduinoLibraryInstaller {
      * Get the version of a library, either from the packaged version or currently installed depending
      * how it's called.
      * @param name the library name
-     * @param inEmbeddedDir true for the packaged version, false for the installed version
+     * @param installationType what we are looking for, eg, installed or available, plugin or lib.
      * @return the version of the library or 0.0.0 if it cannot be found.
      * @throws IOException in the event of an unexpected IO issue. Not finding the library is not an IO issue.
      */
-    public VersionInfo getVersionOfLibrary(String name, boolean inEmbeddedDir) throws IOException {
+    public VersionInfo getVersionOfLibrary(String name, InstallationType installationType) throws IOException {
         Path startPath;
 
-        if(inEmbeddedDir) {
-            startPath = Paths.get(embeddedDirectory, name);
+        if(installationType == InstallationType.AVAILABLE_LIB || installationType == InstallationType.AVAILABLE_PLUGIN) {
+            var versions = versionDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
+            return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
         }
         else {
             Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
             startPath = ardDir.resolve("libraries").resolve(name);
-        }
-        Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
+            Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
 
-        if(!Files.exists(libProps)) {
-            return new VersionInfo("0.0.0");
-        }
+            if(!Files.exists(libProps)) {
+                return new VersionInfo("0.0.0");
+            }
 
-        Properties propsSrc = new Properties();
-        try(FileReader reader = new FileReader(libProps.toFile())) {
-            propsSrc.load(reader);
+            Properties propsSrc = new Properties();
+            try(FileReader reader = new FileReader(libProps.toFile())) {
+                propsSrc.load(reader);
+            }
+            return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
         }
-        return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
     }
 
     /**
@@ -221,8 +222,9 @@ public class ArduinoLibraryInstaller {
         if (!libInst.isPresent()) return false; // can we even find it on the system.
 
         try {
-            VersionInfo srcVer = getVersionOfLibrary(name, true);
-            VersionInfo dstVer = getVersionOfLibrary(name, false);
+            VersionInfo srcVer = getVersionOfLibrary(name, InstallationType.AVAILABLE_LIB);
+            VersionInfo dstVer = getVersionOfLibrary(name, InstallationType.CURRENT_LIB);
+            if(srcVer == null) return false;
             return dstVer.isSameOrNewerThan(srcVer);
         } catch (IOException e) {
             return false; // Library is somehow not good. Certainly not the same!
@@ -234,21 +236,19 @@ public class ArduinoLibraryInstaller {
      * @param libraryName the library to copy
      * @throws IOException if the copy could not complete.
      */
-    public void copyLibraryFromPackage(String libraryName) throws IOException {
-        Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
-        Path source = Paths.get(embeddedDirectory).resolve(libraryName);
+    public void unzipAndInstallPlugin(String libraryName) throws IOException {
+        Path dest = Paths.get(System.getProperty("user.home"), ".tcmenu").resolve(libraryName);
 
-        Path dest = ardDir.resolve("libraries/" + libraryName);
-        if(!Files.exists(dest)) {
-            Files.createDirectory(dest);
-        }
-
-        Path gitRepoDir = dest.resolve(".git");
-        if(Files.exists(gitRepoDir)) {
-            throw new IOException("Git repository inside " + libraryName+ "! Not proceeding to update path : " + dest);
-        }
-
-        copyLibraryRecursive(source, dest);
+//        if(!Files.exists(dest)) {
+//            Files.createDirectory(dest);
+//        }
+//
+//        Path gitRepoDir = dest.resolve(".git");
+//        if(Files.exists(gitRepoDir)) {
+//            throw new IOException("Git repository inside " + libraryName+ "! Not proceeding to update path : " + dest);
+//        }
+//
+//        copyLibraryRecursive(source, dest);
     }
 
     /**

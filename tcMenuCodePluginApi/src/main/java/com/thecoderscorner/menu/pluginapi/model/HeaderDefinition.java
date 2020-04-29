@@ -12,23 +12,17 @@ import java.util.Objects;
  * Used internally by the variable builder to store header requirements.
  */
 public class HeaderDefinition {
-    public static final int PRIORITY_MIN = 10;
-    public static final int PRIORITY_NORMAL = 5;
+    public static final int PRIORITY_MIN = 100;
+    public static final int PRIORITY_NORMAL = 50;
     public static final int PRIORITY_MAX = 0;
     private final String headerName;
-    private final char startQuote, endQuote;
+    private final boolean inSource;
     private final int priority;
 
-    public HeaderDefinition(String headerName, boolean useQuotes, int priority) {
+    public HeaderDefinition(String headerName, boolean inSrc, int priority) {
         this.headerName = headerName;
         this.priority = priority;
-
-        if (useQuotes) {
-            startQuote = endQuote = '\"';
-        } else {
-            startQuote = '<';
-            endQuote = '>';
-        }
+        this.inSource = inSrc;
     }
 
     @Override
@@ -36,7 +30,7 @@ public class HeaderDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderDefinition that = (HeaderDefinition) o;
-        return Objects.equals(headerName, that.headerName);
+        return Objects.equals(headerName, that.headerName) && Objects.equals(inSource, that.inSource);
     }
 
     public int getPriority() {
@@ -45,19 +39,14 @@ public class HeaderDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(headerName);
-    }
-
-    public String getHeaderCode() {
-        return "#include " + startQuote + headerName + endQuote;
+        return Objects.hash(headerName, inSource);
     }
 
     @Override
     public String toString() {
         return "HeaderDefinition{" +
                 "headerName='" + headerName + '\'' +
-                ", startQuote=" + startQuote +
-                ", endQuote=" + endQuote +
+                ", inSrc=" + inSource +
                 ", priority=" + priority +
                 '}';
     }

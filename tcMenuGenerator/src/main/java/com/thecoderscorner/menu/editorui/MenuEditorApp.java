@@ -10,7 +10,7 @@ import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.DirectoryCodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -50,9 +51,13 @@ public class MenuEditorApp extends Application {
 
         EmbeddedPlatforms platforms = new PluginEmbeddedPlatformsImpl();
 
-        DirectoryCodePluginManager manager = new DirectoryCodePluginManager(platforms);
-        manager.loadPlugins(System.getProperty("java.class.path") + System.getProperty("path.separator")
-                          + System.getProperty("user.home") + "/.tcmenu", "plugins");
+        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms);
+        manager.loadPlugins(
+                Arrays.asList(
+                        Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins"),
+                        Paths.get(".", "plugins")
+                )
+        );
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
 

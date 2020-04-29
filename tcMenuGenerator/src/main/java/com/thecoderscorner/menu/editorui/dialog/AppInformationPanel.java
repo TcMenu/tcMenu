@@ -18,6 +18,8 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_LIB;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class AppInformationPanel {
@@ -97,8 +99,8 @@ public class AppInformationPanel {
 
     private void makeDiffVersionLabel(VBox vbox, String lib) throws IOException {
         var s = " - Arduino Library " + lib
-                + " available: " + installer.getVersionOfLibrary(lib, true)
-                + " installed: " + installer.getVersionOfLibrary(lib, false);
+                + " available: " + installer.getVersionOfLibrary(lib, AVAILABLE_LIB)
+                + " installed: " + installer.getVersionOfLibrary(lib, CURRENT_LIB);
 
         var lbl = new Label(s);
         lbl.setId(lib + "Lib");

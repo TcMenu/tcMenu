@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
@@ -38,7 +39,7 @@ class DirectoryCodePluginManagerTest {
         when(platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId())).thenReturn(ARDUINO_AVR);
         TestDirectoryCodePluginManager manager = new TestDirectoryCodePluginManager(platforms);
 
-        manager.loadPlugins(dir.toString());
+        manager.loadPlugins(List.of(dir));
 
         assertEquals(dir.toString(), manager.getModuleDirLoaded());
         assertThat(manager.getModuleNames()).containsExactlyInAnyOrder("com.thecoderscorner.tcmenu.unittest");

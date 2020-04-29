@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_LIB;
+
 public class AboutController {
     public Label apiVersion;
     public Label tcMenuVersion;
@@ -22,9 +24,9 @@ public class AboutController {
     public Label registeredLabel;
 
     public void initialise(ConfigurationStorage storage, ArduinoLibraryInstaller installer) throws IOException {
-        tcMenuVersion.setText(installer.getVersionOfLibrary("tcMenu", true).toString());
-        ioAbstractionVersion.setText(installer.getVersionOfLibrary("IoAbstraction", true).toString());
-        liquidCrystalVersion.setText(installer.getVersionOfLibrary("LiquidCrystalIO", true).toString());
+        tcMenuVersion.setText(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
+        ioAbstractionVersion.setText(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
+        liquidCrystalVersion.setText(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
         apiVersion.setText(storage.getVersion());
         buildDateLabel.setText(storage.getBuildTimestamp());
         if(!storage.getRegisteredKey().isEmpty()) registeredLabel.setText(storage.getRegisteredKey());

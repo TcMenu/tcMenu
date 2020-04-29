@@ -6,11 +6,7 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * A property validator based on a list of choices.
@@ -22,11 +18,9 @@ public class ChoicesPropertyValidationRules implements PropertyValidationRules {
     /**
      * Create an instance with an array of values, generally from an Enum.
      * @param values the value array
-     * @param <T> the type is automatically captured
      */
-    public <T extends Enum> ChoicesPropertyValidationRules(T[] values) {
-        enumValues = Arrays.stream(values)
-                .map(Enum::toString).collect(Collectors.toSet());
+    public ChoicesPropertyValidationRules(Collection<String> values) {
+        enumValues = new HashSet<String>(values);
     }
 
     @Override

@@ -8,7 +8,10 @@ package com.thecoderscorner.menu.pluginapi.model.parameter;
 
 import com.thecoderscorner.menu.pluginapi.CreatorProperty;
 import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -22,6 +25,10 @@ public class CodeConversionContext {
 
     public CodeConversionContext(EmbeddedPlatform platform, String rootObject, Collection<CreatorProperty> properties) {
         this.rootObject = rootObject;
+
+        properties = new ArrayList<>(properties);
+        properties.add(new CreatorProperty("ROOT", "Root", rootObject, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
+        properties.add(new CreatorProperty("TARGET", "Target", platform.toString(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
         this.properties = properties;
         this.platform = platform;
     }

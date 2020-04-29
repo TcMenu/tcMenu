@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.pluginapi.validation;
 
+import java.util.Collection;
+
 /**
  * A helper class with static methods that provides short cuts for commonly used property validators.
  */
@@ -59,9 +61,8 @@ public class CannedPropertyValidators {
      *
      * @return a choices validator based on an enum
      * @param values the values that will both be validated against, and displayed in the combo.
-     * @param <T> any enum class.
      */
-    public static <T extends Enum> ChoicesPropertyValidationRules choicesValidator(T[] values) {
+    public static ChoicesPropertyValidationRules choicesValidator(Collection<String> values) {
         return new ChoicesPropertyValidationRules(values);
     }
 }

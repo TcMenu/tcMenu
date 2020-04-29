@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -17,10 +18,10 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.lang.System.Logger.Level;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+
+import static com.thecoderscorner.menu.editorui.util.IHttpClient.HttpDataType;
 
 public class RegistrationController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -127,15 +128,9 @@ public class RegistrationController {
         @Override
         public void run() {
             try {
-                URL tccUrl = new URL(registrationUrl);
-                HttpURLConnection con = (HttpURLConnection) tccUrl.openConnection();
-                con.setRequestMethod("POST");
-                con.setRequestProperty("Content-Type","application/json");
-                con.setDoOutput(true);
-                con.setDoInput(true);
-                con.getOutputStream().write(json.getBytes());
+                SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
+                var data = simpleHttpClient.postRequestForString(registrationUrl, json, HttpDataType.JSON_DATA);
 
-                String data = new String(con.getInputStream().readAllBytes());
                 JsonElement element = new JsonParser().parse(data);
                 JsonElement regElement = element.getAsJsonObject().get("registered");
                 JsonElement regWhoElement = element.getAsJsonObject().get("regUser");
