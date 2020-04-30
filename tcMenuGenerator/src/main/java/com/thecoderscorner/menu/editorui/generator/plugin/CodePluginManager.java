@@ -6,8 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import javafx.scene.image.Image;
 
 import java.nio.file.Path;

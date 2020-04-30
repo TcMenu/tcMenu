@@ -13,7 +13,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.fazecast.jSerialComm;
     requires com.thecoderscorner.tcmenu.javaapi;
     requires gson;
-    requires com.thecoderscorner.tcmenu.plugin.api;
 
     // allow javafx components to see the editor UI packages that contain controllers etc.
     exports com.thecoderscorner.menu.editorui;
@@ -21,4 +20,10 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.generator;
     exports com.thecoderscorner.menu.editorui.generator.ui;
     exports com.thecoderscorner.menu.editorui.util;
+    exports com.thecoderscorner.menu.editorui.project;
+    exports com.thecoderscorner.menu.editorui.generator.core;
+
+    opens com.thecoderscorner.menu.editorui.project to gson;
+    opens com.thecoderscorner.menu.editorui.generator to gson;
+    opens com.thecoderscorner.menu.editorui.generator.core to gson;
 }

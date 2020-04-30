@@ -6,8 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface CodeGeneratorRunner {
     void startCodeGeneration(Stage stage,
                              EmbeddedPlatform platform,
                              String  path,
-                             List<EmbeddedCodeCreator> creators,
+                             List<CodePluginItem> creators,
                              List<String> previousPlugins,
                              boolean modal);
 }

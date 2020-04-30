@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
 import java.util.List;
 import java.util.UUID;

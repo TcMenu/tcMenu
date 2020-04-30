@@ -8,9 +8,9 @@ package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
@@ -36,9 +36,9 @@ public class TestUtils {
         assertEquals(expected, actual);
     }
 
-    public static CreatorProperty findAndCheckProperty(EmbeddedCodeCreator creator, String name, SubSystem subSystem,
+    public static CreatorProperty findAndCheckProperty(CodePluginItem creator, String name, SubSystem subSystem,
                                                        CreatorProperty.PropType type, String newVal) {
-        CreatorProperty prop = creator.properties().stream()
+        CreatorProperty prop = creator.getProperties().stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst().orElse(null);
 

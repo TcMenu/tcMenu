@@ -6,10 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 
 import java.util.List;
 

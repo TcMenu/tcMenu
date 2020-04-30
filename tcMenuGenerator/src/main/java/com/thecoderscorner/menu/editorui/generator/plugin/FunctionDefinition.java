@@ -37,4 +37,24 @@ public class FunctionDefinition {
                 ", applicability=" + applicability +
                 '}';
     }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isObjectPointer() {
+        return objectPointer;
+    }
+
+    public List<CodeParameter> getParameters() {
+        return parameters;
+    }
+
+    public CodeApplicability getApplicability() {
+        return applicability;
+    }
 }

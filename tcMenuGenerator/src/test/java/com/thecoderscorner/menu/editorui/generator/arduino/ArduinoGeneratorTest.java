@@ -10,10 +10,13 @@ import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
-import com.thecoderscorner.menu.pluginapi.*;
-import com.thecoderscorner.menu.pluginapi.model.CodeVariableBuilder;
-import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,14 +26,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO32;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
-import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
@@ -80,7 +84,7 @@ public class ArduinoGeneratorTest {
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
-        List<EmbeddedCodeCreator> generators = unitTestGenerator();
+        List<CodePluginItem> generators = unitTestGenerator();
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),
                 "", "", "",
@@ -117,33 +121,12 @@ public class ArduinoGeneratorTest {
                 eq(dir.getFileName().toString()), anyCollection());
     }
 
-    private List<EmbeddedCodeCreator> unitTestGenerator() {
-        EmbeddedCodeCreator gen = new AbstractCodeCreator() {
-            @Override
-            public List<CreatorProperty> properties() {
-                return List.of(new CreatorProperty("A_DEFINE", "blah", "2", SubSystem.INPUT));
-            }
+    private List<CodePluginItem> unitTestGenerator() throws IOException {
+        var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms);
+        var data = new String(getClass().getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes());
+        var item = loader.loadPlugin(data);
 
-            @Override
-            protected void initCreator(String root) {
-                addVariable(new CodeVariableBuilder()
-                        .requiresHeader("header1.h", false)
-                        .variableName("varName").variableType("VarType")
-                        .param("1234.34")
-                        .exportNeeded()
-                );
-
-                addFunctionCall(new FunctionCallBuilder().functionName("begin").objectName("lcd").param(16).param(2));
-
-                addLibraryFiles(new PluginFileDependency(
-                        "testSrc/replacementSource.h",
-                        PackagingType.WITH_PLUGIN,
-                        Map.of(
-                                "Replacement1.h", "ChangedHeader.h",
-                                "ReplacementServer", "ChangedServer")
-                ));
-            }
-        };
-        return Collections.singletonList(gen);
+        return List.of(item);
     }
 }

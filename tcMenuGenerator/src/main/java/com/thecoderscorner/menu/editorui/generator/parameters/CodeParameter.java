@@ -6,8 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 
 public class CodeParameter {
     private final String type;

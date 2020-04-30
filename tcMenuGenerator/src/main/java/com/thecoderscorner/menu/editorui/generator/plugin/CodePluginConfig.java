@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class CodePluginConfig {
@@ -17,6 +18,7 @@ public class CodePluginConfig {
     private String vendor;
     private String vendorUrl;
     private List<CodePluginItem> plugins;
+    private Path path;
 
     public CodePluginConfig() {
         // for reflection / serialisation
@@ -95,6 +97,14 @@ public class CodePluginConfig {
 
     public void setPlugins(List<CodePluginItem> plugins) {
         this.plugins = plugins;
+    }
+
+    public Path getPath() {
+        return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 
     @Override

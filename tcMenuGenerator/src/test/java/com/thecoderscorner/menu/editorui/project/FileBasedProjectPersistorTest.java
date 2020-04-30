@@ -10,7 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
-import static com.thecoderscorner.menu.pluginapi.SubSystem.DISPLAY;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.DISPLAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBasedProjectPersistorTest {

@@ -6,52 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
-import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
-import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import com.thecoderscorner.menu.editorui.util.TestUtils;
-import com.thecoderscorner.menu.pluginapi.AbstractCodeCreator;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.TextInputControlMatchers;
-import org.testfx.service.finder.NodeFinder;
-import org.testfx.service.query.NodeQuery;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.BLANK_GEN_OPTIONS;
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.testfx.api.FxAssert.assertContext;
 import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)

@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
+import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
+
 /**
  * describes a parameter that is provided in the form of a lambda function. In order to define
  * a lambda we provide it's parameters and any function calls within the lambda block.
@@ -16,5 +18,9 @@ public class LambdaCodeParameter extends CodeParameter {
     public LambdaCodeParameter(LambdaDefinition lambda) {
         super(null, true, "");
         this.lambda = lambda;
+    }
+
+    public LambdaDefinition getLambda() {
+        return lambda;
     }
 }

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.lang.System.Logger.Level;
 import java.util.*;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller

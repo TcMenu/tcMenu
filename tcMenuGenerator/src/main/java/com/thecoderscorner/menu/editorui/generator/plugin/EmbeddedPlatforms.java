@@ -7,8 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.pluginapi.CodeGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 
 import java.util.List;
 

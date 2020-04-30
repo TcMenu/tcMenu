@@ -13,10 +13,8 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -39,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShowSceneAdj;
-import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
+import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -61,9 +59,6 @@ public class GenerateCodeDialog {
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentInput;
     private UICodePluginItem currentRemote;
-    private EmbeddedCodeCreator displayCreator;
-    private EmbeddedCodeCreator inputCreator;
-    private EmbeddedCodeCreator remoteCreator;
 
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Button generateButton;
@@ -102,7 +97,6 @@ public class GenerateCodeDialog {
         addTitleLabel(vbox, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-        inputCreator =null;
         currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
         currentInput.setId("currentInputUI");
         currentInput.getStyleClass().add("uiCodeGen");
@@ -112,7 +106,6 @@ public class GenerateCodeDialog {
         CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
         currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
         currentDisplay.setId("currentDisplayUI");
-        displayCreator = null;
         currentDisplay.getStyleClass().add("uiCodeGen");
         vbox.getChildren().add(currentDisplay);
 
@@ -120,7 +113,6 @@ public class GenerateCodeDialog {
         CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
         currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
         currentRemote.setId("currentRemoteUI");
-        remoteCreator = null;
         currentRemote.getStyleClass().add("uiCodeGen");
         vbox.getChildren().add(currentRemote);
 
@@ -270,20 +262,24 @@ public class GenerateCodeDialog {
     }
 
     private void changeProperties() {
-        List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
+        List<CodePluginItem> creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
         properties.clear();
 
         creators.stream()
-                .filter(p -> p != null && p.properties().size() > 0)
+                .filter(p -> p != null && p.getProperties().size() > 0)
                 .forEach( creator -> {
-                    setAllPropertiesToLastValues(creator.properties());
-                    properties.addAll(creator.properties());
+                    setAllPropertiesToLastValues(creator.getProperties());
+                    properties.addAll(creator.getProperties());
                 });
 
         propsTable.setItems(observableArrayList(properties));
     }
 
     private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
+        for(var prop : propsToDefault) {
+            prop.resetToInitial();
+        }
+
         propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
                 .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
                 .findFirst()
@@ -297,9 +293,9 @@ public class GenerateCodeDialog {
 
     private void onGenerateCode(ActionEvent actionEvent) {
         var allProps = new ArrayList<CreatorProperty>();
-        allProps.addAll(displayCreator.properties());
-        allProps.addAll(inputCreator.properties());
-        allProps.addAll(remoteCreator.properties());
+        allProps.addAll(currentDisplay.getItem().getProperties());
+        allProps.addAll(currentInput.getItem().getProperties());
+        allProps.addAll(currentRemote.getItem().getProperties());
 
         UUID applicationUUID = UUID.fromString(appUuidField.getText());
         project.setGeneratorOptions(new CodeGeneratorOptions(
@@ -310,7 +306,8 @@ public class GenerateCodeDialog {
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
-                                   Arrays.asList(displayCreator, inputCreator, remoteCreator), initialPlugins,
+                                   Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem()),
+                                   initialPlugins,
                                    true);
 
         dialogStage.close();
@@ -319,7 +316,6 @@ public class GenerateCodeDialog {
     private void onDisplayChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on display");
         selectPlugin(displaysSupported, "Display", (pluginItem)-> {
-            displayCreator = null;
             currentDisplay.setItem(pluginItem);
             changeProperties();
         });
@@ -328,7 +324,6 @@ public class GenerateCodeDialog {
     private void onRemoteChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on remote");
         selectPlugin(remotesSupported, "Remote", (pluginItem)-> {
-            remoteCreator = null;
             currentRemote.setItem(pluginItem);
             changeProperties();
         });
@@ -337,7 +332,6 @@ public class GenerateCodeDialog {
     private void onInputChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on input");
         selectPlugin(inputsSupported, "Input", (pluginItem)-> {
-            inputCreator = null;
             currentInput.setItem(pluginItem);
             changeProperties();
         });

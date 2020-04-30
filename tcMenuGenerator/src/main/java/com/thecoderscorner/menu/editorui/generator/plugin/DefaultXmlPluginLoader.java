@@ -15,13 +15,12 @@ import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParamete
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
-import com.thecoderscorner.menu.pluginapi.validation.CannedPropertyValidators;
-import com.thecoderscorner.menu.pluginapi.validation.IntegerPropertyValidationRules;
-import com.thecoderscorner.menu.pluginapi.validation.PropertyValidationRules;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
+import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import javafx.scene.image.Image;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,6 +30,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,7 +104,14 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     @Override
     public Optional<Image> getImageForName(CodePluginItem item, String imageName) {
-        return Optional.empty();
+        try {
+            Image img = new Image(new FileInputStream(item.getConfig().getPath().resolve("Images").resolve(item.getImageFileName()).toFile()));
+            return Optional.of(img);
+        }
+        catch(Exception e) {
+            logger.log(ERROR, "Image load failed for " + item.getId(), e);
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -117,7 +124,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         }
     }
 
-    CodePluginConfig loadPluginLib(Path directoryPath) {
+    public CodePluginConfig loadPluginLib(Path directoryPath) {
         logger.log(System.Logger.Level.INFO, "Loading plugins in directory " + directoryPath);
 
         try {
@@ -141,6 +148,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             List<CodePluginItem> items = new ArrayList<>();
 
             CodePluginConfig config = new CodePluginConfig();
+            config.setPath(directoryPath);
             config.setPlugins(transformElements(root, "Plugins", "Plugin", (ele) -> {
                 try {
                     var pluginName = ele.getTextContent().trim();
@@ -186,7 +194,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         }
     }
 
-    CodePluginItem loadPlugin(String dataToLoad) {
+    public CodePluginItem loadPlugin(String dataToLoad) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = factory.newDocumentBuilder();

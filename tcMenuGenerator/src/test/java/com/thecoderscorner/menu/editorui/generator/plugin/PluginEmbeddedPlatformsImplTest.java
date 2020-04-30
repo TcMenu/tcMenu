@@ -8,10 +8,9 @@ package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

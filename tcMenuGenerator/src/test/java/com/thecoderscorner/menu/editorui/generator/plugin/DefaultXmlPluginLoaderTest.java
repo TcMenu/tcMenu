@@ -2,11 +2,10 @@ package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
-import com.thecoderscorner.menu.pluginapi.model.HeaderDefinition;
-import com.thecoderscorner.menu.pluginapi.validation.*;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.validation.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -10,12 +10,11 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.pluginapi.CodeGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 
 import java.util.List;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
 
 /**
  * This implementation of the embedded platforms creator has now been broken out in such a way that as there

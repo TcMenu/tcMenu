@@ -68,4 +68,8 @@ public class CodeVariable {
     public boolean isExported() {
         return definitionMode == VariableDefinitionMode.EXPORT_ONLY || definitionMode == VariableDefinitionMode.VARIABLE_AND_EXPORT;
     }
+
+    public boolean isVariableDefNeeded() {
+        return definitionMode == VariableDefinitionMode.VARIABLE_AND_EXPORT || definitionMode == VariableDefinitionMode.VARIABLE_ONLY;
+    }
 }
