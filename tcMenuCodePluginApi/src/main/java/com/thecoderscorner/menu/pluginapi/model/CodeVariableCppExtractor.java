@@ -148,8 +148,18 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         return includeList.stream()
                 .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
-                .map(HeaderDefinition::getHeaderCode)
+                .map(this::headerToString)
                 .collect(Collectors.joining(LINE_BREAK));
+    }
+
+    private String headerToString(HeaderDefinition headerDefinition) {
+        if(headerDefinition.isInSource()) {
+            return "#include \"" + headerDefinition.getHeaderName() + "\"";
+        }
+        else {
+            return "#include <" + headerDefinition.getHeaderName() + ">";
+
+        }
     }
 
     @Override

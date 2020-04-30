@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -52,12 +53,7 @@ public class MenuEditorApp extends Application {
         EmbeddedPlatforms platforms = new PluginEmbeddedPlatformsImpl();
 
         DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms);
-        manager.loadPlugins(
-                Arrays.asList(
-                        Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins"),
-                        Paths.get(".", "plugins")
-                )
-        );
+        manager.loadPlugins(configuredPluginPaths());
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
 
@@ -91,6 +87,16 @@ public class MenuEditorApp extends Application {
                 }
             }
         });
+    }
+
+    private List<Path> configuredPluginPaths() {
+        var list = new ArrayList<Path>();
+        list.add(Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins"));
+        var additionalPlugins = System.getProperty("additionalPluginsDir");
+        if(additionalPlugins != null) {
+            list.add(Paths.get(additionalPlugins));
+        }
+        return list;
     }
 
     private void createDirsIfNeeded() {

@@ -101,41 +101,28 @@ public class GenerateCodeDialog {
 
         addTitleLabel(vbox, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
-        try {
-            CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-            inputCreator = makeCreatorAndRecordFiles(itemInput);
-            currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
-            currentInput.setId("currentInputUI");
-            currentInput.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentInput);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-
-        }
+        CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
+        inputCreator =null;
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
+        currentInput.setId("currentInputUI");
+        currentInput.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentInput);
 
         addTitleLabel(vbox, "Select the display type:");
-        try {
-            CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
-            currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
-            currentDisplay.setId("currentDisplayUI");
-            displayCreator = makeCreatorAndRecordFiles(itemDisplay);
-            currentDisplay.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentDisplay);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-        }
+        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
+        currentDisplay.setId("currentDisplayUI");
+        displayCreator = null;
+        currentDisplay.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentDisplay);
 
         addTitleLabel(vbox, "Select remote capabilities:");
-        try {
-            CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
-            currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
-            currentRemote.setId("currentRemoteUI");
-            remoteCreator = makeCreatorAndRecordFiles(itemRemote);
-            currentRemote.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentRemote);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-        }
+        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
+        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
+        currentRemote.setId("currentRemoteUI");
+        remoteCreator = null;
+        currentRemote.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentRemote);
 
         buildTable();
 
@@ -164,16 +151,6 @@ public class GenerateCodeDialog {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
-    }
-
-    private EmbeddedCodeCreator makeCreatorAndRecordFiles(CodePluginItem itemInput) throws ClassNotFoundException {
-        var tempCreator = manager.makeCreator(itemInput);
-        tempCreator.initialise(".");
-        initialPlugins.addAll(tempCreator.getRequiredFiles().stream()
-                .map(PluginFileDependency::getFileName)
-                .collect(Collectors.toList())
-        );
-        return manager.makeCreator(itemInput);
     }
 
     private void buildTable() {
@@ -342,14 +319,7 @@ public class GenerateCodeDialog {
     private void onDisplayChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on display");
         selectPlugin(displaysSupported, "Display", (pluginItem)-> {
-            try {
-                displayCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the display creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading display plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-            }
+            displayCreator = null;
             currentDisplay.setItem(pluginItem);
             changeProperties();
         });
@@ -358,14 +328,7 @@ public class GenerateCodeDialog {
     private void onRemoteChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on remote");
         selectPlugin(remotesSupported, "Remote", (pluginItem)-> {
-            try {
-                remoteCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the remote creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading remote plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-            }
+            remoteCreator = null;
             currentRemote.setItem(pluginItem);
             changeProperties();
         });
@@ -374,15 +337,7 @@ public class GenerateCodeDialog {
     private void onInputChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on input");
         selectPlugin(inputsSupported, "Input", (pluginItem)-> {
-            try {
-                inputCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the input creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading input plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-
-            }
+            inputCreator = null;
             currentInput.setItem(pluginItem);
             changeProperties();
         });

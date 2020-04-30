@@ -37,33 +37,64 @@ public class CodePluginConfig {
         return moduleName;
     }
 
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getVersion() {
         return version;
     }
 
-    public List<CodePluginItem> getPlugins() {
-        return plugins;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getLicense() {
         return license;
     }
 
+    public void setLicense(String license) {
+        this.license = license;
+    }
+
     public String getLicenseUrl() {
         return licenseUrl;
+    }
+
+    public void setLicenseUrl(String licenseUrl) {
+        this.licenseUrl = licenseUrl;
     }
 
     public String getVendor() {
         return vendor;
     }
 
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
+    }
+
     public String getVendorUrl() {
         return vendorUrl;
+    }
+
+    public void setVendorUrl(String vendorUrl) {
+        this.vendorUrl = vendorUrl;
+    }
+
+    public List<CodePluginItem> getPlugins() {
+        return plugins;
+    }
+
+    public void setPlugins(List<CodePluginItem> plugins) {
+        this.plugins = plugins;
     }
 
     @Override

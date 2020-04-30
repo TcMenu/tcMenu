@@ -50,7 +50,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         if(id.equals(ARDUINO_AVR.getBoardId()) || id.equals("ARDUINO_UNO") || id.equals("ARDUINO_AVR")) {
             return ARDUINO_AVR;
         }
-        else if(id.equals(ARDUINO32.getBoardId())) {
+        else if(id.equals(ARDUINO32.getBoardId()) || id.equals("ARDUINO_32")) {
             return ARDUINO32;
         }
         else if(id.equals(ARDUINO_ESP8266.getBoardId())) {

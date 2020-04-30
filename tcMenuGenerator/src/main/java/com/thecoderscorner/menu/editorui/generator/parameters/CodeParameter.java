@@ -84,4 +84,20 @@ public class CodeParameter {
         sb.append(varValue);
         return i;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isParamUsed() {
+        return paramUsed;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 }

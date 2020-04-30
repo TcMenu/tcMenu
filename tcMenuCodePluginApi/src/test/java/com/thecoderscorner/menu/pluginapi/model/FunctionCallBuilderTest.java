@@ -64,7 +64,6 @@ class FunctionCallBuilderTest {
         assertEqualsIgnoringCRLF("    lcd.setup(&root, 16, 2, \"abcdef\");", extractor.mapFunctions(singletonList(builder)));
         var listOfHeaders = new ArrayList<>(builder.getHeaders());
         assertEquals(1, listOfHeaders.size());
-        assertEquals("#include \"abc.h\"", listOfHeaders.get(0).getHeaderCode());
     }
 
     @Test

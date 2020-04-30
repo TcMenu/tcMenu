@@ -60,4 +60,11 @@ public class IntegerPropertyValidationRules implements PropertyValidationRules {
         return "Int Validator accepting " + minVal + " to " + maxVal;
     }
 
+    public int getMinVal() {
+        return minVal;
+    }
+
+    public int getMaxVal() {
+        return maxVal;
+    }
 }

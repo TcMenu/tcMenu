@@ -7,13 +7,14 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
+import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 
 import java.util.List;
 
 public class LambdaDefinition {
     private final String name;
     private final List<CodeParameter> params;
-    private final List<FunctionDefinition> functionDefinitions;
+    private final List<com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition> functionDefinitions;
     private final CodeApplicability applicability;
 
     public LambdaDefinition(String name, List<CodeParameter> params, List<FunctionDefinition> functionDefinitions, CodeApplicability applicability) {

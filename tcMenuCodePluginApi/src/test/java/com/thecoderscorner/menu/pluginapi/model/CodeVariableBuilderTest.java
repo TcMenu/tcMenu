@@ -63,7 +63,6 @@ class CodeVariableBuilderTest {
         assertTrue(builder.isExported());
         var listOfHeaders = new ArrayList<>(builder.getHeaders());
         assertEquals(1, listOfHeaders.size());
-        assertEquals("#include <abc.h>", listOfHeaders.get(0).getHeaderCode());
     }
 
     @Test

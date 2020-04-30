@@ -37,6 +37,14 @@ public class HeaderDefinition {
         return priority;
     }
 
+    public String getHeaderName() {
+        return headerName;
+    }
+
+    public boolean isInSource() {
+        return inSource;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(headerName, inSource);

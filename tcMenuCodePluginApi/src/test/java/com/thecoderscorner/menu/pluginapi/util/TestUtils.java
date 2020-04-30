@@ -19,9 +19,4 @@ public class TestUtils {
         actual = actual.replaceAll("\\r\\n", "\n");
         assertEquals(expected, actual);
     }
-
-    public static List<String> includeToString(List<HeaderDefinition> includes) {
-        return includes.stream().map(HeaderDefinition::getHeaderCode).collect(Collectors.toList());
-    }
-
 }
