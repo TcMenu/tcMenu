@@ -28,13 +28,7 @@
   </xs:complexType>
   <xs:complexType name="RequiredLibrariesType">
     <xs:sequence>
-      <xs:element name="Library" maxOccurs="unbounded" minOccurs="0">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="Library1"/>
-            <xs:enumeration value="Library2"/>
-          </xs:restriction>
-        </xs:simpleType>
+      <xs:element name="Library" type="xs:string" maxOccurs="unbounded" minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>

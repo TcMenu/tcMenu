@@ -9,13 +9,16 @@ package com.thecoderscorner.menu.editorui;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.DirectoryCodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
+import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -31,6 +34,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -48,13 +53,19 @@ public class MenuEditorApp extends Application {
 
         MenuEditorController controller = loader.getController();
 
-        EmbeddedPlatforms platforms = new PluginEmbeddedPlatformsImpl();
+        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(new SimpleHttpClient());
 
-        DirectoryCodePluginManager manager = new DirectoryCodePluginManager(platforms);
-        manager.loadPlugins(System.getProperty("java.class.path") + System.getProperty("path.separator")
-                          + System.getProperty("user.home") + "/.tcmenu", "plugins");
+        PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
-        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller();
+        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms);
+
+        var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
+        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(homeDirectory, libraryVersionDetector, manager);
+
+        platforms.setInstaller(installer);
+
+
+        manager.loadPlugins(configuredPluginPaths());
 
         ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
 
@@ -66,7 +77,7 @@ public class MenuEditorApp extends Application {
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
 
 
-        controller.initialise(project, installer, editorUI, manager, prefsStore);
+        controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);
@@ -86,6 +97,16 @@ public class MenuEditorApp extends Application {
                 }
             }
         });
+    }
+
+    private List<Path> configuredPluginPaths() {
+        var list = new ArrayList<Path>();
+        list.add(Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins"));
+        var additionalPlugins = System.getProperty("additionalPluginsDir");
+        if(additionalPlugins != null) {
+            list.add(Paths.get(additionalPlugins));
+        }
+        return list;
     }
 
     private void createDirsIfNeeded() {

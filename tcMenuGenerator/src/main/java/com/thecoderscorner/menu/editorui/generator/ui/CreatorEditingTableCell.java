@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;

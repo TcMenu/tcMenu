@@ -6,66 +6,141 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CodePluginItem {
     private String id;
     private String description;
     private String extendedDescription;
-    private List<String> applicability;
+    private List<EmbeddedPlatform> supportedPlatforms;
+    private List<String> requiredLibraries;
     private SubSystem subsystem;
     private String imageFileName;
-    private String codeCreatorClass;
     private String docsLink;
+    private CodePluginConfig config;
+    private List<CreatorProperty> properties;
+    private List<CodeVariable> variables;
+    private List<HeaderDefinition> includeFiles;
+    private List<RequiredSourceFile> requiredSourceFiles;
+    private List<FunctionDefinition> functions;
 
-    public CodePluginItem(String id, String description, String extendedDescription, List<String> applicability,
-                          SubSystem subsystem, String imageFileName, String codeCreatorClass, String docsLink) {
-        this.id = id;
-        this.description = description;
-        this.extendedDescription = extendedDescription;
-        this.applicability = applicability;
-        this.subsystem = subsystem;
-        this.imageFileName = imageFileName;
-        this.codeCreatorClass = codeCreatorClass;
-        this.docsLink = docsLink;
+    public CodePluginItem() {
     }
 
     public String getId() {
         return id;
     }
 
-    public SubSystem getSubsystem() {
-        return subsystem;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getExtendedDescription() {
         return extendedDescription;
     }
 
-    public List<EmbeddedPlatform> getApplicability(EmbeddedPlatforms platforms) {
-        return applicability.stream()
-                .map(platforms::getEmbeddedPlatformFromId)
-                .collect(Collectors.toList());
+    public void setExtendedDescription(String extendedDescription) {
+        this.extendedDescription = extendedDescription;
     }
 
-    public String getDocsLink() {
-        return docsLink;
+    public List<EmbeddedPlatform> getSupportedPlatforms() {
+        return supportedPlatforms;
+    }
+
+    public void setSupportedPlatforms(List<EmbeddedPlatform> supportedPlatforms) {
+        this.supportedPlatforms = supportedPlatforms;
+    }
+
+    public SubSystem getSubsystem() {
+        return subsystem;
+    }
+
+    public void setSubsystem(SubSystem subsystem) {
+        this.subsystem = subsystem;
     }
 
     public String getImageFileName() {
         return imageFileName;
     }
 
-    public String getCodeCreatorClass() {
-        return codeCreatorClass;
+    public void setImageFileName(String imageFileName) {
+        this.imageFileName = imageFileName;
+    }
+
+    public String getDocsLink() {
+        return docsLink;
+    }
+
+    public void setDocsLink(String docsLink) {
+        this.docsLink = docsLink;
+    }
+
+    public CodePluginConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(CodePluginConfig config) {
+        this.config = config;
+    }
+
+    public List<CreatorProperty> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<CreatorProperty> properties) {
+        this.properties = properties;
+    }
+
+    public List<CodeVariable> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(List<CodeVariable> variables) {
+        this.variables = variables;
+    }
+
+    public List<HeaderDefinition> getIncludeFiles() {
+        return includeFiles;
+    }
+
+    public void setIncludeFiles(List<HeaderDefinition> includeFiles) {
+        this.includeFiles = includeFiles;
+    }
+
+    public List<RequiredSourceFile> getRequiredSourceFiles() {
+        return requiredSourceFiles;
+    }
+
+    public void setRequiredSourceFiles(List<RequiredSourceFile> requiredSourceFiles) {
+        this.requiredSourceFiles = requiredSourceFiles;
+    }
+
+    public List<FunctionDefinition> getFunctions() {
+        return functions;
+    }
+
+    public List<String> getRequiredLibraries() {
+        return requiredLibraries;
+    }
+
+    public void setRequiredLibraries(List<String> requiredLibraries) {
+        this.requiredLibraries = requiredLibraries;
+    }
+
+    public void setFunctions(List<FunctionDefinition> functions) {
+        this.functions = functions;
     }
 
     @Override
@@ -74,10 +149,9 @@ public class CodePluginItem {
                 "id='" + id + '\'' +
                 ", description='" + description + '\'' +
                 ", extendedDescription='" + extendedDescription + '\'' +
-                ", applicability=" + applicability +
+                ", platforms=" + supportedPlatforms +
                 ", subsystem=" + subsystem +
                 ", imageFileName='" + imageFileName + '\'' +
-                ", codeCreatorClass='" + codeCreatorClass + '\'' +
                 '}';
     }
 }

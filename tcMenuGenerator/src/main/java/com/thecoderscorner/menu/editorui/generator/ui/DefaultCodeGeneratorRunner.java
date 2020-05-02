@@ -7,12 +7,12 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
+import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
+import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.pluginapi.CodeGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.NameAndKey;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
@@ -38,7 +38,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
 
     @Override
     public void startCodeGeneration(Stage stage, EmbeddedPlatform platform, String path,
-                                    List<EmbeddedCodeCreator> creators, List<String> previousPlugins,
+                                    List<CodePluginItem> creators, List<String> previousPlugins,
                                     boolean modal) {
         try {
             logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
@@ -49,7 +49,8 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);
                 new Thread(() -> {
-                    gen.startConversion(Paths.get(path), creators, project.getMenuTree(), newNameAndKey(project), previousPlugins);
+                    gen.startConversion(Paths.get(path), creators, project.getMenuTree(), newNameAndKey(project),
+                            previousPlugins, project.getGeneratorOptions().isSaveToSrc());
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal);

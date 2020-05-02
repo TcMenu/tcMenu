@@ -11,18 +11,16 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
+import com.thecoderscorner.menu.editorui.generator.core.*;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.pluginapi.*;
-import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
-import com.thecoderscorner.menu.pluginapi.model.CodeVariableCppExtractor;
-import com.thecoderscorner.menu.pluginapi.model.CodeVariableExtractor;
-import com.thecoderscorner.menu.pluginapi.model.FunctionCallBuilder;
-import com.thecoderscorner.menu.pluginapi.model.parameter.CodeConversionContext;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
-import static com.thecoderscorner.menu.pluginapi.PluginFileDependency.PackagingType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -59,7 +56,8 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             " */" + LINE_BREAK + LINE_BREAK;
 
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
-            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK;
+            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
+            "#include <tcMenu.h>" + LINE_BREAK + LINE_BREAK;
     private final ArduinoLibraryInstaller installer;
     private final ArduinoSketchFileAdjuster arduinoSketchAdjuster;
     private final EmbeddedPlatform embeddedPlatform;
@@ -68,6 +66,8 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     private Consumer<String> uiLogger = null;
     private MenuTree menuTree;
     private List<String> previousPluginFiles = List.of();
+    private boolean usesProgMem;
+    private CodeConversionContext context;
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
@@ -80,44 +80,47 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     }
 
     @Override
-    public boolean startConversion(Path directory, List<EmbeddedCodeCreator> codeGenerators, MenuTree menuTree,
-                                   NameAndKey nameKey, List<String> previousPluginFiles) {
+    public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
+                                   NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc) {
         this.menuTree = menuTree;
         this.previousPluginFiles = previousPluginFiles;
         logLine("Starting Arduino generate: " + directory);
 
-        boolean usesProgMem = embeddedPlatform.isUsesProgmem();
+        usesProgMem = embeddedPlatform.isUsesProgmem();
 
-        // get the file names that we are going to modify.
-        String inoFile = toSourceFile(directory, ".ino");
-        String cppFile = toSourceFile(directory, "_menu.cpp");
-        String headerFile = toSourceFile(directory, "_menu.h");
-        String projectName = directory.getFileName().toString();
-
-        var generators = new ArrayList<EmbeddedCodeCreator>();
-        generators.add(new ArduinoGlobalsCreator(usesProgMem));
-        generators.addAll(codeGenerators);
 
         try {
+            Path srcDir = directory;
+            if(saveToSrc) {
+                srcDir = directory.resolve("src");
+                if(!Files.exists(srcDir)) Files.createDirectories(srcDir);
+            }
+
+            // get the file names that we are going to modify.
+            String inoFile = toSourceFile(directory, ".ino");
+            String cppFile = toSourceFile(srcDir, "_menu.cpp");
+            String headerFile = toSourceFile(srcDir, "_menu.h");
+            String projectName = directory.getFileName().toString();
+
+
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
-            var allProps = generators.stream().flatMap(gen -> gen.properties().stream()).collect(Collectors.toList());
+            var allProps = codeGenerators.stream().flatMap(gen -> gen.getProperties().stream()).collect(Collectors.toList());
+            context = new CodeConversionContext(embeddedPlatform, root, allProps);
             CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    new CodeConversionContext(embeddedPlatform, root, allProps), usesProgMem
+                    context, usesProgMem
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
             menuStructure = addNameAndKeyToStructure(menuStructure, nameKey);
 
-            generators.forEach(gen -> gen.initialise(root));
-
             // generate the source by first generating the CPP and H for the menu definition and then
             // update the sketch. Also, if any plugins have changed, then update them.
             Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
-            generateHeaders(generators, headerFile, menuStructure, extractor, callbackFunctions);
-            generateSource(generators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
+            generateHeaders(codeGenerators, headerFile, menuStructure, extractor, callbackFunctions);
+            generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
-            dealWithRequiredPlugins(generators, directory);
+            dealWithRequiredPlugins(codeGenerators, srcDir);
 
             // do a couple of final checks and put out warnings if need be
             checkIfUpToDateWarningNeeded();
@@ -135,39 +138,39 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         return true;
     }
 
-    private List<FunctionCallBuilder> generateReadOnlyLocal() {
-        var allFunctions = new ArrayList<FunctionCallBuilder>();
+    private List<FunctionDefinition> generateReadOnlyLocal() {
+        var allFunctions = new ArrayList<FunctionDefinition>();
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
-                .map(item -> new FunctionCallBuilder()
-                        .functionName("setReadOnly")
-                        .objectName("menu" + makeNameToVar(item))
-                        .param("true"))
+                .map(item -> {
+                    var params = List.of(new CodeParameter(null, true, "true"));
+                    return new FunctionDefinition("setReadOnly", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                })
                 .collect(Collectors.toList())
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
-                .map(item -> new FunctionCallBuilder()
-                        .functionName("setLocalOnly")
-                        .objectName("menu" + makeNameToVar(item))
-                        .param("true"))
+                .map(item -> {
+                    var params = List.of(new CodeParameter(null, true, "true"));
+                    return new FunctionDefinition("setLocalOnly", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                })
                 .collect(Collectors.toList())
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
-                .map(item -> new FunctionCallBuilder()
-                        .functionName("setSecured")
-                        .objectName("menu" + makeNameToVar(item))
-                        .param("true"))
+                .map(item -> {
+                    var params = List.of(new CodeParameter(null, true, "true"));
+                    return new FunctionDefinition("setSecure", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                })
                 .collect(Collectors.toList())
         );
 
         // lastly we deal with any INVISIBLE items, visible is the default.
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
-                .map(item -> new FunctionCallBuilder()
-                        .functionName("setVisible")
-                        .objectName("menu" + makeNameToVar(item))
-                        .param("false"))
+                .map(item -> {
+                    var params = List.of(new CodeParameter(null, true, "false"));
+                    return new FunctionDefinition("setVisible", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                })
                 .collect(Collectors.toList())
         );
 
@@ -206,7 +209,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         }
     }
 
-    private void generateSource(List<EmbeddedCodeCreator> generators, String cppFile,
+    private void generateSource(List<CodePluginItem> generators, String cppFile,
                                 Collection<BuildStructInitializer> menuStructure,
                                 String projectName, CodeVariableExtractor extractor,
                                 Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
@@ -231,9 +234,9 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             StringBuilder toWrite = new StringBuilder(255);
             menuStructure.forEach(struct -> {
                 var callback = localCbReq.remove(struct.getMenuItem());
-                if(callback != null) {
+                if (callback != null) {
                     var srcList = callback.generateSource();
-                    if(!srcList.isEmpty()) {
+                    if (!srcList.isEmpty()) {
                         toWrite.append(String.join(LINE_BREAK, srcList));
                         toWrite.append(LINE_BREAK);
                     }
@@ -246,11 +249,11 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             writer.write(LINE_BREAK + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
             writer.write(extractor.mapFunctions(
-                    generators.stream().flatMap(ecc -> ecc.getFunctionCalls().stream()).collect(Collectors.toList())
+                    generators.stream().flatMap(ecc -> ecc.getFunctions().stream()).collect(Collectors.toList())
             ));
 
-            List<FunctionCallBuilder> readOnlyLocal = generateReadOnlyLocal();
-            if(!readOnlyLocal.isEmpty()) {
+            List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
+            if (!readOnlyLocal.isEmpty()) {
                 writer.write(LINE_BREAK + LINE_BREAK + "    // Read only and local only function calls" + LINE_BREAK);
                 writer.write(extractor.mapFunctions(readOnlyLocal));
             }
@@ -267,7 +270,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     }
 
-    private void generateHeaders(List<EmbeddedCodeCreator> embeddedCreators,
+    private void generateHeaders(List<CodePluginItem> embeddedCreators,
                                  String headerFile, Collection<BuildStructInitializer> menuStructure,
                                  CodeVariableExtractor extractor,
                                  Map<MenuItem, CallbackRequirement> allCallbacks) throws TcMenuConversionException {
@@ -279,7 +282,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             writer.write(HEADER_TOP);
 
             // first get a list of includes to add to the header file from the creators
-            var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludes().stream()).collect(Collectors.toList());
+            var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludeFiles().stream()).collect(Collectors.toList());
 
             // now add any extra headers needed for the menu structure items.
             includeList.addAll(menuStructure.stream()
@@ -297,14 +300,16 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
 
             // and put the exports in the file too
-            writer.write(extractor.mapExports(
-                    embeddedCreators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
+            writer.write(extractor.mapExports(embeddedCreators.stream()
+                    .flatMap(ecc -> ecc.getVariables().stream())
+                    .filter(var -> var.getApplicability().isApplicable(context.getProperties()))
+                    .collect(Collectors.toList())
             ));
             writer.write(LINE_BREAK + LINE_BREAK + "// all menu item forward references." + LINE_BREAK);
 
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
-                    .filter(item -> !item.isEmpty())
+                    .filter(hdr -> !hdr.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
 
@@ -323,7 +328,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
             for (CallbackRequirement callback : callbackRequirements) {
                 var header = callback.generateHeader();
-                if(!StringHelper.isStringEmptyOrNull(header)) {
+                if (!StringHelper.isStringEmptyOrNull(header)) {
                     writer.write(header + LINE_BREAK);
                 }
             }
@@ -359,20 +364,20 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         }
     }
 
-    private void dealWithRequiredPlugins(List<EmbeddedCodeCreator> generators, Path directory) throws TcMenuConversionException {
+    private void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
         logLine("Checking if any plugins have been removed from the project and need removal");
 
         var newPluginFileSet = generators.stream()
-                .flatMap(gen -> gen.getRequiredFiles().stream())
-                .map(PluginFileDependency::getFileName)
+                .flatMap(gen -> gen.getRequiredSourceFiles().stream())
+                .map(RequiredSourceFile::getFileName)
                 .collect(Collectors.toSet());
 
-        for(var plugin : previousPluginFiles) {
-            if(!newPluginFileSet.contains(plugin)) {
+        for (var plugin : previousPluginFiles) {
+            if (!newPluginFileSet.contains(plugin)) {
                 var fileNamePart = Paths.get(plugin).getFileName().toString();
                 var actualFile = directory.resolve(fileNamePart);
                 try {
-                    if(Files.exists(actualFile)) {
+                    if (Files.exists(actualFile)) {
                         logLine("Removing unused plugin: " + actualFile);
                         Files.delete(actualFile);
                     }
@@ -389,32 +394,27 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         }
     }
 
-    private void generatePluginsForCreator(EmbeddedCodeCreator creator, Path directory) throws TcMenuConversionException {
-        for (var file : creator.getRequiredFiles()) {
+    private void generatePluginsForCreator(CodePluginItem item, Path directory) throws TcMenuConversionException {
+        var expando = new CodeParameter(null, true, "");
+        for (var file : item.getRequiredSourceFiles()) {
             try {
 
                 // get the source (either from the plugin or from the tcMenu library)
                 String fileNamePart;
                 String fileData;
-                if (file.getPackaging() == PackagingType.WITH_PLUGIN) {
-                    String jarFileName = "META-INF/tcmenu/" + file.getFileName();
-                    try (var sourceInputStream = creator.getClass().getClassLoader().getResourceAsStream(jarFileName)) {
-                        if (sourceInputStream == null) throw new IOException("File not found: " + jarFileName);
-                        fileData = new String(sourceInputStream.readAllBytes());
-                        fileNamePart = Paths.get(file.getFileName()).getFileName().toString();
-                    } catch (Exception e) {
-                        throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
-                    }
-                } else {
-                    Path path = installer.findLibraryInstall("tcMenu")
-                            .orElseThrow(IOException::new).resolve(file.getFileName());
-                    fileData = new String(Files.readAllBytes(path));
-                    fileNamePart = path.getFileName().toString();
+                Path location = item.getConfig().getPath().resolve(file.getFileName());
+                try (var sourceInputStream = new FileInputStream(location.toFile())) {
+                    fileData = new String(sourceInputStream.readAllBytes());
+                    fileNamePart = Paths.get(file.getFileName()).getFileName().toString();
+                } catch (Exception e) {
+                    throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
                 }
 
-                // and apply the replacements one at a time
-                for (Map.Entry<String, String> entry : file.getReplacements().entrySet()) {
-                    fileData = fileData.replaceAll(entry.getKey(), entry.getValue());
+                for (var cr : file.getReplacementList()) {
+                    if(cr.getApplicability().isApplicable(context.getProperties())) {
+                        var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                        fileData = fileData.replaceAll(cr.getFind(), replacement);
+                    }
                 }
 
                 // and copy into the destination
@@ -476,12 +476,16 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
-                .map(i-> new CallbackRequirement(this, i.getFunctionName(), i))
+                .map(i -> new CallbackRequirement(this, i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
     private String toSourceFile(Path directory, String ext) {
         Path file = directory.getFileName();
+        if(file.toString().equals("src")) {
+            // special case, go back one more level
+            file = directory.getParent().getFileName();
+        }
         return Paths.get(directory.toString(), file.toString() + ext).toString();
     }
 
@@ -492,18 +496,18 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     public String makeNameToVar(MenuItem item) {
         // shortcut for null..
-        if(item == null) return "NULL";
+        if (item == null) return "NULL";
 
         // shortcut simple naming.
         var parent = menuTree.findParent(item);
-        if(!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
+        if (!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
             return makeNameFromVariable(item.getName());
         }
 
         // get all submenu names together.
         var items = new ArrayList<String>();
         var par = item;
-        while(par != null && !par.equals(MenuTree.ROOT)) {
+        while (par != null && !par.equals(MenuTree.ROOT)) {
             items.add(makeNameFromVariable(par.getName()));
             par = menuTree.findParent(par);
         }
@@ -524,7 +528,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     }
 
     private String capitaliseFirst(String s) {
-        if(s.isEmpty()) return s;
+        if (s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 

@@ -10,12 +10,11 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.pluginapi.CodeGenerator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 
 import java.util.List;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
 
 /**
  * This implementation of the embedded platforms creator has now been broken out in such a way that as there
@@ -27,6 +26,10 @@ import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.*;
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32);
     private final List<EmbeddedPlatform> arduinoPlatforms = platforms; // at the moment all platforms are Arduino.
+    private ArduinoLibraryInstaller installer;
+
+    public PluginEmbeddedPlatformsImpl() {
+    }
 
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
@@ -35,8 +38,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
+        if(installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if(arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(),
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer,
                                         platform, options);
         }
         else {
@@ -50,7 +54,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         if(id.equals(ARDUINO_AVR.getBoardId()) || id.equals("ARDUINO_UNO") || id.equals("ARDUINO_AVR")) {
             return ARDUINO_AVR;
         }
-        else if(id.equals(ARDUINO32.getBoardId())) {
+        else if(id.equals(ARDUINO32.getBoardId()) || id.equals("ARDUINO_32")) {
             return ARDUINO32;
         }
         else if(id.equals(ARDUINO_ESP8266.getBoardId())) {
@@ -62,5 +66,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         else {
             throw new IllegalArgumentException("No such board type: " + id);
         }
+    }
+
+    public void setInstaller(ArduinoLibraryInstaller installer) {
+        this.installer = installer;
     }
 }

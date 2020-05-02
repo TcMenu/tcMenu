@@ -12,14 +12,21 @@
 #define MENU_GENERATED_CODE_H
 
 #include <tcMenu.h>
-#include <header1.h>
+
+#include "Scramble.h"
+#include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
 
 // all define statements needed
-#define A_DEFINE 2
+#define INT_PROP 10
+#define INTERRUPT_SWITCHES false
+#define SWITCH_IODEVICE io23017
+#define JOYSTICK_PIN 2
+#define TEST_CHOICE Choice1
 
 // all variables that need exporting
-extern VarType varName;
+extern ArduinoAnalogDevice analogDevice;
+extern char[] expOnly;
 
 // all menu item forward references.
 extern IpAddressMenuItem menuSubIpItem;
