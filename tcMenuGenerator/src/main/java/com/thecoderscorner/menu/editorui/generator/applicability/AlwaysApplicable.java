@@ -8,11 +8,11 @@ package com.thecoderscorner.menu.editorui.generator.applicability;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
-import java.util.List;
+import java.util.Collection;
 
 public class AlwaysApplicable implements CodeApplicability {
     @Override
-    public boolean isApplicable(List<CreatorProperty> properties) {
+    public boolean isApplicable(Collection<CreatorProperty> properties) {
         return true;
     }
 

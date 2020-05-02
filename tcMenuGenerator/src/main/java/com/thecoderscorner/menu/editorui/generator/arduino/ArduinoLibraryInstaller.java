@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
@@ -43,6 +44,7 @@ public class ArduinoLibraryInstaller {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     private final LibraryVersionDetector versionDetector;
+    private final CodePluginManager pluginManager;
 
     /**
      * the home directory
@@ -60,18 +62,10 @@ public class ArduinoLibraryInstaller {
      *
      * @param homeDirectory     the path to hardwire for the arduino directory
      */
-    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector) {
+    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector, CodePluginManager manager) {
         this.homeDirectory = homeDirectory;
         this.versionDetector = detector;
-    }
-
-    /**
-     * This is the standard, autodetecting version of construction, that should be used in nearly all cases.
-     */
-    public ArduinoLibraryInstaller() {
-        this.arduinoDirectory = null;
-        this.homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        this.versionDetector = new OnlineLibraryVersionDetector(new SimpleHttpClient());
+        this.pluginManager = manager;
     }
 
     /**
@@ -195,7 +189,7 @@ public class ArduinoLibraryInstaller {
             var versions = versionDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
             return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
         }
-        else {
+        else if(installationType == InstallationType.CURRENT_LIB){
             Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
             startPath = ardDir.resolve("libraries").resolve(name);
             Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
@@ -209,6 +203,12 @@ public class ArduinoLibraryInstaller {
                 propsSrc.load(reader);
             }
             return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
+        }
+        else {
+            return pluginManager.getLoadedPlugins().stream()
+                    .filter(pl -> pl.getModuleName().equals(name))
+                    .map(pl -> new VersionInfo(pl.getVersion()))
+                    .findFirst().orElse(new VersionInfo("0.0.0"));
         }
     }
 
@@ -228,44 +228,6 @@ public class ArduinoLibraryInstaller {
             return dstVer.isSameOrNewerThan(srcVer);
         } catch (IOException e) {
             return false; // Library is somehow not good. Certainly not the same!
-        }
-    }
-
-    /**
-     * Copies the library from the packaged version into the installation directory.
-     * @param libraryName the library to copy
-     * @throws IOException if the copy could not complete.
-     */
-    public void unzipAndInstallPlugin(String libraryName) throws IOException {
-        Path dest = Paths.get(System.getProperty("user.home"), ".tcmenu").resolve(libraryName);
-
-//        if(!Files.exists(dest)) {
-//            Files.createDirectory(dest);
-//        }
-//
-//        Path gitRepoDir = dest.resolve(".git");
-//        if(Files.exists(gitRepoDir)) {
-//            throw new IOException("Git repository inside " + libraryName+ "! Not proceeding to update path : " + dest);
-//        }
-//
-//        copyLibraryRecursive(source, dest);
-    }
-
-    /**
-     * Recursive copier for the above copy method. It calls recursively for subdirectories to ensure a full copy
-     * @param input the directory to copy from
-     * @param output the directory to copy to
-     * @throws IOException if the copy could not complete.
-     */
-    private void copyLibraryRecursive(Path input, Path output) throws IOException {
-        for (Path dirItem : Files.list(input).collect(Collectors.toList())) {
-            Path outputName = output.resolve(dirItem.getFileName());
-            if (Files.isDirectory(dirItem)) {
-                if(!Files.exists(outputName)) Files.createDirectory(outputName);
-                copyLibraryRecursive(dirItem, outputName);
-            } else {
-                Files.copy(dirItem, outputName, StandardCopyOption.REPLACE_EXISTING);
-            }
         }
     }
 }

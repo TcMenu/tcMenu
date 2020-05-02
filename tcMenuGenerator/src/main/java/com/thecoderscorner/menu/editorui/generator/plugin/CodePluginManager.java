@@ -46,4 +46,9 @@ public interface CodePluginManager {
      * @return the list of filtered plugins
      */
     List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem);
+
+    /**
+     * Reload the plugins using the last settings
+     */
+    void reload();
 }

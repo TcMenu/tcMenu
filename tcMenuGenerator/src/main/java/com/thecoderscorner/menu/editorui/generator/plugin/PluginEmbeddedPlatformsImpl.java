@@ -26,6 +26,10 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32);
     private final List<EmbeddedPlatform> arduinoPlatforms = platforms; // at the moment all platforms are Arduino.
+    private ArduinoLibraryInstaller installer;
+
+    public PluginEmbeddedPlatformsImpl() {
+    }
 
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
@@ -34,8 +38,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
+        if(installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if(arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), new ArduinoLibraryInstaller(),
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer,
                                         platform, options);
         }
         else {
@@ -61,5 +66,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         else {
             throw new IllegalArgumentException("No such board type: " + id);
         }
+    }
+
+    public void setInstaller(ArduinoLibraryInstaller installer) {
+        this.installer = installer;
     }
 }

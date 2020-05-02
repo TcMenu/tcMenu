@@ -38,7 +38,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     @Override
     public String mapFunctions(List<FunctionDefinition> functions) {
-        return functions.stream().map(this::functionToCode)
+        return functions.stream()
+                .filter(fn -> fn.getApplicability().isApplicable(context.getProperties()))
+                .map(this::functionToCode)
                 .collect(Collectors.joining(LINE_BREAK));
 
     }
@@ -104,7 +106,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     @Override
     public String mapVariables(List<CodeVariable> variables) {
-        return variables.stream().filter(CodeVariable::isVariableDefNeeded)
+        return variables.stream()
+                .filter(CodeVariable::isVariableDefNeeded)
+                .filter(cv -> cv.getApplicability().isApplicable(context.getProperties()))
                 .distinct().map(this::variableToCode)
                 .collect(Collectors.joining(LINE_BREAK));
     }
@@ -141,6 +145,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     public String mapExports(List<CodeVariable> variables) {
         return variables.stream().filter(CodeVariable::isExported)
                 .distinct()
+                .filter(cv -> cv.getApplicability().isApplicable(context.getProperties()))
                 .map(this::exportToCode)
                 .collect(Collectors.joining(LINE_BREAK));
 

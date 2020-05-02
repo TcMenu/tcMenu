@@ -6,10 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 
 import java.util.Map;
 
 public interface LibraryVersionDetector {
     public Map<String, VersionInfo> acquireVersions(OnlineLibraryVersionDetector.ReleaseType relType);
+    public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException;
 }

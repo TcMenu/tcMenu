@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.editorui.generator.applicability;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface CodeApplicability {
-    boolean isApplicable(List<CreatorProperty> properties);
+    boolean isApplicable(Collection<CreatorProperty> properties);
 }

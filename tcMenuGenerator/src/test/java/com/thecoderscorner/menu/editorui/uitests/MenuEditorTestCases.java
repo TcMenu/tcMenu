@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
@@ -118,7 +119,7 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, mock(LibraryVersionDetector.class));
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
@@ -444,15 +445,12 @@ public class MenuEditorTestCases {
         when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.1"));
 
-        // simulate a new example being added during the upgrade
-        dirHelper.createSketch(TCMENU_DIR, "additionalExample", true);
-
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
         // and that newly available example should be added to the menu.
         var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
         var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
-        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2", "additionalExample");
+        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
     }
 
     /**

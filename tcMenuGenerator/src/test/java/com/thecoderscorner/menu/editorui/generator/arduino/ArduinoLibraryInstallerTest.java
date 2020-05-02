@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ArduinoLibraryInstallerTest {
@@ -44,7 +46,7 @@ public class ArduinoLibraryInstallerTest {
 
         verDetector = Mockito.mock(LibraryVersionDetector.class);
 
-        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector);
+        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector, mock(CodePluginManager.class));
     }
 
     @AfterEach

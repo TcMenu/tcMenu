@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
@@ -34,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -47,6 +49,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final EmbeddedPlatforms embeddedPlatforms;
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
     private List<String> loadErrrors = new CopyOnWriteArrayList<>();
+    private List<Path> sourceDirs;
 
     public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms) {
         this.embeddedPlatforms = embeddedPlatforms;
@@ -54,38 +57,39 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     @Override
     public void loadPlugins(List<Path> sourceDirs) throws Exception {
+        this.sourceDirs = sourceDirs;
+        reload();
+    }
+
+    @Override
+    public void reload() {
         synchronized (allPlugins) {
             allPlugins.clear();
         }
 
         loadErrrors.clear();
-        try
-        {
-            for(var path : sourceDirs) {
+        try {
+            for (var path : sourceDirs) {
                 logger.log(INFO, "Traversing " + path + " for plugins");
-                for(var dir : Files.list(path).filter(f -> Files.isDirectory(f)).collect(Collectors.toList())) {
-                    if(Files.exists((dir.resolve("tcmenu-plugin.xml")))) {
+                for (var dir : Files.list(path).filter(f -> Files.isDirectory(f)).collect(Collectors.toList())) {
+                    if (Files.exists((dir.resolve("tcmenu-plugin.xml")))) {
                         logger.log(System.Logger.Level.INFO, "Plugin xml found in " + dir);
                         var loadedPlugin = loadPluginLib(dir);
-                        if(loadedPlugin != null) {
+                        if (loadedPlugin != null) {
                             synchronized (allPlugins) {
                                 allPlugins.add(loadedPlugin);
                             }
-                        }
-                        else {
+                        } else {
                             logger.log(ERROR, "Plugin didn't load" + dir);
                             loadErrrors.add(dir + " did not contain valid plugin");
                         }
-                    }
-                    else {
+                    } else {
                         loadErrrors.add(dir + " was not a plugin, no tcmenu-plugin.xml");
                     }
                 }
             }
             logger.log(INFO, "Plugins are now fully loaded");
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.log(ERROR, "Plugins not loaded!", ex);
             loadErrrors.add("Exception processing plugins, see log");
         }
@@ -107,8 +111,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         try {
             Image img = new Image(new FileInputStream(item.getConfig().getPath().resolve("Images").resolve(item.getImageFileName()).toFile()));
             return Optional.of(img);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             logger.log(ERROR, "Image load failed for " + item.getId(), e);
             return Optional.empty();
         }
@@ -227,7 +230,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     )
             ));
 
-            item.setFunctions(generateFunctions(root, new HashMap<>(), applicabilityByKey));
+            item.setFunctions(generateFunctions(elementWithName(root, "SetupFunctions"), new HashMap<>(), applicabilityByKey));
 
             List<CodeReplacement> replacements = transformElements(root, "SourceFiles", "Replacement", ele ->
                     new CodeReplacement(ele.getAttribute("find"), ele.getAttribute("replace"), toApplicability(ele, applicabilityByKey))
@@ -259,7 +262,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             } else if (childElem.getNodeName().equals("Function")) {
                 var obj = childElem.getAttribute("object");
                 var applicability = toApplicability(childElem, applicByKey);
-                var isPtr = !StringHelper.isStringEmptyOrNull(childElem.getAttribute("pointer"));
+                var isPtr = getAttrOrNull(childElem, "pointer") != null;
                 functionList.add(new FunctionDefinition(name, obj, isPtr, toCodeParameters(childElem, lambdas), applicability));
             }
         }
@@ -272,12 +275,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         return transformElements(ele, null, "Param", (param) -> {
             var classType = param.getAttribute("type");
             var used = Boolean.parseBoolean(getAttributeOrDefault(param, "used", "true"));
-            var refType = param.getAttribute("ref");
-            var lambdaType = param.getAttribute("lambda");
+            var refType = getAttrOrNull(param, "ref");
+            var lambdaType = getAttrOrNull(param, "lambda");
 
-            if (!StringHelper.isStringEmptyOrNull(refType)) {
+            if (refType != null) {
                 return new ReferenceCodeParameter(refType, used);
-            } else if (!StringHelper.isStringEmptyOrNull(lambdaType)) {
+            } else if (lambdaType != null) {
                 var lambda = lambdaMap.get(lambdaType);
                 return new LambdaCodeParameter(lambda);
             } else {
@@ -394,22 +397,28 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     private CodeApplicability toSingleApplicability(Element varElement) {
-        var whenProperty = varElement.getAttribute("whenProperty");
-        if (!StringHelper.isStringEmptyOrNull(whenProperty)) {
-            var equalProp = varElement.getAttribute("isValue");
-            if (!StringHelper.isStringEmptyOrNull(equalProp)) {
+        var whenProperty = getAttrOrNull(varElement, "whenProperty");
+        if (whenProperty != null) {
+            var equalProp = getAttrOrNull(varElement, "isValue");
+            if (equalProp != null) {
                 return new EqualityApplicability(whenProperty, equalProp, false);
             }
 
-            var notEqualProp = varElement.getAttribute("isNotValue");
-            if (!StringHelper.isStringEmptyOrNull(notEqualProp)) {
+            var notEqualProp = getAttrOrNull(varElement, "isNotValue");
+            if (notEqualProp != null) {
                 return new EqualityApplicability(whenProperty, notEqualProp, true);
             }
 
-            throw new IllegalArgumentException("Unsupported option to whenProperty");
+            throw new IllegalArgumentException("Unsupported option to whenProperty on " + whenProperty);
         } else {
             return new AlwaysApplicable();
         }
+    }
+
+    private String getAttrOrNull(Element ele, String attr) {
+        var node = ele.getAttributes().getNamedItem(attr);
+        if (node == null) return null;
+        return node.getTextContent();
     }
 
     private String getAttributeOrDefault(Element elem, String val, Object def) {
@@ -433,6 +442,20 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
     }
 
+    private List<Element> getChildElementsWithName(Element ele, String name) {
+        if (ele == null) return List.of();
+
+        var childNodes = ele.getChildNodes();
+        var list = new ArrayList<Element>();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            var ch = childNodes.item(i);
+            if (ch instanceof Element && ch.getNodeName().equals(name)) {
+                list.add((Element) ch);
+            }
+        }
+        return list;
+    }
+
     private <T> List<T> transformElements(Element root, String eleName, String childName, Function<Element, T> transform) {
         var ret = new ArrayList<T>();
         Element ele = root;
@@ -441,24 +464,23 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             if (ele == null) return Collections.emptyList();
         }
 
-        NodeList childList = ele.getElementsByTagName(childName);
-        for (int i = 0; i < childList.getLength(); i++) {
-            var created = transform.apply((Element) childList.item(i));
+        var childList = getChildElementsWithName(ele, childName);
+        for (var ch : childList) {
+            var created = transform.apply(ch);
             if (created != null) ret.add(created);
         }
         return ret;
     }
 
     private String textOfElementByName(Element elem, String child) {
-        var ch = elem.getElementsByTagName(child);
-        if (ch == null || ch.getLength() == 0) return "";
-        return ch.item(0).getTextContent();
+        var ch = getChildElementsWithName(elem, child);
+        if (ch == null || ch.size() == 0) return "";
+        return ch.get(0).getTextContent();
     }
 
     private Element elementWithName(Element elem, String child) {
-        var ch = elem.getElementsByTagName(child);
-        if (ch == null || ch.getLength() == 0) return null;
-        return (Element) ch.item(0);
+        var ch = getChildElementsWithName(elem, child);
+        if (ch == null || ch.size() == 0) return null;
+        return (Element) ch.get(0);
     }
-
 }

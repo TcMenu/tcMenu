@@ -8,7 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.applicability;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
-import java.util.List;
+import java.util.Collection;
 
 public class EqualityApplicability implements CodeApplicability {
     private final String propertyId;
@@ -23,7 +23,7 @@ public class EqualityApplicability implements CodeApplicability {
     }
 
     @Override
-    public boolean isApplicable(List<CreatorProperty> properties)
+    public boolean isApplicable(Collection<CreatorProperty> properties)
     {
         var prop = properties.stream().filter(p -> p.getName().equals(propertyId))
             .map(CreatorProperty::getLatestValue)

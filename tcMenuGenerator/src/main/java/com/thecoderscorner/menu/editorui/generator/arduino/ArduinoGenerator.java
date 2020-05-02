@@ -68,6 +68,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     private MenuTree menuTree;
     private List<String> previousPluginFiles = List.of();
     private boolean usesProgMem;
+    private CodeConversionContext context;
 
     public ArduinoGenerator(ArduinoSketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
@@ -98,8 +99,9 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
             var allProps = codeGenerators.stream().flatMap(gen -> gen.getProperties().stream()).collect(Collectors.toList());
+            context = new CodeConversionContext(embeddedPlatform, root, allProps);
             CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    new CodeConversionContext(embeddedPlatform, root, allProps), usesProgMem
+                    context, usesProgMem
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
@@ -225,9 +227,9 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             StringBuilder toWrite = new StringBuilder(255);
             menuStructure.forEach(struct -> {
                 var callback = localCbReq.remove(struct.getMenuItem());
-                if(callback != null) {
+                if (callback != null) {
                     var srcList = callback.generateSource();
-                    if(!srcList.isEmpty()) {
+                    if (!srcList.isEmpty()) {
                         toWrite.append(String.join(LINE_BREAK, srcList));
                         toWrite.append(LINE_BREAK);
                     }
@@ -244,7 +246,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             ));
 
             List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
-            if(!readOnlyLocal.isEmpty()) {
+            if (!readOnlyLocal.isEmpty()) {
                 writer.write(LINE_BREAK + LINE_BREAK + "    // Read only and local only function calls" + LINE_BREAK);
                 writer.write(extractor.mapFunctions(readOnlyLocal));
             }
@@ -291,14 +293,16 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
 
             // and put the exports in the file too
-            writer.write(extractor.mapExports(
-                    embeddedCreators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
+            writer.write(extractor.mapExports(embeddedCreators.stream()
+                    .flatMap(ecc -> ecc.getVariables().stream())
+                    .filter(var -> var.getApplicability().isApplicable(context.getProperties()))
+                    .collect(Collectors.toList())
             ));
             writer.write(LINE_BREAK + LINE_BREAK + "// all menu item forward references." + LINE_BREAK);
 
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
-                    .filter(item -> !item.isEmpty())
+                    .filter(hdr -> !hdr.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
 
@@ -317,7 +321,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
             for (CallbackRequirement callback : callbackRequirements) {
                 var header = callback.generateHeader();
-                if(!StringHelper.isStringEmptyOrNull(header)) {
+                if (!StringHelper.isStringEmptyOrNull(header)) {
                     writer.write(header + LINE_BREAK);
                 }
             }
@@ -361,12 +365,12 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
                 .map(RequiredSourceFile::getFileName)
                 .collect(Collectors.toSet());
 
-        for(var plugin : previousPluginFiles) {
-            if(!newPluginFileSet.contains(plugin)) {
+        for (var plugin : previousPluginFiles) {
+            if (!newPluginFileSet.contains(plugin)) {
                 var fileNamePart = Paths.get(plugin).getFileName().toString();
                 var actualFile = directory.resolve(fileNamePart);
                 try {
-                    if(Files.exists(actualFile)) {
+                    if (Files.exists(actualFile)) {
                         logLine("Removing unused plugin: " + actualFile);
                         Files.delete(actualFile);
                     }
@@ -384,6 +388,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     }
 
     private void generatePluginsForCreator(CodePluginItem item, Path directory) throws TcMenuConversionException {
+        var expando = new CodeParameter(null, true, "");
         for (var file : item.getRequiredSourceFiles()) {
             try {
 
@@ -398,9 +403,14 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
                     throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
                 }
 
-                // and apply the replacements one at a time
-                for (var entry : file.getReplacementList()) {
-                    fileData = fileData.replaceAll(entry.getFind(), entry.getReplace());
+                // and apply the replacements one at a time but only if applicable
+                var replacements = file.getReplacementList().stream()
+                        .filter(code -> code.getApplicability().isApplicable(context.getProperties()))
+                        .collect(Collectors.toList());
+
+                for (var cr : replacements) {
+                    var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                    fileData = fileData.replaceAll(cr.getFind(), replacement);
                 }
 
                 // and copy into the destination
@@ -462,7 +472,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
-                .map(i-> new CallbackRequirement(this, i.getFunctionName(), i))
+                .map(i -> new CallbackRequirement(this, i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
@@ -478,18 +488,18 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     public String makeNameToVar(MenuItem item) {
         // shortcut for null..
-        if(item == null) return "NULL";
+        if (item == null) return "NULL";
 
         // shortcut simple naming.
         var parent = menuTree.findParent(item);
-        if(!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
+        if (!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
             return makeNameFromVariable(item.getName());
         }
 
         // get all submenu names together.
         var items = new ArrayList<String>();
         var par = item;
-        while(par != null && !par.equals(MenuTree.ROOT)) {
+        while (par != null && !par.equals(MenuTree.ROOT)) {
             items.add(makeNameFromVariable(par.getName()));
             par = menuTree.findParent(par);
         }
@@ -510,7 +520,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
     }
 
     private String capitaliseFirst(String s) {
-        if(s.isEmpty()) return s;
+        if (s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 

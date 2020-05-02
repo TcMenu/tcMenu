@@ -12,10 +12,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
-import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
+import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,16 +38,28 @@ import static org.mockito.ArgumentMatchers.*;
 
 public class ArduinoGeneratorTest {
 
-    private Path dir;
+    private Path projectDir;
+    private Path pluginDir;
+    private Path rootDir;
+    private CodePluginConfig pluginConfig;
 
     @BeforeEach
     public void setUp() throws Exception {
-        dir = Files.createTempDirectory("tcmenu");
+        rootDir = Files.createTempDirectory("tcmenutest");
+        projectDir = rootDir.resolve("project");
+        Files.createDirectories(projectDir);
+
+        pluginDir = rootDir.resolve("plugin");
+        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir);
+        var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms);
+        pluginConfig = loader.loadPluginLib(pluginDir);
+
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        Files.walk(dir)
+        Files.walk(rootDir)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
@@ -84,7 +93,6 @@ public class ArduinoGeneratorTest {
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
 
-        List<CodePluginItem> generators = unitTestGenerator();
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),
                 "", "", "",
@@ -94,18 +102,25 @@ public class ArduinoGeneratorTest {
                 recursiveName);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
-        assertTrue(generator.startConversion(dir, generators, tree, new NameAndKey("uuid1", "tester"), List.of()));
+        var firstPlugin = pluginConfig.getPlugins().get(0);
+        firstPlugin.getProperties().stream()
+                .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
+                .findFirst()
+                .ifPresent(p -> p.getProperty().setValue("io23017"));
+
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
+                new NameAndKey("uuid1", "tester"), List.of()));
 
         assertEquals("GenState", generator.makeNameToVar(generateItemWithName("Gen &^%State")));
         assertEquals("ChannelÖôóò", generator.makeNameToVar(generateItemWithName("ChannelÖôóò")));
 
-        var cppGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.cpp")));
-        var hGenerated = new String(Files.readAllBytes(dir.resolve(dir.getFileName() + "_menu.h")));
-        var pluginGenerated = new String(Files.readAllBytes(dir.resolve("replacementSource.h")));
+        var cppGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));
+        var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
+        var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
 
         var cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
         var hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
-        var expectedPlugin = new String(getClass().getResourceAsStream("/generator/replacementExpected.h").readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
@@ -114,19 +129,11 @@ public class ArduinoGeneratorTest {
         // then make sure the change is good before adjusting the templates.
         assertEqualsIgnoringCRLF(cppTemplate, cppGenerated);
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
-        assertEqualsIgnoringCRLF(expectedPlugin, pluginGenerated);
+        assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
+        assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
 
         Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
-                eq(dir.resolve(dir.resolve(dir.getFileName() + ".ino")).toString()),
-                eq(dir.getFileName().toString()), anyCollection());
-    }
-
-    private List<CodePluginItem> unitTestGenerator() throws IOException {
-        var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms);
-        var data = new String(getClass().getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes());
-        var item = loader.loadPlugin(data);
-
-        return List.of(item);
+                eq(projectDir.resolve(projectDir.resolve(projectDir.getFileName() + ".ino")).toString()),
+                eq(projectDir.getFileName().toString()), anyCollection());
     }
 }

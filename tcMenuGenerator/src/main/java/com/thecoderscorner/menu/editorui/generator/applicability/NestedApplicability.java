@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.applicability;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
+import java.util.Collection;
 import java.util.List;
 
 public class NestedApplicability implements CodeApplicability {
@@ -21,7 +22,7 @@ public class NestedApplicability implements CodeApplicability {
     }
 
     @Override
-    public boolean isApplicable(List<CreatorProperty> properties)
+    public boolean isApplicable(Collection<CreatorProperty> properties)
     {
         var ret = (nestingMode == NestingMode.AND) ? true : false;
 

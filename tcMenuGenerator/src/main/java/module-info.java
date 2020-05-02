@@ -22,6 +22,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.util;
     exports com.thecoderscorner.menu.editorui.project;
     exports com.thecoderscorner.menu.editorui.generator.core;
+    exports com.thecoderscorner.menu.editorui.generator.plugin;
 
     opens com.thecoderscorner.menu.editorui.project to gson;
     opens com.thecoderscorner.menu.editorui.generator to gson;

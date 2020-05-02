@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -76,15 +78,18 @@ public class MenuEditorController {
     private CodePluginManager pluginManager;
     private ConfigurationStorage configStore;
     private LinkedList<String> recentItems = new LinkedList<>();
+    private LibraryVersionDetector libVerDetector;
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
-                           ConfigurationStorage storage) {
+                           ConfigurationStorage storage,
+                           LibraryVersionDetector libraryVersionDetector) {
         this.editorProject = editorProject;
         this.installer = installer;
         this.editorUI = editorUI;
         this.pluginManager = pluginManager;
         this.configStore = storage;
+        this.libVerDetector = libraryVersionDetector;
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
@@ -200,7 +205,7 @@ public class MenuEditorController {
                     currentEditor = Optional.of(uiMenuItem);
                 },
                 () -> {
-                    AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI);
+                    AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector);
                     editorBorderPane.setCenter(panel.showEmptyInfoPanel());
                     currentEditor = Optional.empty();
                 }

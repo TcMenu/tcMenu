@@ -58,7 +58,7 @@
         <Param value="42"/>
       </Variable>
       <Variable name="anotherVar" type="int" export="false" progmem="true" />
-      <Variable name="expOnly" type="char[]" export="only" whenProperty="INTERRUPT_SWITCHES" isValue="true"/>
+      <Variable name="expOnly" type="char[]" export="only" whenProperty="INTERRUPT_SWITCHES" isValue="false"/>
     </GlobalVariables>
 
     <SetupFunctions>
@@ -68,7 +68,7 @@
         </Function>
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
             <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
-            <Param value="${PULLUP_LOGIC}"/>
+            <Param value="${PULLUP_LOGIC}" default="true"/>
         </Function>
 
         <Lambda name="onReleaseFn">

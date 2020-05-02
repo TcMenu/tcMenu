@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import org.w3c.dom.Document;
@@ -15,17 +16,27 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import static java.lang.System.Logger.Level.*;
 
 public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
-    private static final long THIRTY_MINUTES = TimeUnit.MINUTES.toMillis(30);
-
     public enum ReleaseType { STABLE }
 
     public final static String LIBRARY_VERSIONING_URL = "http://thecoderscorner.com/tcc/app/getLibraryVersions";
+    private static final long THIRTY_MINUTES = TimeUnit.MINUTES.toMillis(30);
+    private static final String PLUGIN_DOWNLOAD_URL = "http://thecoderscorner.com/tcc/app/downloadPlugin";
+
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final IHttpClient client;
     private final AtomicLong lastAccess = new AtomicLong();
@@ -80,5 +91,42 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
 
     }
 
+    public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException {
+        var pluginsFolder = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins", name);
+        if (Files.exists(pluginsFolder.resolve(".git"))) throw new LibraryUpgradeException("Not overwriting git repo " + name);
+        performUpgradeFromWeb(name, requestedVersion, pluginsFolder);
+    }
 
+    private void performUpgradeFromWeb(String name, VersionInfo requestedVersion, Path outDir) throws LibraryUpgradeException {
+        try
+        {
+            if(!Files.exists(outDir)) Files.createDirectories(outDir);
+
+            logger.log(INFO, "Upgrade in progress for " + name + " to " + requestedVersion);
+
+            var json = "{\"name\": \"" + name + "\", \"version\": \"" + requestedVersion + "\"}";
+            byte[] data = client.postRequestForBinaryData(PLUGIN_DOWNLOAD_URL, json, IHttpClient.HttpDataType.JSON_DATA);
+            var inStream = new ByteArrayInputStream(data);
+
+            try(var zipStream =  new ZipInputStream(inStream)) {
+                ZipEntry entry;
+                while((entry = zipStream.getNextEntry())!=null) {
+                    Path filePath = outDir.resolve(entry.getName());
+                    String fileInfo = String.format("Entry: [%s] len %d to %s", entry.getName(), entry.getSize(), filePath);
+                    logger.log(DEBUG, fileInfo);
+                    if(entry.isDirectory()) {
+                        Files.createDirectories(filePath);
+                    }
+                    else {
+                        Files.write(filePath, zipStream.readAllBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(ERROR, "Could not update " + name,ex);
+            throw new LibraryUpgradeException(ex.getMessage());
+        }
+    }
 }

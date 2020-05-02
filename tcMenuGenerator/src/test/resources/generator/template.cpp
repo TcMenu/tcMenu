@@ -9,11 +9,12 @@
  */
 
 #include <tcMenu.h>
-replacedInclude
+#include "project_menu.h"
 
 // Global variable declarations
 
-VarType varName(1234.34);
+ArduinoAnalogDevice analogDevice(42);
+const int PROGMEM anotherVar;
 
 // Global Menu Item declarations
 
@@ -39,7 +40,11 @@ const PROGMEM ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 // Set up code
 
 void setupMenu() {
-    lcd.begin(16, 2);
+    switches.initialise(io23017, true);
+    switches.addSwitch(BUTTON_PIN, &null);
+    switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
+            .anotherFn(20);
+        });
 
     // Read only and local only function calls
     menuTest2.setReadOnly(true);
