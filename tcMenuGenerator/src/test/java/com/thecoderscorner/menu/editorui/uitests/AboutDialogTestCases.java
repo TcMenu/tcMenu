@@ -44,9 +44,9 @@ public class AboutDialogTestCases {
 
     @Test
     public void testAboutDialog(FxRobot robot) {
-        verifyThat("#tcMenuVersion", hasText("V1.0.1"));
-        verifyThat("#ioAbstractionVersion", hasText("V1.0.2"));
-        verifyThat("#liquidCrystalVersion", hasText("V1.0.0"));
+        verifyThat("#tcMenuVersion", hasText("1.0.1"));
+        verifyThat("#ioAbstractionVersion", hasText("1.0.2"));
+        verifyThat("#liquidCrystalVersion", hasText("1.0.0"));
 
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));

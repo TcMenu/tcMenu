@@ -38,10 +38,10 @@ public class OnlineLibraryVersionDetectorTest {
         var verDet = new OnlineLibraryVersionDetector(mockHttp);
         var versions = verDet.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
 
-        assertEquals("V1.4.1", versions.get("tcMenu/Library").toString());
-        assertEquals("V1.4.11", versions.get("IoAbstraction/Library").toString());
-        assertEquals("V1.2.0", versions.get("LiquidCrystalIO/Library").toString());
-        assertEquals("V1.4.3", versions.get("core-display/Plugin").toString());
-        assertEquals("V1.4.4", versions.get("core-remote/Plugin").toString());
+        assertEquals("1.4.1", versions.get("tcMenu/Library").toString());
+        assertEquals("1.4.11", versions.get("IoAbstraction/Library").toString());
+        assertEquals("1.2.0", versions.get("LiquidCrystalIO/Library").toString());
+        assertEquals("1.4.3", versions.get("core-display/Plugin").toString());
+        assertEquals("1.4.4", versions.get("core-remote/Plugin").toString());
     }
 }

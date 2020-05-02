@@ -78,14 +78,14 @@ public class ArduinoLibraryInstallerTest {
         assertTrue(libraryStatus.isTcMenuUpToDate());
         assertFalse(libraryStatus.isLiquidCrystalIoUpToDate());
 
-        assertEquals("V1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
-        assertEquals("V1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
-        assertEquals("V1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
+        assertEquals("1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
+        assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
+        assertEquals("1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
 
-        assertEquals("V1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
-        assertEquals("V1.2.1", installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
-        assertEquals("V1.5.1", installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
-        assertEquals("V7.8.9", installer.getVersionOfLibrary("xyz", AVAILABLE_PLUGIN).toString());
+        assertEquals("1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
+        assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
+        assertEquals("1.5.1", installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
+        assertEquals("7.8.9", installer.getVersionOfLibrary("xyz", AVAILABLE_PLUGIN).toString());
     }
 
     private void putLibraryInPlace(Path location, String name, String version) throws IOException {

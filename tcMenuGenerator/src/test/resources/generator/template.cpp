@@ -43,7 +43,7 @@ void setupMenu() {
     switches.initialise(io23017, true);
     switches.addSwitch(BUTTON_PIN, &null);
     switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
-            .anotherFn(20);
+            anotherFn(20);
         });
 
     // Read only and local only function calls
