@@ -28,7 +28,7 @@ public interface CodeGenerator {
      * @return
      */
     boolean startConversion(Path directory, List<CodePluginItem> generators, MenuTree menuTree,
-                            NameAndKey nameKey, List<String> previousPluginFiles);
+                            NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc);
 
     /**
      * Called before the conversion starts to set the logger to use for the rest of the conversion.

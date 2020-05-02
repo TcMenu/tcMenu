@@ -20,6 +20,7 @@ public class CodeGeneratorOptions {
     private String applicationName;
     private List<CreatorProperty> lastProperties;
     private boolean namingRecursive;
+    private boolean saveToSrc;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -29,7 +30,7 @@ public class CodeGeneratorOptions {
                                 String inputTypeId, String remoteCapabilitiesId,
                                 List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
-                                boolean namingRecursive) {
+                                boolean namingRecursive, boolean saveToSrc) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
@@ -38,6 +39,7 @@ public class CodeGeneratorOptions {
         this.applicationUUID = applicationUUID;
         this.applicationName = applicationName;
         this.namingRecursive = namingRecursive;
+        this.saveToSrc = saveToSrc;
     }
 
     public String getApplicationName() {
@@ -70,5 +72,9 @@ public class CodeGeneratorOptions {
 
     public boolean isNamingRecursive() {
         return namingRecursive;
+    }
+
+    public boolean isSaveToSrc() {
+        return saveToSrc;
     }
 }

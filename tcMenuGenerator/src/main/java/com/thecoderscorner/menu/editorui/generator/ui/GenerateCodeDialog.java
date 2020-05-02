@@ -7,14 +7,14 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -34,10 +34,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShowSceneAdj;
-import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -66,6 +66,7 @@ public class GenerateCodeDialog {
     private TextField appUuidField;
     private TextField appNameField;
     private CheckBox recursiveNamingCheckBox;
+    private CheckBox saveToSrcCheckBox;
     private Stage mainStage;
 
     public TableView<CreatorProperty> propsTable;
@@ -221,6 +222,10 @@ public class GenerateCodeDialog {
         recursiveNamingCheckBox.setSelected(project.getGeneratorOptions().isNamingRecursive());
         embeddedPane.add(recursiveNamingCheckBox, 1, 3, 2, 1);
 
+        saveToSrcCheckBox = new CheckBox("Save all CPP and H files into src folder");
+        saveToSrcCheckBox.setSelected(project.getGeneratorOptions().isSaveToSrc());
+        embeddedPane.add(saveToSrcCheckBox, 1, 4, 2, 1);
+
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(350);
         ColumnConstraints column3 = new ColumnConstraints(80);
@@ -301,7 +306,8 @@ public class GenerateCodeDialog {
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
                 currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(),
-                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected())
+                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
+                saveToSrcCheckBox.isSelected())
         );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),

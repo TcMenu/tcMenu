@@ -99,7 +99,7 @@ public class ArduinoGeneratorTest {
                 List.<CreatorProperty>of(),
                 UUID.randomUUID(),
                 "app",
-                recursiveName);
+                recursiveName, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
@@ -109,7 +109,7 @@ public class ArduinoGeneratorTest {
                 .ifPresent(p -> p.getProperty().setValue("io23017"));
 
         assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
-                new NameAndKey("uuid1", "tester"), List.of()));
+                new NameAndKey("uuid1", "tester"), List.of(), false));
 
         assertEquals("GenState", generator.makeNameToVar(generateItemWithName("Gen &^%State")));
         assertEquals("ChannelÖôóò", generator.makeNameToVar(generateItemWithName("ChannelÖôóò")));

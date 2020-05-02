@@ -14,11 +14,10 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.*;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
-import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.*;
@@ -82,20 +81,28 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     @Override
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
-                                   NameAndKey nameKey, List<String> previousPluginFiles) {
+                                   NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc) {
         this.menuTree = menuTree;
         this.previousPluginFiles = previousPluginFiles;
         logLine("Starting Arduino generate: " + directory);
 
         usesProgMem = embeddedPlatform.isUsesProgmem();
 
-        // get the file names that we are going to modify.
-        String inoFile = toSourceFile(directory, ".ino");
-        String cppFile = toSourceFile(directory, "_menu.cpp");
-        String headerFile = toSourceFile(directory, "_menu.h");
-        String projectName = directory.getFileName().toString();
 
         try {
+            Path srcDir = directory;
+            if(saveToSrc) {
+                srcDir = directory.resolve("src");
+                if(!Files.exists(srcDir)) Files.createDirectories(srcDir);
+            }
+
+            // get the file names that we are going to modify.
+            String inoFile = toSourceFile(directory, ".ino");
+            String cppFile = toSourceFile(srcDir, "_menu.cpp");
+            String headerFile = toSourceFile(srcDir, "_menu.h");
+            String projectName = directory.getFileName().toString();
+
+
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
             var allProps = codeGenerators.stream().flatMap(gen -> gen.getProperties().stream()).collect(Collectors.toList());
@@ -113,7 +120,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
             generateHeaders(codeGenerators, headerFile, menuStructure, extractor, callbackFunctions);
             generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
-            dealWithRequiredPlugins(codeGenerators, directory);
+            dealWithRequiredPlugins(codeGenerators, srcDir);
 
             // do a couple of final checks and put out warnings if need be
             checkIfUpToDateWarningNeeded();
@@ -403,14 +410,11 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
                     throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
                 }
 
-                // and apply the replacements one at a time but only if applicable
-                var replacements = file.getReplacementList().stream()
-                        .filter(code -> code.getApplicability().isApplicable(context.getProperties()))
-                        .collect(Collectors.toList());
-
-                for (var cr : replacements) {
-                    var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                    fileData = fileData.replaceAll(cr.getFind(), replacement);
+                for (var cr : file.getReplacementList()) {
+                    if(cr.getApplicability().isApplicable(context.getProperties())) {
+                        var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                        fileData = fileData.replaceAll(cr.getFind(), replacement);
+                    }
                 }
 
                 // and copy into the destination
@@ -478,6 +482,10 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
 
     private String toSourceFile(Path directory, String ext) {
         Path file = directory.getFileName();
+        if(file.toString().equals("src")) {
+            // special case, go back one more level
+            file = directory.getParent().getFileName();
+        }
         return Paths.get(directory.toString(), file.toString() + ext).toString();
     }
 

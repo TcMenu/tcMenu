@@ -49,7 +49,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         var memberAccessor = (func.isObjectPointer()) ? "->" : ".";
 
         String fn = indentCode();
-        if(func.getObjectName() != null) {
+        if(!StringHelper.isStringEmptyOrNull(func.getObjectName())) {
             fn += func.getObjectName() + memberAccessor;
         }
         fn += func.getFunctionName() + "(";
@@ -94,7 +94,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
         else {
             paramVal = p.expandExpression(context, p.getValue());
-            if (StringHelper.isStringEmptyOrNull(paramVal) && p.getDefaultValue() != null) {
+            if (StringHelper.isStringEmptyOrNull(paramVal) && !StringHelper.isStringEmptyOrNull(p.getDefaultValue())) {
                 paramVal = p.expandExpression(context, p.getDefaultValue());
             }
             if(p instanceof ReferenceCodeParameter && !p.getValue().equals("NULL")) {

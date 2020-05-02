@@ -26,7 +26,7 @@ public class CodeConversionContext {
 
         properties = new ArrayList<>(properties);
         properties.add(new CreatorProperty("ROOT", "Root", rootObject, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
-        properties.add(new CreatorProperty("TARGET", "Target", platform.toString(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
+        properties.add(new CreatorProperty("TARGET", "Target", platform.getBoardId(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
         this.properties = properties;
         this.platform = platform;
     }

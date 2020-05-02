@@ -30,4 +30,13 @@ public class CodeReplacement {
     public CodeApplicability getApplicability() {
         return applicability;
     }
+
+    @Override
+    public String toString() {
+        return "CodeReplacement{" +
+                "find='" + find + '\'' +
+                ", replace='" + replace + '\'' +
+                ", applicability=" + applicability +
+                '}';
+    }
 }
