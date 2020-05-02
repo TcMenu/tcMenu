@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.*;
+import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.PropType;
 
 public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private final CodeConversionContext context;
@@ -176,10 +176,10 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     private String headerToString(HeaderDefinition headerDefinition) {
         if(headerDefinition.isInSource()) {
-            return "#include \"" + headerDefinition.getHeaderName() + "\"";
+            return "#include \"" + expando.expandExpression(context, headerDefinition.getHeaderName()) + "\"";
         }
         else {
-            return "#include <" + headerDefinition.getHeaderName() + ">";
+            return "#include <" + expando.expandExpression(context, headerDefinition.getHeaderName()) + ">";
         }
     }
 
