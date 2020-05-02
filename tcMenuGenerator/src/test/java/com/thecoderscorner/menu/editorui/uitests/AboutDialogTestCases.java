@@ -19,6 +19,7 @@ import org.testfx.framework.junit5.Start;
 
 import java.io.IOException;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_LIB;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -34,18 +35,18 @@ public class AboutDialogTestCases {
         when(storage.getVersion()).thenReturn("V1.0.2");
         when(storage.getBuildTimestamp()).thenReturn("20/10/2018 09:30");
         ArduinoLibraryInstaller installer = mock(ArduinoLibraryInstaller.class);
-        when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.2"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.2"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
 
         AboutDialog dialog = new AboutDialog(storage, stage, installer, false);
     }
 
     @Test
     public void testAboutDialog(FxRobot robot) {
-        verifyThat("#tcMenuVersion", hasText("V1.0.1"));
-        verifyThat("#ioAbstractionVersion", hasText("V1.0.2"));
-        verifyThat("#liquidCrystalVersion", hasText("V1.0.0"));
+        verifyThat("#tcMenuVersion", hasText("1.0.1"));
+        verifyThat("#ioAbstractionVersion", hasText("1.0.2"));
+        verifyThat("#liquidCrystalVersion", hasText("1.0.0"));
 
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));

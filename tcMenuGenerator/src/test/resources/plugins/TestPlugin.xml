@@ -1,0 +1,93 @@
+﻿<TcMenuPlugin name="Control menu with analog joystick" id="20409bb8-b8a1-4d1d-b632-2cf9b57353e3" subsystem="INPUT"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+    </SupportedPlatforms>
+    <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <RequiredLibraries>
+        <Library>Library1</Library>
+        <Library>Library2</Library>
+    </RequiredLibraries>
+    <ImageFile>joystick.jpg</ImageFile>
+
+    <Properties>
+      <Property id="INT_PROP" name="Int Prop" initial="10" desc="int value" type="int" min="0" max="100"/>
+      <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable switches" type="boolean"/>
+      <Property id="SWITCH_IODEVICE" name="IoAbstractionRef" initial="" desc="Advanced" type="variable"/>
+      <Property id="JOYSTICK_PIN" name="Up Pin" initial="2" desc="button connected" type="pin"/>
+      <Property id="TEST_CHOICE" name="Choices" initial="Choice1" desc="Test choices" type="choice">
+        <Choices>
+          <Choice>Choice1</Choice>
+          <Choice>Choice2</Choice>
+        </Choices>
+      </Property>
+    </Properties>
+    
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="applRef" mode="and">
+            <Applicability whenProperty="INTERRUPT_SWITCHES" isValue="true"/>
+            <ApplicabilityDef mode="or">
+                <Applicability whenProperty="INT_PROP" isValue="10"/>
+                <ApplicabilityDef mode="and">
+                    <Applicability whenProperty="ROOT" isValue="test"/>
+                    <Applicability whenProperty="INT_PROP" isValue="20"/>
+                </ApplicabilityDef>
+            </ApplicabilityDef>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
+    
+    <SourceFiles>
+      <Replacement find="someKey" replace="${INT_PROP}"/>
+      <Replacement find="otherKey" replace="abc" whenProperty="INTERRUPT_SWITCHES" isValue="true"/>
+      <SourceFile name="src/source.h"/>
+      <SourceFile name="src/source.cpp"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="JoystickSwitchInput.h" inSource="false"/>
+        <Header name="Scramble.h" inSource="true" priority="high"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+      <Variable name="analogDevice" type="ArduinoAnalogDevice" export="true">
+        <Param value="42"/>
+      </Variable>
+      <Variable name="anotherVar" type="int" export="false" progmem="true" />
+      <Variable name="expOnly" type="char[]" export="only" whenProperty="INTERRUPT_SWITCHES" isValue="false"/>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
+            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${PULLUP_LOGIC"/>
+        </Function>
+        <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
+            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${PULLUP_LOGIC}" default="true"/>
+        </Function>
+
+        <Lambda name="onReleaseFn">
+            <Param type="uint8_t" name="key" used="false"/>
+            <Param type="bool" name="held"/>
+            <Function name="onMenuSelect" object="menuMgr" applicabilityRef="applRef">
+                <Param value="held"/>
+            </Function>
+            <Function name="anotherFn">
+                <Param name="20"/>
+            </Function>
+        </Lambda>
+        <Function name="addSwitch" object="switches">
+            <Param value="BUTTON_PIN"/>
+            <Param ref="null"/>
+        </Function>
+        <Function name="onRelease" object="switches">
+            <Param value="BUTTON_PIN"/>
+            <Param lambda="onReleaseFn"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.lang.System.Logger.Level;
 import java.util.*;
 
-import static com.thecoderscorner.menu.pluginapi.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
@@ -30,7 +30,7 @@ public class CurrentEditorProject {
             ARDUINO_AVR.getBoardId(),
             NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED,
             Collections.emptyList(), UUID.randomUUID(), "New Device",
-            true
+            true, false
     );
 
 

@@ -12,6 +12,16 @@ public class StringHelper {
         return str == null || str.isEmpty();
     }
 
+    public static String escapeRex(String rex) {
+        var sb = new StringBuilder(64);
+        for(int i = 0; i < rex.length(); i++) {
+            if(rex.charAt(i) == '{' || rex.charAt(i) == '}' || rex.charAt(i) == '$') {
+                sb.append("\\\\").append(rex.charAt(i));
+            }
+            else sb.append(rex.charAt(i));
+        }
+        return sb.toString();
+    }
 
     public static String repeat(String a, int max) {
         StringBuilder sb = new StringBuilder(max + 16);

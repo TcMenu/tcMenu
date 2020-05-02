@@ -15,6 +15,8 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public MenuTreeWithCodeOptions open(String fileName) throws IOException {
         logger.log(INFO, "Open file " + fileName);
 
-        try(Reader reader = new BufferedReader(new FileReader(fileName))) {
+        try (Reader reader = new BufferedReader(new FileReader(fileName))) {
             PersistedProject prj = gson.fromJson(reader, PersistedProject.class);
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem()));
@@ -67,7 +69,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     private SubMenuItem fromParentId(MenuTree tree, int parentId) {
         Set<MenuItem> allSubMenus = tree.getAllSubMenus();
         for (MenuItem item : allSubMenus) {
-            if(item.getId() == parentId)
+            if (item.getId() == parentId)
                 return asSubMenu(item);
         }
         return MenuTree.ROOT;
@@ -79,7 +81,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
         List<PersistedMenu> itemsInOrder = populateListInOrder(MenuTree.ROOT, tree);
 
-        try(Writer writer = new BufferedWriter(new FileWriter(fileName))) {
+        try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
             String user = System.getProperty("user.name");
             gson.toJson(
                     new PersistedProject(fileName, user, Instant.now(), itemsInOrder, options),
@@ -92,7 +94,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         List<MenuItem> items = menuTree.getMenuItems(node);
         for (MenuItem item : items) {
             list.add(new PersistedMenu(node, item));
-            if(item.hasChildren()) {
+            if (item.hasChildren()) {
                 list.addAll(populateListInOrder(MenuItemHelper.asSubMenu(item), menuTree));
             }
         }
@@ -105,6 +107,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         return new GsonBuilder()
                 .registerTypeAdapter(example.getClass(), new MenuItemSerialiser())
                 .registerTypeAdapter(example.getClass(), new MenuItemDeserialiser())
+                .registerTypeAdapter(Instant.class, new CompatibleDateTimePersistor())
                 .create();
     }
 
@@ -112,13 +115,13 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
         @Override
         public JsonElement serialize(ArrayList<PersistedMenu> src, Type type, JsonSerializationContext ctx) {
-            if(src == null) {
+            if (src == null) {
                 return null;
             }
             JsonArray arr = new JsonArray();
             src.forEach((itm) -> {
                 JsonObject ele = new JsonObject();
-                ele.addProperty(PARENT_ID, itm.getParentId() );
+                ele.addProperty(PARENT_ID, itm.getParentId());
                 ele.addProperty(TYPE_ID, itm.getType());
                 ele.add(ITEM_ID, ctx.serialize(itm.getItem()));
                 arr.add(ele);
@@ -149,20 +152,38 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 String ty = ele.getAsJsonObject().get(TYPE_ID).getAsString();
                 int parentId = ele.getAsJsonObject().get("parentId").getAsInt();
                 Class<? extends MenuItem> c = mapOfTypes.get(ty);
-                if(c!=null) {
+                if (c != null) {
                     MenuItem item = ctx.deserialize(ele.getAsJsonObject().getAsJsonObject(ITEM_ID), c);
                     PersistedMenu m = new PersistedMenu();
                     m.setItem(item);
                     m.setParentId(parentId);
                     m.setType(ty);
                     list.add(m);
-                }
-                else {
+                } else {
                     logger.log(ERROR, "Item of type " + ty + " was not reloaded - skipping");
                 }
             });
 
             return list;
+        }
+    }
+
+    static class CompatibleDateTimePersistor implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
+        @Override
+        public JsonElement serialize(Instant dt, Type type, JsonSerializationContext jsonSerializationContext) {
+            var seconds = dt.getEpochSecond();
+            var nanos = dt.getNano();
+            JsonObject obj = new JsonObject();
+            obj.add("seconds", new JsonPrimitive(seconds));
+            obj.add("nanos", new JsonPrimitive(nanos));
+            return obj;
+        }
+
+        @Override
+        public Instant deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            var seconds = json.getAsJsonObject().get("seconds").getAsLong();
+            var nanos = json.getAsJsonObject().get("nanos").getAsInt();
+            return Instant.ofEpochSecond(seconds, nanos);
         }
     }
 }

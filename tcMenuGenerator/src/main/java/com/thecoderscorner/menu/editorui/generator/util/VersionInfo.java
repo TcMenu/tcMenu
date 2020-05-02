@@ -12,6 +12,7 @@ import java.util.Objects;
  * This class parses the version from an arduino properties file and does simple comparisons on it.
  */
 public class VersionInfo {
+    public static final VersionInfo ERROR_VERSION = new VersionInfo("0.0.0");
     private final int major;
     private final int minor;
     private final int patch;
@@ -42,7 +43,7 @@ public class VersionInfo {
 
     @Override
     public String toString() {
-        return "V" + major + "." + minor + "." + patch;
+        return major + "." + minor + "." + patch;
     }
 
     @Override

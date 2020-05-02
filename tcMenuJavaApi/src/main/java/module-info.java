@@ -10,4 +10,6 @@ module com.thecoderscorner.tcmenu.javaapi {
     exports com.thecoderscorner.menu.remote.socket;
 
     requires com.fazecast.jSerialComm;
+
+    opens com.thecoderscorner.menu.domain to gson;
 }

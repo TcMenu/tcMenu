@@ -7,18 +7,30 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
@@ -28,14 +40,18 @@ public class AppInformationPanel {
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager pluginManager;
-    private CurrentProjectEditorUI editorUI;
+    private final CurrentProjectEditorUI editorUI;
+    private final LibraryVersionDetector libraryVersionDetector;
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
-                               CodePluginManager pluginManager, CurrentProjectEditorUI editorUI) {
+                               CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
+                               LibraryVersionDetector libraryVersionDetector) {
         this.installer = installer;
         this.controller = controller;
         this.pluginManager = pluginManager;
         this.editorUI = editorUI;
+        this.libraryVersionDetector = libraryVersionDetector;
     }
 
     public Node showEmptyInfoPanel() {
@@ -77,13 +93,39 @@ public class AppInformationPanel {
         pluginLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
         vbox.getChildren().add(pluginLbl);
 
-        pluginManager.getLoadedPlugins().forEach(plugin -> {
-            Label pluginInfoLbl = new Label("- " + plugin.getName() + " (" + plugin.getVersion() + ")");
+        boolean pluginUpdateNeeded = (pluginManager.getLoadedPlugins().size() == 0);
+
+        for(var plugin : pluginManager.getLoadedPlugins()) {
+            var availableVersion = getVersionOfLibraryOrError(plugin, AVAILABLE_PLUGIN);
+            var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
+            Label pluginInfoLbl = new Label("- " + plugin.getName() + ". Installed: "
+                    + plugin.getVersion() + ", Available: " + availableVersion);
             pluginInfoLbl.getStyleClass().add("pluginInfoLbl");
             vbox.getChildren().add(pluginInfoLbl);
-        });
+            pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.isSameOrNewerThan(availableVersion);
+        }
 
+        if(pluginUpdateNeeded) {
+            var noPlugins = pluginManager.getLoadedPlugins().isEmpty();
+            Button btn = new Button(noPlugins ? "No plugins installed, click to install" : "Click to update plugins to latest version");
+            btn.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+            vbox.getChildren().add(btn);
+            btn.setOnAction(this::onUpgradeAction);
+        }
         return vbox;
+    }
+
+    private void onUpgradeAction(ActionEvent actionEvent) {
+        executor.execute(new UpgradeTask((Button)actionEvent.getSource()));
+        ((Button)actionEvent.getSource()).setDisable(true);
+    }
+
+    private VersionInfo getVersionOfLibraryOrError(CodePluginConfig plugin, InstallationType type) {
+        try {
+            return installer.getVersionOfLibrary(plugin.getModuleName(), type);
+        } catch (IOException e) {
+            return VersionInfo.ERROR_VERSION;
+        }
     }
 
     private void labelWithUrl(VBox vbox, String urlToVisit, String title, String fxId) {
@@ -97,12 +139,60 @@ public class AppInformationPanel {
 
     private void makeDiffVersionLabel(VBox vbox, String lib) throws IOException {
         var s = " - Arduino Library " + lib
-                + " available: " + installer.getVersionOfLibrary(lib, true)
-                + " installed: " + installer.getVersionOfLibrary(lib, false);
+                + " available: " + installer.getVersionOfLibrary(lib, AVAILABLE_LIB)
+                + " installed: " + installer.getVersionOfLibrary(lib, CURRENT_LIB);
 
         var lbl = new Label(s);
         lbl.setId(lib + "Lib");
         vbox.getChildren().add(lbl);
     }
 
+    private class UpgradeTask implements Runnable {
+        private final Button button;
+
+        public UpgradeTask(Button source) {
+            this.button = source;
+        }
+
+        private void updateUI(String status, boolean success) {
+            Platform.runLater(() -> {
+                button.setText(status);
+                if(success)
+                    button.setStyle("-fx-background-color: green;-fx-text-fill: white;");
+                else
+                    button.setStyle("-fx-background-color: red;-fx-text-fill: white;");
+            });
+        }
+
+        @Override
+        public void run() {
+            try {
+                List<String> allPlugins;
+                if(pluginManager.getLoadedPlugins().isEmpty()) {
+                    allPlugins = List.of("core-display", "core-remote");
+                }
+                else {
+                    allPlugins = pluginManager.getLoadedPlugins().stream()
+                            .map(CodePluginConfig::getModuleName)
+                            .collect(Collectors.toList());
+                }
+                for(var pluginName : allPlugins) {
+                    var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
+                    var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
+                    if(!installedVersion.isSameOrNewerThan(availableVersion)) {
+                        updateUI("Updating plugin " + pluginName, true);
+                        logger.log(INFO, "Upgrading " + pluginName);
+                        libraryVersionDetector.upgradePlugin(pluginName, availableVersion);
+                    }
+                }
+                updateUI("Refreshing plugins", true);
+                pluginManager.reload();
+                updateUI("Plugins reloaded", true);
+
+            } catch (Exception e) {
+                updateUI("Failed to update: " + e.getMessage(), false);
+                logger.log(ERROR, "Update failed with exception", e);
+            }
+        }
+    }
 }

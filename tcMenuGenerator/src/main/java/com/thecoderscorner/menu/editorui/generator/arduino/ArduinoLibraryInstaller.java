@@ -6,8 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.scene.control.TextInputDialog;
 
 import java.io.FileReader;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
  * and lastly also copying the library over from the package if needed.
  */
 public class ArduinoLibraryInstaller {
+    public enum InstallationType { AVAILABLE_LIB, CURRENT_LIB, AVAILABLE_PLUGIN, CURRENT_PLUGIN }
     /**
      * storage path of custom library directory, for when a non standard structure is detected only
      */
@@ -38,15 +43,13 @@ public class ArduinoLibraryInstaller {
     public static final String LIBRARY_PROPERTIES_NAME = "library.properties";
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
+    private final LibraryVersionDetector versionDetector;
+    private final CodePluginManager pluginManager;
+
     /**
      * the home directory
      */
     private final String homeDirectory;
-
-    /**
-     * the embedded directory that will be used as the source - default to embedded
-     */
-    private final String embeddedDirectory;
 
     /**
      * the directory located for arduino library storage
@@ -58,20 +61,11 @@ public class ArduinoLibraryInstaller {
      * normally used by unit testing to override the path so that the code can be tested better
      *
      * @param homeDirectory     the path to hardwire for the arduino directory
-     * @param embeddedDirectory the embedded source directory to override.
      */
-    public ArduinoLibraryInstaller(String homeDirectory, String embeddedDirectory) {
+    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector, CodePluginManager manager) {
         this.homeDirectory = homeDirectory;
-        this.embeddedDirectory = embeddedDirectory;
-    }
-
-    /**
-     * This is the standard, autodetecting version of construction, that should be used in nearly all cases.
-     */
-    public ArduinoLibraryInstaller() {
-        this.arduinoDirectory = null;
-        this.homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        this.embeddedDirectory = "embedded";
+        this.versionDetector = detector;
+        this.pluginManager = manager;
     }
 
     /**
@@ -82,7 +76,7 @@ public class ArduinoLibraryInstaller {
      */
     public Optional<Path> getArduinoDirectory() {
         if (arduinoDirectory != null) {
-            return Optional.ofNullable(Paths.get(arduinoDirectory));
+            return Optional.of(Paths.get(arduinoDirectory));
         }
 
         logger.log(Level.INFO, "Looking for Árduino directory");
@@ -184,31 +178,38 @@ public class ArduinoLibraryInstaller {
      * Get the version of a library, either from the packaged version or currently installed depending
      * how it's called.
      * @param name the library name
-     * @param inEmbeddedDir true for the packaged version, false for the installed version
+     * @param installationType what we are looking for, eg, installed or available, plugin or lib.
      * @return the version of the library or 0.0.0 if it cannot be found.
      * @throws IOException in the event of an unexpected IO issue. Not finding the library is not an IO issue.
      */
-    public VersionInfo getVersionOfLibrary(String name, boolean inEmbeddedDir) throws IOException {
+    public VersionInfo getVersionOfLibrary(String name, InstallationType installationType) throws IOException {
         Path startPath;
 
-        if(inEmbeddedDir) {
-            startPath = Paths.get(embeddedDirectory, name);
+        if(installationType == InstallationType.AVAILABLE_LIB || installationType == InstallationType.AVAILABLE_PLUGIN) {
+            var versions = versionDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
+            return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
         }
-        else {
+        else if(installationType == InstallationType.CURRENT_LIB){
             Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
             startPath = ardDir.resolve("libraries").resolve(name);
-        }
-        Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
+            Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
 
-        if(!Files.exists(libProps)) {
-            return new VersionInfo("0.0.0");
-        }
+            if(!Files.exists(libProps)) {
+                return new VersionInfo("0.0.0");
+            }
 
-        Properties propsSrc = new Properties();
-        try(FileReader reader = new FileReader(libProps.toFile())) {
-            propsSrc.load(reader);
+            Properties propsSrc = new Properties();
+            try(FileReader reader = new FileReader(libProps.toFile())) {
+                propsSrc.load(reader);
+            }
+            return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
         }
-        return new VersionInfo(propsSrc.getProperty("version", "0.0.0"));
+        else {
+            return pluginManager.getLoadedPlugins().stream()
+                    .filter(pl -> pl.getModuleName().equals(name))
+                    .map(pl -> new VersionInfo(pl.getVersion()))
+                    .findFirst().orElse(new VersionInfo("0.0.0"));
+        }
     }
 
     /**
@@ -221,51 +222,12 @@ public class ArduinoLibraryInstaller {
         if (!libInst.isPresent()) return false; // can we even find it on the system.
 
         try {
-            VersionInfo srcVer = getVersionOfLibrary(name, true);
-            VersionInfo dstVer = getVersionOfLibrary(name, false);
+            VersionInfo srcVer = getVersionOfLibrary(name, InstallationType.AVAILABLE_LIB);
+            VersionInfo dstVer = getVersionOfLibrary(name, InstallationType.CURRENT_LIB);
+            if(srcVer == null) return false;
             return dstVer.isSameOrNewerThan(srcVer);
         } catch (IOException e) {
             return false; // Library is somehow not good. Certainly not the same!
-        }
-    }
-
-    /**
-     * Copies the library from the packaged version into the installation directory.
-     * @param libraryName the library to copy
-     * @throws IOException if the copy could not complete.
-     */
-    public void copyLibraryFromPackage(String libraryName) throws IOException {
-        Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
-        Path source = Paths.get(embeddedDirectory).resolve(libraryName);
-
-        Path dest = ardDir.resolve("libraries/" + libraryName);
-        if(!Files.exists(dest)) {
-            Files.createDirectory(dest);
-        }
-
-        Path gitRepoDir = dest.resolve(".git");
-        if(Files.exists(gitRepoDir)) {
-            throw new IOException("Git repository inside " + libraryName+ "! Not proceeding to update path : " + dest);
-        }
-
-        copyLibraryRecursive(source, dest);
-    }
-
-    /**
-     * Recursive copier for the above copy method. It calls recursively for subdirectories to ensure a full copy
-     * @param input the directory to copy from
-     * @param output the directory to copy to
-     * @throws IOException if the copy could not complete.
-     */
-    private void copyLibraryRecursive(Path input, Path output) throws IOException {
-        for (Path dirItem : Files.list(input).collect(Collectors.toList())) {
-            Path outputName = output.resolve(dirItem.getFileName());
-            if (Files.isDirectory(dirItem)) {
-                if(!Files.exists(outputName)) Files.createDirectory(outputName);
-                copyLibraryRecursive(dirItem, outputName);
-            } else {
-                Files.copy(dirItem, outputName, StandardCopyOption.REPLACE_EXISTING);
-            }
         }
     }
 }

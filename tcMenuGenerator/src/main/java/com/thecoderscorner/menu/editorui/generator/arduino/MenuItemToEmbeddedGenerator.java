@@ -8,7 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
-import com.thecoderscorner.menu.pluginapi.model.BuildStructInitializer;
+import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 
 import java.util.Arrays;
 import java.util.List;

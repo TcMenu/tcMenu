@@ -7,16 +7,14 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
-import com.thecoderscorner.menu.pluginapi.CreatorProperty;
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.PluginFileDependency;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -36,10 +34,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShowSceneAdj;
-import static com.thecoderscorner.menu.pluginapi.SubSystem.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -61,9 +59,6 @@ public class GenerateCodeDialog {
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentInput;
     private UICodePluginItem currentRemote;
-    private EmbeddedCodeCreator displayCreator;
-    private EmbeddedCodeCreator inputCreator;
-    private EmbeddedCodeCreator remoteCreator;
 
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Button generateButton;
@@ -71,6 +66,7 @@ public class GenerateCodeDialog {
     private TextField appUuidField;
     private TextField appNameField;
     private CheckBox recursiveNamingCheckBox;
+    private CheckBox saveToSrcCheckBox;
     private Stage mainStage;
 
     public TableView<CreatorProperty> propsTable;
@@ -101,41 +97,25 @@ public class GenerateCodeDialog {
 
         addTitleLabel(vbox, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
-        try {
-            CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-            inputCreator = makeCreatorAndRecordFiles(itemInput);
-            currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
-            currentInput.setId("currentInputUI");
-            currentInput.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentInput);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-
-        }
+        CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
+        currentInput.setId("currentInputUI");
+        currentInput.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentInput);
 
         addTitleLabel(vbox, "Select the display type:");
-        try {
-            CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
-            currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
-            currentDisplay.setId("currentDisplayUI");
-            displayCreator = makeCreatorAndRecordFiles(itemDisplay);
-            currentDisplay.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentDisplay);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-        }
+        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
+        currentDisplay.setId("currentDisplayUI");
+        currentDisplay.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentDisplay);
 
         addTitleLabel(vbox, "Select remote capabilities:");
-        try {
-            CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
-            currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
-            currentRemote.setId("currentRemoteUI");
-            remoteCreator = makeCreatorAndRecordFiles(itemRemote);
-            currentRemote.getStyleClass().add("uiCodeGen");
-            vbox.getChildren().add(currentRemote);
-        } catch (ClassNotFoundException e) {
-            logger.log(ERROR, "Class loading problem", e);
-        }
+        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
+        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
+        currentRemote.setId("currentRemoteUI");
+        currentRemote.getStyleClass().add("uiCodeGen");
+        vbox.getChildren().add(currentRemote);
 
         buildTable();
 
@@ -164,16 +144,6 @@ public class GenerateCodeDialog {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
-    }
-
-    private EmbeddedCodeCreator makeCreatorAndRecordFiles(CodePluginItem itemInput) throws ClassNotFoundException {
-        var tempCreator = manager.makeCreator(itemInput);
-        tempCreator.initialise(".");
-        initialPlugins.addAll(tempCreator.getRequiredFiles().stream()
-                .map(PluginFileDependency::getFileName)
-                .collect(Collectors.toList())
-        );
-        return manager.makeCreator(itemInput);
     }
 
     private void buildTable() {
@@ -252,6 +222,10 @@ public class GenerateCodeDialog {
         recursiveNamingCheckBox.setSelected(project.getGeneratorOptions().isNamingRecursive());
         embeddedPane.add(recursiveNamingCheckBox, 1, 3, 2, 1);
 
+        saveToSrcCheckBox = new CheckBox("Save all CPP and H files into src folder");
+        saveToSrcCheckBox.setSelected(project.getGeneratorOptions().isSaveToSrc());
+        embeddedPane.add(saveToSrcCheckBox, 1, 4, 2, 1);
+
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(350);
         ColumnConstraints column3 = new ColumnConstraints(80);
@@ -293,20 +267,24 @@ public class GenerateCodeDialog {
     }
 
     private void changeProperties() {
-        List<EmbeddedCodeCreator> creators = Arrays.asList(displayCreator, inputCreator, remoteCreator);
+        List<CodePluginItem> creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
         properties.clear();
 
         creators.stream()
-                .filter(p -> p != null && p.properties().size() > 0)
+                .filter(p -> p != null && p.getProperties().size() > 0)
                 .forEach( creator -> {
-                    setAllPropertiesToLastValues(creator.properties());
-                    properties.addAll(creator.properties());
+                    setAllPropertiesToLastValues(creator.getProperties());
+                    properties.addAll(creator.getProperties());
                 });
 
         propsTable.setItems(observableArrayList(properties));
     }
 
     private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
+        for(var prop : propsToDefault) {
+            prop.resetToInitial();
+        }
+
         propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
                 .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
                 .findFirst()
@@ -320,20 +298,22 @@ public class GenerateCodeDialog {
 
     private void onGenerateCode(ActionEvent actionEvent) {
         var allProps = new ArrayList<CreatorProperty>();
-        allProps.addAll(displayCreator.properties());
-        allProps.addAll(inputCreator.properties());
-        allProps.addAll(remoteCreator.properties());
+        allProps.addAll(currentDisplay.getItem().getProperties());
+        allProps.addAll(currentInput.getItem().getProperties());
+        allProps.addAll(currentRemote.getItem().getProperties());
 
         UUID applicationUUID = UUID.fromString(appUuidField.getText());
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
                 currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(),
-                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected())
+                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
+                saveToSrcCheckBox.isSelected())
         );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
-                                   Arrays.asList(displayCreator, inputCreator, remoteCreator), initialPlugins,
+                                   Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem()),
+                                   initialPlugins,
                                    true);
 
         dialogStage.close();
@@ -342,14 +322,6 @@ public class GenerateCodeDialog {
     private void onDisplayChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on display");
         selectPlugin(displaysSupported, "Display", (pluginItem)-> {
-            try {
-                displayCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the display creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading display plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-            }
             currentDisplay.setItem(pluginItem);
             changeProperties();
         });
@@ -358,14 +330,6 @@ public class GenerateCodeDialog {
     private void onRemoteChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on remote");
         selectPlugin(remotesSupported, "Remote", (pluginItem)-> {
-            try {
-                remoteCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the remote creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading remote plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-            }
             currentRemote.setItem(pluginItem);
             changeProperties();
         });
@@ -374,15 +338,6 @@ public class GenerateCodeDialog {
     private void onInputChange(CodePluginItem item) {
         logger.log(INFO, "Action fired on input");
         selectPlugin(inputsSupported, "Input", (pluginItem)-> {
-            try {
-                inputCreator = manager.makeCreator(pluginItem);
-            } catch (ClassNotFoundException e) {
-                logger.log(ERROR, "Unable to create the input creator" + item);
-                editorUI.alertOnError(
-                        "Fault loading input plugin",
-                        "Unable to load " + pluginItem.getDescription() + " - " + pluginItem.getCodeCreatorClass());
-
-            }
             currentInput.setItem(pluginItem);
             changeProperties();
         });

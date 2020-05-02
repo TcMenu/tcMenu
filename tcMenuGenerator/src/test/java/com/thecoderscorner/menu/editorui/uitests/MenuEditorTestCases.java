@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.NO_FUNCTION_DEFINED;
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.pushCtrlAndKey;
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
@@ -102,6 +104,8 @@ public class MenuEditorTestCases {
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
         when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
+        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
 
         // create a basic project, that has a few menu items in it.
         project = new CurrentEditorProject(
@@ -116,7 +120,7 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, mock(LibraryVersionDetector.class));
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
@@ -411,12 +415,12 @@ public class MenuEditorTestCases {
 
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
-        when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("tcMenu", false)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", true)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", false)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", true)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", false)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true));
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
@@ -431,35 +435,23 @@ public class MenuEditorTestCases {
         List<String> pluginSet = robot.lookup(".pluginInfoLbl").queryAll().stream()
                 .map(p -> ((Label)p).getText())
                 .collect(Collectors.toList());
-        assertThat(pluginSet).containsExactlyInAnyOrder("- PluginName (1.0.0)");
+        assertThat(pluginSet).containsExactlyInAnyOrder("- PluginName. Installed: 1.0.0, Available: 1.0.0");
 
-        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: V1.0.1 installed: V1.0.0"));
-        verifyThat("#IoAbstractionLib", LabeledMatchers.hasText(" - Arduino Library IoAbstraction available: V1.0.0 installed: V1.0.0"));
-        verifyThat("#LiquidCrystalIOLib", LabeledMatchers.hasText(" - Arduino Library LiquidCrystalIO available: V1.0.0 installed: V1.0.0"));
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries need updating"));
+        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: 1.0.1 installed: 1.0.0"));
+        verifyThat("#IoAbstractionLib", LabeledMatchers.hasText(" - Arduino Library IoAbstraction available: 1.0.0 installed: 1.0.0"));
+        verifyThat("#LiquidCrystalIOLib", LabeledMatchers.hasText(" - Arduino Library LiquidCrystalIO available: 1.0.0 installed: 1.0.0"));
+        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Please update tcMenu library from Arduino IDE"));
 
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
-        when(installer.getVersionOfLibrary("tcMenu", true)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("tcMenu", false)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.1"));
 
-        // simulate a new example being added during the upgrade
-        dirHelper.createSketch(TCMENU_DIR, "additionalExample", true);
-
-        robot.clickOn("#installLibUpdates");
-
-        // ensure that the libraries are now copied and root is then selected afterwards.
-        verify(installer).copyLibraryFromPackage("IoAbstraction");
-        verify(installer).copyLibraryFromPackage("tcMenu");
-        verify(installer).copyLibraryFromPackage("LiquidCrystalIO");
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
-
-        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: V1.0.1 installed: V1.0.1"));
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries all up-to-date"));
 
         // and that newly available example should be added to the menu.
         var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
         var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
-        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2", "additionalExample");
+        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
     }
 
     /**

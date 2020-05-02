@@ -1,0 +1,17 @@
+﻿<TcMenuPluginDefinition shortName="unitTest"
+                        xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
+    <GeneralDetails>
+        <Author name="Unit Test Inc" url="http://www.thecoderscorner.com/" />
+        <Version>1.3.5</Version>
+        <Name>Super unit test plugin library</Name>
+        <Description>This plugin provides some unit testing.</Description>
+        <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+    </GeneralDetails>
+
+    <Plugins>
+        <!-- display plugins -->
+        <Plugin>TestPlugin.xml</Plugin>
+    </Plugins>
+</TcMenuPluginDefinition>

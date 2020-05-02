@@ -122,37 +122,30 @@ public class UICodePluginItem extends BorderPane {
             });
         }
 
-        mgr.getPluginConfigForItem(item).ifPresentOrElse(config -> {
-            whichPlugin.setText(config.getName() + " - " + config.getVersion());
-            licenseLink.setText(config.getLicense());
-            licenseLink.setDisable(false);
-            licenseLink.setOnAction((event)-> {
+        var config = item.getConfig();
+        whichPlugin.setText(config.getName() + " - " + config.getVersion());
+        licenseLink.setText(config.getLicense());
+        licenseLink.setDisable(false);
+        licenseLink.setOnAction((event)-> {
+            try {
+                Desktop.getDesktop().browse(new URI(config.getLicenseUrl()));
+            } catch (Exception e) {
+                LOGGER.log(ERROR,"Unable to locate license URL" + config.getLicenseUrl());
+            }
+        });
+        if(config.getVendor() != null) {
+            vendorLink.setText(config.getVendor());
+            vendorLink.setDisable(false);
+            vendorLink.setOnAction((event) -> {
                 try {
-                    Desktop.getDesktop().browse(new URI(config.getLicenseUrl()));
+                    Desktop.getDesktop().browse(new URI(config.getVendorUrl()));
                 } catch (Exception e) {
-                    LOGGER.log(ERROR,"Unable to locate license URL" + config.getLicenseUrl());
+                    LOGGER.log(ERROR, "Unable to locate vendor URL" + config.getVendorUrl());
                 }
             });
-            if(config.getVendor() != null) {
-                vendorLink.setText(config.getVendor());
-                vendorLink.setDisable(false);
-                vendorLink.setOnAction((event) -> {
-                    try {
-                        Desktop.getDesktop().browse(new URI(config.getVendorUrl()));
-                    } catch (Exception e) {
-                        LOGGER.log(ERROR, "Unable to locate vendor URL" + config.getVendorUrl());
-                    }
-                });
-            }
-        }, ()->{
-            whichPlugin.setText("Unknown plugin");
-            licenseLink.setText("Unknown plugin");
-            licenseLink.setDisable(true);
-            vendorLink.setText("Unknown vendor");
-            vendorLink.setDisable(true);
-        });
+        }
 
-        imagePanel = mgr.getImageForName(item.getImageFileName())
+        imagePanel = mgr.getImageForName(item, item.getImageFileName())
                 .map(img -> {
                     double scaleFactor = img.getWidth() / IMG_THUMB_WIDTH;
                     ImageView imgView = new ImageView(img);

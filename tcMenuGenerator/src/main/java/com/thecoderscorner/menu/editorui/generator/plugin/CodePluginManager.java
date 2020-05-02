@@ -6,11 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.pluginapi.EmbeddedCodeCreator;
-import com.thecoderscorner.menu.pluginapi.EmbeddedPlatform;
-import com.thecoderscorner.menu.pluginapi.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import javafx.scene.image.Image;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +24,7 @@ public interface CodePluginManager {
      * @param sourceDir the directory to search
      * @throws Exception if the plugins could not be loaded.
      */
-    void loadPlugins(String sourceDir) throws Exception;
+    void loadPlugins(List<Path> sourceDirs) throws Exception;
 
     /**
      * Gets a list of all loaded plugins.
@@ -38,16 +37,7 @@ public interface CodePluginManager {
      * @param imageName the image name to load
      * @return an image object.
      */
-    Optional<Image> getImageForName(String imageName);
-
-    /**
-     * Creates a code creator for a given plugin item. This is the object that actually
-     * does the code conversion and provides the properties to be configured.
-     * @param item the item for which to make a creator object
-     * @return the creator
-     * @throws ClassNotFoundException when the class could not load.
-     */
-    EmbeddedCodeCreator makeCreator(CodePluginItem item) throws ClassNotFoundException;
+    Optional<Image> getImageForName(CodePluginItem item, String imageName);
 
     /**
      * Gets a list of plugins filtered by the platform and the subsytem.
@@ -58,9 +48,7 @@ public interface CodePluginManager {
     List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem);
 
     /**
-     * Given an item, find the configuration it belongs to
-     * @param item the item for which the config object is needed
-     * @return the config object.
+     * Reload the plugins using the last settings
      */
-    Optional<CodePluginConfig> getPluginConfigForItem(CodePluginItem item);
+    void reload();
 }
