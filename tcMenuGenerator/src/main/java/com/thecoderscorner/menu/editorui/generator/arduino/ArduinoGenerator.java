@@ -160,7 +160,7 @@ public class ArduinoGenerator implements CodeGenerator, MenuNamingGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
                     var params = List.of(new CodeParameter(null, true, "true"));
-                    return new FunctionDefinition("setSecure", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setSecured", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );

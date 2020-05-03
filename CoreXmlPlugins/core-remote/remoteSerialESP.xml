@@ -18,7 +18,7 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="Stream\\*" replace="HardwareSerial*" whenProperty="HARDWARE_PORT" isValue="true"/>
+        <Replacement find="Stream&#92;*" replace="HardwareSerial*" whenProperty="HARDWARE_PORT" isValue="true"/>
         <Replacement find="serialPort->availableForWrite() != 0" replace="true*" whenProperty="HARDWARE_PORT" isValue="false"/>
         <SourceFile name="serialSrc/SerialTransport.cpp"/>
         <SourceFile name="serialSrc/SerialTransport.h"/>

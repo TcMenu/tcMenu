@@ -33,8 +33,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
