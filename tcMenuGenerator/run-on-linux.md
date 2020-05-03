@@ -55,9 +55,8 @@ Run the `install_linux.sh` script in the `tcMenu/tcMenuGenerator` directory. Usi
     cd tcMenuGenerator/target/jfx/app/
     java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
 
-### If you don't want to use plugin automatic updates
+### If you don't want to use Library Manager or Plugin automatic updates
 
-By default the plugin manager will keep the plugins up to date, using a cache of the latest released plugins at thecoderscorner.com. If you are not happy with this, you can either copy the two directories `core-display` and `core-remote` from https://github.com/davetcc/tcMenu/tree/master/CoreXmlPlugins into .tcmenu/plugins. Even if you do this manually, the plugin manager will warn you when they are no longer current.
+By default the plugin manager will keep the plugins up to date, using a cache of the latest released plugins at thecoderscorner.com. If you are not happy with this, you can either copy the two directories `core-display` and `core-remote` from https://github.com/davetcc/tcMenu/tree/master/CoreXmlPlugins into .tcmenu/plugins (or even create a new plugin directory and add the following VM argument -DadditionalPluginsDir=myPath). Even if you do this manually, the plugin manager will warn you when they are no longer current.
 
-
-
+If you do not want to use your Arduino IDE library manager, the embedded folder contains links to the embedded libraries and is  generally quite up to date. You can copy those into your library folder. We really recommend using Library Manager.
