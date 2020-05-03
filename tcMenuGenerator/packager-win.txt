@@ -1,9 +1,28 @@
-# Unfortunately at the moment building the final step into a packaged archive is quite manual.
-# Always start with a command line in maven target directory..
+# Windows
+# Step 1 - Check the archive worked and versioning is right
 
-#
-# step 1 before maven build - a version of GSON that has a module-info.class file (must override local repo version)
-#
+Ensure all components are correctly versioned in Maven, iss script etc.
+
+Run and smoke test:
+java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
+
+# Step 2 - Build the package
+
+jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
+
+# Step 3 - Build the distribution
+
+Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator directory. Choose compile, output will be in the Output directory at the same level as the script.
+
+#------------------------------------------------------------------------
+
+# MacOS build
+
+
+#------------------------------------------------------------------------
+
+--- old instructions for JDK 11 (before 1.4.1 basically) DO NOT USE FOR NEWER BUILDS
+
 
 !!todo next version - update to latest gson that has module file.
 

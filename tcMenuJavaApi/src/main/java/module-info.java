@@ -11,5 +11,5 @@ module com.thecoderscorner.tcmenu.javaapi {
 
     requires com.fazecast.jSerialComm;
 
-    opens com.thecoderscorner.menu.domain to gson;
+    opens com.thecoderscorner.menu.domain to com.google.gson;
 }

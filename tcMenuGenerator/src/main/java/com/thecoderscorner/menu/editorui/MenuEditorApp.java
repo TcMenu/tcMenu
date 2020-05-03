@@ -13,7 +13,6 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
@@ -36,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogManager;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -44,6 +44,18 @@ public class MenuEditorApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        if(System.getProperty("java.util.logging.config.file") == null) {
+            // if the logging was not set up, force it use logging.properties and ensure it's loaded.
+            System.setProperty("java.util.logging.config.file", "logging.properties");
+            try(var loggingProd = getClass().getResourceAsStream("/baseLoggingConfig.properties")) {
+                LogManager manager = LogManager.getLogManager();
+                manager.readConfiguration(loggingProd);
+            }
+            catch(Exception ex) {
+                Alert alert = new Alert(AlertType.ERROR, "Logging configuration could not be loaded: " + ex.getMessage(), ButtonType.CLOSE);
+                alert.showAndWait();
+            }
+        }
 
         createDirsIfNeeded();
 
