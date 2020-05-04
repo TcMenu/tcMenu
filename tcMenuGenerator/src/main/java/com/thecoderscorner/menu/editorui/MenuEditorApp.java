@@ -20,6 +20,7 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -29,6 +30,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.awt.*;
+import java.awt.desktop.QuitStrategy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +44,8 @@ import java.util.logging.LogManager;
  * The application starting point for the JavaFX version of the application
  */
 public class MenuEditorApp extends Application {
+
+    private volatile MenuEditorController controller;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -57,13 +62,22 @@ public class MenuEditorApp extends Application {
             }
         }
 
+        final String os = System.getProperty ("os.name");
+        if (os != null && os.startsWith ("Mac")) {
+            Desktop desktop = Desktop.getDesktop();
+            desktop.setAboutHandler(e -> {
+                Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent()));
+            });
+            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
+        }
+
         createDirsIfNeeded();
 
         primaryStage.setTitle("Embedded Menu Designer");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         Pane myPane = loader.load();
 
-        MenuEditorController controller = loader.getController();
+        controller = loader.getController();
 
         LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(new SimpleHttpClient());
 
@@ -76,7 +90,6 @@ public class MenuEditorApp extends Application {
 
         platforms.setInstaller(installer);
 
-
         manager.loadPlugins(configuredPluginPaths());
 
         ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
@@ -87,7 +100,6 @@ public class MenuEditorApp extends Application {
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
-
 
         controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
 
@@ -109,6 +121,12 @@ public class MenuEditorApp extends Application {
                 }
             }
         });
+    }
+
+    private void aboutPressed() {
+        if(controller != null) {
+            controller.aboutMenuPressed(new ActionEvent());
+        }
     }
 
     private List<Path> configuredPluginPaths() {

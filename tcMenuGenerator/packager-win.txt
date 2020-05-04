@@ -18,6 +18,13 @@ Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator di
 
 # MacOS build
 
+Perform maven build
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home/bin/jpackage
+
+jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
+
+jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
 
 #------------------------------------------------------------------------
 

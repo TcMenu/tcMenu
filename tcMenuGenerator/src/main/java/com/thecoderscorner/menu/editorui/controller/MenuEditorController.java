@@ -13,7 +13,6 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -163,25 +162,8 @@ public class MenuEditorController {
         final String os = System.getProperty ("os.name");
         if (os != null && os.startsWith ("Mac")) {
             mainMenu.useSystemMenuBarProperty().set(true);
-            try {
-                if(OSXAdapter.setAboutHandler(this, getClass().getMethod("onAboutOsX"))) {
-                    aboutMenuItem.setVisible(false);
-                }
-
-                OSXAdapter.setQuitHandler(this, getClass().getMethod("onExitOsX"));
-                exitMenuItem.setVisible(false);
-            } catch (NoSuchMethodException e) {
-                logger.log(ERROR, "Unable to set Mac menu properly", e);
-            }
+            exitMenuItem.setVisible(false);
         }
-    }
-
-    public void onExitOsX() {
-        getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
-    }
-
-    public void onAboutOsX() {
-        aboutMenuPressed(null);
     }
 
     private void sortOutToolButtons() {
