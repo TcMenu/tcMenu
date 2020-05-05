@@ -12,7 +12,7 @@
     <name>menuEditorUI</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>    
     <description>JavaFX based menu editor UI</description>
-    <version>1.4.1</version>
+    <version>1.4.2-SNAPSHOT</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -130,8 +130,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>14</source>
-                    <target>14</target>
+                    <source>13</source>
+                    <target>13</target>
                 </configuration>
             </plugin>
             <plugin>
