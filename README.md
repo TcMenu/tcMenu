@@ -16,6 +16,8 @@ You can get help from the community forum, there are also support and consultanc
 
 Nearly all users should probably choose the designer UI package; it's available for Windows and MacOS and includes all the embedded libraries. The designer UI will copy all the required libraries into place for you. However, should you wish to go it alone, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
 
+Windows 10: Get from the Windows Store: [https://www.microsoft.com/store/productId/9NHJNH9BCNJN]
+
 [Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS. [Linux instructions here](https://github.com/davetcc/tcMenu/blob/master/tcMenuGenerator/run-on-linux.md)
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
