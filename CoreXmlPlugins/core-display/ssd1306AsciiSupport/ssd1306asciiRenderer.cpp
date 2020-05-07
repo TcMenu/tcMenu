@@ -58,7 +58,7 @@ void SSD1306AsciiRenderer::renderList(uint8_t titleRows) {
 	for (int i = 0; i < maxY; i++) {
 		uint8_t current = offset + i;
 		RuntimeMenuItem* toDraw = (current==0) ? runList->asBackMenu() : runList->getChildItem(current - 1);
-		renderMenuItem(i, toDraw);
+		renderMenuItem(i + titleRows, toDraw);
 	}
 
 	// reset the list item to a normal list again.
