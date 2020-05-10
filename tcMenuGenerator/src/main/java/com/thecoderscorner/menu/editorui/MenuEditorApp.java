@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatform
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
+import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,10 +39,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -65,14 +68,12 @@ public class MenuEditorApp extends Application {
             }
         }
 
-//        final String os = System.getProperty ("os.name");
-//        if (os != null && os.startsWith ("Mac")) {
-//            Desktop desktop = Desktop.getDesktop();
-//            desktop.setAboutHandler(e -> {
-//                Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent()));
-//            });
-//            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
-//        }
+        final String os = System.getProperty ("os.name");
+        if (os != null && os.startsWith ("Mac")) {
+            Desktop desktop = Desktop.getDesktop();
+            desktop.setAboutHandler(e -> Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent())));
+            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
+        }
 
         createDirsIfNeeded();
 
@@ -115,25 +116,26 @@ public class MenuEditorApp extends Application {
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
 
         primaryStage.setOnCloseRequest((evt)-> {
-            var streamStr = libraryVersionDetector.getReleaseType().toString();
-            Preferences.userNodeForPackage(MenuEditorApp.class).put("ReleaseStream", streamStr);
-            controller.persistPreferences();
-            if(project.isDirty()) {
-                evt.consume();
-                Alert alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Are you sure");
-                alert.setHeaderText("There are unsaved changes, continue with exit anyway?");
-                if(alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-                    Platform.exit();
+            try {
+                var streamStr = libraryVersionDetector.getReleaseType().toString();
+                Preferences.userNodeForPackage(MenuEditorApp.class).put("ReleaseStream", streamStr);
+                controller.persistPreferences();
+                if(project.isDirty()) {
+                    evt.consume();
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle("Are you sure");
+                    alert.setHeaderText("There are unsaved changes, save first?");
+                    if(alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                        project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+                    }
                 }
             }
+            catch(Exception ex) {
+                // ignored, we are trying to shutdown so just proceeed anyway.
+            }
+            Platform.exit();
+            System.exit(0);
         });
-    }
-
-    private void aboutPressed() {
-        if(controller != null) {
-            controller.aboutMenuPressed(new ActionEvent());
-        }
     }
 
     private List<Path> configuredPluginPaths() {
@@ -161,6 +163,22 @@ public class MenuEditorApp extends Application {
             Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
+        }
+    }
+
+    /**
+     * This mock client is used during test to fail every single web call, to ensure the UI works in
+     * this scenario
+     */
+    private static class MockHttpClient implements IHttpClient {
+        @Override
+        public byte[] postRequestForBinaryData(String url, String parameter, HttpDataType reqDataType) throws IOException {
+            throw new IOException("Boom");
+        }
+
+        @Override
+        public String postRequestForString(String url, String parameter, HttpDataType reqDataType) throws IOException {
+            throw new IOException("Boom");
         }
     }
 }
