@@ -70,7 +70,7 @@ public class ArduinoLibraryInstallerTest {
                 "LiquidCrystalIO/Library", new VersionInfo("1.5.1"),
                 "xyz/Plugin", new VersionInfo("7.8.9")
         );
-        when(verDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE)).thenReturn(versions);
+        when(verDetector.acquireVersions()).thenReturn(versions);
 
         LibraryStatus libraryStatus = installer.statusOfAllLibraries();
         assertFalse(libraryStatus.isUpToDate());

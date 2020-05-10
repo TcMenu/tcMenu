@@ -31,7 +31,7 @@ import java.util.zip.ZipInputStream;
 import static java.lang.System.Logger.Level.*;
 
 public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
-    public enum ReleaseType { STABLE }
+    public enum ReleaseType { STABLE, BETA, PREVIOUS }
 
     public final static String LIBRARY_VERSIONING_URL = "http://thecoderscorner.com/tcc/app/getLibraryVersions";
     private static final long THIRTY_MINUTES = TimeUnit.MINUTES.toMillis(30);
@@ -39,17 +39,39 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final IHttpClient client;
-    private final AtomicLong lastAccess = new AtomicLong();
-    private volatile Map<String, VersionInfo> versionCache = Map.of();
 
-    public OnlineLibraryVersionDetector(IHttpClient client) {
+    private final Object cacheLock = new Object();
+    private long lastAccess;
+    private Map<String, VersionInfo> versionCache;
+    private ReleaseType cachedReleaseType;
+
+    public OnlineLibraryVersionDetector(IHttpClient client, ReleaseType initialReleaseType) {
         this.client = client;
+        changeReleaseType(initialReleaseType);
     }
 
-    public Map<String, VersionInfo> acquireVersions(ReleaseType relType) {
-        if(!versionCache.isEmpty() && (System.currentTimeMillis() - lastAccess.get()) < THIRTY_MINUTES)
-        {
-            return versionCache;
+    public void changeReleaseType(ReleaseType relType) {
+        synchronized (cacheLock) {
+            lastAccess = 0;
+            versionCache = Map.of();
+            cachedReleaseType = relType;
+        }
+    }
+
+    public ReleaseType getReleaseType() {
+        synchronized (cacheLock) {
+            return cachedReleaseType;
+        }
+    }
+
+
+    public Map<String, VersionInfo> acquireVersions() {
+        ReleaseType relType;
+        synchronized (cacheLock) {
+            if (!versionCache.isEmpty() && (System.currentTimeMillis() - lastAccess) < THIRTY_MINUTES) {
+                return versionCache;
+            }
+            relType = cachedReleaseType;
         }
 
         try {
@@ -65,8 +87,10 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
 
             addVersionsToMap(root.getElementsByTagName("Libraries"), "Library", relType, libDict);
             addVersionsToMap(root.getElementsByTagName("Plugins"), "Plugin", relType, libDict);
-            lastAccess.set(System.currentTimeMillis());
-            versionCache = libDict;
+            synchronized (cacheLock) {
+                lastAccess = System.currentTimeMillis();
+                versionCache = libDict;
+            }
             return libDict;
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Unable to get versions from main site", e);
@@ -87,8 +111,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
                 }
             }
         }
-        logger.log(System.Logger.Level.INFO, "Successfully got version list from core site for " + relType);
-
+        logger.log(System.Logger.Level.INFO, "Successfully got version list from core site for " + cachedReleaseType);
     }
 
     public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException {

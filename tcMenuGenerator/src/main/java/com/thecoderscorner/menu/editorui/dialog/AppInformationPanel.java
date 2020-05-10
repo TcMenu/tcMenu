@@ -16,17 +16,22 @@ import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeExceptio
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static java.lang.System.Logger.Level.ERROR;
@@ -42,7 +47,8 @@ public class AppInformationPanel {
     private final CodePluginManager pluginManager;
     private final CurrentProjectEditorUI editorUI;
     private final LibraryVersionDetector libraryVersionDetector;
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private VBox libraryInfoVBox;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -67,6 +73,38 @@ public class AppInformationPanel {
 
         // add the library installation status
 
+        var streamCombo = new ComboBox<ReleaseType>(FXCollections.observableList(
+                List.of(ReleaseType.values()))
+        );
+        streamCombo.getSelectionModel().select(libraryVersionDetector.getReleaseType());
+        streamCombo.getSelectionModel().selectedItemProperty().addListener((observableValue, oldVal, newVal) -> {
+            libraryVersionDetector.changeReleaseType(newVal);
+            checkAndReportItems(libraryInfoVBox);
+        });
+
+        var streamLabel = new Label("Plugin and library stream");
+        streamLabel.setAlignment(Pos.CENTER_LEFT);
+        streamLabel.setPadding(new Insets(4, 0, 0, 0));
+        var hbox = new HBox(5.0, streamLabel, streamCombo);
+        vbox.getChildren().add(hbox);
+
+        libraryInfoVBox = new VBox(3.0);
+        checkAndReportItems(libraryInfoVBox);
+        vbox.getChildren().add(libraryInfoVBox);
+        return vbox;
+    }
+
+    private void checkAndReportItems(VBox vbox) {
+        vbox.getChildren().clear();
+        vbox.getChildren().add(new Label("Reading version information.."));
+        var fr = executor.submit(() -> {
+            libraryVersionDetector.acquireVersions();
+            Platform.runLater(this::redrawTheTitlePage);
+        });
+    }
+    private void redrawTheTitlePage() {
+        var vbox = libraryInfoVBox;
+        vbox.getChildren().clear();
         if(installer.statusOfAllLibraries().isUpToDate()) {
             Label lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
             lblTcMenuOK.setId("tcMenuStatusArea");
@@ -102,7 +140,7 @@ public class AppInformationPanel {
                     + plugin.getVersion() + ", Available: " + availableVersion);
             pluginInfoLbl.getStyleClass().add("pluginInfoLbl");
             vbox.getChildren().add(pluginInfoLbl);
-            pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.isSameOrNewerThan(availableVersion);
+            pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
         }
 
         if(pluginUpdateNeeded) {
@@ -112,7 +150,7 @@ public class AppInformationPanel {
             vbox.getChildren().add(btn);
             btn.setOnAction(this::onUpgradeAction);
         }
-        return vbox;
+
     }
 
     private void onUpgradeAction(ActionEvent actionEvent) {
@@ -179,9 +217,9 @@ public class AppInformationPanel {
                 for(var pluginName : allPlugins) {
                     var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
                     var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
-                    if(!installedVersion.isSameOrNewerThan(availableVersion)) {
+                    if(!installedVersion.equals(availableVersion)) {
                         updateUI("Updating plugin " + pluginName, true);
-                        logger.log(INFO, "Upgrading " + pluginName);
+                        logger.log(INFO, "Updating " + pluginName);
                         libraryVersionDetector.upgradePlugin(pluginName, availableVersion);
                     }
                 }

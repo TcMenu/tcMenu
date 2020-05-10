@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
 import static com.thecoderscorner.menu.editorui.util.IHttpClient.HttpDataType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -28,15 +29,24 @@ public class OnlineLibraryVersionDetectorTest {
             "        <Plugin name=\"core-display\" version=\"1.4.3\"/>\n" +
             "        <Plugin name=\"core-remote\" version=\"1.4.4\"/>\n" +
             "    </Plugins>\n" +
+            "    <Libraries stream=\"BETA\">\n" +
+            "        <Library name=\"tcMenu\" version=\"10.4.1\"/>\n" +
+            "        <Library name=\"IoAbstraction\" version=\"10.4.11\"/>\n" +
+            "        <Library name=\"LiquidCrystalIO\" version=\"10.2.0\"/>\n" +
+            "    </Libraries>\n" +
+            "    <Plugins stream=\"BETA\">\n" +
+            "        <Plugin name=\"core-display\" version=\"10.4.3\"/>\n" +
+            "        <Plugin name=\"core-remote\" version=\"10.4.4\"/>\n" +
+            "    </Plugins>\n" +
             "</LibraryVersions>";
 
     @Test
     public void testReadingXmlOverMockHttp() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
-        when(mockHttp.postRequestForString(OnlineLibraryVersionDetector.LIBRARY_VERSIONING_URL, "", HttpDataType.JSON_DATA)).thenReturn(xmlData);
+        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "", HttpDataType.JSON_DATA)).thenReturn(xmlData);
 
-        var verDet = new OnlineLibraryVersionDetector(mockHttp);
-        var versions = verDet.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
+        var verDet = new OnlineLibraryVersionDetector(mockHttp, ReleaseType.STABLE);
+        var versions = verDet.acquireVersions();
 
         assertEquals("1.4.1", versions.get("tcMenu/Library").toString());
         assertEquals("1.4.11", versions.get("IoAbstraction/Library").toString());
@@ -44,4 +54,20 @@ public class OnlineLibraryVersionDetectorTest {
         assertEquals("1.4.3", versions.get("core-display/Plugin").toString());
         assertEquals("1.4.4", versions.get("core-remote/Plugin").toString());
     }
+
+    @Test
+    public void testReadingXmlOverMockHttpForBeta() throws IOException, InterruptedException {
+        var mockHttp = Mockito.mock(IHttpClient.class);
+        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "", HttpDataType.JSON_DATA)).thenReturn(xmlData);
+
+        var verDet = new OnlineLibraryVersionDetector(mockHttp, ReleaseType.BETA);
+        var versions = verDet.acquireVersions();
+
+        assertEquals("10.4.1", versions.get("tcMenu/Library").toString());
+        assertEquals("10.4.11", versions.get("IoAbstraction/Library").toString());
+        assertEquals("10.2.0", versions.get("LiquidCrystalIO/Library").toString());
+        assertEquals("10.4.3", versions.get("core-display/Plugin").toString());
+        assertEquals("10.4.4", versions.get("core-remote/Plugin").toString());
+    }
+
 }

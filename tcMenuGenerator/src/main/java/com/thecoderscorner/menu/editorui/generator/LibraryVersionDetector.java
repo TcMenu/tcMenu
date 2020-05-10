@@ -11,7 +11,12 @@ import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 
 import java.util.Map;
 
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
+
 public interface LibraryVersionDetector {
-    public Map<String, VersionInfo> acquireVersions(OnlineLibraryVersionDetector.ReleaseType relType);
+    void changeReleaseType(ReleaseType releaseType);
+    ReleaseType getReleaseType();
+
+    public Map<String, VersionInfo> acquireVersions();
     public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException;
 }

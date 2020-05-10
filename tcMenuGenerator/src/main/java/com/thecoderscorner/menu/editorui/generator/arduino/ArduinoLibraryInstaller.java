@@ -186,7 +186,7 @@ public class ArduinoLibraryInstaller {
         Path startPath;
 
         if(installationType == InstallationType.AVAILABLE_LIB || installationType == InstallationType.AVAILABLE_PLUGIN) {
-            var versions = versionDetector.acquireVersions(OnlineLibraryVersionDetector.ReleaseType.STABLE);
+            var versions = versionDetector.acquireVersions();
             return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
         }
         else if(installationType == InstallationType.CURRENT_LIB){

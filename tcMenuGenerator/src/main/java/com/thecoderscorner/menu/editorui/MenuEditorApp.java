@@ -39,6 +39,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.LogManager;
+import java.util.prefs.Preferences;
+
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -62,14 +65,14 @@ public class MenuEditorApp extends Application {
             }
         }
 
-        final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith ("Mac")) {
-            Desktop desktop = Desktop.getDesktop();
-            desktop.setAboutHandler(e -> {
-                Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent()));
-            });
-            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
-        }
+//        final String os = System.getProperty ("os.name");
+//        if (os != null && os.startsWith ("Mac")) {
+//            Desktop desktop = Desktop.getDesktop();
+//            desktop.setAboutHandler(e -> {
+//                Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent()));
+//            });
+//            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
+//        }
 
         createDirsIfNeeded();
 
@@ -79,7 +82,9 @@ public class MenuEditorApp extends Application {
 
         controller = loader.getController();
 
-        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(new SimpleHttpClient());
+        var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
+        var httpClient = new SimpleHttpClient();
+        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(httpClient, ReleaseType.valueOf(stream));
 
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
@@ -110,6 +115,8 @@ public class MenuEditorApp extends Application {
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
 
         primaryStage.setOnCloseRequest((evt)-> {
+            var streamStr = libraryVersionDetector.getReleaseType().toString();
+            Preferences.userNodeForPackage(MenuEditorApp.class).put("ReleaseStream", streamStr);
             controller.persistPreferences();
             if(project.isDirty()) {
                 evt.consume();

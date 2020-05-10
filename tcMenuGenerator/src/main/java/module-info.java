@@ -27,4 +27,5 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     opens com.thecoderscorner.menu.editorui.project to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator.core to com.google.gson;
+    opens com.thecoderscorner.menu.editorui.controller to com.google.gson;
 }
