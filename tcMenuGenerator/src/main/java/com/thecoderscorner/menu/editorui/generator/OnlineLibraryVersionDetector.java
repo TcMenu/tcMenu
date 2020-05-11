@@ -23,9 +23,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.System.Logger.Level.*;
@@ -34,7 +32,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     public enum ReleaseType { STABLE, BETA, PREVIOUS }
 
     public final static String LIBRARY_VERSIONING_URL = "http://thecoderscorner.com/tcc/app/getLibraryVersions";
-    private static final long THIRTY_MINUTES = TimeUnit.MINUTES.toMillis(30);
+    private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
     private static final String PLUGIN_DOWNLOAD_URL = "http://thecoderscorner.com/tcc/app/downloadPlugin";
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -68,7 +66,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     public Map<String, VersionInfo> acquireVersions() {
         ReleaseType relType;
         synchronized (cacheLock) {
-            if (!versionCache.isEmpty() && (System.currentTimeMillis() - lastAccess) < THIRTY_MINUTES) {
+            if (!versionCache.isEmpty() && (System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS) {
                 return versionCache;
             }
             relType = cachedReleaseType;

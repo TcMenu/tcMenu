@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
@@ -120,7 +121,9 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, mock(LibraryVersionDetector.class));
+        LibraryVersionDetector libDetector = mock(LibraryVersionDetector.class);
+        when(libDetector.getReleaseType()).thenReturn(ReleaseType.STABLE);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, libDetector);
         this.stage = stage;
 
         Scene myScene = new Scene(myPane);
