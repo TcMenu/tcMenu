@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
+
 /**
  * This represents the menu info structure as used on a lot of boards. It is a code independent way of expressing
  * the structures needed for menu items and the tree on at least all Arduino boards.
@@ -49,7 +51,7 @@ public class BuildStructInitializer {
     }
 
     public BuildStructInitializer addPossibleFunction(String functionName) {
-        structElements.add((functionName != null) ? functionName : "NO_CALLBACK");
+        structElements.add((!isStringEmptyOrNull(functionName)) ? functionName : "NO_CALLBACK");
         return this;
     }
 
