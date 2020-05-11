@@ -197,9 +197,9 @@ void SSD1306AsciiDialog::internalRender(int currentValue) {
     display->setFont(lcdRender->getTitleFont());
     display->setCursor(0,0);
     display->print(data);
+    display->setCursor(0, display->fontRows());
 
     display->setFont(lcdRender->getItemFont());
-    display->setCursor(0, display->fontRows());
         display->print(lcdRender->getBuffer());
 
     if(button1 != BTNTYPE_NONE) {
