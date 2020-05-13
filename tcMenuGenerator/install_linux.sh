@@ -25,8 +25,6 @@ fi
 
 if [[ ! -d target/jfx/deps ]] ; then
   echo "Application doesn't appear to be compiled. Attempting to do so (requires jdk, maven)."
-  mvn clean install -f ../baseInputDisplayPlugin
-  mvn clean install -f ../dfRobotCodePlugin
   mvn -DskipTests clean install
   if [[ ! -d target/jfx/deps ]] ; then
     "Compilation failed. Ensure java development kit and maven build system are installed."
@@ -40,7 +38,6 @@ mkdir -p "${BINDIR}"
 
 # Copy jars to destination directory
 cp target/jfx/deps/* "${LIBDIR}/${DIRNAME}/"
-cp -r target/jfx/app/plugins "${LIBDIR}/${DIRNAME}/"
 
 # Make a "binary" script to run the application
 cat > "${BINDIR}/${BINNAME}" << ENDHEREDOC
