@@ -6,53 +6,38 @@ Thanks to @ptapping for the linux instructions and build script. *Please note th
 
 At the moment on Linux, in order to run designer on Linux, you'll need to build it first. Then you can run TcMenu designer, you'll need:
 
-* An installation of Java OpenJDK **14** that can be readily installed from your package manager.
+* An installation of Java OpenJDK **11** or later that can be readily installed from your package manager.
 * An installation of maven, that again can be readily installed from your package manager.
 
-We'll look into building a JAR file as part of 1.4.1 so that you won't need to install maven to build it, you'll just need OpenJDK 14 so that you can run it. 
+We'll look into building a package in the future as time permits.
 
 ### Using the build script
 
 Run the `install_linux.sh` script in the `tcMenu/tcMenuGenerator` directory. Using the `--uninstall` option will remove the installed package. The script will tell you where the app has been installed. Take a look through the scripts before running to ensure you're happy with where it will place the files. 
 
-### Raw instructions, example for building 1.4.1 and above.
+### Raw instructions, example for building 1.4.2 and above.
 
     # Ensure java and maven build system installed
     # Arch Linux
-    sudo pacman -Sy jdk14-openjdk maven
+    sudo pacman -Sy jdk11-openjdk maven # or sudo pacman -Sy jdk14-openjdk maven
     # Java version can be selected with
-    # sudo archlinux-java set java-14-openjdk
+    # sudo archlinux-java set <java-11-openjdk or java-14-openjdk>
 
     # Ubuntu, Debian (untested, should work)
-    sudo apt update && sudo apt install openjdk-11-jdk maven
+    sudo apt update && sudo apt install openjdk-11-jdk maven # or use 14 if you wish
     # Java version can be managed with
     # sudo update-alternatives --config java
 
     # Get source code
-    wget https://github.com/davetcc/tcMenu/archive/1.4.1.tar.gz
-    tar xvf 1.4.1.tar.gz
-    cd tcMenu-1.4.1
+    wget https://github.com/davetcc/tcMenu/archive/1.4.2.tar.gz
+    tar xvf 1.4.2.tar.gz
+    cd tcMenu-1.4.2
 
     # Build app
     mvn -DskipTests clean install -f tcMenuGenerator/pom.xml
 
     # Run
     cd tcMenuGenerator/target/jfx/app
-    java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
-
-### Let's say you wanted master instead of a release
-
-    # Get source code for master
-    # Could use --recursive to get submodules, but 1.4.0 doesn't allow installation of them anymore
-    git clone https://github.com/davetcc/tcMenu.git
-    cd tcMenu
-    git checkout master
-
-    # Build app
-    mvn -DskipTests clean install -f tcMenuGenerator
-
-    # Run
-    cd tcMenuGenerator/target/jfx/app/
     java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
 
 ### If you don't want to use Library Manager or Plugin automatic updates
