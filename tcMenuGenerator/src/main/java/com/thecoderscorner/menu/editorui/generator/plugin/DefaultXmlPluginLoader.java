@@ -10,18 +10,17 @@ import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicabl
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.NestedApplicability;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
-import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.scene.image.Image;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -215,7 +213,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     new HeaderDefinition(
                             ele.getAttribute("name"),
                             Boolean.parseBoolean(getAttributeOrDefault(ele, "inSource", false)),
-                            toPriority(ele.getAttribute("priority"))
+                            toPriority(ele.getAttribute("priority")),
+                            toApplicability(ele, applicabilityByKey)
                     )
             ));
 

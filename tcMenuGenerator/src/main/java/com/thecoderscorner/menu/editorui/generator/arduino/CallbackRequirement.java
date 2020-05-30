@@ -130,7 +130,7 @@ public class CallbackRequirement {
         }
     }
 
-    String generateHeader() {
+    public String generateHeader() {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
             @Override
             public void visit(RuntimeListMenuItem listItem) {

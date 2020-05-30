@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class BuildStructInitializer {
     }
 
     public BuildStructInitializer addHeaderFileRequirement(String include, boolean quotes) {
-        headerRequirement.add(new HeaderDefinition(include, quotes, HeaderDefinition.PRIORITY_NORMAL));
+        headerRequirement.add(new HeaderDefinition(include, quotes, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable()));
         return this;
     }
 

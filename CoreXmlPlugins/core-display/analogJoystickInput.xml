@@ -7,7 +7,8 @@
        <Platform>ARDUINO_32</Platform>
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
-    </SupportedPlatforms>
+       <Platform>MBED_RTOS</Platform>
+</SupportedPlatforms>
     <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries/>
@@ -30,16 +31,17 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="analogDevice" type="ArduinoAnalogDevice" export="true"/>
+        <Variable name="analogDevice" type="ArduinoAnalogDevice" export="true" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+        <Variable name="analogDevice" type="MBedAnalogDevice" export="true" whenProperty="TARGET" isValue="MBED_RTOS"/>
     </GlobalVariables>
 
     <SetupFunctions>
             <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
-            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 

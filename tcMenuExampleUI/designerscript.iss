@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TcMenuController"
-#define MyAppVersion "1.4.1"
+#define MyAppVersion "1.4.2"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuController.exe"
@@ -33,8 +33,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuExampleUI\target\tcMenuController\tcMenuController\tcMenuController.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuExampleUI\target\tcMenuController\tcMenuController\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuExampleUI\target\tcMenuController\tcMenuController.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuExampleUI\target\tcMenuController\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

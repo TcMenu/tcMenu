@@ -4,8 +4,8 @@ import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicabl
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.NestedApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.validation.*;
 import org.junit.jupiter.api.AfterEach;
@@ -18,9 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DefaultXmlPluginLoaderTest {
     private DefaultXmlPluginLoader loader;
@@ -116,7 +117,7 @@ public class DefaultXmlPluginLoaderTest {
         assertThat(item.getFunctions().get(0).getApplicability()).isInstanceOf(EqualityApplicability.class);
         assertEquals("${SWITCH_IODEVICE}",item.getFunctions().get(0).getParameters().get(0).getValue());
         assertEquals("${PULLUP_LOGIC",item.getFunctions().get(0).getParameters().get(1).getValue());
-        assertEquals("ioUsingArduino()",item.getFunctions().get(0).getParameters().get(0).getDefaultValue());
+        assertEquals("internalDigitalIo()",item.getFunctions().get(0).getParameters().get(0).getDefaultValue());
 
         assertFunction(item.getFunctions().get(1), "switches", "initialise", 2, false);
         assertThat(item.getFunctions().get(1).getApplicability()).isInstanceOf(EqualityApplicability.class);

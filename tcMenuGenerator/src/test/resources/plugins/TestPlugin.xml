@@ -63,11 +63,11 @@
 
     <SetupFunctions>
         <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
-            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
             <Param value="${PULLUP_LOGIC"/>
         </Function>
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param value="${SWITCH_IODEVICE}" default="ioUsingArduino()"/>
+            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
             <Param value="${PULLUP_LOGIC}" default="true"/>
         </Function>
 

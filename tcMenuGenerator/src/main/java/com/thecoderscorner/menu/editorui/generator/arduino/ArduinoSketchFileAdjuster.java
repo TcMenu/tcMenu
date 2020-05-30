@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.IOException;
@@ -23,10 +24,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class ArduinoSketchFileAdjuster {
-    /** In case the directory has never previous had a sketch, this is the simplest sketch.. */
-    public static final String EMPTY_SKETCH = "\nvoid setup() {\n\n}\n\n" + "void loop() {\n\n}\n";
-
+public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     /** The pattern to look for call back functions */
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("(void|int)\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
     /** the pattern to look for set up */
@@ -34,10 +32,14 @@ public class ArduinoSketchFileAdjuster {
     /** the pattern to loop for the loop method */
     private static final Pattern LOOP_PATTERN = Pattern.compile("void\\s+loop\\(\\)(.*)");
 
-    boolean changed = false;
-    private Consumer<String> logger;
+    protected boolean changed = false;
+    protected Consumer<String> logger;
 
     public ArduinoSketchFileAdjuster() {
+    }
+
+    protected String emptyFileContents() {
+        return "\nvoid setup() {\n\n}\n\n" + "void loop() {\n\n}\n";
     }
 
     /**
@@ -58,8 +60,8 @@ public class ArduinoSketchFileAdjuster {
 
         Path source = Paths.get(inoFile);
         if (!Files.exists(source)) {
-            logger.accept("No existing infoFile, generating an empty one");
-            Files.write(source, ArduinoSketchFileAdjuster.EMPTY_SKETCH.getBytes());
+            logger.accept("No existing sketch, generating an empty one");
+            Files.write(source, emptyFileContents().getBytes());
         }
 
         boolean needsInclude = true;
@@ -92,7 +94,7 @@ public class ArduinoSketchFileAdjuster {
         ArrayList<String> lines = new ArrayList<>(Files.readAllLines(source));
         if(needsInclude) addIncludeToTopOfFile(lines, projectName);
         if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
-        if(needsTaskMgr) addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
+        if(needsTaskMgr) taskManagerIsMissing(lines);
         List<CallbackRequirement> callbacksToMake = new ArrayList<>(callbacks);
         makeNewCallbacks(lines, callbacksToMake, callbacksDefined);
 
@@ -106,6 +108,10 @@ public class ArduinoSketchFileAdjuster {
         else {
             logger.accept("No changes to the INO file, not writing out");
         }
+    }
+
+    private void taskManagerIsMissing(ArrayList<String> lines) {
+        addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
     }
 
     private void makeNewCallbacks(ArrayList<String> lines, List<CallbackRequirement> callbacksToMake,
@@ -146,7 +152,7 @@ public class ArduinoSketchFileAdjuster {
         }
     }
 
-    private void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
+    protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
         lines.add(0, "#include \"" + projectName + "_menu.h\"");
         changed = true;
     }

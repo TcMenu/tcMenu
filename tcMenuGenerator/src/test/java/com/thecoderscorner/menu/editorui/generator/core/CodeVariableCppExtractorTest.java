@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import org.assertj.core.api.Assertions;
@@ -47,7 +48,7 @@ public class CodeVariableCppExtractorTest {
         assertEquals("extern MenuItem menuMyItem;", extractor.mapStructHeader(initializer));
         assertEquals("MenuItem menuMyItem(42, someVar);", extractor.mapStructSource(initializer));
         Assertions.assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
-                new HeaderDefinition("SomeHeader.h", false, HeaderDefinition.PRIORITY_NORMAL)
+                new HeaderDefinition("SomeHeader.h", false, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable())
         );
     }
 

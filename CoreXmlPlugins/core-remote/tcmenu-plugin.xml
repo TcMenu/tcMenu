@@ -20,5 +20,8 @@
         <!-- esp specific -->
         <Plugin>remoteSerialESP.xml</Plugin>
         <Plugin>remoteWifiESP.xml</Plugin>
+
+        <!-- mbed specific -->
+        <Plugin>remoteMbedEthernet.xml</Plugin>
     </Plugins>
 </TcMenuPluginDefinition>

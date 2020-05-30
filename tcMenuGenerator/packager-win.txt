@@ -10,6 +10,8 @@ java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.t
 
 jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
+jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuController.ico --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
+
 # Step 3 - Build the distribution
 
 Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator directory. Choose compile, output will be in the Output directory at the same level as the script.

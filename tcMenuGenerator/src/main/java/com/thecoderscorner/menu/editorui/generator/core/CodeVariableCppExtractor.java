@@ -168,6 +168,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     @Override
     public String mapIncludes(List<HeaderDefinition> includeList) {
         return includeList.stream()
+                .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
                 .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)

@@ -11,6 +11,8 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
+import com.thecoderscorner.menu.editorui.generator.mbed.MbedGenerator;
+import com.thecoderscorner.menu.editorui.generator.mbed.MbedSketchFileAdjuster;
 
 import java.util.List;
 
@@ -24,8 +26,9 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32);
-    private final List<EmbeddedPlatform> arduinoPlatforms = platforms; // at the moment all platforms are Arduino.
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS);
+    private final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32); // at the moment all platforms are Arduino.
+    private final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS); // at the moment all platforms are Arduino.
     private ArduinoLibraryInstaller installer;
 
     public PluginEmbeddedPlatformsImpl() {
@@ -41,6 +44,10 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         if(installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if(arduinoPlatforms.contains(platform)) {
             return new ArduinoGenerator(new ArduinoSketchFileAdjuster(), installer,
+                                        platform, options);
+        }
+        else if(mbedPlatforms.contains(platform)) {
+            return new MbedGenerator(new MbedSketchFileAdjuster(), installer,
                                         platform, options);
         }
         else {
@@ -62,6 +69,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         }
         else if(id.equals(ARDUINO_ESP32.getBoardId())) {
             return ARDUINO_ESP32;
+        }
+        else if(id.equals(MBED_RTOS.getBoardId())) {
+            return MBED_RTOS;
         }
         else {
             throw new IllegalArgumentException("No such board type: " + id);

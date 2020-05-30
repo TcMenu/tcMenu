@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
+
 import java.util.Objects;
 
 /**
@@ -18,11 +20,13 @@ public class HeaderDefinition {
     private final String headerName;
     private final boolean inSource;
     private final int priority;
+    private final CodeApplicability applicability;
 
-    public HeaderDefinition(String headerName, boolean inSrc, int priority) {
+    public HeaderDefinition(String headerName, boolean inSrc, int priority, CodeApplicability applicability) {
         this.headerName = headerName;
         this.priority = priority;
         this.inSource = inSrc;
+        this.applicability = applicability;
     }
 
     @Override
@@ -43,6 +47,10 @@ public class HeaderDefinition {
 
     public boolean isInSource() {
         return inSource;
+    }
+
+    public CodeApplicability getApplicability() {
+        return applicability;
     }
 
     @Override
