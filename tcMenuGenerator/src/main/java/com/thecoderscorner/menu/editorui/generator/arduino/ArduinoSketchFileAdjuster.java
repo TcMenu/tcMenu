@@ -110,7 +110,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         }
     }
 
-    private void taskManagerIsMissing(ArrayList<String> lines) {
+    protected void taskManagerIsMissing(ArrayList<String> lines) {
         addSetupCode(lines, LOOP_PATTERN, "    taskManager.runLoop();");
     }
 
