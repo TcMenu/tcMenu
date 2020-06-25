@@ -18,8 +18,8 @@
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
         <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable this to use interrupts instead of polling for switches" type="boolean"/>
         <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="" desc="Advanced: IoAbstractionRef (default is Arduino pins)" type="variable"/>
-        <Property id="JOYSTICK_PIN" name="Up Button Pin" initial="2" desc="The analog pin the joystick is connected to" type="pin"/>
-        <Property id="BUTTON_PIN" name="Down Button Pin" initial="3" desc="The pin on which UP button is connected" type="pin"/>
+        <Property id="JOYSTICK_PIN" name="Analog Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
+        <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -46,7 +46,7 @@
         </Function>
 
         <Lambda name="onReleaseFn">
-            <Param type="uint8_t" name="/*key*/"/>
+            <Param type="pinid_t" name="/*key*/"/>
             <Param type="bool" name="held"/>
             <Function name="onMenuSelect" object="menuMgr">
                 <Param value="held"/>

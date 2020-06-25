@@ -20,7 +20,9 @@
 #include <RemoteConnector.h>
 #include <TaskManager.h>
 
-#define WRITE_DELAY 150
+// We try and package up writes to avoid writing out single messages, there is a task
+// that runs that will flush transports at this interval, around 7 times a second.
+#define WRITE_DELAY 142
 
 /**
  * An mbed implementation of tag val transport that works over a socket connection
@@ -47,6 +49,7 @@ public:
         delete socket;
         socket = sock;
         socket->set_blocking(false);
+        lastReadAmt = readPos = writePos = 0;
         isOpen = true;
     }
 
@@ -62,7 +65,9 @@ public:
 
     bool available() override;
 
-    bool connected() override;
+    bool connected() override {
+        return isOpen;
+    }
 
     void close() override;
 
@@ -83,8 +88,6 @@ private:
     bool boundToAddr;
     int listenPort;
 public:
-    enum ConnectivityState { NO_INTERFACE, INTERFACE_UP, NOT_BOUND};
-
     /**
      * Empty constructor - see begin.
      */
@@ -125,6 +128,22 @@ public:
      * do not manually call, called by taskManager to poll the connection
      */
     void exec() override;
+
+    //
+    // mbed specific items
+    //
+
+    /**
+     * @return true if the server has now bound to an external address, IE. the network is connected and working
+     */
+     bool isBound() { return boundToAddr; }
+
+     /**
+      * Gets the network interface that's being used by this connector, only ever use this interface if isBound
+      * returns true, because otherwise it could be null or completely undefined.
+      * @return the network interface that can be used for other network operations.
+      */
+      NetworkInterface* networkInterface() { return defNetwork; }
 };
 
 /**

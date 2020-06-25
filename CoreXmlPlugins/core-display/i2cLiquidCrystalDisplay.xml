@@ -42,6 +42,7 @@
     </IncludeFiles>
 
     <GlobalVariables>
+        <Variable name="${WIRE_VARIABLE}" type="I2C"  export="only" whenProperty="TARGET" isValue="MBED_RTOS"/>
         <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false" whenProperty="PIN_LAYOUT" isValue="EN_RW_RS">
             <Param value="2"/>
             <Param value="1"/>
@@ -70,12 +71,10 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="Wire"/>
+        <Function name="begin" object="Wire" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
 
         <Function name="setIoAbstraction" object="lcd" >
-            <Param value="ioFrom8574(${I2C_ADDRESS})"/>
-            <Param value="0xff"/>
-            <Param ref="${WIRE_VARIABLE}"/>
+            <Param value="ioFrom8574(${I2C_ADDRESS}, 0xff, &amp;${WIRE_VARIABLE})"/>
         </Function>
 
         <Function name="begin" object="lcd">

@@ -20,6 +20,8 @@ MBedEthernetTransport::~MBedEthernetTransport() {
 }
 
 void MBedEthernetTransport::flush() {
+    if(writePos == 0) return;
+
     int written = socket->send(writeBuf, writePos);
     if(written == NSAPI_ERROR_WOULD_BLOCK) return;
     if(written > 0) {
@@ -56,8 +58,7 @@ int MBedEthernetTransport::writeStr(const char *data) {
 }
 
 uint8_t MBedEthernetTransport::readByte() {
-    if(readPos >= sizeof(readBuf)) return -1;
-    return readBuf[readPos++];
+    return (readAvailable()) ? readBuf[readPos++] : -1;
 }
 
 bool MBedEthernetTransport::readAvailable() {
@@ -67,13 +68,15 @@ bool MBedEthernetTransport::readAvailable() {
         if(amt > 0) {
             readPos = 0;
             lastReadAmt = amt;
+            return true;
         }
         else {
             close();
+            lastReadAmt =0;
+            readPos = 0;
             return false;
         }
-    }
-    return readPos < sizeof(readBuf);
+    } else return true;
 }
 
 bool MBedEthernetTransport::available() {
@@ -81,10 +84,6 @@ bool MBedEthernetTransport::available() {
         flush();
     }
     return (readPos < sizeof(writeBuf));
-}
-
-bool MBedEthernetTransport::connected() {
-    return isOpen;
 }
 
 void MBedEthernetTransport::close() {
@@ -108,6 +107,9 @@ void EthernetTagValServer::begin(int bindingPort, const ConnectorLocalInfo* loca
         return;
     }
     listenPort = bindingPort;
+
+    connector.initialise(&transport, &messageProcessor, localInfo);
+
     defNetwork->set_blocking(false);
     server.set_blocking(false);
 
@@ -136,7 +138,8 @@ void EthernetTagValServer::exec() {
         }
         boundToAddr = true;
 
-        taskManager.scheduleFixedRate(WRITE_DELAY, this, TIME_MILLIS);
+        taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
+        //secondly we provide a low speed writer task that just flushes the buffer a five times a second.
         taskManager.scheduleFixedRate(WRITE_DELAY, &transport, TIME_MILLIS);
 
         serdebugF2("Listen fully bound to ", listenPort);
