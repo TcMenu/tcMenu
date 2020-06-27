@@ -14,7 +14,7 @@ public enum EditItemType {
     TIME_24H(2),
     TIME_12H(3),
     TIME_24_HUNDREDS(4),
-    LARGE_NUMBER(5);
+    GREGORIAN_DATE(5);
 
     private final int msgId;
 

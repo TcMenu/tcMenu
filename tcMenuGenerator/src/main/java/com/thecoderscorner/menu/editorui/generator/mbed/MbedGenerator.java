@@ -48,7 +48,6 @@ public class MbedGenerator extends CoreCodeGenerator {
         String mainFile = Paths.get(srcDir.toString(),"tcmenu_main.cpp").toString();
 
         updateMbedMain(mainFile, projectName, callbackFunctions.values());
-
     }
 
 

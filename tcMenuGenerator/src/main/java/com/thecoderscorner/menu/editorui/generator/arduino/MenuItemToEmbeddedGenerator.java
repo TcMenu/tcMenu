@@ -94,6 +94,16 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
             setResult(List.of(menu));
         }
+        else if(item.getItemType() == EditItemType.GREGORIAN_DATE) {
+            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
+                    .addElement(makeRtFunctionName())
+                    .addElement(item.getId())
+                    .addElement(nextMenuName)
+                    .requiresExtern()
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+            setResult(List.of(menu));
+
+        }
         else {
             // time based
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")

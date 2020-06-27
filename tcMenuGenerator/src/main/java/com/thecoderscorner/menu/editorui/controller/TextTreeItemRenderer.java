@@ -57,7 +57,7 @@ public class TextTreeItemRenderer {
         @Override
         public void visit(AnalogMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
-            String it = Integer.toString((item.getMaxValue() + item.getOffset()) / item.getDivisor());
+            String it = Integer.toString((item.getMaxValue() + item.getOffset()) / Math.max(1, item.getDivisor()));
             it += item.getUnitName();
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
@@ -71,6 +71,9 @@ public class TextTreeItemRenderer {
             if(item.getItemType() == EditItemType.IP_ADDRESS) {
                 it = "127.0.0.1";
             }
+            else if(item.getItemType() == EditItemType.GREGORIAN_DATE) {
+                it = "01/01/2020";
+            }
             else if(item.getItemType() == EditItemType.PLAIN_TEXT) {
                 it = StringHelper.repeat("A", Math.max(1, item.getTextLength()));
             }
@@ -83,7 +86,7 @@ public class TextTreeItemRenderer {
             else if(item.getItemType() == EditItemType.TIME_24_HUNDREDS) {
                 it = "23:56:53.97";
             }
-            else it ="";
+            else it ="???";
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
             setResult(sb.toString());

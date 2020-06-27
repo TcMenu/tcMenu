@@ -126,6 +126,7 @@ public class CallbackRequirement {
         switch(itemType) {
             case PLAIN_TEXT: return "textItemRenderFn";
             case IP_ADDRESS: return "ipAddressRenderFn";
+            case GREGORIAN_DATE: return "dateItemRenderFn";
             default: return "timeItemRenderFn";
         }
     }

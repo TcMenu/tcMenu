@@ -205,7 +205,7 @@ public class MenuItemHelper {
                 else if(item.getItemType() == EditItemType.PLAIN_TEXT) {
                     setResult(item.getTextLength());
                 }
-                else setResult(4); // all time types are 4 bytes long
+                else setResult(4); // all date and time types are 4 bytes long
             }
 
             @Override
