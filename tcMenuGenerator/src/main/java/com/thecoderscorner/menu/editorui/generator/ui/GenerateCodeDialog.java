@@ -166,7 +166,7 @@ public class GenerateCodeDialog {
         propsTable.setEditable(true);
         valueCol.setEditable(true);
 
-        valueCol.setCellFactory(editCol -> new CreatorEditingTableCell(editorUI));
+        valueCol.setCellFactory(editCol -> new CreatorEditingTableCell(editorUI, project.getMenuTree().getAllMenuItems()));
 
         changeProperties();
     }

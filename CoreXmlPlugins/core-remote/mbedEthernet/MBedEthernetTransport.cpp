@@ -13,14 +13,13 @@
 #include "MBedEthernetTransport.h"
 
 MBedEthernetTransport::~MBedEthernetTransport() {
-    if(socket){
+    if(socket) {
         socket->close();
-        delete socket;
     }
 }
 
 void MBedEthernetTransport::flush() {
-    if(writePos == 0) return;
+    if(writePos == 0 || socket == nullptr) return;
 
     int written = socket->send(writeBuf, writePos);
     if(written == NSAPI_ERROR_WOULD_BLOCK) return;
@@ -62,6 +61,8 @@ uint8_t MBedEthernetTransport::readByte() {
 }
 
 bool MBedEthernetTransport::readAvailable() {
+    if(socket == nullptr) return false;
+
     if(readPos >= lastReadAmt) {
         int amt = socket->recv(readBuf, sizeof(readBuf));
         if(amt == NSAPI_ERROR_WOULD_BLOCK) return false;
@@ -80,6 +81,8 @@ bool MBedEthernetTransport::readAvailable() {
 }
 
 bool MBedEthernetTransport::available() {
+    if(socket == nullptr) return false;
+
     if(readPos >= sizeof(writeBuf)) {
         flush();
     }
@@ -87,9 +90,13 @@ bool MBedEthernetTransport::available() {
 }
 
 void MBedEthernetTransport::close() {
+    if(socket == nullptr) return;
+
     flush();
     isOpen = false;
     socket->close();
+    // socket is now a dangling pointer and must be cleared
+    socket = nullptr;
 }
 
 void MBedEthernetTransport::endMsg() {
@@ -148,7 +155,7 @@ void EthernetTagValServer::exec() {
     }
     if(!transport.connected()) {
         nsapi_error_t acceptErr;
-         auto tcpSock = server.accept(&acceptErr);
+        auto tcpSock = server.accept(&acceptErr);
         if(acceptErr == NSAPI_ERROR_OK) {
             serdebugF("Client found");
             transport.setSocket(tcpSock);

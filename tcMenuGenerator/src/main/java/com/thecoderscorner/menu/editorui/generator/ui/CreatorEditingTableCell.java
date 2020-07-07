@@ -6,8 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
@@ -15,12 +17,18 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class CreatorEditingTableCell extends TableCell<CreatorProperty, String> {
     Node editorNode;
-    private CurrentProjectEditorUI editorUI;
+    private final CurrentProjectEditorUI editorUI;
+    private final Collection<MenuItem> allItems;
 
-    public CreatorEditingTableCell(CurrentProjectEditorUI editorUI) {
+    public CreatorEditingTableCell(CurrentProjectEditorUI editorUI, Collection<MenuItem> allItems) {
         this.editorUI = editorUI;
+        this.allItems = allItems;
     }
 
     @Override
@@ -32,7 +40,13 @@ public class CreatorEditingTableCell extends TableCell<CreatorProperty, String> 
         CreatorProperty property = getTableRow().getItem();
         if(property.getValidationRules().hasChoices()) {
             ComboBox<String> comboBox = (ComboBox) editorNode;
-            comboBox.getSelectionModel().select(property.getLatestValue());
+            if(property.getValidationRules() instanceof MenuItemValidationRules) {
+                var valRules = (MenuItemValidationRules) property.getValidationRules();
+                comboBox.getSelectionModel().select(valRules.valueToIndex(property.getLatestValue()));
+            }
+            else {
+                comboBox.getSelectionModel().select(property.getLatestValue());
+            }
             comboBox.requestFocus();
         }
         else {
@@ -52,8 +66,6 @@ public class CreatorEditingTableCell extends TableCell<CreatorProperty, String> 
             property.getProperty().set(s);
         }
         else {
-            String fieldDesc;
-
             editorUI.alertOnError(
                     "Validation error during table edit",
                     "The value '" + s + "' is not valid for " + property.getName()
@@ -76,7 +88,10 @@ public class CreatorEditingTableCell extends TableCell<CreatorProperty, String> 
 
         CreatorProperty prop = this.getTableRow().getItem();
         if(prop.getValidationRules().hasChoices()) {
-            buildComboBox(prop);
+            if(prop.getValidationRules() instanceof MenuItemValidationRules)
+                buildMenuItemComboBox(prop);
+            else
+                buildComboBox(prop);
         }
         else {
             buildEditBox(prop);
@@ -101,8 +116,22 @@ public class CreatorEditingTableCell extends TableCell<CreatorProperty, String> 
         }
     }
 
+    private void buildMenuItemComboBox(CreatorProperty prop) {
+        var validationRule = (MenuItemValidationRules) prop.getValidationRules();
+        validationRule.initialise(new ArrayList<>(allItems));
+        var comboBox = new ComboBox<>(FXCollections.observableList(validationRule.choices()));
+        comboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap()* 2);
+        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+            if (!newVal) {
+                commitEdit(validationRule.valueFor(comboBox.getSelectionModel().getSelectedIndex()));
+            }
+        });
+        comboBox.setOnAction(actionEvent -> commitEdit(comboBox.getValue()));
+        editorNode = comboBox;
+    }
+
     private void buildComboBox(CreatorProperty prop) {
-        var comboBox = new ComboBox<String>(FXCollections.observableList(prop.getValidationRules().choices()));
+        var comboBox = new ComboBox<>(FXCollections.observableList(prop.getValidationRules().choices()));
         comboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap()* 2);
         comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
                     if (!newVal) {

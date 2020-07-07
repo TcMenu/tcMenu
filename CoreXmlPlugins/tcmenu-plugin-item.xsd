@@ -163,7 +163,7 @@
   <xs:complexType name="LambdaType">
     <xs:sequence>
       <xs:element type="ParamType" name="Param" maxOccurs="unbounded" minOccurs="0"/>
-      <xs:element type="FunctionType" name="Function" minOccurs="0"/>
+      <xs:element type="FunctionType" name="Function" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute type="xs:string" name="name" use="optional"/>
     <xs:attribute type="xs:string" name="object" use="optional"/>

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
@@ -331,6 +332,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private PropertyValidationRules validatorFor(Element elem) {
         boolean req = Boolean.parseBoolean(elem.getAttribute("required"));
+
         switch (elem.getAttribute("type")) {
             case "header":
             case "variable":
@@ -345,6 +347,17 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return CannedPropertyValidators.choicesValidator(transformElements(elem, "Choices", "Choice", Node::getTextContent));
             case "pin":
                 return CannedPropertyValidators.pinValidator();
+
+            case "MenuItem": return CannedPropertyValidators.menuItemValidatorForAllItems();
+            case "BooleanMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(BooleanMenuItem.class);
+            case "TextMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableTextMenuItem.class);
+            case "AnalogMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(AnalogMenuItem.class);
+            case "SubMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(SubMenuItem.class);
+            case "EnumMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EnumMenuItem.class);
+            case "FloatMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(FloatMenuItem.class);
+            case "RuntimeMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(RuntimeListMenuItem.class);
+            case "LargeNumberMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableLargeNumberMenuItem.class);
+
             case "text":
             default:
                 return CannedPropertyValidators.textValidator();

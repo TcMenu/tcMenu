@@ -23,5 +23,8 @@
 
         <!-- mbed specific -->
         <Plugin>remoteMbedEthernet.xml</Plugin>
+
+        <!-- simhub connector -->
+        <Plugin>simhubConnector.xml</Plugin>
     </Plugins>
 </TcMenuPluginDefinition>

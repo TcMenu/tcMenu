@@ -6,7 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.validation;
 
+import com.thecoderscorner.menu.domain.MenuItem;
+
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A helper class with static methods that provides short cuts for commonly used property validators.
@@ -64,5 +67,21 @@ public class CannedPropertyValidators {
      */
     public static ChoicesPropertyValidationRules choicesValidator(Collection<String> values) {
         return new ChoicesPropertyValidationRules(values);
+    }
+
+    /**
+     * This method returns a validator based on menu items, in this case all menu items
+     * @return a new validator to validate on menu items.
+     */
+    public static MenuItemValidationRules menuItemValidatorForAllItems() {
+        return new MenuItemValidationRules((i) -> true);
+    }
+
+    /**
+     * This method returns a validator based on menu items, in this case menu items that match the class passed in.
+     * @param cls the class to match. EG SubMenuItem.class for all sub menus.
+     * @return a new validator to validate on menu items.
+     */    public static MenuItemValidationRules menuItemValidatorForSpecifcType(Class<? extends MenuItem> cls) {
+        return new MenuItemValidationRules((i) -> cls.equals(i.getClass()));
     }
 }
