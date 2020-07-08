@@ -12,11 +12,11 @@
     <Description>Use this option to update menu items from simhub using the custom protocol. The documentation describes how to configure the protocol.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/simhub-connector/"/>
     <RequiredLibraries/>
-    <ImageFile>serial-connection.jpg</ImageFile>
+    <ImageFile>simhub.jpg</ImageFile>
 
     <Properties>
         <Property id="SERIAL_PORT" name="Serial port" desc="Enter the variable name of the serial port, E.G: Serial" initial="Serial" type="variable"/>
-        <Property id="STATUS_MENUITEM" name="Status menu item (optional -1 for none)" desc="" initial="-1" type="BooleanMenuItem"/>
+        <Property id="STATUS_MENUITEM" name="Connection Status menu item (-1 none)" desc="Optional BooleanMenuItem that shows connection status" initial="-1" type="BooleanMenuItem"/>
     </Properties>
 
     <ApplicabilityDefs/>

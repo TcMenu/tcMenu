@@ -22,15 +22,21 @@
 #include <HardwareSerial.h>
 #include <IoLogging.h>
 
+#if defined(ESP8266) || defined(ESP32)
+# define SerPortName HardwareSerial
+#else
+# define SerPortName Stream
+#endif
+
 class SimhubConnector : public Executable {
 private:
-    HardwareSerial* serialPort;
+    SerPortName* serialPort;
     BooleanMenuItem* statusMenuItem;
     char lineBuffer[MAX_LINE_WIDTH];
     int linePosition;
 public:
     SimhubConnector();
-    void begin(HardwareSerial* serialPort, int statusMenuId);
+    void begin(SerPortName* serialPort, int statusMenuId);
 
     void exec() override;
 private:

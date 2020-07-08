@@ -20,7 +20,7 @@ SimhubConnector::SimhubConnector() {
     this->statusMenuItem = nullptr;
 }
 
-void SimhubConnector::begin(HardwareSerial *serialPort, int statusMenuId) {
+void SimhubConnector::begin(SerPortName *serialPort, int statusMenuId) {
     this->serialPort = serialPort;
     if(statusMenuId != -1) {
         statusMenuItem = reinterpret_cast<BooleanMenuItem*>(getMenuItemById(statusMenuId));
