@@ -38,7 +38,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
         this.maxValue = maxValue;
         this.offset = offset;
         this.divisor = divisor;
-        this.unitName = unitName;
+        this.unitName = unitName != null ? unitName : "";
     }
 
     /**
@@ -80,7 +80,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
      * @param value the new value
      * @param changed if the value has changed
      * @param active if the menu item is active, can be used for your own purposes.
-     * @return
+     * @return the new state object
      */
     @Override
     public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
