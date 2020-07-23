@@ -4,7 +4,7 @@ A menu system for Arduino and mbed* that is modular enough to support different 
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows, MacOS and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
 
-* * NOTE: mbed support is in early access at the moment, to use it you need to switch stream in the designer UI to BETA. *
+*\*NOTE: mbed support is in early access at the moment, to use it you need to switch stream in the designer UI to BETA.*
 
 ## Questions, community forum and support
 
