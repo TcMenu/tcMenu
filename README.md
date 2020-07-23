@@ -1,8 +1,10 @@
 # tcMenu - A menu system for Arduino and mbed with IoT capabilities
 
-A menu system for Arduino and mbed that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+A menu system for Arduino and mbed* that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows, MacOS and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
+
+* * NOTE: mbed support is in early access at the moment, to use it you need to switch stream in the designer UI to BETA. *
 
 ## Questions, community forum and support
 
