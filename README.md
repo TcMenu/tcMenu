@@ -1,8 +1,8 @@
-# tcMenu - A menu system for Arduino with IoT capabilities
+# tcMenu - A menu system for Arduino and mbed with IoT capabilities
 
-A menu system for Arduino that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+A menu system for Arduino and mbed that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
-Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows and MacOS. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
+Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows, MacOS and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
 
 ## Questions, community forum and support
 
@@ -36,11 +36,6 @@ hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
-## Priorities for the next versions
-
-* Some more videos on youtube showing how to generate menus.
-* A C# API and the ability to secure certain submenus.
-
 ## TcMenu saves memory in many ways
 
 Memory usage is so low that it's even viable for Arduino Uno and other smaller boards, by holding all static data possible in static RAM, and only including the display drivers and remotes that you're using. 
@@ -54,16 +49,18 @@ This means:
 
 ## Types of input supported
 
-* Button based rotary encoder emulation (Up, Down and OK buttons) either local, i2c expander, shift register, or DfRobot analog.  
-* Rotary encoder based input with no need any additional components in many cases. Either local or i2c expander.
+* Rotary encoder based input with no need for any additional components in many cases. Either local or connected to PCF8574 or MCP23017.
+* Button based rotary encoder emulation (Up, Down and OK buttons) either local, i2c expander, shift register.
+* DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
 * Matrix Keyboards of configurable size and key combination. Pre-canned options for 4x3 and 4x4 layouts.
+* Analog Joystick rotary encoder. Allows for joystick input, where you move scroll through values with up / down.
 * No local input facilities if your application is completely controlled remotely.
 
 ## Display types that are supported
 
 * LiquidCrystal 20x4 or 16x2 displays - can be either directly connected, i2c or on a shift register.
-* Adafruit_GFX - can render onto a display compatible with this library, tested with Color ILI9341 and Nokia 5110 display.
-* U8G2 - can render onto most buffered displays using this library. Tested with OLED devices.
+* Adafruit_GFX - can render onto a display compatible with this library, tested with Color ILI9341, ST7735 and Nokia 5110 display.
+* U8G2 - can render onto most buffered displays using this library. Tested with OLED devices such as SSD1306 and SH1106.
 
 ## Remote endpoints that are supported
 
@@ -71,11 +68,10 @@ This menu library provides complete remote control, presently over serial and et
 
 * RS232 endpoint that supports full control of the menu items using a Java API - example app included.
 * Ethernet endpoint that supports either Ethernet2 library or UipEthernet.
+* Ethernet endpoint for mbed that supports the mbed socket implementation.
 * ESP8266 and ESP32 based WiFi both supported.
 
-## Ready built remote control for tcMenu
-
-Is now included from 1.3 onwards and provides complete control of a menu without needing to build anything.
+## Ready built remote control for tcMenu - embedCONTROL
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
@@ -96,4 +92,5 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
 We are currently quite far along on a C# port of the API. There's an issue in the issue track for the port and we'll let you know when it's further along.
 
 ## Loading and saving menu items
+
 tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 
