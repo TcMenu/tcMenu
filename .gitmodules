@@ -7,3 +7,6 @@
 [submodule "embedded/tcMenu"]
 	path = embedded/tcMenu
 	url = https://github.com/davetcc/tcMenuLib.git
+[submodule "embedded/TaskManagerIO"]
+	path = embedded/TaskManagerIO
+	url = https://github.com/davetcc/TaskManagerIO.git
