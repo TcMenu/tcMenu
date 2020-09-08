@@ -50,7 +50,7 @@ The Generator is capable of round trip development too - most of the code is off
 
 ## TcMenu saves memory in many ways
 
-We try and keep even the smallest boards viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to furher reduce memory on the board.
+We try and keep even the smallest boards viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
 
 ## Types of input supported
 
