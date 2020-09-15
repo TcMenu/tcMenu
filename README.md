@@ -50,14 +50,7 @@ The Generator is capable of round trip development too - most of the code is off
 
 ## TcMenu saves memory in many ways
 
-Memory usage is so low that it's even viable for Arduino Uno and other smaller boards, by holding all static data possible in static RAM, and only including the display drivers and remotes that you're using. 
-
-This means:
-
-* No virtuals in the whole menuitem strucutre; while the API hides away the PROGMEM near completely.
-* On smaller boards such as Uno, a reasonably sized menu with Serial and Ethernet fits into the small 2K RAM.
-* Remote code is now plugin based, stored in a separate set of files, included into your sketch directory as needed, this will reduce the size for people not wanting remote capabilities, or wanting only Serial remote.
-* If you previously used the RemoteListener, which was clunky to use, it's now replaced with a callback function that reports connections, disconnections and errors using a status type.
+We try and keep even the smallest boards viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
 
 ## Types of input supported
 
