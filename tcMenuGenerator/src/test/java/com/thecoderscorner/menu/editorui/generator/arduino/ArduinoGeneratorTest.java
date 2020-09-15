@@ -91,7 +91,7 @@ public class ArduinoGeneratorTest {
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+        Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),

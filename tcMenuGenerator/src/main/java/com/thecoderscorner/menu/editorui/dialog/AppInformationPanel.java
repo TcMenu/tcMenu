@@ -122,6 +122,7 @@ public class AppInformationPanel {
             makeDiffVersionLabel(vbox, "tcMenu");
             makeDiffVersionLabel(vbox, "IoAbstraction");
             makeDiffVersionLabel(vbox, "LiquidCrystalIO");
+            makeDiffVersionLabel(vbox, "TaskManagerIO");
         }
         catch(Exception e) {
             logger.log(ERROR, "Library checks failed", e);

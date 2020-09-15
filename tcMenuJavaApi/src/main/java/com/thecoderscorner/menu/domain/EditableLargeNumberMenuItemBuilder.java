@@ -13,6 +13,7 @@ package com.thecoderscorner.menu.domain;
 public class EditableLargeNumberMenuItemBuilder extends MenuItemBuilder<EditableLargeNumberMenuItemBuilder> {
     private int decimalPlaces;
     private int totalDigits;
+    private boolean negativeAllowed = true;
 
     @Override
     public EditableLargeNumberMenuItemBuilder getThis() {
@@ -23,12 +24,13 @@ public class EditableLargeNumberMenuItemBuilder extends MenuItemBuilder<Editable
         baseFromExisting(item);
         decimalPlaces = item.getDecimalPlaces();
         totalDigits = item.getDigitsAllowed();
+        negativeAllowed = item.isNegativeAllowed();
         return getThis();
     }
 
     public EditableLargeNumberMenuItem menuItem() {
         return new EditableLargeNumberMenuItem(this.name, this.id, this.eepromAddr, this.functionName,
-                totalDigits, decimalPlaces, readOnly, localOnly, visible);
+                totalDigits, decimalPlaces, negativeAllowed, readOnly, localOnly, visible);
     }
 
     public static EditableLargeNumberMenuItemBuilder aLargeNumberItemBuilder() {
@@ -42,6 +44,11 @@ public class EditableLargeNumberMenuItemBuilder extends MenuItemBuilder<Editable
 
     public EditableLargeNumberMenuItemBuilder withDecimalPlaces(int dp) {
         this.decimalPlaces = dp;
+        return getThis();
+    }
+
+    public EditableLargeNumberMenuItemBuilder withNegativeAllowed(boolean negativeAllowed) {
+        this.negativeAllowed = negativeAllowed;
         return getThis();
     }
 }

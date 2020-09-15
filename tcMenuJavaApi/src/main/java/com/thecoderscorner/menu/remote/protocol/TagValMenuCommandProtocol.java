@@ -220,6 +220,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
                 .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
                 .withDecimalPlaces(parser.getValueAsInt(KEY_FLOAT_DECIMAL_PLACES))
+                .withNegativeAllowed(parser.getValueAsIntWithDefault(KEY_NEGATIVE_ALLOWED, 1) != 0)
                 .withTotalDigits(parser.getValueAsInt(KEY_MAX_LENGTH))
                 .menuItem();
 
@@ -501,7 +502,9 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     private void writeLargeNumberBootItem(StringBuilder sb, MenuLargeNumBootCommand cmd) {
         writeCommonBootFields(sb, cmd);
         int decimalPlaces = cmd.getMenuItem().getDecimalPlaces();
+        boolean isNegativeAllowed = cmd.getMenuItem().isNegativeAllowed();
         appendField(sb, KEY_FLOAT_DECIMAL_PLACES, decimalPlaces);
+        appendField(sb, KEY_NEGATIVE_ALLOWED, isNegativeAllowed);
         appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getDigitsAllowed());
         NumberFormat fmt = NumberFormat.getInstance();
         fmt.setGroupingUsed(false);

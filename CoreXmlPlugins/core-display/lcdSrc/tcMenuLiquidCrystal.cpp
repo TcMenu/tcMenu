@@ -82,7 +82,7 @@ void LiquidCrystalRenderer::renderTitle(bool forceDraw) {
         strcpy_P(buffer, applicationInfo.name);
         serdebugF2("print app name", buffer);
         uint8_t bufSz = bufferSize;
-        uint8_t last = min(bufSz, strlen(buffer));
+        uint8_t last = min(bufSz, (uint8_t)strlen(buffer));
         for(uint8_t i = last; i < bufSz; i++) {
             buffer[i] = ' ';
         }

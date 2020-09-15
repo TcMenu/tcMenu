@@ -102,7 +102,7 @@ public class MenuEditorTestCases {
         when(simulatedCodeManager.getLoadedPlugins()).thenReturn(Arrays.asList(generateCodePluginConfig()));
 
         // and we are always up to date library wise in unit test land
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
         when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
         when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
@@ -424,7 +424,7 @@ public class MenuEditorTestCases {
         when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         verifyThat("#libdocsurl", (Hyperlink hl) -> hl.getText().equals("Browse docs and watch starter videos (F1 at any time)"));
@@ -445,7 +445,7 @@ public class MenuEditorTestCases {
         verifyThat("#LiquidCrystalIOLib", LabeledMatchers.hasText(" - Arduino Library LiquidCrystalIO available: 1.0.0 installed: 1.0.0"));
         verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Please update tcMenu library from Arduino IDE"));
 
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
         when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.1"));
 

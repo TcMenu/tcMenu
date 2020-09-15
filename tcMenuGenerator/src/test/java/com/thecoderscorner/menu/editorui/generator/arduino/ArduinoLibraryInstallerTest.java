@@ -63,11 +63,13 @@ public class ArduinoLibraryInstallerTest {
         putLibraryInPlace(dirArduinoLibs, "tcMenu", "1.0.1");
         putLibraryInPlace(dirArduinoLibs, "IoAbstraction", "1.2.1");
         putLibraryInPlace(dirArduinoLibs, "LiquidCrystalIO", "1.4.1");
+        putLibraryInPlace(dirArduinoLibs, "TaskManagerIO", "1.0.0");
 
         var versions = Map.of(
                 "tcMenu/Library", new VersionInfo("1.0.0"),
                 "IoAbstraction/Library", new VersionInfo("1.2.1"),
                 "LiquidCrystalIO/Library", new VersionInfo("1.5.1"),
+                "TaskManagerIO/Library", new VersionInfo("1.0.1"),
                 "xyz/Plugin", new VersionInfo("7.8.9")
         );
         when(verDetector.acquireVersions()).thenReturn(versions);
@@ -81,7 +83,9 @@ public class ArduinoLibraryInstallerTest {
         assertEquals("1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
         assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
         assertEquals("1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
+        assertEquals("1.0.0", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
 
+        assertEquals("1.0.1", installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB).toString());
         assertEquals("1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
         assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
         assertEquals("1.5.1", installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());

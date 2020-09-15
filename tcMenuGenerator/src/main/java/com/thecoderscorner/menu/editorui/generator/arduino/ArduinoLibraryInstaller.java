@@ -7,11 +7,9 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import javafx.scene.control.TextInputDialog;
 
 import java.io.FileReader;
@@ -20,11 +18,9 @@ import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 /**
  * This class is responsible for dealing with the Arduino embedded libraries, it has methods to help
@@ -170,7 +166,8 @@ public class ArduinoLibraryInstaller {
         return new LibraryStatus(
                 isLibraryUpToDate("tcMenu"),
                 isLibraryUpToDate("IoAbstraction"),
-                isLibraryUpToDate("LiquidCrystalIO")
+                isLibraryUpToDate("LiquidCrystalIO"),
+                isLibraryUpToDate("TaskManagerIO")
         );
     }
 
@@ -219,7 +216,7 @@ public class ArduinoLibraryInstaller {
      */
     public boolean isLibraryUpToDate(String name) {
         Optional<Path> libInst = findLibraryInstall(name);
-        if (!libInst.isPresent()) return false; // can we even find it on the system.
+        if (libInst.isEmpty()) return false; // can we even find it on the system.
 
         try {
             VersionInfo srcVer = getVersionOfLibrary(name, InstallationType.AVAILABLE_LIB);

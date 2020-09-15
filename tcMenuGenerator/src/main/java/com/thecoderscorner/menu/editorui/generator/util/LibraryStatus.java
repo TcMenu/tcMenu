@@ -14,11 +14,13 @@ public class LibraryStatus {
     private final boolean tcMenuUpToDate;
     private final boolean ioAbstractionUpToDate;
     private final boolean liquidCrystalIoUpToDate;
+    private final boolean taskManagerIOUpToDate;
 
-    public LibraryStatus(boolean tcMenuUpToDate, boolean ioAbstractionUpToDate, boolean liquidCrystalIoUpToDate) {
+    public LibraryStatus(boolean tcMenuUpToDate, boolean ioAbstractionUpToDate, boolean liquidCrystalIoUpToDate, boolean taskManagerIOUpToDate) {
         this.tcMenuUpToDate = tcMenuUpToDate;
         this.ioAbstractionUpToDate = ioAbstractionUpToDate;
         this.liquidCrystalIoUpToDate = liquidCrystalIoUpToDate;
+        this.taskManagerIOUpToDate = taskManagerIOUpToDate;
     }
 
     public boolean isTcMenuUpToDate() {
@@ -33,7 +35,9 @@ public class LibraryStatus {
         return liquidCrystalIoUpToDate;
     }
 
+    public boolean isTaskManagerIOUpToDate() { return taskManagerIOUpToDate; }
+
     public boolean isUpToDate() {
-        return tcMenuUpToDate && liquidCrystalIoUpToDate && ioAbstractionUpToDate;
+        return tcMenuUpToDate && liquidCrystalIoUpToDate && ioAbstractionUpToDate && taskManagerIOUpToDate;
     }
 }

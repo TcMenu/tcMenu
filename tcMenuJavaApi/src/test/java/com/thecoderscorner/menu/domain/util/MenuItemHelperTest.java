@@ -24,6 +24,7 @@ public class MenuItemHelperTest {
     private EditableTextMenuItem ipItem = anIpAddressMenu("127.0.0.1", 99);
     private FloatMenuItem floatItem = aFloatMenu("fkgo", 223);
     private ActionMenuItem actionItem = anActionMenu("act", 333);
+    private EditableLargeNumberMenuItem largeNum = aLargeNumber("lgeNum", 293, 4, true);
 
     @Test
     public void testSubMenuHelper() {

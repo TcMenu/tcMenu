@@ -196,7 +196,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     @SuppressWarnings("unused")
-    private void checkboxChanged(ActionEvent actionEvent) {
+    protected void checkboxChanged(ActionEvent actionEvent) {
         callChangeConsumer();
     }
 

@@ -50,11 +50,13 @@
             <Label text="IoAbstraction Version" GridPane.rowIndex="5" />
             <Label text="TcMenu Version" GridPane.rowIndex="4" />
             <Label text="LiquidCrystalIO Version" GridPane.rowIndex="6" />
-            <Label prefHeight="17.0" prefWidth="349.0" text="(C) 2018 thecoderscorner.com" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+            <Label text="TaskManagerIO Version" GridPane.rowIndex="7" />
+            <Label prefHeight="17.0" prefWidth="349.0" text="(C) 2018-present thecoderscorner.com" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" />
             <Label fx:id="apiVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label fx:id="tcMenuVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label fx:id="ioAbstractionVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label fx:id="liquidCrystalVersion" text="?" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label fx:id="taskManagerIO" text="?" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <Label text="Build Date" GridPane.rowIndex="2" />
             <Label fx:id="buildDateLabel" text="?" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Registered to" GridPane.rowIndex="3" />

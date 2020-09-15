@@ -87,7 +87,7 @@ public class AbstractMenuItemVisitorTest {
         FloatMenuItem floatItem = aFloatMenu("123", 223);
         ActionMenuItem actionItem = anActionMenu("123", 347);
         RuntimeListMenuItem runList = aRuntimeListMenu("1232", 153, 1);
-        EditableLargeNumberMenuItem numItem = aLargeNumber("1232", 153);
+        EditableLargeNumberMenuItem numItem = aLargeNumber("1232", 153, 4, true);
 
         subItem.accept(visitor);
         analog.accept(visitor);

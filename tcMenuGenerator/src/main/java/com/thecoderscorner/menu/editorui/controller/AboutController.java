@@ -20,6 +20,7 @@ public class AboutController {
     public Label tcMenuVersion;
     public Label ioAbstractionVersion;
     public Label liquidCrystalVersion;
+    public Label taskManagerIO;
     public Label buildDateLabel;
     public Label registeredLabel;
 
@@ -27,6 +28,7 @@ public class AboutController {
         tcMenuVersion.setText(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
         ioAbstractionVersion.setText(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
         liquidCrystalVersion.setText(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
+        taskManagerIO.setText(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB).toString());
         apiVersion.setText(storage.getVersion());
         buildDateLabel.setText(storage.getBuildTimestamp());
         if(!storage.getRegisteredKey().isEmpty()) registeredLabel.setText(storage.getRegisteredKey());

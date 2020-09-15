@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -23,6 +24,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
 
     private TextField decimalPlaces;
     private TextField totalDigits;
+    private CheckBox negativeAllowedCheck;
 
     public UILargeNumberMenuItem(EditableLargeNumberMenuItem menuItem, MenuIdChooser chooser,
                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -32,10 +34,21 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     @Override
     protected Optional<EditableLargeNumberMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
+        var dp = safeIntFromProperty(decimalPlaces.textProperty(), "Decimal Places", errors, 0, 8);
+        var tot = safeIntFromProperty(totalDigits.textProperty(), "Total Digits", errors, 4, 12);
+
+        if(tot <= dp) {
+            errors.add(new FieldError("Total must be greater than decimal places", "Total Digits"));
+        }
+        if((tot - dp) > 9) {
+            errors.add(new FieldError("Whole part cannot be larger than 9 figures", "Total Digits"));
+        }
+
         var builder = EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                 .withExisting(getMenuItem())
-                .withDecimalPlaces(safeIntFromProperty(decimalPlaces.textProperty(), "Decimal Places", errors, 0, 8))
-                .withTotalDigits(safeIntFromProperty(totalDigits.textProperty(), "Total Digits", errors, 4, 12));
+                .withNegativeAllowed(negativeAllowedCheck.isSelected())
+                .withDecimalPlaces(dp)
+                .withTotalDigits(tot);
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
     }
@@ -43,7 +56,6 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
-
         grid.add(new Label("Decimal Places"), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getDecimalPlaces()));
         decimalPlaces.textProperty().addListener(this::coreValueChanged);
@@ -57,6 +69,12 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         TextFormatterUtils.applyIntegerFormatToField(totalDigits);
         grid.add(totalDigits, 1, idx);
 
+        idx++;
+        negativeAllowedCheck = new CheckBox("Allow negative values");
+        negativeAllowedCheck.setOnAction(this::checkboxChanged);
+        negativeAllowedCheck.setId("NegAllowCheck");
+        negativeAllowedCheck.setSelected(getMenuItem().isNegativeAllowed());
+        grid.add(negativeAllowedCheck, 1, idx);
         return idx;
     }
 }

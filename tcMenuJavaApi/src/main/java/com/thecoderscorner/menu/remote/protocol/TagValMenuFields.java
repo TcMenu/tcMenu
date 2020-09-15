@@ -30,6 +30,7 @@ public interface TagValMenuFields {
     String KEY_ANALOG_DIVISOR_FIELD = "AD";
     String KEY_ANALOG_UNIT_FIELD = "AU";
     String KEY_FLOAT_DECIMAL_PLACES = "FD";
+    String KEY_NEGATIVE_ALLOWED = "NA";
     String KEY_REMOTE_NUM = "RN";
     String KEY_CURRENT_VAL = "VC";
     String KEY_BOOLEAN_NAMING = "BN";

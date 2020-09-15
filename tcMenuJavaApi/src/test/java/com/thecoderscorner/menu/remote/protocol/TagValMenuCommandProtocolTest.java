@@ -331,7 +331,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingLargeIntegerBoot() {
-        protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111), BigDecimal.ONE));
+        protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111, 4, true), BigDecimal.ONE));
         testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|ML=12|VC=1.0000|\u0002");
     }
 

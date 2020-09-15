@@ -65,8 +65,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(makeRtFunctionName())
                 .addElement(item.getId())
                 .addElement(item.getDigitsAllowed())
-                .addElement(item.getDecimalPlaces())
-                .addElement(nextMenuName)
+                .addElement(item.getDecimalPlaces());
+
+        // maintain backward compatibility when possible by using the original constructor which defaults to true
+        if(!item.isNegativeAllowed()) {
+                menu.addElement(item.isNegativeAllowed());
+        }
+
+        menu.addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("RuntimeMenuItem.h", false)
                 .addHeaderFileRequirement("EditableLargeNumberMenuItem.h", false);

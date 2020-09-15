@@ -67,11 +67,11 @@ public class DomainFixtures {
                 .menuItem();
     }
 
-    public static EditableLargeNumberMenuItem aLargeNumber(String name, int id) {
+    public static EditableLargeNumberMenuItem aLargeNumber(String name, int id, int dp, boolean negative) {
         return EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                 .withEepromAddr(64)
                 .withName(name)
-                .withDecimalPlaces(4)
+                .withDecimalPlaces(dp)
                 .withTotalDigits(12)
                 .withId(id)
                 .menuItem();
