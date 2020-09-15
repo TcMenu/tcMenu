@@ -106,7 +106,7 @@ void MBedEthernetTransport::endMsg() {
 
 // ----------------- Ethernet Remote Server --------------
 
-EthernetTagValServer remoteServer = EthernetTagValServer();
+EthernetTagValServer remoteServer;
 
 void EthernetTagValServer::begin(int bindingPort, const ConnectorLocalInfo* localInfo) {
     if(defNetwork == NULL) {
