@@ -504,7 +504,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         int decimalPlaces = cmd.getMenuItem().getDecimalPlaces();
         boolean isNegativeAllowed = cmd.getMenuItem().isNegativeAllowed();
         appendField(sb, KEY_FLOAT_DECIMAL_PLACES, decimalPlaces);
-        appendField(sb, KEY_NEGATIVE_ALLOWED, isNegativeAllowed);
+        appendField(sb, KEY_NEGATIVE_ALLOWED, isNegativeAllowed ? 1 : 0);
         appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getDigitsAllowed());
         NumberFormat fmt = NumberFormat.getInstance();
         fmt.setGroupingUsed(false);

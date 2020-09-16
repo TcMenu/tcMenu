@@ -173,7 +173,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testReceiveLargeNumber() throws IOException {
+    public void testReceiveLargeNumberNegativeDefault() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|FD=4|ML=12|VC=11.1[2]34|\u0002"));
         assertTrue(cmd instanceof MenuLargeNumBootCommand);
         MenuLargeNumBootCommand numMenu = (MenuLargeNumBootCommand) cmd;
@@ -183,6 +183,21 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(4, numMenu.getMenuItem().getDecimalPlaces());
         assertEquals(12, numMenu.getMenuItem().getDigitsAllowed());
         assertEquals(11.1234, numMenu.getCurrentValue().doubleValue(), 0.00001);
+        assertTrue(numMenu.getMenuItem().isNegativeAllowed());
+    }
+
+    @Test
+    public void testReceiveLargeNumber() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|FD=4|NA=0|ML=12|VC=11.1[2]34|\u0002"));
+        assertTrue(cmd instanceof MenuLargeNumBootCommand);
+        MenuLargeNumBootCommand numMenu = (MenuLargeNumBootCommand) cmd;
+        assertEquals(111, numMenu.getMenuItem().getId());
+        assertEquals("largeNum", numMenu.getMenuItem().getName());
+        assertEquals(10, numMenu.getSubMenuId());
+        assertEquals(4, numMenu.getMenuItem().getDecimalPlaces());
+        assertEquals(12, numMenu.getMenuItem().getDigitsAllowed());
+        assertEquals(11.1234, numMenu.getCurrentValue().doubleValue(), 0.00001);
+        assertFalse(numMenu.getMenuItem().isNegativeAllowed());
     }
 
     @Test
@@ -332,7 +347,7 @@ public class TagValMenuCommandProtocolTest {
     @Test
     public void testWritingLargeIntegerBoot() {
         protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111, 4, true), BigDecimal.ONE));
-        testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|ML=12|VC=1.0000|\u0002");
+        testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|NA=1|ML=12|VC=1.0000|\u0002");
     }
 
     @Test
