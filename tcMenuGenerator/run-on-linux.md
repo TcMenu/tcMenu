@@ -1,5 +1,19 @@
 ## How to run the java version of tcMenu Designer on Linux.
 
+### Prerequisites
+
+* An installation of Java OpenJDK **11** or later that can be readily installed from your package manager.
+
+### Installation
+
+* Copy the linux tar.gz package from the release area and expand somewhere in your home area.
+* From terminal change into the package directory that you've just expanded.
+* Run `startDesigner.sh` which should present the designer window after a few moments.
+
+Hopefully, that should be it. Have fun! 
+
+## These are the older instructions
+
 Thanks to @ptapping for the linux instructions and build script. *Please note that running on Linux is supported on a best efforts community basis, as we don't have a desktop Linux build to test with.*
 
 ### Things that are needed in order to run and work with TcMenuDesigner.
