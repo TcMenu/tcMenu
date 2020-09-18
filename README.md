@@ -22,13 +22,13 @@ Nearly all users should probably choose the designer UI package; it's available 
 
 For Windows 10 you can directly obtain from the Windows store using the following link: [https://www.microsoft.com/store/productId/9NHJNH9BCNJN]
 
-### Any recent MacOS
+### Any MacOS from High Sierra onwards
 
-For any recent MacOS from High Sierra onwards, obtain directly from the Mac App Store: [https://apps.apple.com/gb/app/tcmenu-designer/id1527782002?mt=12] 
+For any MacOS from High Sierra onwards, obtain directly from the Mac App Store: [https://apps.apple.com/gb/app/tcmenu-designer/id1527782002?mt=12] 
 
-### Windows 7, 8, older MacOS and Linux
+### Windows 7, 8 and Linux
 
-[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows, a disk image for MacOS. [Linux instructions here](https://github.com/davetcc/tcMenu/blob/master/tcMenuGenerator/run-on-linux.md)
+[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows 7 and an archive of the package for Linux users. 
 
 ### Documentation
 
