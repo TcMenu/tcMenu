@@ -50,7 +50,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
         String fn = indentCode();
         if(!StringHelper.isStringEmptyOrNull(func.getObjectName())) {
-            fn += func.getObjectName() + memberAccessor;
+            fn += expando.expandExpression(context, func.getObjectName()) + memberAccessor;
         }
         fn += func.getFunctionName() + "(";
         var parameters = func.getParameters().stream()
