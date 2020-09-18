@@ -18,7 +18,7 @@ Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator di
 
 #------------------------------------------------------------------------
 
-# MacOS build
+# MacOS build - no longer needed, we support nearly all with the app store version
 
 Perform maven build
 
