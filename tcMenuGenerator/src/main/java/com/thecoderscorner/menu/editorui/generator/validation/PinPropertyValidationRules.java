@@ -6,9 +6,13 @@
 
 package com.thecoderscorner.menu.editorui.generator.validation;
 
+import com.thecoderscorner.menu.editorui.util.StringHelper;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 
 /**
  * An integer pin property validator that will validate that the value is a pin number or pin variable.
@@ -29,17 +33,21 @@ public class PinPropertyValidationRules implements PropertyValidationRules {
 
     @Override
     public boolean isValueValid(String value) {
+        if(StringHelper.isStringEmptyOrNull(value)) return false;
+
         // short cut to allow -1 when it's optional.
         if(optional && value.equals("-1")) return true;
 
-        // otherwise we must match the pattern and the pin be in range.
-        var matcher = INT_MATCHER.matcher(value);
-        if(matcher.matches()) {
-            var match = Integer.parseInt(matcher.group(1));
-            return match < 255;
+        try {
+            var pinInt = Integer.parseInt(value);
+            return (pinInt >= -1);
+        }
+        catch(Exception ex) {
+            // not an integer
         }
 
-        return false;
+        // lastly is it a variable or pin definition, EG: A0, PE_4 etc.
+        return VAR_PATTERN.matcher(value).matches();
     }
 
     @Override

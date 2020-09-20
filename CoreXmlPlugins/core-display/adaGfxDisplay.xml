@@ -1,4 +1,4 @@
-<TcMenuPlugin name="AdaFruit_GFX based display" id="7c486068-9879-459f-89ee-9522366524a3" subsystem="DISPLAY"
+<TcMenuPlugin name="AdaFruit_GFX with manual declaration and configuration" id="7c486068-9879-459f-89ee-9522366524a3" subsystem="DISPLAY"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
@@ -38,8 +38,6 @@
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="Adafruit_GFX.h" inSource="true"/>
-        <Header name="${DISPLAY_TYPE}.h" inSource="true"/>
         <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
     </IncludeFiles>
 

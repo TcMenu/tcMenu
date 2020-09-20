@@ -7,10 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
-import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
-import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
-import com.thecoderscorner.menu.editorui.generator.applicability.NestedApplicability;
+import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
@@ -279,7 +276,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var lambdaType = getAttrOrNull(param, "lambda");
 
             if (refType != null) {
-                return new ReferenceCodeParameter(refType, used);
+                var defVal = param.getAttribute("default");
+                return new ReferenceCodeParameter(refType, defVal, used);
             } else if (lambdaType != null) {
                 var lambda = lambdaMap.get(lambdaType);
                 return new LambdaCodeParameter(lambda);
@@ -419,6 +417,10 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var notEqualProp = getAttrOrNull(varElement, "isNotValue");
             if (notEqualProp != null) {
                 return new EqualityApplicability(whenProperty, notEqualProp, true);
+            }
+            var matchesProp = getAttrOrNull(varElement, "matches");
+            if(matchesProp != null) {
+                return new MatchesApplicability(whenProperty, matchesProp);
             }
 
             throw new IllegalArgumentException("Unsupported option to whenProperty on " + whenProperty);

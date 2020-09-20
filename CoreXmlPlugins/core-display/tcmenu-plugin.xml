@@ -18,7 +18,9 @@
         <!-- display plugins -->
         <Plugin>i2cLiquidCrystalDisplay.xml</Plugin>
         <Plugin>liquidCrystalDisplay.xml</Plugin>
+        <Plugin>adaArduinoSimpleBuilder.xml</Plugin>
         <Plugin>adaGfxDisplay.xml</Plugin>
+        <Plugin>u8g2SimpleBuilder.xml</Plugin>
         <Plugin>u8g2Display.xml</Plugin>
         <Plugin>ssd1306asciiDisplay.xml</Plugin>
 
@@ -26,6 +28,9 @@
         <Plugin>rotaryEncoderInput.xml</Plugin>
         <Plugin>upDownSwitchesInput.xml</Plugin>
         <Plugin>analogJoystickInput.xml</Plugin>
+
+        <!-- mbed specific displays -->
+        <Plugin>adaMbedOled.xml</Plugin>
 
         <!-- custom cases -->
         <Plugin>noInput.xml</Plugin>

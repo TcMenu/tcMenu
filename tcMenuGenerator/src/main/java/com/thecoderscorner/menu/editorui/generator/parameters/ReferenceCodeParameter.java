@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
 public class ReferenceCodeParameter extends CodeParameter {
-    public ReferenceCodeParameter(String value, boolean paramUsed) {
-        super(null, paramUsed, value);
+    public ReferenceCodeParameter(String value, String defaultVal, boolean paramUsed) {
+        super(null, paramUsed, value, defaultVal);
     }
 }

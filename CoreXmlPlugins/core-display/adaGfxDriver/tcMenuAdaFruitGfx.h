@@ -110,4 +110,9 @@ void prepareAdaColorDefaultGfxConfig(AdaColorGfxMenuConfig* config);
  */
 void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config);
 
+/**
+ * A graphics configuration suitable for oled screens using the adafruit driver.
+ */
+void prepareAdaMonoGfxConfigOled(AdaColorGfxMenuConfig* config);
+
 #endif /* _TCMENU_TCMENUADAFRUITGFX_H_ */

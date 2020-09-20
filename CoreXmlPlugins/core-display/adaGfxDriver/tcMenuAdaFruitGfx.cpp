@@ -301,6 +301,31 @@ void prepareAdaMonoGfxConfigLoRes(AdaColorGfxMenuConfig* config) {
     config->editIconWidth = 8;
 }
 
+void prepareAdaMonoGfxConfigOled(AdaColorGfxMenuConfig* config) {
+	makePadding(config->titlePadding, 2, 1, 1, 1);
+	makePadding(config->itemPadding, 1, 1, 1, 1);
+	makePadding(config->widgetPadding, 2, 2, 0, 2);
+
+	config->bgTitleColor = WHITE;
+	config->fgTitleColor = BLACK;
+	config->titleFont = NULL;
+	config->titleBottomMargin = 2;
+	config->widgetColor = BLACK;
+	config->titleFontMagnification = 1;
+
+	config->bgItemColor = BLACK;
+	config->fgItemColor = WHITE;
+	config->bgSelectColor = WHITE;
+	config->fgSelectColor = BLACK;
+	config->itemFont = NULL;
+	config->itemFontMagnification = 1;
+
+    config->editIcon = loResEditingIcon;
+    config->activeIcon = loResActiveIcon;
+    config->editIconHeight = 6;
+    config->editIconWidth = 8;
+}
+
 BaseDialog* AdaFruitGfxMenuRenderer::getDialog() {
     if(dialog == NULL) {
         dialog = new AdaGfxDialog();

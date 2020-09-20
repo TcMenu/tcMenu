@@ -1,0 +1,194 @@
+<TcMenuPlugin name="Simple U8G2 display builder - recommended"
+              id="fd998437-c4b2-4386-ba88-d0ae7c20620b"
+              subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>Render using U8G2 library. Let code generator build a simple U8G2 display object for you, handles most simple configurations in full buffer mode.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>oled-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Display variable name as declared in sketch" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="Type of the variable as declared in sketch" type="choice">
+            <Choices>
+                <!-- Software SPI choices -->
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_2ND_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_NONAME_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_NONAME_F_3W_HW_SPI</Choice>
+
+                <Choice>U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_SW_I2C</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_HW_I2C</Choice>
+                <Choice>U8G2_SH1106_128X64_NONAME_F_2ND_HW_I2C</Choice>
+
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_WINSTAR_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_WINSTAR_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_WINSTAR_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_WINSTAR_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X32_WINSTAR_F_3W_HW_SPI</Choice>
+
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_2ND_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_2ND_HW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X32_ADAFRUIT_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1305_128X64_ADAFRUIT_F_2ND_4W_HW_SPI</Choice>
+
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_VCOMH0_F_2ND_HW_I2C</Choice>
+                <Choice>U8G2_SH1106_128X64_VCOMH0_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_VCOMH0_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_VCOMH0_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_VCOMH0_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SH1106_128X64_VCOMH0_F_3W_HW_SPI</Choice>
+
+                <Choice>U8G2_SSD1607_200X200_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_GD_200X200_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1607_GD_200X200_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_GD_200X200_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_GD_200X200_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1607_GD_200X200_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_WS_200X200_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1607_WS_200X200_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_WS_200X200_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1607_WS_200X200_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1607_WS_200X200_F_3W_HW_SPI</Choice>
+
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_HW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X64_ALT0_F_2ND_HW_I2C</Choice>
+
+                <Choice>U8G2_IL3820_V2_296X128_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_V2_296X128_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_IL3820_V2_296X128_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_V2_296X128_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_V2_296X128_F_4W_SW_SPI</Choice>
+                <Choice>U8G2_IL3820_296X128_F_3W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_296X128_F_3W_SW_SPI</Choice>
+                <Choice>U8G2_IL3820_296X128_F_2ND_4W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_296X128_F_4W_HW_SPI</Choice>
+                <Choice>U8G2_IL3820_296X128_F_4W_SW_SPI</Choice>
+
+            </Choices>
+        </Property>
+        <Property id="DISPLAY_ROTATION" name="Display rotation angle" initial="U8G2_R0" desc="Rotation of the display as per U8G2 docs" type="choice" >
+            <Choices>
+                <Choice>U8G2_R0</Choice>
+                <Choice>U8G2_R1</Choice>
+                <Choice>U8G2_R2</Choice>
+                <Choice>U8G2_R3</Choice>
+                <Choice>U8G2_MIRROR</Choice>
+            </Choices>
+        </Property>
+
+        <Property id="DISPLAY_CLOCK_PIN" name="Serial Data Pin - SW only" initial="U8X8_PIN_NONE" desc="The pin on which data is sent" type="pin" />
+        <Property id="DISPLAY_DATA_PIN" name="Serial Clock Pin - SW only" initial="U8X8_PIN_NONE" desc="The serial clock pin for the bus" type="pin" />
+        <Property id="DISPLAY_RESET_PIN" name="Optional Reset Pin" initial="U8X8_PIN_NONE" desc="Option the pin on which Reset is connected" type="pin" />
+        <Property id="DISPLAY_CS_PIN" name="CS Pin (SPI only)" initial="U8X8_PIN_NONE" desc="Option the pin on which CS is connected" type="pin" />
+        <Property id="DISPLAY_RS_PIN" name="RS Pin (SPI only)" initial="U8X8_PIN_NONE" desc="Option the pin on which RS is connected" type="pin" />
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="u8g2Driver/tcMenuU8g2.cpp" />
+        <SourceFile name="u8g2Driver/tcMenuU8g2.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuU8g2.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_HW_SPI">
+            <Param value="${DISPLAY_ROTATION}" />
+            <Param value="${DISPLAY_CS_PIN}"/>
+            <Param value="${DISPLAY_RS_PIN}"/>
+            <Param value="${DISPLAY_RESET_PIN}"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_HW_I2C">
+            <Param value="${DISPLAY_ROTATION}" />
+            <Param value="${DISPLAY_RESET_PIN}"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_SW_SPI">
+            <Param value="${DISPLAY_ROTATION}" />
+            <Param value="${DISPLAY_CLOCK_PIN}"/>
+            <Param value="${DISPLAY_DATA_PIN}"/>
+            <Param value="${DISPLAY_CS_PIN}"/>
+            <Param value="${DISPLAY_RS_PIN}"/>
+            <Param value="${DISPLAY_RESET_PIN}"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_SW_I2C">
+            <Param value="${DISPLAY_ROTATION}" />
+            <Param value="${DISPLAY_CLOCK_PIN}"/>
+            <Param value="${DISPLAY_DATA_PIN}"/>
+            <Param value="${DISPLAY_RESET_PIN}"/>
+        </Variable>
+
+        <Variable name="gfxConfig" type="U8g2GfxMenuConfig" export="true" whenProperty="DISPLAY_CONFIG" isValue=""/>
+        <Variable name="${DISPLAY_CONFIG}" type="U8g2GfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
+        <Variable name="renderer" type="U8g2MenuRenderer" export="true" />
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="prepareBasicU8x8Config"  whenProperty="DISPLAY_CONFIG" isValue="">
+            <Param value="gfxConfig"/>
+        </Function>
+
+        <Function object="${DISPLAY_VARIABLE}" name="begin"/>
+
+        <Function name="setGraphicsDevice" object="renderer">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="${DISPLAY_CONFIG}" default="gfxConfig"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

@@ -1,5 +1,8 @@
-<TcMenuPlugin name="U8G2 based display" id="8646497b-1427-415f-8020-1260a1fef57d" subsystem="DISPLAY"
-              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<TcMenuPlugin name="Custom U8G2 - manually declared and configured"
+              id="8646497b-1427-415f-8020-1260a1fef57d"
+              subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>ARDUINO_UNO</Platform>
@@ -8,7 +11,7 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Render using the U8G2 library. Set the graphics variable, rotation and screen size. This version works with most displays and is very configurable. You can easily override the drawing configuration.</Description>
+    <Description>Render using U8G2 library. Use this version when you want to provide the U8G2 variable instead of letting the code generator provide it. Set the graphics variable, rotation and screen size. This version is more configurable.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>oled-display.jpg</ImageFile>
