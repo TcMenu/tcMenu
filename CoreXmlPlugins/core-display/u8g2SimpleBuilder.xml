@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Simple U8G2 display builder - recommended"
+<TcMenuPlugin name="U8G2 display quick start, covers common options"
               id="fd998437-c4b2-4386-ba88-d0ae7c20620b"
               subsystem="DISPLAY"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
@@ -11,7 +11,7 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Render using U8G2 library. Let code generator build a simple U8G2 display object for you, handles most simple configurations in full buffer mode.</Description>
+    <Description>Draw menus using U8G2 library. Let code generator build a simple U8G2 display object for you, handles most simple configurations in full buffer mode.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>oled-display.jpg</ImageFile>

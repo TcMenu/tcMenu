@@ -8,7 +8,7 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Render using the AdafruitGFX library. Set the graphics variable, rotation and screen size. This version works with most displays and is very configurable. You can easily override the drawing configuration.</Description>
+    <Description>Draw menus using the AdafruitGFX library. Create the graphics variable and configure it yourself, here you just tell us the name of the variable and the type. This version works with most displays and is very configurable.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>

@@ -1,4 +1,4 @@
-<TcMenuPlugin name="AdafruitGFX builder for common displays"
+<TcMenuPlugin name="AdafruitGFX quick start for 5110, ST77xx and ILI9341"
               id="4dcb12ec-13d8-4466-b8b6-bd575eae4612"
               subsystem="DISPLAY"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
@@ -11,7 +11,7 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>AdafruitGFX library builder for some well known displays. This version defaults many configuration options to reasonable settings, for other cases use the custom Adafruit plugin.</Description>
+    <Description>Draw menus using AdafruitGFX library using our quick start for Nokia 5110, ST77xx and ILI9341. This version defaults many configuration options to reasonable settings, for other cases use the custom Adafruit plugin.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
@@ -22,7 +22,6 @@
                 <Choice>Adafruit_ST7735</Choice>
                 <Choice>Adafruit_ST7789</Choice>
                 <Choice>Adafruit_ILI9341</Choice>
-                <Choice>Adafruit_SSD1306</Choice>
                 <Choice>Adafruit_PCD8544</Choice>
             </Choices>
         </Property>
@@ -67,24 +66,6 @@
             <Applicability whenProperty="DISPLAY_TYPE" matches="Adafruit_ST77.*"/>
         </ApplicabilityDef>
 
-        <ApplicabilityDef key="when1306I2C" mode="and">
-            <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_SSD1306"/>
-            <Applicability whenProperty="DISPLAY_CS_PIN" isValue="-1"/>
-            <Applicability whenProperty="DISPLAY_DATA_PIN" isValue="-1"/>
-        </ApplicabilityDef>
-
-        <ApplicabilityDef key="when1306SWSPI" mode="and">
-            <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_SSD1306"/>
-            <Applicability whenProperty="DISPLAY_CS_PIN" isNotValue="-1"/>
-            <Applicability whenProperty="DISPLAY_DATA_PIN" isNotValue="-1"/>
-        </ApplicabilityDef>
-
-        <ApplicabilityDef key="when1306HWSPI" mode="and">
-            <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_SSD1306"/>
-            <Applicability whenProperty="DISPLAY_CS_PIN" isNotValue="-1"/>
-            <Applicability whenProperty="DISPLAY_DATA_PIN" isValue="-1"/>
-        </ApplicabilityDef>
-
         <ApplicabilityDef key="when5110HWSPI" mode="and">
             <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_PCD8544"/>
             <Applicability whenProperty="DISPLAY_DATA_PIN" isValue="-1"/>
@@ -115,8 +96,6 @@
 
     <IncludeFiles>
         <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
-        <Header name="Wire.h" inSource="false" applicabilityRef="when1306I2C"/>
-        <Header name="SPI.h" inSource="false" applicabilityRef="when1306HWSPI"/>
     </IncludeFiles>
 
     <GlobalVariables>
@@ -135,34 +114,6 @@
             <Param value="${DISPLAY_CS_PIN}"/>
             <Param value="${DISPLAY_RS_PIN}"/>
             <Param value="${DISPLAY_RESET_PIN}"/>
-        </Variable>
-
-        <!-- ssd1306 variable options-->
-
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" applicabilityRef="when1306I2C">
-            <Param value="${DISPLAY_WIDTH}"/>
-            <Param value="${DISPLAY_HEIGHT}"/>
-            <Param ref="Wire"/>
-            <Param value="${DISPLAY_RESET_PIN}"/>
-        </Variable>
-
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" applicabilityRef="when1306HWSPI">
-            <Param value="${DISPLAY_WIDTH}"/>
-            <Param value="${DISPLAY_HEIGHT}"/>
-            <Param ref="SPI" />
-            <Param value="${DISPLAY_RS_PIN}"/>
-            <Param value="${DISPLAY_RESET_PIN}"/>
-            <Param value="${DISPLAY_CS_PIN}"/>
-        </Variable>
-
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" applicabilityRef="when1306SWSPI">
-            <Param value="${DISPLAY_WIDTH}"/>
-            <Param value="${DISPLAY_HEIGHT}"/>
-            <Param value="${DISPLAY_DATA_PIN}"/>
-            <Param value="${DISPLAY_CLOCK_PIN}"/>
-            <Param value="${DISPLAY_RS_PIN}"/>
-            <Param value="${DISPLAY_RESET_PIN}"/>
-            <Param value="${DISPLAY_CS_PIN}"/>
         </Variable>
 
         <!-- nokia 5110 variable options-->
@@ -215,10 +166,18 @@
             <Param ref="gfxConfig"/>
         </Function>
 
+        <Function name="begin" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="!(Adafruit_ST77.*)"/>
+        <Function name="initR" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="Adafruit_ST7735">
+            <Param value="INITR_BLACKTAB"/>
+        </Function>
+        <Function name="init" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="Adafruit_ST7789">
+            <Param value="${DISPLAY_WIDTH}"/>
+            <Param value="${DISPLAY_HEIGHT}"/>
+        </Function>
+
         <Function name="setRotation" object="${DISPLAY_VARIABLE}">
             <Param value="${DISPLAY_ROTATION"/>
         </Function>
-        <Function name="begin" object="${DISPLAY_VARIABLE}"/>
 
         <Function name="setGraphicsDevice" object="renderer">
             <Param ref="${DISPLAY_VARIABLE}"/>

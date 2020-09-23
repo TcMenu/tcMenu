@@ -11,7 +11,7 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Render using U8G2 library. Use this version when you want to provide the U8G2 variable instead of letting the code generator provide it. Set the graphics variable, rotation and screen size. This version is more configurable.</Description>
+    <Description>Draw menus using U8G2 library. Use this version when you want to provide a ready configured U8G2 variable yourself, instead of letting the code generator provide it. This version is more configurable.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>oled-display.jpg</ImageFile>
