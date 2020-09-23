@@ -166,7 +166,7 @@
             <Param ref="gfxConfig"/>
         </Function>
 
-        <Function name="begin" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="!(Adafruit_ST77.*)"/>
+        <Function name="begin" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="^((?!Adafruit_ST77).)*$"/>
         <Function name="initR" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="Adafruit_ST7735">
             <Param value="INITR_BLACKTAB"/>
         </Function>
