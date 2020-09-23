@@ -45,6 +45,8 @@
                 <Choice>U8G2_SH1106_128X64_NONAME_F_HW_I2C</Choice>
                 <Choice>U8G2_SH1106_128X64_NONAME_F_2ND_HW_I2C</Choice>
 
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C</Choice>
+                <Choice>U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C</Choice>
                 <Choice>U8G2_SSD1306_128X32_UNIVISION_F_4W_SW_SPI</Choice>
                 <Choice>U8G2_SSD1306_128X32_UNIVISION_F_4W_HW_SPI</Choice>
                 <Choice>U8G2_SSD1306_128X32_UNIVISION_F_2ND_4W_HW_SPI</Choice>
@@ -146,19 +148,19 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_HW_SPI">
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="DISPLAY_TYPE" matches=".*_4W_HW_SPI">
             <Param value="${DISPLAY_ROTATION}" />
             <Param value="${DISPLAY_CS_PIN}"/>
             <Param value="${DISPLAY_RS_PIN}"/>
             <Param value="${DISPLAY_RESET_PIN}"/>
         </Variable>
 
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_HW_I2C">
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="DISPLAY_TYPE" matches=".*_4W_HW_I2C">
             <Param value="${DISPLAY_ROTATION}" />
             <Param value="${DISPLAY_RESET_PIN}"/>
         </Variable>
 
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_SW_SPI">
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="DISPLAY_TYPE" matches=".*_4W_SW_SPI">
             <Param value="${DISPLAY_ROTATION}" />
             <Param value="${DISPLAY_CLOCK_PIN}"/>
             <Param value="${DISPLAY_DATA_PIN}"/>
@@ -167,7 +169,7 @@
             <Param value="${DISPLAY_RESET_PIN}"/>
         </Variable>
 
-        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="${DISPLAY_TYPE}" matches=".*_4W_SW_I2C">
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" whenProperty="DISPLAY_TYPE" matches=".*_SW_I2C">
             <Param value="${DISPLAY_ROTATION}" />
             <Param value="${DISPLAY_CLOCK_PIN}"/>
             <Param value="${DISPLAY_DATA_PIN}"/>

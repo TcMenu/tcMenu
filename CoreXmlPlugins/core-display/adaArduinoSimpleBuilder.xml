@@ -83,7 +83,7 @@
 
         <ApplicabilityDef key="when9341HWSPI" mode="and">
             <Applicability whenProperty="DISPLAY_TYPE" isValue="Adafruit_ILI9341"/>
-            <Applicability whenProperty="DISPLAY_DATA_PIN" isNotValue="-1"/>
+            <Applicability whenProperty="DISPLAY_DATA_PIN" isValue="-1"/>
         </ApplicabilityDef>
     </ApplicabilityDefs>
 
