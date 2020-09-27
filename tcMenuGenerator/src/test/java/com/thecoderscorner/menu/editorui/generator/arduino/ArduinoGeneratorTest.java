@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
@@ -35,6 +36,7 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeRe
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 public class ArduinoGeneratorTest {
 
@@ -52,7 +54,9 @@ public class ArduinoGeneratorTest {
         pluginDir = rootDir.resolve("plugin");
         pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir);
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms);
+        var storage = Mockito.mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("1.7.0");
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
         pluginConfig = loader.loadPluginLib(pluginDir);
 
     }
@@ -91,7 +95,7 @@ public class ArduinoGeneratorTest {
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        Mockito.when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),

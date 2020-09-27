@@ -32,8 +32,6 @@ public class AboutDialog {
             BorderPane pane = loader.load();
             controller = loader.getController();
             controller.initialise(storage, installer);
-
-
             createDialogStateAndShow(stage, pane, "About tcMenu Designer", modal);
         }
         catch(Exception e) {

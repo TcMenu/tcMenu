@@ -1,0 +1,43 @@
+﻿<TcMenuPlugin name="Plugin designer version too low"
+              id="20409bb8-b8a1-4d1d-b632-2cf9b5739999" subsystem="INPUT"
+              requiresDesigner="2.0"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+    </SupportedPlatforms>
+    <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <RequiredLibraries>
+        <Library>Library1</Library>
+        <Library>Library2</Library>
+    </RequiredLibraries>
+    <ImageFile>joystick.jpg</ImageFile>
+
+    <Properties>
+      <Property id="INT_PROP" name="Int Prop" initial="10" desc="int value" type="int" min="0" max="100"/>
+    </Properties>
+    
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+      <SourceFile name="src/source.cpp"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="ShouldntBeHere.h" inSource="true" priority="high"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+      <Variable name="shouldNotBeIncluded" type="int" export="false" progmem="true" />
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="notEverIncluded" object="switches">
+            <Param value="BUTTON_PIN"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

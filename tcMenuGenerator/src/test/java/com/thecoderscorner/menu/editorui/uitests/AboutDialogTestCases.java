@@ -38,6 +38,7 @@ public class AboutDialogTestCases {
         when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.2"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.3"));
 
         AboutDialog dialog = new AboutDialog(storage, stage, installer, false);
     }
@@ -47,6 +48,7 @@ public class AboutDialogTestCases {
         verifyThat("#tcMenuVersion", hasText("1.0.1"));
         verifyThat("#ioAbstractionVersion", hasText("1.0.2"));
         verifyThat("#liquidCrystalVersion", hasText("1.0.0"));
+        verifyThat("#taskManagerIO", hasText("1.0.3"));
 
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));

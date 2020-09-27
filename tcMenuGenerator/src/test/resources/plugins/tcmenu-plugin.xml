@@ -11,7 +11,8 @@
     </GeneralDetails>
 
     <Plugins>
-        <!-- display plugins -->
         <Plugin>TestPlugin.xml</Plugin>
+        <Plugin>TestPluginVersionTooLow.xml</Plugin>
+        <Plugin>TestPluginVersionAllowed.xml</Plugin>
     </Plugins>
 </TcMenuPluginDefinition>

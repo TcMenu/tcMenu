@@ -7,7 +7,6 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
@@ -83,7 +82,7 @@ public class ArduinoLibraryInstallerTest {
         assertEquals("1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
         assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
         assertEquals("1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
-        assertEquals("1.0.0", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
+        assertEquals("1.0.0", installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB).toString());
 
         assertEquals("1.0.1", installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB).toString());
         assertEquals("1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());

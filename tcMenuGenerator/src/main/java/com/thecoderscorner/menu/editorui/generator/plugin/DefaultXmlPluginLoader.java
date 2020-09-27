@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -15,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
@@ -37,18 +39,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 
 public class DefaultXmlPluginLoader implements CodePluginManager {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final EmbeddedPlatforms embeddedPlatforms;
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
+    private final ConfigurationStorage configStorage;
     private List<String> loadErrrors = new CopyOnWriteArrayList<>();
     private List<Path> sourceDirs;
 
-    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms) {
+    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage) {
         this.embeddedPlatforms = embeddedPlatforms;
+        this.configStorage = storage;
     }
 
     @Override
@@ -161,7 +164,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                         created.setConfig(config);
                         return created;
                     } else {
-                        logger.log(ERROR, "Failed loading " + pluginName);
+                        logger.log(WARNING, "Failed loading " + pluginName);
                         return null;
                     }
                 } catch (IOException e) {
@@ -200,6 +203,16 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             ByteArrayInputStream in = new ByteArrayInputStream(dataToLoad.getBytes());
             Document doc = dBuilder.parse(in);
             var root = doc.getDocumentElement();
+
+            var requiresVersion = root.getAttribute("requiresDesigner");
+            if(!StringHelper.isStringEmptyOrNull(requiresVersion)) {
+                var requiredVersion = new VersionInfo(requiresVersion);
+                var currentVersion = new VersionInfo(configStorage.getVersion());
+                if(!currentVersion.isSameOrNewerThan(requiredVersion)) {
+                    logger.log(ERROR, "Cannot load plugin as it needs a newer designer version");
+                    return null;
+                }
+            }
 
             CodePluginItem item = new CodePluginItem();
 

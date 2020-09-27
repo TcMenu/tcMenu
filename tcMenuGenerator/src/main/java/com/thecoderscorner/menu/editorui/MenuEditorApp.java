@@ -39,12 +39,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
-import static java.lang.System.Logger.Level.ERROR;
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -89,7 +87,9 @@ public class MenuEditorApp extends Application {
 
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
-        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms);
+        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
+
+        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms, prefsStore);
 
         var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(homeDirectory, libraryVersionDetector, manager);
@@ -97,8 +97,6 @@ public class MenuEditorApp extends Application {
         platforms.setInstaller(installer);
 
         manager.loadPlugins(configuredPluginPaths());
-
-        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
 
         CurrentProjectEditorUIImpl editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms,
                 installer, prefsStore);

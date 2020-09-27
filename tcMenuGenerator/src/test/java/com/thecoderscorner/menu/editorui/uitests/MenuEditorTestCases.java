@@ -64,7 +64,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
-import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 @ExtendWith(ApplicationExtension.class)
 public class MenuEditorTestCases {
@@ -107,6 +106,15 @@ public class MenuEditorTestCases {
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
         when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
 
         // create a basic project, that has a few menu items in it.
         project = new CurrentEditorProject(
@@ -188,9 +196,6 @@ public class MenuEditorTestCases {
 
         // smoke test of the prototype area, there is a proper test of the text rendering elsewhere
         assertTrue(((TextArea)robot.lookup("#prototypeTextArea").query()).getText().contains("FloatTest         -12345.1235"));
-
-        // Check that the libraries show as up to date.
-        verifyThat(".libsOK", hasText("Embedded Arduino libraries all up-to-date"));
 
         // we stub out the new item dialog as it has its
         MenuItem itemToAdd = aNewMenuItem();
@@ -418,13 +423,6 @@ public class MenuEditorTestCases {
 
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
-        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         verifyThat("#libdocsurl", (Hyperlink hl) -> hl.getText().equals("Browse docs and watch starter videos (F1 at any time)"));

@@ -1,7 +1,9 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
+import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.NestedApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -22,17 +24,22 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultXmlPluginLoaderTest {
     private DefaultXmlPluginLoader loader;
     private EmbeddedPlatforms embeddedPlatforms;
     private Path dir;
+    private ConfigurationStorage storage;
 
     @BeforeEach
     void setUp() throws IOException {
         dir = Files.createTempDirectory("tcmenu");
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
-        loader = new DefaultXmlPluginLoader(embeddedPlatforms);
+        storage = mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("1.6.0");
+        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
     }
 
     @AfterEach
@@ -55,9 +62,13 @@ public class DefaultXmlPluginLoaderTest {
         assertEquals("Unit Test Inc", config.getVendor());
         assertEquals("http://www.thecoderscorner.com/", config.getVendorUrl());
         assertEquals("Super unit test plugin library", config.getName());
-        assertEquals(1, config.getPlugins().size());
+
+        // ensure that only the plugins we expect have loaded. IE not the under versioned one
+        assertEquals(2, config.getPlugins().size());
         assertEquals("20409bb8-b8a1-4d1d-b632-2cf9b57353e3", config.getPlugins().get(0).getId());
+        assertEquals("20409bb8-b8a1-4d1d-b632-2cf9b5739888", config.getPlugins().get(1).getId());
         assertEquals(config, config.getPlugins().get(0).getConfig());
+        assertEquals(config, config.getPlugins().get(1).getConfig());
     }
 
     @Test
@@ -120,7 +131,7 @@ public class DefaultXmlPluginLoaderTest {
         assertEquals("internalDigitalIo()",item.getFunctions().get(0).getParameters().get(0).getDefaultValue());
 
         assertFunction(item.getFunctions().get(1), "switches", "initialise", 2, false);
-        assertThat(item.getFunctions().get(1).getApplicability()).isInstanceOf(EqualityApplicability.class);
+        assertThat(item.getFunctions().get(1).getApplicability()).isInstanceOf(MatchesApplicability.class);
 
         assertFunction(item.getFunctions().get(2), "switches", "addSwitch", 2, false);
         assertThat(item.getFunctions().get(2).getApplicability()).isInstanceOf(AlwaysApplicable.class);
@@ -159,13 +170,25 @@ public class DefaultXmlPluginLoaderTest {
     }
 
     public static Path makeStandardPluginInPath(Path thePath) throws IOException {
-        var pluginItem = new String(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes());
-        var pluginConfig = new String(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/tcmenu-plugin.xml").readAllBytes());
 
         var pluginDir = thePath.resolve("plugin1");
         Files.createDirectories(pluginDir);
-        Files.writeString(pluginDir.resolve("tcmenu-plugin.xml"), pluginConfig);
-        Files.writeString(pluginDir.resolve("TestPlugin.xml"), pluginItem);
+        Files.write(
+                pluginDir.resolve("tcmenu-plugin.xml"),
+                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/tcmenu-plugin.xml").readAllBytes()
+        );
+        Files.write(
+                pluginDir.resolve("TestPluginVersionAllowed.xml"),
+                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionAllowed.xml").readAllBytes()
+        );
+        Files.write(
+                pluginDir.resolve("TestPluginVersionTooLow.xml"),
+                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionTooLow.xml").readAllBytes()
+        );
+        Files.write(
+                pluginDir.resolve("TestPlugin.xml"),
+                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes()
+        );
 
         var srcDir = pluginDir.resolve("src");
         Files.createDirectory(srcDir);

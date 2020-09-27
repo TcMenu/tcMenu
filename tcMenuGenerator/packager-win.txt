@@ -16,6 +16,16 @@ jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --reso
 
 Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator directory. Choose compile, output will be in the Output directory at the same level as the script.
 
+Linux from target dir:
+
+cp ../startDesigner.sh jfx/app
+mv jfx tcMenuDesigner-<version>
+tar cvfz tcMenuDesigner-<version>.tar.gz tcMenuDesigner-<version>
+tar tvfz tcMenuDesigner-<version>.tar.gz
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
 # MacOS build - no longer needed, we support nearly all with the app store version

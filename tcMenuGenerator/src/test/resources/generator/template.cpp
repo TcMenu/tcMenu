@@ -15,6 +15,7 @@
 
 ArduinoAnalogDevice analogDevice(42);
 const int PROGMEM anotherVar;
+const int PROGMEM allowedPluginVar;
 
 // Global Menu Item declarations
 

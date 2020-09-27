@@ -40,7 +40,8 @@ public class PinPropertyValidationRules implements PropertyValidationRules {
 
         try {
             var pinInt = Integer.parseInt(value);
-            return (pinInt >= -1);
+            if(pinInt == -1 && !optional) return false;
+            return (pinInt >= -1 && pinInt < 256);
         }
         catch(Exception ex) {
             // not an integer

@@ -62,7 +62,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     public String getVersion() {
-        return props.getProperty(BUILD_VERSION_KEY, "?");
+        return props.getProperty(BUILD_VERSION_KEY, "0.0");
     }
 
     public String getBuildTimestamp() {

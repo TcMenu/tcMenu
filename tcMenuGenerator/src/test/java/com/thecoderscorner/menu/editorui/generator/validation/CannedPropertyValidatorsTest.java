@@ -8,9 +8,6 @@ package com.thecoderscorner.menu.editorui.generator.validation;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,7 +41,8 @@ class CannedPropertyValidatorsTest {
         assertTrue(validator.isValueValid("254"));
         assertFalse(validator.isValueValid("1024"));
         assertTrue(validator.isValueValid("A12"));
-        assertFalse(validator.isValueValid("A1200"));
+        assertTrue(validator.isValueValid("A1200"));
+        assertTrue(validator.isValueValid("PF_12"));
     }
 
     @Test
