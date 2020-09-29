@@ -48,7 +48,14 @@ public class ArduinoGenerator extends CoreCodeGenerator {
     public void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions,
                                    String projectName) throws TcMenuConversionException {
 
-        String inoFile = toSourceFile(directory, ".ino");
+        String inoFile;
+        if(options.isUseCppMain()) {
+            var path = options.isSaveToSrc() ? srcDir : directory;
+            inoFile = toSourceFile(path, "_main.cpp");
+        }
+        else {
+            inoFile = toSourceFile(directory, ".ino");
+        }
         updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
 
         // do a couple of final checks and put out warnings if need be

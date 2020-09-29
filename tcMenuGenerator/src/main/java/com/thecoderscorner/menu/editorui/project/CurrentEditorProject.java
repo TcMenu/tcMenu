@@ -30,7 +30,7 @@ public class CurrentEditorProject {
             ARDUINO_AVR.getBoardId(),
             NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED,
             Collections.emptyList(), UUID.randomUUID(), "New Device",
-            true, false
+            true, false, false
     );
 
 

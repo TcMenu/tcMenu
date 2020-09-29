@@ -103,7 +103,7 @@ public class ArduinoGeneratorTest {
                 List.<CreatorProperty>of(),
                 UUID.randomUUID(),
                 "app",
-                recursiveName, false);
+                recursiveName, false, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);

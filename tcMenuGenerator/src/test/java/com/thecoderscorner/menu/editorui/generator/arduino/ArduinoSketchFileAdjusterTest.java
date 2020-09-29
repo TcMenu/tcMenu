@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +43,7 @@ public class ArduinoSketchFileAdjusterTest {
         tree = TestUtils.buildCompleteTree();
         inoFile = dir.resolve("superProject.ino");
         emptyLogger = Mockito.mock(Consumer.class);
-        adjuster = new ArduinoSketchFileAdjuster();
+        adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
 
         MenuItem itemId8 = tree.getMenuById(8).orElseThrow();
         MenuItem itemId9 = tree.getMenuById(9).orElseThrow();

@@ -67,6 +67,7 @@ public class GenerateCodeDialog {
     private TextField appNameField;
     private CheckBox recursiveNamingCheckBox;
     private CheckBox saveToSrcCheckBox;
+    private CheckBox useCppMainCheckBox;
     private Stage mainStage;
 
     public TableView<CreatorProperty> propsTable;
@@ -76,7 +77,6 @@ public class GenerateCodeDialog {
     public TableColumn<CreatorProperty, String> descriptionCol;
     private List<CreatorProperty> properties = new ArrayList<>();
     private Stage dialogStage;
-
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -226,6 +226,10 @@ public class GenerateCodeDialog {
         saveToSrcCheckBox.setSelected(project.getGeneratorOptions().isSaveToSrc());
         embeddedPane.add(saveToSrcCheckBox, 1, 4, 2, 1);
 
+        useCppMainCheckBox = new CheckBox("Use a CPP file for main (Arduino only)");
+        useCppMainCheckBox.setSelected(project.getGeneratorOptions().isUseCppMain());
+        embeddedPane.add(useCppMainCheckBox, 1, 5, 2, 1);
+
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(350);
         ColumnConstraints column3 = new ColumnConstraints(80);
@@ -264,6 +268,7 @@ public class GenerateCodeDialog {
         displaysSupported = manager.getPluginsThatMatch(newVal, DISPLAY);
         inputsSupported = manager.getPluginsThatMatch(newVal, INPUT);
         remotesSupported = manager.getPluginsThatMatch(newVal, REMOTE);
+        useCppMainCheckBox.setDisable(platformCombo.getValue().equals(EmbeddedPlatform.MBED_RTOS));
     }
 
     private void changeProperties() {
@@ -307,7 +312,7 @@ public class GenerateCodeDialog {
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
                 currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(),
                 allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
-                saveToSrcCheckBox.isSelected())
+                saveToSrcCheckBox.isSelected(), useCppMainCheckBox.isSelected())
         );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),

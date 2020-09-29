@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -31,11 +32,13 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     private static final Pattern SETUP_PATTERN = Pattern.compile("void\\s+setup\\(\\)(.*)");
     /** the pattern to loop for the loop method */
     private static final Pattern LOOP_PATTERN = Pattern.compile("void\\s+loop\\(\\)(.*)");
+    protected final CodeGeneratorOptions options;
 
     protected boolean changed = false;
     protected Consumer<String> logger;
 
-    public ArduinoSketchFileAdjuster() {
+    public ArduinoSketchFileAdjuster(CodeGeneratorOptions options) {
+        this.options = options;
     }
 
     protected String emptyFileContents() {
@@ -121,11 +124,14 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) || isRuntimeStructureNeeded(cb.getCallbackItem()))
                 .collect(Collectors.toList());
 
+        var definedList = new ArrayList<>(alreadyDefined);
+
         for (CallbackRequirement cb : filteredCb) {
-            if(!alreadyDefined.contains(cb.getCallbackName())) {
+            if(!definedList.contains(cb.getCallbackName())) {
                 logger.accept("Adding new callback to sketch: " + cb.getCallbackName());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
+                definedList.add(cb.getCallbackName());
                 changed = true;
             }
             else {
@@ -153,7 +159,9 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     }
 
     protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
-        lines.add(0, "#include \"" + projectName + "_menu.h\"");
+        var srcPath = "";
+        if(options.isSaveToSrc() && !options.isUseCppMain()) srcPath = "src/";
+        lines.add(0, "#include \"" + srcPath + projectName + "_menu.h\"");
         changed = true;
     }
 }

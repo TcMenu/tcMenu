@@ -21,6 +21,7 @@ public class CodeGeneratorOptions {
     private List<CreatorProperty> lastProperties;
     private boolean namingRecursive;
     private boolean saveToSrc;
+    private boolean useCppMain;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -30,7 +31,7 @@ public class CodeGeneratorOptions {
                                 String inputTypeId, String remoteCapabilitiesId,
                                 List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
-                                boolean namingRecursive, boolean saveToSrc) {
+                                boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
@@ -40,6 +41,7 @@ public class CodeGeneratorOptions {
         this.applicationName = applicationName;
         this.namingRecursive = namingRecursive;
         this.saveToSrc = saveToSrc;
+        this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
     }
 
     public String getApplicationName() {
@@ -76,5 +78,9 @@ public class CodeGeneratorOptions {
 
     public boolean isSaveToSrc() {
         return saveToSrc;
+    }
+
+    public boolean isUseCppMain() {
+        return useCppMain;
     }
 }
