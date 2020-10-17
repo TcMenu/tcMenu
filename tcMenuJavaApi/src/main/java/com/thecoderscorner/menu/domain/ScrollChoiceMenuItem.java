@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.domain;
 
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
@@ -58,7 +59,7 @@ public class ScrollChoiceMenuItem extends MenuItem<CurrentScrollPosition> {
 
     @Override
     public MenuState<CurrentScrollPosition> newMenuState(CurrentScrollPosition value, boolean changed, boolean active) {
-        return null;
+        return new CurrentScrollPositionMenuState(this, changed, active, value);
     }
 
     @Override

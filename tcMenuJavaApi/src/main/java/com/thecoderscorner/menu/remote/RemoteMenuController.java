@@ -168,6 +168,8 @@ public class RemoteMenuController {
             case FLOAT_BOOT_ITEM:
             case ACTION_BOOT_ITEM:
             case RUNTIME_LIST_BOOT:
+            case BOOT_RGB_COLOR:
+            case BOOT_SCROLL_CHOICE:
                 onMenuItemBoot((BootItemMenuCommand) menuCommand);
                 break;
             case BOOTSTRAP:

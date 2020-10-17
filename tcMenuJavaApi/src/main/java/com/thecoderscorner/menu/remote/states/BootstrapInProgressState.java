@@ -28,7 +28,9 @@ public class BootstrapInProgressState extends BaseMessageProcessingState {
             RUNTIME_LIST_BOOT,
             LARGE_NUM_BOOT_ITEM,
             FLOAT_BOOT_ITEM,
-            REMOTE_BOOT_ITEM
+            REMOTE_BOOT_ITEM,
+            BOOT_RGB_COLOR,
+            BOOT_SCROLL_CHOICE
     );
 
     public BootstrapInProgressState(RemoteConnectorContext context) {

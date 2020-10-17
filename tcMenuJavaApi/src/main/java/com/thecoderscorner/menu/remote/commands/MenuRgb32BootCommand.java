@@ -7,8 +7,7 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.state.*;
 
 public class MenuRgb32BootCommand extends BootItemMenuCommand<Rgb32MenuItem, PortableColor> {
 

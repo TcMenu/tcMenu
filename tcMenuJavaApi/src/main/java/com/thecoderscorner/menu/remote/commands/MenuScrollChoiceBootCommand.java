@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 
