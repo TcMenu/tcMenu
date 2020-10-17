@@ -7,6 +7,8 @@
 package com.thecoderscorner.menu.remote.protocol;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 
@@ -83,6 +85,10 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 return processActionItem(parser);
             case RUNTIME_LIST_BOOT:
                 return processRuntimeListBoot(parser);
+            case BOOT_RGB_COLOR:
+                return processRuntimeRgbColor(parser);
+            case BOOT_SCROLL_CHOICE:
+                return processRuntimeScrollChoice(parser);
             case ACKNOWLEDGEMENT:
                 return processAcknowledgement(parser);
             case PAIRING_REQUEST:
@@ -212,6 +218,36 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuBooleanBootCommand(parentId, item, currentVal != 0);
     }
 
+    private MenuCommand processRuntimeRgbColor(TagValTextParser parser) throws IOException {
+        Rgb32MenuItem item = new Rgb32MenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
+                .withAlpha(parser.getValueAsIntWithDefault(KEY_ALPHA_FIELD, 0)!=0)
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        var currentVal = parser.getValue(KEY_CURRENT_VAL);
+        return new MenuRgb32BootCommand(parentId, item, new PortableColor(currentVal));
+    }
+
+    private MenuCommand processRuntimeScrollChoice(TagValTextParser parser) throws IOException {
+        ScrollChoiceMenuItem item = new ScrollChoiceMenuItemBuilder()
+                .withId(parser.getValueAsInt(KEY_ID_FIELD))
+                .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
+                .withName(parser.getValue(KEY_NAME_FIELD))
+                .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
+                .withVisible(parser.getValueAsIntWithDefault(KEY_VISIBLE_FIELD, 1) != 0)
+                .withItemWidth(parser.getValueAsInt(KEY_WIDTH_FIELD))
+                .withNumEntries(parser.getValueAsInt(KEY_NO_OF_CHOICES))
+                .menuItem();
+
+        int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
+        var currentVal = parser.getValue(KEY_CURRENT_VAL);
+        return new MenuScrollChoiceBootCommand(parentId, item, new CurrentScrollPosition(currentVal));
+    }
     private MenuCommand processLargeNumBootItem(TagValTextParser parser) throws IOException {
         EditableLargeNumberMenuItem item = EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
@@ -432,7 +468,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             case DIALOG_UPDATE:
                 writeDialogUpdate(sb, (MenuDialogCommand)cmd);
                 break;
-
+            case BOOT_RGB_COLOR:
+                writeRgbBoot(sb, (MenuRgb32BootCommand)cmd);
+                break;
+            case BOOT_SCROLL_CHOICE:
+                writeScrollBoot(sb, (MenuScrollChoiceBootCommand)cmd);
+                break;
         }
         sb.append((char)0x02);
 
@@ -511,6 +552,19 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         fmt.setMinimumFractionDigits(decimalPlaces);
         fmt.setMaximumFractionDigits(decimalPlaces);
         appendField(sb, KEY_CURRENT_VAL, fmt.format(cmd.getCurrentValue()));
+    }
+
+    private void writeScrollBoot(StringBuilder sb, MenuScrollChoiceBootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_WIDTH_FIELD, cmd.getMenuItem().getItemWidth());
+        appendField(sb, KEY_NO_OF_CHOICES, cmd.getMenuItem().getNumEntries());
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue().toString());
+    }
+
+    private void writeRgbBoot(StringBuilder sb, MenuRgb32BootCommand cmd) {
+        writeCommonBootFields(sb, cmd);
+        appendField(sb, KEY_ALPHA_FIELD, cmd.getMenuItem().isIncludeAlphaChannel() ? 1 : 0);
+        appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue().toString());
     }
 
     private void writeAnalogItem(StringBuilder sb, MenuAnalogBootCommand cmd) {

@@ -9,7 +9,7 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class EnumManagedMenuItem extends IntegerBaseManagedMenuItem<EnumMenuItem> {
+public class EnumManagedMenuItem extends IntegerBaseManagedMenuItem<EnumMenuItem, Integer> {
     public EnumManagedMenuItem(EnumMenuItem item) {
         super(item);
     }

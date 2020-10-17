@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.controller;
 
 import com.thecoderscorner.menu.controller.manageditem.*;
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -286,6 +287,16 @@ public class MainWindowController {
             @Override
             public void visit(EditableLargeNumberMenuItem item) {
                 setResult(new LargeNumberManagedMenuItem(item));
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                setResult(new ScrollManagedMenuItem(scrollItem));
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                setResult(new RgbManagedMenuItem(rgbItem));
             }
 
             @Override

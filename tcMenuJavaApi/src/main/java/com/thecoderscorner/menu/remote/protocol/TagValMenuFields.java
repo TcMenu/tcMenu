@@ -24,6 +24,8 @@ public interface TagValMenuFields {
     String KEY_EEPROM_FIELD = "IE";
     String KEY_READONLY_FIELD = "RO";
     String KEY_VISIBLE_FIELD = "VI";
+    String KEY_ALPHA_FIELD = "RA";
+    String KEY_WIDTH_FIELD = "WI";
     String KEY_PARENT_ID_FIELD = "PI";
     String KEY_ANALOG_MAX_FIELD = "AM";
     String KEY_ANALOG_OFFSET_FIELD = "AO";

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
@@ -208,6 +209,34 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(1, subMenu.getMenuItem().getId());
         assertEquals("SubMenu", subMenu.getMenuItem().getName());
         assertEquals(0, subMenu.getSubMenuId());
+    }
+
+    @Test
+    public void testReceiveRgb32Item() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer(BOOT_RGB_COLOR, "RO=0|PI=0|ID=1|NM=rgb|RA=1|VC=#22334455|\u0002"));
+        assertTrue(cmd instanceof MenuRgb32BootCommand);
+        MenuRgb32BootCommand rgb = (MenuRgb32BootCommand) cmd;
+        assertEquals(1, rgb.getMenuItem().getId());
+        assertEquals("rgb", rgb.getMenuItem().getName());
+        assertEquals(0, rgb.getSubMenuId());
+        assertTrue(rgb.getMenuItem().isIncludeAlphaChannel());
+
+        PortableColor pc = new PortableColor("#22334455");
+        assertEquals(pc, rgb.getCurrentValue());
+    }
+
+    @Test
+    public void testReceiveScrollChoice() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer(BOOT_SCROLL_CHOICE, "RO=0|PI=0|ID=1|NM=scroll|WI=10|NC=20|VC=1-hello|\u0002"));
+        assertTrue(cmd instanceof MenuScrollChoiceBootCommand);
+        MenuScrollChoiceBootCommand sc = (MenuScrollChoiceBootCommand) cmd;
+        assertEquals(1, sc.getMenuItem().getId());
+        assertEquals("scroll", sc.getMenuItem().getName());
+        assertEquals(0, sc.getSubMenuId());
+        assertEquals(10, sc.getMenuItem().getItemWidth());
+        assertEquals(20, sc.getMenuItem().getNumEntries());
+        assertEquals(1, sc.getCurrentValue().getPosition());
+        assertEquals("hello", sc.getCurrentValue().getValue());
     }
 
     @Test

@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -17,7 +18,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.util.Optional;
 
-public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends BaseLabelledManagedMenuItem<Integer, I> {
+public abstract class IntegerBaseManagedMenuItem<I extends MenuItem, T> extends BaseLabelledManagedMenuItem<T, I> {
     private static final int REDUCE = -1;
     private static final int INCREASE = 1;
     private Button minusButton = new Button();
@@ -49,7 +50,7 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
 
         minusButton.setOnAction(e-> {
             if(waitingFor.isPresent()) return;
-            waitingFor = Optional.of(menuController.sendDeltaUpdate(item, REDUCE));
+            waitingFor = handleAdjustment(menuController, REDUCE);
         });
 
         minusButton.setOnMousePressed(e-> {
@@ -64,7 +65,7 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
         plusButton.setOnMouseReleased(e-> repeating = RepeatTypes.REPEAT_NONE);
         plusButton.setOnAction(e-> {
             if(waitingFor.isPresent()) return;
-            waitingFor = Optional.of(menuController.sendDeltaUpdate(item, INCREASE));
+            waitingFor = handleAdjustment(menuController, INCREASE);
         });
 
         var border = new BorderPane();
@@ -72,6 +73,10 @@ public abstract class IntegerBaseManagedMenuItem<I extends MenuItem> extends Bas
         border.setRight(plusButton);
         border.setCenter(itemLabel);
         return border;
+    }
+
+    protected Optional<CorrelationId> handleAdjustment(RemoteMenuController menuController, int mode) {
+        return Optional.of(menuController.sendDeltaUpdate(item, mode));
     }
 
     @Override

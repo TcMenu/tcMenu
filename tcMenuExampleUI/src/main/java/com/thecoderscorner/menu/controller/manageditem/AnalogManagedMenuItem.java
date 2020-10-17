@@ -9,7 +9,7 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 
-public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenuItem> {
+public class AnalogManagedMenuItem extends IntegerBaseManagedMenuItem<AnalogMenuItem, Integer> {
     public AnalogManagedMenuItem(AnalogMenuItem item) {
         super(item);
     }
