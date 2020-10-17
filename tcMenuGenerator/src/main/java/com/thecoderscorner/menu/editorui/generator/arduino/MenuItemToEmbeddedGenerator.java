@@ -13,6 +13,8 @@ import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.*;
+
 /**
  * This class follows the visitor pattern to generate code for each item
  */
@@ -121,6 +123,55 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
             setResult(List.of(menu));
         }
+    }
+
+    public void visit(Rgb32MenuItem item) {
+        BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "Rgb32MenuItem")
+                .addElement(item.getId())
+                .addElement(makeRtFunctionName())
+                .addElement(item.isIncludeAlphaChannel())
+                .addElement(nextMenuName)
+                .requiresExtern()
+                .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
+
+        setResult(List.of(menu));
+    }
+
+    public void visit(ScrollChoiceMenuItem item) {
+        BuildStructInitializer menu;
+        if(item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
+            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement(item.getId())
+                    .addElement(makeRtFunctionName())
+                    .addElement(0)
+                    .addElement(item.getEepromOffset())
+                    .addElement(item.getItemWidth())
+                    .addElement(item.getNumEntries())
+                    .addElement(nextMenuName)
+                    .requiresExtern();
+        }
+        else if(item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM) {
+            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement(item.getId())
+                    .addElement(makeRtFunctionName())
+                    .addElement(0)
+                    .addElement(item.getVariable())
+                    .addElement(item.getItemWidth())
+                    .addElement(item.getNumEntries())
+                    .addElement(nextMenuName)
+                    .requiresExtern();
+        }
+        else  { // custom callback mode
+            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement(item.getId())
+                    .addElement(makeRtFunctionName())
+                    .addElement(0)
+                    .addElement(item.getNumEntries())
+                    .addElement(nextMenuName)
+                    .requiresExtern();
+        }
+        menu.addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
+        setResult(List.of(menu));
     }
 
     private String makeRtFunctionName() {

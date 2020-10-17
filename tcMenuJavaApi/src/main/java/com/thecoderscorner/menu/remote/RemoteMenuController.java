@@ -7,7 +7,9 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -256,6 +258,18 @@ public class RemoteMenuController {
                 @Override
                 public void visit(FloatMenuItem item) {
                     managedMenu.changeItem(item, item.newMenuState(Float.valueOf(menuCommand.getValue()), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(Rgb32MenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(new PortableColor(menuCommand.getValue()), true, false));
+                    listeners.forEach(l-> l.menuItemChanged(item, true));
+                }
+
+                @Override
+                public void visit(ScrollChoiceMenuItem item) {
+                    managedMenu.changeItem(item, item.newMenuState(new CurrentScrollPosition(menuCommand.getValue()), true, false));
                     listeners.forEach(l-> l.menuItemChanged(item, true));
                 }
 

@@ -69,6 +69,16 @@ public class MenuItemHelper {
             }
 
             @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                setResult(true);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                setResult(true);
+            }
+
+            @Override
             public void visit(SubMenuItem item) {
                 setResult(true); // needed for the back menu item
             }
@@ -150,6 +160,25 @@ public class MenuItemHelper {
                         .menuItem()
                 );
             }
+
+            @Override
+            public void visit(Rgb32MenuItem item) {
+                setResult(new Rgb32MenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem item) {
+                setResult(new ScrollChoiceMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
+
             @Override
             public void visit(ActionMenuItem item) {
                 setResult(ActionMenuItemBuilder.anActionMenuItemBuilder()
@@ -195,6 +224,16 @@ public class MenuItemHelper {
             @Override
             public void visit(EditableLargeNumberMenuItem numItem) {
                 setResult(8);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem numItem) {
+                setResult(4);
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem numItem) {
+                setResult(2);
             }
 
             @Override

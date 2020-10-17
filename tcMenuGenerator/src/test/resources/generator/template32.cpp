@@ -19,13 +19,13 @@ const int allowedPluginVar;
 
 // Global Menu Item declarations
 
-RENDERING_CALLBACK_NAME_INVOKE(fnSubIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NULL)
+RENDERING_CALLBACK_NAME_INVOKE(fnSubIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NO_CALLBACK)
 IpAddressMenuItem menuSubIpItem(fnSubIpItemRtCall, 79, NULL);
 RENDERING_CALLBACK_NAME_INVOKE(fnSubTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
 TextMenuItem menuSubTextItem(fnSubTextItemRtCall, 99, 10, &menuSubIpItem);
 const AnalogMenuInfo minfoSubTest2 = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
 AnalogMenuItem menuSubTest2(&minfoSubTest2, 0, &menuSubTextItem);
-RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NULL)
+RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NO_CALLBACK)
 const SubMenuInfo minfoSub = { "sub", 100, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackSub(fnSubRtCall, &menuSubTest2);
 SubMenuItem menuSub(&minfoSub, &menuBackSub, NULL);

@@ -50,6 +50,7 @@ public class EnumMenuItem extends MenuItem<Integer> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getEnumEntries(), that.getEnumEntries()) &&

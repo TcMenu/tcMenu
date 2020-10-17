@@ -203,6 +203,16 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         @Override
+        public void visit(ScrollChoiceMenuItem scrollItem) {
+            setResult(new UIScrollChoiceMenuItem(scrollItem, menuIdChooser, changeConsumer));
+        }
+
+        @Override
+        public void visit(Rgb32MenuItem rgbItem) {
+            setResult(new UIRgb32MenuItem(rgbItem, menuIdChooser, changeConsumer));
+        }
+
+        @Override
         public void visit(SubMenuItem item) {
             if(!MenuTree.ROOT.equals(item)) {
                 setResult(new UISubMenuItem(item, menuIdChooser, changeConsumer));

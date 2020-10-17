@@ -54,6 +54,7 @@ public class ActionMenuItem extends MenuItem<Boolean> {
         return getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());

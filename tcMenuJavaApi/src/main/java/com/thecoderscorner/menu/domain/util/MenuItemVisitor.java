@@ -49,12 +49,24 @@ public interface MenuItemVisitor {
      * This will be called during visit for an action item
      * @param item the item
      */
+
     void visit(ActionMenuItem item);
     /**
      * this will be called during visit for a list item
      * @param listItem the list item
      */
     void visit(RuntimeListMenuItem listItem);
+
+    /**
+     * This will be called during visit for scroll choice items
+     * @param scrollItem the rgb item
+     */
+    void visit(ScrollChoiceMenuItem scrollItem);
+    /**
+     * This will be called during visit for RGB items
+     * @param rgbItem the rgb item
+     */
+    void visit(Rgb32MenuItem rgbItem);
 
     /**
      * This will be called during visit for a large number item

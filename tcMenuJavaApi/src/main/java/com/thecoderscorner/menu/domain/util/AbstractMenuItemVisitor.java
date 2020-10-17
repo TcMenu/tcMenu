@@ -66,6 +66,16 @@ public abstract class AbstractMenuItemVisitor<T> implements MenuItemVisitor {
         anyItem(numItem);
     }
 
+    @Override
+    public void visit(ScrollChoiceMenuItem scrollItem) {
+        anyItem(scrollItem);
+    }
+
+    @Override
+    public void visit(Rgb32MenuItem rgbItem) {
+        anyItem(rgbItem);
+    }
+
     /**
      * Whenever a visit method is not implemented, then anyItem is called instead. Default behaviour is to
      * throw an exception.

@@ -64,6 +64,7 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isVisible() == that.isVisible() &&
                 getNaming() == that.getNaming() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());

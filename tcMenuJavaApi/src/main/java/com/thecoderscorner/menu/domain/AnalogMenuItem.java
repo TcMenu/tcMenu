@@ -108,6 +108,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
+                isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getUnitName(), that.getUnitName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName());

@@ -53,4 +53,6 @@ public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
     public void accept(MenuItemVisitor visitor) {
         visitor.visit(this);
     }
+
+    
 }

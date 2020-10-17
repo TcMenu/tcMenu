@@ -70,6 +70,7 @@ public class EditableTextMenuItem extends MenuItem<String> {
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
                 getItemType() == that.getItemType() &&
+                isVisible() == that.isVisible() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&

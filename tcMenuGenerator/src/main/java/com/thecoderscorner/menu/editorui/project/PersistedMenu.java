@@ -53,6 +53,16 @@ public class PersistedMenu {
             }
 
             @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                type = SCROLL_CHOICE_PERSIST_TYPE;
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                type = RGB32_COLOR_PERSIST_TYPE;
+            }
+
+            @Override
             public void visit(EditableLargeNumberMenuItem numItem) {
                 type = RUNTIME_LARGE_NUM_PERSIST_TYPE;
             }

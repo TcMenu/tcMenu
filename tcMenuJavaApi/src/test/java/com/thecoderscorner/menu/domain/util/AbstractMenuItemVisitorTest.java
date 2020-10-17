@@ -74,6 +74,15 @@ public class AbstractMenuItemVisitorTest {
             }
 
             @Override
+            public void visit(Rgb32MenuItem item) {
+                setResult(getResult().orElse("") + "R");
+            }
+            @Override
+            public void visit(ScrollChoiceMenuItem item) {
+                setResult(getResult().orElse("") + "S");
+            }
+
+            @Override
             public void visit(EditableLargeNumberMenuItem item) {
                 setResult(getResult().orElse("") + "9");
             }
@@ -88,6 +97,9 @@ public class AbstractMenuItemVisitorTest {
         ActionMenuItem actionItem = anActionMenu("123", 347);
         RuntimeListMenuItem runList = aRuntimeListMenu("1232", 153, 1);
         EditableLargeNumberMenuItem numItem = aLargeNumber("1232", 153, 4, true);
+        Rgb32MenuItem rgbItem = new Rgb32MenuItemBuilder().withId(10).withName("rgb").withAlpha(true).menuItem();
+        ScrollChoiceMenuItem scrollItem = new ScrollChoiceMenuItemBuilder().withId(15).withName("scroll").withItemWidth(10)
+                .withNumEntries(20).withEepromOffset(10).withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM).menuItem();
 
         subItem.accept(visitor);
         analog.accept(visitor);
@@ -98,8 +110,10 @@ public class AbstractMenuItemVisitorTest {
         actionItem.accept(visitor);
         runList.accept(visitor);
         numItem.accept(visitor);
+        rgbItem.accept(visitor);
+        scrollItem.accept(visitor);
 
-        assertThat(visitor.getResult().orElse(""), is("123456789"));
+        assertThat(visitor.getResult().orElse(""), is("123456789RS"));
     }
 
     @Test(expected = UnsupportedOperationException.class)

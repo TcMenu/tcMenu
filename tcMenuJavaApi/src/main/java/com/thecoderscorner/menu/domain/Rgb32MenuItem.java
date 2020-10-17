@@ -1,0 +1,60 @@
+package com.thecoderscorner.menu.domain;
+
+import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.state.PortableColorMenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
+
+import java.util.Objects;
+
+/**
+ * A menu item that represents a colour in the RGB domain with optional Alpha channel.
+ */
+public class Rgb32MenuItem extends MenuItem<PortableColor> {
+    private final boolean includeAlphaChannel;
+
+    public Rgb32MenuItem() {
+        super("", -1, -1, null, false, false, true);
+        includeAlphaChannel = false;
+    }
+
+    public Rgb32MenuItem(String name, int id, int eepromAddress, String functionName, boolean includeAlphaChannel,
+                         boolean readOnly, boolean localOnly, boolean visible) {
+        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        this.includeAlphaChannel = includeAlphaChannel;
+    }
+
+    public boolean isIncludeAlphaChannel() {
+        return includeAlphaChannel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Rgb32MenuItem that = (Rgb32MenuItem) o;
+        return getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                isLocalOnly() == that.isLocalOnly() &&
+                isVisible() == that.isVisible() &&
+                includeAlphaChannel == that.includeAlphaChannel &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(includeAlphaChannel, getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+    }
+
+    @Override
+    public MenuState<PortableColor> newMenuState(PortableColor value, boolean changed, boolean active) {
+        return new PortableColorMenuState(this, changed, active, value);
+    }
+
+    @Override
+    public void accept(MenuItemVisitor visitor) {
+        visitor.visit(this);
+    }
+}

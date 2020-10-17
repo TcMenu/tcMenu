@@ -227,6 +227,13 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected String safeStringFromProperty(StringProperty stringProperty, String field, List<FieldError> errorsBuilder,
                                             int maxLen, StringFieldType fieldType) {
         String s = stringProperty.get();
+        if(s == null) {
+            if(fieldType != StringFieldType.OPTIONAL) {
+                errorsBuilder.add(new FieldError("field must be populated", field));
+            }
+            return "";
+        }
+
         if(fieldType == StringFieldType.OPTIONAL &&  s.length() > maxLen) {
             errorsBuilder.add(new FieldError("field must be less than " + maxLen + " characters", field));
         }

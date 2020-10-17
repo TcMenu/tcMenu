@@ -17,10 +17,7 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.ERROR;
@@ -43,6 +40,8 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String TEXT_PERSIST_TYPE = "textItem";
     public static final String FLOAT_PERSIST_TYPE = "floatItem";
     public static final String RUNTIME_LARGE_NUM_PERSIST_TYPE = "largeNumItem";
+    public static final String SCROLL_CHOICE_PERSIST_TYPE = "scrollItem";
+    public static final String RGB32_COLOR_PERSIST_TYPE = "rgbItem";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -132,16 +131,21 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
     class MenuItemDeserialiser implements JsonDeserializer<ArrayList<PersistedMenu>> {
 
-        private Map<String, Class<? extends MenuItem>> mapOfTypes = Map.of(
-                ENUM_PERSIST_TYPE, EnumMenuItem.class,
-                ANALOG_PERSIST_TYPE, AnalogMenuItem.class,
-                BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class,
-                ACTION_PERSIST_TYPE, ActionMenuItem.class,
-                TEXT_PERSIST_TYPE, EditableTextMenuItem.class,
-                SUB_PERSIST_TYPE, SubMenuItem.class,
-                RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class,
-                RUNTIME_LARGE_NUM_PERSIST_TYPE, EditableLargeNumberMenuItem.class,
-                FLOAT_PERSIST_TYPE, FloatMenuItem.class);
+        private final Map<String, Class<? extends MenuItem>> mapOfTypes = new HashMap<>();
+
+        {
+            mapOfTypes.put(ENUM_PERSIST_TYPE, EnumMenuItem.class);
+            mapOfTypes.put(ANALOG_PERSIST_TYPE, AnalogMenuItem.class);
+            mapOfTypes.put(BOOLEAN_PERSIST_TYPE, BooleanMenuItem.class);
+            mapOfTypes.put(ACTION_PERSIST_TYPE, ActionMenuItem.class);
+            mapOfTypes.put(TEXT_PERSIST_TYPE, EditableTextMenuItem.class);
+            mapOfTypes.put(SUB_PERSIST_TYPE, SubMenuItem.class);
+            mapOfTypes.put(RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class);
+            mapOfTypes.put(RUNTIME_LARGE_NUM_PERSIST_TYPE, EditableLargeNumberMenuItem.class);
+            mapOfTypes.put(SCROLL_CHOICE_PERSIST_TYPE, ScrollChoiceMenuItem.class);
+            mapOfTypes.put(RGB32_COLOR_PERSIST_TYPE, Rgb32MenuItem.class);
+            mapOfTypes.put(FLOAT_PERSIST_TYPE, FloatMenuItem.class);
+        }
 
         @Override
         public ArrayList<PersistedMenu> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext ctx) throws JsonParseException {

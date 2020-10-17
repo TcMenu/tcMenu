@@ -36,6 +36,18 @@ public class CallbackRequirement {
 
             @Override
             public void visit(RuntimeListMenuItem item) {
+                runtimeCustomCallback(item);
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                if(scrollItem.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
+                    runtimeCustomCallback(scrollItem);
+                }
+                else anyItem(scrollItem);
+            }
+
+            private void runtimeCustomCallback(MenuItem item) {
                 setResult(List.of(
                         "// see tcMenu list documentation on thecoderscorner.com",
                         "int CALLBACK_FUNCTION " + generator.makeRtFunctionName(item) + RUNTIME_CALLBACK_PARAMS + " {",
@@ -93,9 +105,30 @@ public class CallbackRequirement {
                         + baseCbFn + ", \""
                         + item.getName() + "\", "
                         + item.getEepromAddress() + ", "
-                        + (callbackPresent ? callbackName : "NULL") + ")";
+                        + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
 
+
+                if(item instanceof ScrollChoiceMenuItem) {
+                    ScrollChoiceMenuItem sc = (ScrollChoiceMenuItem) item;
+                    if(sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
+                        setResult(List.of("extern const char* " + sc.getVariable() + ';', renderingMacroDef));
+                        return;
+                    }
+                }
                 setResult(List.of(renderingMacroDef));
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem item) {
+                generateSourceForEditableRuntime(item, "rgbAlphaItemRenderFn");
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem item) {
+                if(item.getChoiceMode() != ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
+                    generateSourceForEditableRuntime(item, "enumItemRenderFn");
+                }
+                else anyItem(item);
             }
 
             @Override
@@ -110,7 +143,7 @@ public class CallbackRequirement {
                         + "backSubItemRenderFn, \""
                         + item.getName() + "\", "
                         + item.getEepromAddress() + ", "
-                        + "NULL)";
+                        + "NO_CALLBACK)";
 
                 setResult(List.of(renderingMacroDef));
             }
@@ -137,6 +170,12 @@ public class CallbackRequirement {
             public void visit(RuntimeListMenuItem listItem) {
                 setResult("int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
             }
+            public void visit(ScrollChoiceMenuItem choiceMenuItem) {
+                if(choiceMenuItem.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
+                    setResult("int " + generator.makeRtFunctionName(choiceMenuItem) + RUNTIME_CALLBACK_PARAMS + ";");
+                }
+                else anyItem(choiceMenuItem);
+            }
             @Override
             public void anyItem(MenuItem item) {
                 if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
@@ -160,6 +199,12 @@ public class CallbackRequirement {
             @Override
             public void visit(RuntimeListMenuItem listItem) {
                 setResult(generator.makeRtFunctionName(listItem));
+            }
+            public void visit(ScrollChoiceMenuItem scrollChoiceItem) {
+                if(scrollChoiceItem.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
+                    setResult(generator.makeRtFunctionName(scrollChoiceItem));
+                }
+                else anyItem(scrollChoiceItem);
             }
             @Override
             public void anyItem(MenuItem item) {

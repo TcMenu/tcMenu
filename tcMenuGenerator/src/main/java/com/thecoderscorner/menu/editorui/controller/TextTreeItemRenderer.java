@@ -126,6 +126,22 @@ public class TextTreeItemRenderer {
         }
 
         @Override
+        public void visit(Rgb32MenuItem rgbItem) {
+            StringBuilder sb = createBuilderWithName(rgbItem.getName());
+            String s = rgbItem.isIncludeAlphaChannel() ? "#345678FF" : "#345678";
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
+            setResult(sb.toString());
+        }
+
+        @Override
+        public void visit(ScrollChoiceMenuItem scItem) {
+            StringBuilder sb = createBuilderWithName(scItem.getName());
+            String s = "Item1";
+            sb.replace(spaces.length() - s.length(), spaces.length(), s);
+            setResult(sb.toString());
+        }
+
+        @Override
         public void visit(BooleanMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             String val ;

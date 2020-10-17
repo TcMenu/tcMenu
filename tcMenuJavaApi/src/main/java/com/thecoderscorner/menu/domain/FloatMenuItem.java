@@ -40,6 +40,7 @@ public class FloatMenuItem extends MenuItem<Float> {
         return getNumDecimalPlaces() == that.getNumDecimalPlaces() &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
+                isVisible() == that.isVisible() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&

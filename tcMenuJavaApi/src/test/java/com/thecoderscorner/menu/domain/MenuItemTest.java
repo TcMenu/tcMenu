@@ -18,6 +18,7 @@ import static com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder.aTextM
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.aFloatMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.*;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static org.junit.Assert.*;
 
@@ -153,6 +154,51 @@ public class MenuItemTest {
         assertBaseMenuFields(item, "Act1", 448, 20);
         assertFalse(item.hasChildren());
         assertEquals(item, ActionMenuItemBuilder.anActionMenuItemBuilder().withExisting(item).menuItem());
+    }
+
+    @Test
+    public void testRgbMenu() {
+        var item = new Rgb32MenuItemBuilder().withId(102)
+                .withName("rgb")
+                .withEepromAddr(-1)
+                .withFunctionName("test")
+                .withLocalOnly(true)
+                .withReadOnly(true)
+                .withAlpha(true)
+                .menuItem();
+
+        assertBaseMenuFields(item, "rgb", 102, -1);
+        assertTrue(item.isLocalOnly());
+        assertTrue(item.isReadOnly());
+        assertTrue(item.isIncludeAlphaChannel());
+
+        assertEquals(item, new Rgb32MenuItemBuilder().withExisting(item).menuItem());
+    }
+
+    @Test
+    public void testScrollChoiceItem() {
+        var item = new ScrollChoiceMenuItemBuilder().withId(123)
+                .withName("scroll")
+                .withFunctionName("onScroll")
+                .withEepromAddr(202)
+                .withReadOnly(true)
+                .withItemWidth(10)
+                .withNumEntries(20)
+                .withChoiceMode(ScrollChoiceMode.ARRAY_IN_RAM)
+                .withVariable("hello")
+                .withEepromOffset(80)
+                .menuItem();
+
+        assertBaseMenuFields(item, "scroll", 123, 202);
+        assertFalse(item.isLocalOnly());
+        assertTrue(item.isReadOnly());
+        assertTrue(item.isVisible());
+        assertEquals("onScroll", item.getFunctionName());
+        assertEquals("hello", item.getVariable());
+        assertEquals(10, item.getItemWidth());
+        assertEquals(20, item.getNumEntries());
+        assertEquals(80, item.getEepromOffset());
+        assertEquals(ScrollChoiceMode.ARRAY_IN_RAM, item.getChoiceMode());
     }
 
     private void assertBaseMenuFields(MenuItem item, String name, int id, int eeprom) {
