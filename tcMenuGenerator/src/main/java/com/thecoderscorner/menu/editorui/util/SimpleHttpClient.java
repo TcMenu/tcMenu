@@ -37,6 +37,8 @@ public class SimpleHttpClient implements IHttpClient {
         switch (datatype) {
             case XML_DATA:
                 return "application/xml";
+            case FORM:
+                return "application/x-www-form-urlencoded";
             case JSON_DATA:
             default:
                 return "application/json";

@@ -34,6 +34,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     public final static String LIBRARY_VERSIONING_URL = "http://thecoderscorner.com/tcc/app/getLibraryVersions";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
     private static final String PLUGIN_DOWNLOAD_URL = "http://thecoderscorner.com/tcc/app/downloadPlugin";
+    private static final int PLUGIN_API_VERSION = 2;
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final IHttpClient client;
@@ -75,7 +76,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
         try {
             var libDict = new HashMap<String, VersionInfo>();
 
-            var verData = client.postRequestForString(LIBRARY_VERSIONING_URL, "", IHttpClient.HttpDataType.JSON_DATA);
+            var verData = client.postRequestForString(LIBRARY_VERSIONING_URL, "pluginVer=" + PLUGIN_API_VERSION, IHttpClient.HttpDataType.FORM);
             var inStream = new ByteArrayInputStream(verData.getBytes());
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

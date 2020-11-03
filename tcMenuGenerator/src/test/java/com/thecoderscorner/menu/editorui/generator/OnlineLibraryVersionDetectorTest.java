@@ -43,7 +43,7 @@ public class OnlineLibraryVersionDetectorTest {
     @Test
     public void testReadingXmlOverMockHttp() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
-        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "", HttpDataType.JSON_DATA)).thenReturn(xmlData);
+        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "pluginVer=2", HttpDataType.FORM)).thenReturn(xmlData);
 
         var verDet = new OnlineLibraryVersionDetector(mockHttp, ReleaseType.STABLE);
         var versions = verDet.acquireVersions();
@@ -58,7 +58,7 @@ public class OnlineLibraryVersionDetectorTest {
     @Test
     public void testReadingXmlOverMockHttpForBeta() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
-        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "", HttpDataType.JSON_DATA)).thenReturn(xmlData);
+        when(mockHttp.postRequestForString(LIBRARY_VERSIONING_URL, "pluginVer=2", HttpDataType.FORM)).thenReturn(xmlData);
 
         var verDet = new OnlineLibraryVersionDetector(mockHttp, ReleaseType.BETA);
         var versions = verDet.acquireVersions();
