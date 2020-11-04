@@ -4,7 +4,7 @@
 Ensure all components are correctly versioned in Maven, iss script etc.
 
 Run and smoke test:
-java --module-path . --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
+java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
 
 # Step 2 - Build the package
 
