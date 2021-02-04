@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.beans.Observable;
@@ -38,15 +39,19 @@ import java.util.stream.Collectors;
  */
 public abstract class UIMenuItem<T extends MenuItem> {
 
+    private boolean variableChanged = false;
+
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL}
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
 
     private final MenuIdChooser chooser;
+    protected VariableNameGenerator variableNameGenerator;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
     private T menuItem;
 
     private TextField idField;
     protected TextField nameField;
+    protected TextField variableField;
     protected TextField functionNameTextField;
     private TextField eepromField;
     private Label errorsField;
@@ -55,9 +60,10 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private CheckBox visibleCheck;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
 
-    public UIMenuItem(T menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+    public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         this.menuItem = menuItem;
         this.chooser = chooser;
+        this.variableNameGenerator = gen;
         this.changeConsumer = changeConsumer;
     }
 
@@ -72,7 +78,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         errorsField = new Label();
         errorsField.setId("uiItemErrors");
         errorsField.setVisible(false);
-        errorsField.setMinHeight(40);
+        //errorsField.setMinHeight(40);
         errorsField.setText("No Errors");
         grid.add(errorsField, 0, idx, 2, 1);
 
@@ -87,8 +93,38 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.add(new Label("Name"), 0, idx);
         nameField = new TextField(menuItem.getName());
         nameField.setId("nameField");
-        nameField.textProperty().addListener(this::coreValueChanged);
+        nameField.textProperty().addListener((observableValue, s, t1) -> {
+            if(variableNameGenerator.getUncommittedItems().contains(getMenuItem().getId())) {
+                variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
+            }
+            callChangeConsumer();
+        });
         grid.add(nameField, 1, idx);
+
+        idx++;
+        grid.add(new Label("Menu Variable Name"), 0, idx);
+        var varName = menuItem.getVariableName();
+        if(StringHelper.isStringEmptyOrNull(varName)) {
+            varName = variableNameGenerator.makeNameToVar(getMenuItem());
+        }
+        HBox varNameBox = new HBox();
+        varNameBox.setSpacing(4);
+
+        variableField = new TextField(varName);
+        variableField.setId("variableField");
+        variableField.textProperty().addListener(this::coreValueChanged);
+        variableField.setOnKeyPressed((keyEvent) ->
+                variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
+
+        var varSyncButton = new Button("sync");
+        varSyncButton.setOnAction(actionEvent ->
+                variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()))
+        );
+        varSyncButton.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
+        varSyncButton.setId("varSyncButton");
+        varNameBox.getChildren().add(variableField);
+        varNameBox.getChildren().add(varSyncButton);
+        grid.add(varNameBox, 1, idx);
 
         idx++;
         grid.add(new Label("Eeprom Save Addr"), 0, idx);
@@ -165,9 +201,13 @@ public abstract class UIMenuItem<T extends MenuItem> {
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
                 errorsBuilder, 19, StringFieldType.MANDATORY);
 
+        String varName = safeStringFromProperty(variableField.textProperty(), "VariableName",
+                errorsBuilder, 128, StringFieldType.OPTIONAL);
+
         builder.withFunctionName(getFunctionName(errorsBuilder))
                 .withEepromAddr(eeprom)
                 .withName(name)
+                .withVariableName(varName)
                 .withReadOnly(readOnlyCheck.isSelected())
                 .withLocalOnly(noRemoteCheck.isSelected())
                 .withVisible(visibleCheck.isVisible());
@@ -188,7 +228,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
         return Optional.empty();
     }
-
 
     @SuppressWarnings("unused")
     protected void coreValueChanged(Observable observable, String oldVal, String newVal) {

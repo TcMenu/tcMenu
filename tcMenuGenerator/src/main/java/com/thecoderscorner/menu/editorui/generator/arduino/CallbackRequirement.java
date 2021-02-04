@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.Collections;
@@ -17,11 +18,11 @@ import java.util.Objects;
 
 public class CallbackRequirement {
     public static final String RUNTIME_CALLBACK_PARAMS = "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize)";
-    private final MenuNamingGenerator generator;
+    private final VariableNameGenerator generator;
     private final String callbackName;
     private final MenuItem callbackItem;
 
-    public CallbackRequirement(MenuNamingGenerator generator, String callbackName, MenuItem callbackItem) {
+    public CallbackRequirement(VariableNameGenerator generator, String callbackName, MenuItem callbackItem) {
         this.generator = generator;
         this.callbackName = callbackName;
         this.callbackItem = callbackItem;

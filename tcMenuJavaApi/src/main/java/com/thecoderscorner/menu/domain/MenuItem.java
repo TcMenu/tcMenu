@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
  */
 public abstract class MenuItem<T> {
     protected final String name;
+    protected final String variableName;
     protected final int id;
     protected final int eepromAddress;
     protected final String functionName;
@@ -23,9 +24,10 @@ public abstract class MenuItem<T> {
     protected final boolean localOnly;
     protected final boolean visible;
 
-    public MenuItem(String name, int id, int eepromAddress, String functionName,
+    public MenuItem(String name, String variableName, int id, int eepromAddress, String functionName,
                     boolean readOnly, boolean localOnly, boolean visible) {
         this.name = name;
+        this.variableName = variableName;
         this.id = id;
         this.eepromAddress = eepromAddress;
         this.functionName = functionName;
@@ -80,6 +82,14 @@ public abstract class MenuItem<T> {
      */
     public String getFunctionName() {
         return functionName;
+    }
+
+    /**
+     * Gets the variable name that should be used during generation
+     * @return the variable name to use during generation
+     */
+    public String getVariableName() {
+        return variableName;
     }
 
     /**

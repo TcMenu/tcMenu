@@ -22,14 +22,14 @@ public class EnumMenuItem extends MenuItem<Integer> {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
-        super("", -1, -1, null, false, false, true);
+        super("", "", -1, -1, null, false, false, true);
         // needed for serialisation
         enumEntries = Collections.emptyList();
     }
 
-    public EnumMenuItem(String name, int id, int eepromAddress, String functionName, List<String> enumEntries,
+    public EnumMenuItem(String name, String varName, int id, int eepromAddress, String functionName, List<String> enumEntries,
                         boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.enumEntries = enumEntries;
     }
 

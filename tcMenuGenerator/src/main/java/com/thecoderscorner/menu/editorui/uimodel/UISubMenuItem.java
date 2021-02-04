@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
@@ -22,8 +23,8 @@ public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
 
     private CheckBox secureCheckbox;
 
-    public UISubMenuItem(SubMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UISubMenuItem(SubMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override

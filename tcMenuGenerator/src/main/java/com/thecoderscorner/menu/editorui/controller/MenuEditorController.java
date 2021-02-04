@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
@@ -103,9 +104,15 @@ public class MenuEditorController {
             sortOutMenuForMac();
             redrawTreeControl();
             redrawStatus();
-            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
-            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
+            if(configStore.isUsingArduinoIDE()) {
+                populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
+                populateMenu(menuSketches, installer.getArduinoDirectory(), "");
+            }
         });
+    }
+
+    public CurrentEditorProject getProject() {
+        return editorProject;
     }
 
     private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir) {
@@ -180,17 +187,27 @@ public class MenuEditorController {
         }
     }
 
+    public void presentInfoPanel() {
+        AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector, configStore);
+        editorBorderPane.setCenter(panel.showEmptyInfoPanel());
+        currentEditor = Optional.empty();
+    }
+
     public void onTreeChangeSelection(MenuItem newValue) {
-        editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), this::onEditorChange)
+        VariableNameGenerator gen = new VariableNameGenerator(
+                editorProject.getMenuTree(),
+                editorProject.getGeneratorOptions().isNamingRecursive(),
+                editorProject.getUncommittedItems()
+        );
+        editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), gen, this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
-                    editorBorderPane.setCenter(uiMenuItem.initPanel());
+                    ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel());
+                    scrollPane.setFitToWidth(true);
+                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    editorBorderPane.setCenter(scrollPane);
                     currentEditor = Optional.of(uiMenuItem);
-                },
-                () -> {
-                    AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector);
-                    editorBorderPane.setCenter(panel.showEmptyInfoPanel());
-                    currentEditor = Optional.empty();
-                }
+                }, this::presentInfoPanel
         );
 
         // we cannot modify root.
@@ -366,6 +383,21 @@ public class MenuEditorController {
 
     public void onFileExit(ActionEvent event) {
         getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
+
+    public void onCodeSetArduinoDir(ActionEvent evt) {
+        if(configStore.isUsingArduinoIDE()) {
+            installer.manuallySetArduinoPath();
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
+            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
+            if(menuTree.getSelectionModel().getSelectedIndex() < 1) presentInfoPanel();
+        }
+        else {
+            editorUI.alertOnError(
+                    "Arduino IDE integration checkbox is off",
+                    "To enable Arduino IDE integration please tick the 'Using Arduino IDE' check box on the ROOT page."
+            );
+        }
     }
 
     public void onCodeShowLayout(ActionEvent actionEvent) {

@@ -92,7 +92,8 @@ public class MenuEditorApp extends Application {
         DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms, prefsStore);
 
         var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(homeDirectory, libraryVersionDetector, manager);
+        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(homeDirectory, libraryVersionDetector, manager,
+                            prefsStore, true);
 
         platforms.setInstaller(installer);
 

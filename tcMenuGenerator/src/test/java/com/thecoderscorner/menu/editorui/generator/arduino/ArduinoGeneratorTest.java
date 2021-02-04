@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import org.junit.jupiter.api.AfterEach;
@@ -26,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -115,8 +117,9 @@ public class ArduinoGeneratorTest {
         assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
                 new NameAndKey("uuid1", "tester"), List.of(), false));
 
-        assertEquals("GenState", generator.makeNameToVar(generateItemWithName("Gen &^%State")));
-        assertEquals("ChannelÖôóò", generator.makeNameToVar(generateItemWithName("ChannelÖôóò")));
+        VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
+        assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));
+        assertEquals("ChannelÖôóò", gen.makeNameToVar(generateItemWithName("ChannelÖôóò")));
 
         var cppGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.cpp")));
         var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));

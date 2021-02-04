@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
 import java.util.Optional;
@@ -57,7 +58,7 @@ public interface CurrentProjectEditorUI {
      * @param changeConsumer the consumer that will deal with valid changes in the item.
      * @return either a suitable editor or empty.
      */
-    Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, BiConsumer<MenuItem, MenuItem> changeConsumer);
+    Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer);
 
     /**
      * Show the new item dialog for the given stage with a given menu tree.

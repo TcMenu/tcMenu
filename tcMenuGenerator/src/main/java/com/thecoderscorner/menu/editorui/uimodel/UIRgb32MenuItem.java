@@ -6,12 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.Rgb32MenuItem;
+import com.thecoderscorner.menu.domain.Rgb32MenuItemBuilder;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
 
     private CheckBox alphaCheck;
 
-    public UIRgb32MenuItem(Rgb32MenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UIRgb32MenuItem(Rgb32MenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override
@@ -45,6 +45,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
         alphaCheck = new CheckBox("Enable alpha channel");
         alphaCheck.setId("alphaCheck");
         alphaCheck.setSelected(getMenuItem().isIncludeAlphaChannel());
+        alphaCheck.selectedProperty().addListener((observableValue, aBoolean, t1) -> callChangeConsumer());
         grid.add(alphaCheck, 1, idx);
         return idx;
     }

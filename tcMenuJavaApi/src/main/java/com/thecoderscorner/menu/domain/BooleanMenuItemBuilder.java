@@ -31,7 +31,7 @@ public class BooleanMenuItemBuilder extends MenuItemBuilder<BooleanMenuItemBuild
     }
 
     public BooleanMenuItem menuItem() {
-        return new BooleanMenuItem(name, id, eepromAddr, functionName, naming, readOnly, localOnly, visible);
+        return new BooleanMenuItem(name, variableName, id, eepromAddr, functionName, naming, readOnly, localOnly, visible);
     }
 
     public static BooleanMenuItemBuilder aBooleanMenuItemBuilder() {

@@ -28,8 +28,8 @@ public class EditableTextMenuItemBuilder extends MenuItemBuilder<EditableTextMen
     }
 
     public EditableTextMenuItem menuItem() {
-        return new EditableTextMenuItem(this.name, this.id, this.eepromAddr, this.functionName, textLength, itemType,
-                readOnly, localOnly, visible);
+        return new EditableTextMenuItem(this.name, this.variableName, this.id, this.eepromAddr, this.functionName,
+                textLength, itemType, readOnly, localOnly, visible);
     }
 
     public static EditableTextMenuItemBuilder aTextMenuItemBuilder() {

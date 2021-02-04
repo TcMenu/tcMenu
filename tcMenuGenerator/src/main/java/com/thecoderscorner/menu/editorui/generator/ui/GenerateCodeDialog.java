@@ -90,32 +90,33 @@ public class GenerateCodeDialog {
 
     public void showCodeGenerator(Stage stage, boolean modal)  {
         this.mainStage = stage;
-        VBox vbox = new VBox(5);
+        BorderPane pane = new BorderPane();
 
-        placeDirectoryAndEmbeddedPanels(vbox);
+        placeDirectoryAndEmbeddedPanels(pane);
         filterChoicesByPlatform(platformCombo.getValue());
 
-        addTitleLabel(vbox, "Select the input type:");
+        VBox centerPane = new VBox(5);
+        addTitleLabel(centerPane, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
         currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
         currentInput.setId("currentInputUI");
         currentInput.getStyleClass().add("uiCodeGen");
-        vbox.getChildren().add(currentInput);
+        centerPane.getChildren().add(currentInput);
 
-        addTitleLabel(vbox, "Select the display type:");
+        addTitleLabel(centerPane, "Select the display type:");
         CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
         currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
         currentDisplay.setId("currentDisplayUI");
         currentDisplay.getStyleClass().add("uiCodeGen");
-        vbox.getChildren().add(currentDisplay);
+        centerPane.getChildren().add(currentDisplay);
 
-        addTitleLabel(vbox, "Select remote capabilities:");
+        addTitleLabel(centerPane, "Select remote capabilities:");
         CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
         currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
         currentRemote.setId("currentRemoteUI");
         currentRemote.getStyleClass().add("uiCodeGen");
-        vbox.getChildren().add(currentRemote);
+        centerPane.getChildren().add(currentRemote);
 
         buildTable();
 
@@ -129,18 +130,23 @@ public class GenerateCodeDialog {
         cancelButton.setOnAction(this::onCancel);
         buttonBar.getButtons().addAll(generateButton, cancelButton);
 
-        BorderPane root = new BorderPane();
-        root.setTop(vbox);
-        root.setOpaqueInsets(new Insets(5));
-        root.setCenter(propsTable);
-        root.setBottom(buttonBar);
-        root.setPrefSize(800, 750);
+        centerPane.getChildren().add(propsTable);
+
+        ScrollPane scrollPane = new ScrollPane(centerPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        pane.setCenter(scrollPane);
+        pane.setOpaqueInsets(new Insets(5));
+        pane.setBottom(buttonBar);
+        pane.setPrefSize(800, 750);
         BorderPane.setMargin(propsTable, new Insets(5));
         BorderPane.setMargin(buttonBar, new Insets(5));
-        BorderPane.setMargin(vbox, new Insets(5));
+        BorderPane.setMargin(pane.getTop(), new Insets(5));
 
         var title = "Code Generator:" + project.getFileName();
-        createDialogStateAndShowSceneAdj(stage, root, title, modal, (scene, dlgStg) -> {
+        createDialogStateAndShowSceneAdj(stage, pane, title, modal, (scene, dlgStg) -> {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
@@ -181,7 +187,7 @@ public class GenerateCodeDialog {
         return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElse(items.get(0));
     }
 
-    private void placeDirectoryAndEmbeddedPanels(VBox vbox) {
+    private void placeDirectoryAndEmbeddedPanels(BorderPane pane) {
         GridPane embeddedPane = new GridPane();
         embeddedPane.setHgap(5);
         embeddedPane.setVgap(3);
@@ -236,7 +242,7 @@ public class GenerateCodeDialog {
         embeddedPane.getColumnConstraints().add(column1);
         embeddedPane.getColumnConstraints().add(column2);
         embeddedPane.getColumnConstraints().add(column3);
-        vbox.getChildren().add(embeddedPane);
+        pane.setTop(embeddedPane);
 
     }
 
@@ -367,13 +373,17 @@ public class GenerateCodeDialog {
         VBox vbox = new VBox(5);
         addTitleLabel(vbox, "Select the " + changeWhat + " to use:");
         vbox.getChildren().addAll(listOfComponents);
-        vbox.setPrefSize(700, 600);
 
         BorderPane pane = new BorderPane();
         pane.setCenter(vbox);
         vbox.getStyleClass().add("popupWindow");
 
-        popup.getContent().add(pane);
+        var scroll = new ScrollPane(pane);
+        scroll.setFitToWidth(true);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setPrefSize(700, 600);
+        popup.getContent().add(scroll);
         popup.setAutoHide(true);
         popup.setOnAutoHide(event -> popup.hide());
         popup.setHideOnEscape(true);

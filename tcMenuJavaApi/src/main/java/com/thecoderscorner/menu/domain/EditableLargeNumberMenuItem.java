@@ -23,10 +23,10 @@ public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
     private final int decimalPlaces;
     private final boolean negativeAllowed;
 
-    public EditableLargeNumberMenuItem(String name, int id, int eepromAddress, String functionName, int digitsAllowed,
+    public EditableLargeNumberMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int digitsAllowed,
                                        int decimalPlaces, boolean negativeAllowed, boolean readOnly, boolean localOnly,
                                        boolean visible) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.digitsAllowed = digitsAllowed;
         this.decimalPlaces = decimalPlaces;
         this.negativeAllowed = negativeAllowed;

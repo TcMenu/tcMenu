@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.editorui.generator.validation;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MenuItemValidationRules implements PropertyValidationRules {
-    private static final SubMenuItem NONE = new SubMenuItem("NONE", -1, -1, false, false, false);
+    private static final SubMenuItem NONE = new SubMenuItem("NONE", "NONE", -1, -1, false, false, false);
     private final Predicate<MenuItem> filter;
     private List<MenuItem> menuItems = List.of();
 

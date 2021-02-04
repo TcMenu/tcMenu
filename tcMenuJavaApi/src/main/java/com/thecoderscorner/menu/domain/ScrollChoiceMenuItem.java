@@ -5,8 +5,6 @@ import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
-import java.util.Enumeration;
-
 /**
  * Represents a more configurable and more extensible version of enum that should be used when the number of choices is
  * larger, the choices are in eeprom, or you need more control at runtime of the choices.
@@ -20,16 +18,16 @@ public class ScrollChoiceMenuItem extends MenuItem<CurrentScrollPosition> {
     private final String variable;
 
     public ScrollChoiceMenuItem() {
-        super("", -1, -1, null, false, false, true);
+        super("", "",-1, -1, null, false, false, true);
         variable = null;
         choiceMode = ScrollChoiceMode.ARRAY_IN_EEPROM;
         itemWidth = numEntries = eepromOffset = 0;
     }
 
-    public ScrollChoiceMenuItem(String name, int id, int eepromAddress, String functionName, int itemWidth, int eepromOffset,
+    public ScrollChoiceMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int itemWidth, int eepromOffset,
                                 int numEntries, ScrollChoiceMode mode, String variable, boolean readOnly, boolean localOnly,
                                 boolean visible) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.numEntries = numEntries;
         this.itemWidth = itemWidth;
         this.eepromOffset = eepromOffset;

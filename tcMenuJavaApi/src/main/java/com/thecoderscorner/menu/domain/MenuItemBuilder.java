@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.domain;
 
 abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
     String name;
+    String variableName;
     int id;
     int eepromAddr;
     String functionName;
@@ -19,6 +20,11 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
 
     public T withName(String name) {
         this.name = name;
+        return getThis();
+    }
+
+    public T withVariableName(String variableName) {
+        this.variableName = variableName;
         return getThis();
     }
 

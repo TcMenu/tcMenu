@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -42,7 +43,8 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
     @Test
     void testFloatMenuItemEditing(FxRobot robot) throws InterruptedException {
         MenuItem floatItem = menuTree.getMenuById(6).get();
-        Optional<UIMenuItem> uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, mockedConsumer);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        Optional<UIMenuItem> uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiFloatPanel);

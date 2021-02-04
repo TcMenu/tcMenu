@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ public class ArduinoSketchFileAdjusterTest {
         MenuItem itemId8 = tree.getMenuById(8).orElseThrow();
         MenuItem itemId9 = tree.getMenuById(9).orElseThrow();
         MenuItem itemId10 = tree.getMenuById(10).orElseThrow();
-        ArduinoGenerator generator = Mockito.mock(ArduinoGenerator.class);
+        VariableNameGenerator generator = Mockito.mock(VariableNameGenerator.class);
         when(generator.makeRtFunctionName(any())).thenReturn("fnListRtCall");
         when(generator.makeNameToVar(itemId8)).thenReturn("ActionTest");
         when(generator.makeNameToVar(itemId9)).thenReturn("SubnetMask");

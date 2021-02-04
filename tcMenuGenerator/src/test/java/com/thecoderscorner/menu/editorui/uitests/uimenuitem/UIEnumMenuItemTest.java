@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -42,7 +43,8 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
     public void setup(Stage stage) {
         init(stage);
         enumItem = menuTree.getMenuById(20).get();
-        uiSubItem = editorUI.createPanelForMenuItem(enumItem, menuTree, mockedConsumer);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        uiSubItem = editorUI.createPanelForMenuItem(enumItem, menuTree, vng, mockedConsumer);
     }
 
     @AfterEach

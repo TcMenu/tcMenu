@@ -6,10 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItemBuilder;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
@@ -17,6 +15,7 @@ import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
@@ -41,7 +40,6 @@ import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.LabeledMatchers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,9 +55,7 @@ import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDe
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.NO_FUNCTION_DEFINED;
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.pushCtrlAndKey;
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -92,7 +88,7 @@ public class MenuEditorTestCases {
 
         // we need to mock a few things around the edges to make testing easier.
         editorProjectUI = mock(CurrentProjectEditorUI.class);
-        when(editorProjectUI.createPanelForMenuItem(any(), any(), any())).thenReturn(Optional.empty());
+        when(editorProjectUI.createPanelForMenuItem(any(), any(), any(), any())).thenReturn(Optional.empty());
 
         persistor = mock(ProjectPersistor.class);
         installer = mock(ArduinoLibraryInstaller.class);
@@ -125,6 +121,8 @@ public class MenuEditorTestCases {
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         when(storage.loadRecents()).thenReturn(List.of("recentItem1", "recentItem2"));
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
+        when(storage.isUsingArduinoIDE()).thenReturn(true);
+        when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
         when(storage.getVersion()).thenReturn("1.1.1");
 
         // set up the controller and stage..
@@ -157,7 +155,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
         // we stub out the new item dialog as it has its
-        MenuItem itemToAdd = addItemToTheTreeUsingPlusButton(robot);
+        MenuItem itemToAdd = addItemToTheTreeUsingPlusButton(robot, aNewMenuItem());
 
         // make sure the item is in the tree and make sure it's been drawn properly
         assertOnItemInTree(itemToAdd, true);
@@ -308,7 +306,8 @@ public class MenuEditorTestCases {
     void testNewProjectWithOverrideWhenDirty(FxRobot robot) throws Exception {
         openTheCompleteMenuTree(robot);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
-        MenuItem itemToAdd = addItemToTheTreeUsingPlusButton(robot);
+        MenuItem rgbItem = addItemToTheTreeUsingPlusButton(robot, new Rgb32MenuItemBuilder()
+                .withId(223).withName("RgbForMe").withAlpha(true).menuItem());
 
         // now the tree should be dirty
         assertTrue(project.isDirty());
@@ -316,12 +315,12 @@ public class MenuEditorTestCases {
         // send a menu -> file -> new which should ask first as structure is dirty, say no this time around. Should prevent action
         when(editorProjectUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?")).thenReturn(false);
         pushCtrlAndKey(robot, KeyCode.N);
-        assertOnItemInTree(itemToAdd, true);
+        assertOnItemInTree(rgbItem, true);
 
         // send a menu -> file -> new which should ask first as structure is dirty, say yes this time around. Action show go through
         when(editorProjectUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?")).thenReturn(true);
         pushCtrlAndKey(robot, KeyCode.N);
-        assertOnItemInTree(itemToAdd, false);
+        assertOnItemInTree(rgbItem, false);
     }
 
 
@@ -367,8 +366,13 @@ public class MenuEditorTestCases {
         MenuItem item = project.getMenuTree().getMenuById(1).get();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), item));
 
-        MenuItem addedItem = addItemToTheTreeUsingPlusButton(robot);
+        MenuItem addedItem = addItemToTheTreeUsingPlusButton(robot, new ScrollChoiceMenuItemBuilder()
+                .withId(293).withName("123").withVariableName("abc123").withFunctionName("ed209")
+                .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                .withItemWidth(10).withNumEntries(5).withEepromOffset(100)
+                .withVariable("ramVariable").menuItem());
         checkTheTreeMatchesMenuTree(robot, addedItem);
+
         assertTrue(project.getMenuTree().getMenuById(addedItem.getId()).isPresent());
     }
 
@@ -386,20 +390,15 @@ public class MenuEditorTestCases {
         ArgumentCaptor<BiConsumer> captor = ArgumentCaptor.forClass(BiConsumer.class);
 
         // set up the editorUI to return a panel when the submenu is chosen.
-        UISubMenuItem panel = new UISubMenuItem(subItem, new MenuIdChooserImpl(project.getMenuTree()), (item1, item2) -> {});
-        Mockito.when(editorProjectUI.createPanelForMenuItem(eq(subItem), eq(project.getMenuTree()), any()))
+        VariableNameGenerator vng = new VariableNameGenerator(project.getMenuTree(), false);
+        UISubMenuItem panel = new UISubMenuItem(subItem, new MenuIdChooserImpl(project.getMenuTree()), vng, (item1, item2) -> {});
+        Mockito.when(editorProjectUI.createPanelForMenuItem(eq(subItem), eq(project.getMenuTree()), any(), any()))
                 .thenReturn(Optional.ofNullable(panel));
         recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem);
 
-        verifyThat("#idField", Node::isDisabled);
-        verifyThat("#idField", textFieldHasValue("100"));
-        verifyThat("#eepromField", textFieldHasValue("-1"));
-        verifyThat("#nameField", textFieldHasValue("sub"));
-        verifyThat("#functionNameTextField", textFieldHasValue(NO_FUNCTION_DEFINED));
-
         // get the consumer that takes change from the UIMenuItem back to the main controller.
         // and send a simulated update to it, ensure it is processed and the tree updated.
-        verify(editorProjectUI).createPanelForMenuItem(eq(subItem), eq(project.getMenuTree()), captor.capture());
+        verify(editorProjectUI).createPanelForMenuItem(eq(subItem), eq(project.getMenuTree()), any(), captor.capture());
         SubMenuItem adjustedItem = SubMenuItemBuilder.aSubMenuItemBuilder()
                 .withExisting(subItem)
                 .withName("AdjustedName")
@@ -438,21 +437,11 @@ public class MenuEditorTestCases {
                 .collect(Collectors.toList());
         assertThat(pluginSet).containsExactlyInAnyOrder("- PluginName. Installed: 1.0.0, Available: 1.0.0");
 
-        verifyThat("#tcMenuLib", LabeledMatchers.hasText(" - Arduino Library tcMenu available: 1.0.1 installed: 1.0.0"));
-        verifyThat("#IoAbstractionLib", LabeledMatchers.hasText(" - Arduino Library IoAbstraction available: 1.0.0 installed: 1.0.0"));
-        verifyThat("#LiquidCrystalIOLib", LabeledMatchers.hasText(" - Arduino Library LiquidCrystalIO available: 1.0.0 installed: 1.0.0"));
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Please update tcMenu library from Arduino IDE"));
-
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
         when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.1"));
 
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
-
-        // and that newly available example should be added to the menu.
-        var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
-        var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
-        assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
     }
 
     /**
@@ -461,9 +450,8 @@ public class MenuEditorTestCases {
      * @param robot the fx robot
      * @return the new item created.
      */
-    private MenuItem addItemToTheTreeUsingPlusButton(FxRobot robot) {
+    private MenuItem addItemToTheTreeUsingPlusButton(FxRobot robot, MenuItem itemToAdd) {
         // create a new item in the tree.
-        MenuItem itemToAdd = aNewMenuItem();
         Mockito.when(editorProjectUI.showNewItemDialog(project.getMenuTree())).thenReturn(Optional.ofNullable(itemToAdd));
         robot.clickOn("#menuTreeAdd");
         return itemToAdd;
@@ -489,12 +477,7 @@ public class MenuEditorTestCases {
         }
 
         for (TreeItem<MenuItem> item : treeItem.getChildren()) {
-            if(item.getValue().hasChildren()) {
-                if(recursiveSelectTreeItem(treeView, item, subItem)) {
-                    return true;
-                }
-            }
-            else if(item.getValue().equals(subItem)) {
+            if(item.getValue().equals(subItem)) {
                 Platform.runLater(()-> {
                     treeView.getSelectionModel().select(item);
                     latch.countDown();
@@ -502,6 +485,12 @@ public class MenuEditorTestCases {
                 latch.await(1000, TimeUnit.MILLISECONDS);
                 return true;
             }
+            if(item.getValue().hasChildren()) {
+                if(recursiveSelectTreeItem(treeView, item, subItem)) {
+                    return true;
+                }
+            }
+
         }
         return false;
     }

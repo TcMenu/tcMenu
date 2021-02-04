@@ -16,13 +16,13 @@ import java.util.Objects;
 public class RuntimeListMenuItem extends MenuItem<List<String>> {
     private final int initialRows;
     public RuntimeListMenuItem() {
-        super("", 0, 0, "", false, false, true);
+        super("", "", 0, 0, "", false, false, true);
         initialRows = 0;
     }
 
-    public RuntimeListMenuItem(String name, int id, int eepromAddress, String functionName, boolean readOnly,
+    public RuntimeListMenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean readOnly,
                                boolean localOnly, boolean visible, int initialRows) {
-        super(name, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.initialRows = initialRows;
     }
 

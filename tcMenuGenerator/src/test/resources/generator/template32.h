@@ -30,11 +30,11 @@ extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
 
 // all menu item forward references.
-extern IpAddressMenuItem menuSubIpItem;
-extern TextMenuItem menuSubTextItem;
-extern AnalogMenuItem menuSubTest2;
-extern BackMenuItem menuBackSub;
-extern SubMenuItem menuSub;
+extern IpAddressMenuItem menuOverrideSubNameIpItem;
+extern TextMenuItem menuOverrideSubNameTextItem;
+extern AnalogMenuItem menuOverrideAnalog2Name;
+extern BackMenuItem menuBackOverrideSubName;
+extern SubMenuItem menuOverrideSubName;
 extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;

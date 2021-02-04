@@ -207,7 +207,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var requiresVersion = root.getAttribute("requiresDesigner");
             if(!StringHelper.isStringEmptyOrNull(requiresVersion)) {
                 var requiredVersion = new VersionInfo(requiresVersion);
-                var currentVersion = new VersionInfo(configStorage.getVersion());
+                // get the app version and remove any maven artefacts such as -SNAPSHOT
+                var appVersion = configStorage.getVersion();
+                if(appVersion.indexOf('-') != -1) {
+                    appVersion = appVersion.substring(0, appVersion.indexOf('-'));
+                }
+                var currentVersion = new VersionInfo(appVersion);
                 if(!currentVersion.isSameOrNewerThan(requiredVersion)) {
                     logger.log(ERROR, "Cannot load plugin as it needs a newer designer version");
                     return null;

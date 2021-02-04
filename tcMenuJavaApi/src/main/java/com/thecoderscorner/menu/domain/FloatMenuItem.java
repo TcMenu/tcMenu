@@ -21,14 +21,14 @@ public class FloatMenuItem extends MenuItem<Float> {
     private final int numDecimalPlaces;
 
     public FloatMenuItem() {
-        super("", -1, -1, null, false, false, true);
+        super("", "", -1, -1, null, false, false, true);
         // needed for serialisation
         this.numDecimalPlaces = 0;
     }
 
-    public FloatMenuItem(String name, int id, String functionName, int eepromAddr, int numDecimalPlaces,
+    public FloatMenuItem(String name, String varName, int id, String functionName, int eepromAddr, int numDecimalPlaces,
                          boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, id, eepromAddr, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddr, functionName, readOnly, localOnly, visible);
         this.numDecimalPlaces = numDecimalPlaces;
     }
 

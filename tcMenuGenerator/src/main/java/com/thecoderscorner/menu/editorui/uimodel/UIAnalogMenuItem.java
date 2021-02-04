@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.AnalogMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -26,8 +27,8 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     private TextField divisorField;
     private TextField unitNameField;
 
-    public UIAnalogMenuItem(AnalogMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UIAnalogMenuItem(AnalogMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, nameGen, changeConsumer);
     }
 
     @Override

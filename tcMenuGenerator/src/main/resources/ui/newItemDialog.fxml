@@ -22,12 +22,14 @@
                </toggleGroup></RadioButton>
             <RadioButton fx:id="analogSelect" mnemonicParsing="false" text="Regular, editable integer or decimal values" toggleGroup="$main" />
              <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Very large numeric values up to 12 digits" toggleGroup="$main" />
-            <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="Enumeration item similar to a combo box" toggleGroup="$main" />
+            <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="Enumeration item - simple choices known upfront" toggleGroup="$main" />
             <RadioButton fx:id="boolSelect" mnemonicParsing="false" text="Boolean item for On/Off or Yes/No" toggleGroup="$main" />
             <RadioButton fx:id="textSelect" mnemonicParsing="false" text="Text field with various editor formats" toggleGroup="$main" />
             <RadioButton fx:id="floatSelect" mnemonicParsing="false" text="Floating point value for status only" toggleGroup="$main" />
             <RadioButton fx:id="actionSelect" mnemonicParsing="false" text="Action item that runs callback when selected" toggleGroup="$main" />
             <RadioButton fx:id="listSelect" mnemonicParsing="false" text="Item that represents a list of values" toggleGroup="$main" />
+            <RadioButton fx:id="choiceSelect" mnemonicParsing="false" text="Scroll Choice for EEPROM, RAM and custom choices" toggleGroup="$main" />
+            <RadioButton fx:id="rgbSelect" mnemonicParsing="false" text="RGB Item represents a color using Red, Green, Blue" toggleGroup="$main" />
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

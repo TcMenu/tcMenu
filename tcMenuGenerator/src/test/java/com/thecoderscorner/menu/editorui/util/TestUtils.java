@@ -117,6 +117,7 @@ public class TestUtils {
         AnalogMenuItem item2 = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
                 .withExisting(item)
                 .withName("test2")
+                .withVariableName("OverrideAnalog2Name")
                 .withId(2)
                 .withEepromAddr(4)
                 .withLocalOnly(true)
@@ -124,6 +125,7 @@ public class TestUtils {
                 .menuItem();
         SubMenuItem sub = SubMenuItemBuilder.aSubMenuItemBuilder()
                 .withName("sub")
+                .withVariableName("OverrideSubName")
                 .withId(100)
                 .withEepromAddr(-1)
                 .withLocalOnly(true)

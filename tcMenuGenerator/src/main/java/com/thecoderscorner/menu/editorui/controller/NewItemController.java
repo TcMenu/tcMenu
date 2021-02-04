@@ -15,6 +15,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
@@ -36,6 +37,8 @@ public class NewItemController {
     public RadioButton actionSelect;
     public RadioButton largeNumSelect;
     public RadioButton listSelect;
+    public RadioButton choiceSelect;
+    public RadioButton rgbSelect;
     public Button okButton;
     public TextField idField;
     private Optional<MenuItem> result = Optional.empty();
@@ -87,6 +90,7 @@ public class NewItemController {
                     .withName("New EnumItem")
                     .withId(id)
                     .withEepromAddr(-1)
+                    .withEnumList(List.of("Item1", "Item2"))
                     .menuItem());
         }
         else if(boolSelect.isSelected()) {
@@ -102,6 +106,7 @@ public class NewItemController {
                     .withName("New TextItem")
                     .withId(id)
                     .withEepromAddr(-1)
+                    .withLength(5)
                     .withEditItemType(EditItemType.PLAIN_TEXT)
                     .menuItem()
             );
@@ -110,6 +115,7 @@ public class NewItemController {
             result = Optional.of(FloatMenuItemBuilder.aFloatMenuItemBuilder()
                     .withName("New FloatItem")
                     .withId(id)
+                    .withDecimalPlaces(3)
                     .withEepromAddr(-1)
                     .menuItem()
             );
@@ -126,7 +132,25 @@ public class NewItemController {
             result = Optional.of(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
                     .withName("New Runtime List")
                     .withId(id)
+                    .withInitialRows(10)
                     .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(choiceSelect.isSelected()) {
+            result = Optional.of(new ScrollChoiceMenuItemBuilder()
+                    .withName("New Choice Item")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .menuItem()
+            );
+        }
+        else if(rgbSelect.isSelected()) {
+            result = Optional.of(new Rgb32MenuItemBuilder()
+                    .withName("New RGB")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .withAlpha(false)
                     .menuItem()
             );
         }

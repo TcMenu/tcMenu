@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
@@ -46,7 +47,8 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     @Test
     void testEnteringAcceptableValuesIntoActionEditor(FxRobot robot) throws InterruptedException {
         MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
-        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiActionItem);
@@ -90,7 +92,8 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     @Test
     void testEnteringBadValuesIntoBaseEditor(FxRobot robot) throws InterruptedException {
         MenuItem subItem = menuTree.getSubMenuById(100).orElseThrow();
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(subItem, menuTree, mockedConsumer);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(subItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiSubItem);
@@ -131,7 +134,8 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     void testSelectingAndClearingReadonlyLocal(FxRobot robot) throws InterruptedException {
         // now try selecting and clearing the readonly and local only checkboxes.
         MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
-        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, mockedConsumer);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
 
         // open the sub menu item editor panel
@@ -150,12 +154,6 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
         assertTrue(captor.getValue().isReadOnly());
-        assertTrue(captor.getValue().isLocalOnly());
-
-        robot.clickOn("#readOnlyField");
-
-        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
-        assertFalse(captor.getValue().isReadOnly());
         assertTrue(captor.getValue().isLocalOnly());
 
         tryToEnterLettersIntoNumericField(robot, "eepromField");

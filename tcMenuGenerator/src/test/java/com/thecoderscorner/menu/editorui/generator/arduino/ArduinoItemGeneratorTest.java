@@ -23,6 +23,7 @@ public class ArduinoItemGeneratorTest {
         AnalogMenuItem item = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
                 .withId(10)
                 .withName("Volume")
+                .withVariableName("VarAbc")
                 .withEepromAddr(20)
                 .withFunctionName("onVolume")
                 .withDivisor(2)
@@ -31,18 +32,18 @@ public class ArduinoItemGeneratorTest {
                 .withUnit("dB")
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("Volume", "Channel"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("VarAbc", "Channel"));
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
         BuildStructInitializer info = result.get().get(0);
         BuildStructInitializer menu = result.get().get(1);
 
-        checkTheBasicsOfInfo(info, "AnalogMenuInfo", "Volume");
+        checkTheBasicsOfInfo(info, "AnalogMenuInfo", "VarAbc");
         assertThat(info.getStructElements()).containsExactly("\"Volume\"", "10", "20", "255", "onVolume", "-180", "2", "\"dB\"");
 
-        checkTheBasicsOfItem(menu, "AnalogMenuItem", "Volume");
-        assertThat(menu.getStructElements()).containsExactly("&minfoVolume", "0", "&menuChannel");
+        checkTheBasicsOfItem(menu, "AnalogMenuItem", "VarAbc");
+        assertThat(menu.getStructElements()).containsExactly("&minfoVarAbc", "0", "&menuChannel");
     }
 
     private void checkTheBasicsOfInfo(BuildStructInitializer info, String type, String name) {

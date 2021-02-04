@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
@@ -144,9 +145,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     }
 
-    public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+    public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
+                                                       BiConsumer<MenuItem, MenuItem> changeConsumer) {
         logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
-        RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree);
+        RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree, generator);
         var ret = MenuItemHelper.visitWithResult(menuItem, renderingChooserVisitor);
         ret.ifPresent(uiMenuItem -> logger.log(INFO, "created panel " + uiMenuItem.getClass().getSimpleName()));
         return ret;
@@ -156,66 +158,68 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
         private final BiConsumer<MenuItem,MenuItem> changeConsumer;
         private final MenuIdChooser menuIdChooser;
+        private VariableNameGenerator nameGenerator;
 
-        RenderingChooserVisitor(BiConsumer<MenuItem, MenuItem> changeConsumer, MenuTree tree) {
+        RenderingChooserVisitor(BiConsumer<MenuItem, MenuItem> changeConsumer, MenuTree tree, VariableNameGenerator nameGenerator) {
             this.changeConsumer = changeConsumer;
             this.menuIdChooser = new MenuIdChooserImpl(tree);
+            this.nameGenerator = nameGenerator;
         }
 
         @Override
         public void visit(AnalogMenuItem item) {
-            setResult(new UIAnalogMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UIAnalogMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(EditableTextMenuItem item) {
-            setResult(new UITextMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UITextMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(EditableLargeNumberMenuItem item) {
-            setResult(new UILargeNumberMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UILargeNumberMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(EnumMenuItem item) {
-            setResult(new UIEnumMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UIEnumMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(BooleanMenuItem item) {
-            setResult(new UIBooleanMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UIBooleanMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(FloatMenuItem item) {
-            setResult(new UIFloatMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UIFloatMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(ActionMenuItem item) {
-            setResult(new UIActionMenuItem(item, menuIdChooser, changeConsumer));
+            setResult(new UIActionMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(RuntimeListMenuItem listItem) {
-            setResult(new UIRuntimeListMenuItem(listItem, menuIdChooser, changeConsumer));
+            setResult(new UIRuntimeListMenuItem(listItem, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(ScrollChoiceMenuItem scrollItem) {
-            setResult(new UIScrollChoiceMenuItem(scrollItem, menuIdChooser, changeConsumer));
+            setResult(new UIScrollChoiceMenuItem(scrollItem, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(Rgb32MenuItem rgbItem) {
-            setResult(new UIRgb32MenuItem(rgbItem, menuIdChooser, changeConsumer));
+            setResult(new UIRgb32MenuItem(rgbItem, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override
         public void visit(SubMenuItem item) {
             if(!MenuTree.ROOT.equals(item)) {
-                setResult(new UISubMenuItem(item, menuIdChooser, changeConsumer));
+                setResult(new UISubMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
             }
         }
     }

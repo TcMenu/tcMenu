@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +47,11 @@ public class ArduinoLibraryInstallerTest {
 
         verDetector = Mockito.mock(LibraryVersionDetector.class);
 
-        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector, mock(CodePluginManager.class));
+        var prefs = mock(ConfigurationStorage.class);
+        when(prefs.isUsingArduinoIDE()).thenReturn(true);
+        when(prefs.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
+
+        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector, mock(CodePluginManager.class), prefs, false);
     }
 
     @AfterEach

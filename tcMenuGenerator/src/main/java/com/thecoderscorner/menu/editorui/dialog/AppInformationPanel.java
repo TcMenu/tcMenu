@@ -6,18 +6,17 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,12 +27,14 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_PLUGIN;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_PLUGIN;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -48,16 +49,18 @@ public class AppInformationPanel {
     private final CurrentProjectEditorUI editorUI;
     private final LibraryVersionDetector libraryVersionDetector;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ConfigurationStorage storage;
     private VBox libraryInfoVBox;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
-                               LibraryVersionDetector libraryVersionDetector) {
+                               LibraryVersionDetector libraryVersionDetector, ConfigurationStorage storage) {
         this.installer = installer;
         this.controller = controller;
         this.pluginManager = pluginManager;
         this.editorUI = editorUI;
         this.libraryVersionDetector = libraryVersionDetector;
+        this.storage = storage;
     }
 
     public Node showEmptyInfoPanel() {
@@ -88,6 +91,24 @@ public class AppInformationPanel {
         var hbox = new HBox(5.0, streamLabel, streamCombo);
         vbox.getChildren().add(hbox);
 
+        var usingArduinoIde = new CheckBox("I am using Arduino IDE and have global libraries installed");
+        usingArduinoIde.setSelected(storage.isUsingArduinoIDE());
+        usingArduinoIde.selectedProperty().addListener((observableValue, oldVal, newVal) -> {
+            storage.setUsingArduinoIDE(newVal);
+            controller.presentInfoPanel();
+        });
+        vbox.getChildren().add(usingArduinoIde);
+
+        var useRecursiveNaming = new CheckBox("Use fully qualified variable names for menus (submenu + name)");
+        useRecursiveNaming.setSelected(controller.getProject().getGeneratorOptions().isNamingRecursive());
+        useRecursiveNaming.selectedProperty().addListener((observableValue, oldVal, newVal) -> {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(controller.getProject().getGeneratorOptions())
+                    .withRecursiveNaming(newVal)
+                    .codeOptions());
+        });
+        vbox.getChildren().add(useRecursiveNaming);
+
         libraryInfoVBox = new VBox(3.0);
         checkAndReportItems(libraryInfoVBox);
         vbox.getChildren().add(libraryInfoVBox);
@@ -105,27 +126,25 @@ public class AppInformationPanel {
     private void redrawTheTitlePage() {
         var vbox = libraryInfoVBox;
         vbox.getChildren().clear();
-        if(installer.statusOfAllLibraries().isUpToDate()) {
+        if(installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
+            Label setManually = new Label("Set Arduino directory manually (Code -> Override Arduino Directory)");
+            setManually.getStyleClass().add("libsNotOK");
+            vbox.getChildren().add(setManually);
+        }
+        else if(storage.isUsingArduinoIDE() && installer.statusOfAllLibraries().isUpToDate()) {
             Label lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
             lblTcMenuOK.setId("tcMenuStatusArea");
             lblTcMenuOK.getStyleClass().add("libsOK");
             vbox.getChildren().add(lblTcMenuOK);
         }
-        else {
-            Label libsNotOK = new Label("Please update tcMenu library from Arduino IDE");
+        else if(storage.isUsingArduinoIDE()) {
+            Label libsNotOK = new Label("Please update libraries from Arduino IDE (see About box for details)");
             libsNotOK.getStyleClass().add("libsNotOK");
             libsNotOK.setId("tcMenuStatusArea");
             vbox.getChildren().add(libsNotOK);
-        }
-
-        try {
-            makeDiffVersionLabel(vbox, "tcMenu");
-            makeDiffVersionLabel(vbox, "IoAbstraction");
-            makeDiffVersionLabel(vbox, "LiquidCrystalIO");
-            makeDiffVersionLabel(vbox, "TaskManagerIO");
-        }
-        catch(Exception e) {
-            logger.log(ERROR, "Library checks failed", e);
+            var refreshButton = new Button("Refresh library status");
+            refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
+            vbox.getChildren().add(refreshButton);
         }
 
         Label pluginLbl = new Label("Installed code generation plugins");
@@ -174,16 +193,6 @@ public class AppInformationPanel {
         docs.setOnAction((event)->  editorUI.browseToURL(urlToVisit));
         docs.setId(fxId);
         vbox.getChildren().add(docs);
-    }
-
-    private void makeDiffVersionLabel(VBox vbox, String lib) throws IOException {
-        var s = " - Arduino Library " + lib
-                + " available: " + installer.getVersionOfLibrary(lib, AVAILABLE_LIB)
-                + " installed: " + installer.getVersionOfLibrary(lib, CURRENT_LIB);
-
-        var lbl = new Label(s);
-        lbl.setId(lib + "Lib");
-        vbox.getChildren().add(lbl);
     }
 
     private class UpgradeTask implements Runnable {

@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_LIB;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 
 public class AboutController {
     public Label apiVersion;
@@ -25,14 +26,20 @@ public class AboutController {
     public Label registeredLabel;
 
     public void initialise(ConfigurationStorage storage, ArduinoLibraryInstaller installer) throws IOException {
-        tcMenuVersion.setText(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
-        ioAbstractionVersion.setText(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
-        liquidCrystalVersion.setText(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
-        taskManagerIO.setText(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB).toString());
+        tcMenuVersion.setText(makeDiffVersionLabel(installer,"tcMenu"));
+        ioAbstractionVersion.setText(makeDiffVersionLabel(installer,"IoAbstraction"));
+        liquidCrystalVersion.setText(makeDiffVersionLabel(installer,"LiquidCrystalIO"));
+        taskManagerIO.setText(makeDiffVersionLabel(installer,"TaskManagerIO"));
         apiVersion.setText(storage.getVersion());
         buildDateLabel.setText(storage.getBuildTimestamp());
         if(!storage.getRegisteredKey().isEmpty()) registeredLabel.setText(storage.getRegisteredKey());
     }
+
+    private String makeDiffVersionLabel(ArduinoLibraryInstaller installer, String lib) throws IOException {
+        return "available: " + installer.getVersionOfLibrary(lib, AVAILABLE_LIB)
+             + " installed: " + installer.getVersionOfLibrary(lib, CURRENT_LIB);
+    }
+
 
     public void onClose(ActionEvent actionEvent) {
         Stage s = (Stage) apiVersion.getScene().getWindow();

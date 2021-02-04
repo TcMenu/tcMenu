@@ -30,7 +30,7 @@ public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuI
     }
 
     public RuntimeListMenuItem menuItem() {
-        return new RuntimeListMenuItem(name, id, eepromAddr, functionName, readOnly, localOnly, visible, initialRows);
+        return new RuntimeListMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, initialRows);
     }
 
     public static RuntimeListMenuItemBuilder aRuntimeListMenuItemBuilder() {

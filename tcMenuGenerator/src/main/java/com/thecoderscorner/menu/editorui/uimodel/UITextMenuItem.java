@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
@@ -27,8 +28,9 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
     private TextField lenField;
     private ComboBox<EditItemType> editTypeField;
 
-    public UITextMenuItem(EditableTextMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UITextMenuItem(EditableTextMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
+                          BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override

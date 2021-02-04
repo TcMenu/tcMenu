@@ -4,7 +4,7 @@ public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMen
     private int itemWidth;
     private int eepromOffset;
     private int numEntries;
-    private ScrollChoiceMenuItem.ScrollChoiceMode choiceMode;
+    private ScrollChoiceMenuItem.ScrollChoiceMode choiceMode = ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_EEPROM;
     private String variable;
 
     @Override
@@ -48,7 +48,7 @@ public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMen
     }
 
     public ScrollChoiceMenuItem menuItem() {
-        return new ScrollChoiceMenuItem(name, id, eepromAddr, functionName, itemWidth, eepromOffset, numEntries, choiceMode,
+        return new ScrollChoiceMenuItem(name, variableName, id, eepromAddr, functionName, itemWidth, eepromOffset, numEntries, choiceMode,
                 variable, readOnly, localOnly, visible);
     }
 }

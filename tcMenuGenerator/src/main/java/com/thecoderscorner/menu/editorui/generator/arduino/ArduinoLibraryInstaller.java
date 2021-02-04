@@ -6,12 +6,14 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import javafx.scene.control.TextInputDialog;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.System.Logger.Level;
@@ -20,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.prefs.Preferences;
 
 /**
  * This class is responsible for dealing with the Arduino embedded libraries, it has methods to help
@@ -28,11 +29,8 @@ import java.util.prefs.Preferences;
  * and lastly also copying the library over from the package if needed.
  */
 public class ArduinoLibraryInstaller {
+
     public enum InstallationType { AVAILABLE_LIB, CURRENT_LIB, AVAILABLE_PLUGIN, CURRENT_PLUGIN }
-    /**
-     * storage path of custom library directory, for when a non standard structure is detected only
-     */
-    public static final String ARDUINO_CUSTOM_PATH = "ArduinoCustomPath";
     /**
      * the name of the library properties file
      */
@@ -41,6 +39,8 @@ public class ArduinoLibraryInstaller {
 
     private final LibraryVersionDetector versionDetector;
     private final CodePluginManager pluginManager;
+    private final ConfigurationStorage configStore;
+    private final boolean useOverride;
 
     /**
      * the home directory
@@ -58,10 +58,12 @@ public class ArduinoLibraryInstaller {
      *
      * @param homeDirectory     the path to hardwire for the arduino directory
      */
-    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector, CodePluginManager manager) {
+    public ArduinoLibraryInstaller(String homeDirectory, LibraryVersionDetector detector, CodePluginManager manager, ConfigurationStorage configStore, boolean useOverride) {
         this.homeDirectory = homeDirectory;
         this.versionDetector = detector;
         this.pluginManager = manager;
+        this.configStore = configStore;
+        this.useOverride = useOverride;
     }
 
     /**
@@ -71,6 +73,13 @@ public class ArduinoLibraryInstaller {
      * @return the arduino directory.
      */
     public Optional<Path> getArduinoDirectory() {
+        if(!configStore.isUsingArduinoIDE()) return Optional.empty();
+
+        var override = configStore.getArduinoOverrideDirectory();
+        if(override.isPresent() && Files.exists(Path.of(override.get())) && useOverride) {
+            return Optional.of(Path.of(override.get()));
+        }
+
         if (arduinoDirectory != null) {
             return Optional.of(Paths.get(arduinoDirectory));
         }
@@ -90,11 +99,6 @@ public class ArduinoLibraryInstaller {
         }
         if (!Files.exists(arduinoPath)) {
             logger.log(Level.INFO, "Not found in " + arduinoPath);
-
-            Optional<String> path = getArduinoPathWithDialog();
-            if (path.isPresent()) {
-                arduinoPath = Paths.get(path.get());
-            }
         }
 
         if (!Files.exists(arduinoPath)) return Optional.empty();
@@ -123,20 +127,15 @@ public class ArduinoLibraryInstaller {
      *
      * @return the arduino path wrapped in an optional, or nothing if cancel is pressed.
      */
-    private Optional<String> getArduinoPathWithDialog() {
-        String savedPath = Preferences.userNodeForPackage(ArduinoLibraryInstaller.class)
-                .get(ARDUINO_CUSTOM_PATH, homeDirectory);
-
-        Path libsPath = Paths.get(savedPath, "libraries");
-        if (Files.exists(libsPath)) return Optional.of(savedPath);
-
-        TextInputDialog dialog = new TextInputDialog(savedPath);
+    public void manuallySetArduinoPath() {
+        var dir = getArduinoDirectory().orElseGet(() -> Path.of(FileSystemView.getFileSystemView().getDefaultDirectory().getPath()));
+        TextInputDialog dialog = new TextInputDialog(dir.toString());
         dialog.setTitle("Manually enter Arduino Path");
-        dialog.setHeaderText("Please manually enter the full path to the Arduino folder");
+        dialog.setHeaderText("Please manually enter the full path to the Arduino folder, leave blank to clear the path override");
         dialog.setContentText("Arduino Path");
         Optional<String> path = dialog.showAndWait();
-        path.ifPresent((p) -> Preferences.userNodeForPackage(ArduinoLibraryInstaller.class).put(ARDUINO_CUSTOM_PATH, p));
-        return path;
+        path.ifPresent(configStore::setArduinoOverrideDirectory);
+        arduinoDirectory = null;
     }
 
     /**
@@ -146,6 +145,7 @@ public class ArduinoLibraryInstaller {
      * @return an optional wrapped path to the library, may be empty if not found.
      */
     public Optional<Path> findLibraryInstall(String libraryName) {
+        if(!configStore.isUsingArduinoIDE()) return Optional.empty();
         return getArduinoDirectory().map(path -> {
             Path libsDir = path.resolve("libraries");
             Path tcMenuDir = libsDir.resolve(libraryName);
@@ -187,8 +187,8 @@ public class ArduinoLibraryInstaller {
             return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
         }
         else if(installationType == InstallationType.CURRENT_LIB){
-            Path ardDir = getArduinoDirectory().orElseThrow(IOException::new);
-            startPath = ardDir.resolve("libraries").resolve(name);
+            if(!configStore.isUsingArduinoIDE() || getArduinoDirectory().isEmpty()) return VersionInfo.ERROR_VERSION;
+            startPath = getArduinoDirectory().get().resolve("libraries").resolve(name);
             Path libProps = startPath.resolve(LIBRARY_PROPERTIES_NAME);
 
             if(!Files.exists(libProps)) {
@@ -215,13 +215,15 @@ public class ArduinoLibraryInstaller {
      * @return true if newer or the same, false otherwise
      */
     public boolean isLibraryUpToDate(String name) {
+        if(!configStore.isUsingArduinoIDE()) return true;
+
         Optional<Path> libInst = findLibraryInstall(name);
         if (libInst.isEmpty()) return false; // can we even find it on the system.
 
         try {
             VersionInfo srcVer = getVersionOfLibrary(name, InstallationType.AVAILABLE_LIB);
             VersionInfo dstVer = getVersionOfLibrary(name, InstallationType.CURRENT_LIB);
-            if(srcVer == null) return false;
+            if(srcVer == null || dstVer.equals(VersionInfo.ERROR_VERSION)) return true;
             return dstVer.isSameOrNewerThan(srcVer);
         } catch (IOException e) {
             return false; // Library is somehow not good. Certainly not the same!

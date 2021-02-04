@@ -18,7 +18,7 @@ import static com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder.aTextM
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.aFloatMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder;
-import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.*;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static org.junit.Assert.*;
 
@@ -27,6 +27,7 @@ public class MenuItemTest {
     public void testAnalogMenuItem() {
         AnalogMenuItem item = anAnalogMenuItemBuilder()
                 .withName("Test Menu")
+                .withVariableName("TestMenu")
                 .withId(10)
                 .withEepromAddr(100)
                 .withFunctionName("someFn")
@@ -43,6 +44,7 @@ public class MenuItemTest {
         assertEquals("dB", item.getUnitName());
         assertEquals(10000, item.getMaxValue());
         assertEquals("someFn", item.getFunctionName());
+        assertEquals("TestMenu", item.getVariableName());
         assertTrue(item.isReadOnly());
         assertTrue(item.isLocalOnly());
         assertTrue(item.isVisible());
@@ -59,6 +61,7 @@ public class MenuItemTest {
                 .withEepromAddr(102)
                 .withEnumList(Collections.singletonList("Enum1"))
                 .withFunctionName("someFn")
+                .withVariableName("Menu123")
                 .withVisible(false)
                 .menuItem();
 
@@ -69,6 +72,7 @@ public class MenuItemTest {
         assertFalse(item.isLocalOnly());
         assertFalse(item.isVisible());
         assertEquals("someFn", item.getFunctionName());
+        assertEquals("Menu123", item.getVariableName());
 
         assertEquals(item, anEnumMenuItemBuilder().withExisting(item).menuItem());
     }

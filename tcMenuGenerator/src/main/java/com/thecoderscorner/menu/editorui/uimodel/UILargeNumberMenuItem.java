@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -26,9 +27,9 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     private TextField totalDigits;
     private CheckBox negativeAllowedCheck;
 
-    public UILargeNumberMenuItem(EditableLargeNumberMenuItem menuItem, MenuIdChooser chooser,
+    public UILargeNumberMenuItem(EditableLargeNumberMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override

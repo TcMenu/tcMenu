@@ -20,13 +20,13 @@ public class SubMenuItem extends MenuItem<Boolean> {
     private final boolean secured;
 
     public SubMenuItem() {
-        super("", -1, -1, null, false, false, true);
+        super("", "", -1, -1, null, false, false, true);
         // needed for serialisation
         this.secured = false;
     }
 
-    public SubMenuItem(String name, int id, int eepromAddr, boolean localOnly, boolean visible, boolean secured) {
-        super(name, id, eepromAddr, null, false, localOnly, visible);
+    public SubMenuItem(String name, String varName, int id, int eepromAddr, boolean localOnly, boolean visible, boolean secured) {
+        super(name, varName, id, eepromAddr, null, false, localOnly, visible);
         this.secured = secured;
     }
 

@@ -33,7 +33,6 @@ public class CurrentEditorProject {
             true, false, false
     );
 
-
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
     private static final String TITLE = "TcMenu Designer";
@@ -41,6 +40,7 @@ public class CurrentEditorProject {
     private final CurrentProjectEditorUI editorUI;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ProjectPersistor projectPersistor;
+    private final Set<Integer> uncommittedItems = new HashSet<>();
 
     private MenuTree menuTree;
     private Optional<String> fileName;
@@ -58,6 +58,8 @@ public class CurrentEditorProject {
     private void cleanDown() {
         menuTree = new MenuTree();
         fileName = Optional.empty();
+        uncommittedItems.clear();
+        generatorOptions = BLANK_GEN_OPTIONS;
         setDirty(false);
         updateTitle();
     }
@@ -98,6 +100,7 @@ public class CurrentEditorProject {
                 setDirty(false);
                 updateTitle();
                 changeHistory.clear();
+                uncommittedItems.clear();
                 return true;
             }
         } catch (IOException e) {
@@ -124,6 +127,7 @@ public class CurrentEditorProject {
 
         fileName.ifPresent((file)-> {
             try {
+                uncommittedItems.clear();
                 projectPersistor.save(file, menuTree, generatorOptions);
                 setDirty(false);
             } catch (IOException e) {
@@ -131,6 +135,10 @@ public class CurrentEditorProject {
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
+    }
+
+    public Set<Integer> getUncommittedItems() {
+        return uncommittedItems;
     }
 
     public boolean isFileNameSet() {
@@ -165,6 +173,13 @@ public class CurrentEditorProject {
     }
 
     public void applyCommand(MenuItemChange.Command command, MenuItem newItem, SubMenuItem parent) {
+        if(command == MenuItemChange.Command.NEW) {
+            uncommittedItems.add(newItem.getId());
+        }
+        else if(command == MenuItemChange.Command.REMOVE) {
+            uncommittedItems.remove(newItem.getId());
+        }
+
         MenuItem oldItem = changeHistory.stream()
                 .filter(item-> item.getItem().getId() == newItem.getId())
                 .reduce((first, second) -> second)

@@ -32,9 +32,9 @@ extern char[] expOnly;
 // all menu item forward references.
 extern IpAddressMenuItem menuIpItem;
 extern TextMenuItem menuTextItem;
-extern AnalogMenuItem menuTest2;
-extern BackMenuItem menuBackSub;
-extern SubMenuItem menuSub;
+extern AnalogMenuItem menuOverrideAnalog2Name;
+extern BackMenuItem menuBackOverrideSubName;
+extern SubMenuItem menuOverrideSubName;
 extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;

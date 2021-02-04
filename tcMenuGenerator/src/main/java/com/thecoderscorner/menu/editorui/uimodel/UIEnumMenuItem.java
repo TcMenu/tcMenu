@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -28,8 +29,8 @@ import java.util.function.BiConsumer;
 public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     private ListView<String> listView;
 
-    public UIEnumMenuItem(EnumMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UIEnumMenuItem(EnumMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override

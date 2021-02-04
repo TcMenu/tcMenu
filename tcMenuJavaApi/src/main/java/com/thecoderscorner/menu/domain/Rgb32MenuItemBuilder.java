@@ -20,6 +20,6 @@ public class Rgb32MenuItemBuilder extends MenuItemBuilder<Rgb32MenuItemBuilder> 
     }
 
     public Rgb32MenuItem menuItem() {
-        return new Rgb32MenuItem(name, id, eepromAddr, functionName, alpha, readOnly, localOnly, visible);
+        return new Rgb32MenuItem(name, variableName, id, eepromAddr, functionName, alpha, readOnly, localOnly, visible);
     }
 }

@@ -13,7 +13,7 @@ import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.*;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 
 /**
  * This class follows the visitor pattern to generate code for each item
@@ -48,8 +48,8 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(item.getMaxValue())
                 .addPossibleFunction(item.getFunctionName())
                 .addElement(item.getOffset())
-                .addElement(item.getDivisor())
-                .addQuoted(item.getUnitName())
+                .addElement(Math.max(1, item.getDivisor()))
+                .addQuoted(item.getUnitName() != null ? item.getUnitName() : "")
                 .progMemInfo();
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "AnalogMenuItem")

@@ -1,8 +1,11 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.util.StringHelper;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
@@ -14,11 +17,18 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     public static final String BUILD_TIMESTAMP_KEY = "build.timestamp";
 
     private Properties props = new Properties();
+    private boolean usingIde;
+    private Optional<String> maybeOverrideDirectory;
 
     public PrefsConfigurationStorage() {
         try {
             InputStream resourceAsStream = getClass().getResourceAsStream("/version.properties");
             props.load( resourceAsStream );
+
+            Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+            usingIde = prefs.getBoolean(USING_ARDUINO_IDE, true);
+            var ovr = prefs.get(ARDUINO_OVERRIDE_DIR, "");
+            maybeOverrideDirectory = StringHelper.isStringEmptyOrNull(ovr) ? Optional.empty() : Optional.of(ovr);
         }
         catch(Exception e) {
             System.getLogger("BuildVersioning").log(ERROR, "Cannot load version properties", e);
@@ -69,4 +79,31 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         return props.getProperty(BUILD_TIMESTAMP_KEY, "?");
     }
 
+    public void setUsingArduinoIDE(boolean libs) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(USING_ARDUINO_IDE, Boolean.toString(libs));
+        usingIde = libs;
+    }
+
+    public boolean isUsingArduinoIDE() {
+        return usingIde;
+    }
+
+    @Override
+    public void setArduinoOverrideDirectory(String overrideDirectory) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        if(StringHelper.isStringEmptyOrNull(overrideDirectory)) {
+            prefs.remove(ARDUINO_OVERRIDE_DIR);
+            this.maybeOverrideDirectory = Optional.empty();
+        }
+        else {
+            prefs.put(ARDUINO_OVERRIDE_DIR, overrideDirectory);
+            this.maybeOverrideDirectory = Optional.of(overrideDirectory);
+        }
+    }
+
+    @Override
+    public Optional<String> getArduinoOverrideDirectory() {
+        return maybeOverrideDirectory;
+    }
 }

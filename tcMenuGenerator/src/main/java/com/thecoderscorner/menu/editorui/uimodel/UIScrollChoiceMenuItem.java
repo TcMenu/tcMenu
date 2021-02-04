@@ -6,10 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.collections.FXCollections;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.*;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 
 public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
 
@@ -30,8 +32,9 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
     private TextField variableField;
     private ComboBox<ScrollChoiceMode> modeCombo;
 
-    public UIScrollChoiceMenuItem(ScrollChoiceMenuItem menuItem, MenuIdChooser chooser, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, changeConsumer);
+    public UIScrollChoiceMenuItem(ScrollChoiceMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
+                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
+        super(menuItem, chooser, gen, changeConsumer);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         idx++;
         grid.add(new Label("Variable (RAM only)"), 0, idx);
         variableField = new TextField(getMenuItem().getVariable());
-        variableField.setId("nameField");
+        variableField.setId("varField");
         variableField.textProperty().addListener(this::coreValueChanged);
         grid.add(variableField, 1, idx);
 

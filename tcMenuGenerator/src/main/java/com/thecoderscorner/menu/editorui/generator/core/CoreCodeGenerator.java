@@ -15,7 +15,6 @@ import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicabl
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
-import com.thecoderscorner.menu.editorui.generator.arduino.MenuNamingGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
@@ -41,7 +40,7 @@ import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGenerator {
+public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final String LINE_BREAK = System.getProperty("line.separator");
     public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
@@ -67,6 +66,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
     protected List<String> previousPluginFiles = List.of();
     protected boolean usesProgMem;
     protected CodeConversionContext context;
+    protected VariableNameGenerator namingGenerator;
 
     public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
                              CodeGeneratorOptions options) {
@@ -79,6 +79,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
                                    NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc) {
         this.menuTree = menuTree;
+        namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
         logLine("Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
 
@@ -135,7 +136,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(null, true, "true"));
-                    return new FunctionDefinition("setReadOnly", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -143,7 +144,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(null, true, "true"));
-                    return new FunctionDefinition("setLocalOnly", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -151,7 +152,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
                     var params = List.of(new CodeParameter(null, true, "true"));
-                    return new FunctionDefinition("setSecured", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -160,12 +161,19 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
                 .map(item -> {
                     var params = List.of(new CodeParameter(null, true, "false"));
-                    return new FunctionDefinition("setVisible", "menu" + makeNameToVar(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
 
         return allFunctions;
+    }
+
+    private String menuNameFor(MenuItem item) {
+        if(StringHelper.isStringEmptyOrNull(item.getVariableName())) {
+            return namingGenerator.makeNameToVar(item);
+        }
+        else return item.getVariableName();
     }
 
     private boolean isSecureSubMenu(MenuItem toCheck) {
@@ -252,7 +260,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
 
     protected String getFirstMenuVariable(MenuTree menuTree) {
         return menuTree.getMenuItems(MenuTree.ROOT).stream().findFirst()
-                .map(menuItem -> "menu" + makeNameToVar(menuItem))
+                .map(menuItem -> "menu" + menuNameFor(menuItem))
                 .orElse("");
     }
 
@@ -272,19 +280,19 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
 
             if (items.get(i).hasChildren()) {
                 int nextIdx = i + 1;
-                String nextSub = (nextIdx < items.size()) ? makeNameToVar(items.get(nextIdx)) : "NULL";
+                String nextSub = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
 
                 List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
-                String nextChild = (!childItems.isEmpty()) ? makeNameToVar(childItems.get(0)) : "NULL";
+                String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(makeNameToVar(items.get(i)), nextSub, nextChild))
+                        new MenuItemToEmbeddedGenerator(menuNameFor(items.get(i)), nextSub, nextChild))
                         .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
-                String next = (nextIdx < items.size()) ? makeNameToVar(items.get(nextIdx)) : "NULL";
+                String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(makeNameToVar(items.get(i)), next))
+                        new MenuItemToEmbeddedGenerator(menuNameFor(items.get(i)), next))
                         .orElse(Collections.emptyList()));
             }
         }
@@ -295,7 +303,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
-                .map(i -> new CallbackRequirement(this, i.getFunctionName(), i))
+                .map(i -> new CallbackRequirement(namingGenerator, i.getFunctionName(), i))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
@@ -311,44 +319,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator, MenuNamingGene
     protected void logLine(String s) {
         if (uiLogger != null) uiLogger.accept(DATE_TIME_FORMATTER.format(Instant.now()) + " - " + s);
         logger.log(INFO, s);
-    }
-
-    public String makeNameToVar(MenuItem item) {
-        // shortcut for null..
-        if (item == null) return "NULL";
-
-        // shortcut simple naming.
-        var parent = menuTree.findParent(item);
-        if (!options.isNamingRecursive() || parent == null || parent.equals(MenuTree.ROOT)) {
-            return makeNameFromVariable(item.getName());
-        }
-
-        // get all submenu names together.
-        var items = new ArrayList<String>();
-        var par = item;
-        while (par != null && !par.equals(MenuTree.ROOT)) {
-            items.add(makeNameFromVariable(par.getName()));
-            par = menuTree.findParent(par);
-        }
-
-        // reverse and then join.
-        Collections.reverse(items);
-        return String.join("", items);
-
-    }
-
-    public String makeRtFunctionName(MenuItem item) {
-        return "fn" + makeNameToVar(item) + "RtCall";
-    }
-
-    protected String makeNameFromVariable(String name) {
-        Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
-        return parts.stream().map(this::capitaliseFirst).collect(Collectors.joining());
-    }
-
-    protected String capitaliseFirst(String s) {
-        if (s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     protected void generateSource(List<CodePluginItem> generators, String cppFile,
