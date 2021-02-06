@@ -67,6 +67,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected boolean usesProgMem;
     protected CodeConversionContext context;
     protected VariableNameGenerator namingGenerator;
+    protected NameAndKey nameAndKey;
 
     public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
                              CodeGeneratorOptions options) {
@@ -79,6 +80,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
                                    NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc) {
         this.menuTree = menuTree;
+        this.nameAndKey = nameKey;
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
         logLine("Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
@@ -104,7 +106,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             );
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
-            menuStructure = addNameAndKeyToStructure(menuStructure, nameKey);
 
             // generate the source by first generating the CPP and H for the menu definition and then
             // update the sketch. Also, if any plugins have changed, then update them.
@@ -336,6 +337,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("#include \"" + projectName + "_menu.h\"");
 
             writer.write(TWO_LINES + "// Global variable declarations" + TWO_LINES);
+            writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
+                    nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
+            writer.write(TWO_LINES);
             writer.write(extractor.mapVariables(
                     generators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
             ));

@@ -97,7 +97,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             if (StringHelper.isStringEmptyOrNull(paramVal) && !StringHelper.isStringEmptyOrNull(p.getDefaultValue())) {
                 paramVal = p.expandExpression(context, p.getDefaultValue());
             }
-            if(p instanceof ReferenceCodeParameter && !p.getValue().equals("NULL")) {
+            if(p instanceof ReferenceCodeParameter && !paramVal.equals("NULL")) {
                 paramVal = "&" + paramVal;
             }
         }
@@ -138,7 +138,11 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         if(StringHelper.isStringEmptyOrNull(val) && p.getDefaultValue() != null) {
             val = p.getDefaultValue();
         }
-        return p.expandExpression(context, val);
+        var expanded = p.expandExpression(context, val);
+        if(p instanceof ReferenceCodeParameter) {
+            return (val == null || val.equalsIgnoreCase("null")) ? "NULL" : ("&" + expanded);
+        }
+        else return expanded;
     }
 
     @Override
