@@ -41,7 +41,7 @@ public class VariableNameGenerator {
     public String makeNameToVar(MenuItem item, String newName) {
         // shortcut for null..
         if (item == null) return "NULL";
-        if (newName == null && item.getVariableName() != null) return item.getVariableName();
+        if (newName == null && !StringHelper.isStringEmptyOrNull(item.getVariableName())) return item.getVariableName();
 
         // shortcut simple naming.
         var parent = menuTree.findParent(item);

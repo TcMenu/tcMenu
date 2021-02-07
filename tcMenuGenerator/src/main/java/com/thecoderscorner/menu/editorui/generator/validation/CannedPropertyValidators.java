@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.generator.validation;
 import com.thecoderscorner.menu.domain.MenuItem;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A helper class with static methods that provides short cuts for commonly used property validators.
@@ -48,7 +47,7 @@ public class CannedPropertyValidators {
      * @return a validator useful for checking variable names
      */
     public static StringPropertyValidationRules variableValidator() {
-        return new StringPropertyValidationRules(true, 32);
+        return new StringPropertyValidationRules(true, 64);
     }
 
     /**
