@@ -21,7 +21,7 @@ public class FloatMenuItem extends MenuItem<Float> {
     private final int numDecimalPlaces;
 
     public FloatMenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         // needed for serialisation
         this.numDecimalPlaces = 0;
     }
@@ -44,12 +44,13 @@ public class FloatMenuItem extends MenuItem<Float> {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNumDecimalPlaces(), getName(), getId(), getEepromAddress(), getFunctionName());
+        return Objects.hash(getNumDecimalPlaces(), getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName());
     }
 
     public int getNumDecimalPlaces() {

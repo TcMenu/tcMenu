@@ -20,7 +20,7 @@ public class SubMenuItem extends MenuItem<Boolean> {
     private final boolean secured;
 
     public SubMenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         // needed for serialisation
         this.secured = false;
     }
@@ -62,11 +62,12 @@ public class SubMenuItem extends MenuItem<Boolean> {
                 isReadOnly() == that.isReadOnly() &&
                 isSecured() == that.isSecured() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isSecured());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isSecured(), getVariableName());
     }
 }

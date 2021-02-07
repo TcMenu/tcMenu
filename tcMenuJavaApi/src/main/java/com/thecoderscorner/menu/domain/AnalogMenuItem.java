@@ -24,7 +24,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     private final String unitName;
 
     public AnalogMenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         // needed for serialisation
         this.maxValue = -1;
         this.offset = -1;
@@ -111,11 +111,13 @@ public class AnalogMenuItem extends MenuItem<Integer> {
                 isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getUnitName(), that.getUnitName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getUnitName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getVariableName(), getUnitName(), getId(),
+                            getEepromAddress(), getFunctionName(), isReadOnly());
     }
 }

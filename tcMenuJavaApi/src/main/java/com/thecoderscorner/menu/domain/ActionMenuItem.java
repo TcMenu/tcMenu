@@ -19,7 +19,7 @@ import java.util.Objects;
 public class ActionMenuItem extends MenuItem<Boolean> {
 
     public ActionMenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         // needed for serialisation
     }
 
@@ -57,11 +57,12 @@ public class ActionMenuItem extends MenuItem<Boolean> {
                 isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isLocalOnly());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isReadOnly(), isLocalOnly());
     }
 }

@@ -63,6 +63,7 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         id = item.getId();
         eepromAddr = item.getEepromAddress();
         functionName = item.getFunctionName();
+        variableName = item.getVariableName();
         readOnly = item.isReadOnly();
         localOnly = item.isLocalOnly();
         visible = item.isVisible();

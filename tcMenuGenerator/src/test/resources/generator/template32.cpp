@@ -13,6 +13,8 @@
 
 // Global variable declarations
 
+const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
+
 ArduinoAnalogDevice analogDevice(42);
 const int anotherVar;
 const int allowedPluginVar;
@@ -25,7 +27,7 @@ RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameTextItemRtCall, textItemRenderFn
 TextMenuItem menuOverrideSubNameTextItem(fnOverrideSubNameTextItemRtCall, 99, 10, &menuOverrideSubNameIpItem);
 const AnalogMenuInfo minfoOverrideAnalog2Name = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
 AnalogMenuItem menuOverrideAnalog2Name(&minfoOverrideAnalog2Name, 0, &menuOverrideSubNameTextItem);
-RENDERING_CALLBACK_NAME_INVOKE(fnSubRtCall, backSubItemRenderFn, "sub", -1, NO_CALLBACK)
+RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameRtCall, backSubItemRenderFn, "sub", -1, NO_CALLBACK)
 const SubMenuInfo minfoOverrideSubName = { "sub", 100, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackOverrideSubName(fnOverrideSubNameRtCall, &menuOverrideAnalog2Name);
 SubMenuItem menuOverrideSubName(&minfoOverrideSubName, &menuBackOverrideSubName, NULL);
@@ -36,7 +38,6 @@ const char enumStrExtra_0[] = "test";
 const char* const enumStrExtra[]  = { enumStrExtra_0 };
 const EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, NO_CALLBACK, enumStrExtra };
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
-const ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 
 // Set up code
 

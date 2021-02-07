@@ -57,7 +57,7 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
 
         // create an appropriate panel and verify the basics are OK
         createMainPanel(uiSubItem);
-        performAllCommonChecks(enumItem);
+        performAllCommonChecks(enumItem, true);
 
         // there's already one element in the enum item we are using called 'test'
         // now add another and verify.
@@ -87,7 +87,7 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
     void testEditingTheExistingTestCellThenRemoval(FxRobot robot) throws InterruptedException {
         // create an appropriate panel and verify the basics are OK
         createMainPanel(uiSubItem);
-        performAllCommonChecks(enumItem);
+        performAllCommonChecks(enumItem, true);
 
         // first type some new text for the cell that is valid. Check the consumer is updated.
 

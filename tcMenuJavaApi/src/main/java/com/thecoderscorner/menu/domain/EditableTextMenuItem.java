@@ -22,7 +22,7 @@ public class EditableTextMenuItem extends MenuItem<String> {
 
     public EditableTextMenuItem() {
         // needed for serialisation
-        super("", "",-1, -1, null, false, false, true);
+        super("", null,-1, -1, null, false, false, true);
         textLength = 0;
         itemType = EditItemType.PLAIN_TEXT;
     }
@@ -74,12 +74,13 @@ public class EditableTextMenuItem extends MenuItem<String> {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTextLength(), getName(), getId(), getEepromAddress(), getFunctionName(), getItemType());
+        return Objects.hash(getTextLength(), getName(), getId(), getEepromAddress(), getFunctionName(), getItemType(), getVariableName());
     }
 
     @Override

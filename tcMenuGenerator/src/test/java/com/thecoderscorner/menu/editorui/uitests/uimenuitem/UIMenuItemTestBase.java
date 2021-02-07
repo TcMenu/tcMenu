@@ -81,10 +81,10 @@ public abstract class UIMenuItemTestBase {
         verifyThat("#uiItemErrors", node -> !node.isVisible());
     }
 
-    protected void performAllCommonChecks(MenuItem item) {
+    protected void performAllCommonChecks(MenuItem item, boolean hasEepromField) {
         verifyThat("#idField", Node::isDisabled);
         verifyThat("#idField", textFieldHasValue(Integer.toString(item.getId())));
-        verifyThat("#eepromField", textFieldHasValue(Integer.toString(item.getEepromAddress())));
+        if(hasEepromField) verifyThat("#eepromField", textFieldHasValue(Integer.toString(item.getEepromAddress())));
         verifyThat("#nameField", textFieldHasValue(item.getName()));
         verifyThat("#functionNameTextField", textFieldHasValue(
                 item.getFunctionName() == null ? UIMenuItem.NO_FUNCTION_DEFINED : item.getFunctionName()));

@@ -35,25 +35,30 @@ public class VariableNameGenerator {
     }
 
     public String makeNameToVar(MenuItem item) {
-        return makeNameToVar(item, item.getName());
+        return makeNameToVar(item, null);
     }
 
     public String makeNameToVar(MenuItem item, String newName) {
         // shortcut for null..
         if (item == null) return "NULL";
+        if (newName == null && item.getVariableName() != null) return item.getVariableName();
 
         // shortcut simple naming.
         var parent = menuTree.findParent(item);
         if (!recursiveNaming || parent == null || parent.equals(MenuTree.ROOT)) {
-            return makeNameFromVariable(newName);
+            return makeNameFromVariable((newName != null) ? newName : item.getName());
         }
 
         // get all submenu names together.
         var items = new ArrayList<String>();
         var par = item;
+        var name = (newName != null) ? newName : par.getName();
         while (par != null && !par.equals(MenuTree.ROOT)) {
-            items.add(makeNameFromVariable(par));
+            items.add(makeNameFromVariable(name));
             par = menuTree.findParent(par);
+            if(par != null) {
+                name = StringHelper.isStringEmptyOrNull(par.getVariableName()) ? par.getName() : par.getVariableName();
+            }
         }
 
         // reverse and then join.
@@ -69,13 +74,6 @@ public class VariableNameGenerator {
     protected String makeNameFromVariable(String name) {
         Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
         return parts.stream().map(this::capitaliseFirst).collect(Collectors.joining());
-    }
-
-    protected String makeNameFromVariable(MenuItem item) {
-        if(!StringHelper.isStringEmptyOrNull(item.getVariableName())) {
-            return item.getVariableName();
-        }
-        return makeNameFromVariable(item.getName());
     }
 
     protected String capitaliseFirst(String s) {

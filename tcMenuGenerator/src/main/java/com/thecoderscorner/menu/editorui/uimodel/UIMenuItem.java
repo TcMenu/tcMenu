@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -117,35 +118,40 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
 
         var varSyncButton = new Button("sync");
-        varSyncButton.setOnAction(actionEvent ->
-                variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()))
-        );
+        varSyncButton.setOnAction(actionEvent -> {
+            variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
+            callChangeConsumer();
+        });
         varSyncButton.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
         varSyncButton.setId("varSyncButton");
         varNameBox.getChildren().add(variableField);
         varNameBox.getChildren().add(varSyncButton);
         grid.add(varNameBox, 1, idx);
 
-        idx++;
-        grid.add(new Label("Eeprom Save Addr"), 0, idx);
-        HBox eepromBox = new HBox();
-        eepromBox.setSpacing(4);
+        if(MenuItemHelper.eepromSizeForItem(getMenuItem()) != 0) {
+            idx++;
+            grid.add(new Label("Eeprom Save Addr"), 0, idx);
+            HBox eepromBox = new HBox();
+            eepromBox.setSpacing(4);
 
-        eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
-        eepromField.setId("eepromField");
-        eepromField.textProperty().addListener(this::coreValueChanged);
-        TextFormatterUtils.applyIntegerFormatToField(eepromField);
-        eepromBox.getChildren().add(eepromField);
+            eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
+            eepromField.setId("eepromField");
+            eepromField.textProperty().addListener(this::coreValueChanged);
+            TextFormatterUtils.applyIntegerFormatToField(eepromField);
+            eepromBox.getChildren().add(eepromField);
 
-        Button eepromNextBtn = new Button("auto");
-        eepromNextBtn.setId("eepromNextBtn");
-        eepromNextBtn.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
-        eepromBox.getChildren().add(eepromNextBtn);
-        TextFormatterUtils.applyIntegerFormatToField(eepromField);
+            Button eepromNextBtn = new Button("auto");
+            eepromNextBtn.setId("eepromNextBtn");
+            eepromNextBtn.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
+            eepromBox.getChildren().add(eepromNextBtn);
+            TextFormatterUtils.applyIntegerFormatToField(eepromField);
 
-        grid.add(eepromBox, 1, idx);
+            grid.add(eepromBox, 1, idx);
 
-        eepromNextBtn.setOnAction((act) -> eepromField.setText(Integer.toString(chooser.nextHighestEeprom())));
+            eepromNextBtn.setOnAction((act) -> eepromField.setText(Integer.toString(chooser.nextHighestEeprom())));
+        }
+        else eepromField = null;
+
 
         idx++;
         grid.add(new Label("onChange Function"), 0, idx);
@@ -196,8 +202,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected void getChangedDefaults(MenuItemBuilder<?> builder, List<FieldError> errorsBuilder) {
-        int eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
-                errorsBuilder, -1, Short.MAX_VALUE);
+        int eeprom = -1;
+        if (eepromField != null) {
+            eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
+                    errorsBuilder, -1, Short.MAX_VALUE);
+        }
+
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
                 errorsBuilder, 19, StringFieldType.MANDATORY);
 

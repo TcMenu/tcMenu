@@ -428,6 +428,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     .filter(hdr -> !hdr.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
+            writer.write(LINE_BREAK);
+            writer.write("extern const ConnectorLocalInfo applicationInfo;");
 
             writer.write(TWO_LINES);
 

@@ -15,8 +15,9 @@ import java.util.Objects;
 
 public class RuntimeListMenuItem extends MenuItem<List<String>> {
     private final int initialRows;
+
     public RuntimeListMenuItem() {
-        super("", "", 0, 0, "", false, false, true);
+        super("", null, 0, 0, "", false, false, true);
         initialRows = 0;
     }
 
@@ -41,12 +42,13 @@ public class RuntimeListMenuItem extends MenuItem<List<String>> {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
     }
 
     @Override

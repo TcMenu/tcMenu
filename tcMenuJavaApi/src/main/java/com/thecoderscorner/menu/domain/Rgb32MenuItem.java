@@ -14,7 +14,7 @@ public class Rgb32MenuItem extends MenuItem<PortableColor> {
     private final boolean includeAlphaChannel;
 
     public Rgb32MenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         includeAlphaChannel = false;
     }
 
@@ -40,12 +40,13 @@ public class Rgb32MenuItem extends MenuItem<PortableColor> {
                 isVisible() == that.isVisible() &&
                 includeAlphaChannel == that.includeAlphaChannel &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(includeAlphaChannel, getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(includeAlphaChannel, getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
     }
 
     @Override

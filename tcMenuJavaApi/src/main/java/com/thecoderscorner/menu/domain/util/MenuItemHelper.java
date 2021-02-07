@@ -205,6 +205,7 @@ public class MenuItemHelper {
      * @return the eeprom storage needed.
      */
     public static int eepromSizeForItem(MenuItem item) {
+        if(item == null) return 0;
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<Integer>() {
             @Override
             public void visit(AnalogMenuItem item) {

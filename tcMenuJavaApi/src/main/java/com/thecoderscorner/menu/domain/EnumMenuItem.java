@@ -22,7 +22,7 @@ public class EnumMenuItem extends MenuItem<Integer> {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         // needed for serialisation
         enumEntries = Collections.emptyList();
     }
@@ -54,12 +54,13 @@ public class EnumMenuItem extends MenuItem<Integer> {
                 isLocalOnly() == that.isLocalOnly() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getEnumEntries(), that.getEnumEntries()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEnumEntries(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getEnumEntries(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
     }
 
     @Override

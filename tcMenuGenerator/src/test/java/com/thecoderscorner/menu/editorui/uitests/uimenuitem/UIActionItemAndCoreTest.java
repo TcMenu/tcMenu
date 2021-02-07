@@ -8,6 +8,9 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.Rgb32MenuItem;
+import com.thecoderscorner.menu.domain.Rgb32MenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
@@ -21,12 +24,13 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -54,15 +58,11 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         createMainPanel(uiActionItem);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(actionItem);
+        performAllCommonChecks(actionItem, false);
 
         robot.clickOn("#nameField");
         robot.eraseText(12);
         robot.write("One Shot");
-
-        robot.clickOn("#eepromField");
-        robot.eraseText(4);
-        robot.write("4");
 
         writeIntoFunctionFieldAndVerifyOK(robot, "on_change");
         writeIntoFunctionFieldAndVerifyOK(robot, "öôóòLatin");
@@ -72,12 +72,9 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(isA(ActionMenuItem.class), captor.capture());
-        assertEquals(4, captor.getValue().getEepromAddress());
+        assertEquals(-1, captor.getValue().getEepromAddress());
         assertEquals("One Shot", captor.getValue().getName());
         assertEquals("onChange", captor.getValue().getFunctionName());
-
-        robot.clickOn("#eepromNextBtn");
-        verifyThat("#eepromField", textFieldHasValue("7"));
     }
 
     private void writeIntoFunctionFieldAndVerifyOK(FxRobot robot, String newValue) {
@@ -90,6 +87,51 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     }
 
     @Test
+    void testRgb32MenuItem(FxRobot robot) throws Exception {
+        Rgb32MenuItem item = new Rgb32MenuItemBuilder().withName("New Item").withId(321).withEepromAddr(-1)
+                .withFunctionName("test").withAlpha(true).menuItem();
+        menuTree.addMenuItem(MenuTree.ROOT, item);
+        Set<Integer> uncommittedItems = new HashSet<>();
+        uncommittedItems.add(item.getId());
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, uncommittedItems);
+        Optional<UIMenuItem> uiRgb = editorUI.createPanelForMenuItem(item, menuTree, vng, mockedConsumer);
+        // open the sub menu item editor panel
+        createMainPanel(uiRgb);
+
+        // firstly check that all the fields are populated properly
+        performAllCommonChecks(item, false);
+
+
+        tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "40000",
+                "EEPROM - Value must be between -1 and 32767");
+
+        tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "-2",
+                "EEPROM - Value must be between -1 and 32767");
+
+        robot.clickOn("#nameField");
+        robot.eraseText(10);
+        robot.write("My Test");
+        verifyThat("#variableField", textFieldHasValue("MyTest"));
+        robot.clickOn("#variableField");
+        robot.eraseText(10);
+        robot.write("OverrideVar");
+        robot.clickOn("#nameField");
+        robot.eraseText(10);
+        robot.write("New Test");
+        robot.clickOn("#variableField");
+        verifyThat("#variableField", textFieldHasValue("OverrideVar"));
+
+
+        robot.clickOn("#eepromNextBtn");
+        verifyThat("#eepromField", textFieldHasValue("7"));
+
+        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
+        verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
+        assertEquals(7, captor.getValue().getEepromAddress());
+        assertEquals("OverrideVar", captor.getValue().getVariableName());
+    }
+
+    @Test
     void testEnteringBadValuesIntoBaseEditor(FxRobot robot) throws InterruptedException {
         MenuItem subItem = menuTree.getSubMenuById(100).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
@@ -99,32 +141,26 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         createMainPanel(uiSubItem);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(subItem);
+        performAllCommonChecks(subItem, false);
 
-        tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "40000",
-                "EEPROM - Value must be between -1 and 32767");
-
-        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
-        verify(mockedConsumer, atLeastOnce()).accept(eq(subItem), captor.capture());
-        assertEquals(0, captor.getValue().getEepromAddress());
-
-        tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "-2",
-                "EEPROM - Value must be between -1 and 32767");
-
-        tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "This#Is+Err",
+        tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This#Is+Err",
                 "Name - Text can only contain letters, numbers, spaces and '-_()*%'");
 
-        tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "",
+        tryToEnterBadValueIntoField(robot, "nameField", "variableField", "",
                 "Name - field must not be blank and less than 19 characters");
 
-        tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "name spaces",
+        tryToEnterBadValueIntoField(robot, "functionNameTextField", "variableField", "name spaces",
                 "Function fields must use only letters, digits, and '_'");
 
-        tryToEnterBadValueIntoField(robot, "nameField", "eepromField", "This name is too long for menuitem",
+        tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This name is too long for menuitem",
                                     "Name - field must not be blank and less than 19 characters");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "19_Bad",
                                     "Function fields must use only letters, digits, and '_'");
+
+        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
+        verify(mockedConsumer, atLeastOnce()).accept(eq(subItem), captor.capture());
+        assertEquals(-1, captor.getValue().getEepromAddress());
 
         MenuItem subItemCompare = menuTree.getSubMenuById(100).orElseThrow();
         assertEquals(-1, subItemCompare.getEepromAddress());

@@ -50,7 +50,7 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
         createMainPanel(uiFloatPanel);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(floatItem);
+        performAllCommonChecks(floatItem, false);
 
         tryToEnterBadValueIntoField(robot, "decimalPlacesField", "nameField", "100",
                 "Decimal Places - Value must be between 1 and 6");

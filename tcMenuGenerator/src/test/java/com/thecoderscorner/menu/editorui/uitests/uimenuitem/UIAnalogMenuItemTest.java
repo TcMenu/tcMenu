@@ -50,7 +50,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         createMainPanel(uiSubItem);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(analogItem);
+        performAllCommonChecks(analogItem, true);
 
         tryToEnterBadValueIntoField(robot, "offsetField", "nameField", "-1000000",
                 "Offset - Value must be between -32768 and 32767");
@@ -79,7 +79,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         createMainPanel(uiSubItem);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(analogItem);
+        performAllCommonChecks(analogItem, true);
 
         robot.clickOn("#offsetField");
         robot.eraseText(5);
@@ -118,7 +118,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         createMainPanel(uiSubItem);
 
         // firstly check that all the fields are populated properly
-        performAllCommonChecks(analogItem);
+        performAllCommonChecks(analogItem, true);
 
         robot.clickOn("#offsetField");
         robot.eraseText(5);

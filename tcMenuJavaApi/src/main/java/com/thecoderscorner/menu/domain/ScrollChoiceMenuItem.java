@@ -5,6 +5,8 @@ import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
+import java.util.Objects;
+
 /**
  * Represents a more configurable and more extensible version of enum that should be used when the number of choices is
  * larger, the choices are in eeprom, or you need more control at runtime of the choices.
@@ -18,7 +20,7 @@ public class ScrollChoiceMenuItem extends MenuItem<CurrentScrollPosition> {
     private final String variable;
 
     public ScrollChoiceMenuItem() {
-        super("", "",-1, -1, null, false, false, true);
+        super("", null,-1, -1, null, false, false, true);
         variable = null;
         choiceMode = ScrollChoiceMode.ARRAY_IN_EEPROM;
         itemWidth = numEntries = eepromOffset = 0;
@@ -63,5 +65,28 @@ public class ScrollChoiceMenuItem extends MenuItem<CurrentScrollPosition> {
     @Override
     public void accept(MenuItemVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScrollChoiceMenuItem that = (ScrollChoiceMenuItem) o;
+        return getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                isVisible() == that.isVisible() &&
+                isLocalOnly() == that.isLocalOnly() &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName()) &&
+                choiceMode == that.getChoiceMode() && itemWidth == that.itemWidth && numEntries == that.numEntries &&
+                eepromOffset == that.eepromOffset && Objects.equals(variable, that.variable);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isReadOnly(),
+                isLocalOnly(), choiceMode, itemWidth, numEntries, eepromOffset, variable);
     }
 }

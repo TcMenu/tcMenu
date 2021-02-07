@@ -54,7 +54,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         Optional<UIMenuItem> uiRgb = editorUI.createPanelForMenuItem(rgbItem, menuTree, vng, mockedConsumer);
         createMainPanel(uiRgb);
 
-        performAllCommonChecks(rgbItem);
+        performAllCommonChecks(rgbItem, true);
 
         verifyThat("#alphaCheck", (CheckBox cb) -> cb.isSelected() && cb.getText().equals("Enable alpha channel"));
         robot.clickOn("#alphaCheck");
@@ -90,7 +90,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         Optional<UIMenuItem> uiChoice = editorUI.createPanelForMenuItem(choiceItem, menuTree, vng, mockedConsumer);
         createMainPanel(uiChoice);
 
-        performAllCommonChecks(choiceItem);
+        performAllCommonChecks(choiceItem, true);
 
         verifyThat("#itemWidthFieldField", textFieldHasValue("10"));
         verifyThat("#numItemsFieldField", textFieldHasValue("5"));

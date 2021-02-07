@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * A menu item that corresponds to the large number type on the device. These numeric values are generally
@@ -22,6 +23,14 @@ public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
     private final int digitsAllowed;
     private final int decimalPlaces;
     private final boolean negativeAllowed;
+
+    public EditableLargeNumberMenuItem() {
+        super("", null, -1, -1, null, false, false, true);
+        digitsAllowed = 0;
+        decimalPlaces = 0;
+        negativeAllowed = false;
+    }
+
 
     public EditableLargeNumberMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int digitsAllowed,
                                        int decimalPlaces, boolean negativeAllowed, boolean readOnly, boolean localOnly,
@@ -54,5 +63,27 @@ public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
         visitor.visit(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EditableLargeNumberMenuItem that = (EditableLargeNumberMenuItem) o;
+        return getId() == that.getId() &&
+                getEepromAddress() == that.getEepromAddress() &&
+                isReadOnly() == that.isReadOnly() &&
+                isVisible() == that.isVisible() &&
+                isLocalOnly() == that.isLocalOnly() &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName()) &&
+                decimalPlaces == that.decimalPlaces && digitsAllowed == that.digitsAllowed &&
+                negativeAllowed == that.negativeAllowed;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isReadOnly(),
+                isLocalOnly(), getVariableName(), negativeAllowed, decimalPlaces, digitsAllowed);
+    }
     
 }

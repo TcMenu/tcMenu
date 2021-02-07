@@ -25,7 +25,7 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
 
     public BooleanMenuItem() {
         // needed for serialisation
-        super("", "", -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true);
         this.naming = BooleanNaming.ON_OFF;
     }
 
@@ -67,12 +67,13 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
                 isVisible() == that.isVisible() &&
                 getNaming() == that.getNaming() &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getFunctionName(), that.getFunctionName());
+                Objects.equals(getFunctionName(), that.getFunctionName()) &&
+                Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNaming(), getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getNaming(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
     }
 
     @Override
