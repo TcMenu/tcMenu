@@ -19,6 +19,7 @@ import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -34,6 +35,7 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -139,8 +141,10 @@ public class MenuEditorApp extends Application {
 
     private List<Path> configuredPluginPaths() {
         var list = new ArrayList<Path>();
-        list.add(Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins"));
+        var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
         var additionalPlugins = System.getProperty("additionalPluginsDir");
+        list.add(defPluginPath);
+
         if(additionalPlugins != null) {
             list.add(Paths.get(additionalPlugins));
         }
@@ -156,8 +160,16 @@ public class MenuEditorApp extends Application {
             }
             Path pluginDir = homeDir.resolve(".tcmenu/plugins");
             if(!Files.exists(pluginDir)) {
-                Files.createDirectories(pluginDir);
+                try {
+                    Files.createDirectories(pluginDir);
+                    InputStream resourceAsStream = getClass().getResourceAsStream("/packaged-plugins/initialPlugins.zip");
+                    OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
+                }
+                catch(Exception ex) {
+                    // ignored
+                }
             }
+
         } catch (IOException e) {
             Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
