@@ -22,7 +22,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
 
     public UIRuntimeListMenuItem(RuntimeListMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.LIST_URL);
     }
 
     @Override

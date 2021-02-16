@@ -25,7 +25,7 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
     private TextField decimalPlaces;
 
     public UIFloatMenuItem(FloatMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.FLOAT_URL);
     }
 
     @Override

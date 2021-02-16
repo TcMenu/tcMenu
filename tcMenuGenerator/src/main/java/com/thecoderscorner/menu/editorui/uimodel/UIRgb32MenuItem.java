@@ -24,7 +24,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
     private CheckBox alphaCheck;
 
     public UIRgb32MenuItem(Rgb32MenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.RGB_URL);
     }
 
     @Override

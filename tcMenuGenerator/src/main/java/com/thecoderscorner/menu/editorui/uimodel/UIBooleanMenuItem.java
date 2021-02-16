@@ -30,7 +30,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     private ComboBox<BooleanNaming> namingBox;
 
     public UIBooleanMenuItem(BooleanMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.BOOLEAN_URL);
     }
 
     @Override

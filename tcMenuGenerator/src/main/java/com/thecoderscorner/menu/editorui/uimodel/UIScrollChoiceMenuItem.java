@@ -34,7 +34,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
 
     public UIScrollChoiceMenuItem(ScrollChoiceMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                   BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.CHOICE_URL);
     }
 
     @Override

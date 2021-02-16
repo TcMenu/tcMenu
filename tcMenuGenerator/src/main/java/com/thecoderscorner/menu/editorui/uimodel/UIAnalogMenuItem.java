@@ -28,7 +28,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     private TextField unitNameField;
 
     public UIAnalogMenuItem(AnalogMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, nameGen, changeConsumer);
+        super(menuItem, chooser, nameGen, changeConsumer, UrlsForDocumentation.ANALOG_URL);
     }
 
     @Override

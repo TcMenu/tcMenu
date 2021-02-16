@@ -30,7 +30,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     private ListView<String> listView;
 
     public UIEnumMenuItem(EnumMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.ENUM_URL);
     }
 
     @Override

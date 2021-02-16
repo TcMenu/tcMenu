@@ -29,7 +29,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
 
     public UILargeNumberMenuItem(EditableLargeNumberMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.LARGE_NUM_URL);
     }
 
     @Override

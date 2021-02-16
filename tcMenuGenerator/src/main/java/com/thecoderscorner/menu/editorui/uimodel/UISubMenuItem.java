@@ -24,7 +24,7 @@ public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
     private CheckBox secureCheckbox;
 
     public UISubMenuItem(SubMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.SUB_MENU_URL);
     }
 
     @Override

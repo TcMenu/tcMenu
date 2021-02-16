@@ -21,7 +21,7 @@ import java.util.function.BiConsumer;
 public class UIActionMenuItem extends UIMenuItem<ActionMenuItem> {
 
     public UIActionMenuItem(ActionMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.ACTION_URL);
     }
 
     @Override

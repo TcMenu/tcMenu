@@ -30,7 +30,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
 
     public UITextMenuItem(EditableTextMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                           BiConsumer<MenuItem, MenuItem> changeConsumer) {
-        super(menuItem, chooser, gen, changeConsumer);
+        super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.TEXT_URL);
     }
 
     @Override

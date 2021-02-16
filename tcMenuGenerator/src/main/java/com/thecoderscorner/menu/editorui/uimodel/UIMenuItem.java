@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
@@ -49,6 +50,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected VariableNameGenerator variableNameGenerator;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
     private T menuItem;
+    private final String urlDocs;
 
     private TextField idField;
     protected TextField nameField;
@@ -61,11 +63,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private CheckBox visibleCheck;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
 
-    public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
+    public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer, String urlDocs) {
         this.menuItem = menuItem;
         this.chooser = chooser;
         this.variableNameGenerator = gen;
         this.changeConsumer = changeConsumer;
+        this.urlDocs = urlDocs;
     }
 
     public GridPane initPanel() {
@@ -75,6 +78,14 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.setPadding(new Insets(0, 10, 0, 10));
 
         int idx = 0;
+
+        var itemType = (menuItem != null) ? menuItem.getClass().getSimpleName() : "";
+
+        Hyperlink docsHyperlink = new Hyperlink("Online documentation for " + itemType);
+        docsHyperlink.setTooltip(new Tooltip("Visit " + urlDocs));
+        docsHyperlink.setOnAction(evt -> SafeNavigator.safeNavigateTo(urlDocs));
+        grid.add(docsHyperlink, 0, idx, 2, 1);
+        idx++;
 
         errorsField = new Label();
         errorsField.setId("uiItemErrors");
