@@ -28,7 +28,8 @@ For any MacOS from High Sierra onwards, obtain directly from the Mac App Store: 
 
 ### Windows 7, 8 and Linux
 
-[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows 7 and an archive of the package for Linux users. 
+[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases), it's available as an executable for Windows 7.
+[There is a Debian package for Linux now available in late BETA test](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
 
 ### Documentation
 
