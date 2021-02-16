@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -113,36 +114,18 @@ public class UICodePluginItem extends BorderPane {
         if(item.getDocsLink() != null) {
             docsLink.setText("Click for documentation");
             docsLink.setDisable(false);
-            docsLink.setOnAction((event)-> {
-                try {
-                    Desktop.getDesktop().browse(new URI(item.getDocsLink()));
-                } catch (Exception e) {
-                    LOGGER.log(ERROR,"Unable to locate docs URL" + item.getDocsLink());
-                }
-            });
+            docsLink.setOnAction((event)->SafeNavigator.safeNavigateTo(item.getDocsLink()));
         }
 
         var config = item.getConfig();
         whichPlugin.setText(config.getName() + " - " + config.getVersion());
         licenseLink.setText(config.getLicense());
         licenseLink.setDisable(false);
-        licenseLink.setOnAction((event)-> {
-            try {
-                Desktop.getDesktop().browse(new URI(config.getLicenseUrl()));
-            } catch (Exception e) {
-                LOGGER.log(ERROR,"Unable to locate license URL" + config.getLicenseUrl());
-            }
-        });
+        licenseLink.setOnAction((event)-> SafeNavigator.safeNavigateTo(config.getLicenseUrl()));
         if(config.getVendor() != null) {
             vendorLink.setText(config.getVendor());
             vendorLink.setDisable(false);
-            vendorLink.setOnAction((event) -> {
-                try {
-                    Desktop.getDesktop().browse(new URI(config.getVendorUrl()));
-                } catch (Exception e) {
-                    LOGGER.log(ERROR, "Unable to locate vendor URL" + config.getVendorUrl());
-                }
-            });
+            vendorLink.setOnAction((event) -> SafeNavigator.safeNavigateTo(config.getVendorUrl()));
         }
 
         imagePanel = mgr.getImageForName(item, item.getImageFileName())

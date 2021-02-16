@@ -24,6 +24,7 @@ import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -136,13 +137,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void browseToURL(String urlToVisit) {
-        try {
-            Desktop.getDesktop().browse(new URI(urlToVisit));
-        } catch (IOException | URISyntaxException e) {
-            // not much we can do here really!
-            logger.log(ERROR, "Could not open browser", e);
-        }
-
+        SafeNavigator.safeNavigateTo(urlToVisit);
     }
 
     public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,

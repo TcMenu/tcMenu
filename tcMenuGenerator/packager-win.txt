@@ -6,11 +6,15 @@ Ensure all components are correctly versioned in Maven, iss script etc.
 Run and smoke test:
 java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
 
-# Step 2 - Build the package
+# Step 2 - Build the package - Windows 7
 
 jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
-jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuController.ico --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
+
+# Debian / Ubunutu package command
+
+jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
+
 
 # Step 3 - Build the distribution
 
