@@ -79,7 +79,7 @@ class CannedPropertyValidatorsTest {
         assertTrue(validator.isValueValid(""));
         assertTrue(validator.isValueValid("variable_name01"));
         assertFalse(validator.isValueValid("Invalid Space"));
-        assertFalse(validator.isValueValid("invalid_because_text_is_too_long_for_the_field"));
+        assertFalse(validator.isValueValid("invalid_because_text_is_too_long_for_the_field_invalid_because_text_is_too_long_for_the_field"));
     }
 
     @Test
