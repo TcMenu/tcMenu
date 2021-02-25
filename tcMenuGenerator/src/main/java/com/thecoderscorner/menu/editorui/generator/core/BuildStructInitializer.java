@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 
 /**
@@ -47,7 +48,7 @@ public class BuildStructInitializer {
     }
 
     public BuildStructInitializer addHeaderFileRequirement(String include, boolean quotes) {
-        headerRequirement.add(new HeaderDefinition(include, quotes, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable()));
+        headerRequirement.add(new HeaderDefinition(include, quotes ? SOURCE : GLOBAL, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable()));
         return this;
     }
 

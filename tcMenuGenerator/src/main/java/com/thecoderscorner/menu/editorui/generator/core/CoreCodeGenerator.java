@@ -195,8 +195,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
         logLine("Checking if any plugins have been removed from the project and need removal");
 
+        var props = generators.stream().flatMap(gen ->  gen.getProperties().stream()).collect(Collectors.toList());
+
         var newPluginFileSet = generators.stream()
                 .flatMap(gen -> gen.getRequiredSourceFiles().stream())
+                .filter(sf -> sf.getApplicability().isApplicable(props))
                 .map(RequiredSourceFile::getFileName)
                 .collect(Collectors.toSet());
 
@@ -224,21 +227,25 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     protected void generatePluginsForCreator(CodePluginItem item, Path directory) throws TcMenuConversionException {
         var expando = new CodeParameter(null, true, "");
-        for (var file : item.getRequiredSourceFiles()) {
-            try {
+        var filteredSourceFiles = item.getRequiredSourceFiles().stream()
+                .filter(sf-> sf.getApplicability().isApplicable(context.getProperties()))
+                .collect(Collectors.toList());
 
+        for (var srcFile : filteredSourceFiles) {
+            try {
+                var fileName = expando.expandExpression(context, srcFile.getFileName());
                 // get the source (either from the plugin or from the tcMenu library)
                 String fileNamePart;
                 String fileData;
-                Path location = item.getConfig().getPath().resolve(file.getFileName());
+                Path location = item.getConfig().getPath().resolve(fileName);
                 try (var sourceInputStream = new FileInputStream(location.toFile())) {
                     fileData = new String(sourceInputStream.readAllBytes());
-                    fileNamePart = Paths.get(file.getFileName()).getFileName().toString();
+                    fileNamePart = Paths.get(fileName).getFileName().toString();
                 } catch (Exception e) {
-                    throw new TcMenuConversionException("Unable to locate file in plugin: " + file, e);
+                    throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
                 }
 
-                for (var cr : file.getReplacementList()) {
+                for (var cr : srcFile.getReplacementList()) {
                     if (cr.getApplicability().isApplicable(context.getProperties())) {
                         var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
                         fileData = fileData.replaceAll(cr.getFind(), replacement);
@@ -247,9 +254,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
                 // and copy into the destination
                 Files.write(directory.resolve(fileNamePart), fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
-                logLine("Copied with replacement " + file);
+                logLine("Copied with replacement " + srcFile);
             } catch (Exception e) {
-                throw new TcMenuConversionException("Unexpected exception processing " + file, e);
+                throw new TcMenuConversionException("Unexpected exception processing " + srcFile, e);
             }
         }
     }
@@ -335,8 +342,16 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("#include <tcMenu.h>");
             writer.write(LINE_BREAK);
             writer.write("#include \"" + projectName + "_menu.h\"");
+            writer.write(LINE_BREAK);
 
-            writer.write(TWO_LINES + "// Global variable declarations" + TWO_LINES);
+            List<HeaderDefinition> includeList = getHeaderDefinitions(generators, menuStructure);
+
+            // and write out the CPP includes, these are needed for things like adafruit fonts that must only be included once ever
+            var includeDefs = extractor.mapCppIncludes(includeList);
+            writer.write(includeDefs);
+            writer.write(StringHelper.isStringEmptyOrNull(includeDefs) ? LINE_BREAK : TWO_LINES);
+
+            writer.write("// Global variable declarations" + TWO_LINES);
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
             writer.write(TWO_LINES);
@@ -397,13 +412,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(COMMENT_HEADER);
             writer.write(platformIncludes());
 
-            // first get a list of includes to add to the header file from the creators
-            var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludeFiles().stream()).collect(Collectors.toList());
-
-            // now add any extra headers needed for the menu structure items.
-            includeList.addAll(menuStructure.stream()
-                    .flatMap(s -> s.getHeaderRequirements().stream())
-                    .collect(Collectors.toList()));
+            List<HeaderDefinition> includeList = getHeaderDefinitions(embeddedCreators, menuStructure);
 
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));
@@ -459,6 +468,17 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             logLine("Failed to generate header file: " + e.getMessage());
             throw new TcMenuConversionException("Header Generation failed", e);
         }
+    }
+
+    private List<HeaderDefinition> getHeaderDefinitions(List<CodePluginItem> embeddedCreators, Collection<BuildStructInitializer> menuStructure) {
+        // first get a list of includes to add to the header file from the creators
+        var includeList = embeddedCreators.stream().flatMap(g -> g.getIncludeFiles().stream()).collect(Collectors.toList());
+
+        // now add any extra headers needed for the menu structure items.
+        includeList.addAll(menuStructure.stream()
+                .flatMap(s -> s.getHeaderRequirements().stream())
+                .collect(Collectors.toList()));
+        return includeList;
     }
 
     protected abstract String platformIncludes();

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeVariableCppExtractorTest {
@@ -48,7 +49,7 @@ public class CodeVariableCppExtractorTest {
         assertEquals("extern MenuItem menuMyItem;", extractor.mapStructHeader(initializer));
         assertEquals("MenuItem menuMyItem(42, someVar);", extractor.mapStructSource(initializer));
         Assertions.assertThat(initializer.getHeaderRequirements()).containsExactlyInAnyOrder(
-                new HeaderDefinition("SomeHeader.h", false, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable())
+                new HeaderDefinition("SomeHeader.h", GLOBAL, HeaderDefinition.PRIORITY_NORMAL, new AlwaysApplicable())
         );
     }
 

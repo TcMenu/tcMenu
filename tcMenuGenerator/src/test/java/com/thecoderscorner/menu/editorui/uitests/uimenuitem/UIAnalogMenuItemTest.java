@@ -62,7 +62,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
                 "Divisor - Value must be between 0 and 10000");
 
         tryToEnterBadValueIntoField(robot, "maxValueField", "nameField", "-1",
-                "Maximum Value - Value must be between 1 and 65355");
+                "Maximum Value - Value must be between 1 and 65535");
 
         tryToEnterLettersIntoNumericField(robot, "maxValueField");
         tryToEnterLettersIntoNumericField(robot, "offsetField");
@@ -134,7 +134,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
         robot.clickOn("#maxValueField");
         robot.eraseText(5);
-        robot.write("65355");
+        robot.write("65535");
 
         // select any other field to commit edit.
         robot.clickOn("#unitNameField");
@@ -145,7 +145,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
         AnalogMenuItem item = (AnalogMenuItem) captor.getValue();
         assertEquals(-32768, item.getOffset());
-        assertEquals(65355, item.getMaxValue());
+        assertEquals(65535, item.getMaxValue());
         assertEquals(10000, item.getDivisor());
         assertEquals("", item.getUnitName());
     }

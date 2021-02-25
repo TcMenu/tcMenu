@@ -228,7 +228,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             item.setIncludeFiles(transformElements(root, "IncludeFiles", "Header", (ele) ->
                     new HeaderDefinition(
                             ele.getAttribute("name"),
-                            Boolean.parseBoolean(getAttributeOrDefault(ele, "inSource", false)),
+                            toHeaderType(getAttributeOrDefault(ele, "inSource", false)),
                             toPriority(ele.getAttribute("priority")),
                             toApplicability(ele, applicabilityByKey)
                     )
@@ -251,7 +251,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     new CodeReplacement(ele.getAttribute("find"), ele.getAttribute("replace"), toApplicability(ele, applicabilityByKey))
             );
             item.setRequiredSourceFiles(transformElements(root, "SourceFiles", "SourceFile", (ele) ->
-                    new RequiredSourceFile(getAttributeOrDefault(ele, "name", ""), replacements)
+                    new RequiredSourceFile(getAttributeOrDefault(ele, "name", ""), replacements,
+                            toApplicability(ele, applicabilityByKey))
             ));
 
             return item;
@@ -259,6 +260,13 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             logger.log(ERROR, "Unable to generate plugin " + dataToLoad, ex);
             return null;
         }
+    }
+
+    private HeaderDefinition.HeaderType toHeaderType(String headerType) {
+        if(headerType == null) return HeaderDefinition.HeaderType.SOURCE;
+        if(headerType.equals("true")) return HeaderDefinition.HeaderType.SOURCE;
+        if(headerType.equals("cpp")) return HeaderDefinition.HeaderType.CPP_FILE;
+        return HeaderDefinition.HeaderType.GLOBAL;
     }
 
     private List<FunctionDefinition> generateFunctions(Element fnElements, Map<String, LambdaDefinition> lambdas,
@@ -355,7 +363,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return CannedPropertyValidators.variableValidator();
             case "int":
                 int min = Integer.parseInt(getAttributeOrDefault(elem, "min", 0));
-                int max = Integer.parseInt(getAttributeOrDefault(elem, "max", 65355));
+                int max = Integer.parseInt(getAttributeOrDefault(elem, "max", 65535));
                 return new IntegerPropertyValidationRules(min, max);
             case "boolean":
                 return CannedPropertyValidators.boolValidator();

@@ -14,18 +14,19 @@ import java.util.Objects;
  * Used internally by the variable builder to store header requirements.
  */
 public class HeaderDefinition {
+    public enum HeaderType { SOURCE, GLOBAL, CPP_FILE }
     public static final int PRIORITY_MIN = 100;
     public static final int PRIORITY_NORMAL = 50;
     public static final int PRIORITY_MAX = 0;
     private final String headerName;
-    private final boolean inSource;
+    private final HeaderType headerType;
     private final int priority;
     private final CodeApplicability applicability;
 
-    public HeaderDefinition(String headerName, boolean inSrc, int priority, CodeApplicability applicability) {
+    public HeaderDefinition(String headerName, HeaderType headerType, int priority, CodeApplicability applicability) {
         this.headerName = headerName;
         this.priority = priority;
-        this.inSource = inSrc;
+        this.headerType = headerType;
         this.applicability = applicability;
     }
 
@@ -34,7 +35,7 @@ public class HeaderDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderDefinition that = (HeaderDefinition) o;
-        return Objects.equals(headerName, that.headerName) && Objects.equals(inSource, that.inSource);
+        return Objects.equals(headerName, that.headerName) && headerType == that.headerType;
     }
 
     public int getPriority() {
@@ -45,8 +46,8 @@ public class HeaderDefinition {
         return headerName;
     }
 
-    public boolean isInSource() {
-        return inSource;
+    public HeaderType getHeaderType() {
+        return headerType;
     }
 
     public CodeApplicability getApplicability() {
@@ -55,14 +56,14 @@ public class HeaderDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(headerName, inSource);
+        return Objects.hash(headerName, headerType);
     }
 
     @Override
     public String toString() {
         return "HeaderDefinition{" +
                 "headerName='" + headerName + '\'' +
-                ", inSrc=" + inSource +
+                ", type=" + headerType +
                 ", priority=" + priority +
                 '}';
     }

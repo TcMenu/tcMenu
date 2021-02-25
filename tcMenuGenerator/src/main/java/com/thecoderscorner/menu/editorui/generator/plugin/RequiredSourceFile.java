@@ -6,15 +6,19 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
+
 import java.util.List;
 
 public class RequiredSourceFile {
     private final String fileName;
     private final List<CodeReplacement> replacementList;
+    private final CodeApplicability applicability;
 
-    public RequiredSourceFile(String fileName, List<CodeReplacement> replacementList) {
+    public RequiredSourceFile(String fileName, List<CodeReplacement> replacementList, CodeApplicability applicability) {
         this.fileName = fileName;
         this.replacementList = replacementList;
+        this.applicability = applicability;
     }
 
     public String getFileName() {
@@ -25,11 +29,14 @@ public class RequiredSourceFile {
         return replacementList;
     }
 
+    public CodeApplicability getApplicability() { return applicability; }
+
     @Override
     public String toString() {
         return "RequiredSourceFile{" +
                 "fileName='" + fileName + '\'' +
                 ", replacementList=" + replacementList +
+                ", applicability=" + applicability +
                 '}';
     }
 }

@@ -173,6 +173,18 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     public String mapIncludes(List<HeaderDefinition> includeList) {
         return includeList.stream()
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
+                .filter(inc -> inc.getHeaderType() != HeaderDefinition.HeaderType.CPP_FILE)
+                .distinct()
+                .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
+                .map(this::headerToString)
+                .collect(Collectors.joining(LINE_BREAK));
+    }
+
+    @Override
+    public String mapCppIncludes(List<HeaderDefinition> includeList) {
+        return includeList.stream()
+                .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
+                .filter(inc -> inc.getHeaderType() == HeaderDefinition.HeaderType.CPP_FILE)
                 .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)
@@ -180,7 +192,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     private String headerToString(HeaderDefinition headerDefinition) {
-        if(headerDefinition.isInSource()) {
+        if(headerDefinition.getHeaderType() == HeaderDefinition.HeaderType.SOURCE) {
             return "#include \"" + expando.expandExpression(context, headerDefinition.getHeaderName()) + "\"";
         }
         else {

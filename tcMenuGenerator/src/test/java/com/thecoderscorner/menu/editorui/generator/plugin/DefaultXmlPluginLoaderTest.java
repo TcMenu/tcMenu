@@ -24,6 +24,7 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,9 +103,13 @@ public class DefaultXmlPluginLoaderTest {
         var choiceRule = (ChoicesPropertyValidationRules)item.getProperties().get(4).getValidationRules();
         assertThat(choiceRule.choices()).containsExactlyInAnyOrder("Choice1", "Choice2");
 
-        assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder("JoystickSwitchInput.h", "Scramble.h");
+        assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder("JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h");
 
-        assertThat(item.getRequiredSourceFiles().stream().map(RequiredSourceFile::getFileName)).containsExactlyInAnyOrder("src/source.h", "src/source.cpp");
+        assertThat(item.getRequiredSourceFiles().stream().map(RequiredSourceFile::getFileName)).containsExactlyInAnyOrder("src/source.h", "src/source.cpp", "src/extra.cpp");
+        assertEquals(3, item.getRequiredSourceFiles().size());
+        assertTrue(item.getRequiredSourceFiles().get(0).getApplicability() instanceof AlwaysApplicable);
+        assertTrue(item.getRequiredSourceFiles().get(1).getApplicability() instanceof AlwaysApplicable);
+        assertTrue(item.getRequiredSourceFiles().get(2).getApplicability() instanceof EqualityApplicability);
         var replacements = item.getRequiredSourceFiles().get(0).getReplacementList();
         assertEquals("someKey", replacements.get(0).getFind());
         assertEquals("${INT_PROP}", replacements.get(0).getReplace());

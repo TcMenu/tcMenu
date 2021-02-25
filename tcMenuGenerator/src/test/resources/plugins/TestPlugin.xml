@@ -47,11 +47,13 @@
       <Replacement find="otherKey" replace="abc" whenProperty="INTERRUPT_SWITCHES" isValue="true"/>
       <SourceFile name="src/source.h"/>
       <SourceFile name="src/source.cpp"/>
+      <SourceFile name="src/extra.cpp" whenProperty="INTERRUPT_SWITCHES" isValue="true"/>
     </SourceFiles>
 
     <IncludeFiles>
         <Header name="JoystickSwitchInput.h" inSource="false"/>
         <Header name="Scramble.h" inSource="true" priority="high"/>
+        <Header name="FontDefInHdr.h" inSource="cpp" whenProperty="INTERRUPT_SWITCHES" isNotValue="false"/>
     </IncludeFiles>
 
     <GlobalVariables>

@@ -22,6 +22,7 @@ public interface CodeVariableExtractor {
     String mapExports(List<CodeVariable> variables);
     String mapDefines();
     String mapIncludes(List<HeaderDefinition> includes);
+    String mapCppIncludes(List<HeaderDefinition> includes);
     String mapStructSource(BuildStructInitializer s);
     String mapStructHeader(BuildStructInitializer s);
 }

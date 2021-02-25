@@ -37,7 +37,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         String unitName = safeStringFromProperty(unitNameField.textProperty(), "Unit Name", errors, 4, StringFieldType.OPTIONAL);
         int divisor = safeIntFromProperty(divisorField.textProperty(), "Divisor", errors, 0, 10000);
         int offset = safeIntFromProperty(offsetField.textProperty(), "Offset", errors, Short.MIN_VALUE, Short.MAX_VALUE);
-        int maxValue = safeIntFromProperty(maxValueField.textProperty(), "Maximum Value", errors, 1, 65355);
+        int maxValue = safeIntFromProperty(maxValueField.textProperty(), "Maximum Value", errors, 1, 65535);
 
         AnalogMenuItemBuilder builder = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
                 .withExisting(getMenuItem())
