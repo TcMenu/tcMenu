@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TcMenuDesigner"
-#define MyAppVersion "2.0BETA0"
+#define MyAppVersion "2.0BETA2"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuDesigner.exe"
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=C:\Users\dave\IdeaProjects\tcMenu\LICENSE
-OutputBaseFilename=setupTcMenu
+OutputBaseFilename=setupTcMenuDesigner
 Compression=lzma
 SolidCompression=yes
 
