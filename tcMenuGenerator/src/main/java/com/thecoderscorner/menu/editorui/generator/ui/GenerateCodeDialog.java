@@ -70,11 +70,6 @@ public class GenerateCodeDialog {
     private CheckBox useCppMainCheckBox;
     private Stage mainStage;
 
-    public TableView<CreatorProperty> propsTable;
-    public TableColumn<CreatorProperty, String> defineCol;
-    public TableColumn<CreatorProperty, String> typeCol;
-    public TableColumn<CreatorProperty, String> valueCol;
-    public TableColumn<CreatorProperty, String> descriptionCol;
     private List<CreatorProperty> properties = new ArrayList<>();
     private Stage dialogStage;
 
@@ -98,27 +93,32 @@ public class GenerateCodeDialog {
         VBox centerPane = new VBox(5);
         addTitleLabel(centerPane, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
+        var allItems = project.getMenuTree().getAllMenuItems();
+
         CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange);
+        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
+        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
+
+        setAllPropertiesToLastValues(itemInput.getProperties());
+        setAllPropertiesToLastValues(itemDisplay.getProperties());
+        setAllPropertiesToLastValues(itemRemote.getProperties());
+
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, itemInput.getProperties(), editorUI, allItems);
         currentInput.setId("currentInputUI");
         currentInput.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentInput);
 
         addTitleLabel(centerPane, "Select the display type:");
-        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
-        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange);
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, itemDisplay.getProperties(), editorUI, allItems);
         currentDisplay.setId("currentDisplayUI");
         currentDisplay.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentDisplay);
 
         addTitleLabel(centerPane, "Select remote capabilities:");
-        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
-        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange);
+        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, itemRemote.getProperties(), editorUI, allItems);
         currentRemote.setId("currentRemoteUI");
         currentRemote.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentRemote);
-
-        buildTable();
 
         ButtonBar buttonBar = new ButtonBar();
         generateButton = new Button("Generate Code");
@@ -130,8 +130,6 @@ public class GenerateCodeDialog {
         cancelButton.setOnAction(this::onCancel);
         buttonBar.getButtons().addAll(generateButton, cancelButton);
 
-        centerPane.getChildren().add(propsTable);
-
         ScrollPane scrollPane = new ScrollPane(centerPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -141,40 +139,15 @@ public class GenerateCodeDialog {
         pane.setOpaqueInsets(new Insets(5));
         pane.setBottom(buttonBar);
         pane.setPrefSize(800, 750);
-        BorderPane.setMargin(propsTable, new Insets(5));
         BorderPane.setMargin(buttonBar, new Insets(5));
         BorderPane.setMargin(pane.getTop(), new Insets(5));
+
 
         var title = "Code Generator:" + project.getFileName();
         createDialogStateAndShowSceneAdj(stage, pane, title, modal, (scene, dlgStg) -> {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
-    }
-
-    private void buildTable() {
-        propsTable = new TableView<>();
-        defineCol = new TableColumn<>("Parameter");
-        typeCol = new TableColumn<>("SubSystem");
-        valueCol = new TableColumn<>("Value");
-        descriptionCol = new TableColumn<>("Description");
-        descriptionCol.setPrefWidth(400);
-        propsTable.getColumns().addAll(defineCol, typeCol, valueCol, descriptionCol);
-        propsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        propsTable.setMaxHeight(2000);
-
-        defineCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getName()));
-        typeCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getSubsystem().toString()));
-        valueCol.setCellValueFactory(param -> param.getValue().getProperty());
-        valueCol.setPrefWidth(130);
-        descriptionCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getDescription()));
-
-        propsTable.setEditable(true);
-        valueCol.setEditable(true);
-
-        valueCol.setCellFactory(editCol -> new CreatorEditingTableCell(editorUI, project.getMenuTree().getAllMenuItems()));
-
-        changeProperties();
     }
 
     private void addTitleLabel(VBox vbox, String text) {
@@ -277,20 +250,6 @@ public class GenerateCodeDialog {
         useCppMainCheckBox.setDisable(platformCombo.getValue().equals(EmbeddedPlatform.MBED_RTOS));
     }
 
-    private void changeProperties() {
-        List<CodePluginItem> creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
-        properties.clear();
-
-        creators.stream()
-                .filter(p -> p != null && p.getProperties().size() > 0)
-                .forEach( creator -> {
-                    setAllPropertiesToLastValues(creator.getProperties());
-                    properties.addAll(creator.getProperties());
-                });
-
-        propsTable.setItems(observableArrayList(properties));
-    }
-
     private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
         for(var prop : propsToDefault) {
             prop.resetToInitial();
@@ -336,6 +295,16 @@ public class GenerateCodeDialog {
             currentDisplay.setItem(pluginItem);
             changeProperties();
         });
+    }
+
+    private void changeProperties() {
+        List<CodePluginItem> creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
+
+        creators.stream()
+                .filter(p -> p != null && p.getProperties().size() > 0)
+                .forEach( creator -> {
+                    setAllPropertiesToLastValues(creator.getProperties());
+                });
     }
 
     private void onRemoteChange(CodePluginItem item) {

@@ -90,6 +90,7 @@ public class CreatorProperty {
 
     public void resetToInitial() {
         this.latestValue = this.initialValue;
+        if(property != null) property.set(latestValue);
     }
 
     /**

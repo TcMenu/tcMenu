@@ -6,37 +6,38 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-import java.awt.*;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
-
-import static java.lang.System.Logger.Level.ERROR;
 
 public class UICodePluginItem extends BorderPane {
 
     public static final int IMG_THUMB_WIDTH = 150;
 
-    public enum UICodeAction { CHANGE, SELECT;}
+    public enum UICodeAction { CHANGE, SELECT }
 
+    private final List<CreatorProperty> properties;
     private Consumer<CodePluginItem> eventHandler;
-    private BorderPane innerBorder;
-    private Node imagePanel;
     private Label titleLabel;
     private Label descriptionArea;
-    private HBox infoContainer;
+    private VBox infoContainer;
     private Label whichPlugin;
     private Hyperlink licenseLink;
     private Hyperlink vendorLink;
@@ -44,12 +45,20 @@ public class UICodePluginItem extends BorderPane {
     private CodePluginManager mgr;
     private CodePluginItem item;
     private Button actionButton;
+    private CurrentProjectEditorUI editorUI;
     private final static System.Logger LOGGER = System.getLogger(UICodePluginItem.class.getSimpleName());
 
     public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt) {
+        this(mgr, item, action, evt, null, null, null);
+    }
+
+    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt,
+                            List<CreatorProperty> props, CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems) {
         super();
 
+        this.editorUI = editorUI;
         this.eventHandler = evt;
+        this.properties = props;
 
         this.mgr = mgr;
         this.item = item;
@@ -64,45 +73,109 @@ public class UICodePluginItem extends BorderPane {
 
         whichPlugin = new Label("Plugin loading");
         whichPlugin.setStyle("-fx-font-size: 90%;");
-        whichPlugin.setPadding(new Insets(10, 5, 5, 5));
 
         licenseLink = new Hyperlink("License unknown");
         licenseLink.setDisable(true);
-        licenseLink.setPadding(new Insets(10, 0, 5, 0));
         licenseLink.setStyle("-fx-font-size: 90%;");
 
         vendorLink = new Hyperlink("Vendor unknown");
         vendorLink.setDisable(true);
-        vendorLink.setPadding(new Insets(10, 0, 5, 0));
         vendorLink.setStyle("-fx-font-size: 90%;");
 
         docsLink = new Hyperlink("No Docs");
         docsLink.setDisable(true);
-        docsLink.setPadding(new Insets(10, 0, 5, 0));
         docsLink.setStyle("-fx-font-size: 90%;");
 
-        infoContainer = new HBox(5);
-        infoContainer.setAlignment(Pos.CENTER_LEFT);
+        infoContainer = new VBox(5);
+        infoContainer.setAlignment(Pos.TOP_LEFT);
+        infoContainer.getChildren().add(descriptionArea);
         infoContainer.getChildren().add(whichPlugin);
         infoContainer.getChildren().add(docsLink);
         infoContainer.getChildren().add(licenseLink);
         infoContainer.getChildren().add(vendorLink);
 
-        innerBorder = new BorderPane();
-        innerBorder.setPadding(new Insets(4));
-        innerBorder.setTop(titleLabel);
-        innerBorder.setCenter(descriptionArea);
-        innerBorder.setBottom(infoContainer);
-
         actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
-        actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold;");
+        actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #d4d9fd");
         actionButton.setMaxSize(2000, 2000);
         actionButton.setOnAction(event-> eventHandler.accept(item));
 
-        setRight(actionButton);
-        setCenter(innerBorder);
+        mgr.getImageForName(item, item.getImageFileName())
+                .ifPresent(img -> {
+                    double scaleFactor = img.getWidth() / IMG_THUMB_WIDTH;
+                    ImageView imgView = new ImageView(img);
+                    imgView.setFitWidth(IMG_THUMB_WIDTH);
+                    imgView.setFitHeight(img.getHeight() / scaleFactor);
+                    actionButton.setGraphic(imgView);
+                    actionButton.setContentDisplay(ContentDisplay.TOP);
+                });
+
+
+        setTop(titleLabel);
+        setLeft(new VBox(actionButton));
+        setCenter(infoContainer);
+
+        if(properties != null) {
+            var propertiesPanel = new VBox();
+            propertiesPanel.setPrefWidth(300);
+
+            properties.forEach(property -> {
+                propertiesPanel.getChildren().add(new Label(property.getDescription()));
+                if(property.getValidationRules().hasChoices()) {
+                    ComboBox<String> comboBox;
+                    if(property.getValidationRules() instanceof MenuItemValidationRules) {
+                        var valRules = (MenuItemValidationRules) property.getValidationRules();
+                        valRules.initialise(new ArrayList<>(allItems));
+                        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
+                        comboBox.getSelectionModel().select(valRules.valueToIndex(property.getLatestValue()));
+                        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+                            if (!newVal) {
+                                commitEdit(property, valRules.valueFor(comboBox.getSelectionModel().getSelectedIndex()));
+                            }
+                        });
+                        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+                    }
+                    else {
+                        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
+                        comboBox.getSelectionModel().select(property.getLatestValue());
+                        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+                            if (!newVal) {
+                                commitEdit(property, comboBox.getValue());
+                            }
+                        });
+                        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+                    }
+                    propertiesPanel.getChildren().add(comboBox);
+                }
+                else {
+                    var textField = new TextField(property.getLatestValue());
+                    propertiesPanel.getChildren().add(textField);
+                    textField.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+                        if (!newVal) {
+                            commitEdit(property, textField.getText());
+                        }
+                    });
+
+                    textField.setOnAction(actionEvent -> commitEdit(property, textField.getText()));
+
+                }
+            });
+
+            setRight(propertiesPanel);
+        }
 
         setItem(item);
+    }
+
+    private void commitEdit(CreatorProperty property, String value) {
+        if(property.getValidationRules().isValueValid(value)) {
+            property.getProperty().set(value);
+        }
+        else if(editorUI != null) {
+            editorUI.alertOnError(
+                    "Validation error during table edit",
+                    "The value '" + value + "' is not valid for " + property.getName()
+                            + "\nReason: " + property.getValidationRules());
+        }
     }
 
     public void setItem(CodePluginItem item) {
@@ -127,23 +200,6 @@ public class UICodePluginItem extends BorderPane {
             vendorLink.setDisable(false);
             vendorLink.setOnAction((event) -> SafeNavigator.safeNavigateTo(config.getVendorUrl()));
         }
-
-        imagePanel = mgr.getImageForName(item, item.getImageFileName())
-                .map(img -> {
-                    double scaleFactor = img.getWidth() / IMG_THUMB_WIDTH;
-                    ImageView imgView = new ImageView(img);
-                    imgView.setFitWidth(IMG_THUMB_WIDTH);
-                    imgView.setFitHeight(img.getHeight() / scaleFactor);
-                    return (Node)imgView;
-                })
-                .orElseGet(()-> {
-                    Label noImg = new Label("No Image");
-                    noImg.setAlignment(Pos.CENTER);
-                    noImg.setPrefSize(IMG_THUMB_WIDTH, IMG_THUMB_WIDTH / 2.0);
-                    noImg.setStyle("-fx-background-color: #e0ccff;-fx-fill: #000000;");
-                    return noImg;
-                });
-        setLeft(imagePanel);
     }
 
     public CodePluginItem getItem() {
