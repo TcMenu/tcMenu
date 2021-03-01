@@ -1,4 +1,8 @@
-## How to run the java version of tcMenu Designer on Linux.
+## Running tcMenu Designer on Linux
+
+**NOTE that you can now use the pre-built debian packages that are available on our website, there is no need to build from source or install a JDK.**
+
+See [https://www.thecoderscorner.com/products/apps/tcmenu-designer/]
 
 ### Prerequisites
 

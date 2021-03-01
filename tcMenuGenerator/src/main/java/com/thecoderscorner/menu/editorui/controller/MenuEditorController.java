@@ -67,6 +67,7 @@ public class MenuEditorController {
     public Button menuTreeAdd;
     public Button menuTreeRemove;
     public Button menuTreeCopy;
+    public Button menuTreePaste;
     public Button menuTreeUp;
     public Button menuTreeDown;
     public BorderPane editorBorderPane;
@@ -110,6 +111,8 @@ public class MenuEditorController {
                 populateMenu(menuSketches, installer.getArduinoDirectory(), "");
             }
         });
+
+
     }
 
     public CurrentEditorProject getProject() {
@@ -215,8 +218,8 @@ public class MenuEditorController {
         toolButtons.stream().filter(b -> b != menuTreeAdd)
                 .forEach(b -> b.setDisable(MenuTree.ROOT.equals(newValue)));
 
-        // We cannot copy sub menus whole. Only value items
-        if(newValue.hasChildren()) menuTreeCopy.setDisable(true);
+        // We cannot copy ROOT. Only value items
+        if(newValue.equals(MenuTree.ROOT)) menuTreeCopy.setDisable(true);
     }
 
     private void redrawTreeControl() {
