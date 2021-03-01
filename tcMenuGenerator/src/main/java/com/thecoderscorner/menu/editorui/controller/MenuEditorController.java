@@ -16,17 +16,17 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
-import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
-import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
-import com.thecoderscorner.menu.editorui.project.MenuItemChange.Command;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
+import static com.thecoderscorner.menu.editorui.project.EditedItemChange.*;
 import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("unused")
@@ -280,26 +281,40 @@ public class MenuEditorController {
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
-        MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        MenuIdChooser chooser = new MenuIdChooserImpl(editorProject.getMenuTree());
-        MenuItem item = MenuItemHelper.createFromExistingWithId(selected, chooser.nextHighestId());
-        SubMenuItem subMenu = getSelectedSubMenu();
-        editorProject.applyCommand(Command.NEW, item, subMenu);
+        var selected = menuTree.getSelectionModel().getSelectedItem();
+        if(selected == null || selected.getValue().equals(MenuTree.ROOT)) return;
 
-        // select the newly created item and render it.
-        redrawTreeControl();
-        selectChildInTreeById(menuTree.getRoot(), item.getId());
+        var cp = editorProject.getProjectPersistor().itemsToCopyText(selected.getValue(), editorProject.getMenuTree());
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(cp);
+        systemClipboard.setContent(content);
+    }
+
+    public void onTreePaste(ActionEvent actionEvent) {
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        if (systemClipboard.hasContent(DataFormat.PLAIN_TEXT)) {
+            var data = systemClipboard.getContent(DataFormat.PLAIN_TEXT);
+            if (data == null || !data.toString().startsWith("tcMenuCopy:")) return;
+            var items = editorProject.getProjectPersistor().copyTextToItems(data.toString());
+            if(items.size() == 0) return;
+            editorProject.applyCommand(new PastedItemChange(items, getSelectedSubMenu(), editorProject.getMenuTree(),
+                    new MenuIdChooserImpl(editorProject.getMenuTree())));
+            redrawTreeControl();
+        }
     }
 
     public void onTreeMoveUp(ActionEvent event) {
         MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        editorProject.applyCommand(Command.UP, selected);
+        if(selected == null) return;
+        editorProject.applyCommand(new UpDownItemChange(selected, getProject().getMenuTree().findParent(selected), true));
         redrawTreeControl();
     }
 
     public void onTreeMoveDown(ActionEvent event) {
         MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        editorProject.applyCommand(Command.DOWN, selected);
+        editorProject.applyCommand(new UpDownItemChange(selected, getProject().getMenuTree().findParent(selected), false));
         redrawTreeControl();
     }
 
@@ -335,14 +350,12 @@ public class MenuEditorController {
         }
 
         // if there are children, confirm before removing.
-        if (toRemove.hasChildren()) {
-            if(!editorUI.questionYesNo("Remove ALL items within [" + toRemove.getName() + "]?",
-                    "If you click yes and proceed, you will remove all items under " + toRemove.getName())) {
-                return;
-            }
+        if (toRemove.hasChildren() && toRemove instanceof SubMenuItem) {
+            editorProject.applyCommand(new BulkRemoveItemChange((SubMenuItem)toRemove, getProject().getMenuTree().findParent(toRemove)));
         }
-
-        editorProject.applyCommand(Command.REMOVE, toRemove);
+        else {
+            editorProject.applyCommand(Command.REMOVE, toRemove);
+        }
         redrawTreeControl();
     }
 
@@ -447,14 +460,36 @@ public class MenuEditorController {
     }
 
     public void onCopy(ActionEvent event) {
-        currentEditor.ifPresent(UIMenuItem::handleCopy);
+        if(menuTree.isFocused()) {
+            onTreeCopy(event);
+        }
+        else {
+            currentEditor.ifPresent(UIMenuItem::handleCopy);
+        }
     }
 
     public void onPaste(ActionEvent event) {
-        currentEditor.ifPresent(UIMenuItem::handlePaste);
+        if(menuTree.isFocused()) {
+            onTreePaste(event);
+        }
+        else {
+            currentEditor.ifPresent(UIMenuItem::handlePaste);
+        }
     }
 
     public void onShowEditMenu(Event event) {
+        if(menuTree.isFocused()) {
+            menuCopy.setDisable(false);
+            menuCut.setDisable(true);
+            Clipboard systemClipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            if(systemClipboard.hasContent(DataFormat.PLAIN_TEXT)) {
+                var data = systemClipboard.getContent(DataFormat.PLAIN_TEXT);
+                menuPaste.setDisable(data == null || !data.toString().startsWith("tcMenuCopy:"));
+            }
+            return;
+        }
+
         currentEditor.ifPresentOrElse((uiItem)-> {
             menuCopy.setDisable(!uiItem.canCopy());
             menuCut.setDisable(!uiItem.canCopy());

@@ -6,10 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * This class takes all file operations from the CurrentEditorProject to avoid the class being directly
@@ -30,9 +32,13 @@ public interface ProjectPersistor {
      * Saves a project file to disk with the specified filename
      *
      * @param fileName name of the file to save to
-     * @param tree the tree to be saved
-     * @param options the code generator options
+     * @param tree     the tree to be saved
+     * @param options  the code generator options
      * @throws IOException if there is a problem saving.
      */
     void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException;
+
+    List<PersistedMenu> copyTextToItems(String items);
+
+    String itemsToCopyText(MenuItem startingPoint, MenuTree tree);
 }

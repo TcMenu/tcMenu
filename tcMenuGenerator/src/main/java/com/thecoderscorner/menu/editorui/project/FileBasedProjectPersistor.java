@@ -100,6 +100,24 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         return list;
     }
 
+    public String itemsToCopyText(MenuItem startingPoint, MenuTree tree) {
+        List<PersistedMenu> items;
+        if(startingPoint instanceof SubMenuItem) {
+            items = populateListInOrder((SubMenuItem) startingPoint, tree);
+        }
+        else {
+            items = new ArrayList<>(); // has to be an array list.
+            items.add(new PersistedMenu(tree.findParent(startingPoint), startingPoint));
+        }
+        return "tcMenuCopy:" + gson.toJson(items);
+    }
+
+    public List<PersistedMenu> copyTextToItems(String items) {
+        if(!items.startsWith("tcMenuCopy:")) return Collections.emptyList();
+        var jsonStr = items.substring(11);
+        return gson.fromJson(jsonStr, ArrayList.class);
+    }
+
     private Gson makeGsonProcessor() {
         ArrayList<PersistedMenu> example = new ArrayList<>();
 

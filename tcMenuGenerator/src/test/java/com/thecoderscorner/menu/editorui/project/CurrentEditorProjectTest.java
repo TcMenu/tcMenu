@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.project.MenuItemChange.Command.*;
+import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,10 +84,10 @@ public class CurrentEditorProjectTest {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
         project.applyCommand(NEW, item2, MenuTree.ROOT);
         assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
-        project.applyCommand(DOWN, item1, MenuTree.ROOT);
+        project.applyCommand(new UpDownItemChange(item1, MenuTree.ROOT, false));
         assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
 
-        project.applyCommand(UP, item1, MenuTree.ROOT);
+        project.applyCommand(new UpDownItemChange(item1, MenuTree.ROOT, true));
         assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
 
         project.undoChange();

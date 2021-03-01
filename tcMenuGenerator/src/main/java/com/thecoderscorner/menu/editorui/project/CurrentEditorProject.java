@@ -64,6 +64,8 @@ public class CurrentEditorProject {
         updateTitle();
     }
 
+    public ProjectPersistor getProjectPersistor() { return projectPersistor; }
+
     public void newProject() {
         if(checkIfWeShouldOverwrite()) {
             cleanDown();
@@ -168,24 +170,28 @@ public class CurrentEditorProject {
         return menuTree;
     }
 
-    public void applyCommand(MenuItemChange.Command command, MenuItem newItem) {
+    public void applyCommand(EditedItemChange.Command command, MenuItem newItem) {
         applyCommand(command, newItem, menuTree.findParent(newItem));
     }
 
-    public void applyCommand(MenuItemChange.Command command, MenuItem newItem, SubMenuItem parent) {
-        if(command == MenuItemChange.Command.NEW) {
+    public void applyCommand(EditedItemChange.Command command, MenuItem newItem, SubMenuItem parent) {
+        if(command == EditedItemChange.Command.NEW) {
             uncommittedItems.add(newItem.getId());
         }
-        else if(command == MenuItemChange.Command.REMOVE) {
+        else if(command == EditedItemChange.Command.REMOVE) {
             uncommittedItems.remove(newItem.getId());
         }
 
         MenuItem oldItem = changeHistory.stream()
-                .filter(item-> item.getItem().getId() == newItem.getId())
+                .filter(item-> item.getItem() != null && item.getItem().getId() == newItem.getId())
                 .reduce((first, second) -> second)
                 .map(MenuItemChange::getItem)
                 .orElse(newItem);
-        MenuItemChange change = new MenuItemChange(command, newItem, oldItem, parent);
+        MenuItemChange change = new EditedItemChange(newItem, oldItem, parent, command);
+        applyCommand(change);
+    }
+
+    public void applyCommand(MenuItemChange change) {
         changeHistory.add(change);
 
         if(changeHistory.size() > UNDO_BUFFER_SIZE) {

@@ -255,7 +255,7 @@ public class MenuEditorTestCases {
         var recentItems = TestUtils.findItemsInMenuWithId(robot, "menuRecents");
         var itemStrings = recentItems.stream().map(r-> r.getText()).collect(Collectors.toList());
         assertThat(itemStrings).containsExactlyInAnyOrder("recentItem1", "recentItem2");
-        project.applyCommand(MenuItemChange.Command.NEW, aNewMenuItem());
+        project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
         TestUtils.clickOnMenuItemWithText(robot, "recentItem1");
         verify(editorProjectUI).questionYesNo(any(), any());
@@ -264,7 +264,7 @@ public class MenuEditorTestCases {
         var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
         var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
         assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
-        project.applyCommand(MenuItemChange.Command.NEW, aNewMenuItem());
+        project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
         TestUtils.clickOnMenuItemWithText(robot, "exampleSketch2");
         verify(editorProjectUI).questionYesNo(any(), any());
@@ -275,31 +275,38 @@ public class MenuEditorTestCases {
     }
 
     @Test
-    public void testRemovingASubMenuDisplaysWarning(FxRobot robot) throws Exception {
+    public void testRemovingASubMenuThenUndoIt(FxRobot robot) throws Exception {
         // open the usual complete menu and then check it
         openTheCompleteMenuTree(robot);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
+
         TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
+        MenuItem subChildItem = project.getMenuTree().getMenuById(2).get();
         recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem);
 
-        // try to remove the sub menu, but click 'no' on the confirmation.
-        when(editorProjectUI.questionYesNo("Remove ALL items within [sub]?",
-                "If you click yes and proceed, you will remove all items under sub")).thenReturn(false);
         robot.clickOn("#menuTreeRemove");
 
         // shouldn't have done anything
-        assertOnItemInTree(subItem, true);
-        checkTheTreeMatchesMenuTree(robot, subItem);
+        assertOnItemInTree(subItem, false);
+        assertOnItemInTree(subChildItem, false);
+        checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
+        TestUtils.runOnFxThreadAndWait(treeView::requestFocus);
 
         // now do it again and press yes this time..
-        when(editorProjectUI.questionYesNo("Remove ALL items within [sub]?",
-                "If you click yes and proceed, you will remove all items under sub")).thenReturn(true);
-        robot.clickOn("#menuTreeRemove");
-        assertOnItemInTree(subItem, false);
+        pushCtrlAndKey(robot, KeyCode.Z);
+
+        assertOnItemInTree(subItem, true);
+        assertOnItemInTree(subChildItem, true);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
+        // now do it again and press yes this time..
+        pushCtrlAndKey(robot, KeyCode.Y);
+
+        assertOnItemInTree(subItem, false);
+        assertOnItemInTree(subChildItem, false);
+        checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
     }
 
     @Test
@@ -325,7 +332,7 @@ public class MenuEditorTestCases {
 
 
     @Test
-    void testCopyingItemInTree(FxRobot robot) throws Exception {
+    void testCopyingSingleItemInTree(FxRobot robot) throws Exception {
         // open the usual suspect.
         openTheCompleteMenuTree(robot);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
@@ -344,15 +351,19 @@ public class MenuEditorTestCases {
 
         // make sure there isn't an ID of 101 already in the tree and then copy it.
         assertFalse(project.getMenuTree().getMenuById(101).isPresent());
+
+        when(persistor.itemsToCopyText(any(), any())).thenReturn("tcMenuCopy:[{\"parentId\":0,\"type\":\"analogItem\",\"item\":{\"maxValue\":255,\"offset\":0,\"divisor\":100,\"unitName\":\"A\",\"name\":\"Current\",\"id\":2,\"eepromAddress\":4,\"functionName\":\"onCurrentChange\",\"readOnly\":false,\"localOnly\":false,\"visible\":true}}]");
+        when(persistor.copyTextToItems(any())).thenReturn(List.of(new PersistedMenu(MenuTree.ROOT, itemToCopy)));
+
         robot.clickOn("#menuTreeCopy");
+        robot.clickOn("#menuTreePaste");
 
         // now check that the new duplicate is created.
         Optional<MenuItem> maybeItem = project.getMenuTree().getMenuById(101);
         assertTrue(maybeItem.isPresent());
         assertThat(itemToCopy).isExactlyInstanceOf(maybeItem.get().getClass());
 
-        // the new entry should be on display in the view and active.
-        checkTheTreeMatchesMenuTree(robot, maybeItem.get());
+        checkTheTreeMatchesMenuTree(robot, itemToCopy);
     }
 
     @Test
