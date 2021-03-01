@@ -251,14 +251,16 @@ public class GenerateCodeDialog {
     }
 
     private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
-        for(var prop : propsToDefault) {
-            prop.resetToInitial();
+        for(var prop :  propsToDefault) {
+            var lastProp = project.getGeneratorOptions().getLastProperties().stream()
+                    .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
+                    .findFirst();
+            if (lastProp.isPresent()) {
+                prop.getProperty().set(lastProp.get().getLatestValue());
+            } else {
+                prop.resetToInitial();
+            }
         }
-
-        propsToDefault.forEach(prop -> project.getGeneratorOptions().getLastProperties().stream()
-                .filter(p-> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
-                .findFirst()
-                .ifPresent(p-> prop.getProperty().set(p.getLatestValue())));
     }
 
 
