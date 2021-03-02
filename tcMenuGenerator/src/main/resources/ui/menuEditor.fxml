@@ -104,7 +104,7 @@
                         </ImageView>
                      </graphic>
                      <tooltip>
-                        <Tooltip text="Duplicate selected item" />
+                        <Tooltip text="Copy selected item(s)" />
                      </tooltip>
                   </Button>
                    <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste" styleClass="tool-button">
@@ -116,7 +116,7 @@
                            </ImageView>
                        </graphic>
                        <tooltip>
-                           <Tooltip text="Duplicate selected item" />
+                           <Tooltip text="Paste item(s)" />
                        </tooltip>
                    </Button>
                    <Button fx:id="menuTreeUp" mnemonicParsing="false" onAction="#onTreeMoveUp" styleClass="tool-button">
