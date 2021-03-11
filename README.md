@@ -49,32 +49,45 @@ hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
-## XML Plugins for tcMenu Designer
+## TcMenu still supports Uno with LiquidCrystal dfRobot shield or Ssd1306Ascii
 
-We needed to move these into their own repo, so that we could manage production versioning properly: [https://github.com/davetcc/tcMenuXmlPlugins]
+We try to keep Uno viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
 
-## TcMenu saves memory in many ways
+## Input and display technologies
 
-We try and keep even the smallest boards viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
+### Support for rotary encoders, digital/analog joysticks and touch buttons
 
-## Types of input supported
+We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574 or MCP23017. Further, we even support more than one encoder.
 
-* Rotary encoder based input with no need for any additional components in many cases. Either local or connected to PCF8574 or MCP23017.
-* Button based rotary encoder emulation (Up, Down and OK buttons) either local, i2c expander, shift register.
-* DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
-* Matrix Keyboards of configurable size and key combination. Pre-canned options for 4x3 and 4x4 layouts.
-* Analog Joystick rotary encoder. Allows for joystick input, where you move scroll through values with up / down.
-* No local input facilities if your application is completely controlled remotely.
+You can configure 3 or more buttons to work like a digital joystick using button based rotary encoder emulation (Up, Down and OK buttons with optional left and right) on either board pins, i2c expander, shift register. DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
 
-## Display types that are supported
+We also support the ESP32 touch pad interface, allowing up to 9 touch buttons to be used for menu input, they currently configure as per digital joystick.
 
-* LiquidCrystal 20x4 or 16x2 displays - can be either directly connected, i2c or on a shift register.
-* Adafruit_GFX - can render onto a display compatible with this library, tested with Color ILI9341, ST7735 and Nokia 5110 display.
-* U8G2 - can render onto most buffered displays using this library. Tested with OLED devices such as SSD1306 and SH1106.
+### Support for matrix keyboards
 
-## Remote endpoints that are supported
+Matrix Keyboards of configurable size and key combination. Pre-canned options for 4x3 and 4x4 layouts. Most of the core functions work with a matrix keyboard.
 
-This menu library provides complete remote control, presently over serial and ethernet. The full menu structure is sent over the wire and the Java API provides it as a tree that can be manipulated. There is also a defined protocol for other languages. In addition to this the menu can be programatically manipulated very easily on the device.
+### Don't want local input, no problem.
+
+You can choose no local input facilities if your application is completely controlled remotely.
+
+### Drawing to LiquidCrystal (i2c or direct)
+
+We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly connected, over an i2c sheild (PCF8574, MCP23017)  or on a shift register. Our version of the library integrates better with task manager, yielding frequently.
+
+### Adafruit_GFX integration for many displays
+
+Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with Color ILI9341, ST7735 and Nokia 5110 display. We even have a quick start option that helps you get started with this option.
+
+We even have a custom Adafruit_GFX OLED driver for mbed that supports SSD1306, SH1106.
+
+### U8G2 integration for mono display
+
+We can render onto most buffered displays using this library. Tested with OLED devices such as SSD1306 and SH1106. We can even provide a custom I2C byte function that yields to task manager frequently, making it work better with task manager, and correctly yield on ESP boards too.
+
+## Remote IoT support on Ethernet, WiFi, Serial and Bluetooth/BLE 
+
+This menu library provides complete IoT remote control, presently over serial and ethernet. We've tested the serial support with both USB serial and Bluetooth, both work acceptably well. The full menu structure is sent over the wire and the Java API provides it as a tree that can be manipulated. There is also a defined protocol for other languages. In addition to this the menu can be programatically manipulated very easily on the device.
 
 * RS232 endpoint that supports full control of the menu items using a Java API - example app included.
 * Ethernet endpoint that supports either Ethernet2 library or UipEthernet.
