@@ -86,6 +86,18 @@ public class TextTreeItemRenderer {
             else if(item.getItemType() == EditItemType.TIME_24_HUNDREDS) {
                 it = "23:56:53.97";
             }
+            else if(item.getItemType() == EditItemType.TIME_DURATION_HUNDREDS) {
+                it = "1:53.20";
+            }
+            else if(item.getItemType() == EditItemType.TIME_DURATION_SECONDS) {
+                it = "1:53";
+            }
+            else if(item.getItemType() == EditItemType.TIME_24H_HHMM) {
+                it = "23:53";
+            }
+            else if(item.getItemType() == EditItemType.TIME_12H_HHMM) {
+                it = "09:53AM";
+            }
             else it ="???";
             sb.replace(spaces.length() - it.length(), spaces.length(), it);
 
