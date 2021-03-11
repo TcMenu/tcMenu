@@ -1,10 +1,8 @@
 # tcMenu - A menu system for Arduino and mbed with IoT capabilities
 
-A menu system for Arduino and mbed* that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+A menu system for Arduino and mbed that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for both Windows, MacOS and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
-
-*\*NOTE: mbed support is in early access at the moment, to use it you need to switch stream in the designer UI to BETA.*
 
 ## Questions, community forum and support
 
@@ -67,9 +65,9 @@ We also support the ESP32 touch pad interface, allowing up to 9 touch buttons to
 
 Matrix Keyboards of configurable size and key combination. Pre-canned options for 4x3 and 4x4 layouts. Most of the core functions work with a matrix keyboard.
 
-### Don't want local input, no problem.
+### Support for touch screens
 
-You can choose no local input facilities if your application is completely controlled remotely.
+From 2.0 onwards we'll support touch screen interfaces. We have built the support so that we can add many devices later, but to start with we will support resistive touch screens using 4 inputs, and the STM32 BSP provided touch screen interface.
 
 ### Drawing to LiquidCrystal (i2c or direct)
 
@@ -77,13 +75,21 @@ We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly 
 
 ### Adafruit_GFX integration for many displays
 
-Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with Color ILI9341, ST7735 and Nokia 5110 display. We even have a quick start option that helps you get started with this option.
+Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with the following TFT's ILI9341, ST7735 and also Nokia 5110 display. We even have a quick start option that helps you get started with this option.
 
-We even have a custom Adafruit_GFX OLED driver for mbed that supports SSD1306, SH1106.
+For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/davetcc/Adafruit-GFX-mbed-fork that supports SSD1306, SH1106. 
 
 ### U8G2 integration for mono display
 
 We can render onto most buffered displays using this library. Tested with OLED devices such as SSD1306 and SH1106. We can even provide a custom I2C byte function that yields to task manager frequently, making it work better with task manager, and correctly yield on ESP boards too.
+
+### TFTeSPI and STM32 LTDC framebuffer integration
+
+From 2.0 onwards we'll support TFTeSPI and STM32 LTDC framebuffer based BSP functions to provide very high performance display rendering, we've tested with these two options on both ESP32 and STM32F429, the results were highly impressive.
+
+### No local input or display techonologies
+
+Should your app not need any local display or input technologies, you can set up tcMenu so that it does not have local input or display, or you could have a single switch or LED on the device and manage it manually. In this case you'd use the below IoT support to manage the device remotely.
 
 ## Remote IoT support on Ethernet, WiFi, Serial and Bluetooth/BLE 
 
