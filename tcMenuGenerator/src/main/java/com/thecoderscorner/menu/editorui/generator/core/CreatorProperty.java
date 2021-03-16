@@ -8,8 +8,6 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 
 import java.util.Objects;
 
@@ -33,13 +31,11 @@ public class CreatorProperty {
     private SubSystem subsystem;
     transient private final String initialValue;
     transient private final String description;
-    transient private StringProperty property;
     transient private PropType propType = PropType.TEXTUAL;
     transient private PropertyValidationRules validationRules = BASE_RULE;
 
     public CreatorProperty() {
         // for serialisation purposes.
-        this.property = null;
         this.initialValue = null;
         this.description = null;
     }
@@ -82,7 +78,6 @@ public class CreatorProperty {
         this.description = description;
         this.initialValue = latestValue;
         this.latestValue = latestValue;
-        this.property = new SimpleStringProperty(latestValue);
         this.subsystem = subsystem;
         this.propType = propType;
         this.validationRules = rules;
@@ -90,24 +85,17 @@ public class CreatorProperty {
 
     public void resetToInitial() {
         this.latestValue = this.initialValue;
-        if(property != null) property.set(latestValue);
     }
 
     /**
      * @return the latest value associated with this property
      */
     public String getLatestValue() {
-        if(property != null) {
-            latestValue = property.getValue();
-        }
         return latestValue;
     }
 
-    /**
-     * @return the StringProperty that backs this property.
-     */
-    public StringProperty getProperty() {
-        return property;
+    public void setLatestValue(String latestValue) {
+        this.latestValue = latestValue;
     }
 
     /**
@@ -129,14 +117,6 @@ public class CreatorProperty {
      */
     public SubSystem getSubsystem() {
         return subsystem;
-    }
-
-    /**
-     * Helper to get the latest value as an integer
-     * @return integer of latest value
-     */
-    public int getLatestValueAsInt() {
-        return Integer.parseInt(getLatestValue());
     }
 
     /** @return the initial value for this property */
@@ -180,7 +160,6 @@ public class CreatorProperty {
         return "CreatorProperty{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", property=" + property +
                 ", propType=" + propType +
                 ", latestValue='" + latestValue + '\'' +
                 ", subsystem=" + subsystem +

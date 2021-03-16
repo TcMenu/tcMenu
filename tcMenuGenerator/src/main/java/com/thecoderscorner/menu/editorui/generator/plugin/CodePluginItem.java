@@ -21,6 +21,7 @@ public class CodePluginItem {
     private SubSystem subsystem;
     private String imageFileName;
     private String docsLink;
+    private boolean themeNeeded;
     private CodePluginConfig config;
     private List<CreatorProperty> properties;
     private List<CodeVariable> variables;
@@ -61,6 +62,14 @@ public class CodePluginItem {
 
     public void setSupportedPlatforms(List<EmbeddedPlatform> supportedPlatforms) {
         this.supportedPlatforms = supportedPlatforms;
+    }
+
+    public boolean isThemeNeeded() {
+        return themeNeeded;
+    }
+
+    public void setThemeNeeded(boolean themeNeeded) {
+        this.themeNeeded = themeNeeded;
     }
 
     public SubSystem getSubsystem() {

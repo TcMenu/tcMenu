@@ -6,9 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
-import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
-import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -100,8 +98,16 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             if(p instanceof ReferenceCodeParameter && !paramVal.equals("NULL")) {
                 paramVal = "&" + paramVal;
             }
+            else if(p instanceof FontCodeParameter) {
+                paramVal = decodeFontDefinition(paramVal);
+            }
         }
         return paramVal;
+    }
+
+    private String decodeFontDefinition(String paramVal) {
+        var def = FontDefinition.fromString(paramVal);
+        return (def.isPresent()) ? def.get().getFontDef() : FontDefinition.emptyDef();
     }
 
     @Override

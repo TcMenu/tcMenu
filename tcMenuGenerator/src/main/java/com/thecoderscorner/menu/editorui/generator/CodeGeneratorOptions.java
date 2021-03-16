@@ -16,6 +16,7 @@ public class CodeGeneratorOptions {
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
+    private String lastThemeUuid;
     private UUID applicationUUID;
     private String applicationName;
     private List<CreatorProperty> lastProperties;
@@ -27,15 +28,15 @@ public class CodeGeneratorOptions {
         // for serialisation
     }
 
-    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId,
-                                String inputTypeId, String remoteCapabilitiesId,
-                                List<CreatorProperty> lastProperties,
+    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, String remoteCapabilitiesId,
+                                String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
         this.lastRemoteUuid = remoteCapabilitiesId;
+        this.lastThemeUuid = themeTypeId;
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
         this.applicationName = applicationName;
@@ -63,6 +64,8 @@ public class CodeGeneratorOptions {
     public String getLastInputUuid() {
         return lastInputUuid;
     }
+
+    public String getLastThemeUuid() { return lastThemeUuid; }
 
     public String getLastRemoteCapabilitiesUuid() {
         return lastRemoteUuid;

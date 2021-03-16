@@ -16,6 +16,7 @@ public class CodeGeneratorOptionsBuilder {
         private String lastDisplayUuid;
         private String lastInputUuid;
         private String lastRemoteUuid;
+        private String lastThemeUuid;
         private UUID applicationUUID;
         private String applicationName;
         private List<CreatorProperty> lastProperties;
@@ -28,6 +29,7 @@ public class CodeGeneratorOptionsBuilder {
             lastDisplayUuid = other.getLastDisplayUuid();
             lastInputUuid = other.getLastInputUuid();
             lastRemoteUuid = other.getLastRemoteCapabilitiesUuid();
+            lastThemeUuid = other.getLastThemeUuid();
             applicationUUID = other.getApplicationUUID();
             applicationName = other.getApplicationName();
             lastProperties = other.getLastProperties();
@@ -38,8 +40,8 @@ public class CodeGeneratorOptionsBuilder {
         }
 
         public CodeGeneratorOptions codeOptions() {
-            return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuid, lastProperties,
-                    applicationUUID, applicationName, namingRecursive, saveToSrc, useCppMain);
+            return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuid, lastThemeUuid,
+                    lastProperties, applicationUUID, applicationName, namingRecursive, saveToSrc, useCppMain);
         }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursvie) {

@@ -14,5 +14,6 @@ package com.thecoderscorner.menu.editorui.generator.core;
 public enum SubSystem {
     DISPLAY,
     INPUT,
-    REMOTE
+    REMOTE,
+    THEME
 }

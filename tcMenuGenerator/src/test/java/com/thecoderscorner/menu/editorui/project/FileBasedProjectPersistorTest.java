@@ -54,6 +54,7 @@ public class FileBasedProjectPersistorTest {
                 "uuid1",
                 "uuid2",
                 "uuid3",
+                "uuid4",
                 Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY)),
                 APPLICATION_UUID, "app name", false, false, false
         );

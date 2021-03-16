@@ -12,12 +12,10 @@ import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
-import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
-import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
-import com.thecoderscorner.menu.editorui.generator.parameters.LambdaDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -299,17 +297,19 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var classType = param.getAttribute("type");
             var used = Boolean.parseBoolean(getAttributeOrDefault(param, "used", "true"));
             var refType = getAttrOrNull(param, "ref");
+            var fontType = getAttrOrNull(param, "font");
             var lambdaType = getAttrOrNull(param, "lambda");
+            var defVal = getAttrOrNull(param, "default");
 
             if (refType != null) {
-                var defVal = param.getAttribute("default");
                 return new ReferenceCodeParameter(refType, defVal, used);
             } else if (lambdaType != null) {
                 var lambda = lambdaMap.get(lambdaType);
                 return new LambdaCodeParameter(lambda);
+            } else if(fontType != null) {
+                return new FontCodeParameter(fontType, defVal, used);
             } else {
                 var valueType = getAttributeOrDefault(param, "value", param.getAttribute("name"));
-                var defVal = param.getAttribute("default");
                 return new CodeParameter(classType, used, valueType, defVal);
             }
         });
@@ -367,6 +367,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return new IntegerPropertyValidationRules(min, max);
             case "boolean":
                 return CannedPropertyValidators.boolValidator();
+            case "font":
+                return CannedPropertyValidators.fontValidator();
             case "choice":
                 return CannedPropertyValidators.choicesValidator(transformElements(elem, "Choices", "Choice", Node::getTextContent));
             case "pin":
@@ -471,6 +473,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private void generateDescriptionFromXml(Element root, CodePluginItem config) {
         config.setSubsystem(SubSystem.valueOf(root.getAttribute("subsystem")));
+        config.setThemeNeeded(Boolean.parseBoolean(getAttributeOrDefault(root, "needsTheme", "false")));
         config.setId(root.getAttribute("id"));
         config.setDescription(root.getAttribute("name"));
         config.setExtendedDescription(textOfElementByName(root, "Description"));

@@ -46,7 +46,7 @@ public class TestUtils {
 
         assertEquals(subSystem, prop.getSubsystem());
         assertEquals(type, prop.getPropType());
-        prop.getProperty().setValue(newVal);
+        prop.setLatestValue(newVal);
         assertEquals(newVal, prop.getLatestValue());
         return prop;
     }

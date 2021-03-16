@@ -101,7 +101,7 @@ public class ArduinoGeneratorTest {
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),
-                "", "", "",
+                "", "", "", "",
                 List.<CreatorProperty>of(),
                 UUID.randomUUID(),
                 "app",
@@ -112,7 +112,7 @@ public class ArduinoGeneratorTest {
         firstPlugin.getProperties().stream()
                 .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
                 .findFirst()
-                .ifPresent(p -> p.getProperty().setValue("io23017"));
+                .ifPresent(p -> p.setLatestValue("io23017"));
 
         assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
                 new NameAndKey("uuid1", "tester"), List.of(), false));

@@ -68,6 +68,10 @@ public class CannedPropertyValidators {
         return new ChoicesPropertyValidationRules(values);
     }
 
+    public static FontPropertyValidationRules fontValidator() {
+        return new FontPropertyValidationRules();
+    }
+
     /**
      * This method returns a validator based on menu items, in this case all menu items
      * @return a new validator to validate on menu items.

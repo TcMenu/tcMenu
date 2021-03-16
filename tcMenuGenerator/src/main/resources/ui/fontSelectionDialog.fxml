@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  ~
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@JMetroDarkTheme.css"
+            xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
+   <top>
+      <Label style="-fx-font-size: 150%;" styleClass="label-bright" text="Choose the font to use" BorderPane.alignment="CENTER" />
+   </top>
+   <center>
+      <VBox prefHeight="343.0" prefWidth="504.0" style="-fx-padding: 15px;" BorderPane.alignment="CENTER">
+         <children>
+            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit Font (Adafruit and LTDC displays)">
+               <toggleGroup>
+                  <ToggleGroup fx:id="main" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="Static Font (U8G2 displays)" toggleGroup="$main" />
+            <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Numbered Font (TFT_eSPI displays)" toggleGroup="$main" />
+             <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="Use the default font if possible" toggleGroup="$main" />
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints />
+                <RowConstraints />
+              </rowConstraints>
+               <children>
+                    <Label text="Font Variable Name" GridPane.rowIndex="1" />
+                    <TextField fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Font Number / Size" GridPane.rowIndex="2" />
+                    <TextField fx:id="fontNumField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label fx:id="errorField" text="" style="-fx-text-fill: red; -fx-font-weight: bold;" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Set Font" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+</BorderPane>

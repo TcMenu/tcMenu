@@ -6,21 +6,24 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,40 +126,18 @@ public class UICodePluginItem extends BorderPane {
                 if(property.getValidationRules().hasChoices()) {
                     ComboBox<String> comboBox;
                     if(property.getValidationRules() instanceof MenuItemValidationRules) {
-                        var valRules = (MenuItemValidationRules) property.getValidationRules();
-                        valRules.initialise(new ArrayList<>(allItems));
-                        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
-                        comboBox.getSelectionModel().select(valRules.valueToIndex(property.getLatestValue()));
-                        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
-                            if (!newVal) {
-                                commitEdit(property, valRules.valueFor(comboBox.getSelectionModel().getSelectedIndex()));
-                            }
-                        });
-                        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+                        comboBox = generateMenuChoiceField(allItems, property);
                     }
                     else {
-                        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
-                        comboBox.getSelectionModel().select(property.getLatestValue());
-                        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
-                            if (!newVal) {
-                                commitEdit(property, comboBox.getValue());
-                            }
-                        });
-                        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+                        comboBox = generateRegularComboField(property);
                     }
                     propertiesPanel.getChildren().add(comboBox);
                 }
+                else if(property.getValidationRules() instanceof FontPropertyValidationRules) {
+                    generateFontField(propertiesPanel, property);
+                }
                 else {
-                    var textField = new TextField(property.getLatestValue());
-                    propertiesPanel.getChildren().add(textField);
-                    textField.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
-                        if (!newVal) {
-                            commitEdit(property, textField.getText());
-                        }
-                    });
-
-                    textField.setOnAction(actionEvent -> commitEdit(property, textField.getText()));
-
+                    generateTextField(propertiesPanel, property);
                 }
             });
 
@@ -166,9 +147,77 @@ public class UICodePluginItem extends BorderPane {
         setItem(item);
     }
 
+    private void generateFontField(VBox propertiesPanel, CreatorProperty property) {
+        HBox hBox = new HBox(2);
+        TextField fontLabel = new TextField(nicePrintableFontName(property.getLatestValue()));
+        fontLabel.setDisable(true);
+        Button fontButton = new Button("Set Font");
+        fontButton.setOnAction(actionEvent -> {
+            Stage scene = (Stage) propertiesPanel.getScene().getWindow();
+            ChooseFontDialog dialog = new ChooseFontDialog(scene, property.getLatestValue(), true);
+            dialog.getResultOrEmpty().ifPresent(fontAsString -> {
+                commitEdit(property, fontAsString);
+                fontLabel.setText(nicePrintableFontName(fontAsString));
+            });
+        });
+        hBox.getChildren().add(fontLabel);
+        hBox.getChildren().add(fontButton);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        propertiesPanel.getChildren().add(hBox);
+    }
+
+    private String nicePrintableFontName(String latestValue) {
+        var def = FontDefinition.fromString(latestValue);
+        if(def.isPresent()) {
+            return def.get().getNicePrintableName();
+        }
+        else return latestValue;
+    }
+
+    @org.jetbrains.annotations.NotNull
+    private ComboBox<String> generateMenuChoiceField(Collection<com.thecoderscorner.menu.domain.MenuItem> allItems, CreatorProperty property) {
+        ComboBox<String> comboBox;
+        var valRules = (MenuItemValidationRules) property.getValidationRules();
+        valRules.initialise(new ArrayList<>(allItems));
+        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
+        comboBox.getSelectionModel().select(valRules.valueToIndex(property.getLatestValue()));
+        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+            if (!newVal) {
+                commitEdit(property, valRules.valueFor(comboBox.getSelectionModel().getSelectedIndex()));
+            }
+        });
+        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+        return comboBox;
+    }
+
+    @org.jetbrains.annotations.NotNull
+    private ComboBox<String> generateRegularComboField(CreatorProperty property) {
+        ComboBox<String> comboBox;
+        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
+        comboBox.getSelectionModel().select(property.getLatestValue());
+        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+            if (!newVal) {
+                commitEdit(property, comboBox.getValue());
+            }
+        });
+        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+        return comboBox;
+    }
+
+    private void generateTextField(VBox propertiesPanel, CreatorProperty property) {
+        var textField = new TextField(property.getLatestValue());
+        propertiesPanel.getChildren().add(textField);
+        textField.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
+            if (!newVal) {
+                commitEdit(property, textField.getText());
+            }
+        });
+        textField.setOnAction(actionEvent -> commitEdit(property, textField.getText()));
+    }
+
     private void commitEdit(CreatorProperty property, String value) {
         if(property.getValidationRules().isValueValid(value)) {
-            property.getProperty().set(value);
+            property.setLatestValue(value);
         }
         else if(editorUI != null) {
             editorUI.alertOnError(
