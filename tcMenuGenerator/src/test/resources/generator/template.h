@@ -24,6 +24,8 @@
 #define SWITCH_IODEVICE io23017
 #define JOYSTICK_PIN 2
 #define TEST_CHOICE Choice1
+#define MY_FONT ada:sans24p7b,1
+#define FONT_DIR Fonts
 
 // all variables that need exporting
 extern ArduinoAnalogDevice analogDevice;

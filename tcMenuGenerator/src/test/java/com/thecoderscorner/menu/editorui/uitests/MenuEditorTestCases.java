@@ -342,8 +342,9 @@ public class MenuEditorTestCases {
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
+        Thread.sleep(5000);
         // sub menus can not be copied
-        verifyThat("#menuTreeCopy", Node::isDisabled);
+        verifyThat("#menuTreeCopy", node -> !node.isDisabled());
 
         // now select the first sub item of the sub menu, which can be copied
         MenuItem itemToCopy = project.getMenuTree().getMenuById(2).get();

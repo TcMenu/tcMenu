@@ -10,6 +10,7 @@
 
 #include <tcMenu.h>
 #include "project_menu.h"
+#include <Fonts/sans24p7b.h>
 
 // Global variable declarations
 
@@ -42,7 +43,7 @@ EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
 // Set up code
 
 void setupMenu() {
-    switches.initialise(io23017, true);
+    switches.initialise(io23017, true, MenuFontDef(sans24p7b, 1));
     switches.addSwitch(BUTTON_PIN, &null);
     switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
             anotherFn(20);

@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.editorui.generator.applicability.NestedApplicabi
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.validation.*;
 import org.junit.jupiter.api.AfterEach;
@@ -103,7 +104,8 @@ public class DefaultXmlPluginLoaderTest {
         var choiceRule = (ChoicesPropertyValidationRules)item.getProperties().get(4).getValidationRules();
         assertThat(choiceRule.choices()).containsExactlyInAnyOrder("Choice1", "Choice2");
 
-        assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder("JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h");
+        assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder(
+                "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${FONT_DIR}/${MY_FONT/ada:(.*),\\d*/}.h");
 
         assertThat(item.getRequiredSourceFiles().stream().map(RequiredSourceFile::getFileName)).containsExactlyInAnyOrder("src/source.h", "src/source.cpp", "src/extra.cpp");
         assertEquals(3, item.getRequiredSourceFiles().size());
@@ -135,8 +137,12 @@ public class DefaultXmlPluginLoaderTest {
         assertEquals("${PULLUP_LOGIC",item.getFunctions().get(0).getParameters().get(1).getValue());
         assertEquals("internalDigitalIo()",item.getFunctions().get(0).getParameters().get(0).getDefaultValue());
 
-        assertFunction(item.getFunctions().get(1), "switches", "initialise", 2, false);
+        assertFunction(item.getFunctions().get(1), "switches", "initialise", 3, false);
         assertThat(item.getFunctions().get(1).getApplicability()).isInstanceOf(MatchesApplicability.class);
+        assertEquals("${SWITCH_IODEVICE}",item.getFunctions().get(1).getParameters().get(0).getValue());
+        assertEquals("${PULLUP_LOGIC}",item.getFunctions().get(1).getParameters().get(1).getValue());
+        assertEquals("${MY_FONT}",item.getFunctions().get(1).getParameters().get(2).getValue());
+        assertTrue(item.getFunctions().get(1).getParameters().get(2) instanceof  FontCodeParameter);
 
         assertFunction(item.getFunctions().get(2), "switches", "addSwitch", 2, false);
         assertThat(item.getFunctions().get(2).getApplicability()).isInstanceOf(AlwaysApplicable.class);
