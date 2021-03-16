@@ -31,7 +31,7 @@ public class FontDefinition {
     }
 
     public String getFontDef() {
-        return "MenuFontDef(" + fontName + ", " + fontNumber + ")";
+        return "MenuFontDef(" + (StringHelper.isStringEmptyOrNull(fontName) ? "nullptr":fontName) + ", " + fontNumber + ")";
     }
 
     public String toString() {
