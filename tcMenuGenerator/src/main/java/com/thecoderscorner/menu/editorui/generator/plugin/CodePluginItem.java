@@ -28,8 +28,17 @@ public class CodePluginItem {
     private List<HeaderDefinition> includeFiles;
     private List<RequiredSourceFile> requiredSourceFiles;
     private List<FunctionDefinition> functions;
+    private CodePluginManager manager;
 
     public CodePluginItem() {
+    }
+
+    public CodePluginManager getManager() {
+        return manager;
+    }
+
+    public void setManager(CodePluginManager manager) {
+        this.manager = manager;
     }
 
     public String getId() {

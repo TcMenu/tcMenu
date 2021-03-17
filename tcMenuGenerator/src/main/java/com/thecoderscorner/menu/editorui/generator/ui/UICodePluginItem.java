@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
@@ -36,37 +37,37 @@ public class UICodePluginItem extends BorderPane {
 
     public enum UICodeAction { CHANGE, SELECT }
 
-    private final List<CreatorProperty> properties;
-    private Consumer<CodePluginItem> eventHandler;
-    private Label titleLabel;
-    private Label descriptionArea;
-    private VBox infoContainer;
-    private Label whichPlugin;
-    private Hyperlink licenseLink;
-    private Hyperlink vendorLink;
-    private Hyperlink docsLink;
-    private CodePluginManager mgr;
+    private final Consumer<CodePluginItem> eventHandler;
+    private final Label titleLabel;
+    private final Collection<MenuItem> allItems;
+    private final Label descriptionArea;
+    private final Label whichPlugin;
+    private final Hyperlink licenseLink;
+    private final Hyperlink vendorLink;
+    private final Hyperlink docsLink;
+    private final CodePluginManager mgr;
+    private final Button actionButton;
+    private final VBox propertiesPanel;
+    private final CurrentProjectEditorUI editorUI;
     private CodePluginItem item;
-    private Button actionButton;
-    private CurrentProjectEditorUI editorUI;
     private final static System.Logger LOGGER = System.getLogger(UICodePluginItem.class.getSimpleName());
 
     public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt) {
-        this(mgr, item, action, evt, null, null, null);
+        this(mgr, item, action, evt, null, null);
     }
 
     public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt,
-                            List<CreatorProperty> props, CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems) {
+                            CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems) {
         super();
 
         this.editorUI = editorUI;
         this.eventHandler = evt;
-        this.properties = props;
 
         this.mgr = mgr;
         this.item = item;
 
         titleLabel = new Label(item.getDescription());
+        this.allItems = allItems;
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
 
         descriptionArea = new Label(item.getExtendedDescription());
@@ -89,7 +90,7 @@ public class UICodePluginItem extends BorderPane {
         docsLink.setDisable(true);
         docsLink.setStyle("-fx-font-size: 90%;");
 
-        infoContainer = new VBox(5);
+        VBox infoContainer = new VBox(5);
         infoContainer.setAlignment(Pos.TOP_LEFT);
         infoContainer.getChildren().add(descriptionArea);
         infoContainer.getChildren().add(whichPlugin);
@@ -102,6 +103,45 @@ public class UICodePluginItem extends BorderPane {
         actionButton.setMaxSize(2000, 2000);
         actionButton.setOnAction(event-> eventHandler.accept(item));
 
+        setImageButton(item);
+
+        setTop(titleLabel);
+        setLeft(new VBox(actionButton));
+        setCenter(infoContainer);
+
+        propertiesPanel = new VBox();
+        propertiesPanel.setPrefWidth(300);
+        setRight(propertiesPanel);
+
+        setItem(item);
+    }
+
+    private void prepareProperties() {
+        propertiesPanel.getChildren().clear();
+
+        item.getProperties().forEach(property -> {
+            propertiesPanel.getChildren().add(new Label(property.getDescription()));
+            if(property.getValidationRules().hasChoices()) {
+                ComboBox<String> comboBox;
+                if(property.getValidationRules() instanceof MenuItemValidationRules) {
+                    comboBox = generateMenuChoiceField(allItems, property);
+                }
+                else {
+                    comboBox = generateRegularComboField(property);
+                }
+                propertiesPanel.getChildren().add(comboBox);
+            }
+            else if(property.getValidationRules() instanceof FontPropertyValidationRules) {
+                generateFontField(propertiesPanel, property);
+            }
+            else {
+                generateTextField(propertiesPanel, property);
+            }
+        });
+
+    }
+
+    private void setImageButton(CodePluginItem item) {
         mgr.getImageForName(item, item.getImageFileName())
                 .ifPresent(img -> {
                     double scaleFactor = img.getWidth() / IMG_THUMB_WIDTH;
@@ -111,40 +151,6 @@ public class UICodePluginItem extends BorderPane {
                     actionButton.setGraphic(imgView);
                     actionButton.setContentDisplay(ContentDisplay.TOP);
                 });
-
-
-        setTop(titleLabel);
-        setLeft(new VBox(actionButton));
-        setCenter(infoContainer);
-
-        if(properties != null) {
-            var propertiesPanel = new VBox();
-            propertiesPanel.setPrefWidth(300);
-
-            properties.forEach(property -> {
-                propertiesPanel.getChildren().add(new Label(property.getDescription()));
-                if(property.getValidationRules().hasChoices()) {
-                    ComboBox<String> comboBox;
-                    if(property.getValidationRules() instanceof MenuItemValidationRules) {
-                        comboBox = generateMenuChoiceField(allItems, property);
-                    }
-                    else {
-                        comboBox = generateRegularComboField(property);
-                    }
-                    propertiesPanel.getChildren().add(comboBox);
-                }
-                else if(property.getValidationRules() instanceof FontPropertyValidationRules) {
-                    generateFontField(propertiesPanel, property);
-                }
-                else {
-                    generateTextField(propertiesPanel, property);
-                }
-            });
-
-            setRight(propertiesPanel);
-        }
-
-        setItem(item);
     }
 
     private void generateFontField(VBox propertiesPanel, CreatorProperty property) {
@@ -238,6 +244,9 @@ public class UICodePluginItem extends BorderPane {
             docsLink.setDisable(false);
             docsLink.setOnAction((event)->SafeNavigator.safeNavigateTo(item.getDocsLink()));
         }
+
+        setImageButton(item);
+        prepareProperties();
 
         var config = item.getConfig();
         whichPlugin.setText(config.getName() + " - " + config.getVersion());

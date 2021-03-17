@@ -111,33 +111,38 @@ public class GenerateCodeDialog {
         setAllPropertiesToLastValues(itemInput.getProperties());
         setAllPropertiesToLastValues(itemDisplay.getProperties());
         setAllPropertiesToLastValues(itemRemote.getProperties());
-        setAllPropertiesToLastValues(itemTheme.getProperties());
+        if(itemTheme != null) {
+            setAllPropertiesToLastValues(itemTheme.getProperties());
+        }
 
-        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, itemInput.getProperties(), editorUI, allItems);
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems);
         currentInput.setId("currentInputUI");
         currentInput.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentInput);
 
         addTitleLabel(centerPane, "Select the display type:");
-        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, itemDisplay.getProperties(), editorUI, allItems);
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems);
         currentDisplay.setId("currentDisplayUI");
         currentDisplay.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentDisplay);
 
-        themeTitle = addTitleLabel(centerPane, "Select a theme:");
-        currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, itemTheme.getProperties(), editorUI, allItems);
-        currentTheme.setId("currentThemeUI");
-        currentTheme.getStyleClass().add("uiCodeGen");
-        if(!currentDisplay.getItem().isThemeNeeded()) {
-            currentTheme.setVisible(false);
-            currentTheme.setManaged(false);
-            themeTitle.setVisible(false);
-            themeTitle.setManaged(false);
+        if(itemTheme != null) {
+            themeTitle = addTitleLabel(centerPane, "Select a theme:");
+            currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems);
+            currentTheme.setId("currentThemeUI");
+            currentTheme.getStyleClass().add("uiCodeGen");
+            if (!currentDisplay.getItem().isThemeNeeded()) {
+                currentTheme.setVisible(false);
+                currentTheme.setManaged(false);
+                themeTitle.setVisible(false);
+                themeTitle.setManaged(false);
+            }
+            centerPane.getChildren().add(currentTheme);
         }
-        centerPane.getChildren().add(currentTheme);
+        else currentTheme = null;
 
         addTitleLabel(centerPane, "Select remote capabilities:");
-        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, itemRemote.getProperties(), editorUI, allItems);
+        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems);
         currentRemote.setId("currentRemoteUI");
         currentRemote.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentRemote);
@@ -180,6 +185,7 @@ public class GenerateCodeDialog {
     }
 
     private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid) {
+        if(items.size() == 0) return null;
         return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElse(items.get(0));
     }
 
@@ -297,7 +303,9 @@ public class GenerateCodeDialog {
         allProps.addAll(currentDisplay.getItem().getProperties());
         allProps.addAll(currentInput.getItem().getProperties());
         allProps.addAll(currentRemote.getItem().getProperties());
-        allProps.addAll(currentTheme.getItem().getProperties());
+        if(currentTheme != null) {
+            allProps.addAll(currentTheme.getItem().getProperties());
+        }
 
         UUID applicationUUID = UUID.fromString(appUuidField.getText());
         project.setGeneratorOptions(new CodeGeneratorOptions(
@@ -329,17 +337,24 @@ public class GenerateCodeDialog {
         logger.log(INFO, "Action fired on display");
         selectPlugin(displaysSupported, "Display", (pluginItem)-> {
             currentDisplay.setItem(pluginItem);
+            changeProperties();
+            if(currentTheme == null) return;
             boolean themeNeeded = currentDisplay.getItem().isThemeNeeded();
             currentTheme.setVisible(themeNeeded);
             currentTheme.setManaged(themeNeeded);
             themeTitle.setVisible(themeNeeded);
             themeTitle.setManaged(themeNeeded);
-            changeProperties();
         });
     }
 
     private void changeProperties() {
-        List<CodePluginItem> creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
+        List<CodePluginItem> creators;
+        if(currentDisplay.getItem().isThemeNeeded() && currentTheme != null) {
+            creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem(), currentTheme.getItem());
+        }
+        else {
+            creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
+        }
 
         creators.stream()
                 .filter(p -> p != null && p.getProperties().size() > 0)
