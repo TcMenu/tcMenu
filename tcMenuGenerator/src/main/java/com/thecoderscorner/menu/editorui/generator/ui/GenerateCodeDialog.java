@@ -308,9 +308,10 @@ public class GenerateCodeDialog {
         }
 
         UUID applicationUUID = UUID.fromString(appUuidField.getText());
+        String themeId = currentTheme != null ? currentTheme.getItem().getId() : "";
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
-                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), currentTheme.getItem().getId(),
+                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), themeId,
                 allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
                 saveToSrcCheckBox.isSelected(), useCppMainCheckBox.isSelected())
         );
@@ -325,7 +326,7 @@ public class GenerateCodeDialog {
     }
 
     private List<CodePluginItem> getAllPluginsForConversion() {
-        if(currentDisplay.getItem().isThemeNeeded()) {
+        if(currentDisplay.getItem().isThemeNeeded() && currentTheme != null) {
             return Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem(), currentTheme.getItem());
         }
         else {
