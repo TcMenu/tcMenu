@@ -379,15 +379,16 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(LINE_BREAK + "// Set up code" + TWO_LINES);
             writer.write("void setupMenu() {" + LINE_BREAK);
+            List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
+            if (!readOnlyLocal.isEmpty()) {
+                writer.write("    // Read only and local only function calls" + LINE_BREAK);
+                writer.write(extractor.mapFunctions(readOnlyLocal));
+                writer.write(LINE_BREAK + LINE_BREAK);
+            }
+
             writer.write(extractor.mapFunctions(
                     generators.stream().flatMap(ecc -> ecc.getFunctions().stream()).collect(Collectors.toList())
             ));
-
-            List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
-            if (!readOnlyLocal.isEmpty()) {
-                writer.write(LINE_BREAK + LINE_BREAK + "    // Read only and local only function calls" + LINE_BREAK);
-                writer.write(extractor.mapFunctions(readOnlyLocal));
-            }
 
             writer.write(LINE_BREAK + "}" + LINE_BREAK);
             writer.write(LINE_BREAK);
@@ -453,10 +454,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 return o1.getCallbackName().compareTo(o2.getCallbackName());
             });
 
+            var callbacksDeclared = new HashSet<String>();
             for (CallbackRequirement callback : callbackRequirements) {
                 var header = callback.generateHeader();
-                if (!StringHelper.isStringEmptyOrNull(header)) {
+                if (!StringHelper.isStringEmptyOrNull(header) && !callbacksDeclared.contains(callback.getCallbackName())) {
                     writer.write(header + LINE_BREAK);
+                    callbacksDeclared.add(callback.getCallbackName());
                 }
             }
 

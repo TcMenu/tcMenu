@@ -37,22 +37,22 @@ const AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1, "dB" };
 AnalogMenuItem menuTest(&minfoTest, 0, &menuAbc);
 const char enumStrExtra_0[] = "test";
 const char* const enumStrExtra[]  = { enumStrExtra_0 };
-const EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, NO_CALLBACK, enumStrExtra };
+const EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, callback1, enumStrExtra };
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
 
 // Set up code
 
 void setupMenu() {
-    switches.initialise(io23017, true, MenuFontDef(sans24p7b, 1));
-    switches.addSwitch(BUTTON_PIN, &null);
-    switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
-            anotherFn(20);
-        });
-
     // Read only and local only function calls
     menuOverrideAnalog2Name.setReadOnly(true);
     menuTest.setReadOnly(true);
     menuOverrideSubName.setLocalOnly(true);
     menuOverrideAnalog2Name.setLocalOnly(true);
+
+    switches.initialise(io23017, true, MenuFontDef(sans24p7b, 1));
+    switches.addSwitch(BUTTON_PIN, &null);
+    switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
+            anotherFn(20);
+        });
 }
 

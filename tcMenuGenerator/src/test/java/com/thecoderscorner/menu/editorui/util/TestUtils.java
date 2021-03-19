@@ -134,6 +134,7 @@ public class TestUtils {
                 .withId(20)
                 .withName("Extra")
                 .withEepromAddr(5)
+                .withFunctionName("callback1")
                 .withEnumList(List.of("test"))
                 .menuItem();
         EditableTextMenuItem textItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
