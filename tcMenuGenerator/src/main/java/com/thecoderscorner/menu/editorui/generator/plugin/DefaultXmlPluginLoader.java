@@ -250,7 +250,9 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             );
             item.setRequiredSourceFiles(transformElements(root, "SourceFiles", "SourceFile", (ele) ->
                     new RequiredSourceFile(getAttributeOrDefault(ele, "name", ""), replacements,
-                            toApplicability(ele, applicabilityByKey))
+                            toApplicability(ele, applicabilityByKey),
+                            Boolean.parseBoolean(getAttributeOrDefault(ele,"overwrite", "true"))
+                    )
             ));
 
             return item;
@@ -264,6 +266,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         if(headerType == null) return HeaderDefinition.HeaderType.SOURCE;
         if(headerType.equals("true")) return HeaderDefinition.HeaderType.SOURCE;
         if(headerType.equals("cpp")) return HeaderDefinition.HeaderType.CPP_FILE;
+        if(headerType.equals("cppSrc")) return HeaderDefinition.HeaderType.CPP_SRC_FILE;
         return HeaderDefinition.HeaderType.GLOBAL;
     }
 

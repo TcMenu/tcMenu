@@ -14,11 +14,13 @@ public class RequiredSourceFile {
     private final String fileName;
     private final List<CodeReplacement> replacementList;
     private final CodeApplicability applicability;
+    private final boolean overwritable;
 
-    public RequiredSourceFile(String fileName, List<CodeReplacement> replacementList, CodeApplicability applicability) {
+    public RequiredSourceFile(String fileName, List<CodeReplacement> replacementList, CodeApplicability applicability, boolean overwrite) {
         this.fileName = fileName;
         this.replacementList = replacementList;
         this.applicability = applicability;
+        this.overwritable = overwrite;
     }
 
     public String getFileName() {
@@ -27,6 +29,10 @@ public class RequiredSourceFile {
 
     public List<CodeReplacement> getReplacementList() {
         return replacementList;
+    }
+
+    public boolean isOverwritable() {
+        return overwritable;
     }
 
     public CodeApplicability getApplicability() { return applicability; }

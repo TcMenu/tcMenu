@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
@@ -179,7 +180,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     public String mapIncludes(List<HeaderDefinition> includeList) {
         return includeList.stream()
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
-                .filter(inc -> inc.getHeaderType() != HeaderDefinition.HeaderType.CPP_FILE)
+                .filter(inc -> inc.getHeaderType() == HeaderType.GLOBAL || inc.getHeaderType() == HeaderType.SOURCE)
                 .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)
@@ -190,7 +191,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     public String mapCppIncludes(List<HeaderDefinition> includeList) {
         return includeList.stream()
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
-                .filter(inc -> inc.getHeaderType() == HeaderDefinition.HeaderType.CPP_FILE)
+                .filter(inc -> inc.getHeaderType() == HeaderType.CPP_FILE || inc.getHeaderType() == HeaderType.CPP_SRC_FILE)
                 .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)
@@ -198,7 +199,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     private String headerToString(HeaderDefinition headerDefinition) {
-        if(headerDefinition.getHeaderType() == HeaderDefinition.HeaderType.SOURCE) {
+        if(headerDefinition.getHeaderType() == HeaderType.SOURCE || headerDefinition.getHeaderType() == HeaderType.CPP_SRC_FILE) {
             return "#include \"" + expando.expandExpression(context, headerDefinition.getHeaderName()) + "\"";
         }
         else {

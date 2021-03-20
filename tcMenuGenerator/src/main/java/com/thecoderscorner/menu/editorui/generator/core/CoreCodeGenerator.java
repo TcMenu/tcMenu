@@ -238,23 +238,30 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 String fileNamePart;
                 String fileData;
                 Path location = item.getConfig().getPath().resolve(fileName);
-                try (var sourceInputStream = new FileInputStream(location.toFile())) {
-                    fileData = new String(sourceInputStream.readAllBytes());
-                    fileNamePart = Paths.get(fileName).getFileName().toString();
-                } catch (Exception e) {
-                    throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
+                if(!srcFile.isOverwritable() && Files.exists(location)) {
+                    logLine("Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
                 }
-
-                for (var cr : srcFile.getReplacementList()) {
-                    if (cr.getApplicability().isApplicable(context.getProperties())) {
-                        var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                        fileData = fileData.replaceAll(cr.getFind(), replacement);
+                else {
+                    try (var sourceInputStream = new FileInputStream(location.toFile())) {
+                        fileData = new String(sourceInputStream.readAllBytes());
+                        fileNamePart = Paths.get(fileName).getFileName().toString();
+                    } catch (Exception e) {
+                        throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
                     }
+
+                    for (var cr : srcFile.getReplacementList()) {
+                        if (cr.getApplicability().isApplicable(context.getProperties())) {
+                            var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                            fileData = fileData.replaceAll(cr.getFind(), replacement);
+                        }
+                    }
+
+                    Files.write(directory.resolve(fileNamePart), fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
+                    logLine("Copied with replacement " + srcFile);
+
                 }
 
                 // and copy into the destination
-                Files.write(directory.resolve(fileNamePart), fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
-                logLine("Copied with replacement " + srcFile);
             } catch (Exception e) {
                 throw new TcMenuConversionException("Unexpected exception processing " + srcFile, e);
             }

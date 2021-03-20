@@ -67,9 +67,14 @@ public class AppInformationPanel {
         VBox vbox = new VBox();
         vbox.setSpacing(5);
 
-        Label docsLbl = new Label("TcMenu designer");
+        String title = "TcMenu designer";
+        if(storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
+            title += " BETA - for evaluation purposes";
+        }
+        Label docsLbl = new Label(title);
         docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;-fx-padding: 4px;");
         vbox.getChildren().add(docsLbl);
+
         // add the documentation links
         labelWithUrl(vbox, LIBRARY_DOCS_URL, "Browse docs and watch starter videos (F1 at any time)", "libdocsurl");
         labelWithUrl(vbox, GITHUB_PROJECT_URL, "Please give us a star on github if you like this tool", "githuburl");

@@ -20,7 +20,6 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -108,6 +107,11 @@ public class GenerateCodeDialog {
         CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
         CodePluginItem itemTheme = findItemByUuidOrDefault(themesSupported, genOptions.getLastThemeUuid());
 
+        addToInitialSourceFilesForRemovalCheck(itemInput);
+        addToInitialSourceFilesForRemovalCheck(itemTheme);
+        addToInitialSourceFilesForRemovalCheck(itemDisplay);
+        addToInitialSourceFilesForRemovalCheck(itemRemote);
+
         setAllPropertiesToLastValues(itemInput.getProperties());
         setAllPropertiesToLastValues(itemDisplay.getProperties());
         setAllPropertiesToLastValues(itemRemote.getProperties());
@@ -175,6 +179,15 @@ public class GenerateCodeDialog {
             scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
             dialogStage = dlgStg;
         });
+    }
+
+    private void addToInitialSourceFilesForRemovalCheck(CodePluginItem pluginItem) {
+        if(pluginItem == null) return;
+        for(var sf : pluginItem.getRequiredSourceFiles()) {
+            if(sf.isOverwritable()) {
+                initialPlugins.add(sf.getFileName());
+            }
+        }
     }
 
     private Label addTitleLabel(VBox vbox, String text) {

@@ -9,6 +9,10 @@ public interface ConfigurationStorage {
     String USING_ARDUINO_IDE = "UsingArduinoIDE";
     String ARDUINO_OVERRIDE_DIR = "ArduinoDirOverride";
 
+    public enum TcMenuReleaseType {
+        BETA, REGULAR, SUPPORTED
+    }
+
     List<String> loadRecents();
 
     void saveUniqueRecents(List<String> recents);
@@ -16,6 +20,8 @@ public interface ConfigurationStorage {
     String getRegisteredKey();
 
     void setRegisteredKey(String registeredKey);
+
+    public TcMenuReleaseType getReleaseType();
 
     String getVersion();
 
