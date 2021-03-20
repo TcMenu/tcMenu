@@ -125,6 +125,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 .registerTypeAdapter(example.getClass(), new MenuItemSerialiser())
                 .registerTypeAdapter(example.getClass(), new MenuItemDeserialiser())
                 .registerTypeAdapter(Instant.class, new CompatibleDateTimePersistor())
+                .setPrettyPrinting()
                 .create();
     }
 
