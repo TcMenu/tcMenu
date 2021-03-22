@@ -14,10 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
-import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
-import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
-import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
+import com.thecoderscorner.menu.editorui.generator.validation.*;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.scene.image.Image;
 import org.w3c.dom.Document;
@@ -347,17 +344,18 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private void generateProperties(Element root, CodePluginItem item) {
         item.setProperties(transformElements(root, "Properties", "Property", (elem) -> {
+            String initial = elem.getAttribute("initial");
             return new CreatorProperty(
                     elem.getAttribute("id"),
                     elem.getAttribute("name"),
-                    elem.getAttribute("initial"),
+                    initial,
                     item.getSubsystem(),
-                    validatorFor(elem)
+                    validatorFor(elem, initial)
             );
         }));
     }
 
-    private PropertyValidationRules validatorFor(Element elem) {
+    private PropertyValidationRules validatorFor(Element elem, String initialValue) {
         boolean req = Boolean.parseBoolean(elem.getAttribute("required"));
 
         switch (elem.getAttribute("type")) {
@@ -373,7 +371,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             case "font":
                 return CannedPropertyValidators.fontValidator();
             case "choice":
-                return CannedPropertyValidators.choicesValidator(transformElements(elem, "Choices", "Choice", Node::getTextContent));
+                return makeChoices(elem, initialValue);
             case "pin":
                 return CannedPropertyValidators.pinValidator();
 
@@ -391,6 +389,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             default:
                 return CannedPropertyValidators.textValidator();
         }
+    }
+
+    private PropertyValidationRules makeChoices(Element elem, String initialValue) {
+        return CannedPropertyValidators.choicesValidator(transformElements(elem, "Choices", "Choice", chElem ->
+            new ChoiceDescription(chElem.getTextContent(), getAttributeOrDefault(chElem, "desc", chElem.getTextContent()))
+        ), initialValue);
     }
 
     private VariableDefinitionMode toDefinitionMode(String mode) {

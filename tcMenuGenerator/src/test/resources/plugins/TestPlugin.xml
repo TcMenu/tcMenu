@@ -23,8 +23,8 @@
       <Property id="JOYSTICK_PIN" name="Up Pin" initial="2" desc="button connected" type="pin"/>
       <Property id="TEST_CHOICE" name="Choices" initial="Choice1" desc="Test choices" type="choice">
         <Choices>
-          <Choice>Choice1</Choice>
-          <Choice>Choice2</Choice>
+          <Choice desc="Choice 1 desc">Choice1</Choice>
+          <Choice desc="Choice 2 desc">Choice2</Choice>
         </Choices>
       </Property>
       <Property id="MY_FONT" name="My Font" initial="ada:sans24p7b,1" desc="My font desc" type="font"/>

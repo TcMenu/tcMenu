@@ -102,7 +102,9 @@ public class DefaultXmlPluginLoaderTest {
         assertProperty(item.getProperties().get(4), "TEST_CHOICE", "Choices", SubSystem.INPUT, "Choice1");
         assertThat(item.getProperties().get(4).getValidationRules()).isInstanceOf(ChoicesPropertyValidationRules.class);
         var choiceRule = (ChoicesPropertyValidationRules)item.getProperties().get(4).getValidationRules();
-        assertThat(choiceRule.choices()).containsExactlyInAnyOrder("Choice1", "Choice2");
+        assertThat(choiceRule.choices()).containsExactlyInAnyOrder(
+                new ChoiceDescription("Choice1", "Choice 1 desc"),
+                new ChoiceDescription("Choice2", "Choice 2 desc"));
 
         assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder(
                 "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${FONT_DIR}/${MY_FONT/ada:(.*),\\d*/}.h");

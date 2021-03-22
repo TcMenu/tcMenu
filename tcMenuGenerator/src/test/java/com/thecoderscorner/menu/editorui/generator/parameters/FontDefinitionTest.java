@@ -14,7 +14,7 @@ class FontDefinitionTest {
         assertEquals("font", fd.getFontName());
         assertEquals(1, fd.getFontNumber());
         assertEquals("ada:font,1", fd.toString());
-        assertEquals("MenuFontDef(font, 1)", fd.getFontDef());
+        assertEquals("MenuFontDef(&font, 1)", fd.getFontDef());
         assertEquals("Adafruit font font X1", fd.getNicePrintableName());
         var fd1 = FontDefinition.fromString(fd.toString()).get();
         assertEquals(fd1.toString(), fd.toString());

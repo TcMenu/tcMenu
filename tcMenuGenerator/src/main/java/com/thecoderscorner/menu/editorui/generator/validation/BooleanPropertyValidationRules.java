@@ -24,9 +24,14 @@ public class BooleanPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public List<String> choices() {
-        return Arrays.asList("true", "false");
+    public List<ChoiceDescription> choices() {
+        return Arrays.asList(new ChoiceDescription("true"), new ChoiceDescription("false"));
     }
+
+    public ChoiceDescription getChoiceFor(String latestValue) {
+        return new ChoiceDescription(latestValue);
+    }
+
 
     @Override
     public String toString() {

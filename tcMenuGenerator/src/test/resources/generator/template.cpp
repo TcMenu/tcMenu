@@ -49,7 +49,7 @@ void setupMenu() {
     menuOverrideSubName.setLocalOnly(true);
     menuOverrideAnalog2Name.setLocalOnly(true);
 
-    switches.initialise(io23017, true, MenuFontDef(sans24p7b, 1));
+    switches.initialise(io23017, true, MenuFontDef(&sans24p7b, 1));
     switches.addSwitch(BUTTON_PIN, &null);
     switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
             anotherFn(20);

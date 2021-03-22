@@ -31,7 +31,16 @@ public class FontDefinition {
     }
 
     public String getFontDef() {
-        return "MenuFontDef(" + (StringHelper.isStringEmptyOrNull(fontName) ? "nullptr":fontName) + ", " + fontNumber + ")";
+        switch(fontMode) {
+            case ADAFRUIT:
+                return "MenuFontDef(&" + fontName + ", " + fontNumber + ")";
+            case AVAILABLE:
+                return "MenuFontDef(" + fontName + ", " + fontNumber + ")";
+            case DEFAULT_FONT:
+            case NUMBERED:
+            default:
+                return "MenuFontDef(nullptr, " + fontNumber + ")";
+        }
     }
 
     public String toString() {

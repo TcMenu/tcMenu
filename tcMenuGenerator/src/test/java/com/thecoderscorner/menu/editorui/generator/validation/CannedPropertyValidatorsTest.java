@@ -18,7 +18,7 @@ class CannedPropertyValidatorsTest {
     public void testBooleanValidator() {
         BooleanPropertyValidationRules validator = CannedPropertyValidators.boolValidator();
         assertTrue(validator.hasChoices());
-        assertThat(validator.choices()).containsExactlyInAnyOrder("true", "false");
+        assertThat(validator.choices()).containsExactlyInAnyOrder(new ChoiceDescription("true"), new ChoiceDescription("false"));
         assertTrue(validator.isValueValid("true"));
         assertTrue(validator.isValueValid("false"));
         assertFalse(validator.isValueValid("invalid"));

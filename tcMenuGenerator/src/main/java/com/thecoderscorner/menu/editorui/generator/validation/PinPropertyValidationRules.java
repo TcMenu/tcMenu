@@ -57,8 +57,13 @@ public class PinPropertyValidationRules implements PropertyValidationRules {
     }
 
     @Override
-    public List<String> choices() {
+    public List<ChoiceDescription> choices() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public ChoiceDescription getChoiceFor(String latestValue) {
+        return null;
     }
 
     @Override

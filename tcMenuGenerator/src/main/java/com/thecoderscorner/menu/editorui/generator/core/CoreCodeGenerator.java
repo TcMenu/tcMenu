@@ -426,11 +426,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// all define statements needed" + LINE_BREAK);
-
-            // now get all the #defines that we need to add.
-            writer.write(extractor.mapDefines());
-
             writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
 
             // and put the exports in the file too

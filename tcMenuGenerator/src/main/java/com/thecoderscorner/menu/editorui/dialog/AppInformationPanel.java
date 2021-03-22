@@ -26,7 +26,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -220,15 +222,12 @@ public class AppInformationPanel {
         @Override
         public void run() {
             try {
-                List<String> allPlugins;
-                if(pluginManager.getLoadedPlugins().isEmpty()) {
-                    allPlugins = List.of("core-display", "core-remote");
-                }
-                else {
-                    allPlugins = pluginManager.getLoadedPlugins().stream()
+                Set<String> allPlugins = new HashSet<>(List.of("core-display", "core-remote", "core-themes"));
+                var installedPlugins = pluginManager.getLoadedPlugins().stream()
                             .map(CodePluginConfig::getModuleName)
                             .collect(Collectors.toList());
-                }
+                allPlugins.addAll(installedPlugins);
+
                 for(var pluginName : allPlugins) {
                     var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
                     var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);

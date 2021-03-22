@@ -64,8 +64,8 @@ public class CannedPropertyValidators {
      * @return a choices validator based on an enum
      * @param values the values that will both be validated against, and displayed in the combo.
      */
-    public static ChoicesPropertyValidationRules choicesValidator(Collection<String> values) {
-        return new ChoicesPropertyValidationRules(values);
+    public static ChoicesPropertyValidationRules choicesValidator(Collection<ChoiceDescription> values, String initial) {
+        return new ChoicesPropertyValidationRules(values, initial);
     }
 
     public static FontPropertyValidationRules fontValidator() {

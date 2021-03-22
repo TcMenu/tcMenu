@@ -29,5 +29,7 @@ public interface PropertyValidationRules {
     /**
      * @return a list of choices that will be presented in a combo.
      */
-    List<String> choices();
+    List<ChoiceDescription> choices();
+
+    ChoiceDescription getChoiceFor(String latestValue);
 }

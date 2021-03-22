@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
+import com.thecoderscorner.menu.editorui.generator.validation.ChoicesPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -122,13 +124,7 @@ public class UICodePluginItem extends BorderPane {
         item.getProperties().forEach(property -> {
             propertiesPanel.getChildren().add(new Label(property.getDescription()));
             if(property.getValidationRules().hasChoices()) {
-                ComboBox<String> comboBox;
-                if(property.getValidationRules() instanceof MenuItemValidationRules) {
-                    comboBox = generateMenuChoiceField(allItems, property);
-                }
-                else {
-                    comboBox = generateRegularComboField(property);
-                }
+                ComboBox<ChoiceDescription> comboBox = generateRegularComboField(property);
                 propertiesPanel.getChildren().add(comboBox);
             }
             else if(property.getValidationRules() instanceof FontPropertyValidationRules) {
@@ -181,32 +177,28 @@ public class UICodePluginItem extends BorderPane {
     }
 
     @org.jetbrains.annotations.NotNull
-    private ComboBox<String> generateMenuChoiceField(Collection<com.thecoderscorner.menu.domain.MenuItem> allItems, CreatorProperty property) {
-        ComboBox<String> comboBox;
-        var valRules = (MenuItemValidationRules) property.getValidationRules();
-        valRules.initialise(new ArrayList<>(allItems));
-        comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
-        comboBox.getSelectionModel().select(valRules.valueToIndex(property.getLatestValue()));
-        comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
-            if (!newVal) {
-                commitEdit(property, valRules.valueFor(comboBox.getSelectionModel().getSelectedIndex()));
-            }
-        });
-        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
-        return comboBox;
-    }
+    private ComboBox<ChoiceDescription> generateRegularComboField(CreatorProperty property) {
+        ComboBox<ChoiceDescription> comboBox;
 
-    @org.jetbrains.annotations.NotNull
-    private ComboBox<String> generateRegularComboField(CreatorProperty property) {
-        ComboBox<String> comboBox;
+        if(property.getValidationRules() instanceof MenuItemValidationRules) {
+            var valRules = (MenuItemValidationRules) property.getValidationRules();
+            valRules.initialise(new ArrayList<>(allItems));
+        }
+
         comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
-        comboBox.getSelectionModel().select(property.getLatestValue());
+        var currentChoice = property.getValidationRules().getChoiceFor(property.getLatestValue());
+
+        if(currentChoice != null)
+            comboBox.getSelectionModel().select(currentChoice);
+        else
+            comboBox.getSelectionModel().select(0);
+
         comboBox.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean old, Boolean newVal) -> {
             if (!newVal) {
-                commitEdit(property, comboBox.getValue());
+                commitEdit(property, comboBox.getValue().getChoiceValue());
             }
         });
-        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue()));
+        comboBox.setOnAction(actionEvent -> commitEdit(property, comboBox.getValue().getChoiceValue()));
         return comboBox;
     }
 
