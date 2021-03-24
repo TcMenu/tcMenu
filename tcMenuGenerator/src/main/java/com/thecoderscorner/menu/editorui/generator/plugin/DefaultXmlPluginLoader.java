@@ -264,6 +264,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         if(headerType.equals("true")) return HeaderDefinition.HeaderType.SOURCE;
         if(headerType.equals("cpp")) return HeaderDefinition.HeaderType.CPP_FILE;
         if(headerType.equals("cppSrc")) return HeaderDefinition.HeaderType.CPP_SRC_FILE;
+        if(headerType.equals("font")) return HeaderDefinition.HeaderType.FONT;
         return HeaderDefinition.HeaderType.GLOBAL;
     }
 

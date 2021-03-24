@@ -16,6 +16,7 @@ import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinit
 
 public class ChooseFontController {
     public RadioButton adafruitFontSel;
+    public RadioButton adafruitLocalFontSel;
     public RadioButton staticFontSel;
     public RadioButton largeNumSelect;
     public Button okButton;
@@ -44,6 +45,9 @@ public class ChooseFontController {
                 case AVAILABLE:
                     staticFontSel.setSelected(true);
                     break;
+                case ADAFRUIT_LOCAL:
+                    adafruitLocalFontSel.setSelected(true);
+                    break;
             }
         }
         else {
@@ -56,6 +60,7 @@ public class ChooseFontController {
     public void onCreatePressed(ActionEvent actionEvent) {
         FontDefinition.FontMode mode;
         if(adafruitFontSel.isSelected()) mode = ADAFRUIT;
+        else if(adafruitLocalFontSel.isSelected()) mode = ADAFRUIT_LOCAL;
         else if(largeNumSelect.isSelected()) mode = NUMBERED;
         else if(staticFontSel.isSelected()) mode = AVAILABLE;
         else mode = DEFAULT_FONT;
@@ -71,7 +76,7 @@ public class ChooseFontController {
 
         var text = fontVarField.getText();
 
-        if(fontVarField.getText().isBlank() && (mode == ADAFRUIT ||  mode == AVAILABLE)) {
+        if(fontVarField.getText().isBlank() && (mode == ADAFRUIT || mode == ADAFRUIT_LOCAL ||  mode == AVAILABLE)) {
             errorField.setText("Adafruit and static fonts require a font name");
             return;
         }

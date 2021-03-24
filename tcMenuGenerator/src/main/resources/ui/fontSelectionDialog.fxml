@@ -17,11 +17,12 @@
    <center>
       <VBox prefHeight="343.0" prefWidth="504.0" style="-fx-padding: 15px;" BorderPane.alignment="CENTER">
          <children>
-            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit Font (Adafruit and LTDC displays)">
+            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit Library Font (Adafruit and LTDC displays)">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup>
             </RadioButton>
+            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="Adafruit font local to project" toggleGroup="$main" />
             <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="Static Font (U8G2 displays)" toggleGroup="$main" />
             <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Numbered Font (TFT_eSPI displays)" toggleGroup="$main" />
              <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="Use the default font if possible" toggleGroup="$main" />

@@ -14,7 +14,7 @@ import java.util.Objects;
  * Used internally by the variable builder to store header requirements.
  */
 public class HeaderDefinition {
-    public enum HeaderType { SOURCE, GLOBAL, CPP_FILE, CPP_SRC_FILE }
+    public enum HeaderType { SOURCE, GLOBAL, CPP_FILE, CPP_SRC_FILE, FONT }
     public static final int PRIORITY_MIN = 100;
     public static final int PRIORITY_NORMAL = 50;
     public static final int PRIORITY_MAX = 0;

@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class FontDefinition {
-    public enum FontMode { DEFAULT_FONT, ADAFRUIT, NUMBERED, AVAILABLE }
+    public enum FontMode { DEFAULT_FONT, ADAFRUIT_LOCAL, ADAFRUIT, NUMBERED, AVAILABLE }
 
     private final FontMode fontMode;
     private final String fontName;
@@ -33,6 +33,7 @@ public class FontDefinition {
     public String getFontDef() {
         switch(fontMode) {
             case ADAFRUIT:
+            case ADAFRUIT_LOCAL:
                 return "MenuFontDef(&" + fontName + ", " + fontNumber + ")";
             case AVAILABLE:
                 return "MenuFontDef(" + fontName + ", " + fontNumber + ")";
@@ -70,6 +71,7 @@ public class FontDefinition {
     private static FontMode fromShortMode(String group) {
         switch (group) {
             case "ada": return FontMode.ADAFRUIT;
+            case "adl": return FontMode.ADAFRUIT_LOCAL;
             case "avl": return FontMode.AVAILABLE;
             case "num": return FontMode.NUMBERED;
             default: return FontMode.DEFAULT_FONT;
@@ -78,13 +80,24 @@ public class FontDefinition {
 
     public String getNicePrintableName() {
         switch (fontMode) {
-            case DEFAULT_FONT: return "Default font X" + fontNumber;
-            case ADAFRUIT: return "Adafruit font " + fontName + " X" + fontNumber;
-            case NUMBERED: return "Numbered font " + fontNumber;
+            case DEFAULT_FONT: return "Default X" + fontNumber;
+            case ADAFRUIT: return "AdaFruit Fonts/" + fontName + " X" + fontNumber;
+            case ADAFRUIT_LOCAL: return "AdaLocal Fonts/" + fontName + " X" + fontNumber;
+            case NUMBERED: return "Numbered " + fontNumber;
             case AVAILABLE:
             default:
-                return "Static font " + fontName + " X" + fontNumber;
+                return "Static " + fontName + " X" + fontNumber;
         }
+    }
+
+    public String getIncludeDef() {
+        if(fontMode == FontMode.ADAFRUIT) {
+            return "#include <Fonts/" + fontName + ".h>";
+        }
+        else if(fontMode == FontMode.ADAFRUIT_LOCAL) {
+            return "#include \"Fonts/" + fontName + ".h\"";
+        }
+        return "";
     }
 
 
@@ -96,6 +109,7 @@ public class FontDefinition {
         switch (fontMode) {
             case DEFAULT_FONT: return "def";
             case ADAFRUIT: return "ada";
+            case ADAFRUIT_LOCAL: return "adl";
             case NUMBERED: return "num";
             case AVAILABLE:
             default:

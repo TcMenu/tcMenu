@@ -28,7 +28,6 @@
         </Choices>
       </Property>
       <Property id="MY_FONT" name="My Font" initial="ada:sans24p7b,1" desc="My font desc" type="font"/>
-      <Property id="FONT_DIR" name="Font Dir" initial="Fonts" desc="font dir" type="variable"/>
     </Properties>
     
     <ApplicabilityDefs>
@@ -56,7 +55,7 @@
         <Header name="JoystickSwitchInput.h" inSource="false"/>
         <Header name="Scramble.h" inSource="true" priority="high"/>
         <Header name="FontDefInHdr.h" inSource="cpp" whenProperty="INTERRUPT_SWITCHES" isNotValue="false"/>
-        <Header name="${FONT_DIR}/${MY_FONT/ada:(.*),\d*/}.h" inSource="cpp" priority="low"/>
+        <Header name="${MY_FONT}" inSource="font" priority="low"/>
     </IncludeFiles>
 
     <GlobalVariables>

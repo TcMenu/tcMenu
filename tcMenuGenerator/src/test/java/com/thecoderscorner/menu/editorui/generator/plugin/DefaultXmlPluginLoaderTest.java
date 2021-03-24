@@ -107,7 +107,7 @@ public class DefaultXmlPluginLoaderTest {
                 new ChoiceDescription("Choice2", "Choice 2 desc"));
 
         assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder(
-                "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${FONT_DIR}/${MY_FONT/ada:(.*),\\d*/}.h");
+                "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${MY_FONT}");
 
         assertThat(item.getRequiredSourceFiles().stream().map(RequiredSourceFile::getFileName)).containsExactlyInAnyOrder("src/source.h", "src/source.cpp", "src/extra.cpp");
         assertEquals(3, item.getRequiredSourceFiles().size());

@@ -181,9 +181,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         return includeList.stream()
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
                 .filter(inc -> inc.getHeaderType() == HeaderType.GLOBAL || inc.getHeaderType() == HeaderType.SOURCE)
-                .distinct()
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)
+                .distinct()
                 .collect(Collectors.joining(LINE_BREAK));
     }
 
@@ -191,16 +191,25 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     public String mapCppIncludes(List<HeaderDefinition> includeList) {
         return includeList.stream()
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
-                .filter(inc -> inc.getHeaderType() == HeaderType.CPP_FILE || inc.getHeaderType() == HeaderType.CPP_SRC_FILE)
-                .distinct()
+                .filter(inc -> inc.getHeaderType() == HeaderType.CPP_FILE || inc.getHeaderType() == HeaderType.CPP_SRC_FILE
+                        || inc.getHeaderType() == HeaderType.FONT)
                 .sorted(Comparator.comparingInt(HeaderDefinition::getPriority))
                 .map(this::headerToString)
+                .filter(s -> !StringHelper.isStringEmptyOrNull(s))
+                .distinct()
                 .collect(Collectors.joining(LINE_BREAK));
     }
 
     private String headerToString(HeaderDefinition headerDefinition) {
         if(headerDefinition.getHeaderType() == HeaderType.SOURCE || headerDefinition.getHeaderType() == HeaderType.CPP_SRC_FILE) {
             return "#include \"" + expando.expandExpression(context, headerDefinition.getHeaderName()) + "\"";
+        }
+        else if(headerDefinition.getHeaderType() == HeaderType.FONT) {
+            var def = FontDefinition.fromString(expando.expandExpression(context, headerDefinition.getHeaderName()));
+            if(def.isPresent()) {
+                return def.get().getIncludeDef();
+            }
+            return "";
         }
         else {
             return "#include <" + expando.expandExpression(context, headerDefinition.getHeaderName()) + ">";
