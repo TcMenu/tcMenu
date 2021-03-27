@@ -155,9 +155,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     @Override
     public String mapExports(List<CodeVariable> variables) {
         return variables.stream().filter(CodeVariable::isExported)
-                .distinct()
                 .filter(cv -> cv.getApplicability().isApplicable(context.getProperties()))
                 .map(this::exportToCode)
+                .distinct()
                 .collect(Collectors.joining(LINE_BREAK));
 
     }

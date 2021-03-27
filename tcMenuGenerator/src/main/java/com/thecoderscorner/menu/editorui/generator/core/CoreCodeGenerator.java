@@ -182,16 +182,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         return item != null && item.isSecured();
     }
 
-    protected List<BuildStructInitializer> addNameAndKeyToStructure(Collection<BuildStructInitializer> menuStructure,
-                                                                  NameAndKey nameKey) {
-        var bsi = new BuildStructInitializer(MenuTree.ROOT, "applicationInfo", "ConnectorLocalInfo");
-        var list = new ArrayList<>(menuStructure);
-        list.add(bsi.addQuoted(nameKey.getName())
-                .addQuoted(nameKey.getUuid())
-                .progMemStruct().requiresExtern());
-        return list;
-    }
-
     protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
         logLine("Checking if any plugins have been removed from the project and need removal");
 
@@ -347,10 +337,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(COMMENT_HEADER);
 
-            writer.write("#include <tcMenu.h>");
-            writer.write(LINE_BREAK);
-            writer.write("#include \"" + projectName + "_menu.h\"");
-            writer.write(LINE_BREAK);
+            writer.write("#include <tcMenu.h>" + LINE_BREAK);
+            writer.write("#include \"" + projectName + "_menu.h\"" + LINE_BREAK);
 
             List<HeaderDefinition> includeList = getHeaderDefinitions(generators, menuStructure);
 
@@ -362,7 +350,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("// Global variable declarations" + TWO_LINES);
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
-            writer.write(TWO_LINES);
+            writer.write(LINE_BREAK);
             writer.write(extractor.mapVariables(
                     generators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
             ));
@@ -389,7 +377,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("void setupMenu() {" + LINE_BREAK);
             List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
             if (!readOnlyLocal.isEmpty()) {
-                writer.write("    // Read only and local only function calls" + LINE_BREAK);
                 writer.write(extractor.mapFunctions(readOnlyLocal));
                 writer.write(LINE_BREAK + LINE_BREAK);
             }
@@ -426,7 +413,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// all variables that need exporting" + LINE_BREAK);
+            writer.write(TWO_LINES + "void setupMenu();  // forward reference of the menu setup function.");
+            writer.write(LINE_BREAK + "extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and ID");
+
+            writer.write(LINE_BREAK + LINE_BREAK + "// Global variables that need exporting" + TWO_LINES);
 
             // and put the exports in the file too
             writer.write(extractor.mapExports(embeddedCreators.stream()
@@ -434,15 +424,13 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     .filter(var -> var.getApplicability().isApplicable(context.getProperties()))
                     .collect(Collectors.toList())
             ));
-            writer.write(LINE_BREAK + LINE_BREAK + "// all menu item forward references." + LINE_BREAK);
+            writer.write(LINE_BREAK + LINE_BREAK + "// Global Menu Item exports" + TWO_LINES);
 
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
                     .filter(hdr -> !hdr.isEmpty())
                     .collect(Collectors.joining(LINE_BREAK))
             );
-            writer.write(LINE_BREAK);
-            writer.write("extern const ConnectorLocalInfo applicationInfo;");
 
             writer.write(TWO_LINES);
 
@@ -466,7 +454,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 }
             }
 
-            writer.write(LINE_BREAK + "void setupMenu();" + LINE_BREAK);
             writer.write(LINE_BREAK + "#endif // MENU_GENERATED_CODE_H" + LINE_BREAK);
 
             logLine("Finished processing header file.");

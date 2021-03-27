@@ -27,7 +27,8 @@
           <Choice desc="Choice 2 desc">Choice2</Choice>
         </Choices>
       </Property>
-      <Property id="MY_FONT" name="My Font" initial="ada:sans24p7b,1" desc="My font desc" type="font"/>
+      <Property id="ITEM_FONT" name="Item Font" initial="ada:sans24p7b,1" desc="Item font desc" type="font"/>
+      <Property id="TITLE_FONT" name="Title Font" initial="ada:sans24p7b,1" desc="Title font desc" type="font"/>
     </Properties>
     
     <ApplicabilityDefs>
@@ -55,7 +56,8 @@
         <Header name="JoystickSwitchInput.h" inSource="false"/>
         <Header name="Scramble.h" inSource="true" priority="high"/>
         <Header name="FontDefInHdr.h" inSource="cpp" whenProperty="INTERRUPT_SWITCHES" isNotValue="false"/>
-        <Header name="${MY_FONT}" inSource="font" priority="low"/>
+        <Header name="${ITEM_FONT}" inSource="font" priority="low"/>
+        <Header name="${TITLE_FONT}" inSource="font" priority="low"/>
     </IncludeFiles>
 
     <GlobalVariables>
@@ -64,6 +66,8 @@
       </Variable>
       <Variable name="anotherVar" type="int" export="false" progmem="true" />
       <Variable name="expOnly" type="char[]" export="only" whenProperty="INTERRUPT_SWITCHES" isValue="false"/>
+      <Variable name="${ITEM_FONT/.*:([\w_]*),.*/}" type="const GFXfont" export="only" whenProperty="ITEM_FONT" matches="ad[al]:.*"/>
+      <Variable name="${TITLE_FONT/.*:([\w_]*),.*/}" type="const GFXfont" export="only" whenProperty="TITLE_FONT" matches="ad[al]:.*"/>
     </GlobalVariables>
 
     <SetupFunctions>
@@ -74,7 +78,8 @@
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" matches="true|false">
             <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
             <Param value="${PULLUP_LOGIC}" default="true"/>
-            <Param font="${MY_FONT}"/>
+            <Param font="${ITEM_FONT}"/>
+            <Param font="${TITLE_FONT}"/>
         </Function>
 
         <Lambda name="onReleaseFn">

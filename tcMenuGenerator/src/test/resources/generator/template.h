@@ -13,16 +13,21 @@
 
 #include <Arduino.h>
 #include <tcMenu.h>
-
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
 
-// all variables that need exporting
+void setupMenu();  // forward reference of the menu setup function.
+extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and ID
+
+// Global variables that need exporting
+
 extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
+extern const GFXfont sans24p7b;
 
-// all menu item forward references.
+// Global Menu Item exports
+
 extern IpAddressMenuItem menuIpItem;
 extern TextMenuItem menuTextItem;
 extern AnalogMenuItem menuOverrideAnalog2Name;
@@ -31,7 +36,6 @@ extern SubMenuItem menuOverrideSubName;
 extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;
-extern const ConnectorLocalInfo applicationInfo;
 
 // Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION
@@ -39,7 +43,5 @@ extern const ConnectorLocalInfo applicationInfo;
 void CALLBACK_FUNCTION callback1(int id);
 void CALLBACK_FUNCTION callback2(int id);
 int fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
-
-void setupMenu();
 
 #endif // MENU_GENERATED_CODE_H

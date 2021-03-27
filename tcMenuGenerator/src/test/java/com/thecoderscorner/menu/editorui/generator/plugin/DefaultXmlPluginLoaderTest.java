@@ -105,9 +105,11 @@ public class DefaultXmlPluginLoaderTest {
         assertThat(choiceRule.choices()).containsExactlyInAnyOrder(
                 new ChoiceDescription("Choice1", "Choice 1 desc"),
                 new ChoiceDescription("Choice2", "Choice 2 desc"));
+        assertProperty(item.getProperties().get(5), "ITEM_FONT", "Item Font", SubSystem.INPUT, "ada:sans24p7b,1");
+        assertThat(item.getProperties().get(5).getValidationRules()).isInstanceOf(FontPropertyValidationRules.class);
 
         assertThat(item.getIncludeFiles().stream().map(HeaderDefinition::getHeaderName)).containsExactlyInAnyOrder(
-                "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${MY_FONT}");
+                "JoystickSwitchInput.h", "Scramble.h", "FontDefInHdr.h", "${ITEM_FONT}", "${TITLE_FONT}");
 
         assertThat(item.getRequiredSourceFiles().stream().map(RequiredSourceFile::getFileName)).containsExactlyInAnyOrder("src/source.h", "src/source.cpp", "src/extra.cpp");
         assertEquals(3, item.getRequiredSourceFiles().size());
@@ -123,6 +125,7 @@ public class DefaultXmlPluginLoaderTest {
         assertThat(replacements.get(1).getApplicability()).isInstanceOf(EqualityApplicability.class);
 
         // test the variable declarations
+        assertEquals(5, item.getVariables().size());
         assertVariable(item.getVariables().get(0), "ArduinoAnalogDevice", "analogDevice", VariableDefinitionMode.VARIABLE_AND_EXPORT, false);
         assertThat(item.getVariables().get(0).getApplicability()).isInstanceOf(AlwaysApplicable.class);
         assertVariable(item.getVariables().get(1), "int", "anotherVar", VariableDefinitionMode.VARIABLE_ONLY, true);
@@ -131,6 +134,8 @@ public class DefaultXmlPluginLoaderTest {
         var codeParams = item.getVariables().get(0).getParameterList();
         assertEquals(1, codeParams.size());
         assertEquals("42", codeParams.get(0).getValue());
+        assertVariable(item.getVariables().get(3), "const GFXfont", "${ITEM_FONT/.*:([\\w_]*),.*/}", VariableDefinitionMode.EXPORT_ONLY, false);
+        assertVariable(item.getVariables().get(4), "const GFXfont", "${TITLE_FONT/.*:([\\w_]*),.*/}", VariableDefinitionMode.EXPORT_ONLY, false);
 
         assertEquals(4, item.getFunctions().size());
         assertFunction(item.getFunctions().get(0), "switches", "initialiseInterrupt", 2, false);
@@ -139,11 +144,12 @@ public class DefaultXmlPluginLoaderTest {
         assertEquals("${PULLUP_LOGIC",item.getFunctions().get(0).getParameters().get(1).getValue());
         assertEquals("internalDigitalIo()",item.getFunctions().get(0).getParameters().get(0).getDefaultValue());
 
-        assertFunction(item.getFunctions().get(1), "switches", "initialise", 3, false);
+        assertFunction(item.getFunctions().get(1), "switches", "initialise", 4, false);
         assertThat(item.getFunctions().get(1).getApplicability()).isInstanceOf(MatchesApplicability.class);
         assertEquals("${SWITCH_IODEVICE}",item.getFunctions().get(1).getParameters().get(0).getValue());
         assertEquals("${PULLUP_LOGIC}",item.getFunctions().get(1).getParameters().get(1).getValue());
-        assertEquals("${MY_FONT}",item.getFunctions().get(1).getParameters().get(2).getValue());
+        assertEquals("${ITEM_FONT}",item.getFunctions().get(1).getParameters().get(2).getValue());
+        assertEquals("${TITLE_FONT}",item.getFunctions().get(1).getParameters().get(3).getValue());
         assertTrue(item.getFunctions().get(1).getParameters().get(2) instanceof  FontCodeParameter);
 
         assertFunction(item.getFunctions().get(2), "switches", "addSwitch", 2, false);

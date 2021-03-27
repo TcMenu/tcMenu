@@ -28,9 +28,7 @@ public class ArduinoGenerator extends CoreCodeGenerator {
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
             "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
             "#include <Arduino.h>" + LINE_BREAK +
-            "#include <tcMenu.h>" + LINE_BREAK + LINE_BREAK;
-
-
+            "#include <tcMenu.h>" + LINE_BREAK;
 
     public ArduinoGenerator(SketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,

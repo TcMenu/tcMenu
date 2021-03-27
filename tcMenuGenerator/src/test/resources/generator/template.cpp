@@ -15,7 +15,6 @@
 // Global variable declarations
 
 const PROGMEM  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
-
 ArduinoAnalogDevice analogDevice(42);
 const int PROGMEM anotherVar;
 const int PROGMEM allowedPluginVar;
@@ -43,13 +42,12 @@ EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
 // Set up code
 
 void setupMenu() {
-    // Read only and local only function calls
     menuOverrideAnalog2Name.setReadOnly(true);
     menuTest.setReadOnly(true);
     menuOverrideSubName.setLocalOnly(true);
     menuOverrideAnalog2Name.setLocalOnly(true);
 
-    switches.initialise(io23017, true, MenuFontDef(&sans24p7b, 1));
+    switches.initialise(io23017, true, MenuFontDef(&sans24p7b, 1), MenuFontDef(&sans24p7b, 1));
     switches.addSwitch(BUTTON_PIN, &null);
     switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
             anotherFn(20);
