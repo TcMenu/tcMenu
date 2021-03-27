@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +36,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     protected final CodeGeneratorOptions options;
 
     protected boolean changed = false;
-    protected Consumer<String> logger;
+    protected BiConsumer<System.Logger.Level, String> logger;
 
     public ArduinoSketchFileAdjuster(CodeGeneratorOptions options) {
         this.options = options;
@@ -55,7 +56,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
      * @param callbacks the list of callbacks.
      * @throws IOException in the event of an error
      */
-    public void makeAdjustments(Consumer<String> logger, String inoFile, String projectName,
+    public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
                                 Collection<CallbackRequirement> callbacks) throws IOException {
 
         this.logger = logger;
@@ -63,7 +64,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         Path source = Paths.get(inoFile);
         if (!Files.exists(source)) {
-            logger.accept("No existing sketch, generating an empty one");
+            logger.accept(System.Logger.Level.INFO, "No existing sketch, generating an empty one");
             Files.write(source, emptyFileContents().getBytes());
         }
 
@@ -76,18 +77,18 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         try(var fileLines = Files.lines(source)) {
             for (String line : fileLines.collect(Collectors.toList())) {
                 if (line.contains("#include") && line.contains(projectName + "_menu.h")) {
-                    logger.accept("found include in INO");
+                    logger.accept(System.Logger.Level.INFO, "found include in INO");
                     needsInclude = false;
                 } else if (line.contains("taskManager.runLoop()")) {
-                    logger.accept("found runLoop in INO");
+                    logger.accept(System.Logger.Level.INFO, "found runLoop in INO");
                     needsTaskMgr = false;
                 } else if (line.contains("setupMenu(")) {
-                    logger.accept("found setup in INO");
+                    logger.accept(System.Logger.Level.INFO, "found setup in INO");
                     needsSetup = false;
                 } else if (line.contains("CALLBACK_FUNCTION")) {
                     Matcher fnMatch = FUNCTION_PATTERN.matcher(line);
                     if (fnMatch.matches()) {
-                        logger.accept("found callback for " + fnMatch.group(2));
+                        logger.accept(System.Logger.Level.INFO, "found callback for " + fnMatch.group(2));
                         callbacksDefined.add(fnMatch.group(2));
                     }
                 }
@@ -102,14 +103,14 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         makeNewCallbacks(lines, callbacksToMake, callbacksDefined);
 
         if(changed) {
-            logger.accept("INO Previously existed, backup existing file");
+            logger.accept(System.Logger.Level.INFO, "INO Previously existed, backup existing file");
             Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
 
-            logger.accept("Writing out changes to INO sketch file");
+            logger.accept(System.Logger.Level.INFO, "Writing out changes to INO sketch file");
             Files.write(Paths.get(inoFile), lines);
         }
         else {
-            logger.accept("No changes to the INO file, not writing out");
+            logger.accept(System.Logger.Level.INFO, "No changes to the INO file, not writing out");
         }
     }
 
@@ -128,20 +129,20 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         for (CallbackRequirement cb : filteredCb) {
             if(!definedList.contains(cb.getCallbackName())) {
-                logger.accept("Adding new callback to sketch: " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch: " + cb.getCallbackName());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
                 definedList.add(cb.getCallbackName());
                 changed = true;
             }
             else {
-                logger.accept("Skip callback generation for " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.INFO, "Skip callback generation for " + cb.getCallbackName());
             }
         }
     }
 
     private void addSetupCode(ArrayList<String> lines, Pattern codePattern, String extraLine) {
-        logger.accept("Running sketch setup adjustments: " + extraLine);
+        logger.accept(System.Logger.Level.INFO, "Running sketch setup adjustments: " + extraLine);
         for(int i=0;i<lines.size();i++) {
             Matcher matcher = codePattern.matcher(lines.get(i));
             if(matcher.matches()) {
@@ -151,7 +152,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                     }
                 }
                 lines.add(++i, extraLine);
-                logger.accept("-> line added to sketch");
+                logger.accept(System.Logger.Level.INFO, "-> line added to sketch");
                 changed = true;
                 return; // no need to continue
             }

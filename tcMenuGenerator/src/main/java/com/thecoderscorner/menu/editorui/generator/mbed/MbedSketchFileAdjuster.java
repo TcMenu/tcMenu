@@ -39,7 +39,7 @@ public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
     }
 
     protected void taskManagerIsMissing(ArrayList<String> lines) {
-        logger.accept("SKETCH ERROR: you are missing taskManager.runLoop(); in your sketch file");
-        logger.accept("SKETCH ERROR: this should be added in a loop within the main() method");
+        logger.accept(System.Logger.Level.ERROR, "SKETCH ERROR: you are missing taskManager.runLoop(); in your sketch file");
+        logger.accept(System.Logger.Level.ERROR, "SKETCH ERROR: this should be added in a loop within the main() method");
     }
 }

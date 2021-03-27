@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public class MbedGenerator extends CoreCodeGenerator {
     public MbedGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
@@ -53,7 +54,7 @@ public class MbedGenerator extends CoreCodeGenerator {
 
     private void updateMbedMain(String mainFile, String projectName,
                                      Collection<CallbackRequirement> callbackFunctions) throws TcMenuConversionException {
-        logLine("Making adjustments to " + mainFile);
+        logLine(INFO, "Making adjustments to " + mainFile);
 
         try {
             sketchAdjuster.makeAdjustments(this::logLine, mainFile, projectName, callbackFunctions);

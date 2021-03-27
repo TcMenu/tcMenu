@@ -31,12 +31,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
@@ -44,10 +45,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final String LINE_BREAK = System.getProperty("line.separator");
     public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
-
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
-            .withLocale(Locale.getDefault())
-            .withZone(ZoneId.systemDefault());
 
     private static final String COMMENT_HEADER = "/*\n" +
             "    The code in this file uses open source libraries provided by thecoderscorner" + LINE_BREAK + LINE_BREAK +
@@ -61,13 +58,14 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final SketchFileAdjuster sketchAdjuster;
     protected final EmbeddedPlatform embeddedPlatform;
     protected final CodeGeneratorOptions options;
-    protected Consumer<String> uiLogger = null;
+    protected BiConsumer<System.Logger.Level, String> uiLogger = null;
     protected MenuTree menuTree;
     protected List<String> previousPluginFiles = List.of();
     protected boolean usesProgMem;
     protected CodeConversionContext context;
     protected VariableNameGenerator namingGenerator;
     protected NameAndKey nameAndKey;
+    private final AtomicInteger logEntryNum = new AtomicInteger(0);
 
     public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
                              CodeGeneratorOptions options) {
@@ -83,7 +81,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         this.nameAndKey = nameKey;
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
-        logLine("Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
+        logLine(INFO, "Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
 
         usesProgMem = embeddedPlatform.isUsesProgmem();
 
@@ -116,12 +114,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
 
-            logLine("Process has completed, make sure the code in your IDE is up-to-date.");
-            logLine("You may need to close the project and then re-open it to pick up changes..");
+            logLine(INFO, "Process has completed, make sure the code in your IDE is up-to-date.");
+            logLine(INFO, "You may need to close the project and then re-open it to pick up changes..");
         } catch (Exception e) {
-            logLine("ERROR during conversion---------------------------------------------");
-            logLine("The conversion process has failed with an error: " + e.getMessage());
-            logLine("A more complete error can be found in the log file in <Home>/.tcMenu");
+            logLine(ERROR, "ERROR during conversion---------------------------------------------");
+            logLine(ERROR, "The conversion process has failed with an error: " + e.getMessage());
+            logLine(ERROR, "A more complete error can be found in the log file in <Home>/.tcMenu");
             logger.log(ERROR, "Exception caught while converting code: ", e);
         }
 
@@ -183,7 +181,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
-        logLine("Checking if any plugins have been removed from the project and need removal");
+        logLine(INFO, "Checking if any plugins have been removed from the project and need removal");
 
         var props = generators.stream().flatMap(gen ->  gen.getProperties().stream()).collect(Collectors.toList());
 
@@ -199,16 +197,16 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 var actualFile = directory.resolve(fileNamePart);
                 try {
                     if (Files.exists(actualFile)) {
-                        logLine("Removing unused plugin: " + actualFile);
+                        logLine(WARNING, "Removing unused plugin: " + actualFile);
                         Files.delete(actualFile);
                     }
                 } catch (IOException e) {
-                    logLine("Could not delete plugin: " + actualFile + " error " + e.getMessage());
+                    logLine(ERROR, "Could not delete plugin: " + actualFile + " error " + e.getMessage());
                 }
             }
         }
 
-        logLine("Finding any required rendering / remote plugins to add to project");
+        logLine(INFO, "Finding any required rendering / remote plugins to add to project");
 
         for (var gen : generators) {
             generatePluginsForCreator(gen, directory);
@@ -238,7 +236,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 Path resolvedOutputFile = directory.resolve(fileNamePart);
 
                 if(!srcFile.isOverwritable() && Files.exists(resolvedOutputFile)) {
-                    logLine("Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
+                    logLine(WARNING, "Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
                 }
                 else {
                     for (var cr : srcFile.getReplacementList()) {
@@ -249,7 +247,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     }
 
                     Files.write(resolvedOutputFile, fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
-                    logLine("Copied with replacement " + srcFile);
+                    logLine(INFO, "Copied with replacement " + srcFile);
                 }
 
                 // and copy into the destination
@@ -260,7 +258,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     @Override
-    public void setLoggerFunction(Consumer<String> uiLogger) {
+    public void setLoggerFunction(BiConsumer<System.Logger.Level, String> uiLogger) {
         this.uiLogger = uiLogger;
     }
 
@@ -322,8 +320,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         return Paths.get(directory.toString(), file.toString() + ext).toString();
     }
 
-    protected void logLine(String s) {
-        if (uiLogger != null) uiLogger.accept(DATE_TIME_FORMATTER.format(Instant.now()) + " - " + s);
+    protected void logLine(System.Logger.Level level, String s) {
+        var ent = logEntryNum.incrementAndGet();
+        if (uiLogger != null) uiLogger.accept(level,ent + " - " + s);
         logger.log(INFO, s);
     }
 
@@ -333,7 +332,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                                   Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
-            logLine("Writing out source CPP file: " + cppFile);
+            logLine(INFO, "Writing out source CPP file: " + cppFile);
 
             writer.write(COMMENT_HEADER);
 
@@ -388,10 +387,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(LINE_BREAK + "}" + LINE_BREAK);
             writer.write(LINE_BREAK);
 
-            logLine("Finished processing source file.");
+            logLine(INFO, "Finished processing source file.");
 
         } catch (Exception e) {
-            logLine("Failed to generate CPP: " + e.getMessage());
+            logLine(ERROR, "Failed to generate CPP: " + e.getMessage());
             throw new TcMenuConversionException("Header Generation failed", e);
         }
 
@@ -403,7 +402,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                                    Map<MenuItem, CallbackRequirement> allCallbacks) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
 
-            logLine("Writing out header file: " + headerFile);
+            logLine(INFO, "Writing out header file: " + headerFile);
 
             writer.write(COMMENT_HEADER);
             writer.write(platformIncludes());
@@ -456,9 +455,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(LINE_BREAK + "#endif // MENU_GENERATED_CODE_H" + LINE_BREAK);
 
-            logLine("Finished processing header file.");
+            logLine(INFO, "Finished processing header file.");
         } catch (Exception e) {
-            logLine("Failed to generate header file: " + e.getMessage());
+            logLine(ERROR, "Failed to generate header file: " + e.getMessage());
             throw new TcMenuConversionException("Header Generation failed", e);
         }
     }

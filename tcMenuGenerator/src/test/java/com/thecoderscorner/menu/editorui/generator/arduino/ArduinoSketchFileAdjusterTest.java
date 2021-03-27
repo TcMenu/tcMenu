@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +36,7 @@ public class ArduinoSketchFileAdjusterTest {
     private ArduinoSketchFileAdjuster adjuster;
     private List<CallbackRequirement> callbacks;
     private Path inoFile;
-    private Consumer<String> emptyLogger;
+    private BiConsumer<System.Logger.Level, String> emptyLogger;
 
     @SuppressWarnings("unchecked")
     @BeforeEach
@@ -43,7 +44,7 @@ public class ArduinoSketchFileAdjusterTest {
         dir = Files.createTempDirectory("tcmenu");
         tree = TestUtils.buildCompleteTree();
         inoFile = dir.resolve("superProject.ino");
-        emptyLogger = Mockito.mock(Consumer.class);
+        emptyLogger = Mockito.mock(BiConsumer.class);
         adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
 
         MenuItem itemId8 = tree.getMenuById(8).orElseThrow();

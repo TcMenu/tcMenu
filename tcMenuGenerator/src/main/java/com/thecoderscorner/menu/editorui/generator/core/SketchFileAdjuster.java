@@ -10,9 +10,10 @@ import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public interface SketchFileAdjuster {
-    void makeAdjustments(Consumer<String> logger, String inoFile, String projectName,
-                                Collection<CallbackRequirement> callbacks) throws IOException;
+    void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
+                         Collection<CallbackRequirement> callbacks) throws IOException;
 }

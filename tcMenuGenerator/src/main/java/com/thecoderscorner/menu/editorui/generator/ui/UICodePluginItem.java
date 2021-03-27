@@ -39,6 +39,7 @@ public class UICodePluginItem extends BorderPane {
 
     public enum UICodeAction { CHANGE, SELECT }
 
+    private final boolean showProperties;
     private final Consumer<CodePluginItem> eventHandler;
     private final Label titleLabel;
     private final Collection<MenuItem> allItems;
@@ -61,6 +62,7 @@ public class UICodePluginItem extends BorderPane {
     public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt,
                             CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems) {
         super();
+        showProperties = allItems != null && editorUI != null;
 
         this.editorUI = editorUI;
         this.eventHandler = evt;
@@ -112,7 +114,7 @@ public class UICodePluginItem extends BorderPane {
         setCenter(infoContainer);
 
         propertiesPanel = new VBox();
-        propertiesPanel.setPrefWidth(300);
+        if(showProperties) propertiesPanel.setPrefWidth(300);
         setRight(propertiesPanel);
 
         setItem(item);
@@ -120,6 +122,7 @@ public class UICodePluginItem extends BorderPane {
 
     private void prepareProperties() {
         propertiesPanel.getChildren().clear();
+        if(!showProperties) return;
 
         item.getProperties().forEach(property -> {
             propertiesPanel.getChildren().add(new Label(property.getDescription()));

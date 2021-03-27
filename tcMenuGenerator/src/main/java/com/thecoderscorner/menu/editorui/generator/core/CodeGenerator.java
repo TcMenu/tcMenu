@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -34,5 +35,5 @@ public interface CodeGenerator {
      * Called before the conversion starts to set the logger to use for the rest of the conversion.
      * @param logLine the logger consumer
      */
-    void setLoggerFunction(Consumer<String> logLine);
+    void setLoggerFunction(BiConsumer<System.Logger.Level, String> logLine);
 }

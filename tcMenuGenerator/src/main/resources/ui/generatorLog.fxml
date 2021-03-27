@@ -19,7 +19,7 @@
       </Label>
    </top>
    <center>
-      <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+       <ListView fx:id="loggerList"/>
    </center>
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">

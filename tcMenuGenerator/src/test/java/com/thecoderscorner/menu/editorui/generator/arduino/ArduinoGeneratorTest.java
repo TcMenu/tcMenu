@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
@@ -139,7 +140,7 @@ public class ArduinoGeneratorTest {
         assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
         assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
 
-        Mockito.verify(adjuster).makeAdjustments(any(Consumer.class),
+        Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
                 eq(projectDir.resolve(projectDir.resolve(projectDir.getFileName() + ".ino")).toString()),
                 eq(projectDir.getFileName().toString()), anyCollection());
     }
