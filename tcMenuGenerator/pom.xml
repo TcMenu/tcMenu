@@ -104,11 +104,6 @@
             <version>${testfx.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>9.0.4</version>
-        </dependency>
     </dependencies>
 
     <build>

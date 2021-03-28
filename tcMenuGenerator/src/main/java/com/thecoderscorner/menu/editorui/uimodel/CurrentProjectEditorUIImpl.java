@@ -128,9 +128,15 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
             return;
         }
 
-        DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, platforms);
-        GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, project, codeGeneratorRunner, platforms);
-        dialog.showCodeGenerator(mainStage, true);
+        try {
+            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, platforms);
+            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, project, codeGeneratorRunner, platforms);
+            dialog.showCodeGenerator(mainStage, true);
+        }
+        catch (Exception ex) {
+            logger.log(ERROR, "Did not present code generator", ex);
+            this.alertOnError("Failed to open generator", "Please check that the code plugins are installed and the project is valid");
+        }
 
         logger.log(INFO, "End - show code generator dialog");
     }

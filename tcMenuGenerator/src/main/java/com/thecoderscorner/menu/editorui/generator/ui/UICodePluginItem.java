@@ -179,7 +179,6 @@ public class UICodePluginItem extends BorderPane {
         else return latestValue;
     }
 
-    @org.jetbrains.annotations.NotNull
     private ComboBox<ChoiceDescription> generateRegularComboField(CreatorProperty property) {
         ComboBox<ChoiceDescription> comboBox;
 

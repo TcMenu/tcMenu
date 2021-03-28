@@ -13,7 +13,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.fazecast.jSerialComm;
     requires com.thecoderscorner.tcmenu.javaapi;
     requires com.google.gson;
-    requires annotations;
 
     // allow javafx components to see the editor UI packages that contain controllers etc.
     exports com.thecoderscorner.menu.editorui;

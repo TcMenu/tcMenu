@@ -131,7 +131,7 @@ public class RegistrationController {
                 SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
                 var data = simpleHttpClient.postRequestForString(registrationUrl, json, HttpDataType.JSON_DATA);
 
-                JsonElement element = new JsonParser().parse(data);
+                JsonElement element = JsonParser.parseString(data);
                 JsonElement regElement = element.getAsJsonObject().get("registered");
                 JsonElement regWhoElement = element.getAsJsonObject().get("regUser");
                 JsonElement errorElement = element.getAsJsonObject().get("error");
