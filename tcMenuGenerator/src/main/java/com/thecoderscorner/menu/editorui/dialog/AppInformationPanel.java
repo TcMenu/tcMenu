@@ -230,11 +230,13 @@ public class AppInformationPanel {
 
                 for(var pluginName : allPlugins) {
                     var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
-                    var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
-                    if(!installedVersion.equals(availableVersion)) {
-                        updateUI("Updating plugin " + pluginName, true);
-                        logger.log(INFO, "Updating " + pluginName);
-                        libraryVersionDetector.upgradePlugin(pluginName, availableVersion);
+                    if(availableVersion != null) {
+                        var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
+                        if (!installedVersion.equals(availableVersion)) {
+                            updateUI("Updating plugin " + pluginName, true);
+                            logger.log(INFO, "Updating " + pluginName);
+                            libraryVersionDetector.upgradePlugin(pluginName, availableVersion);
+                        }
                     }
                 }
                 updateUI("Refreshing plugins", true);
