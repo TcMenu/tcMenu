@@ -113,7 +113,7 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>1.3.3</version>
+            <version>2.0.7</version>
         </dependency>
 
 ## Coming Soon C# / .NET API
