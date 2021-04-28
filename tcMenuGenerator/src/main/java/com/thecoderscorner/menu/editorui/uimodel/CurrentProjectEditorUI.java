@@ -75,6 +75,11 @@ public interface CurrentProjectEditorUI {
     void showRomLayoutDialog(MenuTree tree);
 
     /**
+     * Shows a splash screen dialog as modal
+     */
+    void showSplashScreen();
+
+    /**
      * Shows the About dialog, which also shows all the version info
      * @param installer the installer object that knows about Arduino libraries
      */
@@ -92,4 +97,9 @@ public interface CurrentProjectEditorUI {
      * @param urlToVisit the URL to be visited
      */
     void browseToURL(String urlToVisit);
+
+    /**
+     * Shows the general settings dialog for setting up paths, and library / plugin management.
+     */
+    void showGeneralSettings();
 }

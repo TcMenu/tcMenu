@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="249.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="252.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="348.0" minWidth="10.0" prefWidth="348.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="98.0" minHeight="10.0" prefHeight="18.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="192.0" minHeight="10.0" prefHeight="192.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="135.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <ImageView fitHeight="233.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="3">
+         <image>
+            <Image url="@../img/menu-icon-large.png" />
+         </image>
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin>
+      </ImageView>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Thanks for using TcMenu designer!" wrappingWidth="348.39453125" GridPane.columnIndex="1">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Text>
+      <VBox prefHeight="192.0" prefWidth="321.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="A new version of tcMenu has been installed! If you're new to TcMenu then we recommend that you watch the getting started video first." wrappingWidth="346.103515625" />
+            <Hyperlink onAction="#onGettingStartedVideo" text="Getting started video on youtube" />
+            <Hyperlink onAction="#onTcMenuDocs" text="TcMenu documentation" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please take note that commercial users must register from the File-&gt;Register menu." wrappingWidth="338.9375" />
+         </children>
+      </VBox>
+      <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin>
+      </Button>
+   </children>
+</GridPane>

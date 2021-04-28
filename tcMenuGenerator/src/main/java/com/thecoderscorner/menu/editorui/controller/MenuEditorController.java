@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.GETTING_STARTED_PAGE_URL;
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.*;
 import static java.lang.System.Logger.Level.ERROR;
@@ -279,6 +281,10 @@ public class MenuEditorController {
         editorUI.browseToURL(LIBRARY_DOCS_URL);
     }
 
+    public void onGettingStarted(ActionEvent actionEvent) {
+        editorUI.browseToURL(GETTING_STARTED_PAGE_URL);
+    }
+
     public void registerMenuPressed(ActionEvent actionEvent) {
         RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
     }
@@ -433,9 +439,11 @@ public class MenuEditorController {
 
         Platform.runLater(this::handleRecents);
 
-        if(configStore.getRegisteredKey().isEmpty()) {
+        var current = new VersionInfo(configStore.getVersion());
+        if(!configStore.getLastRunVersion().equals(current)) {
             Platform.runLater(()-> {
-                RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
+                configStore.setLastRunVersion(current);
+                editorUI.showSplashScreen();
                 TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
                     onTreeChangeSelection(item.getValue());
@@ -526,5 +534,9 @@ public class MenuEditorController {
             });
             menuRecents.getItems().add(item);
         });
+    }
+
+    public void onGeneralSettings(ActionEvent actionEvent) {
+        editorUI.showGeneralSettings();
     }
 }

@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.InputStream;
@@ -110,5 +111,18 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     @Override
     public Optional<String> getArduinoOverrideDirectory() {
         return maybeOverrideDirectory;
+    }
+
+    @Override
+    public VersionInfo getLastRunVersion() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+
+        return new VersionInfo(prefs.get(LAST_RUN_VERSION_KEY, "0.0.0"));
+    }
+
+    @Override
+    public void setLastRunVersion(VersionInfo version) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(LAST_RUN_VERSION_KEY, version.toString());
     }
 }

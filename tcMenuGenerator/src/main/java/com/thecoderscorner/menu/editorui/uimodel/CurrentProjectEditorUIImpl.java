@@ -12,9 +12,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
-import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
-import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
+import com.thecoderscorner.menu.editorui.dialog.*;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -115,6 +113,12 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
+    public void showSplashScreen() {
+        logger.log(INFO, "Showing splash screen");
+        new SplashScreenDialog(mainStage, this, true);
+    }
+
+    @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Showing about dialog");
         AboutDialog ad = new AboutDialog(configStore, mainStage, installer, true);
@@ -144,6 +148,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void browseToURL(String urlToVisit) {
         SafeNavigator.safeNavigateTo(urlToVisit);
+    }
+
+    @Override
+    public void showGeneralSettings() {
+        var settingsDialog = new GeneralSettingsDialog(mainStage, true);
     }
 
     public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,

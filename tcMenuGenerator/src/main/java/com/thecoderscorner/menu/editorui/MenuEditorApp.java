@@ -19,7 +19,6 @@ import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

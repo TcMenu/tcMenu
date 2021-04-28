@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<BorderPane fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="General Settings">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="600.0">
+                     <children>
+                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="195.0" prefWidth="578.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="148.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="391.0" minWidth="10.0" prefWidth="369.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="10.0" prefWidth="54.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints maxHeight="45.0" minHeight="10.0" prefHeight="24.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="143.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="48.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" GridPane.rowIndex="1" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Libraries folder" GridPane.rowIndex="2" />
+                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Button mnemonicParsing="false" text="Choose" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                              <Button mnemonicParsing="false" text="Choose" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <CheckBox mnemonicParsing="false" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                              <CheckBox mnemonicParsing="false" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Library Versions">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <BorderPane layoutX="14.0" layoutY="14.0" prefHeight="301.0" prefWidth="578.0">
+                           <center>
+                              <TableView prefHeight="227.0" prefWidth="578.0" BorderPane.alignment="CENTER">
+                                <columns>
+                                  <TableColumn prefWidth="333.0" text="Library name" />
+                                  <TableColumn minWidth="0.0" prefWidth="104.0" text="Expected" />
+                                    <TableColumn prefWidth="104.0" text="Actual" />
+                                </columns>
+                              </TableView>
+                           </center>
+                           <bottom>
+                              <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                <buttons>
+                                  <Button mnemonicParsing="false" text="Update plugins" />
+                                    <Button mnemonicParsing="false" text="Refresh libraries" />
+                                </buttons>
+                              </ButtonBar>
+                           </bottom>
+                           <top>
+                              <HBox prefHeight="30.0" prefWidth="578.0" spacing="4.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Library and plugin stream" wrappingWidth="135.251953125">
+                                       <HBox.margin>
+                                          <Insets top="4.0" />
+                                       </HBox.margin>
+                                    </Text>
+                                    <ComboBox prefWidth="150.0" />
+                                 </children>
+                              </HBox>
+                           </top>
+                        </BorderPane>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button defaultButton="true" mnemonicParsing="false" text="Close" />
+        </buttons>
+         <opaqueInsets>
+            <Insets top="5.0" />
+         </opaqueInsets>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </ButtonBar>
+   </bottom>
+</BorderPane>

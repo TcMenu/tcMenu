@@ -43,6 +43,7 @@ import static java.lang.System.Logger.Level.INFO;
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
+    public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
 
     private static final System.Logger logger = System.getLogger(AppInformationPanel.class.getSimpleName());
     private final MenuEditorController controller;
