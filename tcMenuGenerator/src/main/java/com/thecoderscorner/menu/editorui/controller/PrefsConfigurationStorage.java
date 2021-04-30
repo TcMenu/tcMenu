@@ -20,6 +20,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private Properties props = new Properties();
     private boolean usingIde;
     private Optional<String> maybeOverrideDirectory;
+    private Optional<String> maybeLibOverrideDirectory;
 
     public PrefsConfigurationStorage() {
         try {
@@ -28,8 +29,12 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
 
             Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
             usingIde = prefs.getBoolean(USING_ARDUINO_IDE, true);
+
             var ovr = prefs.get(ARDUINO_OVERRIDE_DIR, "");
             maybeOverrideDirectory = StringHelper.isStringEmptyOrNull(ovr) ? Optional.empty() : Optional.of(ovr);
+
+            var ovrLib = prefs.get(ARDUINO_LIBS_OVERRIDE_DIR, "");
+            maybeLibOverrideDirectory = StringHelper.isStringEmptyOrNull(ovrLib) ? Optional.empty() : Optional.of(ovrLib);
         }
         catch(Exception e) {
             System.getLogger("BuildVersioning").log(ERROR, "Cannot load version properties", e);
@@ -109,8 +114,18 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     @Override
+    public void setArduinoLibrariesOverrideDirectory(String overrideDirectory) {
+
+    }
+
+    @Override
     public Optional<String> getArduinoOverrideDirectory() {
         return maybeOverrideDirectory;
+    }
+
+    @Override
+    public Optional<String> getArduinoLibrariesOverrideDirectory() {
+        return Optional.empty();
     }
 
     @Override
@@ -124,5 +139,29 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     public void setLastRunVersion(VersionInfo version) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.put(LAST_RUN_VERSION_KEY, version.toString());
+    }
+
+    @Override
+    public boolean isDefaultRecursiveNamingOn() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        return Boolean.parseBoolean(prefs.get(DEFAULT_RECURSIVE_NAMING, "false"));
+    }
+
+    @Override
+    public boolean isDefaultSaveToSrcOn() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        return Boolean.parseBoolean(prefs.get(DEFAULT_SAVE_TO_SRC, "false"));
+    }
+
+    @Override
+    public void setDefaultRecursiveNamingOn(boolean state) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(DEFAULT_RECURSIVE_NAMING, Boolean.toString(state));
+    }
+
+    @Override
+    public void setDefaultSaveToSrcOn(boolean state) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(DEFAULT_SAVE_TO_SRC, Boolean.toString(state));
     }
 }

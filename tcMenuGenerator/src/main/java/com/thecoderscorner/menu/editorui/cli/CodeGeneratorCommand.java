@@ -1,17 +1,11 @@
 package com.thecoderscorner.menu.editorui.cli;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
-import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
-import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
-import com.thecoderscorner.menu.editorui.project.PersistedProject;
-import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -19,10 +13,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.Command;
 
 @Command(name="generate")
 public class CodeGeneratorCommand implements Callable<Integer> {

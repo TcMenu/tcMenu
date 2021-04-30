@@ -6,9 +6,10 @@ import picocli.CommandLine;
 
 import static picocli.CommandLine.*;
 
-@Command(name = "tcMenuDesigner", subcommands = {
+@Command(name = "tcMenuDesigner", versionProvider = CliVersionProvider.class, subcommands = {
         CodeGeneratorCommand.class,
-        CodeVerificationCommand.class
+        CodeVerificationCommand.class,
+        CreateProjectCommand.class
 })
 public class TcMenuDesignerCmd {
 

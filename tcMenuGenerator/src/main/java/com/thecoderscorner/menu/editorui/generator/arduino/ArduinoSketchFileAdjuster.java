@@ -28,7 +28,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     /** The pattern to look for call back functions */
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(void|int)\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
+    public static final Pattern FUNCTION_PATTERN = Pattern.compile("(void|int)\\s+CALLBACK_FUNCTION\\s+([^\\(\\s]+).*");
     /** the pattern to look for set up */
     private static final Pattern SETUP_PATTERN = Pattern.compile("void\\s+setup\\(\\)(.*)");
     /** the pattern to loop for the loop method */

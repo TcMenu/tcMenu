@@ -18,19 +18,32 @@ public class CodeVerificationCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose logging")
     private boolean verbose;
 
+    public void log(boolean verboseLogging, String toLog) {
+        if(verboseLogging && !verbose) return;
+        System.out.println(toLog);
+    }
+
     @Override
     public Integer call() throws Exception {
         if(projectFile == null || !projectFile.exists()) {
-            System.out.println("Chosen emf file does not exist");
+            log(false, "Chosen emf file does not exist");
             return -1;
         }
+
+        log(false, "Starting EEPROM overlap check");
+
         var persistor = new FileBasedProjectPersistor();
         var project = persistor.open(projectFile.getAbsolutePath());
+
+        log(true, "Project has been loaded " + project.getOptions().getApplicationName());
 
         var allItems = project.getMenuTree().getAllMenuItems().stream()
                 .filter(itm -> itm.getEepromAddress() != -1)
                 .sorted(Comparator.comparingInt(MenuItem::getEepromAddress))
                 .collect(Collectors.toList());
+
+        log(true, "Evaluating tree, items with EEPROM address: " + allItems.size());
+
 
         int currentEepromPosition = 0;
         int currentSize = 2;
@@ -38,12 +51,23 @@ public class CodeVerificationCommand implements Callable<Integer> {
         for(var item : allItems) {
             int currentMin = currentEepromPosition + currentSize;
             if(item.getEepromAddress() < currentMin) {
-                System.out.format("Item %s overlaps, location %d", item.getName(), item.getEepromAddress());
+                log(true, String.format("OVERLAP: Item '%20s' ID(%5d) EEPROM(%5d)", item.getName(),
+                        item.getId(), item.getEepromAddress()
+                ));
                 retCode = -1;
+            }
+            else {
+                log(true, String.format("ITEM OK: Item '%20s' ID(%5d) EEPROM(%5d) %s", item.getName(),
+                        item.getId(), item.getEepromAddress(), "=".repeat(Math.max(0, MenuItemHelper.eepromSizeForItem(item)))
+                ));
             }
             currentEepromPosition = item.getEepromAddress();
             currentSize = MenuItemHelper.eepromSizeForItem(item);
         }
+
+        log(true, "Returning with code " + retCode);
+
         return retCode;
     }
+
 }

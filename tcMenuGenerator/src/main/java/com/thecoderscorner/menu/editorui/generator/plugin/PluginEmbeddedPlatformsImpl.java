@@ -55,6 +55,14 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         }
     }
 
+    public boolean isArduino(EmbeddedPlatform platform) {
+        return arduinoPlatforms.contains(platform);
+    }
+
+    public boolean isMbed(EmbeddedPlatform platform) {
+        return mbedPlatforms.contains(platform);
+    }
+
     @Override
     public EmbeddedPlatform getEmbeddedPlatformFromId(String id) {
         // at least attempt to handle the newer definitions on the line below from the new C# UI.

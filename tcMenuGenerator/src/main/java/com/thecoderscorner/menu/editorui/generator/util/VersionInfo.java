@@ -17,15 +17,15 @@ public class VersionInfo {
     private final int minor;
     private final int patch;
     public VersionInfo(String ver) {
-        String verSplit[] = ver.split("\\.");
+        String[] verSplit = ver.split("\\.");
         if(verSplit.length < 2) {
             major = minor = patch = 0;
         }
         else {
-            major = Integer.valueOf(verSplit[0]);
-            minor = Integer.valueOf(verSplit[1]);
+            major = Integer.parseInt(verSplit[0]);
+            minor = Integer.parseInt(verSplit[1]);
             if (verSplit.length == 3) {
-                patch = Integer.valueOf(verSplit[2]);
+                patch = Integer.parseInt(verSplit[2]);
             }
             else patch = 0;
         }

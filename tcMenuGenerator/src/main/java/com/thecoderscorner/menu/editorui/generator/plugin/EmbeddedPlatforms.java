@@ -32,4 +32,16 @@ public interface EmbeddedPlatforms {
      * @return the embedded platform for the given id
      */
     EmbeddedPlatform getEmbeddedPlatformFromId(String id);
+
+    /**
+     * @param platform the platform to check
+     * @return true if it is an mbed platform
+     */
+    public boolean isMbed(EmbeddedPlatform platform);
+
+    /**
+     * @param platform the platform to check
+     * @return true if it is an arduino platform
+     */
+    public boolean isArduino(EmbeddedPlatform platform);
 }
