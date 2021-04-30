@@ -13,7 +13,7 @@ import java.util.List;
  * Constructs a BooleanMenuItemBuilder using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
  */
-public class EnumMenuItemBuilder extends MenuItemBuilder<EnumMenuItemBuilder> {
+public class EnumMenuItemBuilder extends MenuItemBuilder<EnumMenuItemBuilder, EnumMenuItem> {
 
     private List<String> enumList = new ArrayList<>();
 

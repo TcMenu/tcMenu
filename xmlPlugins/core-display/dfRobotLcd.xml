@@ -1,0 +1,70 @@
+<TcMenuPlugin name="DfRobot LCD shield renderer"
+              id="bcd5fe34-9e9f-4fcb-9edf-f4e3caca0674" subsystem="DISPLAY"
+              requiresDesigner="2.0"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+    </SupportedPlatforms>
+    <Description>Uses the LCD panel on the DfRobot shield via the LiquidCrystalIO library without needing to specify any configuration at all.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/dfrobot-input-display-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>DfRobotShield.jpg</ImageFile>
+
+    <Properties>
+        <Property id="UNO_OR_FULL" name="Uno (less functional) or Full (8K bigger)" initial="unoLcd" desc="Uno (less functional/smaller) of Full functionality plugin ~8K difference" type="choice">
+            <Choices>
+                <Choice desc="Uno - Low Memory">unoLcd</Choice>
+                <Choice desc="Full - More Configurable">fullLcd</Choice>
+            </Choices>
+        </Property>
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="2" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="${UNO_OR_FULL}/tcMenuLiquidCrystal.cpp" />
+        <SourceFile name="${UNO_OR_FULL}/tcMenuLiquidCrystal.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="LiquidCrystalIO.h" inSource="false"/>
+        <Header name="tcMenuLiquidCrystal.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false">
+            <Param value="8"/>
+            <Param value="9"/>
+            <Param value="4"/>
+            <Param value="5"/>
+            <Param value="6"/>
+            <Param value="7"/>
+        </Variable>
+
+        <Variable name="renderer" type="LiquidCrystalRenderer" export="true" progmem="false">
+            <Param value="lcd"/>
+            <Param value="16"/>
+            <Param value="2"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="begin" object="lcd">
+            <Param value="16"/>
+            <Param value="2"/>
+        </Function>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="configureBacklightPin" object="lcd">
+            <Param value="10"/>
+        </Function>
+
+        <Function name="backlight" object="lcd"/>
+    </SetupFunctions>
+</TcMenuPlugin>

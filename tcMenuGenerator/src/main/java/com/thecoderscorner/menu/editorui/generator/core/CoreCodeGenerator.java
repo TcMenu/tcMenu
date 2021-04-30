@@ -433,6 +433,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(TWO_LINES);
 
+            writer.write("// Provide a wrapper to get hold of the root menu item");
+            writer.write(LINE_BREAK);
+            writer.write("inline MenuItem& rootMenuItem() { return " + context.getRootObject() + "; }");
+            writer.write(TWO_LINES);
+
             writer.write("// Callback functions must always include CALLBACK_FUNCTION after the return type"
                     + LINE_BREAK + "#define CALLBACK_FUNCTION" + LINE_BREAK + LINE_BREAK);
 

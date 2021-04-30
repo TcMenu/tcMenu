@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.domain;
 
-public class Rgb32MenuItemBuilder extends MenuItemBuilder<Rgb32MenuItemBuilder> {
+public class Rgb32MenuItemBuilder extends MenuItemBuilder<Rgb32MenuItemBuilder, Rgb32MenuItem> {
     private boolean alpha = false;
 
     @Override

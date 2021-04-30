@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright (c)  2016-2020 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  ~
+  -->
+
+<TcMenuPlugin name="Ethernet control of your menu using mbed libraries" id="27e7a502-330e-4570-9f8e-bd26ac88051f" subsystem="REMOTE"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>Use this option to be able to control the menu using the mbed ethernet libraries.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ethernet-remote-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>mbed-ethernet.jpg</ImageFile>
+
+    <Properties>
+        <Property id="LISTEN_PORT" name="Port on which to listen" initial="3333" desc="The port on which to listen" type="int" min="0" max="65535"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="mbedEthernet/MBedEthernetTransport.cpp"/>
+        <SourceFile name="mbedEthernet/MBedEthernetTransport.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="MBedEthernetTransport.h" inSource="true"/>
+        <Header name="RemoteConnector.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables/>
+
+    <SetupFunctions>
+        <Function name="begin" object="remoteServer">
+            <Param value="${LISTEN_PORT}"/>
+            <Param ref="applicationInfo"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

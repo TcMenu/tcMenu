@@ -10,7 +10,7 @@ package com.thecoderscorner.menu.domain;
  * Constructs a FloatMenuItem using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
  */
-public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuItemBuilder> {
+public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuItemBuilder, RuntimeListMenuItem> {
 
     private int initialRows;
 

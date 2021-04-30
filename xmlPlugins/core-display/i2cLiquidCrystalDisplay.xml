@@ -1,0 +1,104 @@
+<TcMenuPlugin name="LCD shield renderer for common I2C devices"
+              id="d4c84106-fa87-4024-b91e-053e17a52b8f" subsystem="DISPLAY"
+              requiresDesigner="2.0"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+       <Platform>ARDUINO_ESP8266</Platform>
+       <Platform>ARDUINO_ESP32</Platform>
+       <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>LiquidCrystal based display driver that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement use the general version.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/liquidcrystalio-hd44780-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>lcd-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="LCD_WIDTH" name="Lcd Width" initial="16" desc="Number of characters across the LCD" type="int" min="1" max="20"/>
+        <Property id="LCD_HEIGHT" name="Lcd Height" initial="2" desc="Number of rows on the LCD" type="int" min="1" max="4"/>
+        <Property id="I2C_ADDRESS" name="I2C Address" initial="0x20" desc="Address on which the display responds" type="hex" max="255"/>
+        <Property id="PIN_LAYOUT" name="LCD Pin Layout" initial="EN_RW_RS" desc="How pins are arrange on your backpack" type="choice">
+            <Choices>
+                <Choice desc="EN, RW, RS, BL, Data">EN_RW_RS</Choice>
+                <Choice desc="RS, RW, EN, BL, Data">RS_RW_EN</Choice>
+            </Choices>
+        </Property>
+        <Property id="WIRE_VARIABLE" name="I2C (Wire) Variable" initial="Wire" desc="The name of the I2C instance to use (default Wire)" type="variable"/>
+        <Property id="UNO_OR_FULL" name="Uno (less functional) or Full (8K bigger)" initial="unoLcd" desc="Uno (less functional/smaller) of Full functionality plugin ~8K difference" type="choice">
+            <Choices>
+                <Choice desc="Uno - Low Memory">unoLcd</Choice>
+                <Choice desc="Full - More Configurable">fullLcd</Choice>
+            </Choices>
+        </Property>
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="2" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="${UNO_OR_FULL}/tcMenuLiquidCrystal.cpp" />
+        <SourceFile name="${UNO_OR_FULL}/tcMenuLiquidCrystal.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="Wire.h" inSource="false" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+        <Header name="LiquidCrystalIO.h" inSource="false"/>
+        <Header name="tcMenuLiquidCrystal.h" inSource="true" priority="low"/>
+        <Header name="IoAbstractionWire.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${WIRE_VARIABLE}" type="I2C"  export="only" whenProperty="TARGET" isValue="MBED_RTOS"/>
+        <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false" whenProperty="PIN_LAYOUT" isValue="EN_RW_RS">
+            <Param value="2"/>
+            <Param value="1"/>
+            <Param value="0"/>
+            <Param value="4"/>
+            <Param value="5"/>
+            <Param value="6"/>
+            <Param value="7"/>
+        </Variable>
+
+        <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false" whenProperty="PIN_LAYOUT" isValue="RS_RW_EN">
+            <Param value="0"/>
+            <Param value="1"/>
+            <Param value="2"/>
+            <Param value="4"/>
+            <Param value="5"/>
+            <Param value="6"/>
+            <Param value="7"/>
+        </Variable>
+
+        <Variable name="renderer" type="LiquidCrystalRenderer" export="true" progmem="false">
+            <Param value="lcd"/>
+            <Param value="${LCD_WIDTH}"/>
+            <Param value="${LCD_HEIGHT}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="begin" object="Wire" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+
+        <Function name="setIoAbstraction" object="lcd" >
+            <Param value="ioFrom8574(${I2C_ADDRESS}, 0xff, &amp;${WIRE_VARIABLE})"/>
+        </Function>
+
+        <Function name="begin" object="lcd">
+            <Param value="${LCD_WIDTH}"/>
+            <Param value="${LCD_HEIGHT}"/>
+        </Function>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="configureBacklightPin" object="lcd">
+            <Param value="3"/>
+        </Function>
+
+        <Function name="backlight" object="lcd"/>
+    </SetupFunctions>
+</TcMenuPlugin>

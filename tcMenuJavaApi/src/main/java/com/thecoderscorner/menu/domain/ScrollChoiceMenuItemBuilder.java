@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.domain;
 
-public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMenuItemBuilder> {
+public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMenuItemBuilder, ScrollChoiceMenuItem> {
     private int itemWidth;
     private int eepromOffset;
     private int numEntries;

@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<TcMenuPluginDefinition shortName="core-themes" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
+    <GeneralDetails>
+        <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
+        <Version>2.1.0</Version>
+        <Name>Core themes plugin</Name>
+        <Description>This plugin provides themes that can be used with all graphical displays.</Description>
+        <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+    </GeneralDetails>
+
+    <Plugins>
+        <!-- Cool Blue plugins -->
+        <Plugin>CoolBlueModern.xml</Plugin>
+        <Plugin>CoolBlueTraditional.xml</Plugin>
+
+        <!-- Mono plugins -->
+        <Plugin>MonoBorderedTitle.xml</Plugin>
+        <Plugin>MonoInverseTitle.xml</Plugin>
+
+        <!-- Manual plugins -->
+        <Plugin>ManualTheme.xml</Plugin>
+    </Plugins>
+</TcMenuPluginDefinition>

@@ -37,6 +37,9 @@ extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;
 
+// Provide a wrapper to get hold of the root menu item
+inline MenuItem& rootMenuItem() { return menuExtra; }
+
 // Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION
 

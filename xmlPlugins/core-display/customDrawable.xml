@@ -1,0 +1,43 @@
+<TcMenuPlugin name="Generate Drawable for an unsupported graphical display"
+              id="2202fd9e-3a92-48eb-a70a-8d331793e0b4"
+              subsystem="DISPLAY" needsTheme="true"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+       <Platform>ARDUINO_ESP8266</Platform>
+       <Platform>ARDUINO_ESP32</Platform>
+       <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>Allows you to write your own custom Drawable that interfaces to an unsupported display, kind of like fill in the blanks. See the documentation link.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/customise-menu-input-display-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>custom-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="30"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="CustomDrawableType" replace="${CLASS_NAME}Drawable" whenProperty="CREATE_EMPTY_DRAWABLE" isValue="true"/>
+        <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" whenProperty="CREATE_EMPTY_DRAWABLE" isValue="true"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="CustomDisplayDrawable.h" inSource="cppSrc" />
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="customDrawable"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions/>
+</TcMenuPlugin>

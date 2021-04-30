@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
+           xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin">
+  <xs:element name="TcMenuPluginDefinition" type="TcMenuPluginDefinitionType"/>
+  <xs:complexType name="AuthorType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="url"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="LicenseType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="url"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="GeneralDetailsType">
+    <xs:sequence>
+      <xs:element type="AuthorType" name="Author"/>
+      <xs:element type="xs:string" name="Version"/>
+      <xs:element type="xs:string" name="Name"/>
+      <xs:element type="xs:string" name="Description"/>
+      <xs:element type="LicenseType" name="License"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PluginsType">
+    <xs:sequence>
+      <xs:element name="Plugin" maxOccurs="unbounded" minOccurs="0" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TcMenuPluginDefinitionType">
+    <xs:attribute name="shortName" type="xs:string" use="required"/>
+    <xs:sequence>
+      <xs:element type="GeneralDetailsType" name="GeneralDetails"/>
+      <xs:element type="PluginsType" name="Plugins"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

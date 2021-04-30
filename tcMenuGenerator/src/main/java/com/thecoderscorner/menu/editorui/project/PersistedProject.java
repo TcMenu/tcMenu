@@ -16,22 +16,18 @@ public class PersistedProject {
     private String version = "1.00";
     private String projectName;
     private String author;
-    private Instant lastEdited;
-    private boolean namingRecursive;
     private ArrayList<PersistedMenu> items;
     private CodeGeneratorOptions codeOptions;
 
     public PersistedProject() {
     }
 
-    public PersistedProject(String projectName, String author, Instant lastEdited, List<PersistedMenu> items,
+    public PersistedProject(String projectName, String author, List<PersistedMenu> items,
                             CodeGeneratorOptions generatorOptions) {
         this.projectName = projectName;
         this.author = author;
-        this.lastEdited = lastEdited;
         this.items = new ArrayList<>(items);
         this.codeOptions = generatorOptions;
-        this.namingRecursive = false;
     }
 
     public CodeGeneratorOptions getCodeOptions() {
@@ -42,10 +38,6 @@ public class PersistedProject {
         return version;
     }
 
-    public boolean isNamingRecursive() {
-        return namingRecursive;
-    }
-
     public String getProjectName() {
         return projectName;
     }
@@ -54,13 +46,7 @@ public class PersistedProject {
         return author;
     }
 
-    public Instant getLastEdited() {
-        return lastEdited;
-    }
-
     public List<PersistedMenu> getItems() {
         return items;
     }
-
-
 }

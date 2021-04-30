@@ -138,7 +138,7 @@ public class MenuEditorApp extends Application {
         });
     }
 
-    private List<Path> configuredPluginPaths() {
+    public static List<Path> configuredPluginPaths() {
         var list = new ArrayList<Path>();
         var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
         var additionalPlugins = System.getProperty("additionalPluginsDir");

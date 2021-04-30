@@ -18,7 +18,7 @@ public class EmbeddedPlatform {
     /** Defines the AVR based 8 bit platform */
     public final static EmbeddedPlatform ARDUINO_AVR = new EmbeddedPlatform("Arduino AVR/Uno/Mega", "ARDUINO", true);
     /** Defines the 32 bit arduino platform */
-    public final static EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino SAMD", "ARDUINO32", false);
+    public final static EmbeddedPlatform ARDUINO32 = new EmbeddedPlatform("Arduino 32bit ARM", "ARDUINO32", false);
     /** Defines the 32 bit arduino platform */
     public final static EmbeddedPlatform ARDUINO_ESP8266 = new EmbeddedPlatform("Arduino ESP8266", "ARDUINO_ESP8266", true);
     public final static EmbeddedPlatform ARDUINO_ESP32 = new EmbeddedPlatform("Arduino ESP32", "ARDUINO_ESP32", true);

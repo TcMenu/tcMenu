@@ -1,0 +1,71 @@
+<TcMenuPlugin name="STM32 BSP Touch and LTDC framebuffer support"
+              id="fc7b8f22-6553-43d6-9968-df4ee2562aaf" subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="true"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>Integrates with both the touch interface and the LTDC frame buffer on STM32 boards using the BSP functions.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed-stm32-menu-touch-display/"/>
+    <RequiredLibraries/>
+    <ImageFile>adagfx-color.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_WIDTH" name="Pixel width in X dimension" initial="240" desc="The number of pixels across the screen" type="int" min="1" max="10000"/>
+        <Property id="DISPLAY_HEIGHT" name="Pixel width in Y dimension" initial="320" desc="The number of pixels down the screen" type="int" min="1" max="10000"/>
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
+        <Property id="TOUCH_ROTATION" name="Rotation - not supported yet" initial="PORTRAIT" desc="Sets the orientation of the touch screen" type="choice">
+            <Choices>
+                <Choice desc="Portrait">PORTRAIT</Choice>
+                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
+                <Choice desc="Landscape">LANDSCAPE</Choice>
+                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
+            </Choices>
+        </Property>
+        <Property id="TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
+    </Properties>
+
+    <ApplicabilityDefs/>
+    <SourceFiles>
+        <SourceFile name="mbedStm32Bsp/BspUserSettings.h" overwrite="never"/>
+        <SourceFile name="mbedStm32Bsp/tcMenuStChromaArt.h" />
+        <SourceFile name="mbedStm32Bsp/tcMenuStChromaArt.cpp" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="BspUserSettings.h" inSource="true"/>
+        <Header name="tcMenuStChromaArt.h" inSource="true"/>
+        <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="StChromaArtDrawable" export="true"/>
+
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+
+        <Variable name="touchInterrogator" type="StBspTouchInterrogator" export="true" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param value="${DISPLAY_WIDTH}"/>
+            <Param value="${DISPLAY_HEIGHT}"/>
+        </Variable>
+
+        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param ref="touchInterrogator"/>
+            <Param ref="renderer"/>
+            <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="start" object="touchScreen" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"/>
+
+    </SetupFunctions>
+</TcMenuPlugin>

@@ -1,0 +1,59 @@
+<TcMenuPlugin name="Custom U8G2 - manually declared and configured"
+              id="8646497b-1427-415f-8020-1260a1fef57d"
+              subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="true"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>Draw menus using U8G2 library. Use this version when you want to provide a ready configured U8G2 variable yourself, instead of letting the code generator provide it. This version is more configurable.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>oled-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Display variable name as declared in sketch" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="Type of the variable as declared in sketch" type="variable" />
+        <Property id="DISPLAY_CONFIG" name="Deprecated Optional display config" initial="" desc="Deprecated, do not use in new designs, leave blank)" type="variable" />
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="u8g2Driver/tcMenuU8g2.cpp" />
+        <SourceFile name="u8g2Driver/tcMenuU8g2.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuU8g2.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="only" />
+        <Variable name="${DISPLAY_CONFIG}" type="U8g2GfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+
+        <Function name="setGraphicsConfiguration" object="renderer" whenProperty="DISPLAY_CONFIG" isNotValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="${DISPLAY_CONFIG}"/>
+        </Function>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

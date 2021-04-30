@@ -1,0 +1,64 @@
+<TcMenuPlugin name="AdaFruit_GFX with manual declaration and configuration"
+              id="7c486068-9879-459f-89ee-9522366524a3"
+              subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="true"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>Draw menus using the AdafruitGFX library. Create the graphics variable and configure it yourself, here you just tell us the name of the variable and the type. This version works with most displays and is very configurable.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>adagfx-color.jpg</ImageFile>
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Name of the AdaGfx display variable exactly as declared in sketch" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type" initial="Adafruit_ILI9341" desc="Type of the AdaGfx display variable as declared in sketch" type="variable" />
+        <Property id="DISPLAY_CONFIG" name="Display config (blank default)" initial="" desc="Optional, use to override the default graphics configuration" type="variable" />
+        <Property id="DISPLAY_BUFFERED" name="Library is memory buffered" initial="false" desc="If the display library is memory buffered" type="boolean" />
+        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER ${DISPLAY_BUFFERED}"/>
+        <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="only" />
+        <Variable name="${DISPLAY_CONFIG}" type="AdaColorGfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
+
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="AdafruitDrawable" export="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+        </Variable>
+
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="setGraphicsConfiguration" object="renderer" whenProperty="DISPLAY_CONFIG" isNotValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="${DISPLAY_CONFIG}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

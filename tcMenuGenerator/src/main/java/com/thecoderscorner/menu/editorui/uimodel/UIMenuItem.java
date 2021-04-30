@@ -212,7 +212,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 errors, 32, StringFieldType.VARIABLE);
     }
 
-    protected void getChangedDefaults(MenuItemBuilder<?> builder, List<FieldError> errorsBuilder) {
+    protected void getChangedDefaults(MenuItemBuilder<?,?> builder, List<FieldError> errorsBuilder) {
         int eeprom = -1;
         if (eepromField != null) {
             eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",

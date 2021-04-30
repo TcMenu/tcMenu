@@ -10,7 +10,7 @@ package com.thecoderscorner.menu.domain;
  * Constructs a EditableTextMenuItemBuilder using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
  */
-public class EditableTextMenuItemBuilder extends MenuItemBuilder<EditableTextMenuItemBuilder> {
+public class EditableTextMenuItemBuilder extends MenuItemBuilder<EditableTextMenuItemBuilder, EditableTextMenuItem> {
 
     private int textLength = 0;
     private EditItemType itemType = EditItemType.PLAIN_TEXT;

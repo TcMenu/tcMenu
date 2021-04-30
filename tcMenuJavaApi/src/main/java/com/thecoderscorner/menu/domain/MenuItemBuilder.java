@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.domain;
 
-abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
+abstract public class MenuItemBuilder<T extends MenuItemBuilder, M extends MenuItem> {
     String name;
     String variableName;
     int id;
@@ -58,7 +58,7 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         return getThis();
     }
 
-    protected void baseFromExisting(MenuItem item) {
+    protected void baseFromExisting(M item) {
         name = item.getName();
         id = item.getId();
         eepromAddr = item.getEepromAddress();
@@ -68,4 +68,6 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder> {
         localOnly = item.isLocalOnly();
         visible = item.isVisible();
     }
+
+    public abstract M menuItem();
 }

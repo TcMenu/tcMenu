@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
 import picocli.CommandLine;
 
@@ -14,6 +15,11 @@ public class VersionCommand implements Callable<Integer> {
         var storage = new PrefsConfigurationStorage();
         System.out.println("TcMenu Designer V" + storage.getVersion() + " - " + storage.getReleaseType());
         System.out.println("Built on " + storage.getBuildTimestamp());
+
+        // For beta releases make people aware they should not use it in production!
+        if(storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
+            System.out.println("This is a BETA release and should only be used for evaluation.");
+        }
         return 0;
     }
 }

@@ -123,7 +123,9 @@ public class MenuEditorTestCases {
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.isUsingArduinoIDE()).thenReturn(true);
         when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
+        // both versions same, do not invoke splash screen.
         when(storage.getVersion()).thenReturn("1.1.1");
+        when(storage.getLastRunVersion()).thenReturn(new VersionInfo("1.1.1"));
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();

@@ -1,46 +1,40 @@
 # Windows
+# Prerequisites: Ensure all components are correctly versioned in Maven, iss script etc.
+#
 # Step 1 - Check the archive worked and versioning is right
-
-Ensure all components are correctly versioned in Maven, iss script etc.
+#
 
 Run and smoke test:
-java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.MenuEditorApp
+java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-# Step 2 - Build the package - Windows 7
+# Step 2 - Build the package - Windows all versions
 
-jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.0.7 --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
-
-# Debian / Ubunutu package command
-
-jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --app-version 2.0.7 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
-
+jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.0.7 --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 # Step 3 - Build the distribution
 
 Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator directory. Choose compile, output will be in the Output directory at the same level as the script.
 
-Linux from target dir:
+# Step 4 - Build for Debian / Ubunutu using package command
 
-cp ../startDesigner.sh jfx/app
-mv jfx tcMenuDesigner-<version>
-tar cvfz tcMenuDesigner-<version>.tar.gz tcMenuDesigner-<version>
-tar tvfz tcMenuDesigner-<version>.tar.gz
+jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --app-version 2.0.7 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-# MacOS build - no longer needed, we support nearly all with the app store version
+# Step 5 - MacOS build all versions
 
 Perform maven build
 
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home/bin/jpackage
+jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
-jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
 
+# controller to be better defined at the moment.
+
+jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#---------------------------OLD INSTRUCTIONS-----------------------------
+#------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
 --- old instructions for JDK 11 (before 1.4.1 basically) DO NOT USE FOR NEWER BUILDS

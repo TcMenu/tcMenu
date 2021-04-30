@@ -83,7 +83,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
             String user = System.getProperty("user.name");
             gson.toJson(
-                    new PersistedProject(fileName, user, Instant.now(), itemsInOrder, options),
+                    new PersistedProject(fileName, user, itemsInOrder, options),
                     writer);
         }
     }
