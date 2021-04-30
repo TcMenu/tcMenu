@@ -19,8 +19,9 @@ import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
+import static picocli.CommandLine.*;
 
-@CommandLine.Command(name = "create-project")
+@Command(name = "create-project")
 public class CreateProjectCommand implements Callable<Integer> {
 
     private static final String DEFAULT_ARDUINO_SKETCH_STRING = "// default CPP main file for sketch" + LINE_BREAK +
@@ -46,20 +47,20 @@ public class CreateProjectCommand implements Callable<Integer> {
 
     public enum SupportedPlatform { ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS }
 
-    @CommandLine.Option(names = {"-d", "--directory"}, description = "optional directory name (defaults to current)")
+    @Option(names = {"-d", "--directory"}, description = "optional directory name (defaults to current)")
     private File projectLocation;
 
     @SuppressWarnings("FieldMayBeFinal")
-    @CommandLine.Option(names = {"-p", "--platform"}, description = "one of ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS", required = true)
+    @Option(names = {"-p", "--platform"}, description = "one of ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS", required = true)
     private SupportedPlatform platform = SupportedPlatform.ARDUINO_AVR;
 
-    @CommandLine.Option(names = {"-m", "--cpp"}, description = "use a cpp file for main")
+    @Option(names = {"-m", "--cpp"}, description = "use a cpp file for main")
     private boolean cppMain;
 
-    @CommandLine.Parameters(paramLabel = "project name")
+    @Parameters(paramLabel = "project name")
     private String[] newProject;
 
-    @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose logging")
+    @Option(names = {"-v", "--verbose"}, description = "verbose logging")
     private boolean verbose;
 
     @Override

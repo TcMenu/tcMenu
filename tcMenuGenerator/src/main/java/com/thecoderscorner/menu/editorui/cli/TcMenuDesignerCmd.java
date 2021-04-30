@@ -9,7 +9,10 @@ import static picocli.CommandLine.*;
 @Command(name = "tcMenuDesigner", versionProvider = CliVersionProvider.class, subcommands = {
         CodeGeneratorCommand.class,
         CodeVerificationCommand.class,
-        CreateProjectCommand.class
+        CreateProjectCommand.class,
+        CreateItemCommand.class,
+        DeleteItemCommand.class,
+        VersionCommand.class
 })
 public class TcMenuDesignerCmd {
 

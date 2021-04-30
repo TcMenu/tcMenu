@@ -10,12 +10,14 @@ import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-@CommandLine.Command(name="verify")
+import static picocli.CommandLine.*;
+
+@Command(name="verify")
 public class CodeVerificationCommand implements Callable<Integer> {
-    @CommandLine.Option(names = {"-f", "--emf-file"}, description = "emf file name", required = true)
+    @Option(names = {"-f", "--emf-file"}, description = "emf file name", required = true)
     private File projectFile;
 
-    @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose logging")
+    @Option(names = {"-v", "--verbose"}, description = "verbose logging")
     private boolean verbose;
 
     public void log(boolean verboseLogging, String toLog) {
