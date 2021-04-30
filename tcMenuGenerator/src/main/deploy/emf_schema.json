@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://www.thecoderscorner.com/libraries/tcmenuEmfFileSchema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "integer",
+
+            },
+            "type": {
+              "type": "string",
+              "enum": ["analogItem", "enumItem", "subMenu", "actionMenu", "runtimeList", "boolItem", "textItem", "floatItem",
+                       "largeNumItem", "scrollItem", "rgbItem"]
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "maxValue": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": -32768
+                },
+                "divisor": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "unitName": {
+                  "type": "string",
+                  "maxLength": 4
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 19
+                },
+                "variableName": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "eepromAddress": {
+                  "type": "integer"
+                },
+                "functionName": {
+                  "type": "string"
+                },
+                "readOnly": {
+                  "type": "boolean"
+                },
+                "localOnly": {
+                  "type": "boolean"
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "variableName",
+                "id",
+                "eepromAddress",
+                "functionName",
+                "readOnly",
+                "localOnly",
+                "visible"
+              ]
+            }
+          },
+          "required": [
+            "parentId",
+            "type",
+            "item"
+          ]
+        }
+      ]
+    },
+    "codeOptions": {
+      "type": "object",
+      "properties": {
+        "embeddedPlatform": {
+          "type": "string"
+        },
+        "lastDisplayUuid": {
+          "type": "string"
+        },
+        "lastInputUuid": {
+          "type": "string"
+        },
+        "lastRemoteUuid": {
+          "type": "string"
+        },
+        "lastThemeUuid": {
+          "type": "string"
+        },
+        "applicationUUID": {
+          "type": "string"
+        },
+        "applicationName": {
+          "type": "string"
+        },
+        "lastProperties": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "latestValue": {
+                  "type": "string"
+                },
+                "subsystem": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "latestValue",
+                "subsystem"
+              ]
+            }
+          ]
+        },
+        "namingRecursive": {
+          "type": "boolean"
+        },
+        "saveToSrc": {
+          "type": "boolean"
+        },
+        "useCppMain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "embeddedPlatform",
+        "applicationUUID",
+        "applicationName",
+        "lastProperties",
+        "namingRecursive",
+        "saveToSrc",
+        "useCppMain"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "projectName",
+    "author",
+    "items",
+    "codeOptions"
+  ]
+}
