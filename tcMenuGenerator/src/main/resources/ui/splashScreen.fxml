@@ -41,7 +41,7 @@
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="A new version of tcMenu has been installed! If you're new to TcMenu then we recommend that you watch the getting started video first." wrappingWidth="346.103515625" />
             <Hyperlink onAction="#onGettingStartedVideo" text="Getting started video on youtube" />
             <Hyperlink onAction="#onTcMenuDocs" text="TcMenu documentation" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please take note that commercial users must register from the File-&gt;Register menu." wrappingWidth="338.9375" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Registration is now optional for all users, select File-&gt;Register from the menu if you wish to do so." wrappingWidth="338.9375" />
          </children>
       </VBox>
       <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">

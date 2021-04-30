@@ -17,7 +17,7 @@ public class VersionInfo {
     private final int minor;
     private final int patch;
     public VersionInfo(String ver) {
-        String[] verSplit = ver.split("\\.");
+        String[] verSplit = ver.split("[-\\.]");
         if(verSplit.length < 2) {
             major = minor = patch = 0;
         }

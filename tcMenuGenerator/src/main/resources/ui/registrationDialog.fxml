@@ -36,7 +36,7 @@
             <TextField fx:id="companyName" promptText="company name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label text="Country" GridPane.rowIndex="4" />
             <TextField fx:id="country" promptText="country" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label text="Registration helps us to understand how much it's used, and is mandatory for commercial use. We take your privacy very seriously, and never share your information with anyone else. All data is transferred securely." wrapText="true" GridPane.columnSpan="2" />
+            <Label text="Registration helps us to understand how much it's used, but is now optional for all users. We take your privacy very seriously, and never share your information with anyone else. All data is transferred securely." wrapText="true" GridPane.columnSpan="2" />
             <CheckBox fx:id="newsLetter" mnemonicParsing="false" text="Please add me to the newsletter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label text="Newsletter" GridPane.rowIndex="5" />
          </children>
