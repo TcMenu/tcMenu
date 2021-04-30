@@ -29,22 +29,6 @@
             "item": {
               "type": "object",
               "properties": {
-                "maxValue": {
-                  "type": "integer",
-                  "minimum": 0
-                },
-                "offset": {
-                  "type": "integer",
-                  "minimum": -32768
-                },
-                "divisor": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "unitName": {
-                  "type": "string",
-                  "maxLength": 4
-                },
                 "name": {
                   "type": "string",
                   "maxLength": 19
@@ -69,6 +53,84 @@
                 },
                 "visible": {
                   "type": "boolean"
+                },
+                "maxValue": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": -32768
+                },
+                "divisor": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "unitName": {
+                  "type": "string",
+                  "maxLength": 4
+                },
+                "naming": {
+                  "type": "string",
+                  "enum": ["YES_NO","ON_OFF","TRUE_FALSE"]
+                },
+                "secured": {
+                  "type": "boolean"
+                },
+                "includeAlphaChannel": {
+                  "type": "boolean"
+                },
+                "numDecimalPlaces": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "itemType": {
+                  "type": "string",
+                  "enum": [ "PLAIN_TEXT", "IP_ADDRESS", "TIME_24H", "TIME_12H", "TIME_24_HUNDREDS", "GREGORIAN_DATE",
+                            "TIME_DURATION_SECONDS", "TIME_DURATION_HUNDREDS", "TIME_24H_HHMM", "TIME_12H_HHMM" ]
+                },
+                "textLength": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 256
+                },
+                "itemWidth": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 64
+                },
+                "eepromOffset": {
+                  "type": "integer"
+                },
+                "numEntries": {
+                  "type": "integer"
+                },
+                "choiceMode": {
+                  "type": "string",
+                  "enum": ["ARRAY_IN_EEPROM", "ARRAY_IN_RAM", "CUSTOM_RENDERFN"]
+                },
+                "enumEntries": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "digitsAllowed": {
+                  "type": "integer",
+                  "minimum": 5,
+                  "maximum": 12
+                },
+                "decimalPlaces": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "negativeAllowed": {
+                  "type": "boolean"
+                },
+                "initialRows": {
+                  "type": "integer"
                 }
               },
               "required": [
