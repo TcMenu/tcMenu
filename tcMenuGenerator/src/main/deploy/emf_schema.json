@@ -19,8 +19,7 @@
           "type": "object",
           "properties": {
             "parentId": {
-              "type": "integer",
-
+              "type": "integer"
             },
             "type": {
               "type": "string",
