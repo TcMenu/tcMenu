@@ -15,8 +15,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster.FUNCTION_PATTERN;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 
@@ -59,6 +59,9 @@ public class CreateProjectCommand implements Callable<Integer> {
     @CommandLine.Parameters(paramLabel = "project name")
     private String[] newProject;
 
+    @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose logging")
+    private boolean verbose;
+
     @Override
     public Integer call() throws Exception {
         if(projectLocation == null) projectLocation = new File(System.getProperty("user.dir"));
@@ -74,11 +77,14 @@ public class CreateProjectCommand implements Callable<Integer> {
         }
 
         try {
-            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, platform);
+            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, platform, System.out::println);
             return 0;
         }
         catch(Exception ex) {
-            ex.printStackTrace();
+            if(verbose)
+                ex.printStackTrace();
+            else
+                System.out.format("Error while creating project %s, %s", ex.getClass().getSimpleName(), ex.getMessage());
             return -1;
         }
     }
@@ -92,22 +98,23 @@ public class CreateProjectCommand implements Callable<Integer> {
      * @param suppPlat the platform as a SupportedPlatform.
      * @throws IOException when the directory and files are not properly created
      */
-    private static void createNewProject(Path location, String newProject, boolean cppMain, SupportedPlatform suppPlat) throws IOException {
+    private static void createNewProject(Path location, String newProject, boolean cppMain,
+                                         SupportedPlatform suppPlat, Consumer<String> logger) throws IOException {
         var platforms = new PluginEmbeddedPlatformsImpl();
         var configurationStorage = new PrefsConfigurationStorage();
         var platform = platforms.getEmbeddedPlatformFromId(suppPlat.toString());
 
-        System.out.format("Creating directory %s in %s\n", newProject, location);
+        logger.accept(String.format("Creating directory %s in %s", newProject, location));
         var dir = Paths.get(location.toString(), newProject);
         Files.createDirectory(dir);
 
         var cppExt = platforms.isMbed(platform) || cppMain;
         var sketch = dir.resolve(newProject + (cppExt ? ".cpp" : ".ino"));
-        System.out.format("Creating main project code file: %s\n", sketch);
+        logger.accept(String.format("Creating main project code file: %s", sketch));
         Files.writeString(sketch, platforms.isMbed(platform) ? DEFAULT_MBED_SKETCH_STRING : DEFAULT_ARDUINO_SKETCH_STRING);
 
         var projectEmf = dir.resolve(newProject + ".emf");
-        System.out.format("Creating basic EMF file: %s\n", sketch);
+        logger.accept(String.format("Creating basic EMF file: %s\n", sketch));
 
         var recursiveNaming = configurationStorage.isDefaultRecursiveNamingOn();
         var saveToSrc = configurationStorage.isDefaultSaveToSrcOn();
@@ -116,5 +123,6 @@ public class CreateProjectCommand implements Callable<Integer> {
         var  tree = new MenuTree();
         persistor.save(projectEmf.toString(), tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
                 List.of(), UUID.randomUUID(), newProject, recursiveNaming, saveToSrc, cppMain));
+        logger.accept("Project created!");
     }
 }
