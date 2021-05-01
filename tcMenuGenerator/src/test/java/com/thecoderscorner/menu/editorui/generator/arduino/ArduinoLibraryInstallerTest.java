@@ -51,7 +51,7 @@ public class ArduinoLibraryInstallerTest {
         when(prefs.isUsingArduinoIDE()).thenReturn(true);
         when(prefs.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
 
-        installer = new ArduinoLibraryInstaller(dirTmp.toString(), verDetector, mock(CodePluginManager.class), prefs, false);
+        installer = new ArduinoLibraryInstaller(verDetector, mock(CodePluginManager.class), prefs);
     }
 
     @AfterEach

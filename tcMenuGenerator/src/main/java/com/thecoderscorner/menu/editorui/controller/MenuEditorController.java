@@ -407,21 +407,6 @@ public class MenuEditorController {
         getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
-    public void onCodeSetArduinoDir(ActionEvent evt) {
-        if(configStore.isUsingArduinoIDE()) {
-            installer.manuallySetArduinoPath();
-            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
-            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
-            if(menuTree.getSelectionModel().getSelectedIndex() < 1) presentInfoPanel();
-        }
-        else {
-            editorUI.alertOnError(
-                    "Arduino IDE integration checkbox is off",
-                    "To enable Arduino IDE integration please tick the 'Using Arduino IDE' check box on the ROOT page."
-            );
-        }
-    }
-
     public void onCodeShowLayout(ActionEvent actionEvent) {
         editorUI.showRomLayoutDialog(editorProject.getMenuTree());
     }

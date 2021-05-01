@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
@@ -16,36 +15,26 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_PLUGIN;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_PLUGIN;
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
 
-    private static final System.Logger logger = System.getLogger(AppInformationPanel.class.getSimpleName());
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager pluginManager;
@@ -72,50 +61,22 @@ public class AppInformationPanel {
 
         String title = "TcMenu designer";
         if(storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
-            title += " BETA - for evaluation purposes";
+            title += " This is a BETA version - don't use in production";
         }
         Label docsLbl = new Label(title);
-        docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;-fx-padding: 4px;");
+        docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
         vbox.getChildren().add(docsLbl);
+
+        Label appPath = new Label("File: " + controller.getProject().getFileName());
+        vbox.getChildren().add(appPath);
+        var options = controller.getProject().getGeneratorOptions();
+        var appNameInfo = String.format("Name: %s, (%s)", options.getApplicationName(), options.getApplicationUUID().toString());
+        Label appName = new Label(appNameInfo);
+        vbox.getChildren().add(appName);
 
         // add the documentation links
         labelWithUrl(vbox, LIBRARY_DOCS_URL, "Browse docs and watch starter videos (F1 at any time)", "libdocsurl");
         labelWithUrl(vbox, GITHUB_PROJECT_URL, "Please give us a star on github if you like this tool", "githuburl");
-
-        // add the library installation status
-
-        var streamCombo = new ComboBox<ReleaseType>(FXCollections.observableList(
-                List.of(ReleaseType.values()))
-        );
-        streamCombo.getSelectionModel().select(libraryVersionDetector.getReleaseType());
-        streamCombo.getSelectionModel().selectedItemProperty().addListener((observableValue, oldVal, newVal) -> {
-            libraryVersionDetector.changeReleaseType(newVal);
-            checkAndReportItems(libraryInfoVBox);
-        });
-
-        var streamLabel = new Label("Plugin and library stream");
-        streamLabel.setAlignment(Pos.CENTER_LEFT);
-        streamLabel.setPadding(new Insets(4, 0, 0, 0));
-        var hbox = new HBox(5.0, streamLabel, streamCombo);
-        vbox.getChildren().add(hbox);
-
-        var usingArduinoIde = new CheckBox("I am using Arduino IDE and have global libraries installed");
-        usingArduinoIde.setSelected(storage.isUsingArduinoIDE());
-        usingArduinoIde.selectedProperty().addListener((observableValue, oldVal, newVal) -> {
-            storage.setUsingArduinoIDE(newVal);
-            controller.presentInfoPanel();
-        });
-        vbox.getChildren().add(usingArduinoIde);
-
-        var useRecursiveNaming = new CheckBox("Use fully qualified variable names for menus (submenu + name)");
-        useRecursiveNaming.setSelected(controller.getProject().getGeneratorOptions().isNamingRecursive());
-        useRecursiveNaming.selectedProperty().addListener((observableValue, oldVal, newVal) -> {
-            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                    .withExisting(controller.getProject().getGeneratorOptions())
-                    .withRecursiveNaming(newVal)
-                    .codeOptions());
-        });
-        vbox.getChildren().add(useRecursiveNaming);
 
         libraryInfoVBox = new VBox(3.0);
         checkAndReportItems(libraryInfoVBox);
@@ -134,10 +95,12 @@ public class AppInformationPanel {
     private void redrawTheTitlePage() {
         var vbox = libraryInfoVBox;
         vbox.getChildren().clear();
+        boolean needRefresh = false;
         if(installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
-            Label setManually = new Label("Set Arduino directory manually (Code -> Override Arduino Directory)");
+            Label setManually = new Label("Set Arduino directory from Edit -> General Settings");
             setManually.getStyleClass().add("libsNotOK");
             vbox.getChildren().add(setManually);
+            needRefresh = true;
         }
         else if(storage.isUsingArduinoIDE() && installer.statusOfAllLibraries().isUpToDate()) {
             Label lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
@@ -146,44 +109,40 @@ public class AppInformationPanel {
             vbox.getChildren().add(lblTcMenuOK);
         }
         else if(storage.isUsingArduinoIDE()) {
-            Label libsNotOK = new Label("Please update libraries from Arduino IDE (see About box for details)");
+            Label libsNotOK = new Label("Libraries are out of date, see Edit -> General Settings");
             libsNotOK.getStyleClass().add("libsNotOK");
             libsNotOK.setId("tcMenuStatusArea");
             vbox.getChildren().add(libsNotOK);
-            var refreshButton = new Button("Refresh library status");
-            refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
-            vbox.getChildren().add(refreshButton);
+            needRefresh = true;
         }
-
-        Label pluginLbl = new Label("Installed code generation plugins");
-        pluginLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
-        vbox.getChildren().add(pluginLbl);
 
         boolean pluginUpdateNeeded = (pluginManager.getLoadedPlugins().size() == 0);
 
         for(var plugin : pluginManager.getLoadedPlugins()) {
             var availableVersion = getVersionOfLibraryOrError(plugin, AVAILABLE_PLUGIN);
             var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
-            Label pluginInfoLbl = new Label("- " + plugin.getName() + ". Installed: "
-                    + plugin.getVersion() + ", Available: " + availableVersion);
-            pluginInfoLbl.getStyleClass().add("pluginInfoLbl");
-            vbox.getChildren().add(pluginInfoLbl);
             pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
         }
 
         if(pluginUpdateNeeded) {
             var noPlugins = pluginManager.getLoadedPlugins().isEmpty();
-            Button btn = new Button(noPlugins ? "No plugins installed, click to install" : "Click to update plugins to latest version");
-            btn.setStyle("-fx-background-color: red; -fx-text-fill: white;");
-            vbox.getChildren().add(btn);
-            btn.setOnAction(this::onUpgradeAction);
+            var pluginLabel = new Label(noPlugins ? "No plugins installed, fix in Edit -> General Settings" : "Plugin updates are available in Edit -> General Settings");
+            pluginLabel.getStyleClass().add("libsNotOK");
+            vbox.getChildren().add(pluginLabel);
+            needRefresh = true;
+        }
+        else {
+            Label lblPluginsOk = new Label("All plugins are up to date.");
+            lblPluginsOk.setId("tcMenuPluginIndicator");
+            lblPluginsOk.getStyleClass().add("libsOK");
+            vbox.getChildren().add(lblPluginsOk);
         }
 
-    }
-
-    private void onUpgradeAction(ActionEvent actionEvent) {
-        executor.execute(new UpgradeTask((Button)actionEvent.getSource()));
-        ((Button)actionEvent.getSource()).setDisable(true);
+        if(needRefresh) {
+            var refreshButton = new Button("Refresh library status");
+            refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
+            vbox.getChildren().add(refreshButton);
+        }
     }
 
     private VersionInfo getVersionOfLibraryOrError(CodePluginConfig plugin, InstallationType type) {
@@ -201,53 +160,5 @@ public class AppInformationPanel {
         docs.setOnAction((event)->  editorUI.browseToURL(urlToVisit));
         docs.setId(fxId);
         vbox.getChildren().add(docs);
-    }
-
-    private class UpgradeTask implements Runnable {
-        private final Button button;
-
-        public UpgradeTask(Button source) {
-            this.button = source;
-        }
-
-        private void updateUI(String status, boolean success) {
-            Platform.runLater(() -> {
-                button.setText(status);
-                if(success)
-                    button.setStyle("-fx-background-color: green;-fx-text-fill: white;");
-                else
-                    button.setStyle("-fx-background-color: red;-fx-text-fill: white;");
-            });
-        }
-
-        @Override
-        public void run() {
-            try {
-                Set<String> allPlugins = new HashSet<>(List.of("core-display", "core-remote", "core-themes"));
-                var installedPlugins = pluginManager.getLoadedPlugins().stream()
-                            .map(CodePluginConfig::getModuleName)
-                            .collect(Collectors.toList());
-                allPlugins.addAll(installedPlugins);
-
-                for(var pluginName : allPlugins) {
-                    var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
-                    if(availableVersion != null) {
-                        var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
-                        if (!installedVersion.equals(availableVersion)) {
-                            updateUI("Updating plugin " + pluginName, true);
-                            logger.log(INFO, "Updating " + pluginName);
-                            libraryVersionDetector.upgradePlugin(pluginName, availableVersion);
-                        }
-                    }
-                }
-                updateUI("Refreshing plugins", true);
-                pluginManager.reload();
-                updateUI("Plugins reloaded", true);
-
-            } catch (Exception e) {
-                updateUI("Failed to update: " + e.getMessage(), false);
-                logger.log(ERROR, "Update failed with exception", e);
-            }
-        }
     }
 }

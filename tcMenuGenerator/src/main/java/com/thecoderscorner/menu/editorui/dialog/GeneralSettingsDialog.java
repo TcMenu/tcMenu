@@ -6,14 +6,17 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.GeneralSettingsController;
-import com.thecoderscorner.menu.editorui.controller.SplashScreenController;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
@@ -24,16 +27,15 @@ import static java.lang.System.Logger.Level.ERROR;
 public class GeneralSettingsDialog {
     private final System.Logger logger = System.getLogger(GeneralSettingsDialog.class.getSimpleName());
 
-    private GeneralSettingsController controller;
-    private Stage dialogStage;
-
-    public GeneralSettingsDialog(Stage stage, boolean modal) {
+    public GeneralSettingsDialog(Stage stage, ConfigurationStorage storage, LibraryVersionDetector detector,
+                                 ArduinoLibraryInstaller installer, CodePluginManager manager, PluginUpgradeTask upgrader,
+                                 String home) {
         try {
             var loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/settingsDialog.fxml"));
             BorderPane pane = loader.load();
-            controller = loader.getController();
-            controller.initialise();
-            createDialogStateAndShow(stage, pane, "General Application Settings", modal);
+            GeneralSettingsController controller = loader.getController();
+            controller.initialise(storage, detector, installer, manager, upgrader, home);
+            createDialogStateAndShow(stage, pane, "General Application Settings", true);
         }
         catch(Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);

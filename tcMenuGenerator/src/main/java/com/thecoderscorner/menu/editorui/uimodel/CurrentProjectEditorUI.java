@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -28,6 +29,13 @@ public interface CurrentProjectEditorUI {
      * @return the filename or empty.
      */
     Optional<String> findFileNameFromUser(boolean open);
+
+    /**
+     * Get a file name from the user, either for Open or Save. This version allows the intial path to be set.
+     * @param open true if open, false if save.
+     * @return the filename or empty.
+     */
+    Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open);
 
     /**
      * Presents an error dialog to the user.

@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.*;
+import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -22,6 +23,7 @@ import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -33,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -41,27 +44,36 @@ import static java.lang.System.Logger.Level.INFO;
 
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private Stage mainStage;
-    private CodePluginManager manager;
-    private EmbeddedPlatforms platforms;
-    private ArduinoLibraryInstaller installer;
-    private ConfigurationStorage configStore;
+    private LibraryVersionDetector versionDetector;
+    private final String homeDirectory;
+    private final Stage mainStage;
+    private final CodePluginManager manager;
+    private final EmbeddedPlatforms platforms;
+    private final ArduinoLibraryInstaller installer;
+    private final ConfigurationStorage configStore;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
-                                      ArduinoLibraryInstaller installer, ConfigurationStorage storage) {
+                                      ArduinoLibraryInstaller installer, ConfigurationStorage storage,
+                                      LibraryVersionDetector versionDetector, String home) {
         this.manager = manager;
         this.mainStage = mainStage;
         this.platforms = platforms;
         this.installer = installer;
         this.configStore = storage;
+        this.versionDetector = versionDetector;
+        this.homeDirectory = home;
     }
 
     @Override
-    public Optional<String> findFileNameFromUser(boolean open) {
+    public Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose a Menu File");
+        initialDir.ifPresentOrElse(
+                dir -> fileChooser.setInitialDirectory(new File(dir.toString())),
+                () -> installer.getArduinoDirectory().ifPresent(path-> fileChooser.setInitialDirectory(path.toFile()))
+        );
+
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Embedded menu", "*.emf"));
-        installer.getArduinoDirectory().ifPresent(path-> fileChooser.setInitialDirectory(path.toFile()));
         File f;
         if (open) {
             f = fileChooser.showOpenDialog(mainStage);
@@ -73,6 +85,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
             return Optional.of(f.getPath());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> findFileNameFromUser(boolean open) {
+        return findFileNameFromUser(Optional.empty(), open);
     }
 
     @Override
@@ -152,7 +169,8 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showGeneralSettings() {
-        var settingsDialog = new GeneralSettingsDialog(mainStage, true);
+        var updater = new PluginUpgradeTask(manager, installer, versionDetector);
+        var settingsDialog = new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
     }
 
     public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,

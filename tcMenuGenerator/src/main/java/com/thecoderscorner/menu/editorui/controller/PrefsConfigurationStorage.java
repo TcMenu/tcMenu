@@ -115,7 +115,15 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
 
     @Override
     public void setArduinoLibrariesOverrideDirectory(String overrideDirectory) {
-
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        if(StringHelper.isStringEmptyOrNull(overrideDirectory)) {
+            prefs.remove(ARDUINO_LIBS_OVERRIDE_DIR);
+            this.maybeLibOverrideDirectory = Optional.empty();
+        }
+        else {
+            prefs.put(ARDUINO_LIBS_OVERRIDE_DIR, overrideDirectory);
+            this.maybeLibOverrideDirectory = Optional.of(overrideDirectory);
+        }
     }
 
     @Override
@@ -125,7 +133,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
 
     @Override
     public Optional<String> getArduinoLibrariesOverrideDirectory() {
-        return Optional.empty();
+        return maybeLibOverrideDirectory;
     }
 
     @Override

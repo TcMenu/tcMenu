@@ -58,7 +58,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             var platforms = new PluginEmbeddedPlatformsImpl();
             DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore);
             loader.loadPlugins(configuredPluginPaths());
-            platforms.setInstaller(new ArduinoLibraryInstaller(System.getProperty("user.home"), new OfflineDetector(),  loader, prefsStore, true));
+            platforms.setInstaller(new ArduinoLibraryInstaller(new OfflineDetector(), loader, prefsStore));
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(project.getOptions().getEmbeddedPlatform());
             var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
 

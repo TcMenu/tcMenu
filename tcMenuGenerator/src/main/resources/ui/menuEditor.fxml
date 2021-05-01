@@ -59,8 +59,6 @@
             <items>
               <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
               <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="Show ID &amp; ROM Layout" />
-              <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#onCodeSetArduinoDir" text="Override Arduino Directory" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
