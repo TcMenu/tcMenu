@@ -138,7 +138,6 @@
                 "variableName",
                 "id",
                 "eepromAddress",
-                "functionName",
                 "readOnly",
                 "localOnly",
                 "visible"
