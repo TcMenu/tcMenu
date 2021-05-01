@@ -88,6 +88,12 @@ public interface CurrentProjectEditorUI {
     void showSplashScreen();
 
     /**
+     * Shows the new project creation window, it is assumed that a dirty check has already been done
+     * @param editorProject the project file.
+     */
+    void showCreateProjectDialog(CurrentEditorProject editorProject);
+
+    /**
      * Shows the About dialog, which also shows all the version info
      * @param installer the installer object that knows about Arduino libraries
      */

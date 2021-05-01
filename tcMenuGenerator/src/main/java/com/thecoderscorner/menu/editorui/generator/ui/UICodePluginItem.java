@@ -20,6 +20,7 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -110,12 +111,18 @@ public class UICodePluginItem extends BorderPane {
         setImageButton(item);
 
         setTop(titleLabel);
+        BorderPane.setMargin(titleLabel, new Insets(5.0));
+
         setLeft(new VBox(actionButton));
+        BorderPane.setMargin(actionButton, new Insets(5.0));
+
         setCenter(infoContainer);
+        BorderPane.setMargin(infoContainer, new Insets(5.0));
 
         propertiesPanel = new VBox();
         if(showProperties) propertiesPanel.setPrefWidth(300);
         setRight(propertiesPanel);
+        BorderPane.setMargin(propertiesPanel, new Insets(5.0));
 
         setItem(item);
     }

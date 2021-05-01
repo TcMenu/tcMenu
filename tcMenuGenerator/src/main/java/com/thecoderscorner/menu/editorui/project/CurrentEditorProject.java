@@ -155,7 +155,7 @@ public class CurrentEditorProject {
         return dirty;
     }
 
-    private void setDirty(boolean dirty) {
+    public void setDirty(boolean dirty) {
         if(this.dirty != dirty) {
             this.dirty = dirty;
             updateTitle();

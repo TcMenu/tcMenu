@@ -77,7 +77,7 @@
                               <TableView fx:id="versionsTable" prefHeight="224.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="333.0" text="Library name" />
-                                  <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="104.0" text="Expected" />
+                                  <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="104.0" text="Available" />
                                     <TableColumn fx:id="actualVerCol" editable="false" prefWidth="104.0" text="Actual" />
                                 </columns>
                               </TableView>

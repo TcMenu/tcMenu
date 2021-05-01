@@ -136,9 +136,15 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
+    public void showCreateProjectDialog(CurrentEditorProject editorProject) {
+        logger.log(INFO, "Create project dialog show");
+        new NewProjectDialog(mainStage, configStore, platforms, editorProject);
+    }
+
+    @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Showing about dialog");
-        AboutDialog ad = new AboutDialog(configStore, mainStage, installer, true);
+        new AboutDialog(configStore, mainStage, installer, true);
     }
 
     @Override

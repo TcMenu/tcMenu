@@ -99,7 +99,7 @@ public class CreateProjectCommand implements Callable<Integer> {
      * @param suppPlat the platform as a SupportedPlatform.
      * @throws IOException when the directory and files are not properly created
      */
-    private static void createNewProject(Path location, String newProject, boolean cppMain,
+    public static void createNewProject(Path location, String newProject, boolean cppMain,
                                          SupportedPlatform suppPlat, Consumer<String> logger) throws IOException {
         var platforms = new PluginEmbeddedPlatformsImpl();
         var configurationStorage = new PrefsConfigurationStorage();

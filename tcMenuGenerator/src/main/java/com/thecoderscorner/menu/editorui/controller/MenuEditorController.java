@@ -369,7 +369,7 @@ public class MenuEditorController {
     }
 
     public void onFileNew(ActionEvent event) {
-        editorProject.newProject();
+        editorUI.showCreateProjectDialog(editorProject);
         redrawTreeControl();
         handleRecents();
     }
