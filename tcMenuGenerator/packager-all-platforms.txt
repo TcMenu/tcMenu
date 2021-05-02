@@ -25,7 +25,7 @@ Perform maven build
 
 jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.1.0 --java-options "--enable-preview" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-
+To allow for CLI on macOS: alias tcmenu=/Applications/tcMenuDesigner.app/Contents/MacOS/tcMenuDesigner
 
 # controller to be better defined at the moment.
 
