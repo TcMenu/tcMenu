@@ -5,11 +5,11 @@
 #
 
 Run and smoke test:
-java --module-path ../deps --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+java --module-path ../deps --enable-preview --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 # Step 2 - Build the package - Windows all versions
 
-jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.0.7 --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.1.0-beta1 --verbose --java-options "--enable-preview" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 # Step 3 - Build the distribution
 
@@ -17,13 +17,13 @@ Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator di
 
 # Step 4 - Build for Debian / Ubunutu using package command
 
-jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --app-version 2.0.7 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "--enable-preview" --app-version 2.1.0-beta1 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 # Step 5 - MacOS build all versions
 
 Perform maven build
 
-jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.1.0 --java-options "--enable-preview" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 
 

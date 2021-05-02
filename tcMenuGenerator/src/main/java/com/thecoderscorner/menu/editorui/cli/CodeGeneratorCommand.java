@@ -114,14 +114,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     }
 
     public static MenuTreeWithCodeOptions projectFileOrNull(File projectFile) throws IOException {
-        if(projectFile == null) {
-            var path = Paths.get(System.getProperty("user.dir"));
-            var maybeEmfPath = Files.find(path, 1, (filePath, attrs) -> filePath.toString().endsWith(".emf")).findFirst();
-            if(maybeEmfPath.isEmpty()) throw new IOException("Could not find an emf file in directory " + path);
-            projectFile = new File(maybeEmfPath.get().toString());
-        }
-
-        if(!projectFile.exists()) throw new IOException("Project file does not exist " + projectFile);
+        projectFile = locateProjectFile(projectFile);
 
         loadedProjectFile = projectFile;
 
@@ -131,6 +124,18 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         if(persistor == null) persistor = new FileBasedProjectPersistor();
 
         return persistor.open(projectFile.getAbsolutePath());
+    }
+
+    public static File locateProjectFile(File projectFile) throws IOException {
+        if(projectFile == null) {
+            var path = Paths.get(System.getProperty("user.dir"));
+            var maybeEmfPath = Files.find(path, 1, (filePath, attrs) -> filePath.toString().endsWith(".emf")).findFirst();
+            if(maybeEmfPath.isEmpty()) throw new IOException("Could not find an emf file in directory " + path);
+            projectFile = new File(maybeEmfPath.get().toString());
+        }
+
+        if(!projectFile.exists()) throw new IOException("Project file does not exist " + projectFile);
+        return projectFile;
     }
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {

@@ -12,7 +12,8 @@ import static picocli.CommandLine.*;
         CreateProjectCommand.class,
         CreateItemCommand.class,
         DeleteItemCommand.class,
-        VersionCommand.class
+        VersionCommand.class,
+        StartUICommand.class
 })
 public class TcMenuDesignerCmd {
 

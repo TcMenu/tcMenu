@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
@@ -102,6 +103,10 @@ public class MenuEditorController {
         this.pluginManager = pluginManager;
         this.configStore = storage;
         this.libVerDetector = libraryVersionDetector;
+
+        if(StartUICommand.didUserSelectProject()) {
+            editorProject.openProject(StartUICommand.userSelectedProject());
+        }
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
