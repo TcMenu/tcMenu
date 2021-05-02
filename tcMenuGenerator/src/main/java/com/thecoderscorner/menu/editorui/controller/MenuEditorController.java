@@ -24,6 +24,12 @@ import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -32,6 +38,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
+import java.awt.desktop.QuitStrategy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.GETTING_STARTED_PAGE_URL;
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
-import static com.thecoderscorner.menu.editorui.project.EditedItemChange.*;
+import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("unused")
@@ -181,8 +189,6 @@ public class MenuEditorController {
 
     private void sortOutToolButtons() {
         toolButtons = Arrays.asList(menuTreeAdd, menuTreeRemove, menuTreeCopy, menuTreeUp, menuTreeDown);
-
-        toolButtons.forEach(button -> button.getStyleClass().setAll("tool-button"));
     }
 
     private void onEditorChange(MenuItem original, MenuItem changed) {

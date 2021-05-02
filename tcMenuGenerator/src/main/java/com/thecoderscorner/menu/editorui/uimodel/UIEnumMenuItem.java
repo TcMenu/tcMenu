@@ -60,6 +60,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         ObservableList<String> list = FXCollections.observableArrayList(getMenuItem().getEnumEntries());
         listView = new ListView<>(list);
         listView.setEditable(true);
+        listView.setPrefHeight(120);
 
         listView.setCellFactory(TextFieldListCell.forListView());
 

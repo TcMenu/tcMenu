@@ -93,7 +93,7 @@
                            <top>
                               <HBox prefHeight="30.0" prefWidth="578.0" spacing="4.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Library and plugin stream" wrappingWidth="135.251953125">
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Library and plugin stream" wrappingWidth="178.251953125">
                                        <HBox.margin>
                                           <Insets top="4.0" />
                                        </HBox.margin>

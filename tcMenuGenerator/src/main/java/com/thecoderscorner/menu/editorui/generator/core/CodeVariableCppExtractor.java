@@ -88,8 +88,8 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     private String transformParam(CodeParameter p) {
         String paramVal;
-        if (p instanceof LambdaCodeParameter) {
-            paramVal = transformLambda((LambdaCodeParameter)p);
+        if (p instanceof LambdaCodeParameter lcp) {
+            paramVal = transformLambda(lcp);
         }
         else {
             paramVal = p.expandExpression(context, p.getValue());

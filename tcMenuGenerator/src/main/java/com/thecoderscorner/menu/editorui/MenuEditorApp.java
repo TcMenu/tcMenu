@@ -67,12 +67,14 @@ public class MenuEditorApp extends Application {
             }
         }
 
-        final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith ("Mac")) {
-            Desktop desktop = Desktop.getDesktop();
-            desktop.setAboutHandler(e -> Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent())));
-            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
-        }
+        Platform.runLater(() -> {
+            final String os = System.getProperty("os.name");
+            if (os != null && os.startsWith("Mac")) {
+                Desktop desktop = Desktop.getDesktop();
+                desktop.setAboutHandler(e -> Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent())));
+                desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
+            }
+        });
 
         createDirsIfNeeded();
 

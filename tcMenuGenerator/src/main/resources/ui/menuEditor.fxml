@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="597.0" prefWidth="782.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="597.0" prefWidth="782.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" styleClass="background" BorderPane.alignment="CENTER">
         <menus>
@@ -86,7 +86,7 @@
          <bottom>
             <HBox BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="menuTreeAdd" mnemonicParsing="false" onAction="#onAddToTreeMenu" styleClass="tool-button">
+                  <Button fx:id="menuTreeAdd" mnemonicParsing="false" onAction="#onAddToTreeMenu">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -97,7 +97,7 @@
                      <tooltip>
                         <Tooltip text="Add menu item" />
                      </tooltip></Button>
-                  <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu" styleClass="tool-button">
+                  <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -108,7 +108,7 @@
                      <tooltip>
                         <Tooltip text="Remove menu item" />
                      </tooltip></Button>
-                  <Button fx:id="menuTreeCopy" mnemonicParsing="false" onAction="#onTreeCopy" styleClass="tool-button">
+                  <Button fx:id="menuTreeCopy" mnemonicParsing="false" onAction="#onTreeCopy">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -120,7 +120,7 @@
                         <Tooltip text="Copy selected item(s)" />
                      </tooltip>
                   </Button>
-                   <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste" styleClass="tool-button">
+                   <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste">
                        <graphic>
                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                <image>
@@ -132,7 +132,7 @@
                            <Tooltip text="Paste item(s)" />
                        </tooltip>
                    </Button>
-                   <Button fx:id="menuTreeUp" mnemonicParsing="false" onAction="#onTreeMoveUp" styleClass="tool-button">
+                   <Button fx:id="menuTreeUp" mnemonicParsing="false" onAction="#onTreeMoveUp">
                        <graphic>
                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                <image>
@@ -144,7 +144,7 @@
                            <Tooltip text="Move item up" />
                        </tooltip>
                    </Button>
-                   <Button fx:id="menuTreeDown" mnemonicParsing="false" onAction="#onTreeMoveDown" styleClass="tool-button">
+                   <Button fx:id="menuTreeDown" mnemonicParsing="false" onAction="#onTreeMoveDown">
                        <graphic>
                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                <image>

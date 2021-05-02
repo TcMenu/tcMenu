@@ -109,8 +109,7 @@ public class CallbackRequirement {
                         + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
 
 
-                if(item instanceof ScrollChoiceMenuItem) {
-                    ScrollChoiceMenuItem sc = (ScrollChoiceMenuItem) item;
+                if(item instanceof ScrollChoiceMenuItem sc) {
                     if(sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
                         setResult(List.of("extern const char* " + sc.getVariable() + ';', renderingMacroDef));
                         return;

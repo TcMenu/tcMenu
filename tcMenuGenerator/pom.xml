@@ -137,6 +137,7 @@
                 <configuration>
                     <source>16</source>
                     <target>16</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

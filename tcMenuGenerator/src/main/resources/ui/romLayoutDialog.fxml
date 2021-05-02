@@ -9,9 +9,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
    <top>
-      <Label styleClass="label-bright" stylesheets="@JMetroDarkTheme.css" text="ROM and ID layouts" BorderPane.alignment="CENTER" />
+      <Label styleClass="label-bright" stylesheets="@tcmenu-extras.css" text="ROM and ID layouts" BorderPane.alignment="CENTER" />
    </top>
    <left>
       <ScrollPane prefHeight="487.0" prefWidth="200.0" styleClass="control-background" BorderPane.alignment="CENTER">

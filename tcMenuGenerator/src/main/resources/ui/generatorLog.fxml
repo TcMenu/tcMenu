@@ -10,7 +10,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane prefHeight="501.0" prefWidth="768.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.generator.ui.CodeGenLoggingController">
+<BorderPane prefHeight="501.0" prefWidth="768.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.generator.ui.CodeGenLoggingController">
    <top>
       <Label styleClass="item-title" text="Code Generation Log" BorderPane.alignment="CENTER">
          <BorderPane.margin>

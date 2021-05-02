@@ -176,7 +176,7 @@ public class GenerateCodeDialog {
 
         var title = "Code Generator:" + project.getFileName();
         createDialogStateAndShowSceneAdj(stage, pane, title, modal, (scene, dlgStg) -> {
-            scene.getStylesheets().add(UiHelper.class.getResource("/ui/JMetroDarkTheme.css").toExternalForm());
+            scene.getStylesheets().add(UiHelper.class.getResource("/ui/tcmenu-extras.css").toExternalForm());
             dialogStage = dlgStg;
         });
     }

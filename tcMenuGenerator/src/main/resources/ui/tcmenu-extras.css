@@ -15,52 +15,6 @@
   -fx-text-fill: white;
   -fx-font-size: 14px;
   -fx-padding: 4;
-
-}
-
-.tool-button {
-  -fx-padding: 3 3 3 3;
-
-  -fx-background-color: #444;
-  -fx-border-color: #444;
-  -fx-border-width: 1, 1;
-  -fx-border-style: solid, segments(1, 1);
-  -fx-border-radius: 0, 0;
-  -fx-border-insets: 1 1 1 1, 0;
-
-  -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
-  -fx-font-size: 11pt;
-  -fx-text-fill: #d8d8d8;
-}
-
-.tool-button:hover{
-  -fx-border-color: #333333;
-  -fx-border-width: 1, 1;
-  -fx-border-style: solid, segments(1, 1);
-  -fx-border-radius: 0, 0;
-  -fx-border-insets: 1 1 1 1, 0;
-}
-
-.tool-button:pressed, .button:default:hover:pressed
-{
-  -fx-background-color: #515151;
-  -fx-text-fill: #1d1d1d;
-}
-
-.tool-button:focused
-{
-  -fx-border-color: #333333;
-  -fx-border-width: 1, 1;
-  -fx-border-style: solid, segments(1, 1);
-  -fx-border-radius: 0, 0;
-  -fx-border-insets: 1 1 1 1, 0;
-}
-
-.tool-button:disabled, .button:default:disabled
-{
-  -fx-opacity: 0.4;
-  -fx-background-color: #4a4a4a;
-  -fx-text-fill: white;
 }
 
 .header{
@@ -73,12 +27,6 @@
   -fx-font-family: "Segoe UI Semibold";
   -fx-opacity: 0.6;
   -fx-font-weight: bold;
-}
-
-.menu-bar {
-  -fx-font-size: 120%;
-  -fx-border-color: #757575;
-  -fx-border-width: 1px;
 }
 
 .lcdDisplayTextArea .content {

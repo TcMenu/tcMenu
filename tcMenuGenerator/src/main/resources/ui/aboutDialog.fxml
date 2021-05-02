@@ -11,7 +11,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<BorderPane prefHeight="277.0" prefWidth="374.0" styleClass="background" stylesheets="@JMetroDarkTheme.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
+<BorderPane prefHeight="277.0" prefWidth="374.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
    <top>
       <ImageView fitHeight="65.0" fitWidth="366.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
@@ -39,7 +39,7 @@
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="228.0" minWidth="10.0" prefWidth="226.0" />
         </columnConstraints>
          <children>
-            <Label styleClass="label-bright" stylesheets="@JMetroDarkTheme.css" text="Embedded Device Menu Designer" GridPane.columnSpan="2147483647" />
+            <Label styleClass="label-bright" stylesheets="@tcmenu-extras.css" text="Embedded Device Menu Designer" GridPane.columnSpan="2147483647" />
             <Label text="Version" GridPane.rowIndex="1" />
             <Label text="IoAbstraction Version" GridPane.rowIndex="5" />
             <Label text="TcMenu Version" GridPane.rowIndex="4" />

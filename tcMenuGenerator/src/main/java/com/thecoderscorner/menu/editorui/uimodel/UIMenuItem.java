@@ -75,7 +75,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(0, 10, 0, 10));
+        grid.setPadding(new Insets(0, 10, 6, 10));
 
         int idx = 0;
 
@@ -89,8 +89,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         errorsField = new Label();
         errorsField.setId("uiItemErrors");
+        errorsField.setManaged(false);
         errorsField.setVisible(false);
-        //errorsField.setMinHeight(40);
         errorsField.setText("No Errors");
         grid.add(errorsField, 0, idx, 2, 1);
 
@@ -237,6 +237,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {
         if(errors.isEmpty()) {
             errorsField.setVisible(false);
+            errorsField.setManaged(false);
             return Optional.of(item);
         }
         else {
@@ -246,6 +247,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
                     .collect(Collectors.joining("\n"));
             errorsField.setText(errorText);
             errorsField.setVisible(true);
+            errorsField.setManaged(true);
         }
         return Optional.empty();
     }
