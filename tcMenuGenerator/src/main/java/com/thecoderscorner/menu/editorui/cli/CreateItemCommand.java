@@ -29,7 +29,7 @@ public class CreateItemCommand implements Callable<Integer> {
     @Option(names = {"-e", "--eeprom"}, description = "An EEPROM value, NONE, or AUTO", defaultValue = "NONE")
     String eeprom;
 
-    @Option(names = {"-t", "--type"}, description = "One of analog, enum, boolean, submenu, float, action", required = true)
+    @Option(names = {"-t", "--type"}, description = "One of analog, enum, boolean, submenu, float, action, list, largenum, text, choice, rgb", required = true)
     String menuType;
 
     @Option(names = {"-n", "--name"}, description = "Name of the item (19 chars max)", required = true)
