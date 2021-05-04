@@ -125,7 +125,7 @@ public class NewProjectController {
     private boolean passDirtyCheck() {
         if(project.isDirty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "The project has not been saved, data may be lost", ButtonType.YES, ButtonType.NO);
-            alert.setHeaderText("Project is dirty, proceed anyway?");
+            alert.setHeaderText("Project is unsaved, proceed anyway?");
             var result = alert.showAndWait();
             if(result.isPresent() && result.get() == ButtonType.YES) {
                 project.setDirty(false);
