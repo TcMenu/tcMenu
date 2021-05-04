@@ -51,6 +51,10 @@ hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
+## Where's all the source live
+
+The designer UI code base and plugins for 2.0 onwards are located in this repository, the 1.7 plugins were here [https://github.com/davetcc/tcMenuXmlPlugins]. The tcMenu library is in [https://github.com/davetcc/tcMenuLib]. The designer, library and shipped plugins are all Apache licensed.
+
 ## TcMenu still supports Uno with LiquidCrystal dfRobot shield or Ssd1306Ascii
 
 We try to keep Uno viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
