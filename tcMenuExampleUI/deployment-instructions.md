@@ -1,41 +1,6 @@
-# Windows
-# Prerequisites: Ensure all components are correctly versioned in Maven, iss script etc.
-#
-# Step 1 - Check the archive worked and versioning is right
-#
-
-Run and smoke test:
-java --module-path ../deps --enable-preview -Dprism.lcdtext=false --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
-# Step 2 - Build the package - Windows all versions
-
-jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.1.0-beta1 --verbose --java-options "--enable-preview -Dprism.lcdtext=false" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
-# Step 3 - Build the distribution
-
-Go to Inno Setup Compiler, choose designerscript.iss from the tcMenuGenerator directory. Choose compile, output will be in the Output directory at the same level as the script.
-
-# Step 4 - Build for Debian / Ubunutu using package command
-
-jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "--enable-preview -Dprism.lcdtext=false" --app-version 2.1.0-beta1 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
-# Step 5 - MacOS build all versions
-
-Perform maven build
-
-jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.1.0 --java-options "--enable-preview -Dprism.lcdtext=false" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
-To allow for CLI on macOS: alias tcmenu=/Applications/tcMenuDesigner.app/Contents/MacOS/tcMenuDesigner
-
 # controller to be better defined at the moment.
 
 jpackage --type app-image -n tcMenuController -p jfx/deps --input jfx/app --icon ./classes/img/Icon.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#---------------------------OLD INSTRUCTIONS-----------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
 
 --- old instructions for JDK 11 (before 1.4.1 basically) DO NOT USE FOR NEWER BUILDS
 
