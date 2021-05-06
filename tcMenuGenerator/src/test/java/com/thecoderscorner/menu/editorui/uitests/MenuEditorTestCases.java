@@ -55,7 +55,7 @@ import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDe
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.pushCtrlAndKey;
+import static com.thecoderscorner.menu.editorui.uitests.UiUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -324,12 +324,7 @@ public class MenuEditorTestCases {
         // send a menu -> file -> new which should ask first as structure is dirty, say no this time around. Should prevent action
         when(editorProjectUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?")).thenReturn(false);
         pushCtrlAndKey(robot, KeyCode.N);
-        assertOnItemInTree(rgbItem, true);
-
-        // send a menu -> file -> new which should ask first as structure is dirty, say yes this time around. Action show go through
-        when(editorProjectUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?")).thenReturn(true);
-        pushCtrlAndKey(robot, KeyCode.N);
-        assertOnItemInTree(rgbItem, false);
+        Mockito.verify(editorProjectUI).showCreateProjectDialog(project);
     }
 
 
@@ -344,7 +339,7 @@ public class MenuEditorTestCases {
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
-        Thread.sleep(5000);
+        Thread.sleep(500);
         // sub menus can not be copied
         verifyThat("#menuTreeCopy", node -> !node.isDisabled());
 
@@ -429,7 +424,26 @@ public class MenuEditorTestCases {
     }
 
     @Test
+    void testAreaInformationPanelNeedingUpdate(FxRobot robot) throws Exception {
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, false));
+        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.2"));
+
+        openTheCompleteMenuTree(robot);
+        SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
+        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+
+        assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
+        assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
+
+        Thread.sleep(500);
+        verifyThat("#tcMenuStatusArea", labeledFieldHasValue("Libraries are out of date, see Edit -> General Settings"));
+        verifyThat("#tcMenuPluginIndicator", labeledFieldHasValue("Plugin updates are available in Edit -> General Settings"));
+    }
+
+    @Test
     void testTheRootAreaInformationPanel(FxRobot robot) throws Exception {
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+
         openTheCompleteMenuTree(robot);
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).get();
         TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
@@ -446,14 +460,10 @@ public class MenuEditorTestCases {
         robot.clickOn("#githuburl");
         verify(editorProjectUI).browseToURL(AppInformationPanel.GITHUB_PROJECT_URL);
 
-        List<String> pluginSet = robot.lookup(".pluginInfoLbl").queryAll().stream()
-                .map(p -> ((Label)p).getText())
-                .collect(Collectors.toList());
-        assertThat(pluginSet).containsExactlyInAnyOrder("- PluginName. Installed: 1.0.0, Available: 1.0.0");
+        Thread.sleep(500);
 
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
-        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        verifyThat("#tcMenuStatusArea", labeledFieldHasValue("Embedded Arduino libraries all up-to-date"));
+        verifyThat("#tcMenuPluginIndicator", labeledFieldHasValue("All plugins are up to date."));
 
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
     }

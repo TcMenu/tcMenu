@@ -49,7 +49,8 @@ public class ArduinoLibraryInstallerTest {
 
         var prefs = mock(ConfigurationStorage.class);
         when(prefs.isUsingArduinoIDE()).thenReturn(true);
-        when(prefs.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
+        when(prefs.getArduinoOverrideDirectory()).thenReturn(Optional.of(dirArduino.toString()));
+        when(prefs.getArduinoLibrariesOverrideDirectory()).thenReturn(Optional.of(dirArduinoLibs.toString()));
 
         installer = new ArduinoLibraryInstaller(verDetector, mock(CodePluginManager.class), prefs);
     }

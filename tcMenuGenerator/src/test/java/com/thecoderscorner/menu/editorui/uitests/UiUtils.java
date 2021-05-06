@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uitests;
 
+import javafx.scene.control.Labeled;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -20,7 +21,10 @@ public class UiUtils {
 
     public static void pushCtrlAndKey(FxRobot robot, KeyCode code) {
         robot.push(new KeyCodeCombination(code, UP, UP, UP, UP, DOWN));
+    }
 
+    public static Predicate<Labeled> labeledFieldHasValue(String expected) {
+        return (Labeled textField) -> textField.getText().equals(expected);
     }
 
     public static Predicate<TextField> textFieldHasValue(String expected) {

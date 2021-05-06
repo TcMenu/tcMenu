@@ -21,13 +21,13 @@ public class NewProjectDialog {
     private static final System.Logger logger = System.getLogger(NewProjectDialog.class.getSimpleName());
 
     public NewProjectDialog(Stage stage, ConfigurationStorage storage, EmbeddedPlatforms platforms,
-                                            CurrentEditorProject project) {
+                                            CurrentEditorProject project, boolean modal) {
         try {
             FXMLLoader loader = new FXMLLoader(NewProjectDialog.class.getResource("/ui/createNewProject.fxml"));
             BorderPane pane = loader.load();
             NewProjectController controller = loader.getController();
             controller.initialise(storage, platforms, project);
-            createDialogStateAndShow(stage, pane, "Create New Project", true);
+            createDialogStateAndShow(stage, pane, "Create New Project", modal);
         }
         catch(Exception e) {
             // in this case, just get out of here.

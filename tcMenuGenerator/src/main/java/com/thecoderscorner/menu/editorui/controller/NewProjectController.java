@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.cli.CreateProjectCommand.SupportedPlatform.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -137,7 +138,13 @@ public class NewProjectController {
     }
 
     private CreateProjectCommand.SupportedPlatform asSupportedPlatform(EmbeddedPlatform selectedItem) {
-        return CreateProjectCommand.SupportedPlatform.valueOf(selectedItem.getBoardId());
+        return switch(selectedItem.getBoardId()) {
+            case "ARDUINO32" -> ARDUINO32;
+            case "ARDUINO_ESP8266" -> ARDUINO_ESP8266;
+            case "ARDUINO_ESP32" -> ARDUINO_ESP32;
+            case "MBED_RTOS" -> MBED_RTOS;
+            default -> ARDUINO_AVR;
+        };
     }
 
     public void onTextChanged(KeyEvent keyEvent) {

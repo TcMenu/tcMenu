@@ -98,6 +98,7 @@ public class AppInformationPanel {
         boolean needRefresh = false;
         if(installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
             Label setManually = new Label("Set Arduino directory from Edit -> General Settings");
+            setManually.setId("tcMenuStatusArea");
             setManually.getStyleClass().add("libsNotOK");
             vbox.getChildren().add(setManually);
             needRefresh = true;
@@ -127,6 +128,7 @@ public class AppInformationPanel {
         if(pluginUpdateNeeded) {
             var noPlugins = pluginManager.getLoadedPlugins().isEmpty();
             var pluginLabel = new Label(noPlugins ? "No plugins installed, fix in Edit -> General Settings" : "Plugin updates are available in Edit -> General Settings");
+            pluginLabel.setId("tcMenuPluginIndicator");
             pluginLabel.getStyleClass().add("libsNotOK");
             vbox.getChildren().add(pluginLabel);
             needRefresh = true;

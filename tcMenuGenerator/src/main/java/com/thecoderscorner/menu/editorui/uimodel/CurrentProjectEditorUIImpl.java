@@ -138,7 +138,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showCreateProjectDialog(CurrentEditorProject editorProject) {
         logger.log(INFO, "Create project dialog show");
-        new NewProjectDialog(mainStage, configStore, platforms, editorProject);
+        new NewProjectDialog(mainStage, configStore, platforms, editorProject, true);
     }
 
     @Override
