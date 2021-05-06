@@ -30,7 +30,7 @@ Drop to a command-line, in the tcMenu/tcMenuGenerator directory and run a maven 
 
 Run and smoke test, ensure you are in the tcMenuGenerator/target/jfx/app directory:
 
-    java --module-path ../deps --enable-preview -Dprism.lcdtext=false --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    java --module-path ../deps -Dprism.lcdtext=false --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - Build the package - Windows all versions
 
@@ -38,19 +38,19 @@ Ensure you are in the tcMenuGenerator/target directory.
 
     cp classes/img/tcMenuDesigner.ico .
 
-    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.1.0-beta1 --verbose --java-options "--enable-preview -Dprism.lcdtext=false" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.1.0-beta1 --verbose --java-options "-Dprism.lcdtext=false" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - build for Debian / Ubuntu using package command
 
 Ensure you are in the tcMenuGenerator/target directory.
 
-    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "--enable-preview -Dprism.lcdtext=false" --app-version 2.1.0-beta1 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "-Dprism.lcdtext=false" --app-version 2.1.0-beta1 -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - macOS build all versions
 
 Ensure you are in the tcMenuGenerator/target directory.
 
-    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.1.0 --java-options "--enable-preview -Dprism.lcdtext=false" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.1.0 --java-options "-Dprism.lcdtext=false" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 To allow for CLI on macOS: alias tcmenu=/Applications/tcMenuDesigner.app/Contents/MacOS/tcMenuDesigner
 

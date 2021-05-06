@@ -48,9 +48,16 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 BorderPane pane = loader.load();
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);
+
+                // here we get access to objects we need on the other thread, ensuring they are all safe to use on
+                // the other thread, then we create the other thread.
+                var threadSafeCreators = List.copyOf(creators);
+                var threadSafePreviousPlugins = List.copyOf(previousPlugins);
+                var threadSafeMenuTree = project.getMenuTree();
+                var isSaveToSrc = project.getGeneratorOptions().isSaveToSrc();
                 new Thread(() -> {
-                    gen.startConversion(Paths.get(path), creators, project.getMenuTree(), newNameAndKey(project),
-                            previousPlugins, project.getGeneratorOptions().isSaveToSrc());
+                    gen.startConversion(Paths.get(path), threadSafeCreators, threadSafeMenuTree, newNameAndKey(project),
+                            threadSafePreviousPlugins, isSaveToSrc);
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal);

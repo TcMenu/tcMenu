@@ -30,8 +30,7 @@ public class UICodePluginItemMatcher extends BaseMatcher<UICodePluginItem> {
 
     @Override
     public boolean matches(Object o) {
-        if(o instanceof UICodePluginItem) {
-            UICodePluginItem item = (UICodePluginItem) o;
+        if(o instanceof UICodePluginItem item) {
             return Objects.equals(item.getItem().getId(), pluginId) &&
                     Objects.equals(item.getItem().getDescription(), description) &&
                     Objects.equals(item.getItem().getExtendedDescription(), descriptionExtended);
