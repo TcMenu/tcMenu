@@ -10,5 +10,5 @@ The designer itself needs plugins that tell it how to generate code for all the 
 
 For 1.7, you can find them here [https://github.com/davetcc/tcMenuXmlPlugins]
 
-These plugins are versioned and served up from thecoderscorner.com, but essentially, you could take a copy of them from the repository and put it into `~/.tcmenu/plugins` if you really wanted to. Further, if you prefer to build from source [packager-all-platforms.md]
+These plugins are versioned and served up from thecoderscorner.com, but essentially, you could take a copy of them from the repository and put it into `~/.tcmenu/plugins` if you really wanted to. Further, if you prefer to build from source [using the packaging instructions](packager-all-platforms.md)
 
