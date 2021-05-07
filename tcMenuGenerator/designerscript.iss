@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TcMenuDesigner"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.1.1"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuDesigner.exe"
@@ -25,6 +25,8 @@ LicenseFile=C:\Users\dave\IdeaProjects\tcMenu\LICENSE
 OutputBaseFilename=setupTcMenuDesigner
 Compression=lzma
 SolidCompression=yes
+SignTool=standardSign
+SignedUninstaller=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -33,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion signonce
 Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
