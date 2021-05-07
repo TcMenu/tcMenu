@@ -18,7 +18,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewProjectController">
    <top>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Create a new project" BorderPane.alignment="CENTER">
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Create a new project" wrappingWidth="590.296875" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -68,8 +68,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="584.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
-            <Button fx:id="createButton" mnemonicParsing="false" onAction="#onCreate" text="Create &gt;&gt;" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
+            <Button fx:id="createButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreate" text="Create &gt;&gt;" />
         </buttons>
       </ButtonBar>
    </bottom>

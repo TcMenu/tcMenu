@@ -30,7 +30,7 @@ Drop to a command-line, in the tcMenu/tcMenuGenerator directory and run a maven 
 
 Run and smoke test, ensure you are in the tcMenuGenerator/target/jfx/app directory:
 
-    java --module-path ../deps -Dprism.lcdtext=false --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    java --module-path ../deps "-Dprism.lcdtext=false" --add-modules com.thecoderscorner.tcmenu.menuEditorUI com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - Build the package - Windows all versions
 

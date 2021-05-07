@@ -32,7 +32,7 @@
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
           <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="Copy to clipboard" />
-            <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" text="Close" />
+            <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="Close" />
         </buttons>
          <opaqueInsets>
             <Insets top="5.0" />

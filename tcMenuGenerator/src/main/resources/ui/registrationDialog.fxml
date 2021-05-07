@@ -7,11 +7,23 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<BorderPane prefHeight="351.0" prefWidth="539.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RegistrationController">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="351.0" prefWidth="539.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RegistrationController">
     <top>
-        <Label styleClass="label-bright" text="Please register TcMenu Generator" BorderPane.alignment="CENTER" />
+        <Label prefHeight="28.0" prefWidth="554.0" text="Please register TcMenu Generator" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Label>
     </top>
    <center>
       <GridPane BorderPane.alignment="CENTER">
@@ -45,8 +57,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" onAction="#onRegister" text="Register" />
             <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Close" />
+          <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" onAction="#onRegister" text="Register" />
         </buttons>
       </ButtonBar>
    </bottom>

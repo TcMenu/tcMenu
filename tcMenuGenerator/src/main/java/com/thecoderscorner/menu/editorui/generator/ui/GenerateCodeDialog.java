@@ -159,7 +159,7 @@ public class GenerateCodeDialog {
         cancelButton = new Button("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(this::onCancel);
-        buttonBar.getButtons().addAll(generateButton, cancelButton);
+        buttonBar.getButtons().addAll(cancelButton, generateButton);
 
         ScrollPane scrollPane = new ScrollPane(centerPane);
         scrollPane.setFitToWidth(true);

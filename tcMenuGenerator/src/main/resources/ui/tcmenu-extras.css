@@ -5,16 +5,12 @@
  */
 
 .eepromEntry {
-  -fx-background-color: #7e8037;
+  -fx-background-color: #50e550;
   -fx-text-fill: black;
-  -fx-font-size: 14px;
-  -fx-padding: 4;
 }
 .brokenEeprom {
-  -fx-background-color: #80171a;
+  -fx-background-color: #ff2222;
   -fx-text-fill: white;
-  -fx-font-size: 14px;
-  -fx-padding: 4;
 }
 
 .header{
