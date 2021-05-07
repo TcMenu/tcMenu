@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -88,10 +88,12 @@ public class AppInformationPanel {
         vbox.getChildren().clear();
         vbox.getChildren().add(new Label("Reading version information.."));
         var fr = executor.submit(() -> {
-            libraryVersionDetector.acquireVersions();
-            Platform.runLater(this::redrawTheTitlePage);
+            if(libraryVersionDetector.availableVersionsAreValid(true)) {
+                Platform.runLater(this::redrawTheTitlePage);
+            }
         });
     }
+
     private void redrawTheTitlePage() {
         var vbox = libraryInfoVBox;
         vbox.getChildren().clear();

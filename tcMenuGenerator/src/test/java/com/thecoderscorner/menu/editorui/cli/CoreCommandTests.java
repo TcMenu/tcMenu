@@ -39,7 +39,7 @@ public class CoreCommandTests {
     }
 
     private void runCommand(String command) {
-        String[] args = command.split(" ");
+        String[] args = command.split("\\s+");
         new CommandLine(new TcMenuDesignerCmd()).execute(args);
     }
 }

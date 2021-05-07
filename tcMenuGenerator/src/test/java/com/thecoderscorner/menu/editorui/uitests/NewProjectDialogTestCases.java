@@ -1,11 +1,10 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.NewProjectDialog;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.Comparator;
 import java.util.Optional;
 

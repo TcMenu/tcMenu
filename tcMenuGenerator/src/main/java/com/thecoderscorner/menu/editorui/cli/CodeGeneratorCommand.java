@@ -1,7 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
@@ -164,5 +164,10 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
         @Override
         public void upgradePlugin(String name, VersionInfo requestedVersion) { }
+
+        @Override
+        public boolean availableVersionsAreValid(boolean refresh) {
+            return true;
+        }
     }
 }

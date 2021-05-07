@@ -33,4 +33,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     opens com.thecoderscorner.menu.editorui.generator.core to com.google.gson;
     opens com.thecoderscorner.menu.editorui.controller to com.google.gson;
     opens com.thecoderscorner.menu.editorui.cli to info.picocli;
+    exports com.thecoderscorner.menu.editorui.storage;
+    opens com.thecoderscorner.menu.editorui.storage to com.google.gson;
 }

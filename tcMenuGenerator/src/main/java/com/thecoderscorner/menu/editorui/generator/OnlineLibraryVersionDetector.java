@@ -6,7 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
@@ -26,21 +25,21 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.System.Logger.Level.*;
 
 public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
+    private static final System.Logger logger = System.getLogger(OnlineLibraryVersionDetector.class.getSimpleName());
+
     public enum ReleaseType { STABLE, BETA, PREVIOUS }
 
-    public final static String LIBRARY_VERSIONING_URL = "http://thecoderscorner.com/tcc/app/getLibraryVersions";
+    public final static String LIBRARY_VERSIONING_URL = "https://www.thecoderscorner.com/tcc/app/getLibraryVersions";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
-    private static final String PLUGIN_DOWNLOAD_URL = "http://thecoderscorner.com/tcc/app/downloadPlugin";
+    private static final String PLUGIN_DOWNLOAD_URL = "https://www.thecoderscorner.com/tcc/app/downloadPlugin";
     private static final int PLUGIN_API_VERSION = 2;
 
-    private static final System.Logger logger = System.getLogger(OnlineLibraryVersionDetector.class.getSimpleName());
     private final IHttpClient client;
 
     private final Object cacheLock = new Object();
@@ -78,18 +77,27 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
         }
 
         try {
+            logger.log(INFO, "Starting to acquire version, cache not present or timed out");
             var libDict = new HashMap<String, VersionInfo>();
 
             var verData = client.postRequestForString(LIBRARY_VERSIONING_URL, "pluginVer=" + PLUGIN_API_VERSION, IHttpClient.HttpDataType.FORM);
             var inStream = new ByteArrayInputStream(verData.getBytes());
+
+            logger.log(INFO, "Data acquisition from server completed");
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = factory.newDocumentBuilder();
             Document doc = dBuilder.parse(inStream);
             var root = doc.getDocumentElement();
 
+            logger.log(INFO, "Document created");
+
             addVersionsToMap(root.getElementsByTagName("Libraries"), "Library", relType, libDict);
             addVersionsToMap(root.getElementsByTagName("Plugins"), "Plugin", relType, libDict);
+            addVersionsToMap(root.getElementsByTagName("Apps"), "App", relType, libDict);
+
+            logger.log(INFO, "All done, saving out new versions.");
+
             synchronized (cacheLock) {
                 lastAccess = System.currentTimeMillis();
                 versionCache = libDict;
@@ -121,6 +129,14 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
         var pluginsFolder = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins", name);
         if (Files.exists(pluginsFolder.resolve(".git"))) throw new LibraryUpgradeException("Not overwriting git repo " + name);
         performUpgradeFromWeb(name, requestedVersion, pluginsFolder);
+    }
+
+    @Override
+    public boolean availableVersionsAreValid(boolean doRefresh) {
+        if(versionCache.isEmpty() || (System.currentTimeMillis() - lastAccess) > (REFRESH_TIMEOUT_MILLIS - 1000) && doRefresh) {
+            acquireVersions();
+        }
+        return (!versionCache.isEmpty()) && ((System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS);
     }
 
     private void performUpgradeFromWeb(String name, VersionInfo requestedVersion, Path outDir) throws LibraryUpgradeException {

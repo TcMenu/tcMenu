@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;

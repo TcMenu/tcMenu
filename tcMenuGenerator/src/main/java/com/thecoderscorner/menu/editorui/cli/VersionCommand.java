@@ -1,8 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
-import picocli.CommandLine;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 
 import java.util.concurrent.Callable;
 

@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.editorui.cli;
 
-import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import picocli.CommandLine;
 
 /**

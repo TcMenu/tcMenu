@@ -6,9 +6,9 @@
 
 package com.thecoderscorner.menu.editorui;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;

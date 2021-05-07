@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -13,7 +14,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -244,8 +244,8 @@ public class GeneralSettingsController {
             logger.log(INFO, "Start plugin version detection");
 
             for(var plugin : pluginManager.getLoadedPlugins()) {
-                var availableVersion = getVersionOfLibraryOrError(plugin, AVAILABLE_PLUGIN);
-                var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
+                var availableVersion = getVersionOfLibraryOrError(plugin.getModuleName(), AVAILABLE_PLUGIN);
+                var installedVersion = getVersionOfLibraryOrError(plugin.getModuleName(), CURRENT_PLUGIN);
                 pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
 
                 var ver = new NameWithVersion(plugin.getModuleName(), availableVersion, installedVersion);
@@ -257,6 +257,12 @@ public class GeneralSettingsController {
             versionsTable.getItems().add(findLibVersion("IoAbstraction"));
             versionsTable.getItems().add(findLibVersion("LiquidCrystalIO"));
             versionsTable.getItems().add(findLibVersion("TaskManagerIO"));
+
+            versionsTable.getItems().add(new NameWithVersion(
+                    "TcMenuDesigner",
+                    getVersionOfLibraryOrError("java-app", AVAILABLE_APP),
+                    getVersionOfLibraryOrError("java-app", CURRENT_APP)
+            ));
 
             logger.log(INFO, "Done with version detection");
 
@@ -276,9 +282,11 @@ public class GeneralSettingsController {
         return new NameWithVersion(libName, available, installed);
     }
 
-    private VersionInfo getVersionOfLibraryOrError(CodePluginConfig plugin, ArduinoLibraryInstaller.InstallationType type) {
+    private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {
         try {
-            return installer.getVersionOfLibrary(plugin.getModuleName(), type);
+            var version = installer.getVersionOfLibrary(name, type);
+            if(version == null) version = VersionInfo.ERROR_VERSION;
+            return version;
         } catch (IOException e) {
             return VersionInfo.ERROR_VERSION;
         }

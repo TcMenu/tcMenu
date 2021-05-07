@@ -1,11 +1,10 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.controller.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
-import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;

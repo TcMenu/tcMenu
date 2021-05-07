@@ -1,5 +1,6 @@
-package com.thecoderscorner.menu.editorui.controller;
+package com.thecoderscorner.menu.editorui.storage;
 
+import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -21,6 +23,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private boolean usingIde;
     private Optional<String> maybeOverrideDirectory;
     private Optional<String> maybeLibOverrideDirectory;
+    private List<ArduinoDirectoryChangeListener> directoryChangeListeners = new CopyOnWriteArrayList<>();
 
     public PrefsConfigurationStorage() {
         try {
@@ -101,6 +104,11 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     @Override
+    public void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener) {
+        directoryChangeListeners.add(directoryChangeListener);
+    }
+
+    @Override
     public void setArduinoOverrideDirectory(String overrideDirectory) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         if(StringHelper.isStringEmptyOrNull(overrideDirectory)) {
@@ -110,6 +118,10 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         else {
             prefs.put(ARDUINO_OVERRIDE_DIR, overrideDirectory);
             this.maybeOverrideDirectory = Optional.of(overrideDirectory);
+        }
+
+        for (var listener : directoryChangeListeners) {
+            listener.arduinoDirectoryHasChanged(maybeOverrideDirectory, maybeLibOverrideDirectory, false);
         }
     }
 
@@ -123,6 +135,10 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         else {
             prefs.put(ARDUINO_LIBS_OVERRIDE_DIR, overrideDirectory);
             this.maybeLibOverrideDirectory = Optional.of(overrideDirectory);
+        }
+
+        for (var listener : directoryChangeListeners) {
+            listener.arduinoDirectoryHasChanged(maybeOverrideDirectory, maybeLibOverrideDirectory, true);
         }
     }
 

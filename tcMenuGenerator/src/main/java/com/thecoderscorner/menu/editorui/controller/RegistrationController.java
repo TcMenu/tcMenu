@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;

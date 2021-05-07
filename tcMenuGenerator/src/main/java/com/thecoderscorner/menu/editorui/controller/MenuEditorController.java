@@ -20,11 +20,14 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -39,8 +42,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
-import java.awt.desktop.QuitStrategy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +58,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("unused")
 public class MenuEditorController {
-    public static final String REGISTRATION_URL = "http://www.thecoderscorner.com/tcc/app/registerTcMenu";
+    public static final String REGISTRATION_URL = "https://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     private CurrentEditorProject editorProject;
@@ -121,13 +122,19 @@ public class MenuEditorController {
             sortOutMenuForMac();
             redrawTreeControl();
             redrawStatus();
-            if(configStore.isUsingArduinoIDE()) {
-                populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
-                populateMenu(menuSketches, installer.getArduinoDirectory(), "");
-            }
+            populateAllMenus();
         });
 
+        storage.addArduinoDirectoryChangeListener((ard, lib, libsChanged) -> {
+            if(libsChanged) Platform.runLater(this::populateAllMenus);
+        });
+    }
 
+    private void populateAllMenus() {
+        if(configStore.isUsingArduinoIDE()) {
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
+            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
+        }
     }
 
     public CurrentEditorProject getProject() {

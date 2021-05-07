@@ -9,7 +9,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
@@ -26,7 +26,6 @@ import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -71,6 +70,7 @@ public class MenuEditorTestCases {
     private Stage stage;
     private CodePluginManager simulatedCodeManager;
     private ArduinoDirectoryStructureHelper dirHelper = new ArduinoDirectoryStructureHelper();
+    private LibraryVersionDetector libDetector;
 
     @Start
     public void onStart(Stage stage) throws Exception {
@@ -129,10 +129,12 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        LibraryVersionDetector libDetector = mock(LibraryVersionDetector.class);
+        libDetector = mock(LibraryVersionDetector.class);
         when(libDetector.getReleaseType()).thenReturn(ReleaseType.STABLE);
         controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, libDetector);
         this.stage = stage;
+
+        when(libDetector.availableVersionsAreValid(anyBoolean())).thenReturn(true);
 
         Scene myScene = new Scene(myPane);
         stage.setScene(myScene);

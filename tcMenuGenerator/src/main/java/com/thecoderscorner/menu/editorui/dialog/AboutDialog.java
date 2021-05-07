@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.AboutController;
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;

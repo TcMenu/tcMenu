@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.menu.editorui.controller.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+
 /**
  * This class is responsible for dealing with the Arduino embedded libraries, it has methods to help
  * identifying which version of a library is installed, if it is up-to-date against the packaged copy,
@@ -27,7 +29,8 @@ import java.util.Properties;
  */
 public class ArduinoLibraryInstaller {
 
-    public enum InstallationType { AVAILABLE_LIB, CURRENT_LIB, AVAILABLE_PLUGIN, CURRENT_PLUGIN }
+    public enum InstallationType { AVAILABLE_LIB, CURRENT_LIB, AVAILABLE_PLUGIN, CURRENT_PLUGIN, AVAILABLE_APP, CURRENT_APP }
+
     /**
      * the name of the library properties file
      */
@@ -103,11 +106,14 @@ public class ArduinoLibraryInstaller {
     public VersionInfo getVersionOfLibrary(String name, InstallationType installationType) throws IOException {
         Path startPath;
 
-        if(installationType == InstallationType.AVAILABLE_LIB || installationType == InstallationType.AVAILABLE_PLUGIN) {
+        if(installationType == AVAILABLE_LIB || installationType == AVAILABLE_PLUGIN || installationType == AVAILABLE_APP) {
             var versions = versionDetector.acquireVersions();
-            return versions.get(name + ((installationType == InstallationType.AVAILABLE_LIB) ? "/Library" : "/Plugin"));
+            return versions.get(installTypeToMapEntry(name, installationType));
         }
-        else if(installationType == InstallationType.CURRENT_LIB){
+        else if(installationType == CURRENT_APP) {
+            return new VersionInfo(configStore.getVersion());
+        }
+        else if(installationType == CURRENT_LIB){
             Optional<String> libsDir = configStore.getArduinoLibrariesOverrideDirectory();
             if(!configStore.isUsingArduinoIDE() || libsDir.isEmpty()) {
                 return VersionInfo.ERROR_VERSION;
@@ -134,6 +140,16 @@ public class ArduinoLibraryInstaller {
         }
     }
 
+    private String installTypeToMapEntry(String name, InstallationType installationType) {
+        var installStr = switch(installationType) {
+            case AVAILABLE_APP -> "App";
+            case AVAILABLE_LIB -> "Library";
+            case AVAILABLE_PLUGIN -> "Plugin";
+            default -> throw new IllegalArgumentException("Install type not supported");
+        };
+        return name + '/' + installStr;
+    }
+
     /**
      * Check if the named library is the same version or new than the packaged version
      * @param name the library name
@@ -146,8 +162,8 @@ public class ArduinoLibraryInstaller {
         if (libInst.isEmpty()) return false; // can we even find it on the system.
 
         try {
-            VersionInfo srcVer = getVersionOfLibrary(name, InstallationType.AVAILABLE_LIB);
-            VersionInfo dstVer = getVersionOfLibrary(name, InstallationType.CURRENT_LIB);
+            VersionInfo srcVer = getVersionOfLibrary(name, AVAILABLE_LIB);
+            VersionInfo dstVer = getVersionOfLibrary(name, CURRENT_LIB);
             if(srcVer == null || dstVer.equals(VersionInfo.ERROR_VERSION)) return true;
             return dstVer.isSameOrNewerThan(srcVer);
         } catch (IOException e) {

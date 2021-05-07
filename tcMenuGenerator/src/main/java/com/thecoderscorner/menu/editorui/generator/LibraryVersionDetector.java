@@ -19,4 +19,6 @@ public interface LibraryVersionDetector {
 
     public Map<String, VersionInfo> acquireVersions();
     public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException;
+
+    boolean availableVersionsAreValid(boolean refresh);
 }

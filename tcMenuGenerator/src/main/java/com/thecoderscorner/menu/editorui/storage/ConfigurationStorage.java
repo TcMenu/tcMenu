@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.controller;
+package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 
@@ -20,11 +20,9 @@ public interface ConfigurationStorage {
     }
 
     List<String> loadRecents();
-
     void saveUniqueRecents(List<String> recents);
 
     String getRegisteredKey();
-
     void setRegisteredKey(String registeredKey);
 
     public TcMenuReleaseType getReleaseType();
@@ -44,6 +42,9 @@ public interface ConfigurationStorage {
     Optional<String> getArduinoLibrariesOverrideDirectory();
     void setArduinoOverrideDirectory(String overrideDirectory);
     void setArduinoLibrariesOverrideDirectory(String overrideDirectory);
+
     void setUsingArduinoIDE(boolean libs);
     boolean isUsingArduinoIDE();
+
+    void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
 }
