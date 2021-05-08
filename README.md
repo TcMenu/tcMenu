@@ -22,6 +22,8 @@ Releases are directly available from the releases page, there is a signed Window
 
 [Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases)
 
+Although most will use the above packages, it's also possible to build from source, full instructions are in the tcMenuGenerator folder. We ask that you only build from source for your own use however, please do not distribute these builds.
+
 ## Documentation
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
