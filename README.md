@@ -16,17 +16,13 @@ You can get help from the community forum, there are also support and consultanc
 * [Consultancy pages on the coders corner](https://www.thecoderscorner.com/support-services/consultancy/)
 * I also monitor the Arduino forum [https://forum.arduino.cc/], Arduino related questions can be asked there too.
 
-## Installation and documentation
-
-Nearly all users should probably choose the designer UI package; it's available for Windows and MacOS and includes all the embedded libraries. The designer UI will copy all the required libraries into place for you. However, should you wish to go it alone, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
-
-### All Windows versions, Linux, and MacOS versions.
+## Packaged installation for Windows, Linux, and MacOS.
 
 Releases are directly available from the releases page, there is a signed Windows version, notarized macOS version, and a package for Linux:
 
 [Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases)
 
-### Documentation
+## Documentation
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 
@@ -34,13 +30,11 @@ Releases are directly available from the releases page, there is a signed Window
 
 ## Generating a menu from the UI for the impatient
 
-If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI to start with and ensure the embedded libraries are up to date.
+If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI and set up your Arduino directory in "Edit -> General Settings", then check the "Library Versions" tab to ensure the embedded libraries are installed / up to date.
 
-Load the EMF file from an example closest to the hardware you have. You'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
+Once the tcMenu library directory is located, the "File -> Examples" menu will load with all the exmaples. Load the example closest to the hardware you have. Once it's open, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
-Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu
-to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate
-hardware arrangements and hit generate.
+Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
