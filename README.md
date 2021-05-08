@@ -16,23 +16,15 @@ You can get help from the community forum, there are also support and consultanc
 * [Consultancy pages on the coders corner](https://www.thecoderscorner.com/support-services/consultancy/)
 * I also monitor the Arduino forum [https://forum.arduino.cc/], Arduino related questions can be asked there too.
 
-## Installation and documentation
+## Packaged installation for Windows, Linux, and MacOS.
 
-Nearly all users should probably choose the designer UI package; it's available for Windows and MacOS and includes all the embedded libraries. The designer UI will copy all the required libraries into place for you. However, should you wish to go it alone, the embedded libraries are in the embedded directory in the above repository, and can be copied directly into the Arduino/libraries folder.
+Releases are directly available from the releases page, there is a signed Windows version, notarized macOS version, and a package for Linux:
 
-### Windows 7, 8, 10 and Linux
+[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases)
 
-Releases are directly available from GitHub: [Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases)
+Although most will use the above packages, it's also possible to build from source, full instructions are in the tcMenuGenerator folder. We ask that you only build from source for your own use.
 
-### Windows 10
-
-For Windows 10 you can directly obtain from the Windows store using the following link: [https://www.microsoft.com/store/productId/9NHJNH9BCNJN]
-
-### Any MacOS from High Sierra onwards
-
-For any MacOS from High Sierra onwards, obtain directly from the Mac App Store: [https://apps.apple.com/gb/app/tcmenu-designer/id1527782002?mt=12] 
-
-### Documentation
+## Documentation
 
 [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 
@@ -40,13 +32,11 @@ For any MacOS from High Sierra onwards, obtain directly from the Mac App Store: 
 
 ## Generating a menu from the UI for the impatient
 
-If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI to start with and ensure the embedded libraries are up to date.
+If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI and set up your Arduino directory in "Edit -> General Settings", then check the "Library Versions" tab to ensure the embedded libraries are installed / up to date.
 
-Load the EMF file from an example closest to the hardware you have. You'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
+Once the tcMenu library directory is located, the "File -> Examples" menu will load with all the exmaples. Load the example closest to the hardware you have. Once it's open, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
-Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu
-to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate
-hardware arrangements and hit generate.
+Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
@@ -122,6 +112,10 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>2.0.7</version>
         </dependency>
+
+## Working with menus using the CLI
+
+The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
 
 ## Coming Soon C# / .NET API
 
