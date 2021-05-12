@@ -89,9 +89,9 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
     auto* theItem = entry->getMenuItem();
     theItem->setChanged(false);
 
-    buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
 
     if(entry->getPosition().getJustification() == GridPosition::JUSTIFY_TITLE_LEFT_VALUE_RIGHT) {
+        buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
         lcd->setCursor(where.x, where.y);
         int offs = 1;
         uint8_t finalPos = theItem->copyNameToBuffer(buffer, offs, bufferSize);
@@ -100,25 +100,26 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
         menuValueToText(theItem, JUSTIFY_TEXT_RIGHT);
     }
     else {
-        char sz[20];
+        char sz[22];
         for(uint8_t i = 1; i < (uint8_t)areaSize.x; ++i)  buffer[i] = 32;
-        buffer[areaSize.x] = 0;
-        uint8_t valueStart = 1;
+        uint8_t valueStart = 0;
         if(itemNeedsName(entry->getPosition().getJustification())) {
             theItem->copyNameToBuffer(sz, sizeof sz);
             valueStart += strlen(sz);
-            valueStart += 1;
         }
         if(itemNeedsValue(entry->getPosition().getJustification())) {
-            copyMenuItemValue(entry->getMenuItem(), sz, sizeof sz);
-            copyIntoBuffer(buffer, sz, valueStart, bufferSize);
-
+            sz[valueStart] = 32;
+            valueStart++;
+            copyMenuItemValue(entry->getMenuItem(), sz + valueStart, sizeof(sz) - valueStart);
+            serdebugF2("Value ", sz);
         }
-        int position = calculateOffset(entry->getPosition().getJustification(), areaSize.x, sz);
-        copyIntoBuffer(&buffer[1], sz, position, bufferSize - 1);
+        int position = calculateOffset(entry->getPosition().getJustification(), areaSize.x + 1, sz);
+        copyIntoBuffer(&buffer[1], sz, position, bufferSize);
+        buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
+        buffer[min(areaSize.x + 1, bufferSize)] = 0;
         lcd->setCursor(where.x, where.y);
     }
-    serdebugF3("Buffer: ", where.y, buffer);
+    serdebugF4("Buffer: ", where.x,where.y, buffer);
     lcd->print(buffer);
 }
 
