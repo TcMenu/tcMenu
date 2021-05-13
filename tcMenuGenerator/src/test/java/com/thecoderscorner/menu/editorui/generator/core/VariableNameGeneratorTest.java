@@ -25,6 +25,8 @@ public class VariableNameGeneratorTest {
     private ActionMenuItem action2;
     private SubMenuItem sub3;
     private ActionMenuItem action3;
+    private SubMenuItem sub4;
+    private ActionMenuItem action4;
 
     @BeforeEach
     void setUp() {
@@ -46,9 +48,17 @@ public class VariableNameGeneratorTest {
         sub3 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub 3").withId(105).menuItem();
         tree.addMenuItem(sub2, sub3);
 
+        // put another sub menu under sub2 so now we have sub2 -> sub4
+        sub4 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub 4").withId(106).withVariableName("OverrideSub4").menuItem();
+        tree.addMenuItem(sub2, sub4);
+
         // put an item under sub 3 so now we have sub2 -> sub3 -> action3
-        action3 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 3").withId(106).menuItem();
+        action3 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 3").withId(107).menuItem();
         tree.addMenuItem(sub3, action3);
+
+        // put an item under sub 4 so now we have sub2 -> sub3 -> action3
+        action4 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 4").withId(108).menuItem();
+        tree.addMenuItem(sub4, action4);
     }
 
     @Test
@@ -57,6 +67,7 @@ public class VariableNameGeneratorTest {
         assertEquals("SubMenu1Öôóò", generator.makeNameToVar(sub1));
         assertEquals("OverrideÖôóò", generator.makeNameToVar(sub2));
         assertEquals("Sub3", generator.makeNameToVar(sub3));
+        assertEquals("OverrideSub4", generator.makeNameToVar(sub4));
 
         assertEquals("NewName", generator.makeNameToVar(sub1, "NewName"));
         assertEquals("NewName", generator.makeNameToVar(sub2, "NewName"));
@@ -96,7 +107,12 @@ public class VariableNameGeneratorTest {
         assertEquals("OverrideÖôóòSub3", generator.makeNameToVar(sub3));
         assertEquals("OverrideÖôóòSub3Action3", generator.makeNameToVar(action3));
 
+        assertEquals("OverrideSub4", generator.makeNameToVar(sub4));
+        assertEquals("OverrideÖôóòNewName", generator.makeNameToVar(sub4, "New Name"));
+        assertEquals("OverrideSub4Action4", generator.makeNameToVar(action4));
+
         assertEquals("OverrideÖôóòNewSubName", generator.makeNameToVar(sub3, "New Sub Name"));
+        assertEquals("OverrideÖôóòNewSubName", generator.makeNameToVar(sub4, "New Sub Name"));
         assertEquals("OverrideÖôóòSub3LightsCamera", generator.makeNameToVar(action3, "Lights Camera"));
     }
 }

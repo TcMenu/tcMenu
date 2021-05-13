@@ -8,8 +8,10 @@ package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -35,15 +37,13 @@ public class RomLayoutDialogTestCases {
         this.stage = stage;
     }
 
+    @AfterEach
+    public void tearDown() {
+        Platform.runLater(()-> stage.close());
+    }
+
     @Test
     void testCheckingDialog(FxRobot robot) {
-
-        // get all the heading labels and check them.
-        List<String> idTitle = getStringsFromNodeQuery(robot, "#idContainer > .label-bright");
-        assertThat(idTitle).containsExactly("ID Ranges");
-
-        List<String> eepromTitle = getStringsFromNodeQuery(robot, "#eepromContainer > .label-bright");
-        assertThat(eepromTitle).containsExactly("EEPROM Ranges");
 
         List<String> idStrings = getStringsFromNodeQuery(robot, "#idContainer > .idRomEntry");
         assertThat(idStrings).containsExactly(

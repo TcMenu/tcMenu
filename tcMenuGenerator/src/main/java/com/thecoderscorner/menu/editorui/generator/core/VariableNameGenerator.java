@@ -42,22 +42,27 @@ public class VariableNameGenerator {
         // shortcut for null..
         if (item == null) return "NULL";
         if (newName == null && !StringHelper.isStringEmptyOrNull(item.getVariableName())) return item.getVariableName();
+        var name = makeNameFromVariable((newName != null) ? newName : item.getName());
 
-        // shortcut simple naming.
+        // Either non-recursive names, or ROOT level.
         var parent = menuTree.findParent(item);
         if (!recursiveNaming || parent == null || parent.equals(MenuTree.ROOT)) {
-            return makeNameFromVariable((newName != null) ? newName : item.getName());
+            return makeNameFromVariable(name);
         }
 
-        // get all submenu names together.
+        // if the parent name is alrady overriden, then the name is parentvariable + itemName
+        if(parent.getVariableName() != null) {
+            return parent.getVariableName() + name;
+        }
+
+        // otherwise we need to do it the hard way, be recursively applying.
         var items = new ArrayList<String>();
         var par = item;
-        var name = (newName != null) ? newName : par.getName();
         while (par != null && !par.equals(MenuTree.ROOT)) {
-            items.add(makeNameFromVariable(name));
+            items.add(name);
             par = menuTree.findParent(par);
             if(par != null) {
-                name = StringHelper.isStringEmptyOrNull(par.getVariableName()) ? par.getName() : par.getVariableName();
+                name = makeNameFromVariable(StringHelper.isStringEmptyOrNull(par.getVariableName()) ? par.getName() : par.getVariableName());
             }
         }
 

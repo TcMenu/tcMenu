@@ -10,7 +10,9 @@ import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -29,8 +31,11 @@ import static org.testfx.matcher.control.LabeledMatchers.hasText;
 @ExtendWith(ApplicationExtension.class)
 public class AboutDialogTestCases {
 
+    private Stage stage;
+
     @Start
     public void onStart(Stage stage) throws IOException {
+        this.stage = stage;
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.getVersion()).thenReturn("V1.0.2");
@@ -39,12 +44,15 @@ public class AboutDialogTestCases {
         AboutDialog dialog = new AboutDialog(storage, stage, installer, false);
     }
 
+    @AfterEach
+    public void tearDown() {
+        Platform.runLater(()-> stage.close());
+    }
+
     @Test
     public void testAboutDialog(FxRobot robot) {
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));
         verifyThat("#registeredLabel", hasText("UnitTesterII"));
-
-        robot.clickOn(".button:default");
     }
 }

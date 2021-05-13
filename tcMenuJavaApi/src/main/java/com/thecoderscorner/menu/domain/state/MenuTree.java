@@ -28,7 +28,7 @@ public class MenuTree {
     /**
      * This is the root menu item, the top level item on the display basically
      */
-    public static final SubMenuItem ROOT = new SubMenuItem("Root", "Root", 0, -1, false, true, false);
+    public static final SubMenuItem ROOT = new SubMenuItem("Root", null, 0, -1, false, true, false);
 
     /**
      * The maximum expected items in a typical menu.
