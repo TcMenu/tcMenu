@@ -1,6 +1,6 @@
-## tcMenu - A menu system for Arduino and mbed with IoT capabilities
+## tcMenu - A menu library and designer for Arduino and mbed with IoT capabilities
 
-A menu system for Arduino and mbed that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
+A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for Windows, MacOS, and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development.
 
@@ -80,9 +80,9 @@ For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/d
 
 We can render onto most buffered displays using this library. Tested with OLED devices such as SSD1306 and SH1106. We can even provide a custom I2C byte function that yields to task manager frequently, making it work better with task manager, and correctly yield on ESP boards too.
 
-### TFTeSPI and STM32 LTDC framebuffer integration
+### TFT_eSPI and STM32 LTDC framebuffer integration
 
-From 2.0 onwards we'll support TFTeSPI and STM32 LTDC framebuffer based BSP functions to provide very high performance display rendering, we've tested with these two options on both ESP32 and STM32F429, the results were highly impressive.
+From 2.0 onwards we'll support TFT_eSPI and STM32 LTDC framebuffer based BSP functions to provide very high performance display rendering, we've tested with these two options on both ESP32 and STM32F429, the results were highly impressive.
 
 ### No local input or display techonologies
 
