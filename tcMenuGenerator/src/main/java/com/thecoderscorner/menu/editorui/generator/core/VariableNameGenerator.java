@@ -51,7 +51,7 @@ public class VariableNameGenerator {
         }
 
         // if the parent name is alrady overriden, then the name is parentvariable + itemName
-        if(parent.getVariableName() != null) {
+        if(!StringHelper.isStringEmptyOrNull(parent.getVariableName())) {
             return parent.getVariableName() + name;
         }
 

@@ -24,14 +24,14 @@
    <top>
       <Label prefHeight="22.0" prefWidth="513.0" text="Choose the type of menu to create" BorderPane.alignment="CENTER">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Bold" size="14.0" />
          </font>
          <BorderPane.margin>
             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
          </BorderPane.margin></Label>
    </top>
    <center>
-      <VBox prefHeight="227.0" prefWidth="504.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="227.0" prefWidth="504.0" spacing="4.0" BorderPane.alignment="CENTER">
          <children>
             <RadioButton fx:id="subMenuSelect" mnemonicParsing="false" text="Sub menu Item that can have child items">
                <toggleGroup>
