@@ -248,7 +248,7 @@ public class GeneralSettingsController {
                 var installedVersion = getVersionOfLibraryOrError(plugin.getModuleName(), CURRENT_PLUGIN);
                 pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
 
-                var ver = new NameWithVersion(plugin.getModuleName(), availableVersion, installedVersion);
+                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", availableVersion, installedVersion);
                 versionsTable.getItems().add(ver);
             }
             logger.log(INFO, "Start library version detection");
@@ -259,7 +259,7 @@ public class GeneralSettingsController {
             versionsTable.getItems().add(findLibVersion("TaskManagerIO"));
 
             versionsTable.getItems().add(new NameWithVersion(
-                    "TcMenuDesigner",
+                    "TcMenuDesigner UI",
                     getVersionOfLibraryOrError("java-app", AVAILABLE_APP),
                     getVersionOfLibraryOrError("java-app", CURRENT_APP)
             ));
@@ -279,7 +279,7 @@ public class GeneralSettingsController {
         if(available == null) available = VersionInfo.ERROR_VERSION;
         if(installed == null) installed = VersionInfo.ERROR_VERSION;
 
-        return new NameWithVersion(libName, available, installed);
+        return new NameWithVersion(libName + " library", available, installed);
     }
 
     private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {

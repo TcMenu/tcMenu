@@ -107,10 +107,18 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
             Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
 
             logger.accept(System.Logger.Level.INFO, "Writing out changes to INO sketch file");
+            chompBlankLines(lines);
             Files.write(Paths.get(inoFile), lines);
         }
         else {
             logger.accept(System.Logger.Level.INFO, "No changes to the INO file, not writing out");
+        }
+    }
+
+    private void chompBlankLines(ArrayList<String> lines) {
+        //  remove blank lines at the end, we don't want loads of trailing empty lines at the end
+        while(lines.get(lines.size()-1).isBlank()) {
+            lines.remove(lines.size()-1);
         }
     }
 
