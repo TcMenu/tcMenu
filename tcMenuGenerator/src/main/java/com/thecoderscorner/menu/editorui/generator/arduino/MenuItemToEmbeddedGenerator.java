@@ -67,14 +67,9 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(makeRtFunctionName())
                 .addElement(item.getId())
                 .addElement(item.getDigitsAllowed())
-                .addElement(item.getDecimalPlaces());
-
-        // maintain backward compatibility when possible by using the original constructor which defaults to true
-        if(!item.isNegativeAllowed()) {
-                menu.addElement(item.isNegativeAllowed());
-        }
-
-        menu.addElement(nextMenuName)
+                .addElement(item.getDecimalPlaces())
+                .addElement(item.isNegativeAllowed())
+                .addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("RuntimeMenuItem.h", false)
                 .addHeaderFileRequirement("EditableLargeNumberMenuItem.h", false);
@@ -217,19 +212,11 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(BooleanMenuItem item) {
-        String itemNaming;
-        switch (item.getNaming()) {
-            case ON_OFF:
-                itemNaming = "NAMING_ON_OFF";
-                break;
-            case YES_NO:
-                itemNaming = "NAMING_YES_NO";
-                break;
-            case TRUE_FALSE:
-            default:
-                itemNaming = "NAMING_TRUE_FALSE";
-                break;
-        }
+        String itemNaming = switch (item.getNaming()) {
+            case ON_OFF -> "NAMING_ON_OFF";
+            case YES_NO -> "NAMING_YES_NO";
+            default -> "NAMING_TRUE_FALSE";
+        };
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "BooleanMenuInfo")
                 .addQuoted(item.getName())
