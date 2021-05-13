@@ -122,10 +122,11 @@ public class MenuEditorApp extends Application {
                 controller.persistPreferences();
                 if(project.isDirty()) {
                     evt.consume();
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    Alert alert = new Alert(AlertType.CONFIRMATION, "There are unsaved changes, save first?",
+                            ButtonType.YES, ButtonType.NO);
                     alert.setTitle("Are you sure");
-                    alert.setHeaderText("There are unsaved changes, save first?");
-                    if(alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                    alert.setHeaderText("");
+                    if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
                         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
                     }
                 }

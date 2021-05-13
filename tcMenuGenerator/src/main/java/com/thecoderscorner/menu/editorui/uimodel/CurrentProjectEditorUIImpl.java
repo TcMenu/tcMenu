@@ -101,10 +101,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public boolean questionYesNo(String title, String header) {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, header, ButtonType.YES, ButtonType.NO);
         alert.setTitle(title);
-        alert.setHeaderText(header);
-        return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+        return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 
     @Override
