@@ -6,7 +6,7 @@
     <SupportedPlatforms>
         <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Integrates with both the touch interface and the LTDC frame buffer on STM32 boards using the BSP functions.</Description>
+    <Description>**BETA** Integrates with both the touch interface and the LTDC frame buffer on STM32 boards using the BSP functions.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed-stm32-menu-touch-display/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
