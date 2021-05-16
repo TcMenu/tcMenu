@@ -23,7 +23,7 @@
                 <Choice desc="ST7735">Adafruit_ST7735</Choice>
                 <Choice desc="ST7789">Adafruit_ST7789</Choice>
                 <Choice desc="ILI9341">Adafruit_ILI9341</Choice>
-                <Choice desc="PCD8544/Nokia5110">Adafruit_PCD854</Choice>
+                <Choice desc="PCD8544/Nokia5110">Adafruit_PCD8544</Choice>
             </Choices>
         </Property>
         <Property id="DISPLAY_WIDTH" name="Display width" initial="320" desc="Pixel width in hardware" type="int" min="16" max="5000"/>
