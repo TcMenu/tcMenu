@@ -11,9 +11,11 @@
     </GeneralDetails>
 
     <Plugins>
-        <!-- Cool Blue plugins -->
+        <!-- Blue hue plugins -->
         <Plugin>CoolBlueModern.xml</Plugin>
         <Plugin>CoolBlueTraditional.xml</Plugin>
+        <Plugin>DarkBlueModern.xml</Plugin>
+        <Plugin>DarkBlueTraditional.xml</Plugin>
 
         <!-- Mono plugins -->
         <Plugin>MonoBorderedTitle.xml</Plugin>
