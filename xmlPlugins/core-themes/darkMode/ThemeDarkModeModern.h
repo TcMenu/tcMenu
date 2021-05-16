@@ -1,20 +1,20 @@
 /**
- * Cool blue modern theme by TheCodersCorner.com. This is part of the standard themes shipped with TcMenu.
+ * Dark mode modern theme by TheCodersCorner.com. This is part of the standard themes shipped with TcMenu.
  * This file will not be updated by the designer, you can edit.
  */
-#ifndef THEME_COOL_BLUE
-#define THEME_COOL_BLUE
+#ifndef THEME_DARK_MODE
+#define THEME_DARK_MODE
 
 #include <graphics/BaseGraphicalRenderer.h>
 
-const color_t darkBlueTitlePalette[] = {RGB(255,255,255), RGB(43,43,43), RGB(192,192,192), RGB(0,133,255)};
-const color_t darkBlueItemPalette[] = {RGB(255, 255, 255), RGB(0,0,0), RGB(43,43,43), RGB(65,65,65)};
-const color_t darkBlueActionPalette[] = {RGB(255, 255, 255), RGB(35,35,35), RGB(20,45,110), RGB(192,192,192)};
+const color_t darkModeTitlePalette[] = {RGB(255,255,255), RGB(43,43,43), RGB(192,192,192), RGB(0,133,255)};
+const color_t darkModeItemPalette[] = {RGB(255, 255, 255), RGB(0,0,0), RGB(43,43,43), RGB(65,65,65)};
+const color_t darkModeActionPalette[] = {RGB(255, 255, 255), RGB(35,35,35), RGB(20,45,110), RGB(192,192,192)};
 
 #define ACTION_BORDER_WIDTH 0
 
-void installDarkBlueModernTheme(GraphicsDeviceRenderer& bgr, const MenuFontDef& itemFont, const MenuFontDef& titleFont, bool needEditingIcons) {
-    // here we get a refrerence to the drawable and then set the dimensions.
+void installDarkModeModernTheme(GraphicsDeviceRenderer& bgr, const MenuFontDef& itemFont, const MenuFontDef& titleFont, bool needEditingIcons) {
+    // here we get a reference to the drawable and then set the dimensions.
     auto* rootDrawable = bgr.getDeviceDrawable();
     bgr.setDisplayDimensions(rootDrawable->getDisplayDimensions().x, rootDrawable->getDisplayDimensions().y);
 
@@ -30,15 +30,15 @@ void installDarkBlueModernTheme(GraphicsDeviceRenderer& bgr, const MenuFontDef& 
     int itemHeight = bgr.heightForFontPadding(itemFont.fontData, itemFont.fontMag, allPadding);
 
     // now we configure the drawing for each item type
-    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_TITLE, darkBlueTitlePalette, allPadding, titleFont.fontData, titleFont.fontMag, 3, titleHeight,
+    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_TITLE, darkModeTitlePalette, allPadding, titleFont.fontData, titleFont.fontMag, 3, titleHeight,
                                         GridPosition::JUSTIFY_CENTER_WITH_VALUE, MenuBorder(0));
-    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_ITEM, darkBlueItemPalette, allPadding, itemFont.fontData, itemFont.fontMag, 2, itemHeight,
+    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_ITEM, darkModeItemPalette, allPadding, itemFont.fontData, itemFont.fontMag, 2, itemHeight,
                                         GridPosition::JUSTIFY_TITLE_LEFT_VALUE_RIGHT , MenuBorder(0));
-    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_ACTION, darkBlueActionPalette, allPadding, itemFont.fontData, itemFont.fontMag, 2, itemHeight,
+    factory.setDrawingPropertiesDefault(ItemDisplayProperties::COMPTYPE_ACTION, darkModeActionPalette, allPadding, itemFont.fontData, itemFont.fontMag, 2, itemHeight,
                                         GridPosition::JUSTIFY_CENTER_WITH_VALUE, MenuBorder(ACTION_BORDER_WIDTH));
 
     // and lastly, whenever changing the configuration, we must refresh.
     tcgfx::ConfigurableItemDisplayPropertiesFactory::refreshCache();
 }
 
-#endif //THEME_COOL_BLUE
+#endif //THEME_DARK_MODE

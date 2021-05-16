@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Dark Blue Traditional for small to medium TFTs" id="e4524028-edd8-4e0a-ae15-a1f2ba05354f"
+<TcMenuPlugin name="Dark Mode Modern for larger displays" id="e3d447ef-a620-47fa-9a3c-012665b30bdf"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -10,10 +10,10 @@
        <Platform>ARDUINO_ESP32</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Dark blue theme that fits small to medium displays with less spacing and padding, scales better to small screens than modern.</Description>
+    <Description>Dark mode theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/"/>
     <RequiredLibraries/>
-    <ImageFile>theme-dark-blue-traditional.jpg</ImageFile>
+    <ImageFile>theme-dark-mode-modern.jpg</ImageFile>
 
     <Properties>
         <Property id="ITEM_FONT" name="Default font for items" initial="def:,1" desc="Default font for items, choose a type suitable for your display" type="font"/>
@@ -27,17 +27,18 @@
             </Choices>
         </Property>
         <Property id="USE_SLIDER_ANALOG" name="Use sliders for analog items" initial="true" desc="When an item is analog, default to using a slider" type="boolean"/>
-        <Property id="NEED_EDITING_ICONS" name="Use icons for active/edit status" initial="true" desc="Show an icon on the left to represent active / edit status" type="boolean"/>
+        <Property id="NEED_EDITING_ICONS" name="Use icons for active/edit status" initial="false" desc="Show an icon on the left to represent active / edit status" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <SourceFile name="darkBlue/ThemeDarkBlueTraditional.h" overwrite="false"/>
+        <Replacement find="ACTION_BORDER_WIDTH 0" replace="ACTION_BORDER_WIDTH ${BORDER_FOR_ACTIONS}"/>
+        <SourceFile name="darkMode/ThemeDarkModeModern.h" overwrite="false"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="ThemeDarkBlueTraditional.h" inSource="cppSrc"/>
+        <Header name="ThemeDarkModeModern.h" inSource="cppSrc"/>
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
     </IncludeFiles>
@@ -56,11 +57,12 @@
             <Param name="${USE_SLIDER_ANALOG}"/>
         </Function>
 
-        <Function name="installDarkBlueTraditionalTheme">
+        <Function name="installDarkModeModernTheme">
             <Param value="renderer"/>
             <Param font="${ITEM_FONT}"/>
             <Param font="${TITLE_FONT}"/>
             <Param value="${NEED_EDITING_ICONS}"/>
         </Function>
+
     </SetupFunctions>
 </TcMenuPlugin>

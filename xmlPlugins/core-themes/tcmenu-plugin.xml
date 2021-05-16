@@ -14,8 +14,8 @@
         <!-- Blue hue plugins -->
         <Plugin>CoolBlueModern.xml</Plugin>
         <Plugin>CoolBlueTraditional.xml</Plugin>
-        <Plugin>DarkBlueModern.xml</Plugin>
-        <Plugin>DarkBlueTraditional.xml</Plugin>
+        <Plugin>DarkModeModern.xml</Plugin>
+        <Plugin>DarkModeTraditional.xml</Plugin>
 
         <!-- Mono plugins -->
         <Plugin>MonoBorderedTitle.xml</Plugin>
