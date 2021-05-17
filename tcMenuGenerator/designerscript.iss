@@ -6,6 +6,7 @@
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuDesigner.exe"
+#define MyTcMenuDesignerDir "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -27,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 SignTool=standardSign
 SignedUninstaller=yes
+SetupIconFile={#MyTcMenuDesignerDir}\classes\img\tcMenuDesigner-install.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -35,8 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion signonce
-Source: "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target\tcMenuDesigner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyTcMenuDesignerDir}\tcMenuDesigner\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion signonce
+Source: "{#MyTcMenuDesignerDir}\tcMenuDesigner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

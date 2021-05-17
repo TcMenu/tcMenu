@@ -113,6 +113,7 @@ public class MenuEditorApp extends Application {
         primaryStage.setScene(myScene);
         primaryStage.show();
 
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon-sm.png")));
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
 
         primaryStage.setOnCloseRequest((evt)-> {
