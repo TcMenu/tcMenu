@@ -56,6 +56,14 @@ We try to keep Uno viable for tcMenu. However, there are limitations to what we 
 
 ## Input and display technologies
 
+Here are a few examples of how the menu can look with version 2.0 of our menu library on Arduino, ESP, and mbed:
+
+![Arduino menu running on ESP32 with ILI9341 and touch screen](zMedia/theme-cool-blue-modern.jpg)
+
+![Arduino menu in dark mode running on ESP32 with ILI9341 and touch screen](zMedia/theme-dark-mode-modern.jpg)
+
+![Arduino menu on OLED running on ESP8266 with SH1106 and touch screen](zMedia/theme-oled-bordered.jpg)
+
 ### Support for rotary encoders, digital/analog joysticks and touch buttons
 
 We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574 or MCP23017. Further, we even support more than one encoder.
