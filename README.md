@@ -26,9 +26,9 @@ Although most will use the above packages, it's also possible to build from sour
 
 Here's a couple of screen-shots of the designer UI
 
-[!zMedia/design-menu-for-arduino.jpg]
+![Menu designer for Arduino](zMedia/design-menu-for-arduino.jpg)
 
-[!zMedia/generate-code-for-your-platform.jpg]
+![Code generator runs on many platforms](zMedia/generate-code-for-your-platform.jpg)
 
 ## Documentation
 
