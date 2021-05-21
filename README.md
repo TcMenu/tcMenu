@@ -64,6 +64,8 @@ Here are a few examples of how the menu can look with version 2.0 of our menu li
 
 ![Arduino menu on OLED running on ESP8266 with SH1106 and touch screen](zMedia/theme-oled-bordered.jpg)
 
+![Arduino menu on LCD running on AVR](zMedia/menu-on-lcd-avr.jpg)
+
 ### Support for rotary encoders, digital/analog joysticks and touch buttons
 
 We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574 or MCP23017. Further, we even support more than one encoder.
