@@ -66,7 +66,7 @@ Here are some example properties:
             <Property id="TEST_CHOICE" name="Choices" initial="Choice1" 
                       desc="Test choices" type="choice">
                 <Choices>
-                    <Choice>Choice1</Choice>
+                    <Choice desc="description of choice">Choice1</Choice>
                     <Choice>Choice2</Choice>
                 </Choices>
             </Property>
@@ -105,9 +105,12 @@ Any files that need to be included are added here as include files, again you ca
 * cppsrc - a header file only to be included once, such as a font, with quotes 
 * cpp -  a header file only to be included once, such as a font, global include
 
+The priority can also be defined on include files, high moves the include file to the top, low puts the include file at the bottom.
 
         <IncludeFiles>
-            <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+            <Header name="tcMenuAdaFruitGfx.h" inSource="true" />
+            <Header name="tcMenuAdaFruitGfx.h" inSource="true" priority="high"/>
+            <Header name="tcMenuAdaFruitGfx.h" inSource="true" priority="low"/>
         </IncludeFiles>
 
 You can define global variables that will appear at the top level of the project menu file, again you can use both applicability and property expansion here.
@@ -133,11 +136,25 @@ Now we define any functions that need to be called in setup, in most cases it's 
         <SetupFunctions>
             <Function object="renderer" name="setUpdatesPerSecond">
                 <Param value="${UPDATES_PER_SEC}"/>
-            </Function>
-    
-            <Function name="setGraphicsConfiguration" object="renderer" whenProperty="DISPLAY_CONFIG" isNotValue="">
                 <Param ref="${DISPLAY_VARIABLE}"/>
                 <Param ref="${DISPLAY_CONFIG}"/>
             </Function>
+
+You can also define lambdas here that will be added to a function, this is useful if you are trying to interface an event driven library with tcMenu. Keep them as simple as possible to avoid making the plugin too complex.
+
+            <Lambda name="onReleaseFn">
+                <Param type="pinid_t" name="/*key*/"/>
+                <Param type="bool" name="held"/>
+                <Function name="onMenuSelect" object="menuMgr">
+                    <Param value="held"/>
+                </Function>
+            </Lambda>
+
+Then in a function we refer to the lambda.
+    
+            <Function name="myFn">
+                <Param lambda="myLambda"/>
+            </Function>
+
         </SetupFunctions>
     </TcMenuPlugin>
