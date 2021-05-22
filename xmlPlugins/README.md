@@ -1,18 +1,12 @@
 ## Core plugins for tcMenu designer.
 
-These are the core plugins available under an apache license for tcMenu Designer. Each plugin library contains a definition file that references the plugins to be loaded, along with details about the library. Each plugin is an xml file that's loaded at start up by the designer. They contain the definitions of global variables, function calls to make during startup and other definitions and include files needed for the driver to work. 
+These are the core plugins available under an apache license for tcMenu Designer. They contain all the core input, display, and remote capabilities provided by designer. These are the various options you see in the code generator window when selecting a plugin. Each plugin item can set the platform applicability so that it's possible to control where something is visible. For example there's no purpose showing ESP8266 WiFi options unless the platform is appropriate.
 
-Full guide: https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/building-plugins-for-use-in-menu-designer/
+Normally, for most users, the plugins will be managed by tcMenu Designer, and easily kept up to date by checking versions and using the in-app upgrader.
 
-See also: [https://github.com/davetcc/tcMenu]
+## Writing a plugin for TcMenu Designer
 
-## The plugin library definition - tcmenu-plugin.xml
-
-For an example of this see [examples/example-plugin.xml], the schema is available in this folder called [tcmenu-plugin.xsd]
-
-## Each plugin XML file, referenced by the library.
-
-For an example of this see [examples/example-plugin-item.xml], the schema is available in this folder called [tcmenu-plugin-item.xsd]
+Each plugin library [contains a definition file](examples/plugin-definition-file.md) that references the plugins to be loaded, along with details about the library. [Each plugin item is an xml file](examples/plugin-item-file.md) that's loaded at start up by the designer. They contain the definitions of global variables, function calls to make during startup and other definitions and include files needed for the driver to work. These are then [used during code generation to put the needed code in place](examples/code-generator-and-plugins.md).
 
 ## Advanced use: Using the plugins manually
 
