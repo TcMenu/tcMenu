@@ -14,14 +14,16 @@ All plugins must be valid XML documents, so should always include the xml tag.
 
 We have a schema for the plugin, always include it in the top level document as it makes it much easier to determine if the file is valid. 
 
-    <TcMenuPluginDefinition shortName="core-themes" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
+    <TcMenuPluginDefinition shortName="core-themes" 
+        xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
 
-Within the top level element we provide the general details, the author of the plugin, the url, version, name and description. You also provide a license, and a URL to the licence file.
+Within the top level element we provide the general details, the author of the plugin, the url, version (using semantic versioning), name and description. You also provide a license, and a URL to the licence file.
 
         <GeneralDetails>
             <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
-            <Version>2.1.2</Version>
+            <Version>1.0.0</Version>
             <Name>Core themes plugin</Name>
             <Description>This plugin provides themes that can be used with all graphical displays.</Description>
             <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
