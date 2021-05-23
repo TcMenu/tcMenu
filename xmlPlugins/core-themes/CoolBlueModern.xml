@@ -11,7 +11,7 @@
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Blue theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/color-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-cool-blue-modern.jpg</ImageFile>
 

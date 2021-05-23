@@ -11,7 +11,7 @@
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Once you create / modify a theme, you can then manually manage the theme yourself completely outside designer.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/rendering-with-tcmenu-lcd-tft-oled/"/>
     <RequiredLibraries/>
     <ImageFile>no-theme.png</ImageFile>
 

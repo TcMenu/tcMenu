@@ -23,6 +23,7 @@
         <Property id="ENCODER_PIN_OK" name="PinOK of Encoder" initial="8" desc="The pin on which OK from the encoder is connected" type="pin"/>
         <Property id="ENCODER_BACK_PIN" name="Left / Back Button Pin (-1 off)" initial="-1" desc="Left or back button pin connection, or -1 for none" type="pin"/>
         <Property id="ENCODER_NEXT_PIN" name="Right / Next Button Pin (-1 off)" initial="-1" desc="Right or Next button pin connection, or -1 for none" type="pin"/>
+        <Property id="ENCODER_IS_QUARTER_CYCLE" name="Quarter cycle encoder (half speed output)" initial="false" desc="Most encoders are full/half cycle but a few are quarter" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -45,12 +46,21 @@
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 
-        <Function name="initForEncoder" object="menuMgr">
+        <Function name="initForEncoder" object="menuMgr" whenProperty="ENCODER_IS_QUARTER_CYCLE" isValue="false">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
             <Param value="${ENCODER_PIN_A}"/>
             <Param value="${ENCODER_PIN_B}"/>
             <Param value="${ENCODER_PIN_OK}"/>
+        </Function>
+
+        <Function name="initForEncoder" object="menuMgr" whenProperty="ENCODER_IS_QUARTER_CYCLE" isValue="true">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${ENCODER_PIN_A}"/>
+            <Param value="${ENCODER_PIN_B}"/>
+            <Param value="${ENCODER_PIN_OK}"/>
+            <Param value="QUARTER_CYCLE"/>
         </Function>
 
         <Function name="setBackButton" object="menuMgr" whenProperty="ENCODER_BACK_PIN" isNotValue="-1">
