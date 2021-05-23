@@ -15,8 +15,6 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
@@ -42,6 +40,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String RUNTIME_LARGE_NUM_PERSIST_TYPE = "largeNumItem";
     public static final String SCROLL_CHOICE_PERSIST_TYPE = "scrollItem";
     public static final String RGB32_COLOR_PERSIST_TYPE = "rgbItem";
+    public static final String TCMENU_COPY_PREFIX = "tcMenuCopy:";
 
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
@@ -109,12 +108,12 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             items = new ArrayList<>(); // has to be an array list.
             items.add(new PersistedMenu(tree.findParent(startingPoint), startingPoint));
         }
-        return "tcMenuCopy:" + gson.toJson(items);
+        return TCMENU_COPY_PREFIX + gson.toJson(items);
     }
 
     public List<PersistedMenu> copyTextToItems(String items) {
-        if(!items.startsWith("tcMenuCopy:")) return Collections.emptyList();
-        var jsonStr = items.substring(11);
+        if(!items.startsWith(TCMENU_COPY_PREFIX)) return Collections.emptyList();
+        var jsonStr = items.substring(TCMENU_COPY_PREFIX.length());
         return gson.fromJson(jsonStr, ArrayList.class);
     }
 

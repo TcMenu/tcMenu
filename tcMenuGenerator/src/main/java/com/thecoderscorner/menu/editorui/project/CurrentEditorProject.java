@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
 import java.lang.System.Logger.Level;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
@@ -163,7 +164,11 @@ public class CurrentEditorProject {
     }
 
     private void updateTitle() {
-        editorUI.setTitle(getFileName() + (isDirty()?"* ":" ") + TITLE);
+        var titlePrettyFile = "New";
+        if(fileName.isPresent()) {
+            titlePrettyFile = Paths.get(fileName.get()).getFileName().toString();
+        }
+        editorUI.setTitle(titlePrettyFile + (isDirty()?"* - ":" - ") + TITLE);
     }
 
     public MenuTree getMenuTree() {

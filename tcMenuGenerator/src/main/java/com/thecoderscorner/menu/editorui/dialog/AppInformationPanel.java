@@ -34,6 +34,7 @@ public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
+    public static final String TCC_FORUM_PAGE = "http://www.thecoderscorner.com/jforum/recentTopics/list.page";
 
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;

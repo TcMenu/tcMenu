@@ -103,6 +103,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, header, ButtonType.YES, ButtonType.NO);
         alert.setTitle(title);
+        alert.setHeaderText(title);
         return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 

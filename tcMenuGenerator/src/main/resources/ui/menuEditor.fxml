@@ -18,6 +18,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -55,6 +56,31 @@
                   <MenuItem mnemonicParsing="false" onAction="#onGeneralSettings" text="General Settings" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Menu Item">
+              <items>
+                  <MenuItem fx:id="menuAddItem" mnemonicParsing="false" onAction="#onAddToTreeMenu" text="Add Item">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="menuRemoveItem" mnemonicParsing="false" onAction="#onRemoveTreeMenu" text="Remove Item">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="Move Item Up">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="U" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                <MenuItem fx:id="menuItemDown" mnemonicParsing="false" onAction="#onTreeMoveDown" text="Move Item Down">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+              </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Code">
             <items>
               <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
@@ -66,6 +92,7 @@
               <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="About.." />
               <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="Documentation.." />
                   <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="Getting Started.." />
+                  <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="TCC Forum" />
             </items>
           </Menu>
         </menus>

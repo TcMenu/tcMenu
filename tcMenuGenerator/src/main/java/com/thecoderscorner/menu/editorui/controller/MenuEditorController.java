@@ -27,13 +27,6 @@ import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -45,18 +38,21 @@ import javafx.stage.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.GETTING_STARTED_PAGE_URL;
-import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.LIBRARY_DOCS_URL;
+import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
+import static com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "rawtypes"})
 public class MenuEditorController {
     public static final String REGISTRATION_URL = "https://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
@@ -71,6 +67,10 @@ public class MenuEditorController {
     public javafx.scene.control.Menu menuSketches;
     public javafx.scene.control.MenuItem exitMenuItem;
     public javafx.scene.control.MenuItem aboutMenuItem;
+    public javafx.scene.control.MenuItem menuAddItem;
+    public javafx.scene.control.MenuItem menuRemoveItem;
+    public javafx.scene.control.MenuItem menuItemUp;
+    public javafx.scene.control.MenuItem menuItemDown;
 
     public Menu examplesMenu;
     public TextArea prototypeTextArea;
@@ -85,14 +85,14 @@ public class MenuEditorController {
     public BorderPane editorBorderPane;
     public MenuBar mainMenu;
 
-    private List<Button> toolButtons;
     private Optional<UIMenuItem> currentEditor = Optional.empty();
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
     private ConfigurationStorage configStore;
-    private LinkedList<String> recentItems = new LinkedList<>();
+    private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
     private LibraryVersionDetector libVerDetector;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
@@ -118,7 +118,6 @@ public class MenuEditorController {
         loadPreferences();
 
         Platform.runLater(() -> {
-            sortOutToolButtons();
             sortOutMenuForMac();
             redrawTreeControl();
             redrawStatus();
@@ -128,6 +127,12 @@ public class MenuEditorController {
         storage.addArduinoDirectoryChangeListener((ard, lib, libsChanged) -> {
             if(libsChanged) Platform.runLater(this::populateAllMenus);
         });
+
+        executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
+    }
+
+    public void checkOnClipboard() {
+        Platform.runLater(() -> menuTreePaste.setDisable(!isClipboardContentValid()));
     }
 
     private void populateAllMenus() {
@@ -199,10 +204,6 @@ public class MenuEditorController {
         }
     }
 
-    private void sortOutToolButtons() {
-        toolButtons = Arrays.asList(menuTreeAdd, menuTreeRemove, menuTreeCopy, menuTreeUp, menuTreeDown);
-    }
-
     private void onEditorChange(MenuItem original, MenuItem changed) {
         if (!original.equals(changed)) {
             menuTree.getSelectionModel().getSelectedItem().setValue(changed);
@@ -235,11 +236,27 @@ public class MenuEditorController {
         );
 
         // we cannot modify root.
-        toolButtons.stream().filter(b -> b != menuTreeAdd)
-                .forEach(b -> b.setDisable(MenuTree.ROOT.equals(newValue)));
+        var isRoot = MenuTree.ROOT.equals(newValue);
+        menuRemoveItem.setDisable(isRoot);
+        menuItemUp.setDisable(isRoot);
+        menuItemDown.setDisable(isRoot);
+        menuTreeRemove.setDisable(isRoot);
+        menuTreeCopy.setDisable(isRoot);
+        menuTreeUp.setDisable(isRoot);
+        menuTreeDown.setDisable(isRoot);
+        menuTreePaste.setDisable(!isClipboardContentValid());
 
         // We cannot copy ROOT. Only value items
         if(newValue.equals(MenuTree.ROOT)) menuTreeCopy.setDisable(true);
+    }
+
+    private boolean isClipboardContentValid() {
+        var clipboard = Clipboard.getSystemClipboard();
+        if(clipboard.hasContent(DataFormat.PLAIN_TEXT)) {
+            var data = clipboard.getContent(DataFormat.PLAIN_TEXT);
+            return (data != null && data.toString().startsWith(TCMENU_COPY_PREFIX));
+        }
+        return false;
     }
 
     private void redrawTreeControl() {
@@ -303,6 +320,10 @@ public class MenuEditorController {
         editorUI.browseToURL(GETTING_STARTED_PAGE_URL);
     }
 
+    public void onMenuTCCForum(ActionEvent actionEvent) {
+        editorUI.browseToURL(TCC_FORUM_PAGE);
+    }
+
     public void registerMenuPressed(ActionEvent actionEvent) {
         RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
     }
@@ -323,7 +344,7 @@ public class MenuEditorController {
         ClipboardContent content = new ClipboardContent();
         if (systemClipboard.hasContent(DataFormat.PLAIN_TEXT)) {
             var data = systemClipboard.getContent(DataFormat.PLAIN_TEXT);
-            if (data == null || !data.toString().startsWith("tcMenuCopy:")) return;
+            if (data == null || !data.toString().startsWith(TCMENU_COPY_PREFIX)) return;
             var items = editorProject.getProjectPersistor().copyTextToItems(data.toString());
             if(items.size() == 0) return;
             editorProject.applyCommand(new PastedItemChange(items, getSelectedSubMenu(), editorProject.getMenuTree(),
@@ -438,7 +459,13 @@ public class MenuEditorController {
 
     public void loadPreferences() {
         recentItems.clear();
-        recentItems.addAll(configStore.loadRecents());
+        List<String> recentPaths = configStore.loadRecents();
+
+        var recentList = recentPaths.stream()
+                .map(recentPath -> new RecentlyUsedItem(Paths.get(recentPath).getFileName().toString(), recentPath))
+                .collect(Collectors.toList());
+
+        recentItems.addAll(recentList);
 
         Platform.runLater(this::handleRecents);
 
@@ -466,7 +493,8 @@ public class MenuEditorController {
     }
 
     public void persistPreferences() {
-        configStore.saveUniqueRecents(recentItems);
+        var recentFiles = recentItems.stream().map(RecentlyUsedItem::path).collect(Collectors.toList());
+        configStore.saveUniqueRecents(recentFiles);
     }
 
     public void onCut(ActionEvent event) {
@@ -476,6 +504,7 @@ public class MenuEditorController {
     public void onCopy(ActionEvent event) {
         if(menuTree.isFocused()) {
             onTreeCopy(event);
+            menuTreePaste.setDisable(!isClipboardContentValid());
         }
         else {
             currentEditor.ifPresent(UIMenuItem::handleCopy);
@@ -495,12 +524,7 @@ public class MenuEditorController {
         if(menuTree.isFocused()) {
             menuCopy.setDisable(false);
             menuCut.setDisable(true);
-            Clipboard systemClipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            if(systemClipboard.hasContent(DataFormat.PLAIN_TEXT)) {
-                var data = systemClipboard.getContent(DataFormat.PLAIN_TEXT);
-                menuPaste.setDisable(data == null || !data.toString().startsWith("tcMenuCopy:"));
-            }
+            menuPaste.setDisable(!isClipboardContentValid());
             return;
         }
 
@@ -520,19 +544,20 @@ public class MenuEditorController {
 
     private void handleRecents() {
         if (editorProject.isFileNameSet()) {
-            recentItems.addFirst(editorProject.getFileName());
+            var path = Paths.get(editorProject.getFileName());
+            recentItems.addFirst(new RecentlyUsedItem(path.getFileName().toString(), path.toString()));
         }
 
         recentItems = recentItems.stream()
-                .filter(name -> !name.equals(ConfigurationStorage.RECENT_DEFAULT))
+                .filter(recent -> !recent.name().equals(ConfigurationStorage.RECENT_DEFAULT))
                 .distinct()
                 .collect(Collectors.toCollection(LinkedList::new));
 
         menuRecents.getItems().clear();
-        recentItems.forEach(path-> {
-            var item = new javafx.scene.control.MenuItem(path);
+        recentItems.forEach(recentlyUsedItem -> {
+            var item = new javafx.scene.control.MenuItem(recentlyUsedItem.name());
             item.setOnAction(e-> {
-                editorProject.openProject(path);
+                editorProject.openProject(recentlyUsedItem.path());
                 redrawTreeControl();
             });
             menuRecents.getItems().add(item);
@@ -541,5 +566,11 @@ public class MenuEditorController {
 
     public void onGeneralSettings(ActionEvent actionEvent) {
         editorUI.showGeneralSettings();
+    }
+
+    private record RecentlyUsedItem(String name, String path) {
+        public String toString() {
+            return name;
+        }
     }
 }
