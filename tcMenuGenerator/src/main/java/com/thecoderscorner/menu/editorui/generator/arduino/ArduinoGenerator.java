@@ -58,25 +58,7 @@ public class ArduinoGenerator extends CoreCodeGenerator {
 
         // do a couple of final checks and put out warnings if need be
         checkIfUpToDateWarningNeeded();
-        checkIfLegacyFilesAreOnPath(directory);
     }
-
-
-    private void checkIfLegacyFilesAreOnPath(Path directory) {
-        if (Files.exists(Paths.get(toSourceFile(directory, ".h")))
-                || Files.exists(Paths.get(toSourceFile(directory, ".cpp")))) {
-
-            Path fileName = directory.getFileName();
-            logLine(ERROR, "ERROR: OLD FILES FOUND !!!!!!!!!!==========================================");
-            logLine(ERROR, "POTENTIAL COMPILE ERROR IN IDE - Non backward compatible change");
-            logLine(ERROR, "From V1.2 onwards the source files containing menu definitions have changed");
-            logLine(ERROR, "from " + fileName + ".h/.cpp to " + fileName + "_menu.h/_menu.cpp");
-            logLine(ERROR, "To avoid errors in your IDE you will need to open the directory and remove");
-            logLine(ERROR, "the files " + fileName + ".h/.cpp");
-            logLine(ERROR, "===========================================================================");
-        }
-    }
-
 
     private void checkIfUpToDateWarningNeeded() {
         if (!installer.statusOfAllLibraries().isUpToDate()) {
