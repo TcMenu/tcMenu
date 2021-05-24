@@ -100,8 +100,9 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
         menuValueToText(theItem, JUSTIFY_TEXT_RIGHT);
     }
     else {
-        char sz[22];
-        for(uint8_t i = 1; i < (uint8_t)areaSize.x; ++i)  buffer[i] = 32;
+        char sz[21];
+        for(uint8_t i = 1; i < (sizeof(sz) - 1); ++i)  buffer[i] = 32;
+        buffer[sizeof(sz)-1] = 0;
         uint8_t valueStart = 0;
         if(itemNeedsName(entry->getPosition().getJustification())) {
             theItem->copyNameToBuffer(sz, sizeof sz);
@@ -116,7 +117,7 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
         int position = calculateOffset(entry->getPosition().getJustification(), areaSize.x + 1, sz);
         copyIntoBuffer(&buffer[1], sz, position, bufferSize);
         buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
-        buffer[min(areaSize.x + 1, bufferSize)] = 0;
+        buffer[min(uint8_t(areaSize.x + 1), bufferSize)] = 0;
         lcd->setCursor(where.x, where.y);
     }
     serdebugF4("Buffer: ", where.x,where.y, buffer);
