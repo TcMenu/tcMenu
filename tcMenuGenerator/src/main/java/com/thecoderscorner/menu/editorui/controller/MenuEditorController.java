@@ -549,6 +549,7 @@ public class MenuEditorController {
         }
 
         recentItems = recentItems.stream()
+                .filter(recent -> Files.exists(Paths.get(recent.path)))
                 .filter(recent -> !recent.name().equals(ConfigurationStorage.RECENT_DEFAULT))
                 .distinct()
                 .collect(Collectors.toCollection(LinkedList::new));
