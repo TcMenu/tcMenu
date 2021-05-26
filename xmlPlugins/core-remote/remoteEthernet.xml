@@ -21,6 +21,13 @@
             </Choices>
         </Property>
         <Property id="LISTEN_PORT" name="Port on which to listen" initial="3333" desc="The port on which to listen" type="int" min="0" max="65535"/>
+        <Property id="NUM_CONCURRENT_ETH" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+            <Choices>
+                <Choice desc="One concurrent remote">1</Choice>
+                <Choice desc="Two concurrent remotes">2</Choice>
+                <Choice desc="Three concurrent remotes">3</Choice>
+            </Choices>
+        </Property>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -44,12 +51,46 @@
         <Variable name="server" type="EthernetServer" export="true">
             <Param value="${LISTEN_PORT}" default="3333" />
         </Variable>
+
+        <Variable name="ethernetInitialisation" type="EthernetInitialisation" export="true">
+            <Param ref="server"/>
+        </Variable>
+
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
+        <Variable name="ethernetConnection" type="TcMenuRemoteServer" export="false">
+            <Param value="ethernetTransport"/>
+            <Param value="ethernetInitialisation"/>
+        </Variable>
+
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Variable name="ethernetConnection" type="TcMenuRemoteServer" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+            <Param value="ethernetTransport"/>
+            <Param value="ethernetInitialisation"/>
+        </Variable>
+
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3"/>
+        <Variable name="ethernetConnection" type="TcMenuRemoteServer" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3">
+            <Param value="ethernetTransport"/>
+            <Param value="ethernetInitialisation"/>
+        </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
         <Function name="begin" object="remoteServer">
             <Param ref="server"/>
             <Param ref="applicationInfo"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="ethernetConnection"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+            <Param ref="ethernetConnection2"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="NUM_CONCURRENT_ETH" isValue="3">
+            <Param ref="ethernetConnection3"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>
