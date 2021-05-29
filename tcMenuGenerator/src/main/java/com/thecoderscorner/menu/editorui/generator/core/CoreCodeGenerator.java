@@ -45,6 +45,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final String LINE_BREAK = System.getProperty("line.separator");
     public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
+    public static final String NO_REMOTE_ID = "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb";
 
     private static final String COMMENT_HEADER = "/*\n" +
             "    The code in this file uses open source libraries provided by thecoderscorner" + LINE_BREAK + LINE_BREAK +
@@ -65,6 +66,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected CodeConversionContext context;
     protected VariableNameGenerator namingGenerator;
     protected NameAndKey nameAndKey;
+    protected boolean hasRemotePlugins;
     private final AtomicInteger logEntryNum = new AtomicInteger(0);
 
     public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
@@ -82,6 +84,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
         logLine(INFO, "Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
+
+        hasRemotePlugins = codeGenerators.stream()
+                .anyMatch(p -> p.getSubsystem() == SubSystem.REMOTE && !p.getId().equals(NO_REMOTE_ID));
 
         usesProgMem = embeddedPlatform.isUsesProgmem();
 
@@ -350,6 +355,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
             writer.write(LINE_BREAK);
+            if(hasRemotePlugins) {
+                writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");
+                writer.write(LINE_BREAK);
+            }
             writer.write(extractor.mapVariables(
                     generators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
             ));
@@ -412,18 +421,22 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));
 
-            writer.write(TWO_LINES + "void setupMenu();  // forward reference of the menu setup function.");
-            writer.write(LINE_BREAK + "extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and ID");
+            writer.write(TWO_LINES);
+            writer.write("// variables we declare that you may need to access" + LINE_BREAK);
+            writer.write("extern const PROGMEM ConnectorLocalInfo applicationInfo;");
+            writer.write(LINE_BREAK);
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// Global variables that need exporting" + TWO_LINES);
-
+            if(hasRemotePlugins) {
+                writer.write("extern TcMenuRemoteServer remoteServer;" + LINE_BREAK);
+            }
             // and put the exports in the file too
             writer.write(extractor.mapExports(embeddedCreators.stream()
                     .flatMap(ecc -> ecc.getVariables().stream())
                     .filter(var -> var.getApplicability().isApplicable(context.getProperties()))
                     .collect(Collectors.toList())
             ));
-            writer.write(LINE_BREAK + LINE_BREAK + "// Global Menu Item exports" + TWO_LINES);
+            writer.write(TWO_LINES);
+            writer.write("// Global Menu Item exports" + LINE_BREAK);
 
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
@@ -433,9 +446,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(TWO_LINES);
 
-            writer.write("// Provide a wrapper to get hold of the root menu item");
+            writer.write("// Provide a wrapper to get hold of the root menu item and export setupMenu");
             writer.write(LINE_BREAK);
             writer.write("inline MenuItem& rootMenuItem() { return " + context.getRootObject() + "; }");
+            writer.write(LINE_BREAK);
+            writer.write("void setupMenu();");
             writer.write(TWO_LINES);
 
             writer.write("// Callback functions must always include CALLBACK_FUNCTION after the return type"

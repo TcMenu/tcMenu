@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 
@@ -25,8 +26,8 @@ public class CodeConversionContext {
         this.rootObject = rootObject;
 
         properties = new ArrayList<>(properties);
-        properties.add(new CreatorProperty("ROOT", "Root", rootObject, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
-        properties.add(new CreatorProperty("TARGET", "Target", platform.getBoardId(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator()));
+        properties.add(new CreatorProperty("ROOT", "Root", rootObject, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+        properties.add(new CreatorProperty("TARGET", "Target", platform.getBoardId(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         this.properties = properties;
         this.platform = platform;
     }

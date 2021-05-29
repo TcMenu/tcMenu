@@ -44,6 +44,10 @@
     <xs:attribute type="xs:string" name="type" use="required"/>
     <xs:attribute type="xs:string" name="min"/>
     <xs:attribute type="xs:string" name="max"/>
+    <xs:attribute type="xs:string" name="matches"/>
+    <xs:attribute type="xs:string" name="whenProperty"/>
+    <xs:attribute type="xs:string" name="isValue"/>
+    <xs:attribute type="xs:string" name="isNotValue"/>
   </xs:complexType>
   <xs:complexType name="ChoiceType">
     <xs:simpleContent>

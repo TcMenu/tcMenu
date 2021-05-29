@@ -1,4 +1,4 @@
-﻿<TcMenuPluginDefinition shortName="unitTest"
+<TcMenuPluginDefinition shortName="unitTest"
                         xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                         xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
@@ -12,8 +12,6 @@
 
     <Plugins>
         <Plugin>TestPlugin.xml</Plugin>
-        <Plugin>test-theme-item-plugin.xml</Plugin>
-        <Plugin>test-remote-item-plugin.xml</Plugin>
         <Plugin>TestPluginVersionTooLow.xml</Plugin>
         <Plugin>TestPluginVersionAllowed.xml</Plugin>
     </Plugins>

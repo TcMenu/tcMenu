@@ -9,7 +9,10 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,9 +56,9 @@ public class FileBasedProjectPersistorTest {
                 ARDUINO_AVR.getBoardId(),
                 "uuid1",
                 "uuid2",
-                "uuid3",
+                List.of("uuid3"),
                 "uuid4",
-                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY)),
+                Collections.singletonList(new CreatorProperty("name", "desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable())),
                 APPLICATION_UUID, "app name", false, false, false
         );
         persistor.save(projFile.toString(), tree, options);
@@ -68,7 +71,7 @@ public class FileBasedProjectPersistorTest {
         assertEquals(ARDUINO_AVR.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
         assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
         assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
-        assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuid());
+        assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuids().get(0));
         assertEquals("app name", openResult.getOptions().getApplicationName());
         assertEquals("app name", openResult.getOptions().getApplicationName());
         assertEquals(APPLICATION_UUID, openResult.getOptions().getApplicationUUID());

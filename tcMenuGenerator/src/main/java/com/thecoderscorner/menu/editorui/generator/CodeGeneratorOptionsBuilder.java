@@ -15,7 +15,7 @@ public class CodeGeneratorOptionsBuilder {
         private String embeddedPlatform;
         private String lastDisplayUuid;
         private String lastInputUuid;
-        private String lastRemoteUuid;
+        private List<String> lastRemoteUuids;
         private String lastThemeUuid;
         private UUID applicationUUID;
         private String applicationName;
@@ -28,7 +28,7 @@ public class CodeGeneratorOptionsBuilder {
             embeddedPlatform = other.getEmbeddedPlatform();
             lastDisplayUuid = other.getLastDisplayUuid();
             lastInputUuid = other.getLastInputUuid();
-            lastRemoteUuid = other.getLastRemoteCapabilitiesUuid();
+            lastRemoteUuids = other.getLastRemoteCapabilitiesUuids();
             lastThemeUuid = other.getLastThemeUuid();
             applicationUUID = other.getApplicationUUID();
             applicationName = other.getApplicationName();
@@ -40,7 +40,7 @@ public class CodeGeneratorOptionsBuilder {
         }
 
         public CodeGeneratorOptions codeOptions() {
-            return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuid, lastThemeUuid,
+            return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                     lastProperties, applicationUUID, applicationName, namingRecursive, saveToSrc, useCppMain);
         }
 

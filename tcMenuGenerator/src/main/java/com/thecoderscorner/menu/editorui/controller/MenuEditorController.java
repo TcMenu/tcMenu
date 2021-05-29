@@ -451,10 +451,15 @@ public class MenuEditorController {
     }
 
     public void onGenerateCode(ActionEvent event) {
-        editorUI.showCodeGeneratorDialog(editorProject, installer);
-        editorProject.saveProject(EditorSaveMode.SAVE);
-        redrawTreeControl();
-        handleRecents();
+        try {
+            editorUI.showCodeGeneratorDialog(editorProject, installer);
+            editorProject.saveProject(EditorSaveMode.SAVE);
+            redrawTreeControl();
+            handleRecents();
+        }
+        catch (Exception e) {
+            logger.log(ERROR, "Code generator caught an exception", e);
+        }
     }
 
     public void loadPreferences() {

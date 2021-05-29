@@ -351,7 +351,9 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     elem.getAttribute("name"),
                     initial,
                     item.getSubsystem(),
-                    validatorFor(elem, initial)
+                    CreatorProperty.PropType.USE_IN_DEFINE,
+                    validatorFor(elem, initial),
+                    toApplicability(elem, Map.of())
             );
         }));
     }

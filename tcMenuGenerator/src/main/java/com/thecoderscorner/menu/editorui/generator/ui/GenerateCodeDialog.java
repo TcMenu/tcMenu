@@ -12,6 +12,7 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -22,19 +23,15 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.UiHelper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -47,6 +44,8 @@ import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class GenerateCodeDialog {
+    private final static String DEFAULT_THEME_ID = "b186c809-d9ef-4ca8-9d4b-e4780a041ccc"; // manual theme, works for most displays
+
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     private final CodePluginManager manager;
@@ -64,7 +63,7 @@ public class GenerateCodeDialog {
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentTheme;
     private UICodePluginItem currentInput;
-    private UICodePluginItem currentRemote;
+    private List<UICodePluginItem> currentRemotes = new ArrayList<>();
 
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Button generateButton;
@@ -79,6 +78,7 @@ public class GenerateCodeDialog {
     private List<CreatorProperty> properties = new ArrayList<>();
     private Stage dialogStage;
     private Label themeTitle;
+    private VBox centerPane;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -97,42 +97,39 @@ public class GenerateCodeDialog {
         placeDirectoryAndEmbeddedPanels(pane);
         filterChoicesByPlatform(platformCombo.getValue());
 
-        VBox centerPane = new VBox(5);
+        centerPane = new VBox(5);
         addTitleLabel(centerPane, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         var allItems = project.getMenuTree().getAllMenuItems();
 
-        CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid());
-        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid());
-        CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, genOptions.getLastRemoteCapabilitiesUuid());
-        CodePluginItem itemTheme = findItemByUuidOrDefault(themesSupported, genOptions.getLastThemeUuid());
+        CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid(), Optional.empty());
+        CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid(), Optional.empty());
+        CodePluginItem itemTheme = findItemByUuidOrDefault(themesSupported, genOptions.getLastThemeUuid(), Optional.of(DEFAULT_THEME_ID));
 
         addToInitialSourceFilesForRemovalCheck(itemInput);
         addToInitialSourceFilesForRemovalCheck(itemTheme);
         addToInitialSourceFilesForRemovalCheck(itemDisplay);
-        addToInitialSourceFilesForRemovalCheck(itemRemote);
 
-        setAllPropertiesToLastValues(itemInput.getProperties());
-        setAllPropertiesToLastValues(itemDisplay.getProperties());
-        setAllPropertiesToLastValues(itemRemote.getProperties());
+        setAllPropertiesToLastValues(itemInput);
+        setAllPropertiesToLastValues(itemDisplay);
         if(itemTheme != null) {
-            setAllPropertiesToLastValues(itemTheme.getProperties());
+            setAllPropertiesToLastValues(itemTheme);
         }
 
-        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems);
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems, 0);
         currentInput.setId("currentInputUI");
         currentInput.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentInput);
 
         addTitleLabel(centerPane, "Select the display type:");
-        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems);
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems, 0);
         currentDisplay.setId("currentDisplayUI");
         currentDisplay.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentDisplay);
 
         if(itemTheme != null) {
             themeTitle = addTitleLabel(centerPane, "Select a theme:");
-            currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems);
+            currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems, 0);
             currentTheme.setId("currentThemeUI");
             currentTheme.getStyleClass().add("uiCodeGen");
             if (!currentDisplay.getItem().isThemeNeeded()) {
@@ -145,11 +142,39 @@ public class GenerateCodeDialog {
         }
         else currentTheme = null;
 
-        addTitleLabel(centerPane, "Select remote capabilities:");
-        currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems);
-        currentRemote.setId("currentRemoteUI");
-        currentRemote.getStyleClass().add("uiCodeGen");
-        centerPane.getChildren().add(currentRemote);
+        BorderPane remoteLabelPane = new BorderPane();
+        Label titleLbl = new Label("Select IoT/remote capabilities:");
+        titleLbl.getStyleClass().add("label-bright");
+        remoteLabelPane.setLeft(titleLbl);
+
+        Button addRemoteCapabilityButton = new Button("Add another IoT/remote");
+        remoteLabelPane.setRight(addRemoteCapabilityButton);
+        addRemoteCapabilityButton.setOnAction(this::produceAnotherRemoteCapability);
+        centerPane.getChildren().add(remoteLabelPane);
+
+        List<String> remoteIds = genOptions.getLastRemoteCapabilitiesUuids();
+        if(remoteIds != null && !remoteIds.isEmpty()) {
+            int count = 0;
+            for(var remoteId : remoteIds) {
+                CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, remoteId, Optional.of(CoreCodeGenerator.NO_REMOTE_ID));
+                addToInitialSourceFilesForRemovalCheck(itemRemote);
+                setAllPropertiesToLastValues(itemRemote);
+                var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, count);
+                currentRemote.setId("currentRemoteUI-" + count);
+                currentRemote.getStyleClass().add("uiCodeGen");
+                centerPane.getChildren().add(currentRemote);
+                count++;
+                currentRemotes.add(currentRemote);
+            }
+        }
+        else {
+            // did not exist before this, must be first run.
+            CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, "", Optional.empty());
+            var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, 0);
+            currentRemote.setId("currentRemoteUI-0");
+            currentRemote.getStyleClass().add("uiCodeGen");
+            centerPane.getChildren().add(currentRemote);
+        }
 
         ButtonBar buttonBar = new ButtonBar();
         generateButton = new Button("Generate Code");
@@ -181,6 +206,18 @@ public class GenerateCodeDialog {
         });
     }
 
+    private void produceAnotherRemoteCapability(ActionEvent actionEvent) {
+        var itemRemote = findItemByUuidOrDefault(remotesSupported, CoreCodeGenerator.NO_REMOTE_ID, Optional.empty());
+        setAllPropertiesToLastValues(itemRemote);
+        var allItems = project.getMenuTree().getAllMenuItems();
+        var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI,
+                allItems, currentRemotes.size());
+        currentRemote.setId("currentRemoteUI-" + currentRemotes.size());
+        currentRemote.getStyleClass().add("uiCodeGen");
+        currentRemotes.add(currentRemote);
+        centerPane.getChildren().add(currentRemote);
+    }
+
     private void addToInitialSourceFilesForRemovalCheck(CodePluginItem pluginItem) {
         if(pluginItem == null) return;
         for(var sf : pluginItem.getRequiredSourceFiles()) {
@@ -190,16 +227,23 @@ public class GenerateCodeDialog {
         }
     }
 
-    private Label addTitleLabel(VBox vbox, String text) {
+    private Label addTitleLabel(Pane vbox, String text) {
         Label titleLbl = new Label(text);
         titleLbl.getStyleClass().add("label-bright");
         vbox.getChildren().add(titleLbl);
         return titleLbl;
     }
 
-    private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid) {
-        if(items.size() == 0) return null;
-        return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElse(items.get(0));
+    private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid, Optional<String> maybeDefault) {
+        if(items.size() == 0) throw new IllegalStateException("No plugins have been loaded");
+        return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElseGet(() -> {
+            CodePluginItem ret = null;
+            if(maybeDefault.isPresent()) {
+                ret = items.stream().filter(item -> item.getId().equals(maybeDefault.get())).findFirst().orElse(items.get(0));
+            }
+            else ret = items.get(0);
+            return ret;
+        });
     }
 
     private void placeDirectoryAndEmbeddedPanels(BorderPane pane) {
@@ -280,7 +324,7 @@ public class GenerateCodeDialog {
     private void onNewUUIDRequired(ActionEvent actionEvent) {
         if(editorUI.questionYesNo(
                 "Really change the UUID?",
-                "The application will be treated as new by all remote and API apps.")) {
+                "The application will be treated as new by all IoT/remote and API apps.")) {
             appUuidField.setText(UUID.randomUUID().toString());
         }
     }
@@ -293,8 +337,10 @@ public class GenerateCodeDialog {
         useCppMainCheckBox.setDisable(platformCombo.getValue().equals(EmbeddedPlatform.MBED_RTOS));
     }
 
-    private void setAllPropertiesToLastValues(List<CreatorProperty> propsToDefault) {
-        for(var prop :  propsToDefault) {
+    private void setAllPropertiesToLastValues(CodePluginItem itemToSetFor) {
+        if(itemToSetFor == null || itemToSetFor.getProperties() == null) return;
+
+        for(var prop :  itemToSetFor.getProperties()) {
             var lastProp = project.getGeneratorOptions().getLastProperties().stream()
                     .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
                     .findFirst();
@@ -315,7 +361,9 @@ public class GenerateCodeDialog {
         var allProps = new ArrayList<CreatorProperty>();
         allProps.addAll(currentDisplay.getItem().getProperties());
         allProps.addAll(currentInput.getItem().getProperties());
-        allProps.addAll(currentRemote.getItem().getProperties());
+        for(var remote : currentRemotes) {
+            allProps.addAll(remote.getItem().getProperties());
+        }
         if(currentTheme != null) {
             allProps.addAll(currentTheme.getItem().getProperties());
         }
@@ -324,7 +372,8 @@ public class GenerateCodeDialog {
         String themeId = currentTheme != null ? currentTheme.getItem().getId() : "";
         project.setGeneratorOptions(new CodeGeneratorOptions(
                 platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
-                currentDisplay.getItem().getId(), currentInput.getItem().getId(), currentRemote.getItem().getId(), themeId,
+                currentDisplay.getItem().getId(), currentInput.getItem().getId(),
+                currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()), themeId,
                 allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
                 saveToSrcCheckBox.isSelected(), useCppMainCheckBox.isSelected())
         );
@@ -339,17 +388,21 @@ public class GenerateCodeDialog {
     }
 
     private List<CodePluginItem> getAllPluginsForConversion() {
+        var allPlugins = new ArrayList<CodePluginItem>();
+        allPlugins.add(currentDisplay.getItem());
+        allPlugins.add(currentInput.getItem());
+        for(var pl : currentRemotes) {
+            allPlugins.add(pl.getItem());
+        }
         if(currentDisplay.getItem().isThemeNeeded() && currentTheme != null) {
-            return Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem(), currentTheme.getItem());
+            allPlugins.add(currentTheme.getItem());
         }
-        else {
-            return Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
-        }
+        return allPlugins;
     }
 
-    private void onDisplayChange(CodePluginItem item) {
+    private void onDisplayChange(UICodePluginItem uiPlugin, CodePluginItem item) {
         logger.log(INFO, "Action fired on display");
-        selectPlugin(displaysSupported, "Display", (pluginItem)-> {
+        selectPlugin(displaysSupported, "Display", (uiPluginLocal, pluginItem)-> {
             currentDisplay.setItem(pluginItem);
             changeProperties();
             if(currentTheme == null) return;
@@ -362,54 +415,60 @@ public class GenerateCodeDialog {
     }
 
     private void changeProperties() {
-        List<CodePluginItem> creators;
-        if(currentDisplay.getItem().isThemeNeeded() && currentTheme != null) {
-            creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem(), currentTheme.getItem());
-        }
-        else {
-            creators = Arrays.asList(currentDisplay.getItem(), currentInput.getItem(), currentRemote.getItem());
-        }
+        List<CodePluginItem> creators = getAllPluginsForConversion();
 
         creators.stream()
                 .filter(p -> p != null && p.getProperties().size() > 0)
-                .forEach( creator -> {
-                    setAllPropertiesToLastValues(creator.getProperties());
-                });
+                .forEach(this::setAllPropertiesToLastValues);
     }
 
-    private void onRemoteChange(CodePluginItem item) {
-        logger.log(INFO, "Action fired on remote");
-        selectPlugin(remotesSupported, "Remote", (pluginItem)-> {
-            currentRemote.setItem(pluginItem);
+    private void onRemoteChange(UICodePluginItem uiPlugin, CodePluginItem item) {
+        if(item == null) {
+            logger.log(INFO, "Remove fired on remote");
+            currentRemotes.remove(uiPlugin);
+            centerPane.getChildren().remove(uiPlugin);
             changeProperties();
+
+            for(int i=0; i<currentRemotes.size(); i++) {
+                currentRemotes.get(i).setItemIndex(i);
+            }
+
+            return;
+        }
+        logger.log(INFO, "Action fired on remote");
+        selectPlugin(remotesSupported, "Remote", (uiPluginLocal, pluginItem)-> {
+            if (uiPluginLocal.getItemIndex() < currentRemotes.size()) {
+                currentRemotes.get(uiPlugin.getItemIndex()).setItem(pluginItem);
+                changeProperties();
+            }
         });
     }
 
-    private void onThemeChange(CodePluginItem item) {
+    private void onThemeChange(UICodePluginItem uiPlugin, CodePluginItem item) {
         logger.log(INFO, "Action fired on theme");
-        selectPlugin(themesSupported, "Theme", (pluginItem)-> {
+        selectPlugin(themesSupported, "Theme", (uiLocal, pluginItem)-> {
             currentTheme.setItem(pluginItem);
             changeProperties();
         });
     }
 
-    private void onInputChange(CodePluginItem item) {
+    private void onInputChange(UICodePluginItem uiPlugin, CodePluginItem item) {
         logger.log(INFO, "Action fired on input");
-        selectPlugin(inputsSupported, "Input", (pluginItem)-> {
+        selectPlugin(inputsSupported, "Input", (uiLocal, pluginItem)-> {
             currentInput.setItem(pluginItem);
             changeProperties();
         });
     }
 
-    private void selectPlugin(List<CodePluginItem> pluginItems, String changeWhat, Consumer<CodePluginItem> eventHandler) {
+    private void selectPlugin(List<CodePluginItem> pluginItems, String changeWhat, BiConsumer<UICodePluginItem, CodePluginItem> eventHandler) {
 
         Popup popup = new Popup();
         List<UICodePluginItem> listOfComponents = pluginItems.stream()
                 .map(display -> {
-                    var it = new UICodePluginItem(manager, display, SELECT, item -> {
+                    var it = new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
                         popup.hide();
-                        eventHandler.accept(item);
-                    });
+                        eventHandler.accept(ui, item);
+                    }, 0);
                     it.setId("sel-" + display.getId());
 
                     return it;

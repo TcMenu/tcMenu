@@ -72,9 +72,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
             plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastInputUuid(), DEFAULT_INPUT_PLUGIN));
             plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastDisplayUuid(), DEFAULT_DISPLAY_PLUGIN));
-            plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastRemoteCapabilitiesUuid(), DEFAULT_REMOTE_PLUGIN));
+            for(var plugin : project.getOptions().getLastRemoteCapabilitiesUuids()) {
+                plugins.add(getPluginOrDefault(allPlugins, plugin, DEFAULT_REMOTE_PLUGIN));
+            }
             if (project.getOptions().getLastThemeUuid() != null) {
-                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastRemoteCapabilitiesUuid(), DEFAULT_THEME_PLUGIN));
+                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN));
             }
 
             System.out.format("Executing code generator");

@@ -16,6 +16,13 @@
     <ImageFile>mbed-ethernet.jpg</ImageFile>
 
     <Properties>
+        <Property id="NUM_CONCURRENT_ETH" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+            <Choices>
+                <Choice desc="One concurrent remote">1</Choice>
+                <Choice desc="Two concurrent remotes">2</Choice>
+                <Choice desc="Three concurrent remotes">3</Choice>
+            </Choices>
+        </Property>
         <Property id="LISTEN_PORT" name="Port on which to listen" initial="3333" desc="The port on which to listen" type="int" min="0" max="65535"/>
     </Properties>
 
@@ -31,12 +38,33 @@
         <Header name="RemoteConnector.h" inSource="false"/>
     </IncludeFiles>
 
-    <GlobalVariables/>
+    <GlobalVariables>
+        <Variable name="mbedEthInitialisation" type="MbedEthernetInitialisation" export="true">
+            <Param value="${LISTEN_PORT}"/>
+            <Param value="applicationInfo"/>
+        </Variable>
+
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Variable name="ethernetConnection" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+            <Param value="ethernetTransport"/>
+            <Param value="mbedEthInitialisation"/>
+        </Variable>
+
+        <Variable name="ethernetTransport2" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Variable name="ethernetConnection2" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+            <Param value="ethernetTransport2"/>
+            <Param value="mbedEthInitialisation"/>
+        </Variable>
+
+        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Variable name="ethernetConnection3" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+            <Param value="ethernetTransport3"/>
+            <Param value="mbedEthInitialisation"/>
+        </Variable>
+
+    </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="remoteServer">
-            <Param value="${LISTEN_PORT}"/>
-            <Param ref="applicationInfo"/>
-        </Function>
+
     </SetupFunctions>
 </TcMenuPlugin>

@@ -1,8 +1,8 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.FONTS_GUIDE_URL;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.*;
 
 public class ChooseFontController {
@@ -32,22 +33,12 @@ public class ChooseFontController {
             var font = maybeFont.get();
             fontVarField.setText(font.getFontName());
             fontNumField.setText(Integer.toString(font.getFontNumber()));
-            switch(font.getFontMode()) {
-                case DEFAULT_FONT:
-                    defaultFontSelect.setSelected(true);
-                    break;
-                case ADAFRUIT:
-                    adafruitFontSel.setSelected(true);
-                    break;
-                case NUMBERED:
-                    largeNumSelect.setSelected(true);
-                    break;
-                case AVAILABLE:
-                    staticFontSel.setSelected(true);
-                    break;
-                case ADAFRUIT_LOCAL:
-                    adafruitLocalFontSel.setSelected(true);
-                    break;
+            switch (font.getFontMode()) {
+                case DEFAULT_FONT -> defaultFontSelect.setSelected(true);
+                case ADAFRUIT -> adafruitFontSel.setSelected(true);
+                case NUMBERED -> largeNumSelect.setSelected(true);
+                case AVAILABLE -> staticFontSel.setSelected(true);
+                case ADAFRUIT_LOCAL -> adafruitLocalFontSel.setSelected(true);
             }
         }
         else {
@@ -55,6 +46,10 @@ public class ChooseFontController {
             fontVarField.setText("MyFont");
             fontNumField.setText("1");
         }
+    }
+
+    public void onFontDefinitionsDocs(ActionEvent actionEvent) {
+        SafeNavigator.safeNavigateTo(FONTS_GUIDE_URL);
     }
 
     public void onCreatePressed(ActionEvent actionEvent) {
@@ -73,8 +68,6 @@ public class ChooseFontController {
             errorField.setText("Only use integers for font number / size");
             return;
         }
-
-        var text = fontVarField.getText();
 
         if(fontVarField.getText().isBlank() && (mode == ADAFRUIT || mode == ADAFRUIT_LOCAL ||  mode == AVAILABLE)) {
             errorField.setText("Adafruit and static fonts require a font name");

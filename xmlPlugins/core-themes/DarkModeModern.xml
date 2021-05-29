@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Dark Mode Modern for larger displays" id="e3d447ef-a620-47fa-9a3c-012665b30bdf"
+<TcMenuPlugin name="Dark Mode Modern for larger color displays" id="e3d447ef-a620-47fa-9a3c-012665b30bdf"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -10,7 +10,7 @@
        <Platform>ARDUINO_ESP32</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Dark mode theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts.</Description>
+    <Description>Dark mode theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts. This can only be used with color displays</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/color-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-dark-mode-modern.jpg</ImageFile>

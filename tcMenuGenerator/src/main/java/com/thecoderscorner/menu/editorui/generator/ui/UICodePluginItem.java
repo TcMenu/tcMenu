@@ -8,12 +8,13 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
+import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.validation.BooleanPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
-import com.thecoderscorner.menu.editorui.generator.validation.ChoicesPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -22,6 +23,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -31,8 +33,9 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class UICodePluginItem extends BorderPane {
 
@@ -40,8 +43,9 @@ public class UICodePluginItem extends BorderPane {
 
     public enum UICodeAction { CHANGE, SELECT }
 
+    private int itemIndex;
     private final boolean showProperties;
-    private final Consumer<CodePluginItem> eventHandler;
+    private final BiConsumer<UICodePluginItem, CodePluginItem> eventHandler;
     private final Label titleLabel;
     private final Collection<MenuItem> allItems;
     private final Label descriptionArea;
@@ -54,17 +58,21 @@ public class UICodePluginItem extends BorderPane {
     private final VBox propertiesPanel;
     private final CurrentProjectEditorUI editorUI;
     private CodePluginItem item;
-    private final static System.Logger LOGGER = System.getLogger(UICodePluginItem.class.getSimpleName());
+    private final Map<String, PropertyWithControl> propertiesById = new HashMap<>();
 
-    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt) {
-        this(mgr, item, action, evt, null, null);
+    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action,
+                            BiConsumer<UICodePluginItem, CodePluginItem> evt, int itemIndex) {
+        this(mgr, item, action, evt, null, null, itemIndex);
     }
 
-    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action, Consumer<CodePluginItem> evt,
-                            CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems) {
+    public UICodePluginItem(CodePluginManager mgr, CodePluginItem item, UICodeAction action,
+                            BiConsumer<UICodePluginItem, CodePluginItem> evt,
+                            CurrentProjectEditorUI editorUI, Collection<com.thecoderscorner.menu.domain.MenuItem> allItems,
+                            int itemIndex) {
         super();
         showProperties = allItems != null && editorUI != null;
 
+        this.itemIndex = itemIndex;
         this.editorUI = editorUI;
         this.eventHandler = evt;
 
@@ -75,10 +83,20 @@ public class UICodePluginItem extends BorderPane {
         this.allItems = allItems;
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
 
+        Node titleNode;
+        if(itemIndex != 0) {
+            var removeButton = new Button("X");
+            removeButton.setOnAction(actionEvent -> eventHandler.accept(this, null));
+            var borderTitle = new BorderPane();
+            borderTitle.setLeft(titleLabel);
+            borderTitle.setRight(removeButton);
+            titleNode = borderTitle;
+        }
+        else titleNode = titleLabel;
+
         descriptionArea = new Label(item.getExtendedDescription());
         descriptionArea.setWrapText(true);
         descriptionArea.setAlignment(Pos.TOP_LEFT);
-        descriptionArea.setPrefWidth(1900);
 
         whichPlugin = new Label("Plugin loading");
         whichPlugin.setStyle("-fx-font-size: 90%;");
@@ -106,11 +124,11 @@ public class UICodePluginItem extends BorderPane {
         actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
         actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #d4d9fd");
         actionButton.setMaxSize(2000, 2000);
-        actionButton.setOnAction(event-> eventHandler.accept(item));
+        actionButton.setOnAction(event-> eventHandler.accept(this, item));
 
         setImageButton(item);
 
-        setTop(titleLabel);
+        setTop(titleNode);
         BorderPane.setMargin(titleLabel, new Insets(5.0));
 
         setLeft(new VBox(actionButton));
@@ -127,24 +145,42 @@ public class UICodePluginItem extends BorderPane {
         setItem(item);
     }
 
+    public int getItemIndex() {
+        return itemIndex;
+    }
+
+    public void setItemIndex(int i) {
+        itemIndex = i;
+    }
+
     private void prepareProperties() {
         propertiesPanel.getChildren().clear();
         if(!showProperties) return;
 
         item.getProperties().forEach(property -> {
-            propertiesPanel.getChildren().add(new Label(property.getDescription()));
-            if(property.getValidationRules().hasChoices()) {
-                ComboBox<ChoiceDescription> comboBox = generateRegularComboField(property);
-                propertiesPanel.getChildren().add(comboBox);
-            }
-            else if(property.getValidationRules() instanceof FontPropertyValidationRules) {
-                generateFontField(propertiesPanel, property);
+            if (property.getValidationRules() instanceof BooleanPropertyValidationRules) {
+                CheckBox checkbox = new CheckBox(property.getDescription());
+                checkbox.setSelected(Boolean.parseBoolean(property.getLatestValue()));
+                checkbox.setOnAction(actionEvent -> commitEdit(property, Boolean.toString(checkbox.isSelected())));
+                checkbox.setOpaqueInsets(new Insets(3, 0, 3, 0));
+                propertiesById.put(property.getName(), new PropertyWithControl(property, checkbox));
+                propertiesPanel.getChildren().add(checkbox);
             }
             else {
-                generateTextField(propertiesPanel, property);
+                propertiesPanel.getChildren().add(new Label(property.getDescription()));
+                if (property.getValidationRules().hasChoices()) {
+                    ComboBox<ChoiceDescription> comboBox = generateRegularComboField(property);
+                    propertiesPanel.getChildren().add(comboBox);
+                    propertiesById.put(property.getName(), new PropertyWithControl(property, comboBox));
+                } else if (property.getValidationRules() instanceof FontPropertyValidationRules) {
+                    generateFontField(propertiesPanel, property);
+                } else {
+                    generateTextField(propertiesPanel, property);
+                }
             }
         });
 
+        evalulateAllEditorFieldsAgainstProps();
     }
 
     private void setImageButton(CodePluginItem item) {
@@ -176,6 +212,7 @@ public class UICodePluginItem extends BorderPane {
         hBox.getChildren().add(fontButton);
         hBox.setAlignment(Pos.CENTER_LEFT);
         propertiesPanel.getChildren().add(hBox);
+        propertiesById.put(property.getName(), new PropertyWithControl(property, fontButton));
     }
 
     private String nicePrintableFontName(String latestValue) {
@@ -189,8 +226,7 @@ public class UICodePluginItem extends BorderPane {
     private ComboBox<ChoiceDescription> generateRegularComboField(CreatorProperty property) {
         ComboBox<ChoiceDescription> comboBox;
 
-        if(property.getValidationRules() instanceof MenuItemValidationRules) {
-            var valRules = (MenuItemValidationRules) property.getValidationRules();
+        if(property.getValidationRules() instanceof MenuItemValidationRules valRules) {
             valRules.initialise(new ArrayList<>(allItems));
         }
 
@@ -220,11 +256,14 @@ public class UICodePluginItem extends BorderPane {
             }
         });
         textField.setOnAction(actionEvent -> commitEdit(property, textField.getText()));
+        propertiesById.put(property.getName(), new PropertyWithControl(property, textField));
     }
 
     private void commitEdit(CreatorProperty property, String value) {
         if(property.getValidationRules().isValueValid(value)) {
             property.setLatestValue(value);
+
+            evalulateAllEditorFieldsAgainstProps();
         }
         else if(editorUI != null) {
             editorUI.alertOnError(
@@ -232,6 +271,13 @@ public class UICodePluginItem extends BorderPane {
                     "The value '" + value + "' is not valid for " + property.getName()
                             + "\nReason: " + property.getValidationRules());
         }
+    }
+
+    private void evalulateAllEditorFieldsAgainstProps() {
+        propertiesById.values().forEach(prop -> {
+            CodeApplicability applicability = prop.property().getApplicability();
+            prop.control().setDisable(!applicability.isApplicable(item.getProperties()));
+        });
     }
 
     public void setItem(CodePluginItem item) {
@@ -264,4 +310,6 @@ public class UICodePluginItem extends BorderPane {
     public CodePluginItem getItem() {
         return item;
     }
+
+    record PropertyWithControl(CreatorProperty property, Node control) {}
 }

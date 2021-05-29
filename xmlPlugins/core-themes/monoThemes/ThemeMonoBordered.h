@@ -1,7 +1,7 @@
 #ifndef TCMENU_THEME_MONO_BORDER
 #define TCMENU_THEME_MONO_BORDER
 
-color_t defaultItemPaletteMono[] = {1, 0, 1, 1};
+color_t defaultItemPaletteMono[] = {WHITE, BLACK, WHITE, WHITE};
 
 #define TITLE_BORDER_THICKNESS 2
 #define TITLE_SPACING 2

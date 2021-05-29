@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class CodeGeneratorOptions {
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
+    private List<String> lastRemoteUuids;
     private String lastThemeUuid;
     private UUID applicationUUID;
     private String applicationName;
@@ -28,14 +30,18 @@ public class CodeGeneratorOptions {
         // for serialisation
     }
 
-    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, String remoteCapabilitiesId,
+    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
-        this.lastRemoteUuid = remoteCapabilitiesId;
+        if(remoteCapabilities != null && !remoteCapabilities.isEmpty()) {
+            this.lastRemoteUuids = remoteCapabilities;
+            // for backward compatibility as far as possible we save the first in the old format.
+            this.lastRemoteUuid = remoteCapabilities.get(0);
+        }
         this.lastThemeUuid = themeTypeId;
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
@@ -67,8 +73,11 @@ public class CodeGeneratorOptions {
 
     public String getLastThemeUuid() { return lastThemeUuid; }
 
-    public String getLastRemoteCapabilitiesUuid() {
-        return lastRemoteUuid;
+    public List<String> getLastRemoteCapabilitiesUuids() {
+        if (lastRemoteUuids == null) {
+            lastRemoteUuids = List.of(lastRemoteUuid != null ? lastRemoteUuid : CoreCodeGenerator.NO_REMOTE_ID);
+        }
+        return lastRemoteUuids;
     }
 
     public List<CreatorProperty> getLastProperties() {

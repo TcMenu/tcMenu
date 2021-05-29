@@ -148,7 +148,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         logger.log(INFO, "Start - show code generator dialog");
         if(!project.isFileNameSet()) {
             this.alertOnError("No filename set", "Please set a filename to continue");
-            return;
+            throw new IllegalArgumentException("No filename provided");
         }
 
         try {

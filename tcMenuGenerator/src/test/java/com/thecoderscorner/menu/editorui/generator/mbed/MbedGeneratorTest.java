@@ -4,18 +4,21 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.generator.arduino;
+package com.thecoderscorner.menu.editorui.generator.mbed;
 
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-public class ArduinoGeneratorTest {
+public class MbedGeneratorTest {
 
     private Path projectDir;
     private Path pluginDir;
@@ -54,13 +57,12 @@ public class ArduinoGeneratorTest {
         Files.createDirectories(projectDir);
 
         pluginDir = rootDir.resolve("plugin");
-        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, false);
+        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, true);
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
-        when(storage.getVersion()).thenReturn("1.7.0");
+        when(storage.getVersion()).thenReturn("2.1.0");
         var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
         pluginConfig = loader.loadPluginLib(pluginDir);
-
     }
 
     @AfterEach
@@ -76,15 +78,6 @@ public class ArduinoGeneratorTest {
         runConversionWith(ARDUINO_AVR, "/generator/template", false);
     }
 
-    private MenuItem generateItemWithName(String name) {
-        return EditableTextMenuItemBuilder.aTextMenuItemBuilder()
-                .withId(11)
-                .withName(name)
-                .withEepromAddr(22)
-                .withFunctionName(null)
-                .withLength(10)
-                .menuItem();
-    }
 
     @Test
     void testConversionForSamd() throws IOException {
@@ -117,14 +110,11 @@ public class ArduinoGeneratorTest {
         assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
                 new NameAndKey("uuid1", "tester"), List.of(), false));
 
-        VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
-        assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));
-        assertEquals("ChannelÖôóò", gen.makeNameToVar(generateItemWithName("ChannelÖôóò")));
-
         var cppGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.cpp")));
         var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));
         var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
         var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
+        var pluginGeneratedTransport = new String(Files.readAllBytes(projectDir.resolve("MyTransport.cpp")));
 
         var cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
         var hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
@@ -138,9 +128,10 @@ public class ArduinoGeneratorTest {
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
         assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
         assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
+        assertEqualsIgnoringCRLF("My Transport file", pluginGeneratedTransport);
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
-                eq(projectDir.resolve(projectDir.resolve(projectDir.getFileName() + ".ino")).toString()),
+                eq(projectDir.resolve(projectDir.resolve("tcmenu_main.cpp")).toString()),
                 eq(projectDir.getFileName().toString()), anyCollection());
     }
 }
