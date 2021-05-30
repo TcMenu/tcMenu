@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.mbed;
 
-import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
-import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
@@ -15,8 +13,10 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
-import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.generator.plugin.*;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
@@ -30,21 +30,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
+import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.buildTreeFromJson;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class MbedGeneratorTest {
-
     private Path projectDir;
     private Path pluginDir;
     private Path rootDir;
@@ -73,33 +70,23 @@ public class MbedGeneratorTest {
                 .forEach(File::delete);
     }
 
-    @Test
-    void testConversionForAvr() throws IOException {
-        runConversionWith(ARDUINO_AVR, "/generator/template", false);
-    }
-
-
-    @Test
-    void testConversionForSamd() throws IOException {
-        runConversionWith(ARDUINO32, "/generator/template32", true);
-    }
-
     @SuppressWarnings("unchecked")
-    private void runConversionWith(EmbeddedPlatform platform, String templateToUse, boolean recursiveName) throws IOException {
+    @Test
+    public void testMbedConversion() throws IOException {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
-        MenuTree tree = buildSimpleTreeReadOnly();
+        MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
-                ARDUINO32.getBoardId(),
+                MBED_RTOS.getBoardId(),
                 "", "", List.of(""), "",
                 List.<CreatorProperty>of(),
                 UUID.randomUUID(),
                 "app",
-                recursiveName, false, false);
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
+                true, false, false);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS, standardOptions);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
@@ -114,10 +101,10 @@ public class MbedGeneratorTest {
         var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));
         var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
         var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
-        var pluginGeneratedTransport = new String(Files.readAllBytes(projectDir.resolve("MyTransport.cpp")));
+        var pluginGeneratedTransport = new String(Files.readAllBytes(projectDir.resolve("MySpecialTransport.h")));
 
-        var cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
-        var hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
+        var cppTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.cpp").readAllBytes());
+        var hTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.h").readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
@@ -131,7 +118,7 @@ public class MbedGeneratorTest {
         assertEqualsIgnoringCRLF("My Transport file", pluginGeneratedTransport);
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
-                eq(projectDir.resolve(projectDir.resolve("tcmenu_main.cpp")).toString()),
+                eq(projectDir.resolve(projectDir.resolve("project_main.cpp")).toString()),
                 eq(projectDir.getFileName().toString()), anyCollection());
     }
 }

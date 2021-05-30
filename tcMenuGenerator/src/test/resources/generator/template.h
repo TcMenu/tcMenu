@@ -17,8 +17,9 @@
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
 
-// Global variables that need exporting
-extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and IDextern ArduinoAnalogDevice analogDevice;
+// variables we declare that you may need to access
+extern const PROGMEM ConnectorLocalInfo applicationInfo;
+extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
 extern const GFXfont sans24p7b;
 

@@ -62,7 +62,7 @@ public class CurrentEditorProjectTest {
         project.newProject();
         assertFalse(project.isFileNameSet());
         assertFalse(project.isDirty());
-        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New TcMenu Designer");
+        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New - TcMenu Designer");
     }
 
     @Test

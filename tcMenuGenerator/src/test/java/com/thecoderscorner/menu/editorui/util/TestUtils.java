@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
@@ -30,6 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class TestUtils {
+
+    public static MenuTree buildTreeFromJson(String json) {
+        var persistor = new FileBasedProjectPersistor();
+        var listOfItems = persistor.copyTextToItems(json);
+        if(listOfItems.isEmpty()) throw new IllegalArgumentException("Structure created empty list of items");
+        MenuTree tree = new MenuTree();
+        for (var item : listOfItems) {
+            var sub = tree.getMenuById(item.getParentId());
+            tree.addMenuItem((SubMenuItem)sub.orElse(MenuTree.ROOT), item.getItem());
+        }
+        return tree;
+    }
+
     public static void assertEqualsIgnoringCRLF(String expected, String actual) {
         expected = expected.replaceAll("\\r\\n", "\n");
         actual = actual.replaceAll("\\r\\n", "\n");

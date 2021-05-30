@@ -40,11 +40,11 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -74,12 +74,11 @@ public class MenuEditorTestCases {
 
     @Start
     public void onStart(Stage stage) throws Exception {
-
         dirHelper.initialise();
         dirHelper.createSketch(TCMENU_DIR, "exampleSketch1", true);
         dirHelper.createSketch(TCMENU_DIR, "exampleSketch2", true);
-        dirHelper.createSketch(SKETCHES_DIR, "sketches1", true);
-        dirHelper.createSketch(SKETCHES_DIR, "sketches2", true);
+        var sketch1 = dirHelper.createSketch(SKETCHES_DIR, "sketches1", true);
+        var sketch2 = dirHelper.createSketch(SKETCHES_DIR, "sketches2", true);
         dirHelper.createSketch(SKETCHES_DIR, "sketchesIgnore", false);
 
         // load the main window FXML
@@ -96,21 +95,7 @@ public class MenuEditorTestCases {
         simulatedCodeManager = mock(CodePluginManager.class);
         when(simulatedCodeManager.getLoadedPlugins()).thenReturn(Arrays.asList(generateCodePluginConfig()));
 
-        // and we are always up to date library wise in unit test land
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
-        when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
-        when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
-        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
-        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
+        setUpInstallerLibVersions();
 
         // create a basic project, that has a few menu items in it.
         project = new CurrentEditorProject(
@@ -119,7 +104,7 @@ public class MenuEditorTestCases {
         );
 
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
-        when(storage.loadRecents()).thenReturn(List.of("recentItem1", "recentItem2"));
+        when(storage.loadRecents()).thenReturn(List.of(sketch1.get(), sketch2.get(), "filesDoesNotExistRemove.emf"));
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.isUsingArduinoIDE()).thenReturn(true);
         when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.empty());
@@ -141,7 +126,23 @@ public class MenuEditorTestCases {
         stage.show();
     }
 
-
+    private void setUpInstallerLibVersions() throws IOException {
+        // and we are always up to date library wise in unit test land
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
+        when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
+        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
+        when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
+    }
 
     private CodePluginConfig generateCodePluginConfig() {
         return new CodePluginConfig("module.name", "PluginName", "1.0.0",
@@ -257,16 +258,16 @@ public class MenuEditorTestCases {
     @Test
     public void testRecentsExamplesAndSketches(FxRobot robot) throws InterruptedException {
         var recentItems = TestUtils.findItemsInMenuWithId(robot, "menuRecents");
-        var itemStrings = recentItems.stream().map(r-> r.getText()).collect(Collectors.toList());
-        assertThat(itemStrings).containsExactlyInAnyOrder("recentItem1", "recentItem2");
+        var itemStrings = recentItems.stream().map(r -> r.getText()).collect(Collectors.toList());
+        assertThat(itemStrings).containsExactlyInAnyOrder("sketches1.EMF", "sketches2.EMF");
         project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
-        TestUtils.clickOnMenuItemWithText(robot, "recentItem1");
+        TestUtils.clickOnMenuItemWithText(robot, "sketches1.EMF");
         verify(editorProjectUI).questionYesNo(any(), any());
         clearInvocations(editorProjectUI);
 
         var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
-        var exampleStrings = exampleItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        var exampleStrings = exampleItems.stream().map(r -> r.getText()).collect(Collectors.toList());
         assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
         project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
@@ -274,7 +275,7 @@ public class MenuEditorTestCases {
         verify(editorProjectUI).questionYesNo(any(), any());
 
         var sketchItems = TestUtils.findItemsInMenuWithId(robot, "menuSketches");
-        var sketchStrings = sketchItems.stream().map(r-> r.getText()).collect(Collectors.toList());
+        var sketchStrings = sketchItems.stream().map(r -> r.getText()).collect(Collectors.toList());
         assertThat(sketchStrings).containsExactlyInAnyOrder("sketches1", "sketches2");
     }
 
@@ -356,7 +357,17 @@ public class MenuEditorTestCases {
         when(persistor.copyTextToItems(any())).thenReturn(List.of(new PersistedMenu(MenuTree.ROOT, itemToCopy)));
 
         robot.clickOn("#menuTreeCopy");
+        // wait for copy to take effect first.
+
+        int i=0;
+        while(i < 100 && robot.lookup("#menuTreePaste").queryButton().isDisable()) {
+            Thread.sleep(50);
+            i++;
+        }
+
+        Thread.sleep(250);
         robot.clickOn("#menuTreePaste");
+
 
         // now check that the new duplicate is created.
         Optional<MenuItem> maybeItem = project.getMenuTree().getMenuById(101);
