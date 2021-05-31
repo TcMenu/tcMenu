@@ -23,11 +23,12 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming.*;
 import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMenuItemBuilder;
 
 public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
-    private ComboBox<BooleanNaming> namingBox;
+    private ComboBox<TidyBooleanNaming> namingBox;
 
     public UIBooleanMenuItem(BooleanMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.BOOLEAN_URL);
@@ -38,20 +39,40 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         List<FieldError> errors = new ArrayList<>();
 
         BooleanMenuItemBuilder builder = aBooleanMenuItemBuilder().withExisting(getMenuItem())
-                .withNaming(namingBox.getValue());
+                .withNaming(namingBox.getValue().naming());
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
+    }
+
+    int namingToIndex(BooleanNaming naming) {
+        return switch (naming) {
+            case TRUE_FALSE -> 0;
+            case ON_OFF -> 1;
+            case YES_NO -> 2;
+        };
     }
 
     @Override
     protected int internalInitPanel(GridPane pane, int idx) {
         idx++;
         pane.add(new Label("Responses"), 0, idx);
-        ObservableList<BooleanNaming> list = FXCollections.observableArrayList(BooleanNaming.values());
+        ObservableList<TidyBooleanNaming> list = FXCollections.observableList(List.of(
+                new TidyBooleanNaming(TRUE_FALSE, "TRUE / FALSE"),
+                new TidyBooleanNaming(ON_OFF, "ON / OFF"),
+                new TidyBooleanNaming(YES_NO, "YES / NO")
+        ));
         namingBox = new ComboBox<>(list);
-        namingBox.getSelectionModel().select(getMenuItem().getNaming());
+        namingBox.getSelectionModel().select(namingToIndex((getMenuItem().getNaming())));
         namingBox.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
+        namingBox.setId("booleanNamingCombo");
         pane.add(namingBox, 1, idx);
         return idx;
+    }
+
+    public record TidyBooleanNaming(BooleanNaming naming, String name) {
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

@@ -51,6 +51,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
         grid.add(new Label("Max. length"), 0, idx);
         lenField = new TextField(String.valueOf(getMenuItem().getTextLength()));
         lenField.textProperty().addListener(this::coreValueChanged);
+        lenField.setId("textLength");
         TextFormatterUtils.applyIntegerFormatToField(lenField);
         grid.add(lenField, 1, idx);
 
@@ -59,6 +60,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
         editTypeField = new ComboBox<>(FXCollections.observableArrayList(EditItemType.values()));
         editTypeField.getSelectionModel().select(getMenuItem().getItemType());
         editTypeField.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
+        editTypeField.setId("textEditType");
         grid.add(editTypeField, 1, idx);
         return idx;
     }
