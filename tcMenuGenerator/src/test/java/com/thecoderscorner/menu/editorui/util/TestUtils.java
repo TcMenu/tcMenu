@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,11 +76,18 @@ public class TestUtils {
         latch.await(5000, TimeUnit.MILLISECONDS);
     }
 
-    public static <T> void selectItemInCombo(FxRobot robot, String query, T value) throws InterruptedException {
+    public static <T> boolean selectItemInCombo(FxRobot robot, String query, Predicate<T> matcher) throws InterruptedException {
+        AtomicBoolean found = new AtomicBoolean(false);
         runOnFxThreadAndWait(()-> {
             ComboBox<T> combo = robot.lookup(query).queryComboBox();
-            combo.getSelectionModel().select(value);
+            for(var item : combo.getItems()) {
+                if(matcher.test(item)) {
+                    combo.getSelectionModel().select(item);
+                    found.set(true);
+                }
+            }
         });
+        return found.get();
     }
 
     public static Collection<MenuItem> findItemsInMenuWithId(FxRobot robot, String menuToFind) {

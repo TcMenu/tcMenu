@@ -80,6 +80,12 @@ public abstract class UIMenuItemTestBase {
         verifyThat("#uiItemErrors", (Label l)-> l.getText().contains(errorText) && l.isVisible());
     }
 
+    protected void writeIntoField(FxRobot robot, String idField, Object value) {
+        robot.clickOn("#" + idField);
+        robot.eraseText(12);
+        robot.write(value != null ? value.toString() : "null");
+    }
+
     protected void verifyThatThereAreNoErrorsReported() {
         verifyThat("#uiItemErrors", node -> !node.isVisible());
     }
