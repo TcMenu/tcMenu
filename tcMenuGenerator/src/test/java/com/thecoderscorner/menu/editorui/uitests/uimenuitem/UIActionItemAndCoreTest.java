@@ -188,10 +188,8 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         robot.clickOn("#dontRemoteField");
 
-        verify(mockedConsumer, atLeastOnce()).accept(eq(actionItem), captor.capture());
+        verify(mockedConsumer, atLeastOnce()).accept(eq(captor.getValue()), captor.capture());
         assertTrue(captor.getValue().isReadOnly());
         assertTrue(captor.getValue().isLocalOnly());
-
-        tryToEnterLettersIntoNumericField(robot, "eepromField");
     }
 }

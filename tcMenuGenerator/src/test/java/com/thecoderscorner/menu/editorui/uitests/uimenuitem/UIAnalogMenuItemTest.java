@@ -52,6 +52,8 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         // firstly check that all the fields are populated properly
         performAllCommonChecks(analogItem, true);
 
+        tryToEnterLettersIntoNumericField(robot, "eepromField");
+
         tryToEnterBadValueIntoField(robot, "offsetField", "nameField", "-1000000",
                 "Offset - Value must be between -32768 and 32767");
 
