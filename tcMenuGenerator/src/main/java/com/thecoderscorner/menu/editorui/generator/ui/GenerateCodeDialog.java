@@ -258,6 +258,7 @@ public class GenerateCodeDialog {
         embeddedPane.add(platformCombo, 1, 0, 2, 1);
         EmbeddedPlatform platform = getLastEmbeddedPlatform();
         platformCombo.getSelectionModel().select(platform);
+        platformCombo.setId("platformCombo");
         platformCombo.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal)
         );
@@ -266,12 +267,12 @@ public class GenerateCodeDialog {
         if(uuid == null) uuid = UUID.randomUUID();
         appUuidField = new TextField(uuid.toString());
         appUuidField.setDisable(true);
-        appUuidField.setId("appuuid");
+        appUuidField.setId("appUuidField");
         embeddedPane.add(appUuidField, 1, 1);
         Button newAppUuidButton = new Button("Change");
         newAppUuidButton.setTooltip(new Tooltip("Application UUID's identify your app to remote API/UI's, avoid changing"));
         newAppUuidButton.setOnAction(this::onNewUUIDRequired);
-        newAppUuidButton.setId("newuuidbtn");
+        newAppUuidButton.setId("appUuidButton");
         embeddedPane.add(newAppUuidButton, 2, 1);
 
         var appName = project.getGeneratorOptions().getApplicationName();
@@ -279,20 +280,23 @@ public class GenerateCodeDialog {
             appName = "New app";
         }
         appNameField = new TextField(appName);
-        appNameField.setId("appname");
+        appNameField.setId("appNameField");
         appNameField.setTooltip(new Tooltip("Application names appear on the display and also on remote connections"));
         embeddedPane.add(appNameField, 1, 2);
 
         recursiveNamingCheckBox = new CheckBox("Use menu names that are fully qualified (EG: menuSubNameChildName)");
         recursiveNamingCheckBox.setSelected(project.getGeneratorOptions().isNamingRecursive());
+        recursiveNamingCheckBox.setId("recursiveNaming");
         embeddedPane.add(recursiveNamingCheckBox, 1, 3, 2, 1);
 
         saveToSrcCheckBox = new CheckBox("Save all CPP and H files into src folder");
         saveToSrcCheckBox.setSelected(project.getGeneratorOptions().isSaveToSrc());
+        saveToSrcCheckBox.setId("saveToSrc");
         embeddedPane.add(saveToSrcCheckBox, 1, 4, 2, 1);
 
         useCppMainCheckBox = new CheckBox("Use a CPP file for main (Arduino only)");
         useCppMainCheckBox.setSelected(project.getGeneratorOptions().isUseCppMain());
+        useCppMainCheckBox.setId("useCppMain");
         embeddedPane.add(useCppMainCheckBox, 1, 5, 2, 1);
 
         ColumnConstraints column1 = new ColumnConstraints(120);
