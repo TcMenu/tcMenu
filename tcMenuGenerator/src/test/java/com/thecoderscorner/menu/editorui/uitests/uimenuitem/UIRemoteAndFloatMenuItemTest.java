@@ -44,7 +44,7 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
     void testFloatMenuItemEditing(FxRobot robot) throws InterruptedException {
         MenuItem floatItem = menuTree.getMenuById(6).get();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, vng, mockedConsumer);
+        var uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiFloatPanel);

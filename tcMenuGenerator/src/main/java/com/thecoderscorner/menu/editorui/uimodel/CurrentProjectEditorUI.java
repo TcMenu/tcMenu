@@ -31,7 +31,7 @@ public interface CurrentProjectEditorUI {
     Optional<String> findFileNameFromUser(boolean open);
 
     /**
-     * Get a file name from the user, either for Open or Save. This version allows the intial path to be set.
+     * Get a file name from the user, either for Open or Save. This version allows the initial path to be set.
      * @param open true if open, false if save.
      * @return the filename or empty.
      */
@@ -66,7 +66,7 @@ public interface CurrentProjectEditorUI {
      * @param changeConsumer the consumer that will deal with valid changes in the item.
      * @return either a suitable editor or empty.
      */
-    Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer);
+    Optional<UIMenuItem<?>> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer);
 
     /**
      * Show the new item dialog for the given stage with a given menu tree.

@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -19,8 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +41,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     void testEnteringBadValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
+        var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiSubItem);
@@ -75,7 +72,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     void testEnteringValidValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
+        var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiSubItem);
@@ -114,7 +111,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     void testValidValuesNearLimits(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
+        var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiSubItem);

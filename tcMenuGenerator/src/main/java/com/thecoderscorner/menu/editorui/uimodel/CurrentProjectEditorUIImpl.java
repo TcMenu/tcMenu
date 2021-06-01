@@ -40,7 +40,7 @@ import static java.lang.System.Logger.Level.INFO;
 
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private LibraryVersionDetector versionDetector;
+    private final LibraryVersionDetector versionDetector;
     private final String homeDirectory;
     private final Stage mainStage;
     private final CodePluginManager manager;
@@ -172,10 +172,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showGeneralSettings() {
         var updater = new PluginUpgradeTask(manager, installer, versionDetector);
-        var settingsDialog = new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
+        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
     }
 
-    public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
+    public Optional<UIMenuItem<?>> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
                                                        BiConsumer<MenuItem, MenuItem> changeConsumer) {
         logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
         RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree, generator);
@@ -184,11 +184,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         return ret;
     }
 
-    class RenderingChooserVisitor extends AbstractMenuItemVisitor<UIMenuItem> {
+    static class RenderingChooserVisitor extends AbstractMenuItemVisitor<UIMenuItem<?>> {
 
         private final BiConsumer<MenuItem,MenuItem> changeConsumer;
         private final MenuIdChooser menuIdChooser;
-        private VariableNameGenerator nameGenerator;
+        private final VariableNameGenerator nameGenerator;
 
         RenderingChooserVisitor(BiConsumer<MenuItem, MenuItem> changeConsumer, MenuTree tree, VariableNameGenerator nameGenerator) {
             this.changeConsumer = changeConsumer;

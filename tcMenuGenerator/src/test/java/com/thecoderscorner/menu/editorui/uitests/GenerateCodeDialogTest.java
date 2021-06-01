@@ -100,8 +100,6 @@ public class GenerateCodeDialogTest {
 
         robot.clickOn("#generateButton");
 
-        Thread.sleep(14000);
-
         // the list must be in exactly this order, DISPLAY, INPUT, REMOTE, THEME
         var expectedPlugins = List.of(
                 pluginManager.getPluginById("20409bb8-b8a1-4d1d-b632-2cf9b5739888").orElseThrow(),
@@ -109,8 +107,15 @@ public class GenerateCodeDialogTest {
                 pluginManager.getPluginById("850b889b-fb15-4d9b-a589-67d5ffe3488d").orElseThrow()
         );
 
+        var previousPluinFiles = List.of(
+                "src/source.h",
+                "src/source.cpp",
+                "src/extra.cpp",
+                "src/MySpecialTransport.h"
+        );
+
         verify(generatorRunner).startCodeGeneration(
                 eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
-                eq(expectedPlugins), eq(List.of()), eq(true));
+                eq(expectedPlugins), eq(previousPluinFiles), eq(true));
     }
 }
