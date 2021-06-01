@@ -21,7 +21,7 @@ import java.util.Optional;
 public interface CodePluginManager {
     /**
      * Load all available plugins in the provided directory
-     * @param sourceDir the directory to search
+     * @param sourceDirs the directory to search
      * @throws Exception if the plugins could not be loaded.
      */
     void loadPlugins(List<Path> sourceDirs) throws Exception;
@@ -48,7 +48,19 @@ public interface CodePluginManager {
     List<CodePluginItem> getPluginsThatMatch(EmbeddedPlatform platform, SubSystem subSystem);
 
     /**
-     * Reload the plugins using the last settings
+     * Completely reload the plugins from disk using the last settings
      */
     void reload();
+
+    /**
+     * Get a specific plugin item by ID if it is available.
+     * @param id the ID to find
+     * @return the plugin if available, otherwise empty
+     */
+    Optional<CodePluginItem> getPluginById(String id);
+
+    /**
+     * @return any errors that occurred during the last load from disk
+     */
+    List<String> getLoadErrors();
 }

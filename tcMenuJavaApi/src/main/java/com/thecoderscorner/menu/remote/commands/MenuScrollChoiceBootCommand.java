@@ -8,10 +8,8 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuScrollChoiceBootCommand extends BootItemMenuCommand<ScrollChoiceMenuItem, CurrentScrollPosition> {
 
@@ -25,8 +23,8 @@ public class MenuScrollChoiceBootCommand extends BootItemMenuCommand<ScrollChoic
     }
 
     @Override
-    public MenuState<CurrentScrollPosition> internalNewMenuState(MenuState<CurrentScrollPosition> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

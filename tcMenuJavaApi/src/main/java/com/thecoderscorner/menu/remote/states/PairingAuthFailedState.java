@@ -10,7 +10,7 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 public class PairingAuthFailedState implements RemoteConnectorState {
-    private RemoteConnectorContext context;
+    private final RemoteConnectorContext context;
 
     public PairingAuthFailedState(RemoteConnectorContext context) {
         this.context = context;

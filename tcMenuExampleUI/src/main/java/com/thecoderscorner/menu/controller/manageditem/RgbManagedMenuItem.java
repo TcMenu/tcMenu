@@ -6,24 +6,17 @@
 
 package com.thecoderscorner.menu.controller.manageditem;
 
-import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.state.PortableColorMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.Optional;
-import java.util.regex.Pattern;
-
-import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
 public class RgbManagedMenuItem extends ManagedMenuItem<PortableColor, Rgb32MenuItem> {
 
@@ -37,9 +30,7 @@ public class RgbManagedMenuItem extends ManagedMenuItem<PortableColor, Rgb32Menu
     public Node createNodes(RemoteMenuController controller) {
         picker.setDisable(item.isReadOnly());
 
-        picker.setOnAction(e-> {
-            waitingFor = Optional.of(controller.sendAbsoluteUpdate(item, fromFX(picker.getValue())));
-        });
+        picker.setOnAction(e-> waitingFor = Optional.of(controller.sendAbsoluteUpdate(item, fromFX(picker.getValue()))));
         return picker;
     }
 
@@ -49,8 +40,11 @@ public class RgbManagedMenuItem extends ManagedMenuItem<PortableColor, Rgb32Menu
     }
 
     @Override
-    public void internalChangeItem(MenuState<PortableColor> change) {
-        picker.setValue(toFX(change.getValue()));
+    public void internalChangeItem(AnyMenuState change) {
+
+        if(change instanceof PortableColorMenuState colState) {
+            picker.setValue(toFX(colState.getValue()));
+        }
     }
 
     private Color toFX(PortableColor value) {

@@ -7,7 +7,10 @@
 package com.thecoderscorner.menu.domain.util;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.*;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -253,5 +256,99 @@ public class MenuItemHelper {
                 setResult(0);
             }
         }).orElse(0);
+    }
+
+    public static AnyMenuState stateForMenuItem(MenuItem item, Object val, boolean changed, boolean active) {
+        if(val == null || item == null) return new BooleanMenuState(item, false, false, false);
+
+        return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<AnyMenuState>() {
+            @Override
+            public void visit(AnalogMenuItem item) {
+                int res = (val instanceof String) ? Integer.parseInt(val.toString()) : ((Number)val).intValue();
+                setResult(new IntegerMenuState(item, changed, active, res));
+            }
+
+            @Override
+            public void visit(BooleanMenuItem item) {
+                boolean res;
+                if(val instanceof String) {
+                   if(((String) val).length() == 1) {
+                       res = ((String) val).charAt(0) == '1' || ((String) val).charAt(0) == 'Y';
+                   }
+                   else {
+                       res = Boolean.parseBoolean((String)val);
+                   }
+                }
+                else if(val instanceof Number) {
+                    res = ((Number) val).intValue() != 0;
+                }
+                else res = (boolean)val;
+
+                setResult(new BooleanMenuState(item, changed, active, res));
+            }
+
+            @Override
+            public void visit(EnumMenuItem item) {
+                int res = (val instanceof String) ? Integer.parseInt(val.toString()) : ((Number)val).intValue();
+                setResult(new IntegerMenuState(item, changed, active, res));
+            }
+
+            @Override
+            public void visit(SubMenuItem item) {
+                setResult(new BooleanMenuState(item, changed, active, false));
+                super.visit(item);
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                setResult(new StringMenuState(item, changed, active, val.toString()));
+
+            }
+
+            @Override
+            public void visit(ActionMenuItem item) {
+                setResult(new BooleanMenuState(item, changed, active, false));
+            }
+
+            @Override
+            public void visit(FloatMenuItem item) {
+                float res = (val instanceof String) ? Float.parseFloat(val.toString()) : ((Number)val).floatValue();
+                setResult(new FloatMenuState(item, changed, active, res));
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void visit(RuntimeListMenuItem listItem) {
+                setResult(new StringListMenuState(item, changed, active, (List<String>)val));
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                BigDecimal dec;
+                if(val instanceof String) {
+                    var value = ((String) val).replaceAll("[\\[\\]]", "");
+                    dec = new BigDecimal(value);
+                }
+                else dec = (BigDecimal)val;
+                setResult(new BigDecimalMenuState(item, changed, active, dec));
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                CurrentScrollPosition res = (val instanceof String) ? new CurrentScrollPosition(val.toString()) : (CurrentScrollPosition) val;
+                setResult(new CurrentScrollPositionMenuState(item, changed, active, res));
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                PortableColor res = (val instanceof String) ? new PortableColor(val.toString()) : (PortableColor) val;
+                setResult(new PortableColorMenuState(item, changed, active, res));
+            }
+
+            @Override
+            public void anyItem(MenuItem item) {
+                setResult(new BooleanMenuState(item, changed, active, false));
+            }
+        }).orElseThrow();
     }
 }

@@ -13,11 +13,14 @@ import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import javafx.application.Platform;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.text.Text;
 import org.testfx.api.FxRobot;
+import org.testfx.matcher.base.NodeMatchers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
+import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.testfx.api.FxAssert.verifyThat;
 
 
 public class TestUtils {
@@ -73,7 +79,7 @@ public class TestUtils {
             runnable.run();
             latch.countDown();
         });
-        latch.await(5000, TimeUnit.MILLISECONDS);
+        if(!latch.await(5000, TimeUnit.MILLISECONDS)) throw new IllegalArgumentException("runOnFx timeout");
     }
 
     public static <T> boolean selectItemInCombo(FxRobot robot, String query, Predicate<T> matcher) throws InterruptedException {
@@ -88,6 +94,19 @@ public class TestUtils {
             }
         });
         return found.get();
+    }
+
+    public static void verifyAlertWithText(FxRobot robot, String message, String btnText) {
+        Node dialogPane = robot.lookup(".dialog-pane").query();
+        robot.from(dialogPane).lookup((Text t) -> t.getText().startsWith(message));
+        verifyThat(btnText, NodeMatchers.isVisible());
+        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(btnText)).query();
+        robot.clickOn(btn);
+
+    }
+
+    public static void pushCtrlAndKey(FxRobot robot, KeyCode code) {
+        robot.push(new KeyCodeCombination(code, UP, UP, UP, UP, DOWN));
     }
 
     public static Collection<MenuItem> findItemsInMenuWithId(FxRobot robot, String menuToFind) {
@@ -120,7 +139,7 @@ public class TestUtils {
         var menu = findAllMenuItems(robot).stream()
                 .filter(menuItem -> menuToFind.equals(menuItem.getText()))
                 .findFirst().orElseThrow(RuntimeException::new);
-        runOnFxThreadAndWait(() -> menu.fire());
+        runOnFxThreadAndWait(menu::fire);
     }
 
     public static MenuTree buildSimpleTreeReadOnly() {

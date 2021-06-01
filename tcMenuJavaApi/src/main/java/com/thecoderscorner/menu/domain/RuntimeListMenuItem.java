@@ -6,14 +6,11 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.StringListMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
-import java.util.List;
 import java.util.Objects;
 
-public class RuntimeListMenuItem extends MenuItem<List<String>> {
+public class RuntimeListMenuItem extends MenuItem {
     private final int initialRows;
 
     public RuntimeListMenuItem() {
@@ -49,11 +46,6 @@ public class RuntimeListMenuItem extends MenuItem<List<String>> {
     @Override
     public int hashCode() {
         return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
-    }
-
-    @Override
-    public MenuState<List<String>> newMenuState(List<String> value, boolean changed, boolean active) {
-        return new StringListMenuState(this, changed, active, value);
     }
 
     @Override

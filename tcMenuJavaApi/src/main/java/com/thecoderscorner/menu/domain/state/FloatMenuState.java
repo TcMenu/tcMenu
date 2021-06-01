@@ -12,7 +12,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
  * An implementation of menu state for Strings. This stores the current value in the MenuTree for an item
  */
 public class FloatMenuState extends MenuState<Float> {
-    public FloatMenuState(MenuItem<Float> item, boolean changed, boolean active, Float value) {
-        super(item, changed, active, value);
+    public FloatMenuState(MenuItem item, boolean changed, boolean active, Float value) {
+        super(StateStorageType.FLOAT, item, changed, active, value);
     }
 }

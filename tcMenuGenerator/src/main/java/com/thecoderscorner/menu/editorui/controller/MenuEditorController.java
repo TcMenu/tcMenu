@@ -298,7 +298,7 @@ public class MenuEditorController {
     private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItem> treeItem) {
         if (menuItems == null) return;
 
-        for (MenuItem<?> item : menuItems) {
+        for (MenuItem item : menuItems) {
             TreeItem<MenuItem> child = new TreeItem<>(item);
             if (item.hasChildren()) {
                 child.setExpanded(true);

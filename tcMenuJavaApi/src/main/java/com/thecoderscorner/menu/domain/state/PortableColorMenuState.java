@@ -12,7 +12,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
  * An implementation of menu state for integer values. This stores the current value in the MenuTree for an item
  */
 public class PortableColorMenuState extends MenuState<PortableColor> {
-    public PortableColorMenuState(MenuItem<PortableColor> item, boolean changed, boolean active, PortableColor value) {
-        super(item, changed, active, value);
+    public PortableColorMenuState(MenuItem item, boolean changed, boolean active, PortableColor value) {
+        super(StateStorageType.PORTABLE_COLOR, item, changed, active, value);
     }
 }

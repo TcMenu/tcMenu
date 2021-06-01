@@ -14,11 +14,11 @@ import java.util.List;
  * An implementation of menu state for lists of string. This stores the current value in the MenuTree for an item
  */
 public class StringListMenuState extends MenuState<List<String>> {
-    public StringListMenuState(MenuItem<List<String>> item, boolean changed, boolean active, List<String> value) {
-        super(item, changed, active, value);
+    public StringListMenuState(MenuItem item, boolean changed, boolean active, List<String> value) {
+        super(StateStorageType.STRING_LIST, item, changed, active, value);
     }
 
-    public StringListMenuState(MenuItem<List<String>> item, boolean changed, boolean active, String... value) {
-        super(item, changed, active, List.of(value));
+    public StringListMenuState(MenuItem item, boolean changed, boolean active, String... value) {
+        super(StateStorageType.STRING_LIST, item, changed, active, List.of(value));
     }
 }

@@ -4,7 +4,7 @@
     "applicationName": "Generator integration test",
     "lastInputUuid": "20409bb8-b8a1-4d1d-b632-2cf9b57353e3",
     "lastDisplayUuid": "20409bb8-b8a1-4d1d-b632-2cf9b5739888",
-    "lastRemoteUuid": "850B889B-FB15-4D9B-A589-67D5FFE3488D",
+    "lastRemoteUuid": "850b889b-fb15-4d9b-a589-67d5ffe3488d",
     "embeddedPlatform": "ARDUINO_AVR",
     "namingRecursive": true,
     "saveToSrc": false,

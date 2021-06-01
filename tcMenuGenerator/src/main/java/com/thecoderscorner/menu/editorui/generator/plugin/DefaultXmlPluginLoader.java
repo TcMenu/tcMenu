@@ -41,7 +41,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final EmbeddedPlatforms embeddedPlatforms;
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
     private final ConfigurationStorage configStorage;
-    private List<String> loadErrrors = new CopyOnWriteArrayList<>();
+    private final List<String> loadErrors = new CopyOnWriteArrayList<>();
     private List<Path> sourceDirs;
 
     public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage) {
@@ -50,7 +50,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     @Override
-    public void loadPlugins(List<Path> sourceDirs) throws Exception {
+    public void loadPlugins(List<Path> sourceDirs) {
         this.sourceDirs = sourceDirs;
         reload();
     }
@@ -61,11 +61,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             allPlugins.clear();
         }
 
-        loadErrrors.clear();
+        loadErrors.clear();
         try {
             for (var path : sourceDirs) {
                 logger.log(INFO, "Traversing " + path + " for plugins");
-                for (var dir : Files.list(path).filter(f -> Files.isDirectory(f)).collect(Collectors.toList())) {
+                for (var dir : Files.list(path).filter(Files::isDirectory).collect(Collectors.toList())) {
                     if (Files.exists((dir.resolve("tcmenu-plugin.xml")))) {
                         logger.log(System.Logger.Level.INFO, "Plugin xml found in " + dir);
                         var loadedPlugin = loadPluginLib(dir);
@@ -75,22 +75,32 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                             }
                         } else {
                             logger.log(ERROR, "Plugin didn't load" + dir);
-                            loadErrrors.add(dir + " did not contain valid plugin");
+                            loadErrors.add(dir + " did not contain valid plugin");
                         }
                     } else {
-                        loadErrrors.add(dir + " was not a plugin, no tcmenu-plugin.xml");
+                        loadErrors.add(dir + " was not a plugin, no tcmenu-plugin.xml");
                     }
                 }
             }
             logger.log(INFO, "Plugins are now fully loaded");
         } catch (Exception ex) {
             logger.log(ERROR, "Plugins not loaded!", ex);
-            loadErrrors.add("Exception processing plugins, see log");
+            loadErrors.add("Exception processing plugins, see log");
         }
     }
 
-    public List<String> getLoadErrrors() {
-        return loadErrrors;
+    @Override
+    public Optional<CodePluginItem> getPluginById(String id) {
+        synchronized (allPlugins) {
+            return allPlugins.stream()
+                    .flatMap(config -> config.getPlugins().stream())
+                    .filter(item -> item.getId().equals(id))
+                    .findFirst();
+        }
+    }
+
+    public List<String> getLoadErrors() {
+        return loadErrors;
     }
 
     @Override
@@ -128,7 +138,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var pluginConfigFile = directoryPath.resolve("tcmenu-plugin.xml");
             byte[] dataToLoad = Files.readAllBytes(pluginConfigFile);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = null;
+            DocumentBuilder dBuilder;
             dBuilder = factory.newDocumentBuilder();
             ByteArrayInputStream in = new ByteArrayInputStream(dataToLoad);
             Document doc = dBuilder.parse(in);
@@ -142,8 +152,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return null;
             }
 
-            List<CodePluginItem> items = new ArrayList<>();
-
             CodePluginConfig config = new CodePluginConfig();
             config.setPath(directoryPath);
             config.setPlugins(transformElements(root, "Plugins", "Plugin", (ele) -> {
@@ -151,7 +159,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     var pluginName = ele.getTextContent().trim();
                     logger.log(System.Logger.Level.INFO, "Loading plugin item " + pluginName);
                     var path = directoryPath.resolve(pluginName);
-                    String strPlugin = null;
+                    String strPlugin;
                     strPlugin = new String(Files.readAllBytes(path));
                     var created = loadPlugin(strPlugin);
                     if (created != null) {
@@ -199,6 +207,9 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             Document doc = dBuilder.parse(in);
             var root = doc.getDocumentElement();
 
+            CodePluginItem item = new CodePluginItem();
+            generateDescriptionFromXml(root, item);
+
             var requiresVersion = root.getAttribute("requiresDesigner");
             if(!StringHelper.isStringEmptyOrNull(requiresVersion)) {
                 var requiredVersion = new VersionInfo(requiresVersion);
@@ -209,16 +220,15 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 }
                 var currentVersion = new VersionInfo(appVersion);
                 if(!currentVersion.isSameOrNewerThan(requiredVersion)) {
+                    loadErrors.add(String.format("Version %s required to load %s", requiredVersion, item.getDescription()));
                     logger.log(ERROR, "Cannot load plugin as it needs a newer designer version");
                     return null;
                 }
             }
 
-            CodePluginItem item = new CodePluginItem();
-
-            generateDescriptionFromXml(root, item);
             generateProperties(root, item);
-            var applicabilityByKey = generateApplicabilityMappings(root, item);
+
+            var applicabilityByKey = generateApplicabilityMappings(root);
 
             item.setIncludeFiles(transformElements(root, "IncludeFiles", "Header", (ele) ->
                     new HeaderDefinition(
@@ -235,7 +245,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                             getAttributeOrDefault(ele, "object", ele.getAttribute("type")),
                             toDefinitionMode(ele.getAttribute("export")),
                             Boolean.parseBoolean(getAttributeOrDefault(ele, "progmem", "false")),
-                            toCodeParameters(ele, new HashMap<String, LambdaDefinition>()),
+                            toCodeParameters(ele, new HashMap<>()),
                             toApplicability(ele, applicabilityByKey)
                     )
             ));
@@ -269,7 +279,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     private List<FunctionDefinition> generateFunctions(Element fnElements, Map<String, LambdaDefinition> lambdas,
-                                                       Map<String, CodeApplicability> applicByKey) {
+                                                       Map<String, CodeApplicability> applicabilityMap) {
         var functionList = new ArrayList<FunctionDefinition>();
         if (fnElements == null) return functionList;
 
@@ -278,12 +288,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
             if (childElem.getNodeName().equals("Lambda")) {
                 var fnParams = toCodeParameters(childElem, lambdas);
-                var fnList = generateFunctions(childElem, lambdas, applicByKey);
-                var defn = new LambdaDefinition(name, fnParams, fnList, toApplicability(childElem, applicByKey));
-                lambdas.put(name, defn);
+                var fnList = generateFunctions(childElem, lambdas, applicabilityMap);
+                var definition = new LambdaDefinition(name, fnParams, fnList, toApplicability(childElem, applicabilityMap));
+                lambdas.put(name, definition);
             } else if (childElem.getNodeName().equals("Function")) {
                 var obj = childElem.getAttribute("object");
-                var applicability = toApplicability(childElem, applicByKey);
+                var applicability = toApplicability(childElem, applicabilityMap);
                 var isPtr = getAttrOrNull(childElem, "pointer") != null;
                 functionList.add(new FunctionDefinition(name, obj, isPtr, toCodeParameters(childElem, lambdas), applicability));
             }
@@ -318,23 +328,20 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private int toPriority(String priority) {
         if (priority == null) return HeaderDefinition.PRIORITY_NORMAL;
-        switch (priority) {
-            case "high":
-                return HeaderDefinition.PRIORITY_MAX;
-            case "low":
-                return HeaderDefinition.PRIORITY_MIN;
-            default:
-                return HeaderDefinition.PRIORITY_NORMAL;
-        }
+        return switch (priority) {
+            case "high" -> HeaderDefinition.PRIORITY_MAX;
+            case "low" -> HeaderDefinition.PRIORITY_MIN;
+            default -> HeaderDefinition.PRIORITY_NORMAL;
+        };
     }
 
-    private Map<String, CodeApplicability> generateApplicabilityMappings(Element root, CodePluginItem item) {
-        Element applicDefs = elementWithName(root, "ApplicabilityDefs");
-        if (applicDefs == null) return Map.of();
+    private Map<String, CodeApplicability> generateApplicabilityMappings(Element root) {
+        Element applicabilityDefs = elementWithName(root, "ApplicabilityDefs");
+        if (applicabilityDefs == null) return Map.of();
 
         var applicabilityMap = new HashMap<String, CodeApplicability>();
 
-        for (var applicability : listOf(applicDefs)) {
+        for (var applicability : listOf(applicabilityDefs)) {
             var key = applicability.getAttribute("key");
             if (key == null) throw new IllegalArgumentException("Applicability key not set");
             var val = toApplicability(applicability, applicabilityMap);
@@ -359,7 +366,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     private PropertyValidationRules validatorFor(Element elem, String initialValue) {
-        boolean req = Boolean.parseBoolean(elem.getAttribute("required"));
 
         switch (elem.getAttribute("type")) {
             case "header":
@@ -401,14 +407,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     private VariableDefinitionMode toDefinitionMode(String mode) {
-        switch (mode) {
-            case "true":
-                return VariableDefinitionMode.VARIABLE_AND_EXPORT;
-            case "only":
-                return VariableDefinitionMode.EXPORT_ONLY;
-            default:
-                return VariableDefinitionMode.VARIABLE_ONLY;
-        }
+        return switch (mode) {
+            case "true" -> VariableDefinitionMode.VARIABLE_AND_EXPORT;
+            case "only" -> VariableDefinitionMode.EXPORT_ONLY;
+            default -> VariableDefinitionMode.VARIABLE_ONLY;
+        };
     }
 
     private CodeApplicability toApplicability(Element varElement, Map<String, CodeApplicability> applicabilityByKey) {
@@ -534,6 +537,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private Element elementWithName(Element elem, String child) {
         var ch = getChildElementsWithName(elem, child);
         if (ch == null || ch.size() == 0) return null;
-        return (Element) ch.get(0);
+        return ch.get(0);
     }
 }

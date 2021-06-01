@@ -23,8 +23,10 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_PLUGIN;
@@ -129,7 +131,23 @@ public class AppInformationPanel {
             pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
         }
 
-        if(pluginUpdateNeeded) {
+        if(!pluginManager.getLoadErrors().isEmpty()) {
+            List<String> loadErrors = pluginManager.getLoadErrors();
+            if(!loadErrors.isEmpty()) {
+                var errors = "Plugins did not load, please check designer and plugin versions are compatible:\n"
+                        + loadErrors.stream().limit(10).collect(Collectors.joining("\n"));
+
+                if(loadErrors.size() > 10) {
+                    errors += "\nTruncated at 10 errors, please see logs..";
+                }
+
+                var pluginLabel = new Label(errors);
+                pluginLabel.setId("tcMenuPluginIndicator");
+                pluginLabel.getStyleClass().add("libsNotOK");
+                vbox.getChildren().add(pluginLabel);
+            }
+        }
+        else if(pluginUpdateNeeded) {
             var noPlugins = pluginManager.getLoadedPlugins().isEmpty();
             var pluginLabel = new Label(noPlugins ? "No plugins installed, fix in Edit -> General Settings" : "Plugin updates are available in Edit -> General Settings");
             pluginLabel.setId("tcMenuPluginIndicator");

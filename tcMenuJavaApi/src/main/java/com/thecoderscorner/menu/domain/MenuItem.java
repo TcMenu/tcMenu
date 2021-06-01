@@ -6,15 +6,13 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 /**
  * The base class for all menu items, has the most basic operations available on it that are needed by pretty much
  * all menu items.
- * @param <T> the type of the current value
  */
-public abstract class MenuItem<T> {
+public abstract class MenuItem {
     protected final String name;
     protected final String variableName;
     protected final int id;
@@ -107,8 +105,6 @@ public abstract class MenuItem<T> {
     public boolean hasChildren() {
         return false;
     }
-
-    public abstract MenuState<T> newMenuState(T value, boolean changed, boolean active);
 
     public abstract void accept(MenuItemVisitor visitor);
 

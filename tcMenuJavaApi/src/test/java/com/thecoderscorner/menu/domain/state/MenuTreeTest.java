@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.domain.state;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,11 +22,11 @@ import static org.junit.Assert.*;
 public class MenuTreeTest {
 
     private MenuTree menuTree;
-    private EnumMenuItem item1 = DomainFixtures.anEnumItem("Item1", 1);
-    private EnumMenuItem item2 = DomainFixtures.anEnumItem("Item2", 2);
-    private AnalogMenuItem item3 = DomainFixtures.anAnalogItem("Item3", 3);
-    private EditableTextMenuItem itemText = DomainFixtures.aTextMenu("ItemText", 10);
-    private SubMenuItem subMenu = DomainFixtures.aSubMenu("Sub1", 4);
+    private final EnumMenuItem item1 = DomainFixtures.anEnumItem("Item1", 1);
+    private final EnumMenuItem item2 = DomainFixtures.anEnumItem("Item2", 2);
+    private final AnalogMenuItem item3 = DomainFixtures.anAnalogItem("Item3", 3);
+    private final EditableTextMenuItem itemText = DomainFixtures.aTextMenu("ItemText", 10);
+    private final SubMenuItem subMenu = DomainFixtures.aSubMenu("Sub1", 4);
 
     @Before
     public void setUp() {
@@ -48,7 +49,7 @@ public class MenuTreeTest {
     @Test
     public void testThatRemovingMenuItemRemovesState() {
         menuTree.addMenuItem(MenuTree.ROOT, item1);
-        menuTree.changeItem(item1, item1.newMenuState(1, true, false));
+        menuTree.changeItem(item1, MenuItemHelper.stateForMenuItem(item1, 1, true, false));
 
         assertNotNull(menuTree.getMenuState(item1));
 
@@ -79,29 +80,22 @@ public class MenuTreeTest {
         menuTree.addMenuItem(MenuTree.ROOT, item1);
         menuTree.addMenuItem(subMenu, item3);
 
-        menuTree.changeItem(item1, item1.newMenuState(1, true, false));
-        MenuState state = menuTree.getMenuState(item1);
+        menuTree.changeItem(item1, MenuItemHelper.stateForMenuItem(item1, 1, true, false));
+        var state = menuTree.getMenuState(item1);
         assertTrue(state instanceof IntegerMenuState);
         assertEquals(1, state.getValue());
         assertTrue(state.isChanged());
         assertFalse(state.isActive());
 
-        menuTree.changeItem(item3, item3.newMenuState(1, false, true));
-        MenuState stateAnalog = menuTree.getMenuState(item3);
+        menuTree.changeItem(item3, MenuItemHelper.stateForMenuItem(item3, 1, false, true));
+        var stateAnalog = menuTree.getMenuState(item3);
         assertTrue(stateAnalog instanceof IntegerMenuState);
         assertEquals(1, stateAnalog.getValue());
         assertFalse(stateAnalog.isChanged());
         assertTrue(stateAnalog.isActive());
 
-        menuTree.changeItem(subMenu, subMenu.newMenuState(true, false, true));
-        MenuState stateSubMenu = menuTree.getMenuState(subMenu);
-        assertTrue(stateSubMenu instanceof BooleanMenuState);
-        assertEquals(true, stateSubMenu.getValue());
-        assertFalse(stateSubMenu.isChanged());
-        assertTrue(stateSubMenu.isActive());
-
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), itemText);
-        menuTree.changeItem(itemText, itemText.newMenuState("Hello", false, false));
+        menuTree.changeItem(itemText, MenuItemHelper.stateForMenuItem(itemText, "Hello", false, false));
         assertNotNull(menuTree.getMenuState(itemText));
         assertEquals("Hello", menuTree.getMenuState(itemText).getValue());
     }
@@ -168,7 +162,7 @@ public class MenuTreeTest {
         AnalogMenuItem item1Replacement = DomainFixtures.anAnalogItem("Replaced", 1);
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item1Replacement);
 
-        MenuItem item = menuTree.getMenuById(1).get();
+        MenuItem item = menuTree.getMenuById(1).orElseThrow();
         assertEquals("Replaced", item.getName());
         assertEquals(1, item.getId());
         assertTrue(item instanceof AnalogMenuItem);
@@ -176,7 +170,7 @@ public class MenuTreeTest {
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), item2);
 
         assertEquals(3, menuTree.getMenuItems(MenuTree.ROOT).size());
-        item = menuTree.getMenuById(item3.getId()).get();
+        item = menuTree.getMenuById(item3.getId()).orElseThrow();
         assertEquals(item, item3);
     }
 }

@@ -351,7 +351,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(includeDefs);
             writer.write(StringHelper.isStringEmptyOrNull(includeDefs) ? LINE_BREAK : TWO_LINES);
 
-            writer.write("// Global variable declarations" + TWO_LINES);
+            writer.write("// Global variable declarations");
+            writer.write(LINE_BREAK);
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
             writer.write(LINE_BREAK);
@@ -365,7 +366,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             var localCbReq = new HashMap<>(callbackRequirements);
 
-            writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
+            writer.write(TWO_LINES + "// Global Menu Item declarations");
+            writer.write(LINE_BREAK);
             StringBuilder toWrite = new StringBuilder(255);
             menuStructure.forEach(struct -> {
                 var callback = localCbReq.remove(struct.getMenuItem());
@@ -381,8 +383,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             });
             writer.write(toWrite.toString());
 
-            writer.write(LINE_BREAK + "// Set up code" + TWO_LINES);
-            writer.write("void setupMenu() {" + LINE_BREAK);
+            writer.write(LINE_BREAK);
+            writer.write("void setupMenu() {");
+            writer.write(LINE_BREAK);
             List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
             if (!readOnlyLocal.isEmpty()) {
                 writer.write(extractor.mapFunctions(readOnlyLocal));

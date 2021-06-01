@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.Node;
@@ -31,7 +31,7 @@ public class ActionManagedMenuItem extends ManagedMenuItem<Boolean, ActionMenuIt
     }
 
     @Override
-    public void internalChangeItem(MenuState<Boolean> change) {
+    public void internalChangeItem(AnyMenuState change) {
         // do nothing
     }
 

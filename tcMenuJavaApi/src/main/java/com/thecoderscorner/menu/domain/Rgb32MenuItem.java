@@ -1,8 +1,5 @@
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.domain.state.PortableColorMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -10,7 +7,7 @@ import java.util.Objects;
 /**
  * A menu item that represents a colour in the RGB domain with optional Alpha channel.
  */
-public class Rgb32MenuItem extends MenuItem<PortableColor> {
+public class Rgb32MenuItem extends MenuItem {
     private final boolean includeAlphaChannel;
 
     public Rgb32MenuItem() {
@@ -47,11 +44,6 @@ public class Rgb32MenuItem extends MenuItem<PortableColor> {
     @Override
     public int hashCode() {
         return Objects.hash(includeAlphaChannel, getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
-    }
-
-    @Override
-    public MenuState<PortableColor> newMenuState(PortableColor value, boolean changed, boolean active) {
-        return new PortableColorMenuState(this, changed, active, value);
     }
 
     @Override

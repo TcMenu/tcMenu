@@ -111,12 +111,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         return TCMENU_COPY_PREFIX + gson.toJson(items);
     }
 
+    @SuppressWarnings("unchecked")
     public List<PersistedMenu> copyTextToItems(String items) {
         if(!items.startsWith(TCMENU_COPY_PREFIX)) return Collections.emptyList();
         var jsonStr = items.substring(TCMENU_COPY_PREFIX.length());
         return gson.fromJson(jsonStr, ArrayList.class);
     }
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private Gson makeGsonProcessor() {
         ArrayList<PersistedMenu> example = new ArrayList<>();
 
@@ -128,7 +130,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 .create();
     }
 
-    class MenuItemSerialiser implements JsonSerializer<ArrayList<PersistedMenu>> {
+    static class MenuItemSerialiser implements JsonSerializer<ArrayList<PersistedMenu>> {
 
         @Override
         public JsonElement serialize(ArrayList<PersistedMenu> src, Type type, JsonSerializationContext ctx) {

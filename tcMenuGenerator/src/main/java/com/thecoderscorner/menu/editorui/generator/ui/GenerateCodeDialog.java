@@ -180,7 +180,7 @@ public class GenerateCodeDialog {
         generateButton = new Button("Generate Code");
         generateButton.setDefaultButton(true);
         generateButton.setOnAction(this::onGenerateCode);
-        generateButton.setId("GenerateButton");
+        generateButton.setId("generateButton");
         cancelButton = new Button("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(this::onCancel);
@@ -237,7 +237,7 @@ public class GenerateCodeDialog {
     private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid, Optional<String> maybeDefault) {
         if(items.size() == 0) throw new IllegalStateException("No plugins have been loaded");
         return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElseGet(() -> {
-            CodePluginItem ret = null;
+            CodePluginItem ret;
             if(maybeDefault.isPresent()) {
                 ret = items.stream().filter(item -> item.getId().equals(maybeDefault.get())).findFirst().orElse(items.get(0));
             }

@@ -43,18 +43,15 @@ public class AwaitingBootstrapState extends BaseMessageProcessingState {
         if(cmd.getCommandType() == MenuCommandType.BOOTSTRAP) {
             MenuBootstrapCommand bs = (MenuBootstrapCommand) cmd;
 
+            markDone();
             if( bs.getBootType() == MenuBootstrapCommand.BootType.START) {
-                markDone();
                 context.changeState(AuthStatus.BOOTSTRAPPING);
-                return true;
             }
             else {
                 logger.log(ERROR, "Received a boot end without start", context.getConnectionName());
-                markDone();
                 context.close();
-                return true;
             }
-
+            return true;
         }
         return false;
     }

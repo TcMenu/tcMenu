@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 
 public class EnumManagedMenuItem extends IntegerBaseManagedMenuItem<EnumMenuItem, Integer> {
     public EnumManagedMenuItem(EnumMenuItem item) {
@@ -15,7 +16,9 @@ public class EnumManagedMenuItem extends IntegerBaseManagedMenuItem<EnumMenuItem
     }
 
     @Override
-    public void internalChangeItem(MenuState<Integer> state) {
-        itemLabel.setText(item.getEnumEntries().get(state.getValue()));
+    public void internalChangeItem(AnyMenuState state) {
+        if(state instanceof IntegerMenuState intState) {
+            itemLabel.setText(item.getEnumEntries().get(intState.getValue()));
+        }
     }
 }

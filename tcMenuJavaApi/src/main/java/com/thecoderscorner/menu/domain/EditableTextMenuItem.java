@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.StringMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -16,7 +14,7 @@ import java.util.Objects;
  * An implementation of menu item that can store text strings. Currently, the are always stored in RAM on the Arduino
  * so choose the size carefully.
  */
-public class EditableTextMenuItem extends MenuItem<String> {
+public class EditableTextMenuItem extends MenuItem {
     private final int textLength;
     private final EditItemType itemType;
 
@@ -49,17 +47,6 @@ public class EditableTextMenuItem extends MenuItem<String> {
         return itemType;
     }
 
-    /**
-     * Returns a new String current value that can be used as the current value in the Menutree
-     * @param value the new value
-     * @param changed if the value has changed
-     * @param active if the value is active.
-     * @return the new menu state object
-     */
-    @Override
-    public MenuState<String> newMenuState(String value, boolean changed, boolean active) {
-        return new StringMenuState(this, changed, active, value);
-    }
 
     @Override
     public boolean equals(Object o) {

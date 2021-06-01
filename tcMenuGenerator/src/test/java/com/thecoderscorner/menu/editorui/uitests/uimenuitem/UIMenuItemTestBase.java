@@ -8,11 +8,11 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
@@ -26,13 +26,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -92,15 +92,15 @@ public abstract class UIMenuItemTestBase {
 
     protected void performAllCommonChecks(MenuItem item, boolean hasEepromField) {
         verifyThat("#idField", Node::isDisabled);
-        verifyThat("#idField", textFieldHasValue(Integer.toString(item.getId())));
-        if(hasEepromField) verifyThat("#eepromField", textFieldHasValue(Integer.toString(item.getEepromAddress())));
-        verifyThat("#nameField", textFieldHasValue(item.getName()));
-        verifyThat("#functionNameTextField", textFieldHasValue(
+        verifyThat("#idField", TextInputControlMatchers.hasText(Integer.toString(item.getId())));
+        if(hasEepromField) verifyThat("#eepromField", TextInputControlMatchers.hasText(Integer.toString(item.getEepromAddress())));
+        verifyThat("#nameField", TextInputControlMatchers.hasText(item.getName()));
+        verifyThat("#functionNameTextField", TextInputControlMatchers.hasText(
                 item.getFunctionName() == null ? UIMenuItem.NO_FUNCTION_DEFINED : item.getFunctionName()));
         verifyThat("#uiItemErrors", (Node node)->!node.isVisible());
     }
 
-    protected void createMainPanel(Optional<UIMenuItem> uiSubItem) throws InterruptedException {
+    protected void createMainPanel(Optional<UIMenuItem<?>> uiSubItem) throws InterruptedException {
         assertTrue(uiSubItem.isPresent());
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -113,6 +113,6 @@ public abstract class UIMenuItemTestBase {
             stage.show();
             latch.countDown();
         });
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        if(!latch.await(2000, TimeUnit.MILLISECONDS)) throw new IllegalStateException("panel timeout");
     }
 }

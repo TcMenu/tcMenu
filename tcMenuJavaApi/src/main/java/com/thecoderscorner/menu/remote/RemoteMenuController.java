@@ -6,16 +6,13 @@
 
 package com.thecoderscorner.menu.remote;
 
-import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -75,6 +72,7 @@ public class RemoteMenuController {
     /**
      * attempt to stop the underlying connector
      */
+    @SuppressWarnings("unused")
     public void stop() {
         connector.stop();
     }
@@ -170,7 +168,7 @@ public class RemoteMenuController {
             case RUNTIME_LIST_BOOT:
             case BOOT_RGB_COLOR:
             case BOOT_SCROLL_CHOICE:
-                onMenuItemBoot((BootItemMenuCommand) menuCommand);
+                onMenuItemBoot((BootItemMenuCommand<?, ?>) menuCommand);
                 break;
             case BOOTSTRAP:
                 onBootstrap((MenuBootstrapCommand) menuCommand);
@@ -203,11 +201,9 @@ public class RemoteMenuController {
         );
     }
 
-    @SuppressWarnings("unchecked")
-    private void onMenuItemBoot(BootItemMenuCommand menuCommand) {
+    private void onMenuItemBoot(BootItemMenuCommand<?,?> menuCommand) {
         managedMenu.addOrUpdateItem(menuCommand.getSubMenuId(), menuCommand.getMenuItem());
-        managedMenu.changeItem(menuCommand.getMenuItem(), menuCommand.newMenuState(
-                managedMenu.getMenuState(menuCommand.getMenuItem())));
+        managedMenu.changeItem(menuCommand.getMenuItem(), menuCommand.newMenuState(managedMenu.getMenuState(menuCommand.getMenuItem())));
         listeners.forEach(l-> l.menuItemChanged(menuCommand.getMenuItem(), false));
     }
 
@@ -216,77 +212,8 @@ public class RemoteMenuController {
         if(!isTreeFullyPopulated()) return;
 
         managedMenu.getMenuById(menuCommand.getMenuItemId()).ifPresent((item) -> {
-            item.accept(new MenuItemVisitor() {
-                @Override
-                public void visit(AnalogMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(BooleanMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()) != 0, true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(EnumMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(Integer.valueOf(menuCommand.getValue()), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(SubMenuItem item) { /*ignored*/ }
-
-                @Override
-                public void visit(EditableTextMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(menuCommand.getValue(), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(EditableLargeNumberMenuItem item) {
-                    String val = menuCommand.getValue();
-                    if(val != null && val.contains("[")) {
-                        val = val.replaceAll("[\\[\\]]", "");
-                    }
-                    else if(val == null) val = "0.0";
-
-                    BigDecimal dec = new BigDecimal(val);
-                    managedMenu.changeItem(item, item.newMenuState(dec, true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(FloatMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(Float.valueOf(menuCommand.getValue()), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(Rgb32MenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(new PortableColor(menuCommand.getValue()), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(ScrollChoiceMenuItem item) {
-                    managedMenu.changeItem(item, item.newMenuState(new CurrentScrollPosition(menuCommand.getValue()), true, false));
-                    listeners.forEach(l-> l.menuItemChanged(item, true));
-                }
-
-                @Override
-                public void visit(ActionMenuItem item) {
-                    /* ignored, there is no state for this type */
-                }
-
-                @Override
-                public void visit(RuntimeListMenuItem listItem) {
-                    // todo
-                }
-
-            });
-
+            managedMenu.changeItem(item, MenuItemHelper.stateForMenuItem(item, menuCommand.getValue(), true, false));
+            listeners.forEach(l-> l.menuItemChanged(item, true));
         });
     }
 

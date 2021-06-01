@@ -58,46 +58,25 @@ public class CreateItemCommand implements Callable<Integer> {
             var variableGen = new VariableNameGenerator(project.getMenuTree(), project.getOptions().isNamingRecursive());
             SubMenuItem parentItem = findParent(project.getMenuTree());
 
-            MenuItem<?> item;
-            switch(menuType) {
-                case "submenu":
-                    item = doDefaulting(chooser, variableGen, new SubMenuItemBuilder(), false);
-                    break;
-                case "float":
-                    item = doDefaulting(chooser, variableGen, new FloatMenuItemBuilder(), false);
-                    break;
-                case "action":
-                    item = doDefaulting(chooser, variableGen, new ActionMenuItemBuilder(), false);
-                    break;
-                case "list":
-                    item = doDefaulting(chooser, variableGen, new RuntimeListMenuItemBuilder(), false);
-                    break;
-                case "analog":
-                    item = doDefaulting(chooser, variableGen, new AnalogMenuItemBuilder(), true);
-                    break;
-                case "enum":
+            MenuItem item;
+            switch (menuType) {
+                case "submenu" -> item = doDefaulting(chooser, variableGen, new SubMenuItemBuilder(), false);
+                case "float" -> item = doDefaulting(chooser, variableGen, new FloatMenuItemBuilder(), false);
+                case "action" -> item = doDefaulting(chooser, variableGen, new ActionMenuItemBuilder(), false);
+                case "list" -> item = doDefaulting(chooser, variableGen, new RuntimeListMenuItemBuilder(), false);
+                case "analog" -> item = doDefaulting(chooser, variableGen, new AnalogMenuItemBuilder(), true);
+                case "enum" -> {
                     var enumBuilder = new EnumMenuItemBuilder();
                     doDefaulting(chooser, variableGen, enumBuilder, true);
                     enumBuilder.withEnumList(List.of("Enum 1", "Enum 2"));
                     item = enumBuilder.menuItem();
-                    break;
-                case "boolean":
-                    item = doDefaulting(chooser, variableGen, new BooleanMenuItemBuilder(), true);
-                    break;
-                case "largenum":
-                    item = doDefaulting(chooser, variableGen, new EditableLargeNumberMenuItemBuilder(), true);
-                    break;
-                case "text":
-                    item = doDefaulting(chooser, variableGen, new EditableTextMenuItemBuilder(), true);
-                    break;
-                case "choice":
-                    item = doDefaulting(chooser, variableGen, new ScrollChoiceMenuItemBuilder(), true);
-                    break;
-                case "rgb":
-                    item = doDefaulting(chooser, variableGen, new Rgb32MenuItemBuilder(), true);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid type specified");
+                }
+                case "boolean" -> item = doDefaulting(chooser, variableGen, new BooleanMenuItemBuilder(), true);
+                case "largenum" -> item = doDefaulting(chooser, variableGen, new EditableLargeNumberMenuItemBuilder(), true);
+                case "text" -> item = doDefaulting(chooser, variableGen, new EditableTextMenuItemBuilder(), true);
+                case "choice" -> item = doDefaulting(chooser, variableGen, new ScrollChoiceMenuItemBuilder(), true);
+                case "rgb" -> item = doDefaulting(chooser, variableGen, new Rgb32MenuItemBuilder(), true);
+                default -> throw new IllegalArgumentException("Invalid type specified");
             }
 
 
@@ -113,7 +92,7 @@ public class CreateItemCommand implements Callable<Integer> {
         }
     }
 
-    private <T extends MenuItemBuilder, M extends MenuItem<?>> M doDefaulting(
+    private <T extends MenuItemBuilder, M extends MenuItem> M doDefaulting(
             MenuIdChooser chooser, VariableNameGenerator gen, MenuItemBuilder<T, M> theBuilder, boolean allowRom) {
         int romPos = getEepromPos(chooser);
         int nextId = chooser.nextHighestId();

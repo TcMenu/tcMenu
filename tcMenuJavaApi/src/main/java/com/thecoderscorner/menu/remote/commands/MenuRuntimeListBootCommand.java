@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class MenuRuntimeListBootCommand extends BootItemMenuCommand<RuntimeListM
     }
 
     @Override
-    public MenuState<List<String>> internalNewMenuState(MenuState<List<String>> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

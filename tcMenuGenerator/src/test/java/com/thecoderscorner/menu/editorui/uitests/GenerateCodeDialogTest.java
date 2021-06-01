@@ -1,16 +1,12 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
-import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -18,14 +14,10 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
-import org.testfx.matcher.control.TextMatchers;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
@@ -55,14 +48,14 @@ public class GenerateCodeDialogTest {
 
         pluginTemp = Files.createTempDirectory("gennyTest");
         var pluginsCreatedDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginTemp, true);
-        var storage = Mockito.mock(ConfigurationStorage.class);
-        Mockito.when(storage.getVersion()).thenReturn("2.2.0");
+        var storage = mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("2.2.0");
         var pluginLoader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
         pluginLoader.loadPlugins(Collections.singletonList(pluginTemp));
         pluginManager = pluginLoader;
 
-        generatorRunner = Mockito.mock(CodeGeneratorRunner.class);
-        editorUI = Mockito.mock(CurrentProjectEditorUI.class);
+        generatorRunner = mock(CodeGeneratorRunner.class);
+        editorUI = mock(CurrentProjectEditorUI.class);
 
         createTheProject();
 
@@ -102,6 +95,22 @@ public class GenerateCodeDialogTest {
         robot.clickOn("#saveToSrc");
         robot.clickOn("#useCppMain");
 
-        Thread.sleep(5000);
+        robot.clickOn("#appUuidButton");
+        verify(editorUI).questionYesNo(eq("Really change the UUID?"), any());
+
+        robot.clickOn("#generateButton");
+
+        Thread.sleep(14000);
+
+        // the list must be in exactly this order, DISPLAY, INPUT, REMOTE, THEME
+        var expectedPlugins = List.of(
+                pluginManager.getPluginById("20409bb8-b8a1-4d1d-b632-2cf9b5739888").orElseThrow(),
+                pluginManager.getPluginById("20409bb8-b8a1-4d1d-b632-2cf9b57353e3").orElseThrow(),
+                pluginManager.getPluginById("850b889b-fb15-4d9b-a589-67d5ffe3488d").orElseThrow()
+        );
+
+        verify(generatorRunner).startCodeGeneration(
+                eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
+                eq(expectedPlugins), eq(List.of()), eq(true));
     }
 }

@@ -23,12 +23,12 @@ import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.atLeastOnce;
@@ -52,7 +52,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     void testEnteringAcceptableValuesIntoActionEditor(FxRobot robot) throws InterruptedException {
         MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
+        var uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiActionItem);
@@ -94,7 +94,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         Set<Integer> uncommittedItems = new HashSet<>();
         uncommittedItems.add(item.getId());
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, uncommittedItems);
-        Optional<UIMenuItem> uiRgb = editorUI.createPanelForMenuItem(item, menuTree, vng, mockedConsumer);
+        var uiRgb = editorUI.createPanelForMenuItem(item, menuTree, vng, mockedConsumer);
         // open the sub menu item editor panel
         createMainPanel(uiRgb);
 
@@ -111,7 +111,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         robot.clickOn("#nameField");
         robot.eraseText(10);
         robot.write("My Test");
-        verifyThat("#variableField", textFieldHasValue("MyTest"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("MyTest"));
         robot.clickOn("#variableField");
         robot.eraseText(10);
         robot.write("OverrideVar");
@@ -119,11 +119,11 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         robot.eraseText(10);
         robot.write("New Test");
         robot.clickOn("#variableField");
-        verifyThat("#variableField", textFieldHasValue("OverrideVar"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("OverrideVar"));
 
 
         robot.clickOn("#eepromNextBtn");
-        verifyThat("#eepromField", textFieldHasValue("7"));
+        verifyThat("#eepromField", TextInputControlMatchers.hasText("7"));
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
@@ -135,7 +135,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     void testEnteringBadValuesIntoBaseEditor(FxRobot robot) throws InterruptedException {
         MenuItem subItem = menuTree.getSubMenuById(100).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiSubItem = editorUI.createPanelForMenuItem(subItem, menuTree, vng, mockedConsumer);
+        var uiSubItem = editorUI.createPanelForMenuItem(subItem, menuTree, vng, mockedConsumer);
 
         // open the sub menu item editor panel
         createMainPanel(uiSubItem);
@@ -171,7 +171,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         // now try selecting and clearing the readonly and local only checkboxes.
         MenuItem actionItem = menuTree.getMenuById(8).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        Optional<UIMenuItem> uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
+        var uiActionItem = editorUI.createPanelForMenuItem(actionItem, menuTree, vng, mockedConsumer);
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
 
         // open the sub menu item editor panel

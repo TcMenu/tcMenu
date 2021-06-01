@@ -13,7 +13,6 @@
 #include <Fonts/sans24p7b.h>
 
 // Global variable declarations
-
 const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 TcMenuRemoteServer remoteServer(applicationInfo);
 ArduinoAnalogDevice analogDevice(42);
@@ -21,7 +20,6 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
 extern const char* myChoiceRam;
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RamChoiceRtCall, enumItemRenderFn, "Ram Choice", 31, onRamChoice)
@@ -60,8 +58,6 @@ const EnumMenuInfo minfoMySubMyEnum = { "MyEnum", 3, 4, 1, onEnumChange, enumStr
 EnumMenuItem menuMySubMyEnum(&minfoMySubMyEnum, 0, &menuMySubMyBoolean);
 const AnalogMenuInfo minfoMySubMyAnalog = { "My Analog", 2, 2, 255, onAnalogItem, 0, 1, "Unit" };
 AnalogMenuItem menuMySubMyAnalog(&minfoMySubMyAnalog, 0, &menuMySubMyEnum);
-
-// Set up code
 
 void setupMenu() {
     menuMySubSub1TextItem.setReadOnly(true);

@@ -9,8 +9,6 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
-import com.thecoderscorner.menu.editorui.uimodel.UIScrollChoiceMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
@@ -23,13 +21,12 @@ import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.util.HashSet;
-import java.util.Optional;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UIScrollChoiceMenuItem.*;
-import static com.thecoderscorner.menu.editorui.uitests.UiUtils.textFieldHasValue;
+import static com.thecoderscorner.menu.editorui.uimodel.UIScrollChoiceMenuItem.TidyScrollChoiceValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +54,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         set.add(111);
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, set);
 
-        Optional<UIMenuItem> uiRgb = editorUI.createPanelForMenuItem(rgbItem, menuTree, vng, mockedConsumer);
+        var uiRgb = editorUI.createPanelForMenuItem(rgbItem, menuTree, vng, mockedConsumer);
         createMainPanel(uiRgb);
 
         performAllCommonChecks(rgbItem, true);
@@ -74,34 +71,34 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         robot.clickOn("#nameField");
         robot.eraseText(10);
         robot.write("hello world");
-        verifyThat("#variableField", textFieldHasValue("RgbForMe"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("RgbForMe"));
 
         robot.clickOn("#varSyncButton");
-        verifyThat("#variableField", textFieldHasValue("HelloWorld"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("HelloWorld"));
     }
 
     @Test
     void testEditorVariableNameOverriding(FxRobot robot) throws InterruptedException {
         prepareScrollChoiceDialogForUse();
 
-        verifyThat("#itemWidthFieldField", textFieldHasValue("10"));
-        verifyThat("#numItemsFieldField", textFieldHasValue("5"));
-        verifyThat("#eepromOffsetFieldField", textFieldHasValue("100"));
-        verifyThat("#choiceVarField", textFieldHasValue("ramVariable"));
+        verifyThat("#itemWidthFieldField", TextInputControlMatchers.hasText("10"));
+        verifyThat("#numItemsFieldField", TextInputControlMatchers.hasText("5"));
+        verifyThat("#eepromOffsetFieldField", TextInputControlMatchers.hasText("100"));
+        verifyThat("#choiceVarField", TextInputControlMatchers.hasText("ramVariable"));
 
         // now lets ensure that changing the name updates the menu variable name
         // this item is marked as uncommitted
-        verifyThat("#variableField", textFieldHasValue("abc123"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("abc123"));
 
         writeIntoField(robot,"nameField", "hello world");
 
-        verifyThat("#variableField", textFieldHasValue("HelloWorld"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("HelloWorld"));
 
         writeIntoField(robot, "variableField", "newVar");
 
         writeIntoField(robot, "nameField", "test it");
 
-        verifyThat("#variableField", textFieldHasValue("newVar"));
+        verifyThat("#variableField", TextInputControlMatchers.hasText("newVar"));
 
         ScrollChoiceMenuItem choiceItem = captureTheLatestScrollChoice();
 
@@ -112,8 +109,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
     private ScrollChoiceMenuItem captureTheLatestScrollChoice() {
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         Mockito.verify(mockedConsumer, Mockito.atLeastOnce()).accept(any(), captor.capture());
-        ScrollChoiceMenuItem choiceItem = (ScrollChoiceMenuItem) captor.getValue();
-        return choiceItem;
+        return (ScrollChoiceMenuItem) captor.getValue();
     }
 
     @Test
@@ -200,7 +196,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         set.add(choiceItem.getId());
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, set);
 
-        Optional<UIMenuItem> uiChoice = editorUI.createPanelForMenuItem(choiceItem, menuTree, vng, mockedConsumer);
+        var uiChoice = editorUI.createPanelForMenuItem(choiceItem, menuTree, vng, mockedConsumer);
         createMainPanel(uiChoice);
 
         performAllCommonChecks(choiceItem, true);

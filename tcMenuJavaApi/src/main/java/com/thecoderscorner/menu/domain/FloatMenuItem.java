@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.FloatMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -16,7 +14,7 @@ import java.util.Objects;
  * FloatMenuItem represents a menu item that uses a floating point value. It is not editable on the device
  * because it does not really represent absolute values, but is sometimes useful for conveying status.
  */
-public class FloatMenuItem extends MenuItem<Float> {
+public class FloatMenuItem extends MenuItem {
 
     private final int numDecimalPlaces;
 
@@ -55,11 +53,6 @@ public class FloatMenuItem extends MenuItem<Float> {
 
     public int getNumDecimalPlaces() {
         return numDecimalPlaces;
-    }
-
-    @Override
-    public MenuState<Float> newMenuState(Float value, boolean changed, boolean active) {
-        return new FloatMenuState(this, changed, active, value);
     }
 
     @Override

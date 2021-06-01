@@ -13,14 +13,12 @@
 #include <Fonts/sans24p7b.h>
 
 // Global variable declarations
-
 const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 ArduinoAnalogDevice analogDevice(42);
 const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NO_CALLBACK)
 IpAddressMenuItem menuOverrideSubNameIpItem(fnOverrideSubNameIpItemRtCall, 79, NULL);
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
@@ -38,8 +36,6 @@ const char enumStrExtra_0[] = "test";
 const char* const enumStrExtra[]  = { enumStrExtra_0 };
 const EnumMenuInfo minfoExtra = { "Extra", 20, 5, 0, callback1, enumStrExtra };
 EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest);
-
-// Set up code
 
 void setupMenu() {
     menuOverrideAnalog2Name.setReadOnly(true);

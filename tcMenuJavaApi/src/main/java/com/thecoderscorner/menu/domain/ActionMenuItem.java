@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.BooleanMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -16,7 +14,7 @@ import java.util.Objects;
  * ActionMenuItem represents a menu item that is a one shot action, in that when triggered it
  * just runs the callback on the embedded side.
  */
-public class ActionMenuItem extends MenuItem<Boolean> {
+public class ActionMenuItem extends MenuItem {
 
     public ActionMenuItem() {
         super("", null, -1, -1, null, false, false, true);
@@ -34,11 +32,6 @@ public class ActionMenuItem extends MenuItem<Boolean> {
     @Override
     public boolean hasChildren() {
         return false;
-    }
-
-    @Override
-    public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
-        return new BooleanMenuState(this, changed, active, value);
     }
 
     @Override

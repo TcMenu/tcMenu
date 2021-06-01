@@ -8,7 +8,8 @@ package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.state.StringMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.Node;
@@ -42,8 +43,10 @@ public class TextManagedMenuItem extends ManagedMenuItem<String, EditableTextMen
     }
 
     @Override
-    public void internalChangeItem(MenuState<String> change) {
-        text.setText(change.getValue());
+    public void internalChangeItem(AnyMenuState change) {
+        if(change instanceof StringMenuState strState) {
+            text.setText(strState.getValue());
+        }
     }
 
     @Override

@@ -19,7 +19,9 @@ public class BigDecimalMenuState extends MenuState<BigDecimal> {
      * @param active  if the item is active.
      * @param value   the current value as a big decimal
      */
-    public BigDecimalMenuState(MenuItem<BigDecimal> item, boolean changed, boolean active, BigDecimal value) {
-        super(item, changed, active, value);
+    public BigDecimalMenuState(MenuItem item, boolean changed, boolean active, BigDecimal value) {
+        super(StateStorageType.BIG_DECIMAL, item, changed, active, value);
     }
+
+
 }

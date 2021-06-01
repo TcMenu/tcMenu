@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -35,11 +35,11 @@ public abstract class ManagedMenuItem<T, I extends MenuItem> {
     }
 
     public abstract Node createNodes(RemoteMenuController controller);
-    public abstract void internalChangeItem(MenuState<T> change);
+    public abstract void internalChangeItem(AnyMenuState change);
     public abstract void internalTick();
     protected abstract void internalCorrelationUpdate(AckStatus status);
 
-    public synchronized void itemChanged(MenuState<T> change) {
+    public synchronized void itemChanged(AnyMenuState change) {
         animating = true;
         ticks = TICKS_HIGHLIGHT_ON_CHANGE;
         internalChangeItem(change);

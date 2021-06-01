@@ -21,8 +21,8 @@ import static java.lang.System.Logger.Level.*;
 public abstract class BaseMessageProcessingState implements RemoteConnectorState {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
-    private volatile Future readThread;
-    private AtomicBoolean taskDone = new AtomicBoolean(false);
+    private volatile Future<?> readThread;
+    private final AtomicBoolean taskDone = new AtomicBoolean(false);
     protected final RemoteConnectorContext context;
     protected AtomicInteger disconnectInterval = new AtomicInteger(5000);
     protected AtomicLong lastReception = new AtomicLong(0);

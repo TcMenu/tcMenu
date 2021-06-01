@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
@@ -44,7 +45,7 @@ public class LargeNumberManagedMenuItem extends ManagedMenuItem<BigDecimal, Edit
     }
 
     @Override
-    public void internalChangeItem(MenuState<BigDecimal> change) {
+    public void internalChangeItem(AnyMenuState change) {
         text.setText(String.valueOf(change.getValue()));
     }
 

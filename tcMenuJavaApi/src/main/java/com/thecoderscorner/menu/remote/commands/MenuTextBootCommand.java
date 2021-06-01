@@ -7,7 +7,9 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuTextBootCommand extends BootItemMenuCommand<EditableTextMenuItem, String> {
 
@@ -21,8 +23,8 @@ public class MenuTextBootCommand extends BootItemMenuCommand<EditableTextMenuIte
     }
 
     @Override
-    public MenuState<String> internalNewMenuState(MenuState<String> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

@@ -43,8 +43,8 @@ import java.util.stream.Collectors;
  * It does so by displaying a simple dialog. To make things less annoying, this dialog
  * tries to remember the last settings used.
  */
+@SuppressWarnings("unused")
 public class RemoteSelectorController {
-    public static final String LOCAL_NAME = "menuControl";
     public static final String PREF_KEY_CONNECTOR_TYPE = "ConnectorType";
     public static final String PREF_KEY_SERIAL_PORT = "serialPort";
     public static final String PREF_KEY_SERIAL_BAUD = "SerialBaud";
