@@ -23,9 +23,8 @@ const uint8_t* safeGetFont(const void* fnt) {
     return u8g2_font_6x10_tf;
 }
 
-static uint8_t bytesSent = 0;
-
 #if WANT_TASK_MANAGER_FRIENDLY_YIELD == 1
+static uint8_t bytesSent = 0;
 TwoWire* U8g2Drawable::pWire = nullptr;
 uint8_t u8g2_byte_with_yield(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
     if(!U8g2Drawable::pWire) return 0;
@@ -56,8 +55,8 @@ uint8_t u8g2_byte_with_yield(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
 #endif // WANT_TASK_MANAGER_FRIENDLY_YIELD
 
 U8g2Drawable::U8g2Drawable(U8G2 *u8g2, TwoWire* wireImpl) : u8g2(u8g2) {
-    pWire = wireImpl;
 #if WANT_TASK_MANAGER_FRIENDLY_YIELD == 1
+    pWire = wireImpl;
     if(wireImpl) {
         u8g2->getU8x8()->byte_cb = u8g2_byte_with_yield;
     }

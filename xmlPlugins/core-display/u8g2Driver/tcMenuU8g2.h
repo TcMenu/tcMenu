@@ -26,9 +26,8 @@
 #include <BaseDialog.h>
 #include <tcUtil.h>
 
-/**
- * If you DONT want task manager yield code in I2C
- */
+
+// If you DONT want task manager yield code in I2C set to 0
 #ifndef WANT_TASK_MANAGER_FRIENDLY_YIELD
 #define WANT_TASK_MANAGER_FRIENDLY_YIELD 1
 #endif // WANT_TASK_MANAGER_FRIENDLY_YIELD
