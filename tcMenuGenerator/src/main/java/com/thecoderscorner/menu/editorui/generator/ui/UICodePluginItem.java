@@ -163,6 +163,7 @@ public class UICodePluginItem extends BorderPane {
                 checkbox.setSelected(Boolean.parseBoolean(property.getLatestValue()));
                 checkbox.setOnAction(actionEvent -> commitEdit(property, Boolean.toString(checkbox.isSelected())));
                 checkbox.setOpaqueInsets(new Insets(3, 0, 3, 0));
+                checkbox.setTooltip(new Tooltip(property.getExtendedDescription()));
                 propertiesById.put(property.getName(), new PropertyWithControl(property, checkbox));
                 propertiesPanel.getChildren().add(checkbox);
             }
@@ -170,6 +171,7 @@ public class UICodePluginItem extends BorderPane {
                 propertiesPanel.getChildren().add(new Label(property.getDescription()));
                 if (property.getValidationRules().hasChoices()) {
                     ComboBox<ChoiceDescription> comboBox = generateRegularComboField(property);
+                    comboBox.setTooltip(new Tooltip(property.getExtendedDescription()));
                     propertiesPanel.getChildren().add(comboBox);
                     propertiesById.put(property.getName(), new PropertyWithControl(property, comboBox));
                 } else if (property.getValidationRules() instanceof FontPropertyValidationRules) {
@@ -198,8 +200,10 @@ public class UICodePluginItem extends BorderPane {
     private void generateFontField(VBox propertiesPanel, CreatorProperty property) {
         HBox hBox = new HBox(2);
         TextField fontLabel = new TextField(nicePrintableFontName(property.getLatestValue()));
+        fontLabel.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontLabel.setDisable(true);
         Button fontButton = new Button("Set Font");
+        fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontButton.setOnAction(actionEvent -> {
             Stage scene = (Stage) propertiesPanel.getScene().getWindow();
             ChooseFontDialog dialog = new ChooseFontDialog(scene, property.getLatestValue(), true);
@@ -256,6 +260,7 @@ public class UICodePluginItem extends BorderPane {
             }
         });
         textField.setOnAction(actionEvent -> commitEdit(property, textField.getText()));
+        textField.setTooltip(new Tooltip(property.getExtendedDescription()));
         propertiesById.put(property.getName(), new PropertyWithControl(property, textField));
     }
 

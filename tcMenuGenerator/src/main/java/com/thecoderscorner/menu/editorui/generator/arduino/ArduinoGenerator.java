@@ -47,12 +47,12 @@ public class ArduinoGenerator extends CoreCodeGenerator {
                                    String projectName) throws TcMenuConversionException {
 
         String inoFile;
+        var path = options.isSaveToSrc() ? srcDir : directory;
         if(options.isUseCppMain()) {
-            var path = options.isSaveToSrc() ? srcDir : directory;
             inoFile = toSourceFile(path, "_main.cpp");
         }
         else {
-            inoFile = toSourceFile(directory, ".ino");
+            inoFile = toSourceFile(path, ".ino");
         }
         updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
 

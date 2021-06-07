@@ -33,6 +33,7 @@ public class CreatorProperty {
     private SubSystem subsystem;
     transient private final String initialValue;
     transient private final String description;
+    transient private final String extendedDescription;
     transient private final CodeApplicability applicability;
     transient private PropType propType = PropType.TEXTUAL;
     transient private PropertyValidationRules validationRules = BASE_RULE;
@@ -41,6 +42,7 @@ public class CreatorProperty {
         // for serialisation purposes.
         this.initialValue = null;
         this.description = null;
+        this.extendedDescription = null;
         this.applicability = new AlwaysApplicable();
     }
 
@@ -53,10 +55,12 @@ public class CreatorProperty {
      * @param propType the type of the property
      * @param rules the validation rules to be applied
      */
-    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem,
-                           PropType propType, PropertyValidationRules rules, CodeApplicability applicability) {
+    public CreatorProperty(String name, String description, String extendedDescription, String latestValue,
+                           SubSystem subsystem, PropType propType, PropertyValidationRules rules,
+                           CodeApplicability applicability) {
         this.name = name;
         this.description = description;
+        this.extendedDescription = extendedDescription;
         this.initialValue = latestValue;
         this.latestValue = latestValue;
         this.subsystem = subsystem;
@@ -122,6 +126,13 @@ public class CreatorProperty {
      */
     public PropertyValidationRules getValidationRules() {
         return validationRules;
+    }
+
+    /**
+     * @return the extended description, intended to provide a more detailed description of the property
+     */
+    public String getExtendedDescription() {
+        return extendedDescription;
     }
 
     @Override

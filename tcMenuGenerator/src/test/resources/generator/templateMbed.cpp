@@ -69,6 +69,6 @@ void setupMenu() {
             anotherFn(20);
         });
     initialiseMyTheme();
-    turboTron.begin(&Serial, &applicationInfo);
+    turboTron.begin(&Serial, &applicationInfo, &menuMySubMyAnalog, MBED_RTOS);
 }
 

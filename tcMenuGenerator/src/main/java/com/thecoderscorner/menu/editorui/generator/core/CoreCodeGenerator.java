@@ -186,13 +186,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
-        logLine(INFO, "Checking if any plugins have been removed from the project and need removal");
-
-        var props = generators.stream().flatMap(gen ->  gen.getProperties().stream()).collect(Collectors.toList());
+        logLine(INFO, "Checking if any plugin files need removal because of plugin changes");
 
         var newPluginFileSet = generators.stream()
                 .flatMap(gen -> gen.getRequiredSourceFiles().stream())
-                .filter(sf -> sf.getApplicability().isApplicable(props))
+                .filter(sf -> sf.getApplicability().isApplicable(context.getProperties()))
                 .map(RequiredSourceFile::getFileName)
                 .collect(Collectors.toSet());
 
@@ -211,7 +209,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             }
         }
 
-        logLine(INFO, "Finding any required rendering / remote plugins to add to project");
+        logLine(INFO, "Adding all files required by selected plugins");
 
         for (var gen : generators) {
             generatePluginsForCreator(gen, directory);

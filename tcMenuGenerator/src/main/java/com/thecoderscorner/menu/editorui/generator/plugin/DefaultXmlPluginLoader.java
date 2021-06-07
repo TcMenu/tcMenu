@@ -356,6 +356,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             return new CreatorProperty(
                     elem.getAttribute("id"),
                     elem.getAttribute("name"),
+                    elem.getAttribute("desc"),
                     initial,
                     item.getSubsystem(),
                     CreatorProperty.PropType.USE_IN_DEFINE,

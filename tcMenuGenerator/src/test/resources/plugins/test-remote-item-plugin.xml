@@ -31,6 +31,8 @@
         <Function name="begin" object="turboTron">
             <Param ref="${SERIAL_PORT}"/>
             <Param ref="applicationInfo"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${TARGET}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>

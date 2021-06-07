@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class CodeParameterTest {
 
     private final List<CreatorProperty> props = List.of(
-            new CreatorProperty("VAR1", "Var 1", "12345", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()),
-            new CreatorProperty("VAR2", "Var 2", "54321", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()),
-            new CreatorProperty("VAR3", "Var 3", "ada:font,1", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+            new CreatorProperty("VAR1", "Var 1", "Var 1 desc", "12345", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()),
+            new CreatorProperty("VAR2", "Var 2", "Var 2 desc", "54321", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()),
+            new CreatorProperty("VAR3", "Var 3", "Var 3 desc", "ada:font,1", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
     private CodeConversionContext context;
 
     @BeforeEach
@@ -43,6 +43,7 @@ class CodeParameterTest {
         assertEquals("font ada", param.expandExpression(context, "${VAR3/.*:(.*),1/} ${VAR3/(.*):.*/}")); // reg on variable is actioned
 
         assertEquals("Var 1", props.get(0).getDescription());
+        assertEquals("Var 1 desc", props.get(0).getExtendedDescription());
         assertEquals("VAR1", props.get(0).getName());
 
         var textValidator = (StringPropertyValidationRules) props.get(0).getValidationRules();

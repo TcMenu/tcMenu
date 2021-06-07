@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.validation;
 
-import com.thecoderscorner.menu.editorui.util.StringHelper;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +15,7 @@ import java.util.stream.Collectors;
 public class ChoicesPropertyValidationRules implements PropertyValidationRules {
 
     final Map<String, ChoiceDescription> enumValues = new HashMap<>();
+    final List<ChoiceDescription> enumNaturalOrder = new ArrayList<>();
     private final String defaultValue;
 
     /**
@@ -27,6 +26,7 @@ public class ChoicesPropertyValidationRules implements PropertyValidationRules {
         defaultValue = initialValue;
         for(var ch : values) {
             enumValues.put(ch.getChoiceValue(), ch);
+            enumNaturalOrder.add(ch);
         }
     }
 
@@ -46,12 +46,14 @@ public class ChoicesPropertyValidationRules implements PropertyValidationRules {
 
     @Override
     public List<ChoiceDescription> choices() {
-        return new ArrayList<>(enumValues.values());
+        return new ArrayList<>(List.copyOf(enumNaturalOrder));
     }
 
     @Override
     public String toString() {
-        return "Choice Validator accepting " + String.join(", ", enumValues.values().stream().map(ChoiceDescription::getChoiceValue).collect(Collectors.toList()));
+        return "Choice Validator accepting " + enumValues.values().stream()
+                .map(ChoiceDescription::getChoiceValue)
+                .collect(Collectors.joining(", "));
     }
 
     public ChoiceDescription getChoiceFor(String val) {

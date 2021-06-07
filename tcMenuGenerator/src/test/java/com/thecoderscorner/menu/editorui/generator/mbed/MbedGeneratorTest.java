@@ -85,7 +85,7 @@ public class MbedGeneratorTest {
                 List.<CreatorProperty>of(),
                 UUID.randomUUID(),
                 "app",
-                true, false, false);
+                true, true, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS, standardOptions);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
@@ -95,13 +95,15 @@ public class MbedGeneratorTest {
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
         assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
-                new NameAndKey("uuid1", "tester"), List.of(), false));
+                new NameAndKey("uuid1", "tester"), List.of(), true));
 
-        var cppGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.cpp")));
-        var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));
-        var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
-        var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
-        var pluginGeneratedTransport = new String(Files.readAllBytes(projectDir.resolve("MySpecialTransport.h")));
+        var sourceDir = projectDir.resolve("src");
+
+        var cppGenerated = new String(Files.readAllBytes(sourceDir.resolve(projectDir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(sourceDir.resolve(projectDir.getFileName() + "_menu.h")));
+        var pluginGeneratedH = new String(Files.readAllBytes(sourceDir.resolve("source.h")));
+        var pluginGeneratedCPP = new String(Files.readAllBytes(sourceDir.resolve("source.cpp")));
+        var pluginGeneratedTransport = new String(Files.readAllBytes(sourceDir.resolve("MySpecialTransport.h")));
 
         var cppTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.cpp").readAllBytes());
         var hTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.h").readAllBytes());
@@ -118,7 +120,7 @@ public class MbedGeneratorTest {
         assertEqualsIgnoringCRLF("My Transport file", pluginGeneratedTransport);
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
-                eq(projectDir.resolve(projectDir.resolve("project_main.cpp")).toString()),
+                eq(projectDir.resolve(sourceDir.resolve("project_main.cpp")).toString()),
                 eq(projectDir.getFileName().toString()), anyCollection());
     }
 }

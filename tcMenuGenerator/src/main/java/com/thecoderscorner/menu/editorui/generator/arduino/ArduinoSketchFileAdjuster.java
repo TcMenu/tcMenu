@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -168,9 +167,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     }
 
     protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
-        var srcPath = "";
-        if(options.isSaveToSrc() && !options.isUseCppMain()) srcPath = "src/";
-        lines.add(0, "#include \"" + srcPath + projectName + "_menu.h\"");
+        lines.add(0, "#include \"" + projectName + "_menu.h\"");
         changed = true;
     }
 }

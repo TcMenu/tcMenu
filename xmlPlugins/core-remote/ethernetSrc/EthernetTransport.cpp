@@ -107,7 +107,7 @@ bool EthernetTagValTransport::readAvailable() {
 
 #endif
 
-int fromWiFiRSSITo4StateIndicator(int strength) {
+int tcremote::fromWiFiRSSITo4StateIndicator(int strength) {
     int qualityIcon = 0;
     if(strength > -50) qualityIcon = 4;
     else if(strength > -60) qualityIcon = 3;
