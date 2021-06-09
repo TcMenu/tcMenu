@@ -116,20 +116,18 @@ public class GenerateCodeDialog {
             setAllPropertiesToLastValues(itemTheme);
         }
 
-        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems, 0);
-        currentInput.setId("currentInputUI");
+        currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems, 0, "inputPlugin");
         currentInput.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentInput);
 
         addTitleLabel(centerPane, "Select the display type:");
-        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems, 0);
-        currentDisplay.setId("currentDisplayUI");
+        currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems, 0, "displayPlugin");
         currentDisplay.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentDisplay);
 
         if(itemTheme != null) {
             themeTitle = addTitleLabel(centerPane, "Select a theme:");
-            currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems, 0);
+            currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems, 0, "themePlugin");
             currentTheme.setId("currentThemeUI");
             currentTheme.getStyleClass().add("uiCodeGen");
             if (!currentDisplay.getItem().isThemeNeeded()) {
@@ -159,8 +157,8 @@ public class GenerateCodeDialog {
                 CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, remoteId, Optional.of(CoreCodeGenerator.NO_REMOTE_ID));
                 addToInitialSourceFilesForRemovalCheck(itemRemote);
                 setAllPropertiesToLastValues(itemRemote);
-                var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, count);
-                currentRemote.setId("currentRemoteUI-" + count);
+                String pluginId = "remotePlugin" + count;
+                var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, count, pluginId);
                 currentRemote.getStyleClass().add("uiCodeGen");
                 centerPane.getChildren().add(currentRemote);
                 count++;
@@ -170,8 +168,8 @@ public class GenerateCodeDialog {
         else {
             // did not exist before this, must be first run.
             CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, "", Optional.empty());
-            var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, 0);
-            currentRemote.setId("currentRemoteUI-0");
+            String pluginId = "remotePlugin0";
+            var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, 0, pluginId);
             currentRemote.getStyleClass().add("uiCodeGen");
             centerPane.getChildren().add(currentRemote);
         }
@@ -210,8 +208,9 @@ public class GenerateCodeDialog {
         var itemRemote = findItemByUuidOrDefault(remotesSupported, CoreCodeGenerator.NO_REMOTE_ID, Optional.empty());
         setAllPropertiesToLastValues(itemRemote);
         var allItems = project.getMenuTree().getAllMenuItems();
+        String pluginId = "remotePlugin" + currentRemotes.size();
         var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI,
-                allItems, currentRemotes.size());
+                allItems, currentRemotes.size(), pluginId);
         currentRemote.setId("currentRemoteUI-" + currentRemotes.size());
         currentRemote.getStyleClass().add("uiCodeGen");
         currentRemotes.add(currentRemote);
@@ -472,8 +471,7 @@ public class GenerateCodeDialog {
                     var it = new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
                         popup.hide();
                         eventHandler.accept(ui, item);
-                    }, 0);
-                    it.setId("sel-" + display.getId());
+                    }, 0, "pluginSel_" + display.getId());
 
                     return it;
                 })

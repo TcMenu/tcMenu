@@ -81,9 +81,7 @@ public abstract class UIMenuItemTestBase {
     }
 
     protected void writeIntoField(FxRobot robot, String idField, Object value) {
-        robot.clickOn("#" + idField);
-        robot.eraseText(12);
-        robot.write(value != null ? value.toString() : "null");
+        TestUtils.writeIntoField(robot, "#" + idField, value, 12);
     }
 
     protected void verifyThatThereAreNoErrorsReported() {

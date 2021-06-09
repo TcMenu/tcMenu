@@ -295,4 +295,10 @@ public class TestUtils {
 
         return tree;
     }
+
+    public static void writeIntoField(FxRobot robot, String query, Object value, int toDel) {
+        robot.clickOn(query);
+        robot.eraseText(toDel);
+        robot.write(value != null ? value.toString() : "null");
+    }
 }
