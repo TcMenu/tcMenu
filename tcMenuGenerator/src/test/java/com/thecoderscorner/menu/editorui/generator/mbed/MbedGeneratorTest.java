@@ -11,7 +11,6 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
@@ -30,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -58,7 +58,7 @@ public class MbedGeneratorTest {
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.1.0");
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
     }
 
@@ -82,7 +82,7 @@ public class MbedGeneratorTest {
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 MBED_RTOS.getBoardId(),
                 "", "", List.of(""), "",
-                List.<CreatorProperty>of(),
+                List.of(),
                 UUID.randomUUID(),
                 "app",
                 true, true, false);
@@ -105,8 +105,8 @@ public class MbedGeneratorTest {
         var pluginGeneratedCPP = new String(Files.readAllBytes(sourceDir.resolve("source.cpp")));
         var pluginGeneratedTransport = new String(Files.readAllBytes(sourceDir.resolve("MySpecialTransport.h")));
 
-        var cppTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.cpp").readAllBytes());
-        var hTemplate = new String(getClass().getResourceAsStream("/generator/templateMbed.h").readAllBytes());
+        var cppTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.cpp")).readAllBytes());
+        var hTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.h")).readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");

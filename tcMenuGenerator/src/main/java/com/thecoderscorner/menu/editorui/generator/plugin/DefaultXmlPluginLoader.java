@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -42,16 +43,14 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
     private final ConfigurationStorage configStorage;
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
-    private List<Path> sourceDirs;
 
-    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage) {
+    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
         this.configStorage = storage;
     }
 
     @Override
-    public void loadPlugins(List<Path> sourceDirs) {
-        this.sourceDirs = sourceDirs;
+    public void loadPlugins() {
         reload();
     }
 
@@ -63,7 +62,18 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
         loadErrors.clear();
         try {
-            for (var path : sourceDirs) {
+            var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
+            var allPluginsPathsToLoad = new ArrayList<Path>();
+            allPluginsPathsToLoad.add(defPluginPath);
+
+            var storageAllPluginPaths = configStorage.getAdditionalPluginPaths();
+            if(storageAllPluginPaths != null && !storageAllPluginPaths.isEmpty()) {
+                logger.log(INFO, "Adding extra plugin search directories: ", storageAllPluginPaths);
+                var itemsToAdd = storageAllPluginPaths.stream().map(Paths::get).collect(Collectors.toList());
+                allPluginsPathsToLoad.addAll(itemsToAdd);
+            }
+
+            for (var path : allPluginsPathsToLoad) {
                 logger.log(INFO, "Traversing " + path + " for plugins");
                 for (var dir : Files.list(path).filter(Files::isDirectory).collect(Collectors.toList())) {
                     if (Files.exists((dir.resolve("tcmenu-plugin.xml")))) {

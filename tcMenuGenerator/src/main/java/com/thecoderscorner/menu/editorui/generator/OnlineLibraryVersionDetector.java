@@ -157,7 +157,9 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
 
     public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException {
         var pluginsFolder = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins", name);
-        if (Files.exists(pluginsFolder.resolve(".git"))) throw new LibraryUpgradeException("Not overwriting git repo " + name);
+        if (Files.exists(pluginsFolder.resolve(".git")) || Files.exists(pluginsFolder.resolve(".development"))) {
+            throw new LibraryUpgradeException("Not overwriting git repo " + name);
+        }
         performUpgradeFromWeb(name, requestedVersion, pluginsFolder);
     }
 

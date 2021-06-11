@@ -15,3 +15,12 @@ When the designer starts it tries to load all the plugins, any that fail because
 ## An easy way to develop plugin
 
 What we normally do is create a symlink to the plugin directories in the `.tcmenu/plugins` directory that links to your source directory. But make sure that under no circumstances you use the update button, or you could lose all the changes.
+
+You can now add your own extra plugin directories using either the Edit->General Settings dialog, and adding an "Additional plug-ins directory" or from the cli using:
+
+    tcmenu set-config --additional-plugins "plugindir1,plugindir2,plugindir3"
+    tcmenu get-config --additional-plugins
+
+Passing in blank to set-config clears the list of additional plugins.
+
+To prevent tcMenu Designer from ever installing new versions of the plugin in a development directory, add a file named `.development` in the top level directory.

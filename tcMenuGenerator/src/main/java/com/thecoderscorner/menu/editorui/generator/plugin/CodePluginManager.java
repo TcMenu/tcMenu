@@ -20,11 +20,10 @@ import java.util.Optional;
  */
 public interface CodePluginManager {
     /**
-     * Load all available plugins in the provided directory
-     * @param sourceDirs the directory to search
+     * Load all available plugins in the core plugin directory and any others that have been configured.
      * @throws Exception if the plugins could not be loaded.
      */
-    void loadPlugins(List<Path> sourceDirs) throws Exception;
+    void loadPlugins() throws Exception;
 
     /**
      * Gets a list of all loaded plugins.

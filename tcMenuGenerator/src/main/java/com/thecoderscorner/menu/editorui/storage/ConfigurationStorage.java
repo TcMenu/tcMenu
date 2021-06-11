@@ -14,8 +14,9 @@ public interface ConfigurationStorage {
     String ARDUINO_OVERRIDE_DIR = "ArduinoDirOverride";
     String ARDUINO_LIBS_OVERRIDE_DIR = "ArduinoLibsDirOverride";
     String LAST_RUN_VERSION_KEY = "LastRunVersion";
+    String EXTRA_PLUGIN_PATHS = "ExtraPluginPaths";
 
-    public enum TcMenuReleaseType {
+    enum TcMenuReleaseType {
         BETA, REGULAR, SUPPORTED
     }
 
@@ -25,7 +26,7 @@ public interface ConfigurationStorage {
     String getRegisteredKey();
     void setRegisteredKey(String registeredKey);
 
-    public TcMenuReleaseType getReleaseType();
+    TcMenuReleaseType getReleaseType();
 
     String getVersion();
     String getBuildTimestamp();
@@ -45,6 +46,9 @@ public interface ConfigurationStorage {
 
     void setUsingArduinoIDE(boolean libs);
     boolean isUsingArduinoIDE();
+
+    List<String> getAdditionalPluginPaths();
+    void setAdditionalPluginPaths(List<String> path);
 
     void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
 }

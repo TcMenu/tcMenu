@@ -5,6 +5,8 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -16,6 +18,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
@@ -27,20 +30,22 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="600.0">
                      <children>
-                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="195.0" prefWidth="578.0">
+                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="290.0" prefWidth="578.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="148.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="391.0" minWidth="10.0" prefWidth="364.0" />
                               <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="10.0" prefWidth="63.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints maxHeight="45.0" minHeight="10.0" prefHeight="24.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="45.0" minHeight="14.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                             <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="143.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
@@ -61,7 +66,26 @@
                               </Text>
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                              <Label text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="7">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <ListView fx:id="additionalPathsList" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="8" />
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="8">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="63.0" text="Add">
+                                       <padding>
+                                          <Insets left="3.0" />
+                                       </padding>
+                                    </Button>
+                                    <Button fx:id="removePathBtn" mnemonicParsing="false" onAction="#onRemoveSelectedPath" prefHeight="25.0" prefWidth="63.0" text="Remove" />
+                                 </children>
+                                 <GridPane.margin>
+                                    <Insets left="4.0" />
+                                 </GridPane.margin>
+                              </VBox>
                            </children>
                         </GridPane>
                      </children>
@@ -79,7 +103,7 @@
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="218.0" text="Library name" />
                                   <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="96.0" text="Available" />
                                     <TableColumn fx:id="actualVerCol" editable="false" prefWidth="96.0" text="Actual" />
-                                    <TableColumn fx:id="chooseVerCol" prefWidth="155.0" text="Choose version" />
+                                    <TableColumn fx:id="actionsCol" prefWidth="155.0" text="Actions" />
                                 </columns>
                               </TableView>
                            </center>

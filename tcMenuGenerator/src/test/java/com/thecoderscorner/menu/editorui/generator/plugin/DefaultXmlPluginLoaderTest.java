@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
@@ -41,7 +42,7 @@ public class DefaultXmlPluginLoaderTest {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.6.0");
-        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
+        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
     }
 
     @AfterEach
@@ -75,7 +76,7 @@ public class DefaultXmlPluginLoaderTest {
 
     @Test
     void testLoadingASinglePlugin() throws IOException {
-        var data = new String(getClass().getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes());
+        var data = new String(Objects.requireNonNull(getClass().getResourceAsStream("/plugins/TestPlugin.xml")).readAllBytes());
         var item = loader.loadPlugin(data);
 
         // test the description fields
@@ -195,29 +196,29 @@ public class DefaultXmlPluginLoaderTest {
         var pluginDefSrc = wantRemoteAndThemes ? "/plugins/tcmenu-plugin.xml" : "/plugins/tcmenu-plugin-small.xml";
         Files.write(
                 pluginDir.resolve("tcmenu-plugin.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream(pluginDefSrc).readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream(pluginDefSrc)).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPluginVersionAllowed.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionAllowed.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionAllowed.xml")).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPluginVersionTooLow.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionTooLow.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionTooLow.xml")).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPlugin.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml")).readAllBytes()
         );
 
         if(wantRemoteAndThemes) {
             Files.write(
                     pluginDir.resolve("test-theme-item-plugin.xml"),
-                    DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-theme-item-plugin.xml").readAllBytes()
+                    Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-theme-item-plugin.xml")).readAllBytes()
             );
             Files.write(
                     pluginDir.resolve("test-remote-item-plugin.xml"),
-                    DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-remote-item-plugin.xml").readAllBytes()
+                    Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-remote-item-plugin.xml")).readAllBytes()
             );
         }
 
@@ -230,7 +231,7 @@ public class DefaultXmlPluginLoaderTest {
         Files.createDirectory(imgDir);
         Files.write(
                 imgDir.resolve("joystick.jpg"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/joystick.jpg").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/joystick.jpg")).readAllBytes()
         );
         return pluginDir;
     }

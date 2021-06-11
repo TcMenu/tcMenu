@@ -1,8 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
@@ -15,7 +13,6 @@ import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
@@ -40,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -67,9 +64,8 @@ public class GenerateCodeDialogTest {
         DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginTemp, true);
         var storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.2.0");
-        var pluginLoader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
-        pluginLoader.loadPlugins(Collections.singletonList(pluginTemp));
-        pluginManager = pluginLoader;
+        when(storage.getAdditionalPluginPaths()).thenReturn(Collections.singletonList(pluginTemp.toString()));
+        pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
 
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);
