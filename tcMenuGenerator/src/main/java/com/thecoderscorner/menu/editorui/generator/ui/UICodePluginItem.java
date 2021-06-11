@@ -222,8 +222,8 @@ public class UICodePluginItem extends BorderPane {
         fontLabel.setDisable(true);
         fontLabel.setId(makeAnId(property.getName()));
         Button fontButton = new Button("Set Font");
-        fontLabel.setId(makeAnId(property.getName()));
         fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
+        fontButton.setId(makeAnId(property.getName() + "_btn"));
         fontButton.setOnAction(actionEvent -> {
             Stage scene = (Stage) propertiesPanel.getScene().getWindow();
             ChooseFontDialog dialog = new ChooseFontDialog(scene, property.getLatestValue(), true);

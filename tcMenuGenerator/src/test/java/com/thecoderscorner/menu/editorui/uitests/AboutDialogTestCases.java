@@ -34,7 +34,7 @@ public class AboutDialogTestCases {
     private Stage stage;
 
     @Start
-    public void onStart(Stage stage) throws IOException {
+    public void onStart(Stage stage) {
         this.stage = stage;
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
@@ -54,5 +54,6 @@ public class AboutDialogTestCases {
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));
         verifyThat("#registeredLabel", hasText("UnitTesterII"));
+        robot.clickOn(".button:default");
     }
 }

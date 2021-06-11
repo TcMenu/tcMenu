@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -13,8 +14,11 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -33,8 +37,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -78,7 +84,7 @@ public class GenerateCodeDialogTest {
         var prjDir = pluginTemp.resolve("myProject");
         Files.createDirectory(prjDir);
         var projectFile = prjDir.resolve("myProject.emf");
-        var prj = GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf").readAllBytes();
+        var prj = Objects.requireNonNull(GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf")).readAllBytes();
         Files.write(projectFile, prj);
         project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor());
         project.openProject(projectFile.toString());
@@ -115,7 +121,13 @@ public class GenerateCodeDialogTest {
 
         assertExpectedPlugin(robot, inputPlugin, "inputPlugin");
         assertExpectedPlugin(robot, displayPlugin, "displayPlugin");
-        robot.scroll(100, VerticalDirection.UP);
+
+        //
+        // Different input devices being selected (such as trackpad) changes the direction meaning. If
+        // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
+        // on the line below.
+        //
+        robot.scroll(100, VerticalDirection.DOWN);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
 
         assertTrue(robot.lookup("#themePlugin").tryQuery().isEmpty());
@@ -146,48 +158,115 @@ public class GenerateCodeDialogTest {
 
         for (var prop: item.getProperties()) {
             String nodeName = "#" + id + prop.getName();
-            if(prop.getValidationRules() instanceof BooleanPropertyValidationRules boolRules) {
-                FxAssert.verifyThat(nodeName, LabeledMatchers.hasText(prop.getDescription()));
-                boolean originalLatest = Boolean.parseBoolean(prop.getLatestValue());
-                FxAssert.verifyThat(nodeName, (CheckBox cbx) -> cbx.isSelected() == originalLatest);
-                robot.clickOn(nodeName);
-                assertNotEquals(originalLatest, Boolean.parseBoolean(prop.getLatestValue()));
-                robot.clickOn(nodeName);
-                assertEquals(originalLatest, Boolean.parseBoolean(prop.getLatestValue()));
+            if(prop.getValidationRules() instanceof BooleanPropertyValidationRules) {
+                checkBooleanPropertyEditing(robot, prop, nodeName);
             }
             else if(prop.getValidationRules() instanceof IntegerPropertyValidationRules intVal) {
-                FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
-                var originalValue = prop.getLatestValue();
-                writeIntoTextFieldAndVerify(robot, prop, id, intVal.getMaxVal() - 1);
-                writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+                checkIntegerPropertyEditing(robot, id, prop, nodeName, intVal);
             }
-            else if(prop.getValidationRules() instanceof StringPropertyValidationRules strVal) {
-                FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
-                var originalValue = prop.getLatestValue();
-                writeIntoTextFieldAndVerify(robot, prop, id, "abc123");
-                writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+            else if(prop.getValidationRules() instanceof StringPropertyValidationRules) {
+                checkStringPropertyEditing(robot, id, prop, nodeName);
             }
-            else if(prop.getValidationRules() instanceof PinPropertyValidationRules pinVal) {
-                FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
-                var originalValue = prop.getLatestValue();
-                writeIntoTextFieldAndVerify(robot, prop, id, "abc123");
-                writeIntoTextFieldAndVerify(robot, prop, id, "A0");
-                writeIntoTextFieldAndVerify(robot, prop, id, 23);
-                writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+            else if(prop.getValidationRules() instanceof PinPropertyValidationRules) {
+                checkPinPropertyEditing(robot, id, prop, nodeName);
             }
             else if(prop.getValidationRules() instanceof ChoicesPropertyValidationRules choiceVal) {
-                for(var choice : choiceVal.choices()) {
-                    assertTrue(TestUtils.selectItemInCombo(robot, nodeName, (ChoiceDescription cd) ->
-                            cd.getChoiceValue().equals(choice.getChoiceValue())
-                    ));
-                    assertEquals(choice.getChoiceValue(), prop.getLatestValue());
-                }
+                checkChoicePropertyEditing(robot, prop, nodeName, choiceVal);
             }
-            else if(prop.getValidationRules() instanceof FontPropertyValidationRules fontVal) {
-                String latestValue = FontDefinition.fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
-                FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
+            else if(prop.getValidationRules() instanceof FontPropertyValidationRules) {
+                checkFontPropertyEditing(robot, prop, nodeName);
             }
         }
+    }
+
+    private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) {
+        // try the default font x2
+        var dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
+        robot.clickOn("#defaultFontSelect");
+        TestUtils.writeIntoField(robot, "#fontVarField", "", 10);
+        TestUtils.writeIntoField(robot, "#fontNumField", 2, 4);
+        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+
+        // try the numbered x2
+        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
+        robot.clickOn("#largeNumSelect");
+        TestUtils.writeIntoField(robot, "#fontNumField", 9, 4);
+        TestUtils.writeIntoField(robot, "#fontVarField", "", 10);
+        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+
+        // try ada font x1
+        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
+        robot.clickOn("#adafruitFontSel");
+        TestUtils.writeIntoField(robot, "#fontNumField", 2, 4);
+        TestUtils.writeIntoField(robot, "#fontVarField", "myFont", 10);
+        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+
+        robot.clickOn(nodeName + "_btn");
+        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
+        TestUtils.clickOnButtonInDialog(robot, dialogPane, "Cancel");
+    }
+
+    private Node compareFontDialogToProperty(FxRobot robot, String nodeName, CreatorProperty prop) {
+        String latestValue = fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
+
+        robot.clickOn(nodeName + "_btn");
+        var def = fromString(prop.getLatestValue()).orElseThrow();
+        var radioToCheck = switch(def.getFontMode()) {
+            case DEFAULT_FONT -> "#defaultFontSelect";
+            case ADAFRUIT -> "#adafruitFontSel";
+            case ADAFRUIT_LOCAL -> "#adafruitLocalFontSel";
+            case AVAILABLE -> "#staticFontSel";
+            case NUMBERED -> "#largeNumSelect";
+        };
+        FxAssert.verifyThat("#fontNumField", TextInputControlMatchers.hasText(String.valueOf(def.getFontNumber())));
+        FxAssert.verifyThat("#fontVarField", TextInputControlMatchers.hasText(def.getFontName()));
+        FxAssert.verifyThat(radioToCheck, RadioButton::isSelected);
+
+        return robot.lookup(".fontDialog").query();
+
+    }
+
+    private void checkChoicePropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName, ChoicesPropertyValidationRules choiceVal) throws InterruptedException {
+        for(var choice : choiceVal.choices()) {
+            assertTrue(TestUtils.selectItemInCombo(robot, nodeName, (ChoiceDescription cd) ->
+                    cd.getChoiceValue().equals(choice.getChoiceValue())
+            ));
+            assertEquals(choice.getChoiceValue(), prop.getLatestValue());
+        }
+    }
+
+    private void checkPinPropertyEditing(FxRobot robot, String id, CreatorProperty prop, String nodeName) {
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
+        var originalValue = prop.getLatestValue();
+        writeIntoTextFieldAndVerify(robot, prop, id, "abc123");
+        writeIntoTextFieldAndVerify(robot, prop, id, "A0");
+        writeIntoTextFieldAndVerify(robot, prop, id, 23);
+        writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+    }
+
+    private void checkStringPropertyEditing(FxRobot robot, String id, CreatorProperty prop, String nodeName) {
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
+        var originalValue = prop.getLatestValue();
+        writeIntoTextFieldAndVerify(robot, prop, id, "abc123");
+        writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+    }
+
+    private void checkIntegerPropertyEditing(FxRobot robot, String id, CreatorProperty prop, String nodeName, IntegerPropertyValidationRules intVal) {
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
+        var originalValue = prop.getLatestValue();
+        writeIntoTextFieldAndVerify(robot, prop, id, intVal.getMaxVal() - 1);
+        writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
+    }
+
+    private void checkBooleanPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) {
+        FxAssert.verifyThat(nodeName, LabeledMatchers.hasText(prop.getDescription()));
+        boolean originalLatest = Boolean.parseBoolean(prop.getLatestValue());
+        FxAssert.verifyThat(nodeName, (CheckBox cbx) -> cbx.isSelected() == originalLatest);
+        robot.clickOn(nodeName);
+        assertNotEquals(originalLatest, Boolean.parseBoolean(prop.getLatestValue()));
+        robot.clickOn(nodeName);
+        assertEquals(originalLatest, Boolean.parseBoolean(prop.getLatestValue()));
     }
 
     void writeIntoTextFieldAndVerify(FxRobot robot, CreatorProperty property, String id, Object value) {

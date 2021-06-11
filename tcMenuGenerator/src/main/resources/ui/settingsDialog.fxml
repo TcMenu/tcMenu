@@ -76,16 +76,17 @@
                            <center>
                               <TableView fx:id="versionsTable" prefHeight="224.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
-                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="333.0" text="Library name" />
-                                  <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="104.0" text="Available" />
-                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="104.0" text="Actual" />
+                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="218.0" text="Library name" />
+                                  <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="96.0" text="Available" />
+                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="96.0" text="Actual" />
+                                    <TableColumn fx:id="chooseVerCol" prefWidth="155.0" text="Choose version" />
                                 </columns>
                               </TableView>
                            </center>
                            <bottom>
                               <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                                 <buttons>
-                                  <Button fx:id="updatePluginsBtn" mnemonicParsing="false" onAction="#onUpdatePlugins" text="Update plugins to latest available" />
+                                  <Button fx:id="updatePluginsBtn" mnemonicParsing="false" onAction="#onUpdatePlugins" text="Update core plugins" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="Refresh libraries and plugins" />
                                 </buttons>
                               </ButtonBar>

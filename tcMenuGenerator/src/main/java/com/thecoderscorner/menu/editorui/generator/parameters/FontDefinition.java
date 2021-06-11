@@ -31,17 +31,11 @@ public class FontDefinition {
     }
 
     public String getFontDef() {
-        switch(fontMode) {
-            case ADAFRUIT:
-            case ADAFRUIT_LOCAL:
-                return "MenuFontDef(&" + fontName + ", " + fontNumber + ")";
-            case AVAILABLE:
-                return "MenuFontDef(" + fontName + ", " + fontNumber + ")";
-            case DEFAULT_FONT:
-            case NUMBERED:
-            default:
-                return "MenuFontDef(nullptr, " + fontNumber + ")";
-        }
+        return switch (fontMode) {
+            case ADAFRUIT, ADAFRUIT_LOCAL -> "MenuFontDef(&" + fontName + ", " + fontNumber + ")";
+            case AVAILABLE -> "MenuFontDef(" + fontName + ", " + fontNumber + ")";
+            default -> "MenuFontDef(nullptr, " + fontNumber + ")";
+        };
     }
 
     public String toString() {
@@ -69,25 +63,23 @@ public class FontDefinition {
     }
 
     private static FontMode fromShortMode(String group) {
-        switch (group) {
-            case "ada": return FontMode.ADAFRUIT;
-            case "adl": return FontMode.ADAFRUIT_LOCAL;
-            case "avl": return FontMode.AVAILABLE;
-            case "num": return FontMode.NUMBERED;
-            default: return FontMode.DEFAULT_FONT;
-        }
+        return switch (group) {
+            case "ada" -> FontMode.ADAFRUIT;
+            case "adl" -> FontMode.ADAFRUIT_LOCAL;
+            case "avl" -> FontMode.AVAILABLE;
+            case "num" -> FontMode.NUMBERED;
+            default -> FontMode.DEFAULT_FONT;
+        };
     }
 
     public String getNicePrintableName() {
-        switch (fontMode) {
-            case DEFAULT_FONT: return "Default X" + fontNumber;
-            case ADAFRUIT: return "AdaFruit Fonts/" + fontName + " X" + fontNumber;
-            case ADAFRUIT_LOCAL: return "AdaLocal Fonts/" + fontName + " X" + fontNumber;
-            case NUMBERED: return "Numbered " + fontNumber;
-            case AVAILABLE:
-            default:
-                return "Static " + fontName + " X" + fontNumber;
-        }
+        return switch (fontMode) {
+            case DEFAULT_FONT -> "Default X" + fontNumber;
+            case ADAFRUIT -> "AdaFruit Fonts/" + fontName + " X" + fontNumber;
+            case ADAFRUIT_LOCAL -> "AdaLocal Fonts/" + fontName + " X" + fontNumber;
+            case NUMBERED -> "Numbered " + fontNumber;
+            default -> "Static " + fontName + " X" + fontNumber;
+        };
     }
 
     public String getIncludeDef() {
@@ -106,14 +98,12 @@ public class FontDefinition {
     }
 
     private String shortFontMode() {
-        switch (fontMode) {
-            case DEFAULT_FONT: return "def";
-            case ADAFRUIT: return "ada";
-            case ADAFRUIT_LOCAL: return "adl";
-            case NUMBERED: return "num";
-            case AVAILABLE:
-            default:
-                return "avl";
-        }
+        return switch (fontMode) {
+            case DEFAULT_FONT -> "def";
+            case ADAFRUIT -> "ada";
+            case ADAFRUIT_LOCAL -> "adl";
+            case NUMBERED -> "num";
+            default -> "avl";
+        };
     }
 }

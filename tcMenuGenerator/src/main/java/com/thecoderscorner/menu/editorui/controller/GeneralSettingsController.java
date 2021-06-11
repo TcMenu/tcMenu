@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
@@ -49,6 +48,7 @@ public class GeneralSettingsController {
     public TableColumn<NameWithVersion, String> libraryNameColumn;
     public TableColumn<NameWithVersion, String> expectedVerCol;
     public TableColumn<NameWithVersion, String> actualVerCol;
+    public TableColumn<NameWithVersion, String> chooseVerCol;
     public Button updatePluginsBtn;
     public TableView<NameWithVersion> versionsTable;
     private ConfigurationStorage storage;
@@ -248,7 +248,7 @@ public class GeneralSettingsController {
                 var installedVersion = getVersionOfLibraryOrError(plugin.getModuleName(), CURRENT_PLUGIN);
                 pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
 
-                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", availableVersion, installedVersion);
+                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", true, availableVersion, installedVersion);
                 versionsTable.getItems().add(ver);
             }
             logger.log(INFO, "Start library version detection");
@@ -260,6 +260,7 @@ public class GeneralSettingsController {
 
             versionsTable.getItems().add(new NameWithVersion(
                     "TcMenuDesigner UI",
+                    false,
                     getVersionOfLibraryOrError("java-app", AVAILABLE_APP),
                     getVersionOfLibraryOrError("java-app", CURRENT_APP)
             ));
@@ -279,7 +280,7 @@ public class GeneralSettingsController {
         if(available == null) available = VersionInfo.ERROR_VERSION;
         if(installed == null) installed = VersionInfo.ERROR_VERSION;
 
-        return new NameWithVersion(libName + " library", available, installed);
+        return new NameWithVersion(libName + " library", false, available, installed);
     }
 
     private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {
@@ -292,7 +293,7 @@ public class GeneralSettingsController {
         }
     }
 
-    public record NameWithVersion(String name, VersionInfo available, VersionInfo installed) { }
+    public record NameWithVersion(String name, boolean isPlugin, VersionInfo available, VersionInfo installed) { }
 
     public record ImmutableObservableValue(Object dataItem) implements ObservableValue<String> {
 

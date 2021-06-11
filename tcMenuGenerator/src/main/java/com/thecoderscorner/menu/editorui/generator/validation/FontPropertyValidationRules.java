@@ -20,8 +20,7 @@ public class FontPropertyValidationRules implements PropertyValidationRules {
     public boolean isValueValid(String value) {
 
         try {
-            FontDefinition.fromString(value);
-            return true;
+            return FontDefinition.fromString(value).isPresent();
         }
         catch (Exception e) {
             return false;

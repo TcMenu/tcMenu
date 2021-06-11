@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -138,6 +139,10 @@ public class ArduinoLibraryInstaller {
                     .map(pl -> new VersionInfo(pl.getVersion()))
                     .findFirst().orElse(new VersionInfo("0.0.0"));
         }
+    }
+
+    List<VersionInfo> getVersionsForPlugin(String pluginName) {
+        return versionDetector.acquireAllVersionsFor(pluginName).orElse(List.of());
     }
 
     private String installTypeToMapEntry(String name, InstallationType installationType) {

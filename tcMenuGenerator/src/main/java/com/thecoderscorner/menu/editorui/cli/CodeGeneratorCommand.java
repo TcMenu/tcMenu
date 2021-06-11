@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -121,7 +118,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         loadedProjectFile = projectFile;
 
         // just incase we make a backup.
-        Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile.toString() + ".last"), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile + ".last"), StandardCopyOption.REPLACE_EXISTING);
 
         if(persistor == null) persistor = new FileBasedProjectPersistor();
 
@@ -170,6 +167,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         @Override
         public boolean availableVersionsAreValid(boolean refresh) {
             return true;
+        }
+
+        @Override
+        public Optional<List<VersionInfo>> acquireAllVersionsFor(String pluginName) {
+            return Optional.empty();
         }
     }
 }

@@ -301,4 +301,9 @@ public class TestUtils {
         robot.eraseText(toDel);
         robot.write(value != null ? value.toString() : "null");
     }
+
+    public static void clickOnButtonInDialog(FxRobot robot, Node dialogPane, String text) {
+        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(text)).query();
+        robot.clickOn(btn);
+    }
 }

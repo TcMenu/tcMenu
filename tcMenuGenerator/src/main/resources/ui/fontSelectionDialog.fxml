@@ -6,6 +6,7 @@
   ~
   -->
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
@@ -21,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
+<BorderPane prefHeight="272.0" prefWidth="504.0" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
    <top>
       <Label prefHeight="27.0" prefWidth="534.0" text="Choose the font to use" BorderPane.alignment="CENTER">
          <font>
@@ -83,4 +84,8 @@
          </BorderPane.margin>
       </ButtonBar>
    </bottom>
+   <styleClass>
+      <String fx:value="background" />
+      <String fx:value="fontDialog" />
+   </styleClass>
 </BorderPane>

@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
@@ -86,7 +87,15 @@ public class MenuEditorApp extends Application {
 
         var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
         var httpClient = new SimpleHttpClient();
-        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(httpClient, ReleaseType.valueOf(stream));
+
+        var urlBase = "https://www.thecoderscorner.com/tcc";
+
+        if(System.getProperty("localTccService") != null) {
+            urlBase = System.getProperty("localTccService");
+            System.getLogger("Main").log(System.Logger.Level.WARNING, "Overriding the TCC service to " + urlBase);
+        }
+
+        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
 
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
@@ -113,8 +122,8 @@ public class MenuEditorApp extends Application {
         primaryStage.setScene(myScene);
         primaryStage.show();
 
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon-sm.png")));
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon-sm.png"))));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon.png"))));
 
         primaryStage.setOnCloseRequest((evt)-> {
             try {

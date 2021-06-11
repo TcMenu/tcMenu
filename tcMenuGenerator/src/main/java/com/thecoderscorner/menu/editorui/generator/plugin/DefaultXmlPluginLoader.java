@@ -104,6 +104,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     @Override
+    public List<String> getLoadedTopLevelPluginNames() {
+        return allPlugins.stream().map(CodePluginConfig::getModuleName).collect(Collectors.toList());
+    }
+
+    @Override
     public List<CodePluginConfig> getLoadedPlugins() {
         synchronized (allPlugins) {
             return List.copyOf(allPlugins);

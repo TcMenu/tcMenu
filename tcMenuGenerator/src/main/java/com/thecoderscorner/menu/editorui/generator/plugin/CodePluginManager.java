@@ -63,4 +63,10 @@ public interface CodePluginManager {
      * @return any errors that occurred during the last load from disk
      */
     List<String> getLoadErrors();
+
+    /**
+     * Gets a list of all loaded top level plugin config names
+     * @return a list of plugin names
+     */
+    List<String> getLoadedTopLevelPluginNames();
 }
