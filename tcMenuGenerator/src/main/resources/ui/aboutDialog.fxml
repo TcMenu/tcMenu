@@ -52,13 +52,14 @@
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="24.0" minHeight="10.0" prefHeight="19.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="65.0" minHeight="10.0" prefHeight="61.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="28.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ImageView fitHeight="165.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="5">
+            <ImageView fitHeight="165.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="6">
                <image>
                   <Image url="@../img/menu-icon-large.png" />
                </image>
@@ -71,10 +72,11 @@
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Version" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Built on" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Registration" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2021 by Nutricherry LTD" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2021 by Nutricherry LTD" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label fx:id="apiVersion" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <Label fx:id="buildDateLabel" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             <Label fx:id="registeredLabel" prefHeight="17.0" prefWidth="121.0" text="-" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Label text="Thanks to both OpenJDK, OpenJFX for the runtime and and JMetro for the theme that we use." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
          </children>
       </GridPane>
    </center>
