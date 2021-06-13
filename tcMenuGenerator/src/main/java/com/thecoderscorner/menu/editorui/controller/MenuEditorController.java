@@ -142,6 +142,7 @@ public class MenuEditorController {
             populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
             populateMenu(menuSketches, installer.getArduinoDirectory(), "");
         }
+        darkModeMenuFlag.setSelected(BaseDialogSupport.getTheme().equals("darkMode"));
     }
 
     public CurrentEditorProject getProject() {
@@ -579,7 +580,6 @@ public class MenuEditorController {
     public void onDarkModeChange(ActionEvent actionEvent) {
         BaseDialogSupport.setTheme(darkModeMenuFlag.isSelected() ?  "darkMode" : "lightMode");
         BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
-        editorUI.alertOnError("Theme change may need restart", "For the theme change to take effect you may need a restart");
     }
 
     private record RecentlyUsedItem(String name, String path) {

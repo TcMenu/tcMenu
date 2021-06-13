@@ -73,7 +73,7 @@ public abstract class BaseDialogSupport<T> {
         return jMetro;
     }
 
-    private static String getTheme() {
+    public static String getTheme() {
         var prefs = Preferences.userNodeForPackage(BaseDialogSupport.class);
         return prefs.get("uiTheme", "lightMode");
     }
