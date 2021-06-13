@@ -142,7 +142,7 @@ public class GenerateCodeDialog {
 
         BorderPane remoteLabelPane = new BorderPane();
         Label titleLbl = new Label("Select IoT/remote capabilities:");
-        titleLbl.getStyleClass().add("label-bright");
+        titleLbl.setStyle("-fx-font-size: 16px; -fx-opacity: 0.6; -fx-font-weight: bold;");
         remoteLabelPane.setLeft(titleLbl);
 
         Button addRemoteCapabilityButton = new Button("Add another IoT/remote");
@@ -225,7 +225,7 @@ public class GenerateCodeDialog {
 
     private Label addTitleLabel(Pane vbox, String text) {
         Label titleLbl = new Label(text);
-        titleLbl.getStyleClass().add("label-bright");
+        titleLbl.setStyle("-fx-font-size: 16px; -fx-opacity: 0.6; -fx-font-weight: bold;");
         vbox.getChildren().add(titleLbl);
         return titleLbl;
     }
