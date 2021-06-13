@@ -20,25 +20,25 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import com.thecoderscorner.menu.editorui.util.UiHelper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
-import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShowSceneAdj;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -58,12 +58,12 @@ public class GenerateCodeDialog {
     private List<CodePluginItem> inputsSupported;
     private List<CodePluginItem> remotesSupported;
     private List<CodePluginItem> themesSupported;
-    private List<String> initialPlugins = new ArrayList<>();
+    private final List<String> initialPlugins = new ArrayList<>();
 
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentTheme;
     private UICodePluginItem currentInput;
-    private List<UICodePluginItem> currentRemotes = new ArrayList<>();
+    private final List<UICodePluginItem> currentRemotes = new ArrayList<>();
 
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Button generateButton;
@@ -75,8 +75,7 @@ public class GenerateCodeDialog {
     private CheckBox useCppMainCheckBox;
     private Stage mainStage;
 
-    private List<CreatorProperty> properties = new ArrayList<>();
-    private Stage dialogStage;
+    private final List<CreatorProperty> properties = new ArrayList<>();
     private Label themeTitle;
     private VBox centerPane;
 
@@ -93,6 +92,7 @@ public class GenerateCodeDialog {
     public void showCodeGenerator(Stage stage, boolean modal)  {
         this.mainStage = stage;
         BorderPane pane = new BorderPane();
+        pane.getStyleClass().add("background");
 
         placeDirectoryAndEmbeddedPanels(pane);
         filterChoicesByPlatform(platformCombo.getValue());
@@ -198,10 +198,7 @@ public class GenerateCodeDialog {
 
 
         var title = "Code Generator:" + project.getFileName();
-        createDialogStateAndShowSceneAdj(stage, pane, title, modal, (scene, dlgStg) -> {
-            scene.getStylesheets().add(UiHelper.class.getResource("/ui/tcmenu-extras.css").toExternalForm());
-            dialogStage = dlgStg;
-        });
+        createDialogStateAndShow(stage, pane, title, modal);
     }
 
     private void produceAnotherRemoteCapability(ActionEvent actionEvent) {
@@ -357,7 +354,8 @@ public class GenerateCodeDialog {
 
 
     private void onCancel(ActionEvent actionEvent) {
-        dialogStage.close();
+        var stage = (Stage)(currentInput.getScene().getWindow());
+        stage.close();
     }
 
     private void onGenerateCode(ActionEvent actionEvent) {
@@ -387,7 +385,8 @@ public class GenerateCodeDialog {
                                    initialPlugins,
                                    true);
 
-        dialogStage.close();
+        var stage = (Stage)(currentInput.getScene().getWindow());
+        stage.close();
     }
 
     private List<CodePluginItem> getAllPluginsForConversion() {
@@ -467,14 +466,10 @@ public class GenerateCodeDialog {
 
         Popup popup = new Popup();
         List<UICodePluginItem> listOfComponents = pluginItems.stream()
-                .map(display -> {
-                    var it = new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
-                        popup.hide();
-                        eventHandler.accept(ui, item);
-                    }, 0, "pluginSel_" + display.getId());
-
-                    return it;
-                })
+                .map(display -> new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
+                    popup.hide();
+                    eventHandler.accept(ui, item);
+                }, 0, "pluginSel_" + display.getId()))
                 .collect(Collectors.toList());
 
         VBox vbox = new VBox(5);
@@ -494,6 +489,7 @@ public class GenerateCodeDialog {
         popup.setAutoHide(true);
         popup.setOnAutoHide(event -> popup.hide());
         popup.setHideOnEscape(true);
-        popup.show(dialogStage);
+        var stage = (Stage)(currentInput.getScene().getWindow());
+        popup.show(stage);
     }
 }

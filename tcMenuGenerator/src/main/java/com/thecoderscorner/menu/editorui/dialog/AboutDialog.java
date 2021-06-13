@@ -7,39 +7,25 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.AboutController;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.layout.BorderPane;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.stage.Stage;
-
-import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
-import static java.lang.System.Logger.Level.ERROR;
 
 
 /** Example of displaying a splash page for a standalone JavaFX application */
-public class AboutDialog {
-    private final System.Logger logger = System.getLogger(AboutDialog.class.getSimpleName());
+public class AboutDialog extends BaseDialogSupport<AboutController> {
 
-    private AboutController controller;
-    private Stage dialogStage;
+    private final ConfigurationStorage storage;
+    private final ArduinoLibraryInstaller installer;
 
     public AboutDialog(ConfigurationStorage storage, Stage stage, ArduinoLibraryInstaller installer, boolean modal) {
-        try {
-            FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/aboutDialog.fxml"));
-            BorderPane pane = loader.load();
-            controller = loader.getController();
-            controller.initialise(storage, installer);
-            createDialogStateAndShow(stage, pane, "About tcMenu Designer", modal);
-        }
-        catch(Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form", ButtonType.CLOSE);
-            alert.setHeaderText("Error creating the form, more detail is in the log");
-            alert.showAndWait();
+        this.storage = storage;
+        this.installer = installer;
+        tryAndCreateDialog(stage, "/ui/aboutDialog.fxml", "About tcMenu Designer", modal);
+    }
 
-            logger.log(ERROR, "Unable to create the form", e);
-        }
+    @Override
+    protected void initialiseController(AboutController controller) throws Exception {
+        controller.initialise(storage, installer);
     }
 }

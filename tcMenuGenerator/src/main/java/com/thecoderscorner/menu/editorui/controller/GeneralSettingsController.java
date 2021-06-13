@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -22,10 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.util.VersionInfo.ERROR_VERSION;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -236,7 +235,22 @@ public class GeneralSettingsController {
     }
 
     public void onUpdatePlugins(ActionEvent actionEvent) {
-        upgrader.startUpdateProcedure(updatePluginsBtn);
+        var corePluginList = List.of("core-remote", "core-themes", "core-display");
+        upgrader.onCompleted(this::populateVersions);
+        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
+                corePluginList,
+                Optional.empty()
+        );
+    }
+
+    private void updateSingleLibrary(String selectedItem, String versionText) {
+        if(versionText == null || selectedItem == null) return;
+        versionText = versionText.replace("*", "");
+        upgrader.onCompleted(this::populateVersions);
+        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
+                Collections.singleton(selectedItem),
+                Optional.of(VersionInfo.fromString(versionText))
+        );
         populateVersions();
     }
 
@@ -282,34 +296,7 @@ public class GeneralSettingsController {
 
             logger.log(INFO, "Done with version detection, setting cell factory and returning");
 
-            actionsCol.setCellFactory((tableColumn) -> new TableCell<>() {
-
-                @Override
-                protected void updateItem(NameWithVersion item, boolean empty) {
-                    super.updateItem(item, empty);
-
-                    this.setGraphic(null);
-                    this.setText(null);
-
-                    if(item != null && item.isPlugin()) {
-                        var versions = versionDetector.acquireAllVersionsFor(item.underlyingId());
-
-                        if (versions.isPresent()) {
-                            List<String> list = versions.get().stream()
-                                    .map(ver -> ver.toString() + ((ver.equals(item.available) ? " *" : "")))
-                                    .collect(Collectors.toList());
-
-                            var cbx = new ComboBox<>(FXCollections.observableList(list));
-                            cbx.getSelectionModel().select(item.available + " *");
-                            var container = new HBox(4);
-                            container.getChildren().add(cbx);
-                            container.getChildren().add(new Button(">>"));
-                            this.setGraphic(container);
-                            this.setText(null);
-                        }
-                    }
-                }
-            });
+            registerCellFactoryForActionColumn();
 
             updatePluginsBtn.setDisable(!pluginUpdateNeeded);
         } catch (IOException e) {
@@ -317,12 +304,61 @@ public class GeneralSettingsController {
         }
     }
 
+    private void registerCellFactoryForActionColumn() {
+        actionsCol.setCellFactory((tableColumn) -> new TableCell<>() {
+
+            @Override
+            protected void updateItem(NameWithVersion item, boolean empty) {
+                super.updateItem(item, empty);
+
+                this.setGraphic(null);
+                this.setText(null);
+
+                if(item != null && item.isPlugin()) {
+                    var versions = versionDetector.acquireAllVersionsFor(item.underlyingId());
+
+                    if (versions.isPresent()) {
+                        List<String> list = versions.get().stream()
+                                .sorted(Comparator.comparingInt (VersionInfo::asInteger).reversed())
+                                .map(ver -> ver + ((ver.equals(item.available) ? "*" : "")))
+                                .collect(Collectors.toList());
+
+                        var cbx = new ComboBox<>(FXCollections.observableList(list));
+                        Button updateButton = new Button(">>");
+                        updateButton.setOnAction(e -> updateSingleLibrary(item.underlyingId, cbx.getSelectionModel().getSelectedItem()));
+
+                        cbx.getSelectionModel().selectedItemProperty().addListener((o, s, t1) -> {
+                            var sel = cbx.getSelectionModel().getSelectedItem();
+                            if(sel == null) return;
+                            sel = sel.replace("*", "");
+                            updateButton.setDisable(VersionInfo.fromString(sel).equals(item.installed()));
+                        });
+
+                        cbx.getSelectionModel().select(0);
+                        for(int i = 0; i<list.size(); i++) {
+                            if(list.get(i).equals(item.available() + "*")) {
+                                cbx.getSelectionModel().select(i);
+                                break;
+                            }
+                        }
+
+                        var container = new HBox(4);
+                        container.getChildren().add(cbx);
+                        container.getChildren().add(updateButton);
+                        this.setGraphic(container);
+                        this.setText(null);
+                    }
+                }
+            }
+        });
+    }
+
     private NameWithVersion findLibVersion(String libName) throws IOException {
         var available = installer.getVersionOfLibrary(libName, AVAILABLE_LIB);
         var installed = installer.getVersionOfLibrary(libName, CURRENT_LIB);
 
-        if(available == null) available = VersionInfo.ERROR_VERSION;
-        if(installed == null) installed = VersionInfo.ERROR_VERSION;
+        if(available == null) available = ERROR_VERSION;
+        if(installed == null) installed = ERROR_VERSION;
 
         return new NameWithVersion(libName + " library", libName, false, available, installed);
     }
@@ -330,10 +366,10 @@ public class GeneralSettingsController {
     private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {
         try {
             var version = installer.getVersionOfLibrary(name, type);
-            if(version == null) version = VersionInfo.ERROR_VERSION;
+            if(version == null) version = ERROR_VERSION;
             return version;
         } catch (IOException e) {
-            return VersionInfo.ERROR_VERSION;
+            return ERROR_VERSION;
         }
     }
 
@@ -351,6 +387,7 @@ public class GeneralSettingsController {
         additionalPathsList.setItems(FXCollections.observableList(paths));
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Reload all plugins?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Plugin reload");
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         var result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.YES) {
             pluginManager.reload();

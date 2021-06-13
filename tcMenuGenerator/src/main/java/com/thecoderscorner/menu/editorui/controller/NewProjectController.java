@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
@@ -110,11 +111,13 @@ public class NewProjectController {
             } catch (Exception e) {
                 logger.log(ERROR, "Failure processing create new project", e);
                 var alert = new Alert(Alert.AlertType.ERROR, "Error during create project", ButtonType.CLOSE);
+                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
                 alert.showAndWait();
             }
         }
         else {
             var alert = new Alert(Alert.AlertType.WARNING, "Please ensure all fields are populated", ButtonType.CLOSE);
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.showAndWait();
             return; // avoid closing.
         }
@@ -126,6 +129,7 @@ public class NewProjectController {
     private boolean passDirtyCheck() {
         if(project.isDirty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "The project has not been saved, data may be lost", ButtonType.YES, ButtonType.NO);
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.setHeaderText("Project is unsaved, proceed anyway?");
             var result = alert.showAndWait();
             if(result.isPresent() && result.get() == ButtonType.YES) {

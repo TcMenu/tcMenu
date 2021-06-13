@@ -26,7 +26,6 @@
         <mockito.version>3.8.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <testfx.version>4.0.16-alpha</testfx.version>
-        <jserialcomm.version>2.6.2</jserialcomm.version>
     </properties>
 
     <dependencies>
@@ -35,7 +34,7 @@
         <dependency>
             <groupId>com.fazecast</groupId>
             <artifactId>jSerialComm</artifactId>
-            <version>${jserialcomm.version}</version>
+            <version>2.6.2</version>
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
@@ -74,6 +73,11 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>jmetro</artifactId>
+            <version>11.6.15</version>
         </dependency>
 
 

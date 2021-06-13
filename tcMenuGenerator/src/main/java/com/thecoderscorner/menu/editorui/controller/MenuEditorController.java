@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -57,6 +58,7 @@ public class MenuEditorController {
     public static final String REGISTRATION_URL = "https://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
+    public CheckMenuItem darkModeMenuFlag;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -325,7 +327,7 @@ public class MenuEditorController {
     }
 
     public void registerMenuPressed(ActionEvent actionEvent) {
-        RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
+        new RegistrationDialog(configStore, getStage(), REGISTRATION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
@@ -572,6 +574,12 @@ public class MenuEditorController {
 
     public void onGeneralSettings(ActionEvent actionEvent) {
         editorUI.showGeneralSettings();
+    }
+
+    public void onDarkModeChange(ActionEvent actionEvent) {
+        BaseDialogSupport.setTheme(darkModeMenuFlag.isSelected() ?  "darkMode" : "lightMode");
+        BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+        editorUI.alertOnError("Theme change may need restart", "For the theme change to take effect you may need a restart");
     }
 
     private record RecentlyUsedItem(String name, String path) {

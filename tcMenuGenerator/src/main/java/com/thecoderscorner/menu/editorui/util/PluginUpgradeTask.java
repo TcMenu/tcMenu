@@ -2,16 +2,14 @@ package com.thecoderscorner.menu.editorui.util;
 
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import javafx.application.Platform;
-import javafx.scene.control.Labeled;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import javafx.stage.Stage;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_PLUGIN;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_PLUGIN;
@@ -21,11 +19,14 @@ import static java.lang.System.Logger.Level.INFO;
 public class PluginUpgradeTask implements Runnable {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
-    private Labeled textField;
     private final CodePluginManager pluginManager;
     private final ArduinoLibraryInstaller installer;
     private final LibraryVersionDetector detector;
     private final AtomicBoolean runningAlready = new AtomicBoolean(false);
+    private UpdateProgressGlassPane updatePopup = null;
+    private Optional<VersionInfo> maybeVersion;
+    private Set<String> pluginsToUpdate;
+    private Optional<Runnable> onCompleteTask = Optional.empty();
 
     public PluginUpgradeTask(CodePluginManager pluginManager, ArduinoLibraryInstaller installer, LibraryVersionDetector detector) {
         this.pluginManager = pluginManager;
@@ -33,53 +34,52 @@ public class PluginUpgradeTask implements Runnable {
         this.detector = detector;
     }
 
-    public synchronized void startUpdateProcedure(Labeled toUpdate) {
+    public synchronized void startUpdateProcedure(Stage theStage, Collection<String> pluginsToUpdate, Optional<VersionInfo> maybeVersion) {
         if(runningAlready.get()) return;
+
+        this.maybeVersion = maybeVersion;
+        updatePopup = new UpdateProgressGlassPane();
+        updatePopup.show(theStage);
+        this.pluginsToUpdate = Set.copyOf(pluginsToUpdate);
+
         Thread th = new Thread(this);
         runningAlready.set(true);
-        textField = toUpdate;
         th.start();
-    }
-
-    private void updateUI(String status, boolean success) {
-        Platform.runLater(() -> {
-            textField.setText(status);
-            if(success)
-                textField.setStyle("-fx-background-color: green;-fx-text-fill: white;");
-            else
-                textField.setStyle("-fx-background-color: red;-fx-text-fill: white;");
-        });
     }
 
     @Override
     public void run() {
         try {
-            Set<String> allPlugins = new HashSet<>(List.of("core-display", "core-remote", "core-themes"));
-            var installedPlugins = pluginManager.getLoadedPlugins().stream()
-                    .map(CodePluginConfig::getModuleName)
-                    .collect(Collectors.toList());
-            allPlugins.addAll(installedPlugins);
-
-            for(var pluginName : allPlugins) {
-                var availableVersion = installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN);
+            double currentPercentage = 0.0;
+            double percentagePerTask = 1.0 / (double)(pluginsToUpdate.size() + 1);
+            for(var pluginName : pluginsToUpdate) {
+                var availableVersion = maybeVersion.orElse(installer.getVersionOfLibrary(pluginName, AVAILABLE_PLUGIN));
                 if(availableVersion != null) {
                     var installedVersion = installer.getVersionOfLibrary(pluginName, CURRENT_PLUGIN);
                     if (!installedVersion.equals(availableVersion)) {
-                        updateUI("Updating plugin " + pluginName, true);
+                        updatePopup.updateProgress(currentPercentage, "Updating plugin " + pluginName);
+                        currentPercentage += percentagePerTask;
                         logger.log(INFO, "Updating " + pluginName);
                         detector.upgradePlugin(pluginName, availableVersion);
                     }
                 }
             }
-            updateUI("Refreshing plugins", true);
+            updatePopup.updateProgress(currentPercentage, "Refreshing plugins");
             pluginManager.reload();
-            updateUI("Plugins reloaded", true);
-            runningAlready.set(false);
-
+            updatePopup.completed(true, pluginsToUpdate.size() + " plugins updated successfully");
         } catch (Exception e) {
-            updateUI("Failed to update: " + e.getMessage(), false);
+            updatePopup.completed(false, "Failed: " + e.getMessage());
             logger.log(ERROR, "Update failed with exception", e);
         }
+
+        runningAlready.set(false);
+
+        onCompleteTask.ifPresent(Runnable::run);
+        onCompleteTask = Optional.empty();
+    }
+
+    public void onCompleted(Runnable onCompleteTask) {
+        this.onCompleteTask = Optional.of(onCompleteTask);
     }
 }
 

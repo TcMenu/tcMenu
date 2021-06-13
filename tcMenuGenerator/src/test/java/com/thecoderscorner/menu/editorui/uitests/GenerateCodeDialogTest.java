@@ -66,6 +66,7 @@ public class GenerateCodeDialogTest {
         when(storage.getVersion()).thenReturn("2.2.0");
         when(storage.getAdditionalPluginPaths()).thenReturn(Collections.singletonList(pluginTemp.toString()));
         pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
+        pluginManager.reload();
 
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);

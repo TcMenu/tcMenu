@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -31,6 +32,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.Style;
 
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
@@ -63,6 +66,7 @@ public class MenuEditorApp extends Application {
             }
             catch(Exception ex) {
                 Alert alert = new Alert(AlertType.ERROR, "Logging configuration could not be loaded: " + ex.getMessage(), ButtonType.CLOSE);
+                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
                 alert.showAndWait();
             }
         }
@@ -118,6 +122,8 @@ public class MenuEditorApp extends Application {
         controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
+        BaseDialogSupport.getJMetro().setScene(myScene);
+
         primaryStage.setScene(myScene);
         primaryStage.show();
 
@@ -133,6 +139,8 @@ public class MenuEditorApp extends Application {
                     evt.consume();
                     Alert alert = new Alert(AlertType.CONFIRMATION, "There are unsaved changes, save first?",
                             ButtonType.YES, ButtonType.NO);
+                    BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+
                     alert.setTitle("Are you sure");
                     alert.setHeaderText("");
                     if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
@@ -176,6 +184,7 @@ public class MenuEditorApp extends Application {
 
         } catch (IOException e) {
             Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
         }

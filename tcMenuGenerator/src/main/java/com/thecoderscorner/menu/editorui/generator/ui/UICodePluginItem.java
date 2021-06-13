@@ -145,7 +145,7 @@ public class UICodePluginItem extends BorderPane {
         setCenter(infoContainer);
         BorderPane.setMargin(infoContainer, new Insets(5.0));
 
-        propertiesPanel = new VBox();
+        propertiesPanel = new VBox(3);
         if(showProperties) propertiesPanel.setPrefWidth(300);
         setRight(propertiesPanel);
         BorderPane.setMargin(propertiesPanel, new Insets(5.0));

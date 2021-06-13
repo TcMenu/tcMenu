@@ -92,6 +92,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     public void alertOnError(String heading, String description) {
         logger.log(ERROR, "Show error with heading: {0}, description: {1}", heading, description);
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         alert.setTitle(heading);
         alert.setHeaderText(heading);
         alert.setContentText(description);
@@ -102,6 +103,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     public boolean questionYesNo(String title, String header) {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, header, ButtonType.YES, ButtonType.NO);
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         alert.setTitle(title);
         alert.setHeaderText(title);
         return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;

@@ -14,6 +14,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.thecoderscorner.tcmenu.javaapi;
     requires com.google.gson;
     requires info.picocli;
+    requires org.jfxtras.styles.jmetro;
 
     exports com.thecoderscorner.menu.editorui.controller;
     exports com.thecoderscorner.menu.editorui.generator;
