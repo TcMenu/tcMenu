@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
@@ -129,7 +130,12 @@ public class UICodePluginItem extends BorderPane {
         infoContainer.getChildren().add(vendorLink);
 
         actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
-        actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #d4d9fd");
+        if(BaseDialogSupport.getTheme().equals("darkMode")) {
+            actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #444");
+        }
+        else {
+            actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #aeb2bd");
+        }
         actionButton.setMaxSize(2000, 2000);
         actionButton.setOnAction(event-> eventHandler.accept(this, item));
         actionButton.setId(makeAnId("ActionButton"));
@@ -139,8 +145,9 @@ public class UICodePluginItem extends BorderPane {
         setTop(titleNode);
         BorderPane.setMargin(titleLabel, new Insets(5.0));
 
-        setLeft(new VBox(actionButton));
-        BorderPane.setMargin(actionButton, new Insets(5.0));
+        VBox buttonBox = new VBox(actionButton);
+        setLeft(buttonBox);
+        BorderPane.setMargin(buttonBox, new Insets(5.0));
 
         setCenter(infoContainer);
         BorderPane.setMargin(infoContainer, new Insets(5.0));
