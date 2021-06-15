@@ -22,7 +22,14 @@ public abstract class BaseDialogSupport<T> {
     protected Stage dialogStage;
     protected T controller;
 
-    void tryAndCreateDialog(Stage stage, String resource, String title, boolean modal) {
+    /**
+     * Usually called to initialise the dialog and present on screen.
+     * @param stage the stage to present on
+     * @param resource the FXML resource file name as a string.
+     * @param title the title for the dialog
+     * @param modal if it should be modal.
+     */
+    public void tryAndCreateDialog(Stage stage, String resource, String title, boolean modal) {
         this.dialogStage = stage;
         try {
             var loader = new FXMLLoader(NewItemDialog.class.getResource(resource));
@@ -40,7 +47,6 @@ public abstract class BaseDialogSupport<T> {
 
             logger.log(ERROR, "Unable to create the form", e);
         }
-
     }
 
     public static void createDialogStateAndShow(Stage parent, Pane root, String title, boolean modal) {
@@ -61,8 +67,18 @@ public abstract class BaseDialogSupport<T> {
         }
     }
 
+    /**
+     * Each dialog overrides this to initialise the controller object during
+     * the new dialog being shown
+     * @param controller the controller to initialise
+     * @throws Exception if any problems occur
+     */
     protected abstract void initialiseController(T controller) throws Exception;
 
+    /**
+     * Get the JMetro object that we use as the theme.
+     * @return the jmetro object.
+     */
     public static JMetro getJMetro() {
         synchronized (metroLock) {
             if (jMetro == null) {
@@ -73,11 +89,26 @@ public abstract class BaseDialogSupport<T> {
         return jMetro;
     }
 
+    /**
+     * gets the actual theme that is current being used to draw panels.
+     * @return the current theme name
+     */
     public static String getTheme() {
         var prefs = Preferences.userNodeForPackage(BaseDialogSupport.class);
         return prefs.get("uiTheme", "lightMode");
     }
 
+    /**
+     * @return true if the current theme is dark, and that suitable colours should be used
+     */
+    public static boolean isCurrentThemeDark() {
+        return getTheme().equals("darkMode");
+    }
+
+    /**
+     * Set the theme to a new value. Either lightMode or darkMode
+     * @param theme the new theme.
+     */
     public static void setTheme(String theme) {
         var prefs = Preferences.userNodeForPackage(BaseDialogSupport.class);
         prefs.put("uiTheme", theme.equals("lightMode") ? "lightMode" : "darkMode");

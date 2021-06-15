@@ -130,7 +130,7 @@ public class UICodePluginItem extends BorderPane {
         infoContainer.getChildren().add(vendorLink);
 
         actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
-        if(BaseDialogSupport.getTheme().equals("darkMode")) {
+        if(BaseDialogSupport.isCurrentThemeDark()) {
             actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #444");
         }
         else {

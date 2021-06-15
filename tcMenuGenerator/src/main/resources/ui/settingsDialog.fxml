@@ -37,9 +37,9 @@
                               <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="10.0" prefWidth="87.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints maxHeight="45.0" minHeight="14.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="45.0" minHeight="14.0" prefHeight="33.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="143.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
@@ -50,7 +50,7 @@
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
                                  <font>
-                                    <Font name="System Bold" size="12.0" />
+                                    <Font size="14.0" />
                                  </font>
                               </Text>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" GridPane.rowIndex="1" />
@@ -67,15 +67,15 @@
                                  </GridPane.margin></Button>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" GridPane.columnSpan="2" GridPane.rowIndex="3">
                                  <font>
-                                    <Font name="System Bold" size="12.0" />
+                                    <Font size="14.0" />
                                  </font>
                               </Text>
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                               <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="7">
+                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="7">
                                  <font>
-                                    <Font name="System Bold" size="12.0" />
+                                    <Font size="14.0" />
                                  </font>
                               </Label>
                               <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="496.0" GridPane.columnSpan="2" GridPane.rowIndex="8" />
@@ -106,10 +106,10 @@
                            <center>
                               <TableView fx:id="versionsTable" prefHeight="224.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
-                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="218.0" text="Library name" />
-                                  <TableColumn fx:id="expectedVerCol" editable="false" minWidth="0.0" prefWidth="96.0" text="Available" />
-                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="96.0" text="Actual" />
-                                    <TableColumn fx:id="actionsCol" prefWidth="155.0" text="Actions" />
+                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="Library name" />
+                                  <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="92.0" text="Available" />
+                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="92.0" text="Actual" />
+                                    <TableColumn fx:id="actionsCol" prefWidth="160.0" text="Actions" />
                                 </columns>
                               </TableView>
                            </center>

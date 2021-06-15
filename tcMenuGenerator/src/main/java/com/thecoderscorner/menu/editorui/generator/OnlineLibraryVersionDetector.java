@@ -37,7 +37,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     public final static String LIBRARY_VERSIONING_URL_APPEND = "/app/getLibraryVersions";
     private static final String PLUGIN_DOWNLOAD_URL_APPEND = "/app/downloadPlugin";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
-    private static final int PLUGIN_API_VERSION = 2;
+    private static final int PLUGIN_API_VERSION = 3;
 
     private final String urlBase;
     private final IHttpClient client;
