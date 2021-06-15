@@ -32,11 +32,12 @@ public interface ProjectPersistor {
      * Saves a project file to disk with the specified filename
      *
      * @param fileName name of the file to save to
+     * @param desc     description for the file
      * @param tree     the tree to be saved
      * @param options  the code generator options
      * @throws IOException if there is a problem saving.
      */
-    void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException;
+    void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options) throws IOException;
 
     List<PersistedMenu> copyTextToItems(String items);
 

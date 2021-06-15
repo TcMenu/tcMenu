@@ -68,6 +68,8 @@ public class GenerateCodeDialogTest {
         pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginManager.reload();
 
+        assertEquals(1, pluginManager.getLoadedPlugins().size());
+
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);
 

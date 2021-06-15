@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 public class OnlineLibraryVersionDetectorTest {
     private final String xmlData= """
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-            <LibraryVersions apiVersion="2" app="tcMenuDesigner" timestamp="2021-06-10T14:41:23">
+            <LibraryVersions apiVersion="3" app="tcMenuDesigner" timestamp="2021-06-10T14:41:23">
                 <Libraries stream="STABLE">
                     <Library id="1" name="tcMenu" version="4.1.3"/>
                     <Library id="2" name="IoAbstraction" version="4.0.3"/>
@@ -89,7 +89,7 @@ public class OnlineLibraryVersionDetectorTest {
     @BeforeEach
     public void setup() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
-        when(mockHttp.postRequestForString("https://mockAddr" + LIBRARY_VERSIONING_URL_APPEND, "pluginVer=2", HttpDataType.FORM)).thenReturn(xmlData);
+        when(mockHttp.postRequestForString("https://mockAddr" + LIBRARY_VERSIONING_URL_APPEND, "pluginVer=3", HttpDataType.FORM)).thenReturn(xmlData);
         verDet = new OnlineLibraryVersionDetector("https://mockAddr", mockHttp, ReleaseType.STABLE);
     }
 

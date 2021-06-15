@@ -48,4 +48,14 @@ public class CodeGeneratorOptionsBuilder {
         namingRecursive = recursvie;
         return this;
     }
+
+    public CodeGeneratorOptionsBuilder withNewId(UUID uuid) {
+        applicationUUID = uuid;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withAppName(String newValue) {
+        applicationName = newValue;
+        return this;
+    }
 }

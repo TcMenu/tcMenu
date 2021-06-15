@@ -43,10 +43,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
     private final ConfigurationStorage configStorage;
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
+    private final boolean includeDefaultDir;
 
     public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
         this.configStorage = storage;
+        this.includeDefaultDir = includeDefaultDir;
     }
 
     @Override
@@ -62,9 +64,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
         loadErrors.clear();
         try {
-            var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
             var allPluginsPathsToLoad = new ArrayList<Path>();
-            allPluginsPathsToLoad.add(defPluginPath);
+
+            if(includeDefaultDir) {
+                var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
+                allPluginsPathsToLoad.add(defPluginPath);
+            }
 
             var storageAllPluginPaths = configStorage.getAdditionalPluginPaths();
             if(storageAllPluginPaths != null && !storageAllPluginPaths.isEmpty()) {

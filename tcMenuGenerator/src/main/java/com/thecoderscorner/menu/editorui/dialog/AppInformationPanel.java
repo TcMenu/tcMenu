@@ -6,24 +6,28 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -47,6 +51,10 @@ public class AppInformationPanel {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ConfigurationStorage storage;
     private VBox libraryInfoVBox;
+    private TextField appNameTextField;
+    private Label appUuidLabel;
+    private TextArea appDescTextArea;
+    private CheckBox recursiveNamingCheck;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -71,12 +79,71 @@ public class AppInformationPanel {
         docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
         vbox.getChildren().add(docsLbl);
 
-        Label appPath = new Label("File: " + controller.getProject().getFileName());
-        vbox.getChildren().add(appPath);
         var options = controller.getProject().getGeneratorOptions();
-        var appNameInfo = String.format("Name: %s, (%s)", options.getApplicationName(), options.getApplicationUUID().toString());
-        Label appName = new Label(appNameInfo);
-        vbox.getChildren().add(appName);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(2);
+        gridPane.setVgap(3);
+        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col2 = new ColumnConstraints(300, 300, Double.MAX_VALUE);
+        col2.setHgrow(Priority.ALWAYS);
+        ColumnConstraints col3 = new ColumnConstraints(100,100, Double.MAX_VALUE);
+        gridPane.getColumnConstraints().addAll(col1, col2, col3);
+
+        gridPane.add(new Label("File name"), 0, 0);
+        Label filenameField = new Label(controller.getProject().getFileName());
+        filenameField.setMaxWidth(350);
+        filenameField.setWrapText(true);
+        gridPane.add(filenameField, 1, 0, 2, 1);
+
+        gridPane.add(new Label("Project unique ID"), 0, 1);
+        appUuidLabel = new Label(options.getApplicationUUID().toString());
+        gridPane.add(appUuidLabel, 1, 1);
+        Button changeId = new Button("Change ID");
+        changeId.setPrefWidth(99);
+        changeId.setOnAction(e -> {
+            if(editorUI.questionYesNo("Really change ID", "The ID is used by IoT devices to identify the device, so changing it may cause problems.")) {
+                controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                        .withExisting(options)
+                        .withNewId(UUID.randomUUID())
+                        .codeOptions());
+                appUuidLabel.setText(controller.getProject().getGeneratorOptions().getApplicationUUID().toString());
+            }
+        });
+        gridPane.add(changeId, 2, 1);
+
+        gridPane.add(new Label("Project name"), 0, 2);
+        appNameTextField = new TextField(options.getApplicationName());
+        appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(options)
+                    .withAppName(newValue)
+                    .codeOptions());
+        });
+
+        gridPane.add(appNameTextField, 1, 2, 2, 1);
+        VBox.setMargin(gridPane, new Insets(10, 0, 10, 0));
+
+
+        gridPane.add(new Label("Project description"), 0, 3);
+        appDescTextArea = new TextArea(controller.getProject().getDescription());
+        appDescTextArea.setWrapText(true);
+        appDescTextArea.setPrefRowCount(2);
+        appDescTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            controller.getProject().setDescription(newValue);
+        });
+        gridPane.add(appDescTextArea, 1, 3, 2, 1);
+
+        recursiveNamingCheck = new CheckBox("Use fully qualified variable names for menu items");
+        recursiveNamingCheck.setSelected(options.isNamingRecursive());
+        recursiveNamingCheck.setOnAction(e -> {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(options)
+                    .withRecursiveNaming(recursiveNamingCheck.isSelected())
+                    .codeOptions());
+        });
+        gridPane.add(recursiveNamingCheck, 1, 4, 2, 1);
+        vbox.getChildren().add(gridPane);
 
         // add the documentation links
         labelWithUrl(vbox, LIBRARY_DOCS_URL, "Browse docs and watch starter videos (F1 at any time)", "libdocsurl");

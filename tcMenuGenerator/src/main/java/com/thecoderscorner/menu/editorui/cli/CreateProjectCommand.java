@@ -121,7 +121,7 @@ public class CreateProjectCommand implements Callable<Integer> {
 
         var persistor = new FileBasedProjectPersistor();
         var  tree = new MenuTree();
-        persistor.save(projectEmf.toString(), tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
+        persistor.save(projectEmf.toString(), "Project description", tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
                 List.of(), UUID.randomUUID(), newProject, recursiveNaming, saveToSrc, cppMain));
         logger.accept("Project created!");
     }

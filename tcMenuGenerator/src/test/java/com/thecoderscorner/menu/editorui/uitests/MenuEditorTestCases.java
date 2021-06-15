@@ -180,7 +180,7 @@ public class MenuEditorTestCases {
         when(editorProjectUI.findFileNameFromUser(false)).thenReturn(Optional.of("fileName"));
         assertTrue(project.isDirty());
         pushCtrlAndKey(robot, KeyCode.A);
-        verify(persistor, atLeastOnce()).save("fileName", project.getMenuTree(), project.getGeneratorOptions());
+        verify(persistor, atLeastOnce()).save("fileName", "", project.getMenuTree(), project.getGeneratorOptions());
 
         pushCtrlAndKey(robot, KeyCode.L);
         verify(editorProjectUI, atLeastOnce()).showRomLayoutDialog(project.getMenuTree());
@@ -250,7 +250,7 @@ public class MenuEditorTestCases {
 
         // save the project
         pushCtrlAndKey(robot, KeyCode.S);
-        Mockito.verify(persistor, atLeastOnce()).save("fileName", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor, atLeastOnce()).save("fileName", "project desc", project.getMenuTree(), project.getGeneratorOptions());
 
         // now project should be clean
         assertFalse(project.isDirty());
@@ -569,7 +569,7 @@ public class MenuEditorTestCases {
         // we are simulating the persistence so just mock out the calls to open the file.
         when(editorProjectUI.findFileNameFromUser(true)).thenReturn(Optional.of("fileName"));
         when(persistor.open("fileName")).thenReturn(new MenuTreeWithCodeOptions(
-                TestUtils.buildCompleteTree(), project.getGeneratorOptions()
+                TestUtils.buildCompleteTree(), project.getGeneratorOptions(), "project desc"
         ));
 
         // Perform file open then make sure the file opened.

@@ -61,7 +61,7 @@ public class FileBasedProjectPersistorTest {
                 Collections.singletonList(new CreatorProperty("name", "desc", "extra desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable())),
                 APPLICATION_UUID, "app name", false, false, false
         );
-        persistor.save(projFile.toString(), tree, options);
+        persistor.save(projFile.toString(), "", tree, options);
 
         MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());
 

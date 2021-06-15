@@ -37,6 +37,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     private static ProjectPersistor persistor = null;
     private static File loadedProjectFile = null;
+    private static String projectDescription = "";
 
     @CommandLine.Option(names = {"-f", "--emf-file"}, description = "emf file name")
     private File projectFile;
@@ -125,7 +126,9 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
         if(persistor == null) persistor = new FileBasedProjectPersistor();
 
-        return persistor.open(projectFile.getAbsolutePath());
+        var loadedProject = persistor.open(projectFile.getAbsolutePath());
+        projectDescription = loadedProject.getDescription();
+        return loadedProject;
     }
 
     public static File locateProjectFile(File projectFile) throws IOException {
@@ -142,7 +145,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {
         if(persistor != null && loadedProjectFile != null) {
-            persistor.save(loadedProjectFile.toString(), tree, opts);
+            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts);
         }
     }
 

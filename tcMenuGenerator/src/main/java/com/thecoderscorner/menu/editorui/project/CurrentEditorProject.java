@@ -45,10 +45,11 @@ public class CurrentEditorProject {
 
     private MenuTree menuTree;
     private Optional<String> fileName;
+    private String description;
     private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
-    private Deque<MenuItemChange> changeHistory = new LinkedList<>();
-    private Deque<MenuItemChange> redoHistory = new LinkedList<>();
+    private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
+    private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
     public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor) {
         this.editorUI = editorUI;
@@ -59,6 +60,7 @@ public class CurrentEditorProject {
     private void cleanDown() {
         menuTree = new MenuTree();
         fileName = Optional.empty();
+        description = "";
         uncommittedItems.clear();
         generatorOptions = BLANK_GEN_OPTIONS;
         setDirty(false);
@@ -98,6 +100,7 @@ public class CurrentEditorProject {
                 fileName = Optional.ofNullable(file);
                 MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
                 menuTree = openedProject.getMenuTree();
+                description = openedProject.getDescription();
                 generatorOptions = openedProject.getOptions();
                 if (generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
                 setDirty(false);
@@ -131,13 +134,22 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 uncommittedItems.clear();
-                projectPersistor.save(file, menuTree, generatorOptions);
+                projectPersistor.save(file, description, menuTree, generatorOptions);
                 setDirty(false);
             } catch (IOException e) {
                 logger.log(Level.ERROR, "save operation failed on " + file, e);
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        setDirty(true);
+        this.description = description;
     }
 
     public Set<Integer> getUncommittedItems() {
