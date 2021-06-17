@@ -7,7 +7,6 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -41,7 +40,7 @@ public class AppInformationPanel {
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
     public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
-    public static final String TCC_FORUM_PAGE = "http://www.thecoderscorner.com/jforum/recentTopics/list.page";
+    public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
 
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
@@ -51,9 +50,7 @@ public class AppInformationPanel {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ConfigurationStorage storage;
     private VBox libraryInfoVBox;
-    private TextField appNameTextField;
     private Label appUuidLabel;
-    private TextArea appDescTextArea;
     private CheckBox recursiveNamingCheck;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
@@ -92,14 +89,17 @@ public class AppInformationPanel {
 
         gridPane.add(new Label("File name"), 0, 0);
         Label filenameField = new Label(controller.getProject().getFileName());
+        filenameField.setId("filenameField");
         filenameField.setMaxWidth(350);
         filenameField.setWrapText(true);
         gridPane.add(filenameField, 1, 0, 2, 1);
 
         gridPane.add(new Label("Project unique ID"), 0, 1);
         appUuidLabel = new Label(options.getApplicationUUID().toString());
+        appUuidLabel.setId("appUuidLabel");
         gridPane.add(appUuidLabel, 1, 1);
         Button changeId = new Button("Change ID");
+        changeId.setId("changeIdBtn");
         changeId.setPrefWidth(99);
         changeId.setOnAction(e -> {
             if(editorUI.questionYesNo("Really change ID", "The ID is used by IoT devices to identify the device, so changing it may cause problems.")) {
@@ -113,35 +113,32 @@ public class AppInformationPanel {
         gridPane.add(changeId, 2, 1);
 
         gridPane.add(new Label("Project name"), 0, 2);
-        appNameTextField = new TextField(options.getApplicationName());
-        appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                    .withExisting(options)
-                    .withAppName(newValue)
-                    .codeOptions());
-        });
+        TextField appNameTextField = new TextField(options.getApplicationName());
+        appNameTextField.setId("appNameTextField");
+        appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                .withExisting(options)
+                .withAppName(newValue)
+                .codeOptions()));
 
         gridPane.add(appNameTextField, 1, 2, 2, 1);
         VBox.setMargin(gridPane, new Insets(10, 0, 10, 0));
 
 
         gridPane.add(new Label("Project description"), 0, 3);
-        appDescTextArea = new TextArea(controller.getProject().getDescription());
+        TextArea appDescTextArea = new TextArea(controller.getProject().getDescription());
+        appDescTextArea.setId("appDescTextArea");
         appDescTextArea.setWrapText(true);
         appDescTextArea.setPrefRowCount(2);
-        appDescTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            controller.getProject().setDescription(newValue);
-        });
+        appDescTextArea.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setDescription(newValue));
         gridPane.add(appDescTextArea, 1, 3, 2, 1);
 
         recursiveNamingCheck = new CheckBox("Use fully qualified variable names for menu items");
+        recursiveNamingCheck.setId("recursiveNamingCheck");
         recursiveNamingCheck.setSelected(options.isNamingRecursive());
-        recursiveNamingCheck.setOnAction(e -> {
-            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                    .withExisting(options)
-                    .withRecursiveNaming(recursiveNamingCheck.isSelected())
-                    .codeOptions());
-        });
+        recursiveNamingCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                .withExisting(options)
+                .withRecursiveNaming(recursiveNamingCheck.isSelected())
+                .codeOptions()));
         gridPane.add(recursiveNamingCheck, 1, 4, 2, 1);
         vbox.getChildren().add(gridPane);
 
@@ -158,7 +155,7 @@ public class AppInformationPanel {
     private void checkAndReportItems(VBox vbox) {
         vbox.getChildren().clear();
         vbox.getChildren().add(new Label("Reading version information.."));
-        var fr = executor.submit(() -> {
+        executor.submit(() -> {
             if(libraryVersionDetector.availableVersionsAreValid(true)) {
                 Platform.runLater(this::redrawTheTitlePage);
             }

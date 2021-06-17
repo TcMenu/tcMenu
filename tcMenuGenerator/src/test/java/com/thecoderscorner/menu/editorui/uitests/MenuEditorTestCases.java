@@ -33,13 +33,16 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.io.File;
 import java.io.IOException;
@@ -480,6 +483,39 @@ public class MenuEditorTestCases {
         verifyThat("#tcMenuPluginIndicator", LabeledMatchers.hasText("All plugins are up to date."));
 
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
+    }
+
+    @Test
+    void testEditingTheNameAndDescriptionOnRootPanel(FxRobot robot) throws Exception {
+        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        openTheCompleteMenuTree(robot);
+
+        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
+
+        var opts = project.getGeneratorOptions();
+        FxAssert.verifyThat("#recursiveNamingCheck", (CheckBox cbx) -> cbx.isSelected() == opts.isNamingRecursive());
+        FxAssert.verifyThat("#filenameField", LabeledMatchers.hasText(project.getFileName()));
+        FxAssert.verifyThat("#appUuidLabel", LabeledMatchers.hasText(opts.getApplicationUUID().toString()));
+        FxAssert.verifyThat("#appNameTextField", TextInputControlMatchers.hasText(opts.getApplicationName()));
+        FxAssert.verifyThat("#appDescTextArea", TextInputControlMatchers.hasText(project.getDescription()));
+
+        TestUtils.writeIntoField(robot, "#appNameTextField", "newProjName", 10);
+        assertTrue(project.isDirty());
+        assertEquals("newProjName", project.getGeneratorOptions().getApplicationName());
+
+        TestUtils.writeIntoField(robot, "#appDescTextArea", "my new desc", 12);
+        assertTrue(project.isDirty());
+        assertEquals("my new desc", project.getDescription());
+
+        boolean oldRecursiveNamingValue = project.getGeneratorOptions().isNamingRecursive();
+        robot.clickOn("#recursiveNamingCheck");
+        assertNotEquals(oldRecursiveNamingValue, project.getGeneratorOptions().isNamingRecursive());
+
+        var oldUuid = project.getGeneratorOptions().getApplicationUUID();
+        when(editorProjectUI.questionYesNo(eq("Really change ID"), any())).thenReturn(true);
+        robot.clickOn("#changeIdBtn");
+        assertNotEquals(oldUuid, project.getGeneratorOptions().getApplicationUUID());
     }
 
     /**

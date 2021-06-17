@@ -115,8 +115,10 @@ public:
  */
 int fromWiFiRSSITo4StateIndicator(int strength);
 
-}
+} // namespace tcremote
 
+#ifndef TC_MANUAL_NAMESPACING
 using namespace tcremote;
+#endif // TC_MANUAL_NAMESPACING
 
 #endif /* _TCMENU_ETHERNETTRANSPORT_H_ */
