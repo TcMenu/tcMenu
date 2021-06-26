@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
 import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -62,6 +64,7 @@ public class MbedGeneratorTest {
         pluginConfig = loader.loadPluginLib(pluginDir);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @AfterEach
     public void tearDown() throws Exception {
         Files.walk(rootDir)
@@ -78,6 +81,7 @@ public class MbedGeneratorTest {
         MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 MBED_RTOS.getBoardId(),

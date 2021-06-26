@@ -20,22 +20,19 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -354,7 +351,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
             writer.write(LINE_BREAK);
-            if(hasRemotePlugins) {
+            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");
                 writer.write(LINE_BREAK);
             }
@@ -406,6 +403,17 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     }
 
+    private boolean requiresGlobalServerDefinition() {
+        try {
+            var pluginVer = installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN);
+            var twoPointTwo = VersionInfo.fromString("2.2.0");
+            return pluginVer.isSameOrNewerThan(twoPointTwo);
+        } catch (IOException e) {
+            logger.log(ERROR, "Cannot determine tcMenu library version, assume > 2.2.0");
+            return true;
+        }
+    }
+
     protected void generateHeaders(List<CodePluginItem> embeddedCreators,
                                    String headerFile, Collection<BuildStructInitializer> menuStructure,
                                    CodeVariableExtractor extractor,
@@ -427,7 +435,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("extern const PROGMEM ConnectorLocalInfo applicationInfo;");
             writer.write(LINE_BREAK);
 
-            if(hasRemotePlugins) {
+            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("extern TcMenuRemoteServer remoteServer;" + LINE_BREAK);
             }
             // and put the exports in the file too
