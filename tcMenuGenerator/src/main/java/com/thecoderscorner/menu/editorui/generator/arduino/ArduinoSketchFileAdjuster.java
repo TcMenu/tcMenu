@@ -136,14 +136,14 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         for (CallbackRequirement cb : filteredCb) {
             if(!definedList.contains(cb.getCallbackName())) {
-                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch: " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch for: " + cb.getCallbackItem());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
                 definedList.add(cb.getCallbackName());
                 changed = true;
             }
             else {
-                logger.accept(System.Logger.Level.INFO, "Skip callback generation for " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.DEBUG, "Skip callback generation for " + cb.getCallbackName());
             }
         }
     }
@@ -159,7 +159,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                     }
                 }
                 lines.add(++i, extraLine);
-                logger.accept(System.Logger.Level.INFO, "-> line added to sketch");
+                logger.accept(System.Logger.Level.DEBUG, "-> line added to sketch: " + extraLine);
                 changed = true;
                 return; // no need to continue
             }

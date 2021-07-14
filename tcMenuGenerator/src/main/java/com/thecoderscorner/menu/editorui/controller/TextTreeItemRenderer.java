@@ -114,6 +114,13 @@ public class TextTreeItemRenderer {
         }
 
         @Override
+        public void visit(CustomBuilderMenuItem customItem) {
+            StringBuilder sb = createBuilderWithName(customItem.getName());
+            sb.replace(spaces.length() - 3, spaces.length(), ">>>");
+            setResult(sb.toString());
+        }
+
+        @Override
         public void visit(EnumMenuItem item) {
             StringBuilder sb = createBuilderWithName(item.getName());
             String it = "None";

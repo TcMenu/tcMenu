@@ -204,6 +204,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         @Override
+        public void visit(CustomBuilderMenuItem customItem) {
+            setResult(new UICustomMenuItem(customItem, menuIdChooser, nameGenerator, changeConsumer));
+        }
+
+        @Override
         public void visit(EditableTextMenuItem item) {
             setResult(new UITextMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
         }

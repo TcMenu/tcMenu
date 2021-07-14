@@ -49,6 +49,7 @@
 
 .libsOK {
   -fx-background-color: #43cb43;
+  -fx-text-fill: #000;
   -fx-border-color: #303030;
   -fx-border-width: 1px;
   -fx-padding: 4;

@@ -73,4 +73,10 @@ public interface MenuItemVisitor {
      * @param numItem the number item
      */
     void visit(EditableLargeNumberMenuItem numItem);
+
+    /**
+     * This will be called during visit for a custom menu item
+     * @param customItem the custom item
+     */
+    void visit(CustomBuilderMenuItem customItem);
 }

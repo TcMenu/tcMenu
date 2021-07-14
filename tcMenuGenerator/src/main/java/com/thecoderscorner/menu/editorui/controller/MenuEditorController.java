@@ -122,7 +122,6 @@ public class MenuEditorController {
         Platform.runLater(() -> {
             sortOutMenuForMac();
             redrawTreeControl();
-            redrawStatus();
             populateAllMenus();
         });
 
@@ -192,11 +191,6 @@ public class MenuEditorController {
         } catch (IOException e) {
             logger.log(ERROR, "Failed to locate ino in example " + path);
         }
-    }
-
-    private void redrawStatus() {
-        statusField.setText("TcMenu Designer " + configStore. getVersion()
-                + " \u00A9 thecoderscorner.com. Registered to " + configStore.getRegisteredKey());
     }
 
     private void sortOutMenuForMac() {
@@ -580,6 +574,10 @@ public class MenuEditorController {
     public void onDarkModeChange(ActionEvent actionEvent) {
         BaseDialogSupport.setTheme(darkModeMenuFlag.isSelected() ?  "darkMode" : "lightMode");
         BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+    }
+
+    public void onSponsorLinkPressed(ActionEvent actionEvent) {
+        editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
     }
 
     private record RecentlyUsedItem(String name, String path) {

@@ -12,4 +12,5 @@ public interface UrlsForDocumentation {
     String LARGE_NUM_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/largenum-menu-item/";
     String LIST_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/";
     String SUB_MENU_URL =  "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/sub-menu-item/";
+    String REMOTE_AUTHENTICATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/#adding-connectivity-and-authentication-management-menu-items";
 }

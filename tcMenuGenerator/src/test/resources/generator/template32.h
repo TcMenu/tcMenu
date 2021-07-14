@@ -16,6 +16,8 @@
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
+#include <EepromAbstraction.h>
+#include <RemoteAuthentication.h>
 
 // variables we declare that you may need to access
 extern const PROGMEM ConnectorLocalInfo applicationInfo;

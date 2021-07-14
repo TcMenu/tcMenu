@@ -79,15 +79,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(EditableTextMenuItem item) {
-        if(item.getItemType() == EditItemType.IP_ADDRESS) {
+        if (item.getItemType() == EditItemType.IP_ADDRESS) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
                     .addElement(nextMenuName)
                     .requiresExtern();
             setResult(List.of(menu));
-        }
-        else if(item.getItemType() == EditItemType.PLAIN_TEXT){
+        } else if (item.getItemType() == EditItemType.PLAIN_TEXT) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TextMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
@@ -96,8 +95,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
             setResult(List.of(menu));
-        }
-        else if(item.getItemType() == EditItemType.GREGORIAN_DATE) {
+        } else if (item.getItemType() == EditItemType.GREGORIAN_DATE) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
@@ -106,8 +104,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
             setResult(List.of(menu));
 
-        }
-        else {
+        } else {
             // time based
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
                     .addElement(makeRtFunctionName())
@@ -134,7 +131,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     public void visit(ScrollChoiceMenuItem item) {
         BuildStructInitializer menu;
-        if(item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
+        if (item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
@@ -144,8 +141,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
                     .requiresExtern();
-        }
-        else if(item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM) {
+        } else if (item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM) {
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
@@ -155,8 +151,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
                     .requiresExtern();
-        }
-        else  { // custom callback mode
+        } else { // custom callback mode
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
@@ -260,7 +255,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         setResult(Arrays.asList(choices, info, menu));
     }
 
-   @Override
+    @Override
     public void visit(RuntimeListMenuItem listItem) {
         BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
                 .addElement(listItem.getId())
@@ -270,6 +265,32 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(nextMenuName)
                 .requiresExtern();
         setResult(List.of(listStruct));
+    }
+
+    @Override
+    public void visit(CustomBuilderMenuItem customItem) {
+        String textName = "pgmStr" + itemVar + "Text";
+        var nameField = new BuildStructInitializer(customItem, textName + "[]", "char")
+                .addQuoted(customItem.getName())
+                .progMemStruct();
+
+        switch (customItem.getMenuType()) {
+            case AUTHENTICATION -> setResult(List.of(nameField, new BuildStructInitializer(customItem, itemVar, "EepromAuthenticationInfoMenuItem")
+                    .addElement(textName)
+                    .addPossibleFunction(customItem.getFunctionName())
+                    .addElement(customItem.getId())
+                    .addElement(nextMenuName)
+                    .addHeaderFileRequirement("RemoteMenuItem.h", false)
+                    .requiresExtern()
+            ));
+            case REMOTE_IOT_MONITOR -> setResult(List.of(nameField, new BuildStructInitializer(customItem, itemVar, "RemoteMenuItem")
+                    .addElement(textName)
+                    .addElement(customItem.getId())
+                    .addElement(nextMenuName)
+                    .addHeaderFileRequirement("RemoteMenuItem.h", false)
+                    .requiresExtern()
+            ));
+        }
     }
 
     @Override

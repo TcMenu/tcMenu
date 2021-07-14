@@ -174,6 +174,15 @@ public class MenuItemHelper {
             }
 
             @Override
+            public void visit(CustomBuilderMenuItem item) {
+                setResult(new CustomBuilderMenuItemBuilder()
+                        .withExisting(item)
+                        .withId(newId)
+                        .menuItem()
+                );
+            }
+
+            @Override
             public void visit(ScrollChoiceMenuItem item) {
                 setResult(new ScrollChoiceMenuItemBuilder()
                         .withExisting(item)

@@ -9,6 +9,8 @@
     "namingRecursive": true,
     "saveToSrc": false,
     "useCppMain": false,
+    "eepromDefinition": "at24:80:PAGESIZE_AT24C128",
+    "authenticatorDefinition": "rom:100:6",
     "lastProperties": []
   },
   "projectName": "Uses the DF Robot shield for both input and display",

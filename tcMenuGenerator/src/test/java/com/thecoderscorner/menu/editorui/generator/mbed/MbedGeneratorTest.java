@@ -6,12 +6,15 @@
 
 package com.thecoderscorner.menu.editorui.generator.mbed;
 
+import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.BspStm32EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
@@ -34,7 +37,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
 import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -79,9 +84,19 @@ public class MbedGeneratorTest {
         ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("Authenticator")
+                .withMenuType(AUTHENTICATION).withEepromAddr(-1).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("IoT Monitor")
+                .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).menuItem());
+
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
+
+        var flashRemotes = List.of(
+                new FlashRemoteId("name1", "first-uuid"),
+                new FlashRemoteId("name2", "second-uuid")
+        );
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 MBED_RTOS.getBoardId(),
@@ -89,6 +104,7 @@ public class MbedGeneratorTest {
                 List.of(),
                 UUID.randomUUID(),
                 "app",
+                new BspStm32EepromDefinition(50), new ReadOnlyAuthenticatorDefinition("1234", flashRemotes),
                 true, true, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS, standardOptions);
 

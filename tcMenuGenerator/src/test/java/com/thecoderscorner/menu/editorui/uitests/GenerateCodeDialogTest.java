@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -101,18 +100,8 @@ public class GenerateCodeDialogTest {
 
     @Test
     public void testCodeGeneratorProperties(FxRobot robot) throws Exception{
-        verifyThat("#appUuidField", TextInputControlMatchers.hasText("52c779d0-0fb9-49d4-94fe-61b2bc6f9164"));
-        verifyThat("#appNameField", TextInputControlMatchers.hasText("Generator integration test"));
-        verifyThat("#recursiveNaming", CheckBox::isSelected);
-        verifyThat("#saveToSrc", Predicate.not(CheckBox::isSelected));
-        verifyThat("#useCppMain", Predicate.not(CheckBox::isSelected));
+        verifyThat("#appNameLabel", LabeledMatchers.hasText("Generator integration test - 52c779d0-0fb9-49d4-94fe-61b2bc6f9164"));
         verifyThat("#platformCombo", (ComboBox<EmbeddedPlatform> cbx) -> cbx.getSelectionModel().getSelectedItem() == EmbeddedPlatform.ARDUINO_AVR);
-
-        robot.clickOn("#saveToSrc");
-        robot.clickOn("#useCppMain");
-
-        robot.clickOn("#appUuidButton");
-        verify(editorUI).questionYesNo(eq("Really change the UUID?"), any());
 
         var inputPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_INPUT_UUID).orElseThrow();
         var displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
@@ -126,7 +115,7 @@ public class GenerateCodeDialogTest {
         // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
         // on the line below.
         //
-        robot.scroll(100, VerticalDirection.DOWN);
+        robot.scroll(100, VerticalDirection.UP);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
 
         assertTrue(robot.lookup("#themePlugin").tryQuery().isEmpty());

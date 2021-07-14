@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 
 import java.nio.file.Path;
@@ -26,7 +27,7 @@ public interface CodeGenerator {
      * @param directory the place to store the output files.
      * @param generators the list of generators to use, assumed to be in priority order
      * @param menuTree the tree of menu items to be represented
-     * @return
+     * @return true if conversion successful
      */
     boolean startConversion(Path directory, List<CodePluginItem> generators, MenuTree menuTree,
                             NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc);

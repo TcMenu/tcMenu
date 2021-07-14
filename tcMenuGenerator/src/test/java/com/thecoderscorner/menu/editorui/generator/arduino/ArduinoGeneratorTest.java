@@ -12,6 +12,10 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
@@ -100,7 +104,7 @@ public class ArduinoGeneratorTest {
                 "", "", List.of(""), "",
                 List.of(),
                 UUID.randomUUID(),
-                "app",
+                "app", new AVREepromDefinition(), new EepromAuthenticatorDefinition(100, 3),
                 recursiveName, false, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 

@@ -29,12 +29,17 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.generator.arduino;
     exports com.thecoderscorner.menu.editorui.uimodel;
     exports com.thecoderscorner.menu.editorui;
+    exports com.thecoderscorner.menu.editorui.storage;
+    exports com.thecoderscorner.menu.editorui.generator.parameters;
+    exports com.thecoderscorner.menu.editorui.generator.parameters.eeprom;
+    exports com.thecoderscorner.menu.editorui.generator.parameters.auth;
 
+    opens com.thecoderscorner.menu.editorui.generator.parameters.eeprom to com.google.gson;
+    opens com.thecoderscorner.menu.editorui.generator.parameters.auth to com.google.gson;
     opens com.thecoderscorner.menu.editorui.project to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator.core to com.google.gson;
     opens com.thecoderscorner.menu.editorui.controller to com.google.gson;
     opens com.thecoderscorner.menu.editorui.cli to info.picocli;
-    exports com.thecoderscorner.menu.editorui.storage;
     opens com.thecoderscorner.menu.editorui.storage to com.google.gson;
 }

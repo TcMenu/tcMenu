@@ -11,7 +11,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
+import com.thecoderscorner.menu.editorui.dialog.SelectEepromTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
@@ -21,6 +24,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -31,7 +35,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -66,18 +69,12 @@ public class GenerateCodeDialog {
     private final List<UICodePluginItem> currentRemotes = new ArrayList<>();
 
     private ComboBox<EmbeddedPlatform> platformCombo;
-    private Button generateButton;
-    private Button cancelButton;
-    private TextField appUuidField;
-    private TextField appNameField;
-    private CheckBox recursiveNamingCheckBox;
-    private CheckBox saveToSrcCheckBox;
-    private CheckBox useCppMainCheckBox;
     private Stage mainStage;
 
-    private final List<CreatorProperty> properties = new ArrayList<>();
     private Label themeTitle;
     private VBox centerPane;
+    private Label eepromTypeLabel;
+    private Label authModeLabel;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -175,11 +172,11 @@ public class GenerateCodeDialog {
         }
 
         ButtonBar buttonBar = new ButtonBar();
-        generateButton = new Button("Generate Code");
+        Button generateButton = new Button("Generate Code");
         generateButton.setDefaultButton(true);
         generateButton.setOnAction(this::onGenerateCode);
         generateButton.setId("generateButton");
-        cancelButton = new Button("Cancel");
+        Button cancelButton = new Button("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(this::onCancel);
         buttonBar.getButtons().addAll(cancelButton, generateButton);
@@ -247,8 +244,9 @@ public class GenerateCodeDialog {
         embeddedPane.setHgap(5);
         embeddedPane.setVgap(3);
         embeddedPane.add(new Label("Embedded Platform"), 0, 0);
-        embeddedPane.add(new Label("Application UUID"), 0, 1);
-        embeddedPane.add(new Label("Application Name"), 0, 2);
+        embeddedPane.add(new Label("Application Details"), 0, 2);
+        embeddedPane.add(new Label("EEPROM Support"), 0, 3);
+        embeddedPane.add(new Label("Pin & Authenticator"), 0, 4);
 
         platformCombo = new ComboBox<>(observableArrayList(platforms.getEmbeddedPlatforms()));
         embeddedPane.add(platformCombo, 1, 0, 2, 1);
@@ -259,50 +257,58 @@ public class GenerateCodeDialog {
                 (observable, oldVal, newVal) -> filterChoicesByPlatform(newVal)
         );
 
-        var uuid = project.getGeneratorOptions().getApplicationUUID();
-        if(uuid == null) uuid = UUID.randomUUID();
-        appUuidField = new TextField(uuid.toString());
-        appUuidField.setDisable(true);
-        appUuidField.setId("appUuidField");
-        embeddedPane.add(appUuidField, 1, 1);
-        Button newAppUuidButton = new Button("Change");
-        newAppUuidButton.setTooltip(new Tooltip("Application UUID's identify your app to remote API/UI's, avoid changing"));
-        newAppUuidButton.setOnAction(this::onNewUUIDRequired);
-        newAppUuidButton.setId("appUuidButton");
-        embeddedPane.add(newAppUuidButton, 2, 1);
-
         var appName = project.getGeneratorOptions().getApplicationName();
+        var appUuid = project.getGeneratorOptions().getApplicationUUID();
         if(appName == null || appName.isEmpty()) {
             appName = "New app";
         }
-        appNameField = new TextField(appName);
-        appNameField.setId("appNameField");
-        appNameField.setTooltip(new Tooltip("Application names appear on the display and also on remote connections"));
-        embeddedPane.add(appNameField, 1, 2);
+        Label appNameLabel = new Label(appName + " - " + appUuid);
+        appNameLabel.setId("appNameLabel");
+        embeddedPane.add(appNameLabel, 1, 2);
 
-        recursiveNamingCheckBox = new CheckBox("Use menu names that are fully qualified (EG: menuSubNameChildName)");
-        recursiveNamingCheckBox.setSelected(project.getGeneratorOptions().isNamingRecursive());
-        recursiveNamingCheckBox.setId("recursiveNaming");
-        embeddedPane.add(recursiveNamingCheckBox, 1, 3, 2, 1);
+        eepromTypeLabel = new Label(project.getGeneratorOptions().getEepromDefinition().toString());
+        eepromTypeLabel.setId("eepromTypeLabel");
+        var eepromTypeButton = new Button("Change EEPROM");
+        eepromTypeButton.setOnAction(this::onEepromButtonPressed);
+        eepromTypeButton.setPrefWidth(120);
+        embeddedPane.add(eepromTypeLabel, 1, 3);
+        embeddedPane.add(eepromTypeButton, 2, 3);
 
-        saveToSrcCheckBox = new CheckBox("Save all CPP and H files into src folder");
-        saveToSrcCheckBox.setSelected(project.getGeneratorOptions().isSaveToSrc());
-        saveToSrcCheckBox.setId("saveToSrc");
-        embeddedPane.add(saveToSrcCheckBox, 1, 4, 2, 1);
-
-        useCppMainCheckBox = new CheckBox("Use a CPP file for main (Arduino only)");
-        useCppMainCheckBox.setSelected(project.getGeneratorOptions().isUseCppMain());
-        useCppMainCheckBox.setId("useCppMain");
-        embeddedPane.add(useCppMainCheckBox, 1, 5, 2, 1);
+        authModeLabel = new Label(project.getGeneratorOptions().getAuthenticatorDefinition().toString());
+        authModeLabel.setId("authModeLabel");
+        var authModeButton = new Button("Change Auth");
+        authModeButton.setPrefWidth(120);
+        authModeButton.setOnAction(this::onAuthenticatorButtonPressed);
+        embeddedPane.add(authModeLabel, 1, 4);
+        embeddedPane.add(authModeButton, 2, 4);
 
         ColumnConstraints column1 = new ColumnConstraints(120);
-        ColumnConstraints column2 = new ColumnConstraints(350);
-        ColumnConstraints column3 = new ColumnConstraints(80);
+        ColumnConstraints column2 = new ColumnConstraints(400, 500, 999, Priority.ALWAYS, HPos.LEFT, true);
+        ColumnConstraints column3 = new ColumnConstraints(120);
         embeddedPane.getColumnConstraints().add(column1);
         embeddedPane.getColumnConstraints().add(column2);
         embeddedPane.getColumnConstraints().add(column3);
         pane.setTop(embeddedPane);
+    }
 
+    private void onAuthenticatorButtonPressed(ActionEvent actionEvent) {
+        var dlg = new SelectAuthenticatorTypeDialog(mainStage, project.getGeneratorOptions().getAuthenticatorDefinition(),true);
+        dlg.getResultOrEmpty().ifPresent(authSel -> {
+            authModeLabel.setText(authSel.toString());
+            project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(project.getGeneratorOptions())
+                    .withAuthenticationDefinition(authSel)
+                    .codeOptions());
+        });
+    }
+
+    private void onEepromButtonPressed(ActionEvent actionEvent) {
+        var dlg = new SelectEepromTypeDialog(mainStage, project.getGeneratorOptions().getEepromDefinition(),true);
+        dlg.getResultOrEmpty().ifPresent(newRom -> {
+            eepromTypeLabel.setText(newRom.toString());
+            project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(project.getGeneratorOptions())
+                    .withEepromDefinition(newRom)
+                    .codeOptions());
+        });
     }
 
     private EmbeddedPlatform getLastEmbeddedPlatform() {
@@ -321,20 +327,11 @@ public class GenerateCodeDialog {
         return platform;
     }
 
-    private void onNewUUIDRequired(ActionEvent actionEvent) {
-        if(editorUI.questionYesNo(
-                "Really change the UUID?",
-                "The application will be treated as new by all IoT/remote and API apps.")) {
-            appUuidField.setText(UUID.randomUUID().toString());
-        }
-    }
-
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
         displaysSupported = manager.getPluginsThatMatch(newVal, DISPLAY);
         inputsSupported = manager.getPluginsThatMatch(newVal, INPUT);
         remotesSupported = manager.getPluginsThatMatch(newVal, REMOTE);
         themesSupported = manager.getPluginsThatMatch(newVal, THEME);
-        useCppMainCheckBox.setDisable(platformCombo.getValue().equals(EmbeddedPlatform.MBED_RTOS));
     }
 
     private void setAllPropertiesToLastValues(CodePluginItem itemToSetFor) {
@@ -369,14 +366,16 @@ public class GenerateCodeDialog {
             allProps.addAll(currentTheme.getItem().getProperties());
         }
 
-        UUID applicationUUID = UUID.fromString(appUuidField.getText());
         String themeId = currentTheme != null ? currentTheme.getItem().getId() : "";
-        project.setGeneratorOptions(new CodeGeneratorOptions(
-                platformCombo.getSelectionModel().getSelectedItem().getBoardId(),
-                currentDisplay.getItem().getId(), currentInput.getItem().getId(),
-                currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()), themeId,
-                allProps, applicationUUID, appNameField.getText(), recursiveNamingCheckBox.isSelected(),
-                saveToSrcCheckBox.isSelected(), useCppMainCheckBox.isSelected())
+        var opts = project.getGeneratorOptions();
+        project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(opts)
+                .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                .withDisplay(currentDisplay.getItem().getId())
+                .withInput(currentInput.getItem().getId())
+                .withRemotes(currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()))
+                .withTheme(themeId)
+                .withProperties(allProps)
+                .codeOptions()
         );
 
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),

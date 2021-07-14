@@ -8,6 +8,10 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +29,8 @@ public class CodeGeneratorOptions {
     private boolean namingRecursive;
     private boolean saveToSrc;
     private boolean useCppMain;
+    private EepromDefinition eepromDefinition;
+    private AuthenticatorDefinition authenticatorDefinition;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -33,6 +39,7 @@ public class CodeGeneratorOptions {
     public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
+                                EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
@@ -49,6 +56,18 @@ public class CodeGeneratorOptions {
         this.namingRecursive = namingRecursive;
         this.saveToSrc = saveToSrc;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
+        this.eepromDefinition = eepromDef;
+        this.authenticatorDefinition = authDef;
+    }
+
+    public EepromDefinition getEepromDefinition() {
+        if(eepromDefinition == null) return new NoEepromDefinition();
+        return eepromDefinition;
+    }
+
+    public AuthenticatorDefinition getAuthenticatorDefinition() {
+        if(authenticatorDefinition == null) return new NoAuthenticatorDefinition();
+        return authenticatorDefinition;
     }
 
     public String getApplicationName() {

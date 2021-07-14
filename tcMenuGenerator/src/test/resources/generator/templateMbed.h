@@ -17,9 +17,12 @@
 #include <JoystickSwitchInput.h>
 #include <superTheme123.h>
 #include "MySpecialTransport.h"
+#include <RemoteMenuItem.h>
 #include <ScrollChoiceMenuItem.h>
 #include <RuntimeMenuItem.h>
 #include <EditableLargeNumberMenuItem.h>
+#include <mbed/HalStm32EepromAbstraction.h>
+#include <RemoteAuthentication.h>
 
 // variables we declare that you may need to access
 extern const PROGMEM ConnectorLocalInfo applicationInfo;
@@ -29,6 +32,8 @@ extern char[] expOnly;
 extern const GFXfont sans24p7b;
 
 // Global Menu Item exports
+extern RemoteMenuItem menuIoTMonitor;
+extern EepromAuthenticationInfoMenuItem menuAuthenticator;
 extern ScrollChoiceMenuItem menuMySubSub1CustomChoice;
 extern ScrollChoiceMenuItem menuMySubSub1RamChoice;
 extern ScrollChoiceMenuItem menuMySubSub1EepromChoice;

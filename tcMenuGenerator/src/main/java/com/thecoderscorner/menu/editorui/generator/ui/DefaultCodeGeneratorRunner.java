@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;

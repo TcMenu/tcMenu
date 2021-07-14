@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
@@ -52,6 +53,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
@@ -494,7 +497,11 @@ public class MenuEditorTestCases {
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         var opts = project.getGeneratorOptions();
-        FxAssert.verifyThat("#recursiveNamingCheck", (CheckBox cbx) -> cbx.isSelected() == opts.isNamingRecursive());
+
+        testMainCheckboxState(robot, "#recursiveNamingCheck", () -> project.getGeneratorOptions().isNamingRecursive());
+        testMainCheckboxState(robot, "#useCppMainCheck", () -> project.getGeneratorOptions().isUseCppMain());
+        testMainCheckboxState(robot, "#saveToSrcCheck", () -> project.getGeneratorOptions().isSaveToSrc());
+
         FxAssert.verifyThat("#filenameField", LabeledMatchers.hasText(project.getFileName()));
         FxAssert.verifyThat("#appUuidLabel", LabeledMatchers.hasText(opts.getApplicationUUID().toString()));
         FxAssert.verifyThat("#appNameTextField", TextInputControlMatchers.hasText(opts.getApplicationName()));
@@ -508,14 +515,20 @@ public class MenuEditorTestCases {
         assertTrue(project.isDirty());
         assertEquals("my new desc", project.getDescription());
 
-        boolean oldRecursiveNamingValue = project.getGeneratorOptions().isNamingRecursive();
-        robot.clickOn("#recursiveNamingCheck");
-        assertNotEquals(oldRecursiveNamingValue, project.getGeneratorOptions().isNamingRecursive());
 
         var oldUuid = project.getGeneratorOptions().getApplicationUUID();
         when(editorProjectUI.questionYesNo(eq("Really change ID"), any())).thenReturn(true);
         robot.clickOn("#changeIdBtn");
         assertNotEquals(oldUuid, project.getGeneratorOptions().getApplicationUUID());
+    }
+
+    private void testMainCheckboxState(FxRobot robot, String query, Supplier<Boolean> supplier) {
+        project.setDirty(false);
+        FxAssert.verifyThat(query, (CheckBox cbx) -> cbx.isSelected() == supplier.get());
+        boolean oldRecursiveNamingValue = supplier.get();
+        robot.clickOn(query);
+        assertTrue(project.isDirty());
+        assertNotEquals(oldRecursiveNamingValue, supplier.get());
     }
 
     /**

@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -26,6 +27,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +43,9 @@ public class AppInformationPanel {
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
     public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
     public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
+    public static final String EEPROM_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/io-abstraction/eeprom-impl-seamless-8-and-32-bit/";
+    public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/#setting-up-an-authentication-manager";
+    public static final String SPONSOR_TCMENU_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/sponsoring-tcmenu-development.md";
 
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
@@ -52,6 +57,8 @@ public class AppInformationPanel {
     private VBox libraryInfoVBox;
     private Label appUuidLabel;
     private CheckBox recursiveNamingCheck;
+    private CheckBox saveToSrcCheck;
+    private CheckBox useCppMainCheck;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -136,10 +143,30 @@ public class AppInformationPanel {
         recursiveNamingCheck.setId("recursiveNamingCheck");
         recursiveNamingCheck.setSelected(options.isNamingRecursive());
         recursiveNamingCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                .withExisting(options)
+                .withExisting(controller.getProject().getGeneratorOptions())
                 .withRecursiveNaming(recursiveNamingCheck.isSelected())
                 .codeOptions()));
         gridPane.add(recursiveNamingCheck, 1, 4, 2, 1);
+
+        saveToSrcCheck = new CheckBox("Save CPP and H files to src directory");
+        saveToSrcCheck.setId("saveToSrcCheck");
+        saveToSrcCheck.setSelected(options.isSaveToSrc());
+        saveToSrcCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                .withExisting(controller.getProject().getGeneratorOptions())
+                .withSaveToSrc(saveToSrcCheck.isSelected())
+                .codeOptions()));
+        gridPane.add(saveToSrcCheck, 1, 5, 2, 1);
+
+        useCppMainCheck = new CheckBox("Use CPP main instead of INO file");
+        useCppMainCheck.setId("useCppMainCheck");
+        useCppMainCheck.setSelected(options.isUseCppMain());
+        useCppMainCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                .withExisting(controller.getProject().getGeneratorOptions())
+                .withCppMain(useCppMainCheck.isSelected())
+                .codeOptions()));
+        useCppMainCheck.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.MBED_RTOS.getBoardId()));
+        gridPane.add(useCppMainCheck, 1, 6, 2, 1);
+
         vbox.getChildren().add(gridPane);
 
         // add the documentation links

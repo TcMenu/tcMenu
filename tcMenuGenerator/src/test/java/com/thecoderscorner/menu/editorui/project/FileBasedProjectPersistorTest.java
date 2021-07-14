@@ -11,6 +11,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -52,14 +54,16 @@ public class FileBasedProjectPersistorTest {
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
         MenuTree tree = TestUtils.buildCompleteTree();
+        List<String> remoteUuids = List.of("uuid3");
+        List<CreatorProperty> propsList = Collections.singletonList(new CreatorProperty("name", "desc", "extra desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         CodeGeneratorOptions options = new CodeGeneratorOptions(
                 ARDUINO_AVR.getBoardId(),
                 "uuid1",
                 "uuid2",
-                List.of("uuid3"),
+                remoteUuids,
                 "uuid4",
-                Collections.singletonList(new CreatorProperty("name", "desc", "extra desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable())),
-                APPLICATION_UUID, "app name", false, false, false
+                propsList,
+                APPLICATION_UUID, "app name", new NoEepromDefinition(), new NoAuthenticatorDefinition() , false, false, false
         );
         persistor.save(projFile.toString(), "", tree, options);
 

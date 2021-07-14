@@ -10,6 +10,8 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -31,6 +33,7 @@ public class CurrentEditorProject {
             ARDUINO_AVR.getBoardId(),
             NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, List.of(NO_CREATOR_SELECTED), NO_CREATOR_SELECTED,
             Collections.emptyList(), UUID.randomUUID(), "New Device",
+            new NoEepromDefinition(), new NoAuthenticatorDefinition(),
             true, false, false
     );
 
@@ -44,7 +47,7 @@ public class CurrentEditorProject {
     private final Set<Integer> uncommittedItems = new HashSet<>();
 
     private MenuTree menuTree;
-    private Optional<String> fileName;
+    private Optional<String> fileName = Optional.empty();
     private String description;
     private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
