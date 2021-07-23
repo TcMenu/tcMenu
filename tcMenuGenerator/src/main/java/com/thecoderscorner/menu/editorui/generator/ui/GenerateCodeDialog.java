@@ -271,12 +271,14 @@ public class GenerateCodeDialog {
         var eepromTypeButton = new Button("Change EEPROM");
         eepromTypeButton.setOnAction(this::onEepromButtonPressed);
         eepromTypeButton.setPrefWidth(120);
+        eepromTypeButton.setId("eepromTypeButton");
         embeddedPane.add(eepromTypeLabel, 1, 3);
         embeddedPane.add(eepromTypeButton, 2, 3);
 
         authModeLabel = new Label(project.getGeneratorOptions().getAuthenticatorDefinition().toString());
         authModeLabel.setId("authModeLabel");
         var authModeButton = new Button("Change Auth");
+        authModeButton.setId("authModeButton");
         authModeButton.setPrefWidth(120);
         authModeButton.setOnAction(this::onAuthenticatorButtonPressed);
         embeddedPane.add(authModeLabel, 1, 4);

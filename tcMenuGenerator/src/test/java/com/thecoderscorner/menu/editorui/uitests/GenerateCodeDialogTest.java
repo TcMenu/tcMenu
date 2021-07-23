@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
@@ -15,9 +16,12 @@ import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
@@ -31,12 +35,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Predicate;
 
+import static com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController.ROM_PAGE_SIZES;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -46,18 +50,18 @@ public class GenerateCodeDialogTest {
     public static final String UNITTEST_DEFAULT_DISPLAY_UUID = "20409bb8-b8a1-4d1d-b632-2cf9b5739888";
     public static final String UNITTEST_DEFAULT_INPUT_UUID = "20409bb8-b8a1-4d1d-b632-2cf9b57353e3";
     public static final String UNITTEST_DEFAULT_REMOTE_UUID = "850b889b-fb15-4d9b-a589-67d5ffe3488d";
+    private static PluginEmbeddedPlatformsImpl embeddedPlatforms;
     private GenerateCodeDialog genDialog;
     private Stage stage;
-    private CodeGeneratorRunner generatorRunner;
-    private CurrentEditorProject project;
-    private CodePluginManager pluginManager;
-    private Path pluginTemp;
-    private CurrentProjectEditorUI editorUI;
+    private static CodeGeneratorRunner generatorRunner;
+    private static CurrentEditorProject project;
+    private static CodePluginManager pluginManager;
+    private static Path pluginTemp;
+    private static CurrentProjectEditorUI editorUI;
 
-    @Start
-    public void onStart(Stage stage) throws Exception {
-        this.stage = stage;
-        var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+    @BeforeAll
+    public static void initialiseProjectFiles() throws IOException {
+        embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
 
         pluginTemp = Files.createTempDirectory("gennyTest");
         DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginTemp, true);
@@ -67,18 +71,23 @@ public class GenerateCodeDialogTest {
         pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginManager.reload();
 
-        assertEquals(1, pluginManager.getLoadedPlugins().size());
-
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);
 
         createTheProject();
+    }
+
+    @Start
+    public  void onStart(Stage stage) {
+        this.stage = stage;
+
+        assertEquals(1, pluginManager.getLoadedPlugins().size());
 
         genDialog = new GenerateCodeDialog(pluginManager, editorUI, project, generatorRunner, embeddedPlatforms);
         genDialog.showCodeGenerator(stage, false);
     }
 
-    private void createTheProject() throws IOException {
+    private static void createTheProject() throws IOException {
         var prjDir = pluginTemp.resolve("myProject");
         Files.createDirectory(prjDir);
         var projectFile = prjDir.resolve("myProject.emf");
@@ -89,13 +98,16 @@ public class GenerateCodeDialogTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    public void closeDialog() {
+        Platform.runLater(()-> stage.close());
+    }
+
+    @AfterAll
+    public static void tearDownProjectFiles() throws IOException {
         Files.walk(pluginTemp)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
-
-        Platform.runLater(()-> stage.close());
     }
 
     @Test
@@ -135,6 +147,97 @@ public class GenerateCodeDialogTest {
         verify(generatorRunner).startCodeGeneration(
                 eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
                 eq(expectedPlugins), eq(previousPluinFiles), eq(true));
+    }
+
+    @Test
+    public void checkAuthenticationEditing(FxRobot robot) {
+        verifyThat("#authModeLabel", LabeledMatchers.hasText("EEPROM Authenticator, offset=100"));
+        robot.clickOn("#authModeButton");
+
+        verifyThat("#eepromAuthRadio", RadioButton::isSelected);
+        verifyThat("#eepromStartField", TextInputControlMatchers.hasText("100"));
+        verifyThat("#eepromNumRemotes", TextInputControlMatchers.hasText("6"));
+
+        TestUtils.writeIntoField(robot, "#eepromStartField", 250, 10);
+        robot.clickOn("#okButton");
+        verifyThat("#authModeLabel", LabeledMatchers.hasText("EEPROM Authenticator, offset=250"));
+        robot.clickOn("#authModeButton");
+
+        robot.clickOn("#flashAuthRadio");
+        verifyThat("#okButton", Node::isDisabled);
+
+        TestUtils.writeIntoField(robot, "#pinFlashField", "1234", 5);
+
+        robot.clickOn("#addButton");
+
+        var generatedUuid = UUID.randomUUID().toString();
+        verifyThat("#addRemoteButton", Node::isDisabled);
+        TestUtils.writeIntoField(robot, "#uuidField", generatedUuid, 1);
+        TestUtils.writeIntoField(robot, "#nameField", "unit123", 1);
+        robot.clickOn("#addRemoteButton");
+
+        FxAssert.verifyThat("#flashVarList", (ListView<FlashRemoteId> lv) ->
+            lv.getItems().size() == 1 && lv.getItems().get(0).name().equals("unit123"));
+
+        robot.clickOn("#okButton");
+
+        verifyThat("#authModeLabel", LabeledMatchers.hasText("FLASH Authenticator, remotes=1"));
+
+    }
+
+    @Test
+    public void checkEepromEditing(FxRobot robot) throws InterruptedException {
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C128"));
+        robot.clickOn("#eepromTypeButton");
+        Thread.sleep(250);
+
+        verifyThat("#at24Radio", RadioButton::isSelected);
+        verifyThat("#i2cAddrField", Predicate.not(Node::isDisabled));
+        verifyThat("#i2cAddrField", TextInputControlMatchers.hasText("0x50"));
+        verifyThat("#romPageCombo", (ComboBox<?> n) -> n.getSelectionModel().getSelectedIndex() == 2);
+        verifyThat("#memOffsetField", Node::isDisabled);
+        TestUtils.selectItemInCombo(robot, "#romPageCombo", o -> o.equals(ROM_PAGE_SIZES.get(1)));
+        robot.clickOn("#okButton");
+        Thread.sleep(250);
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C64"));
+
+        robot.clickOn("#eepromTypeButton");
+        Thread.sleep(250);
+
+        robot.clickOn("#avrRomRadio");
+        verifyThat("#i2cAddrField", Node::isDisabled);
+        verifyThat("#memOffsetField", Node::isDisabled);
+        robot.clickOn("#okButton");
+        Thread.sleep(250);
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("Direct AVR EEPROM functions"));
+
+        robot.clickOn("#eepromTypeButton");
+        Thread.sleep(250);
+
+        verifyThat("#avrRomRadio", RadioButton::isSelected);
+        robot.clickOn("#eepromRadio");
+        robot.clickOn("#okButton");
+        Thread.sleep(250);
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("Arduino EEPROM class"));
+
+        robot.clickOn("#eepromTypeButton");
+        Thread.sleep(250);
+
+        verifyThat("#eepromRadio", RadioButton::isSelected);
+        robot.clickOn("#noRomRadio");
+        robot.clickOn("#okButton");
+        Thread.sleep(250);
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("No / Custom EEPROM"));
+
+        robot.clickOn("#eepromTypeButton");
+        Thread.sleep(250);
+
+        verifyThat("#noRomRadio", RadioButton::isSelected);
+        robot.clickOn("#bspStRadio");
+        TestUtils.writeIntoField(robot, "#memOffsetField", 100, 5);
+        robot.clickOn("#okButton");
+        Thread.sleep(250);
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("STM32 BSP offset=100"));
     }
 
     void assertExpectedPlugin(FxRobot robot, CodePluginItem item, String id) throws Exception {

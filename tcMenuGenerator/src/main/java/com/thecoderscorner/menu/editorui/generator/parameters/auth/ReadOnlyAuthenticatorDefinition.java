@@ -69,5 +69,10 @@ public class ReadOnlyAuthenticatorDefinition implements AuthenticatorDefinition 
         return "FLASH Authenticator, remotes=" + remoteIds.size();
     }
 
-    public record FlashRemoteId(String name, String uuid) { }
+    public record FlashRemoteId(String name, String uuid) {
+        @Override
+        public String toString() {
+            return name + " ID(" + uuid + ")";
+        }
+    }
 }

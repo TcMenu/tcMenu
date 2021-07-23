@@ -105,8 +105,8 @@
                <right>
                   <VBox prefHeight="200.0" prefWidth="100.0" spacing="4.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button fx:id="addButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Add" />
-                        <Button fx:id="removeButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Remove" />
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onFlashAddRemote" prefHeight="26.0" prefWidth="102.0" text="Add" />
+                        <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onFlashRemoveRemote" prefHeight="26.0" prefWidth="103.0" text="Remove" />
                      </children>
                   </VBox>
                </right>

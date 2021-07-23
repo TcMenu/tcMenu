@@ -1,21 +1,22 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.dialog.AddFlashRemoteDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.*;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.AUTHENTICATOR_HELP_PAGE;
-import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.EEPROM_HELP_PAGE;
-import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 
 public class ChooseAuthenticatorController {
     public Button okButton;
@@ -47,7 +48,7 @@ public class ChooseAuthenticatorController {
         else if(authType instanceof ReadOnlyAuthenticatorDefinition flashAuth) {
             flashAuthRadio.setSelected(true);
             pinFlashField.setText(flashAuth.getPin());
-
+            flashVarList.getItems().addAll(flashAuth.getRemoteIds());
         }
 
         main.selectedToggleProperty().addListener((v, n, o) -> enableTheRightItems());
@@ -55,6 +56,29 @@ public class ChooseAuthenticatorController {
         eepromStartField.textProperty().addListener((v, n, o) -> enableTheRightItems());
 
         enableTheRightItems();
+
+        flashVarList.getSelectionModel().selectedItemProperty().addListener((observableValue, newVal, oldVal) ->
+                removeButton.setDisable(newVal == null));
+
+        if(flashVarList.getItems().size() > 0) {
+            flashVarList.getSelectionModel().select(0);
+        }
+
+        flashVarList.setOnMouseClicked(click -> {
+
+            if (click.getClickCount() == 2) {
+                //Use ListView's getSelected Item
+                var itemSel = flashVarList.getSelectionModel().getSelectedItem();
+                var itemIdx = flashVarList.getSelectionModel().getSelectedIndex();
+                if(itemIdx == -1 || itemSel == null) return;
+
+                AddFlashRemoteDialog dlg = new AddFlashRemoteDialog((Stage)okButton.getScene().getWindow(), Optional.of(itemSel), true);
+                var res = dlg.getResultOrEmpty();
+                res.ifPresent(editedRemote -> {
+                    flashVarList.getItems().set(itemIdx, editedRemote);
+                });
+            }
+        });
     }
 
     private void enableTheRightItems() {
@@ -117,5 +141,24 @@ public class ChooseAuthenticatorController {
 
     public void onHelpPressed(ActionEvent actionEvent) {
         SafeNavigator.safeNavigateTo(AUTHENTICATOR_HELP_PAGE);
+    }
+
+    public void onFlashAddRemote(ActionEvent actionEvent) {
+        AddFlashRemoteDialog dlg = new AddFlashRemoteDialog((Stage)okButton.getScene().getWindow(), Optional.empty(), true);
+        var res = dlg.getResultOrEmpty();
+        res.ifPresent(newRemote -> {
+            flashVarList.getItems().add(newRemote);
+            flashVarList.getSelectionModel().select(newRemote);
+            removeButton.setDisable(false);
+            okButton.setDisable(false);
+        });
+    }
+
+    public void onFlashRemoveRemote(ActionEvent actionEvent) {
+        var sel = flashVarList.getSelectionModel().getSelectedItem();
+        if(sel != null) {
+            flashVarList.getItems().remove(sel);
+            okButton.setDisable(flashVarList.getItems().isEmpty());
+        }
     }
 }

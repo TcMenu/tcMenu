@@ -18,7 +18,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 public class EepromTypeSelectionController {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private final ObservableList<RomPageSize> romPageSizes = FXCollections.observableList(List.of(
+    public final static ObservableList<RomPageSize> ROM_PAGE_SIZES = FXCollections.observableList(List.of(
             new RomPageSize("32Kbit (AT24C32)", "PAGESIZE_AT24C32"),
             new RomPageSize("64Kbit (AT24C64)", "PAGESIZE_AT24C64"),
             new RomPageSize("128Kbit (AT24C128)", "PAGESIZE_AT24C128"),
@@ -42,7 +42,7 @@ public class EepromTypeSelectionController {
     public ToggleGroup main;
 
     public void initialise(EepromDefinition eepromMode) {
-        romPageCombo.setItems(romPageSizes);
+        romPageCombo.setItems(ROM_PAGE_SIZES);
         romPageCombo.getSelectionModel().select(0);
 
         if(eepromMode instanceof NoEepromDefinition) {
@@ -56,7 +56,7 @@ public class EepromTypeSelectionController {
         }
         else if(eepromMode instanceof At24EepromDefinition at24) {
             at24Radio.setSelected(true);
-            i2cAddrField.setText(Integer.toString(at24.getAddress()));
+            i2cAddrField.setText("0x" + Integer.toString(at24.getAddress(), 16));
             romPageCombo.getSelectionModel().select(findPageSize(at24.getPageSize()));
         }
         else if(eepromMode instanceof BspStm32EepromDefinition bsp) {
@@ -101,8 +101,8 @@ public class EepromTypeSelectionController {
     }
 
     private RomPageSize findPageSize(String pageSize) {
-        return romPageSizes.stream().filter(rps -> rps.varName().equals(pageSize))
-                .findFirst().orElse(romPageSizes.get(0));
+        return ROM_PAGE_SIZES.stream().filter(rps -> rps.varName().equals(pageSize))
+                .findFirst().orElse(ROM_PAGE_SIZES.get(0));
     }
 
     private void enableTheRightItems() {
