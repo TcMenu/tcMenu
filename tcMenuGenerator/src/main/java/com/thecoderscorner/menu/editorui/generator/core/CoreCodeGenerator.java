@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -18,6 +19,9 @@ import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
@@ -35,6 +39,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static java.lang.System.Logger.Level.*;
@@ -118,6 +123,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             dealWithRequiredPlugins(codeGenerators, srcDir);
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
+
+            doSanityChecks();
 
             logLine(INFO, "Process has completed, make sure the code in your IDE is up-to-date.");
             logLine(INFO, "You may need to close the project and then re-open it to pick up changes..");
@@ -552,6 +559,38 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     private Collection<CodeGeneratorCapable> extraCodeDefinitions() {
         return List.of(options.getEepromDefinition(), options.getAuthenticatorDefinition());
+    }
+
+    protected void doSanityChecks() {
+        boolean eepromAuthenticator = options.getAuthenticatorDefinition() instanceof EepromAuthenticatorDefinition;
+        boolean noEeprom = options.getEepromDefinition() instanceof NoEepromDefinition;
+        boolean errorFound = false;
+
+        if(noEeprom && eepromAuthenticator) {
+            logLine(ERROR, "You have selected No EEPROM but then used an EEPROM based authenticator.");
+            errorFound = true;
+        }
+
+        Collection<MenuItem> allItems = menuTree.getAllMenuItems();
+
+        if(allItems.isEmpty()) {
+            logLine(ERROR, "The menu tree is empty, this is not a supported, please add at least one item.");
+            errorFound = true;
+        }
+
+        if(noEeprom && allItems.stream().anyMatch(mt -> mt instanceof ScrollChoiceMenuItem sc && sc.getChoiceMode() == ARRAY_IN_EEPROM)) {
+            logLine(ERROR, "You have included a scroll choice EEPROM item but have not configured an EEPROM.");
+            errorFound = true;
+        }
+
+        if(!eepromAuthenticator && allItems.stream().anyMatch(mt -> mt instanceof CustomBuilderMenuItem ci && ci.getMenuType() == AUTHENTICATION)) {
+            logLine(ERROR, "You have included an EEPROM authentication menu item without using EEPROM authentication.");
+            errorFound = true;
+        }
+
+        if(errorFound) {
+            logLine(ERROR, "It is highly likely that your menu will not work as expected, please fix any errors before deploying.");
+        }
     }
 
     protected abstract String platformIncludes();
