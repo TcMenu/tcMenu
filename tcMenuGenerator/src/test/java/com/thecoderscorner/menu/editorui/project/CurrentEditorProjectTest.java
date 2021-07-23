@@ -62,7 +62,7 @@ public class CurrentEditorProjectTest {
         project.newProject();
         assertFalse(project.isFileNameSet());
         assertFalse(project.isDirty());
-        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New TcMenu Designer");
+        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New - TcMenu Designer");
     }
 
     @Test
@@ -141,12 +141,12 @@ public class CurrentEditorProjectTest {
         Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of("filename"));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save("filename", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save("filename", "", project.getMenuTree(), project.getGeneratorOptions());
 
         Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of("filename2"));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE_AS);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save("filename2", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save("filename2", "", project.getMenuTree(), project.getGeneratorOptions());
 
     }
 
@@ -173,7 +173,7 @@ public class CurrentEditorProjectTest {
         Mockito.when(editorUI.findFileNameFromUser(true)).thenReturn(Optional.of("filename"));
         MenuTree replacementMenu = TestUtils.buildSimpleTree();
         Mockito.when(persistor.open("filename")).thenReturn(new MenuTreeWithCodeOptions(
-                replacementMenu, CurrentEditorProject.BLANK_GEN_OPTIONS
+                replacementMenu, CurrentEditorProject.BLANK_GEN_OPTIONS, "my project description"
         ));
         project.openProject();
 

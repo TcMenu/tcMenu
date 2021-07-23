@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -137,14 +136,14 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         for (CallbackRequirement cb : filteredCb) {
             if(!definedList.contains(cb.getCallbackName())) {
-                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch: " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch for: " + cb.getCallbackItem());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
                 definedList.add(cb.getCallbackName());
                 changed = true;
             }
             else {
-                logger.accept(System.Logger.Level.INFO, "Skip callback generation for " + cb.getCallbackName());
+                logger.accept(System.Logger.Level.DEBUG, "Skip callback generation for " + cb.getCallbackName());
             }
         }
     }
@@ -160,7 +159,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                     }
                 }
                 lines.add(++i, extraLine);
-                logger.accept(System.Logger.Level.INFO, "-> line added to sketch");
+                logger.accept(System.Logger.Level.DEBUG, "-> line added to sketch: " + extraLine);
                 changed = true;
                 return; // no need to continue
             }
@@ -168,9 +167,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     }
 
     protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
-        var srcPath = "";
-        if(options.isSaveToSrc() && !options.isUseCppMain()) srcPath = "src/";
-        lines.add(0, "#include \"" + srcPath + projectName + "_menu.h\"");
+        lines.add(0, "#include \"" + projectName + "_menu.h\"");
         changed = true;
     }
 }

@@ -20,8 +20,8 @@ import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
 public class ConnectionReadyState extends BaseMessageProcessingState {
-    private AtomicLong lastTx = new AtomicLong();
-    private AtomicInteger heartbeatInterval = new AtomicInteger(5000);
+    private final AtomicLong lastTx = new AtomicLong();
+    private final AtomicInteger heartbeatInterval = new AtomicInteger(5000);
     private ScheduledFuture<?> hbTask = null;
 
     public ConnectionReadyState(RemoteConnectorContext context) {

@@ -12,6 +12,8 @@
 
     <Plugins>
         <Plugin>TestPlugin.xml</Plugin>
+        <Plugin>test-theme-item-plugin.xml</Plugin>
+        <Plugin>test-remote-item-plugin.xml</Plugin>
         <Plugin>TestPluginVersionTooLow.xml</Plugin>
         <Plugin>TestPluginVersionAllowed.xml</Plugin>
     </Plugins>

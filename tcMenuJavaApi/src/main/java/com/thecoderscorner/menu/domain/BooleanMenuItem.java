@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.BooleanMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -16,7 +14,7 @@ import java.util.Objects;
  * A menu item that can only hold boolean values (true or false). The naming can be changed such that the boolean can
  * be represented with different text. Rather than using the constructor use the BooleanMenuItemBuilder to build one.
  */
-public class BooleanMenuItem extends MenuItem<Boolean> {
+public class BooleanMenuItem extends MenuItem {
     public enum BooleanNaming {
         ON_OFF, YES_NO, TRUE_FALSE
     }
@@ -41,18 +39,6 @@ public class BooleanMenuItem extends MenuItem<Boolean> {
      */
     public BooleanNaming getNaming() {
         return naming;
-    }
-
-    /**
-     * returns a new menu state object, suitable for storing the current value
-     * @param value the new value
-     * @param changed if the item has changed
-     * @param active if the item is active
-     * @return a menu state.
-     */
-    @Override
-    public MenuState<Boolean> newMenuState(Boolean value, boolean changed, boolean active) {
-        return new BooleanMenuState(this, changed, active, value);
     }
 
     @Override

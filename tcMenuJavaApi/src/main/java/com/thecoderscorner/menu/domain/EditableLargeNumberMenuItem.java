@@ -6,11 +6,8 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.BigDecimalMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -19,7 +16,7 @@ import java.util.Objects;
  * fixed number of decimal places. They can be positive or negative, although you can prevent negative values
  * by setting negativeAllowed to false.
  */
-public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
+public class EditableLargeNumberMenuItem extends MenuItem {
     private final int digitsAllowed;
     private final int decimalPlaces;
     private final boolean negativeAllowed;
@@ -51,11 +48,6 @@ public class EditableLargeNumberMenuItem extends MenuItem<BigDecimal> {
 
     public boolean isNegativeAllowed() {
         return negativeAllowed;
-    }
-
-    @Override
-    public MenuState<BigDecimal> newMenuState(BigDecimal value, boolean changed, boolean active) {
-        return new BigDecimalMenuState(this, changed, active, value);
     }
 
     @Override

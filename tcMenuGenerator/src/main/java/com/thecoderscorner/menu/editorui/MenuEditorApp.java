@@ -6,16 +6,18 @@
 
 package com.thecoderscorner.menu.editorui;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
@@ -30,6 +32,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.Style;
 
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
@@ -38,8 +42,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
@@ -63,6 +66,7 @@ public class MenuEditorApp extends Application {
             }
             catch(Exception ex) {
                 Alert alert = new Alert(AlertType.ERROR, "Logging configuration could not be loaded: " + ex.getMessage(), ButtonType.CLOSE);
+                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
                 alert.showAndWait();
             }
         }
@@ -76,7 +80,9 @@ public class MenuEditorApp extends Application {
             }
         });
 
-        createDirsIfNeeded();
+        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
+
+        createOrUpdateDirectoriesAsNeeded(prefsStore);
 
         primaryStage.setTitle("Embedded Menu Designer");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
@@ -86,19 +92,25 @@ public class MenuEditorApp extends Application {
 
         var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
         var httpClient = new SimpleHttpClient();
-        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(httpClient, ReleaseType.valueOf(stream));
+
+        var urlBase = "https://www.thecoderscorner.com/tcc";
+
+        if(System.getProperty("localTccService") != null) {
+            urlBase = System.getProperty("localTccService");
+            System.getLogger("Main").log(System.Logger.Level.WARNING, "Overriding the TCC service to " + urlBase);
+        }
+
+        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
 
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
-        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
-
-        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms, prefsStore);
+        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms, prefsStore, true);
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(libraryVersionDetector, manager, prefsStore);
 
         platforms.setInstaller(installer);
 
-        manager.loadPlugins(configuredPluginPaths());
+        manager.loadPlugins();
 
         var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
         var editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer, prefsStore, libraryVersionDetector, homeDirectory);
@@ -110,11 +122,13 @@ public class MenuEditorApp extends Application {
         controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
+        BaseDialogSupport.getJMetro().setScene(myScene);
+
         primaryStage.setScene(myScene);
         primaryStage.show();
 
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon-sm.png")));
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/menu-icon.png")));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon-sm.png"))));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon.png"))));
 
         primaryStage.setOnCloseRequest((evt)-> {
             try {
@@ -125,6 +139,8 @@ public class MenuEditorApp extends Application {
                     evt.consume();
                     Alert alert = new Alert(AlertType.CONFIRMATION, "There are unsaved changes, save first?",
                             ButtonType.YES, ButtonType.NO);
+                    BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+
                     alert.setTitle("Are you sure");
                     alert.setHeaderText("");
                     if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
@@ -140,19 +156,7 @@ public class MenuEditorApp extends Application {
         });
     }
 
-    public static List<Path> configuredPluginPaths() {
-        var list = new ArrayList<Path>();
-        var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
-        var additionalPlugins = System.getProperty("additionalPluginsDir");
-        list.add(defPluginPath);
-
-        if(additionalPlugins != null) {
-            list.add(Paths.get(additionalPlugins));
-        }
-        return list;
-    }
-
-    private void createDirsIfNeeded() {
+    public static void createOrUpdateDirectoriesAsNeeded(ConfigurationStorage storage) {
         var homeDir = Paths.get(System.getProperty("user.home"));
         try {
             Path menuDir = homeDir.resolve(".tcmenu/logs");
@@ -160,10 +164,17 @@ public class MenuEditorApp extends Application {
                 Files.createDirectories(menuDir);
             }
             Path pluginDir = homeDir.resolve(".tcmenu/plugins");
-            if(!Files.exists(pluginDir)) {
+            var current = new VersionInfo(storage.getVersion());
+            boolean noPluginDir = !Files.exists(pluginDir);
+            if(!storage.getLastRunVersion().equals(current) || noPluginDir) {
+                if(Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
+                    System.getLogger("Main").log(System.Logger.Level.WARNING, "Not upgrading core plugins, this is a development system");
+                    return;
+                }
+
                 try {
-                    Files.createDirectories(pluginDir);
-                    InputStream resourceAsStream = getClass().getResourceAsStream("/packaged-plugins/initialPlugins.zip");
+                    if(noPluginDir) Files.createDirectories(pluginDir);
+                    InputStream resourceAsStream = MenuEditorApp.class.getResourceAsStream("/packaged-plugins/initialPlugins.zip");
                     OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
                 }
                 catch(Exception ex) {
@@ -173,6 +184,7 @@ public class MenuEditorApp extends Application {
 
         } catch (IOException e) {
             Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
         }

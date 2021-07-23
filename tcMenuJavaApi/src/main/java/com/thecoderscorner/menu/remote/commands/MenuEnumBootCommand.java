@@ -7,7 +7,9 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integer> {
 
@@ -21,8 +23,8 @@ public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integ
     }
 
     @Override
-    public MenuState<Integer> internalNewMenuState(MenuState<Integer> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

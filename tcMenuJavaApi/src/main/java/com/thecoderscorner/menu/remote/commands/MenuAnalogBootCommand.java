@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, Integer> {
 
@@ -21,8 +22,8 @@ public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, I
     }
 
     @Override
-    public MenuState<Integer> internalNewMenuState(MenuState<Integer> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

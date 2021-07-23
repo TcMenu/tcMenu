@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  ~
+  -->
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="395.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController">
+   <top>
+      <Label prefHeight="27.0" prefWidth="534.0" text="Select the EEPROM implementation" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin></Label>
+   </top>
+   <center>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onHelpPressed" text="Online Help" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
+            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Choose EEPROM" />
+        </buttons>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </ButtonBar>
+   </bottom>
+   <styleClass>
+      <String fx:value="background" />
+   </styleClass>
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <RadioButton fx:id="noRomRadio" mnemonicParsing="false" selected="true" text="No EEPROM or manually configured by setting on menuMgr" GridPane.columnSpan="2">
+               <toggleGroup>
+                  <ToggleGroup fx:id="main" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="avrRomRadio" mnemonicParsing="false" text="AVR EEPROM using AVR specific calls" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <RadioButton fx:id="eepromRadio" mnemonicParsing="false" text="Use the EEPROM class (you must call EEPROM.begin before setupMenu)" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+            <RadioButton fx:id="at24Radio" mnemonicParsing="false" text="Use an I2C AT24Cxx based EEPROM" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+            <RadioButton fx:id="bspStRadio" mnemonicParsing="false" text="Use battery backed RAM on an STM32 board with BSP driver" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+            <Label fx:id="memOffsetLabel" text="Memory offset" GridPane.rowIndex="7">
+               <GridPane.margin>
+                  <Insets left="15.0" />
+               </GridPane.margin>
+            </Label>
+            <Label fx:id="i2cAddrLabel" text="I2C Address" GridPane.rowIndex="4">
+               <GridPane.margin>
+                  <Insets left="15.0" />
+               </GridPane.margin>
+            </Label>
+            <Label fx:id="romPageLabel" text="ROM Page Size" GridPane.rowIndex="5">
+               <GridPane.margin>
+                  <Insets left="15.0" />
+               </GridPane.margin>
+            </Label>
+            <TextField fx:id="i2cAddrField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="memOffsetField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <ComboBox fx:id="romPageCombo" prefHeight="26.0" prefWidth="211.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+         </children>
+      </GridPane>
+   </center>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</BorderPane>

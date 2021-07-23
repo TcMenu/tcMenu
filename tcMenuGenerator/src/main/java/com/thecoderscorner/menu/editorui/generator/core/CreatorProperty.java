@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
+import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules;
 
@@ -31,6 +33,8 @@ public class CreatorProperty {
     private SubSystem subsystem;
     transient private final String initialValue;
     transient private final String description;
+    transient private final String extendedDescription;
+    transient private final CodeApplicability applicability;
     transient private PropType propType = PropType.TEXTUAL;
     transient private PropertyValidationRules validationRules = BASE_RULE;
 
@@ -38,29 +42,8 @@ public class CreatorProperty {
         // for serialisation purposes.
         this.initialValue = null;
         this.description = null;
-    }
-
-    /**
-     * Create a property defaulting it as a variable with base validation
-     * @param name the name of the property usually prefer uppercase with underscores in-between words
-     * @param description a one line description of the properties intended use.
-     * @param latestValue the value to be assigned to the property initially
-     * @param subsystem the subsystem it belongs to
-     */
-    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem) {
-        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE, BASE_RULE);
-    }
-
-    /**
-     * Create a property defaulting it as a variable
-     * @param name the name of the property usually prefer uppercase with underscores in-between words
-     * @param description a one line description of the properties intended use.
-     * @param latestValue the value to be assigned to the property initially
-     * @param subsystem the subsystem it belongs to
-     * @param rules the validation rules to be applied
-     */
-    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem, PropertyValidationRules rules) {
-        this(name, description, latestValue, subsystem, PropType.USE_IN_DEFINE, rules);
+        this.extendedDescription = null;
+        this.applicability = new AlwaysApplicable();
     }
 
     /**
@@ -72,15 +55,18 @@ public class CreatorProperty {
      * @param propType the type of the property
      * @param rules the validation rules to be applied
      */
-    public CreatorProperty(String name, String description, String latestValue, SubSystem subsystem,
-                           PropType propType, PropertyValidationRules rules) {
+    public CreatorProperty(String name, String description, String extendedDescription, String latestValue,
+                           SubSystem subsystem, PropType propType, PropertyValidationRules rules,
+                           CodeApplicability applicability) {
         this.name = name;
         this.description = description;
+        this.extendedDescription = extendedDescription;
         this.initialValue = latestValue;
         this.latestValue = latestValue;
         this.subsystem = subsystem;
         this.propType = propType;
         this.validationRules = rules;
+        this.applicability = applicability;
     }
 
     public void resetToInitial() {
@@ -96,6 +82,10 @@ public class CreatorProperty {
 
     public void setLatestValue(String latestValue) {
         this.latestValue = latestValue;
+    }
+
+    public CodeApplicability getApplicability() {
+        return applicability;
     }
 
     /**
@@ -136,6 +126,13 @@ public class CreatorProperty {
      */
     public PropertyValidationRules getValidationRules() {
         return validationRules;
+    }
+
+    /**
+     * @return the extended description, intended to provide a more detailed description of the property
+     */
+    public String getExtendedDescription() {
+        return extendedDescription;
     }
 
     @Override

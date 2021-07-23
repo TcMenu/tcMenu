@@ -11,25 +11,47 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import javafx.application.Platform;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.text.Text;
 import org.testfx.api.FxRobot;
+import org.testfx.matcher.base.NodeMatchers;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
+import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.testfx.api.FxAssert.verifyThat;
 
 
 public class TestUtils {
+
+    public static MenuTree buildTreeFromJson(String json) {
+        var persistor = new FileBasedProjectPersistor();
+        var listOfItems = persistor.copyTextToItems(json);
+        if(listOfItems.isEmpty()) throw new IllegalArgumentException("Structure created empty list of items");
+        MenuTree tree = new MenuTree();
+        for (var item : listOfItems) {
+            var sub = tree.getMenuById(item.getParentId());
+            tree.addMenuItem((SubMenuItem)sub.orElse(MenuTree.ROOT), item.getItem());
+        }
+        return tree;
+    }
+
     public static void assertEqualsIgnoringCRLF(String expected, String actual) {
         expected = expected.replaceAll("\\r\\n", "\n");
         actual = actual.replaceAll("\\r\\n", "\n");
@@ -57,14 +79,34 @@ public class TestUtils {
             runnable.run();
             latch.countDown();
         });
-        latch.await(5000, TimeUnit.MILLISECONDS);
+        if(!latch.await(5000, TimeUnit.MILLISECONDS)) throw new IllegalArgumentException("runOnFx timeout");
     }
 
-    public static <T> void selectItemInCombo(FxRobot robot, String query, T value) throws InterruptedException {
+    public static <T> boolean selectItemInCombo(FxRobot robot, String query, Predicate<T> matcher) throws InterruptedException {
+        AtomicBoolean found = new AtomicBoolean(false);
         runOnFxThreadAndWait(()-> {
             ComboBox<T> combo = robot.lookup(query).queryComboBox();
-            combo.getSelectionModel().select(value);
+            for(var item : combo.getItems()) {
+                if(matcher.test(item)) {
+                    combo.getSelectionModel().select(item);
+                    found.set(true);
+                }
+            }
         });
+        return found.get();
+    }
+
+    public static void verifyAlertWithText(FxRobot robot, String message, String btnText) {
+        Node dialogPane = robot.lookup(".dialog-pane").query();
+        robot.from(dialogPane).lookup((Text t) -> t.getText().startsWith(message));
+        verifyThat(btnText, NodeMatchers.isVisible());
+        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(btnText)).query();
+        robot.clickOn(btn);
+
+    }
+
+    public static void pushCtrlAndKey(FxRobot robot, KeyCode code) {
+        robot.push(new KeyCodeCombination(code, UP, UP, UP, UP, DOWN));
     }
 
     public static Collection<MenuItem> findItemsInMenuWithId(FxRobot robot, String menuToFind) {
@@ -97,7 +139,7 @@ public class TestUtils {
         var menu = findAllMenuItems(robot).stream()
                 .filter(menuItem -> menuToFind.equals(menuItem.getText()))
                 .findFirst().orElseThrow(RuntimeException::new);
-        runOnFxThreadAndWait(() -> menu.fire());
+        runOnFxThreadAndWait(menu::fire);
     }
 
     public static MenuTree buildSimpleTreeReadOnly() {
@@ -252,5 +294,16 @@ public class TestUtils {
         tree.addMenuItem(MenuTree.ROOT, listItem);
 
         return tree;
+    }
+
+    public static void writeIntoField(FxRobot robot, String query, Object value, int toDel) {
+        robot.clickOn(query);
+        robot.eraseText(toDel);
+        robot.write(value != null ? value.toString() : "null");
+    }
+
+    public static void clickOnButtonInDialog(FxRobot robot, Node dialogPane, String text) {
+        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(text)).query();
+        robot.clickOn(btn);
     }
 }

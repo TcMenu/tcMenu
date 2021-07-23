@@ -10,6 +10,8 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -29,8 +31,9 @@ public class CurrentEditorProject {
     private static final String NO_CREATOR_SELECTED = "";
     public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
             ARDUINO_AVR.getBoardId(),
-            NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, NO_CREATOR_SELECTED,
+            NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, List.of(NO_CREATOR_SELECTED), NO_CREATOR_SELECTED,
             Collections.emptyList(), UUID.randomUUID(), "New Device",
+            new NoEepromDefinition(), new NoAuthenticatorDefinition(),
             true, false, false
     );
 
@@ -44,11 +47,12 @@ public class CurrentEditorProject {
     private final Set<Integer> uncommittedItems = new HashSet<>();
 
     private MenuTree menuTree;
-    private Optional<String> fileName;
+    private Optional<String> fileName = Optional.empty();
+    private String description;
     private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
-    private Deque<MenuItemChange> changeHistory = new LinkedList<>();
-    private Deque<MenuItemChange> redoHistory = new LinkedList<>();
+    private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
+    private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
     public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor) {
         this.editorUI = editorUI;
@@ -59,6 +63,7 @@ public class CurrentEditorProject {
     private void cleanDown() {
         menuTree = new MenuTree();
         fileName = Optional.empty();
+        description = "";
         uncommittedItems.clear();
         generatorOptions = BLANK_GEN_OPTIONS;
         setDirty(false);
@@ -98,6 +103,7 @@ public class CurrentEditorProject {
                 fileName = Optional.ofNullable(file);
                 MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
                 menuTree = openedProject.getMenuTree();
+                description = openedProject.getDescription();
                 generatorOptions = openedProject.getOptions();
                 if (generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
                 setDirty(false);
@@ -131,13 +137,22 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 uncommittedItems.clear();
-                projectPersistor.save(file, menuTree, generatorOptions);
+                projectPersistor.save(file, description, menuTree, generatorOptions);
                 setDirty(false);
             } catch (IOException e) {
                 logger.log(Level.ERROR, "save operation failed on " + file, e);
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        setDirty(true);
+        this.description = description;
     }
 
     public Set<Integer> getUncommittedItems() {

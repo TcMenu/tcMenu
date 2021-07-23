@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.BooleanMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.state.BooleanMenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
@@ -36,7 +37,7 @@ public class BooleanManagedMenuItem extends BaseLabelledManagedMenuItem<Boolean,
         flipButton.setDisable(item.isReadOnly());
         flipButton.setOnAction(event -> {
             MenuTree menuTree = remoteControl.getManagedMenu();
-            MenuState<Boolean> state = menuTree.getMenuState(item);
+            BooleanMenuState state = menuTree.getMenuState(item);
             var val = (state != null && !state.getValue()) ? 1 : 0;
             waitingFor = Optional.of(remoteControl.sendAbsoluteUpdate(item, val));
         });
@@ -52,33 +53,27 @@ public class BooleanManagedMenuItem extends BaseLabelledManagedMenuItem<Boolean,
     }
 
     @Override
-    public void internalChangeItem(MenuState<Boolean> change) {
-        flipButton.setText("Change to " + (change.getValue() ? textForOff() : textForOn()));
-        itemLabel.setText(change.getValue() ? textForOn() : textForOff());
+    public void internalChangeItem(AnyMenuState change) {
+        if(change instanceof BooleanMenuState boolState) {
+            flipButton.setText("Change to " + (boolState.getValue() ? textForOff() : textForOn()));
+            itemLabel.setText(boolState.getValue() ? textForOn() : textForOff());
+        }
     }
 
     private String textForOn() {
-        switch (item.getNaming()) {
-            case ON_OFF:
-                return "ON";
-            case YES_NO:
-                return "YES";
-            case TRUE_FALSE:
-            default:
-                return "TRUE";
-        }
+        return switch (item.getNaming()) {
+            case ON_OFF -> "ON";
+            case YES_NO -> "YES";
+            default -> "TRUE";
+        };
     }
 
     private String textForOff() {
-        switch(item.getNaming()) {
-            case ON_OFF:
-                return "OFF";
-            case YES_NO:
-                return "NO";
-            case TRUE_FALSE:
-            default:
-                return "FALSE";
-        }
+        return switch (item.getNaming()) {
+            case ON_OFF -> "OFF";
+            case YES_NO -> "NO";
+            default -> "FALSE";
+        };
     }
 
 }

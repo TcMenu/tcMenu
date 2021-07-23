@@ -26,9 +26,8 @@
 #include <BaseDialog.h>
 #include <tcUtil.h>
 
-/**
- * If you DONT want task manager yield code in I2C
- */
+
+// If you DONT want task manager yield code in I2C set to 0
 #ifndef WANT_TASK_MANAGER_FRIENDLY_YIELD
 #define WANT_TASK_MANAGER_FRIENDLY_YIELD 1
 #endif // WANT_TASK_MANAGER_FRIENDLY_YIELD
@@ -91,6 +90,8 @@ public:
     Coord getDisplayDimensions() override {  return Coord(u8g2->getWidth(), u8g2->getHeight()); }
     void transaction(bool isStarting, bool redrawNeeded) override;
     Coord textExtents(const void *font, int mag, const char *text, int *baseline) override;
+    color_t getUnderlyingColor(color_t col) { return (col<4) ? col : 1; }
+
 };
 
 #endif // _TCMENU_U8G2_H_

@@ -6,11 +6,15 @@
 
 package com.thecoderscorner.menu.editorui.generator.validation;
 
+import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CannedPropertyValidatorsTest {
 
@@ -84,6 +88,34 @@ class CannedPropertyValidatorsTest {
 
     @Test
     public void testChoicesValidator() {
+        ChoicesPropertyValidationRules validator = CannedPropertyValidators.choicesValidator(List.of(
+                new ChoiceDescription("VALUE_1"),
+                new ChoiceDescription("VALUE_2", "value 2")
+        ), "VALUE_1");
 
+        assertTrue(validator.hasChoices());
+        assertThat(validator.choices().stream()
+                .map(ChoiceDescription::getChoiceValue)
+                .collect(Collectors.toList())).containsExactly("VALUE_1", "VALUE_2");
+
+        assertFalse(validator.isValueValid(""));
+        assertFalse(validator.isValueValid("value 2"));
+        assertTrue(validator.isValueValid("VALUE_1"));
+        assertTrue(validator.isValueValid("VALUE_2"));
+
+        assertEquals("VALUE_1", validator.choices().get(0).getChoiceValue());
+        assertEquals("VALUE_1", validator.choices().get(0).getChoiceDesc());
+        assertEquals("VALUE_2", validator.choices().get(1).getChoiceValue());
+        assertEquals("value 2", validator.choices().get(1).getChoiceDesc());
+    }
+
+    @Test
+    public void testFontValidator() {
+        FontPropertyValidationRules validator = CannedPropertyValidators.fontValidator();
+
+        assertFalse(validator.hasChoices());
+        assertThat(validator.choices()).isEmpty();
+        assertFalse(validator.isValueValid("asdfasdf"));
+        assertTrue(validator.isValueValid(new FontDefinition(FontMode.DEFAULT_FONT, "", 0).toString()));
     }
 }

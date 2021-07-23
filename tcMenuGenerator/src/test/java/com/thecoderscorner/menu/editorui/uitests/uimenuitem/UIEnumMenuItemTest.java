@@ -37,7 +37,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 public class UIEnumMenuItemTest extends UIMenuItemTestBase {
 
     private MenuItem enumItem;
-    private Optional<UIMenuItem> uiSubItem;
+    private Optional<UIMenuItem<?>> uiSubItem;
 
     @Start
     public void setup(Stage stage) {

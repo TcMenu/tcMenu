@@ -10,10 +10,8 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 public class NoOperationInitialState implements RemoteConnectorState {
-    private final RemoteConnectorContext context;
 
     public NoOperationInitialState(RemoteConnectorContext context) {
-        this.context = context;
     }
 
     @Override

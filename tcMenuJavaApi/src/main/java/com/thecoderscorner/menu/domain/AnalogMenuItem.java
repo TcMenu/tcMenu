@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.IntegerMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Objects;
@@ -17,7 +15,7 @@ import java.util.Objects;
  * have an offset and divisor, so therefore is able to represent decimal values. The offset can also be negative.
  * Rather than directly constructing an item of this type, you can use the AnalogMenuItemBuilder.
  */
-public class AnalogMenuItem extends MenuItem<Integer> {
+public class AnalogMenuItem extends MenuItem {
     private final int maxValue;
     private final int offset;
     private final int divisor;
@@ -66,7 +64,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     }
 
     /**
-     * The unit name to appear directly after the value, for example a temprature item may be "oC"
+     * The unit name to appear directly after the value, for example a temperature item may be "oC"
      * where as a volume control could be "dB"
      * @return the name of the unit (if any)
      */
@@ -75,20 +73,7 @@ public class AnalogMenuItem extends MenuItem<Integer> {
     }
 
     /**
-     * returns a new state object that represents the current value for the menu. Current values are
-     * held separately to the items, see MenuTree
-     * @param value the new value
-     * @param changed if the value has changed
-     * @param active if the menu item is active, can be used for your own purposes.
-     * @return the new state object
-     */
-    @Override
-    public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
-        return new IntegerMenuState(this, changed, active, value);
-    }
-
-    /**
-     * See the MenuItemVistor for more info.
+     * See the MenuItemVisitor for more info.
      * @param visitor the item to be visited.
      */
     @Override

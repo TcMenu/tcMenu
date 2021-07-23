@@ -1,6 +1,8 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
@@ -121,8 +123,9 @@ public class CreateProjectCommand implements Callable<Integer> {
 
         var persistor = new FileBasedProjectPersistor();
         var  tree = new MenuTree();
-        persistor.save(projectEmf.toString(), tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
-                List.of(), UUID.randomUUID(), newProject, recursiveNaming, saveToSrc, cppMain));
+        persistor.save(projectEmf.toString(), "Project description", tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
+                List.of(), UUID.randomUUID(), newProject, new NoEepromDefinition(), new NoAuthenticatorDefinition(),
+                recursiveNaming, saveToSrc, cppMain));
         logger.accept("Project created!");
     }
 }

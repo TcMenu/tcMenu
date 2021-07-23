@@ -11,6 +11,8 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -34,6 +36,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     public static final String SUB_PERSIST_TYPE = "subMenu";
     public static final String ACTION_PERSIST_TYPE = "actionMenu";
     public static final String RUNTIME_LIST_PERSIST_TYPE = "runtimeList";
+    public static final String CUSTOM_ITEM_PERSIST_TYPE = "customBuildItem";
     public static final String BOOLEAN_PERSIST_TYPE = "boolItem";
     public static final String TEXT_PERSIST_TYPE = "textItem";
     public static final String FLOAT_PERSIST_TYPE = "floatItem";
@@ -60,7 +63,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             PersistedProject prj = gson.fromJson(reader, PersistedProject.class);
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem()));
-            return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions());
+            return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName());
         }
     }
 
@@ -74,16 +77,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public void save(String fileName, MenuTree tree, CodeGeneratorOptions options) throws IOException {
+    public void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options) throws IOException {
         logger.log(INFO, "Save file starting for: " + fileName);
 
         List<PersistedMenu> itemsInOrder = populateListInOrder(MenuTree.ROOT, tree);
 
         try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
             String user = System.getProperty("user.name");
-            gson.toJson(
-                    new PersistedProject(fileName, user, itemsInOrder, options),
-                    writer);
+            gson.toJson(new PersistedProject(desc, user, itemsInOrder, options), writer);
         }
     }
 
@@ -111,16 +112,22 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         return TCMENU_COPY_PREFIX + gson.toJson(items);
     }
 
+    @SuppressWarnings("unchecked")
     public List<PersistedMenu> copyTextToItems(String items) {
         if(!items.startsWith(TCMENU_COPY_PREFIX)) return Collections.emptyList();
         var jsonStr = items.substring(TCMENU_COPY_PREFIX.length());
         return gson.fromJson(jsonStr, ArrayList.class);
     }
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private Gson makeGsonProcessor() {
         ArrayList<PersistedMenu> example = new ArrayList<>();
 
         return new GsonBuilder()
+                .registerTypeAdapter(EepromDefinition.class, new EepromDefinitionSerialiser())
+                .registerTypeAdapter(EepromDefinition.class, new EepromDefinitionDeseriailiser())
+                .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionSerialiser())
+                .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionDeseriailiser())
                 .registerTypeAdapter(example.getClass(), new MenuItemSerialiser())
                 .registerTypeAdapter(example.getClass(), new MenuItemDeserialiser())
                 .registerTypeAdapter(Instant.class, new CompatibleDateTimePersistor())
@@ -128,7 +135,35 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 .create();
     }
 
-    class MenuItemSerialiser implements JsonSerializer<ArrayList<PersistedMenu>> {
+    static class EepromDefinitionSerialiser implements JsonSerializer<EepromDefinition> {
+        @Override
+        public JsonElement serialize(EepromDefinition eepromDefinition, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(eepromDefinition != null ? eepromDefinition.writeToProject() : "");
+        }
+    }
+
+    static class EepromDefinitionDeseriailiser implements JsonDeserializer<EepromDefinition> {
+        @Override
+        public EepromDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return EepromDefinition.readFromProject(jsonElement.getAsString());
+        }
+    }
+
+    static class AuthDefinitionSerialiser implements JsonSerializer<AuthenticatorDefinition> {
+        @Override
+        public JsonElement serialize(AuthenticatorDefinition authDefinition, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(authDefinition != null ? authDefinition.writeToProject() : "");
+        }
+    }
+
+    static class AuthDefinitionDeseriailiser implements JsonDeserializer<AuthenticatorDefinition> {
+        @Override
+        public AuthenticatorDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return AuthenticatorDefinition.readFromProject(jsonElement.getAsString());
+        }
+    }
+
+    static class MenuItemSerialiser implements JsonSerializer<ArrayList<PersistedMenu>> {
 
         @Override
         public JsonElement serialize(ArrayList<PersistedMenu> src, Type type, JsonSerializationContext ctx) {
@@ -160,6 +195,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             mapOfTypes.put(SUB_PERSIST_TYPE, SubMenuItem.class);
             mapOfTypes.put(RUNTIME_LIST_PERSIST_TYPE, RuntimeListMenuItem.class);
             mapOfTypes.put(RUNTIME_LARGE_NUM_PERSIST_TYPE, EditableLargeNumberMenuItem.class);
+            mapOfTypes.put(CUSTOM_ITEM_PERSIST_TYPE, CustomBuilderMenuItem.class);
             mapOfTypes.put(SCROLL_CHOICE_PERSIST_TYPE, ScrollChoiceMenuItem.class);
             mapOfTypes.put(RGB32_COLOR_PERSIST_TYPE, Rgb32MenuItem.class);
             mapOfTypes.put(FLOAT_PERSIST_TYPE, FloatMenuItem.class);

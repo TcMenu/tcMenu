@@ -16,18 +16,16 @@
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
+#include <EepromAbstraction.h>
+#include <RemoteAuthentication.h>
 
-void setupMenu();  // forward reference of the menu setup function.
-extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and ID
-
-// Global variables that need exporting
-
+// variables we declare that you may need to access
+extern const PROGMEM ConnectorLocalInfo applicationInfo;
 extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
 extern const GFXfont sans24p7b;
 
 // Global Menu Item exports
-
 extern IpAddressMenuItem menuIpItem;
 extern TextMenuItem menuTextItem;
 extern AnalogMenuItem menuOverrideAnalog2Name;
@@ -37,8 +35,9 @@ extern ListRuntimeMenuItem menuAbc;
 extern AnalogMenuItem menuTest;
 extern EnumMenuItem menuExtra;
 
-// Provide a wrapper to get hold of the root menu item
+// Provide a wrapper to get hold of the root menu item and export setupMenu
 inline MenuItem& rootMenuItem() { return menuExtra; }
+void setupMenu();
 
 // Callback functions must always include CALLBACK_FUNCTION after the return type
 #define CALLBACK_FUNCTION

@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.Optional;
 
 public class ArduinoDirectoryStructureHelper {
-    public enum DirectoryPath {TCMENU_DIR, SKETCHES_DIR}
+    public enum DirectoryPath {TCMENU_DIR, SKETCHES_DIR }
 
     public static final String INO_FILE = "void setup() {}\nvoid loop();\n";
     public static final String EMF_FILE = "[]";
@@ -27,15 +27,18 @@ public class ArduinoDirectoryStructureHelper {
 
     }
 
-    public void createSketch(DirectoryPath where, String name, boolean hasEmf) throws IOException {
+    public Optional<String> createSketch(DirectoryPath where, String name, boolean hasEmf) throws IOException {
         var path = where == DirectoryPath.TCMENU_DIR ? tcMenuLibDirTemp.resolve("examples") : arduinoSketchesDirTemp;
         Path sketchDir = path.resolve(name);
         Files.createDirectories(sketchDir);
         String fileNameBase = sketchDir.getFileName().toString();
         Files.write(sketchDir.resolve(fileNameBase + ".INO"), INO_FILE.getBytes());
         if(hasEmf) {
-            Files.write(sketchDir.resolve(fileNameBase + ".EMF"), EMF_FILE.getBytes());
+            Path emfFile = sketchDir.resolve(fileNameBase + ".EMF");
+            Files.write(emfFile, EMF_FILE.getBytes());
+            return Optional.of(emfFile.toString());
         }
+        return Optional.empty();
     }
 
     public void cleanUp() throws IOException {

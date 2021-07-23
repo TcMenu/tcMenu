@@ -17,6 +17,7 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -69,6 +70,18 @@ public class AddDialogTestCases {
     @Test
     void testSelectingAction(FxRobot robot) {
         checkForItem(ActionMenuItem.class, NON_DEFAULT_ID, "actionSelect", robot);
+    }
+
+    @Test
+    void testSelectingAuthenticator(FxRobot robot) {
+        checkForItem(CustomBuilderMenuItem.class, DEFAULT_ID, "authenticatorSelect", robot);
+        assertTrue(dialog.getResultOrEmpty().orElseThrow() instanceof CustomBuilderMenuItem b && b.getMenuType() == AUTHENTICATION);
+    }
+
+    @Test
+    void testSelectingIoTMonitor(FxRobot robot) {
+        checkForItem(CustomBuilderMenuItem.class, DEFAULT_ID, "iotListSelect", robot);
+        assertTrue(dialog.getResultOrEmpty().orElseThrow() instanceof CustomBuilderMenuItem b && b.getMenuType() == REMOTE_IOT_MONITOR);
     }
 
     @Test

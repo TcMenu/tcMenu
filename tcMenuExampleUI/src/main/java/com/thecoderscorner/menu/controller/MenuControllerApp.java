@@ -17,14 +17,14 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 /**
  * This UI shows how to get started building a desktop or mobile user interface
  * using Java for tcMenu. It's purposely kept as simple as possible while still
  * doing as many of the things most people need as possible.
  */
 public class MenuControllerApp extends Application {
-    public static final String MY_REMOTE_NAME = "DavesMac";
-    public static final String MY_PORT_NAME = "/dev/cu.usbmodemFD131";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -38,7 +38,8 @@ public class MenuControllerApp extends Application {
 
         if(remote != null) {
             // At this point we build a JavaFX stage and load up our main window
-            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/controller-icon.png")));
+            primaryStage.getIcons().add(new Image(
+                    Objects.requireNonNull(getClass().getResourceAsStream("/controller-icon.png"))));
             primaryStage.setTitle("Connecting to remote system");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
             Pane myPane = loader.load();
@@ -61,7 +62,8 @@ public class MenuControllerApp extends Application {
         controller.init(tree);
 
         Stage dialogStage = new Stage();
-        dialogStage.getIcons().add(new Image(getClass().getResourceAsStream("/controller-icon.png")));
+        dialogStage.getIcons().add(new Image(
+                Objects.requireNonNull(getClass().getResourceAsStream("/controller-icon.png"))));
         dialogStage.setTitle("Connect to tcMenu device");
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(null);

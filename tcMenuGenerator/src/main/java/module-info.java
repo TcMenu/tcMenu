@@ -14,6 +14,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.thecoderscorner.tcmenu.javaapi;
     requires com.google.gson;
     requires info.picocli;
+    requires org.jfxtras.styles.jmetro;
 
     exports com.thecoderscorner.menu.editorui.controller;
     exports com.thecoderscorner.menu.editorui.generator;
@@ -23,16 +24,22 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.generator.core;
     exports com.thecoderscorner.menu.editorui.generator.plugin;
     exports com.thecoderscorner.menu.editorui.generator.validation;
+    exports com.thecoderscorner.menu.editorui.generator.applicability;
     exports com.thecoderscorner.menu.editorui.generator.util;
     exports com.thecoderscorner.menu.editorui.generator.arduino;
     exports com.thecoderscorner.menu.editorui.uimodel;
     exports com.thecoderscorner.menu.editorui;
+    exports com.thecoderscorner.menu.editorui.storage;
+    exports com.thecoderscorner.menu.editorui.generator.parameters;
+    exports com.thecoderscorner.menu.editorui.generator.parameters.eeprom;
+    exports com.thecoderscorner.menu.editorui.generator.parameters.auth;
 
+    opens com.thecoderscorner.menu.editorui.generator.parameters.eeprom to com.google.gson;
+    opens com.thecoderscorner.menu.editorui.generator.parameters.auth to com.google.gson;
     opens com.thecoderscorner.menu.editorui.project to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator.core to com.google.gson;
     opens com.thecoderscorner.menu.editorui.controller to com.google.gson;
     opens com.thecoderscorner.menu.editorui.cli to info.picocli;
-    exports com.thecoderscorner.menu.editorui.storage;
     opens com.thecoderscorner.menu.editorui.storage to com.google.gson;
 }

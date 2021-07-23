@@ -170,12 +170,15 @@ public class CallbackRequirement {
             public void visit(RuntimeListMenuItem listItem) {
                 setResult("int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
             }
+
+            @Override
             public void visit(ScrollChoiceMenuItem choiceMenuItem) {
                 if(choiceMenuItem.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
                     setResult("int " + generator.makeRtFunctionName(choiceMenuItem) + RUNTIME_CALLBACK_PARAMS + ";");
                 }
                 else anyItem(choiceMenuItem);
             }
+
             @Override
             public void anyItem(MenuItem item) {
                 if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {

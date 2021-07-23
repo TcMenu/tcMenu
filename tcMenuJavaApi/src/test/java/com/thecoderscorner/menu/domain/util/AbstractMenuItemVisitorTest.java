@@ -86,6 +86,11 @@ public class AbstractMenuItemVisitorTest {
             public void visit(EditableLargeNumberMenuItem item) {
                 setResult(getResult().orElse("") + "9");
             }
+
+            @Override
+            public void visit(CustomBuilderMenuItem item) {
+                setResult(getResult().orElse("") + "C");
+            }
         };
 
         AnalogMenuItem analog = anAnalogItem("123", 1);
@@ -100,6 +105,7 @@ public class AbstractMenuItemVisitorTest {
         Rgb32MenuItem rgbItem = new Rgb32MenuItemBuilder().withId(10).withName("rgb").withAlpha(true).menuItem();
         ScrollChoiceMenuItem scrollItem = new ScrollChoiceMenuItemBuilder().withId(15).withName("scroll").withItemWidth(10)
                 .withNumEntries(20).withEepromOffset(10).withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM).menuItem();
+        CustomBuilderMenuItem customItem = new CustomBuilderMenuItemBuilder().withId(1002).withName("Hello").withFunctionName("onAbc").menuItem();
 
         subItem.accept(visitor);
         analog.accept(visitor);
@@ -112,8 +118,9 @@ public class AbstractMenuItemVisitorTest {
         numItem.accept(visitor);
         rgbItem.accept(visitor);
         scrollItem.accept(visitor);
+        customItem.accept(visitor);
 
-        assertThat(visitor.getResult().orElse(""), is("123456789RS"));
+        assertThat(visitor.getResult().orElse(""), is("123456789RSC"));
     }
 
     @Test(expected = UnsupportedOperationException.class)

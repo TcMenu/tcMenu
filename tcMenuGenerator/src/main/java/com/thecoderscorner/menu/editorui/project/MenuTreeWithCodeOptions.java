@@ -11,10 +11,12 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 
 public class MenuTreeWithCodeOptions {
     private final MenuTree menuTree;
+    private final String description;
     private final CodeGeneratorOptions options;
 
-    public MenuTreeWithCodeOptions(MenuTree menuTree, CodeGeneratorOptions options) {
+    public MenuTreeWithCodeOptions(MenuTree menuTree, CodeGeneratorOptions options, String description) {
         this.menuTree = menuTree;
+        this.description = description;
         this.options = options;
     }
 
@@ -24,5 +26,9 @@ public class MenuTreeWithCodeOptions {
 
     public CodeGeneratorOptions getOptions() {
         return options;
+    }
+
+    public String getDescription() {
+        return description != null ? description : "";
     }
 }

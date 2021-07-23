@@ -5,10 +5,7 @@ import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
 
@@ -23,7 +20,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private boolean usingIde;
     private Optional<String> maybeOverrideDirectory;
     private Optional<String> maybeLibOverrideDirectory;
-    private List<ArduinoDirectoryChangeListener> directoryChangeListeners = new CopyOnWriteArrayList<>();
+    private final List<ArduinoDirectoryChangeListener> directoryChangeListeners = new CopyOnWriteArrayList<>();
 
     public PrefsConfigurationStorage() {
         try {
@@ -187,5 +184,20 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     public void setDefaultSaveToSrcOn(boolean state) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.put(DEFAULT_SAVE_TO_SRC, Boolean.toString(state));
+    }
+
+    @Override
+    public List<String> getAdditionalPluginPaths() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        var paths = prefs.get(EXTRA_PLUGIN_PATHS, "");
+        if(paths.isBlank()) return List.of();
+
+        return Arrays.asList(paths.split("\\s*[;,]\\s*"));
+    }
+
+    @Override
+    public void setAdditionalPluginPaths(List<String> path) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(EXTRA_PLUGIN_PATHS, String.join(",", path));
     }
 }

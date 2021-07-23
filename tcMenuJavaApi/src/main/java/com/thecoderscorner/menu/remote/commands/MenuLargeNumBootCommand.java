@@ -7,7 +7,9 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.math.BigDecimal;
 
@@ -23,8 +25,8 @@ public class MenuLargeNumBootCommand extends BootItemMenuCommand<EditableLargeNu
     }
 
     @Override
-    public MenuState<BigDecimal> internalNewMenuState(MenuState<BigDecimal> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

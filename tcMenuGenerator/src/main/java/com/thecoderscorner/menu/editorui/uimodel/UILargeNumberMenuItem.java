@@ -60,6 +60,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(new Label("Decimal Places"), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getDecimalPlaces()));
         decimalPlaces.textProperty().addListener(this::coreValueChanged);
+        decimalPlaces.setId("lgeDecimalPlaces");
         TextFormatterUtils.applyIntegerFormatToField(decimalPlaces);
         grid.add(decimalPlaces, 1, idx);
 
@@ -67,6 +68,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(new Label("Total Digits"), 0, idx);
         totalDigits = new TextField(String.valueOf(getMenuItem().getDigitsAllowed()));
         totalDigits.textProperty().addListener(this::coreValueChanged);
+        totalDigits.setId("lgeTotalDigits");
         TextFormatterUtils.applyIntegerFormatToField(totalDigits);
         grid.add(totalDigits, 1, idx);
 

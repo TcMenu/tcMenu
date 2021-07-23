@@ -31,6 +31,15 @@ public class VersionInfo {
         }
     }
 
+    public static VersionInfo fromString(String sel) {
+        try {
+            return new VersionInfo(sel);
+        }
+        catch(Exception e) {
+            return ERROR_VERSION;
+        }
+    }
+
     public boolean isSameOrNewerThan(VersionInfo other) {
         if(major > other.major) return true;
         if(major < other.major) return false;
@@ -59,5 +68,9 @@ public class VersionInfo {
     @Override
     public int hashCode() {
         return Objects.hash(major, minor, patch);
+    }
+
+    public int asInteger() {
+        return (major * 1000000) + (minor * 1000) + patch;
     }
 }

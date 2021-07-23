@@ -6,10 +6,10 @@
 
 package com.thecoderscorner.menu.controller.manageditem;
 
-import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
@@ -24,9 +24,11 @@ public class ScrollManagedMenuItem extends IntegerBaseManagedMenuItem<ScrollChoi
     }
 
     @Override
-    public void internalChangeItem(MenuState<CurrentScrollPosition> state) {
-        currentPosition = state.getValue();
-        itemLabel.setText(state.getValue().getValue());
+    public void internalChangeItem(AnyMenuState state) {
+        if(state instanceof CurrentScrollPositionMenuState posState) {
+            currentPosition = posState.getValue();
+            itemLabel.setText(posState.getValue().getValue());
+        }
     }
 
     protected Optional<CorrelationId> handleAdjustment(RemoteMenuController menuController, int mode) {

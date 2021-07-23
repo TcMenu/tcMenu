@@ -23,8 +23,8 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="CustomDrawableType" replace="${CLASS_NAME}Drawable" whenProperty="CREATE_EMPTY_DRAWABLE" isValue="true"/>
-        <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" whenProperty="CREATE_EMPTY_DRAWABLE" isValue="true"/>
+        <Replacement find="CustomDrawableType" replace="${CLASS_NAME}Drawable" />
+        <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" />
     </SourceFiles>
 
     <IncludeFiles>
@@ -39,5 +39,9 @@
         </Variable>
     </GlobalVariables>
 
-    <SetupFunctions/>
+    <SetupFunctions>
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+    </SetupFunctions>
 </TcMenuPlugin>

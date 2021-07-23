@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.controller;
 
 import com.thecoderscorner.menu.controller.manageditem.*;
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -55,14 +54,14 @@ public class MainWindowController {
     public GridPane itemGrid;
     public BorderPane mainBorderPane;
 
-    private Map<Integer, ManagedMenuItem> managedMenuItems = new HashMap<>();
+    private final Map<Integer, ManagedMenuItem<?, ?>> managedMenuItems = new HashMap<>();
     //
     // End JavaFX field bindings
     //
 
     // The highlighting of an items background after a change is done by holding
     // the time since the last change and ticking every 100ms to check it.
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new NamedDaemonThreadFactory("ui-executor"));
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new NamedDaemonThreadFactory("ui-executor"));
 
     // The remoteControl reference passed in from the app. This is the means to get events from and
     // control a remote menu
@@ -76,13 +75,13 @@ public class MainWindowController {
     //
 
     // Holds the current connectivity state - boolean
-    private AtomicReference<AuthStatus> authStatus = new AtomicReference<>(AuthStatus.AWAITING_CONNECTION);
+    private final AtomicReference<AuthStatus> authStatus = new AtomicReference<>(AuthStatus.AWAITING_CONNECTION);
     // Indicates if there has been a bootstrap yet to populate the menu structure
-    private AtomicBoolean bootstrapComplete = new AtomicBoolean(false);
+    private final AtomicBoolean bootstrapComplete = new AtomicBoolean(false);
 
     /**
      * initialise is called by the App to start the application up. In here we register a listener for
-     * communication events and start the comms.
+     * communication events and start the communications.
      *
      * @param menuTree      the tree of menu items
      * @param remoteControl the control that's attached to a remote menu
@@ -96,8 +95,8 @@ public class MainWindowController {
 
         //
         // register a listener that will handle all the connectivity and change events. Take careful note of the
-        // Platform.runLater calls, these are very important, you must not update UI controls directly in the comms
-        // call back.
+        // Platform.runLater calls, these are very important, you must not update UI controls directly in the
+        // communications call back.
         //
         remoteControl.addListener(new RemoteControllerListener() {
 
@@ -181,7 +180,7 @@ public class MainWindowController {
         });
 
         //
-        // start the comms
+        // start the communication loop
         //
         remoteControl.start();
     }
@@ -221,7 +220,7 @@ public class MainWindowController {
         titleLbl.setPadding(new Insets(12, 10, 4, nesting * 15));
         itemGrid.add(titleLbl, 0, gridPosition++, 2, 1);
 
-        // while there are more menuitems in the current level
+        // while there are more menu-items in the current level
         for (MenuItem item : menuTree.getMenuItems(subMenu)) {
             if (item.hasChildren()) {
                 //
@@ -253,7 +252,7 @@ public class MainWindowController {
      * @return a Node that can be added to the grid.
      */
     private Node createUiControlForItem(MenuItem item) {
-        var maybeManagedItem = MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<ManagedMenuItem>() {
+        var maybeManagedItem = MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<ManagedMenuItem<?, ?>>() {
             @Override
             public void visit(AnalogMenuItem item) {
                 setResult(new AnalogManagedMenuItem(item));
@@ -310,7 +309,7 @@ public class MainWindowController {
         });
 
         if (maybeManagedItem.isPresent()) {
-            ManagedMenuItem managed = maybeManagedItem.get();
+            ManagedMenuItem<?, ?> managed = maybeManagedItem.get();
             managedMenuItems.put(item.getId(), managed);
             return managed.createNodes(remoteControl);
         } else return new Label();
@@ -320,10 +319,9 @@ public class MainWindowController {
      * When there's a change in value for an item, this code takes care of rendering it.
      * @param item the item to render
      */
-    @SuppressWarnings("unchecked")
-    private void renderItemValue(MenuItem<?> item) {
+    private void renderItemValue(MenuItem item) {
         // only proceed if there's a label to be updated..
-        ManagedMenuItem managedMenuItem = managedMenuItems.get(item.getId());
+        ManagedMenuItem<?, ?> managedMenuItem = managedMenuItems.get(item.getId());
         if (managedMenuItem == null) return; // safety check
         managedMenuItem.itemChanged(menuTree.getMenuState(item));
     }

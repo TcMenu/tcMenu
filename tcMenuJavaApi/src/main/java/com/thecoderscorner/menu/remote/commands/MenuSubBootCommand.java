@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuSubBootCommand extends BootItemMenuCommand<SubMenuItem, Boolean> {
 
@@ -21,7 +22,7 @@ public class MenuSubBootCommand extends BootItemMenuCommand<SubMenuItem, Boolean
     }
 
     @Override
-    public MenuState<Boolean> internalNewMenuState(MenuState<Boolean> oldState) {
-        return getMenuItem().newMenuState(false, false, false);
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), false, oldState.isActive());
     }
 }

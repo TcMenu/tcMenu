@@ -26,7 +26,7 @@
 
     <IncludeFiles>
         <Header name="BaseRenderer.h" inSource="false"/>
-        <Header name="${HEADER_FILE}" inSource="true"/>
+        <Header name="${HEADER_FILE}.h" inSource="true"/>
     </IncludeFiles>
 
     <GlobalVariables>

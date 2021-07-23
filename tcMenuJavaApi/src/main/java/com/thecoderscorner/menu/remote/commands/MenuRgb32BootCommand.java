@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 public class MenuRgb32BootCommand extends BootItemMenuCommand<Rgb32MenuItem, PortableColor> {
 
@@ -21,8 +22,8 @@ public class MenuRgb32BootCommand extends BootItemMenuCommand<Rgb32MenuItem, Por
     }
 
     @Override
-    public MenuState<PortableColor> internalNewMenuState(MenuState<PortableColor> oldState) {
+    public AnyMenuState internalNewMenuState(AnyMenuState oldState) {
         boolean changed = !(oldState.getValue().equals(getCurrentValue()));
-        return getMenuItem().newMenuState(getCurrentValue(), changed, oldState.isActive());
+        return MenuItemHelper.stateForMenuItem(getMenuItem(), getCurrentValue(), changed, oldState.isActive());
     }
 }

@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.domain;
 
-import com.thecoderscorner.menu.domain.state.IntegerMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
 import java.util.Collections;
@@ -18,7 +16,7 @@ import java.util.Objects;
  * A menu item implementation that represents one of a known set of choices, the choices are stored as an integer
  * value, but each choice has a string representation as well.
  */
-public class EnumMenuItem extends MenuItem<Integer> {
+public class EnumMenuItem extends MenuItem {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
@@ -35,11 +33,6 @@ public class EnumMenuItem extends MenuItem<Integer> {
 
     public List<String> getEnumEntries() {
         return enumEntries;
-    }
-
-    @Override
-    public MenuState<Integer> newMenuState(Integer value, boolean changed, boolean active) {
-        return new IntegerMenuState(this, changed, active, value);
     }
 
     @Override

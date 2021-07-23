@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -57,6 +58,7 @@ public class MenuEditorController {
     public static final String REGISTRATION_URL = "https://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
+    public CheckMenuItem darkModeMenuFlag;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -120,7 +122,6 @@ public class MenuEditorController {
         Platform.runLater(() -> {
             sortOutMenuForMac();
             redrawTreeControl();
-            redrawStatus();
             populateAllMenus();
         });
 
@@ -140,6 +141,7 @@ public class MenuEditorController {
             populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
             populateMenu(menuSketches, installer.getArduinoDirectory(), "");
         }
+        darkModeMenuFlag.setSelected(BaseDialogSupport.getTheme().equals("darkMode"));
     }
 
     public CurrentEditorProject getProject() {
@@ -189,11 +191,6 @@ public class MenuEditorController {
         } catch (IOException e) {
             logger.log(ERROR, "Failed to locate ino in example " + path);
         }
-    }
-
-    private void redrawStatus() {
-        statusField.setText("TcMenu Designer " + configStore. getVersion()
-                + " \u00A9 thecoderscorner.com. Registered to " + configStore.getRegisteredKey());
     }
 
     private void sortOutMenuForMac() {
@@ -298,7 +295,7 @@ public class MenuEditorController {
     private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItem> treeItem) {
         if (menuItems == null) return;
 
-        for (MenuItem<?> item : menuItems) {
+        for (MenuItem item : menuItems) {
             TreeItem<MenuItem> child = new TreeItem<>(item);
             if (item.hasChildren()) {
                 child.setExpanded(true);
@@ -325,7 +322,7 @@ public class MenuEditorController {
     }
 
     public void registerMenuPressed(ActionEvent actionEvent) {
-        RegistrationDialog.showRegistration(configStore, getStage(), REGISTRATION_URL);
+        new RegistrationDialog(configStore, getStage(), REGISTRATION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
@@ -451,10 +448,15 @@ public class MenuEditorController {
     }
 
     public void onGenerateCode(ActionEvent event) {
-        editorUI.showCodeGeneratorDialog(editorProject, installer);
-        editorProject.saveProject(EditorSaveMode.SAVE);
-        redrawTreeControl();
-        handleRecents();
+        try {
+            editorUI.showCodeGeneratorDialog(editorProject, installer);
+            editorProject.saveProject(EditorSaveMode.SAVE);
+            redrawTreeControl();
+            handleRecents();
+        }
+        catch (Exception e) {
+            logger.log(ERROR, "Code generator caught an exception", e);
+        }
     }
 
     public void loadPreferences() {
@@ -567,6 +569,15 @@ public class MenuEditorController {
 
     public void onGeneralSettings(ActionEvent actionEvent) {
         editorUI.showGeneralSettings();
+    }
+
+    public void onDarkModeChange(ActionEvent actionEvent) {
+        BaseDialogSupport.setTheme(darkModeMenuFlag.isSelected() ?  "darkMode" : "lightMode");
+        BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+    }
+
+    public void onSponsorLinkPressed(ActionEvent actionEvent) {
+        editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
     }
 
     private record RecentlyUsedItem(String name, String path) {

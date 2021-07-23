@@ -180,6 +180,26 @@ public class MenuItemTest {
     }
 
     @Test
+    public void testCustomBuildItem() {
+        var item = new CustomBuilderMenuItemBuilder().withId(123)
+                .withName("Test12")
+                .withMenuType(CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR)
+                .withFunctionName("myFunc")
+                .withLocalOnly(true)
+                .withReadOnly(false)
+                .withVisible(false)
+                .withEepromAddr(-1)
+                .menuItem();
+
+        assertBaseMenuFields(item, "Test12", 123, -1);
+        assertTrue(item.isLocalOnly());
+        assertFalse(item.isReadOnly());
+        assertFalse(item.isVisible());
+
+        assertEquals(item, new CustomBuilderMenuItemBuilder().withExisting(item).menuItem());
+    }
+
+    @Test
     public void testScrollChoiceItem() {
         var item = new ScrollChoiceMenuItemBuilder().withId(123)
                 .withName("scroll")

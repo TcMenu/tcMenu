@@ -19,8 +19,8 @@ import static java.lang.System.Logger.Level.INFO;
 public class StreamNotConnectedState implements RemoteConnectorState {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final RemoteConnectorContext context;
-    private volatile Future connectionTask;
-    private AtomicInteger connectionDelay = new AtomicInteger(2000);
+    private volatile Future<?> connectionTask;
+    private final AtomicInteger connectionDelay = new AtomicInteger(2000);
     private final Object connectionWaiter = new Object();
 
     public StreamNotConnectedState(RemoteConnectorContext context) {

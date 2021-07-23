@@ -6,7 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -15,27 +17,30 @@ import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicabl
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
+import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -45,6 +50,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public static final String LINE_BREAK = System.getProperty("line.separator");
     public static final String TWO_LINES = LINE_BREAK + LINE_BREAK;
+    public static final String NO_REMOTE_ID = "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb";
 
     private static final String COMMENT_HEADER = "/*\n" +
             "    The code in this file uses open source libraries provided by thecoderscorner" + LINE_BREAK + LINE_BREAK +
@@ -65,6 +71,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected CodeConversionContext context;
     protected VariableNameGenerator namingGenerator;
     protected NameAndKey nameAndKey;
+    protected boolean hasRemotePlugins;
     private final AtomicInteger logEntryNum = new AtomicInteger(0);
 
     public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
@@ -82,6 +89,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
         logLine(INFO, "Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
+
+        hasRemotePlugins = codeGenerators.stream()
+                .anyMatch(p -> p.getSubsystem() == SubSystem.REMOTE && !p.getId().equals(NO_REMOTE_ID));
 
         usesProgMem = embeddedPlatform.isUsesProgmem();
 
@@ -113,6 +123,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             dealWithRequiredPlugins(codeGenerators, srcDir);
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
+
+            doSanityChecks();
 
             logLine(INFO, "Process has completed, make sure the code in your IDE is up-to-date.");
             logLine(INFO, "You may need to close the project and then re-open it to pick up changes..");
@@ -181,13 +193,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
-        logLine(INFO, "Checking if any plugins have been removed from the project and need removal");
-
-        var props = generators.stream().flatMap(gen ->  gen.getProperties().stream()).collect(Collectors.toList());
+        logLine(INFO, "Checking if any plugin files need removal because of plugin changes");
 
         var newPluginFileSet = generators.stream()
                 .flatMap(gen -> gen.getRequiredSourceFiles().stream())
-                .filter(sf -> sf.getApplicability().isApplicable(props))
+                .filter(sf -> sf.getApplicability().isApplicable(context.getProperties()))
                 .map(RequiredSourceFile::getFileName)
                 .collect(Collectors.toSet());
 
@@ -206,7 +216,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             }
         }
 
-        logLine(INFO, "Finding any required rendering / remote plugins to add to project");
+        logLine(INFO, "Adding all files required by selected plugins");
 
         for (var gen : generators) {
             generatePluginsForCreator(gen, directory);
@@ -346,17 +356,32 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(includeDefs);
             writer.write(StringHelper.isStringEmptyOrNull(includeDefs) ? LINE_BREAK : TWO_LINES);
 
-            writer.write("// Global variable declarations" + TWO_LINES);
+            writer.write("// Global variable declarations");
+            writer.write(LINE_BREAK);
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
             writer.write(LINE_BREAK);
+            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+                writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");
+                writer.write(LINE_BREAK);
+            }
+
+            writer.write(extraCodeDefinitions().stream()
+                    .map(CodeGeneratorCapable::generateGlobal)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.joining(LINE_BREAK))
+            );
+            writer.write(LINE_BREAK);
+
             writer.write(extractor.mapVariables(
                     generators.stream().flatMap(ecc -> ecc.getVariables().stream()).collect(Collectors.toList())
             ));
 
             var localCbReq = new HashMap<>(callbackRequirements);
 
-            writer.write(TWO_LINES + "// Global Menu Item declarations" + TWO_LINES);
+            writer.write(TWO_LINES + "// Global Menu Item declarations");
+            writer.write(LINE_BREAK);
             StringBuilder toWrite = new StringBuilder(255);
             menuStructure.forEach(struct -> {
                 var callback = localCbReq.remove(struct.getMenuItem());
@@ -372,17 +397,47 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             });
             writer.write(toWrite.toString());
 
-            writer.write(LINE_BREAK + "// Set up code" + TWO_LINES);
-            writer.write("void setupMenu() {" + LINE_BREAK);
+            writer.write(LINE_BREAK);
+            writer.write("void setupMenu() {");
+            writer.write(LINE_BREAK);
+
+            writer.write("    // First we set up eeprom and authentication (if needed)." + LINE_BREAK);
+            writer.write(extraCodeDefinitions().stream()
+                    .map(CodeGeneratorCapable::generateCode)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.joining(LINE_BREAK))
+            );
+            writer.write(LINE_BREAK);
+
+
             List<FunctionDefinition> readOnlyLocal = generateReadOnlyLocal();
             if (!readOnlyLocal.isEmpty()) {
+                writer.write("    // Now add any readonly, non-remote and visible flags." + LINE_BREAK);
                 writer.write(extractor.mapFunctions(readOnlyLocal));
                 writer.write(LINE_BREAK + LINE_BREAK);
             }
 
+            writer.write("    // Code generated by plugins." + LINE_BREAK);
             writer.write(extractor.mapFunctions(
                     generators.stream().flatMap(ecc -> ecc.getFunctions().stream()).collect(Collectors.toList())
             ));
+
+            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+                menuTree.getAllMenuItems().stream()
+                        .filter(menuItem -> menuItem instanceof CustomBuilderMenuItem custom && custom.getMenuType() == REMOTE_IOT_MONITOR)
+                        .findFirst()
+                        .ifPresent(item -> {
+                            try {
+                                writer.write(TWO_LINES + "    // We have an IoT monitor, register the server" + LINE_BREAK);
+                                writer.write("    menu" + namingGenerator.makeNameToVar(item) + ".setRemoteServer(remoteServer);");
+                            } catch (IOException e) {
+                                logLine(ERROR, "Exception writing cpp file: remote server on IoT monitor");
+                                logger.log(ERROR, "Exception during write of remote server block", e);
+                            }
+                        });
+            }
+
 
             writer.write(LINE_BREAK + "}" + LINE_BREAK);
             writer.write(LINE_BREAK);
@@ -394,6 +449,17 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             throw new TcMenuConversionException("Header Generation failed", e);
         }
 
+    }
+
+    private boolean requiresGlobalServerDefinition() {
+        try {
+            var pluginVer = installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN);
+            var twoPointTwo = VersionInfo.fromString("2.2.0");
+            return pluginVer.isSameOrNewerThan(twoPointTwo);
+        } catch (IOException e) {
+            logger.log(ERROR, "Cannot determine tcMenu library version, assume > 2.2.0");
+            return true;
+        }
     }
 
     protected void generateHeaders(List<CodePluginItem> embeddedCreators,
@@ -412,18 +478,22 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // and write out the includes
             writer.write(extractor.mapIncludes(includeList));
 
-            writer.write(TWO_LINES + "void setupMenu();  // forward reference of the menu setup function.");
-            writer.write(LINE_BREAK + "extern const PROGMEM ConnectorLocalInfo applicationInfo;  // contains app name and ID");
+            writer.write(TWO_LINES);
+            writer.write("// variables we declare that you may need to access" + LINE_BREAK);
+            writer.write("extern const PROGMEM ConnectorLocalInfo applicationInfo;");
+            writer.write(LINE_BREAK);
 
-            writer.write(LINE_BREAK + LINE_BREAK + "// Global variables that need exporting" + TWO_LINES);
-
+            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+                writer.write("extern TcMenuRemoteServer remoteServer;" + LINE_BREAK);
+            }
             // and put the exports in the file too
             writer.write(extractor.mapExports(embeddedCreators.stream()
                     .flatMap(ecc -> ecc.getVariables().stream())
                     .filter(var -> var.getApplicability().isApplicable(context.getProperties()))
                     .collect(Collectors.toList())
             ));
-            writer.write(LINE_BREAK + LINE_BREAK + "// Global Menu Item exports" + TWO_LINES);
+            writer.write(TWO_LINES);
+            writer.write("// Global Menu Item exports" + LINE_BREAK);
 
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
@@ -433,9 +503,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write(TWO_LINES);
 
-            writer.write("// Provide a wrapper to get hold of the root menu item");
+            writer.write("// Provide a wrapper to get hold of the root menu item and export setupMenu");
             writer.write(LINE_BREAK);
             writer.write("inline MenuItem& rootMenuItem() { return " + context.getRootObject() + "; }");
+            writer.write(LINE_BREAK);
+            writer.write("void setupMenu();");
             writer.write(TWO_LINES);
 
             writer.write("// Callback functions must always include CALLBACK_FUNCTION after the return type"
@@ -475,7 +547,50 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         includeList.addAll(menuStructure.stream()
                 .flatMap(s -> s.getHeaderRequirements().stream())
                 .collect(Collectors.toList()));
+
+        includeList.addAll(extraCodeDefinitions().stream()
+                .map(CodeGeneratorCapable::generateHeader)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
+
         return includeList;
+    }
+
+    private Collection<CodeGeneratorCapable> extraCodeDefinitions() {
+        return List.of(options.getEepromDefinition(), options.getAuthenticatorDefinition());
+    }
+
+    protected void doSanityChecks() {
+        boolean eepromAuthenticator = options.getAuthenticatorDefinition() instanceof EepromAuthenticatorDefinition;
+        boolean noEeprom = options.getEepromDefinition() instanceof NoEepromDefinition;
+        boolean errorFound = false;
+
+        if(noEeprom && eepromAuthenticator) {
+            logLine(ERROR, "You have selected No EEPROM but then used an EEPROM based authenticator.");
+            errorFound = true;
+        }
+
+        Collection<MenuItem> allItems = menuTree.getAllMenuItems();
+
+        if(allItems.isEmpty()) {
+            logLine(ERROR, "The menu tree is empty, this is not a supported, please add at least one item.");
+            errorFound = true;
+        }
+
+        if(noEeprom && allItems.stream().anyMatch(mt -> mt instanceof ScrollChoiceMenuItem sc && sc.getChoiceMode() == ARRAY_IN_EEPROM)) {
+            logLine(ERROR, "You have included a scroll choice EEPROM item but have not configured an EEPROM.");
+            errorFound = true;
+        }
+
+        if(!eepromAuthenticator && allItems.stream().anyMatch(mt -> mt instanceof CustomBuilderMenuItem ci && ci.getMenuType() == AUTHENTICATION)) {
+            logLine(ERROR, "You have included an EEPROM authentication menu item without using EEPROM authentication.");
+            errorFound = true;
+        }
+
+        if(errorFound) {
+            logLine(ERROR, "It is highly likely that your menu will not work as expected, please fix any errors before deploying.");
+        }
     }
 
     protected abstract String platformIncludes();

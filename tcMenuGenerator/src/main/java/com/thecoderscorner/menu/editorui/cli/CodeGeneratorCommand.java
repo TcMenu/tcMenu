@@ -1,7 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -21,14 +22,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.MenuEditorApp.configuredPluginPaths;
 import static picocli.CommandLine.Command;
 
 @Command(name="generate")
@@ -40,6 +37,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     private static ProjectPersistor persistor = null;
     private static File loadedProjectFile = null;
+    private static String projectDescription = "";
 
     @CommandLine.Option(names = {"-f", "--emf-file"}, description = "emf file name")
     private File projectFile;
@@ -55,9 +53,12 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             System.out.format("Starting code generator for %s\n", project.getOptions().getApplicationName());
 
             var prefsStore = new PrefsConfigurationStorage();
+            MenuEditorApp.createOrUpdateDirectoriesAsNeeded(prefsStore);
+            prefsStore.setLastRunVersion(new VersionInfo(prefsStore.getVersion()));
+
             var platforms = new PluginEmbeddedPlatformsImpl();
-            DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore);
-            loader.loadPlugins(configuredPluginPaths());
+            DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
+            loader.loadPlugins();
             platforms.setInstaller(new ArduinoLibraryInstaller(new OfflineDetector(), loader, prefsStore));
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(project.getOptions().getEmbeddedPlatform());
             var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
@@ -72,9 +73,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
             plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastInputUuid(), DEFAULT_INPUT_PLUGIN));
             plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastDisplayUuid(), DEFAULT_DISPLAY_PLUGIN));
-            plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastRemoteCapabilitiesUuid(), DEFAULT_REMOTE_PLUGIN));
+            for(var plugin : project.getOptions().getLastRemoteCapabilitiesUuids()) {
+                plugins.add(getPluginOrDefault(allPlugins, plugin, DEFAULT_REMOTE_PLUGIN));
+            }
             if (project.getOptions().getLastThemeUuid() != null) {
-                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastRemoteCapabilitiesUuid(), DEFAULT_THEME_PLUGIN));
+                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN));
             }
 
             System.out.format("Executing code generator");
@@ -118,12 +121,14 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
         loadedProjectFile = projectFile;
 
-        // just incase we make a backup.
-        Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile.toString() + ".last"), StandardCopyOption.REPLACE_EXISTING);
+        // just in case we make a backup.
+        Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile + ".last"), StandardCopyOption.REPLACE_EXISTING);
 
         if(persistor == null) persistor = new FileBasedProjectPersistor();
 
-        return persistor.open(projectFile.getAbsolutePath());
+        var loadedProject = persistor.open(projectFile.getAbsolutePath());
+        projectDescription = loadedProject.getDescription();
+        return loadedProject;
     }
 
     public static File locateProjectFile(File projectFile) throws IOException {
@@ -140,7 +145,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {
         if(persistor != null && loadedProjectFile != null) {
-            persistor.save(loadedProjectFile.toString(), tree, opts);
+            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts);
         }
     }
 
@@ -168,6 +173,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         @Override
         public boolean availableVersionsAreValid(boolean refresh) {
             return true;
+        }
+
+        @Override
+        public Optional<List<VersionInfo>> acquireAllVersionsFor(String pluginName) {
+            return Optional.empty();
         }
     }
 }

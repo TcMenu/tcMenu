@@ -7,7 +7,7 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.FloatMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
 
@@ -25,7 +25,7 @@ public class FloatManagedMenuItem extends BaseLabelledManagedMenuItem<Float, Flo
     }
 
     @Override
-    public void internalChangeItem(MenuState<Float> change) {
+    public void internalChangeItem(AnyMenuState change) {
         NumberFormat format = NumberFormat.getInstance();
         format.setMinimumFractionDigits(item.getNumDecimalPlaces());
         format.setMaximumFractionDigits(item.getNumDecimalPlaces());

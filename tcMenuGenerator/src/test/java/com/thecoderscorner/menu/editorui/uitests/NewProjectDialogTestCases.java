@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.editorui.dialog.NewProjectDialog;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.util.TestUtils.verifyAlertWithText;
 import static java.nio.file.Files.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -71,15 +73,6 @@ public class NewProjectDialogTestCases {
 
         verify(project).newProject();
         verify(project).setDirty(false);
-    }
-
-    private void verifyAlertWithText(FxRobot robot, String message, String btnText) {
-        Node dialogPane = robot.lookup(".dialog-pane").query();
-        robot.from(dialogPane).lookup((Text t) -> t.getText().startsWith(message));
-        verifyThat(btnText, NodeMatchers.isVisible());
-        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(btnText)).query();
-        robot.clickOn(btn);
-
     }
 
     @Test

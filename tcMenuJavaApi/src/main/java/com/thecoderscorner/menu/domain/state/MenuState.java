@@ -14,11 +14,12 @@ import java.util.Objects;
  * The base class of menu state, stores the value, if it's active and changed.
  * @param <T> the type of current value.
  */
-public abstract class MenuState<T> {
+public abstract class MenuState<T> implements AnyMenuState {
     private final boolean changed;
     private final boolean active;
-    private final MenuItem<T> item;
+    private final MenuItem item;
     private final T value;
+    private final StateStorageType storageType;
 
     /**
      * normally these states are created from the menu item, instead of directly
@@ -26,7 +27,8 @@ public abstract class MenuState<T> {
      * @param active if the item is active.
      * @param value the current value
      */
-    public MenuState(MenuItem<T> item, boolean changed, boolean active, T value) {
+    public MenuState(StateStorageType storageType, MenuItem item, boolean changed, boolean active, T value) {
+        this.storageType = storageType;
         this.changed = changed;
         this.active = active;
         this.value = value;
@@ -37,8 +39,18 @@ public abstract class MenuState<T> {
      * Gets the menu item associated with this state.
      * @return the menu item
      */
-    public MenuItem<T> getItem() {
+    public MenuItem getItem() {
         return item;
+    }
+
+    /**
+     * The storage type for this state, eg if it is a MenuState specialised for Integer, then the state type will be
+     * INTEGER.
+     * @return the storage type
+     */
+    @Override
+    public StateStorageType getStorageType() {
+        return storageType;
     }
 
     /**

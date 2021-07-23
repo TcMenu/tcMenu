@@ -18,10 +18,13 @@
 #include <TaskManager.h>
 #include <Ethernet.h>
 #include <tcUtil.h>
+#include <remote/BaseRemoteComponents.h>
 
 #ifndef ETHERNET_BUFFER_SIZE
 #define ETHERNET_BUFFER_SIZE 0
 #endif
+
+namespace tcremote {
 
 #if ETHERNET_BUFFER_SIZE > 0
 
@@ -32,16 +35,19 @@ class EthernetTagValTransport : public TagValueTransport {
 private:
 	EthernetClient client;
     uint8_t bufferData[ETHERNET_BUFFER_SIZE];
-    int bufferPosition;
+    unsigned int bufferPosition = 0;
 public:
-	EthernetTagValTransport();
-	virtual ~EthernetTagValTransport();
+    EthernetTagValTransport() = default;
+
+    virtual ~EthernetTagValTransport() = default;
+
 	void setClient(EthernetClient client) { this->client = client; }
 
     void endMsg() override {
         TagValueTransport::endMsg();
         flush();
     }
+
 	int writeChar(char data) override ;
 	int writeStr(const char* data) override;
 	void flush() override;
@@ -49,7 +55,11 @@ public:
 	bool connected() override;
 	uint8_t readByte() override;
 	bool readAvailable() override;
-	void close() override;
+    void close() override {
+        currentField.msgType = UNKNOWN_MSG_TYPE;
+        currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
+        client.stop();
+    }
 };
 
 #else // ethernet buffering not needed
@@ -72,68 +82,28 @@ public:
 	virtual bool connected();
 	virtual uint8_t readByte();
 	virtual bool readAvailable();
-	virtual void close();
+    void close() override {
+        currentField.msgType = UNKNOWN_MSG_TYPE;
+        currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
+        client.stop();
+    }
 };
 
 #endif // ethernet buffering check
 
 /**
- * This is the actual server component that manages all the ethernet connections.
- * It holds the connector, transport and processors that are needed to be able
- * to service messages. To initialise it one calls begin(..) passing an ethernet
- * server to listen on and the name (which on AVR is in PROGMEM).
+ * This class provides the initialisation and connection generation logic for ethernet connections.
  */
-class EthernetTagValServer : public Executable {
+class EthernetInitialisation : public DeviceInitialisation {
 private:
-	TagValueRemoteConnector connector;
-	EthernetTagValTransport transport;
-	CombinedMessageProcessor messageProcessor;
 	EthernetServer *server;
 public:
+    EthernetInitialisation(EthernetServer* server) : server(server) {}
 
-	/**
-	 * Empty constructor - see begin.
-	 */
-	EthernetTagValServer();
+    bool attemptInitialisation() override;
 
-    /**
-     * Sets the mode of authentication used with your remote, if you don't call this the system will
-     * default to no authentication; which is probably fine for serial / bluetooth serial.
-    *
-     * This should always be called before begin(), to ensure this in your code always ensure this
-     * is called BEFORE setupMenu().
-     *
-     * @param authManager a reference to an authentication manager.
-     */
-    void setAuthenticator(AuthenticationManager* authManager) { connector.setAuthManager(authManager); }
-
-	/**
-	 * Creates the ethernet client manager components.
-	 * @param server a ready configured ethernet server instance.
-	 * @param namePgm the local name in program memory on AVR
-	 */
-	void begin(EthernetServer* server, const ConnectorLocalInfo* localInfo);
-
-	/**
-	 * @return the EthernetTagValTransport for the given connection number - zero based
-	 */
-	EthernetTagValTransport* getTransport(int /*num*/) { return &transport; }
-
-	/**
-	 * @return the selected connector by remoteNo - zero based
-	 */
-	TagValueRemoteConnector* getRemoteConnector(int /*num*/) { return &connector; }
-
-	/**
-	 * do not manually call, called by taskManager to poll the connection
-	 */
-	void exec();
+    bool attemptNewConnection(TagValueTransport *transport) override;
 };
-
-/**
- * This is the global instance of the remote server for ethernet.
- */
-extern EthernetTagValServer remoteServer;
 
 /**
  * This function converts from a RSSI (Radio Strength indicator)
@@ -144,5 +114,11 @@ extern EthernetTagValServer remoteServer;
  * @return a state that can be used with the standard wifi TitleWidget
  */
 int fromWiFiRSSITo4StateIndicator(int strength);
+
+} // namespace tcremote
+
+#ifndef TC_MANUAL_NAMESPACING
+using namespace tcremote;
+#endif // TC_MANUAL_NAMESPACING
 
 #endif /* _TCMENU_ETHERNETTRANSPORT_H_ */

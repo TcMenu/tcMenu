@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.util.Objects;
 
@@ -34,15 +35,14 @@ public abstract class BootItemMenuCommand<T extends MenuItem, V> implements Menu
         return currentValue;
     }
 
-    @SuppressWarnings("unchecked")
-    public MenuState<V> newMenuState(MenuState<V> oldState) {
+    public AnyMenuState newMenuState(AnyMenuState oldState) {
         if(oldState == null) {
-            oldState = menuItem.newMenuState(currentValue, false, false);
+            oldState = MenuItemHelper.stateForMenuItem(getMenuItem(), currentValue, false, false);
         }
         return internalNewMenuState(oldState);
     }
 
-    protected abstract MenuState<V> internalNewMenuState(MenuState<V> oldState);
+    protected abstract AnyMenuState internalNewMenuState(AnyMenuState oldState);
 
     @Override
     public String toString() {

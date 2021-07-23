@@ -13,7 +13,9 @@ import static picocli.CommandLine.*;
         CreateItemCommand.class,
         DeleteItemCommand.class,
         VersionCommand.class,
-        StartUICommand.class
+        StartUICommand.class,
+        GetConfigCommand.class,
+        SetConfigCommand.class
 })
 public class TcMenuDesignerCmd {
 
@@ -23,7 +25,14 @@ public class TcMenuDesignerCmd {
         }
         else {
             CommandLine commandLine = new CommandLine(new TcMenuDesignerCmd());
-            var res = commandLine.execute(args);
+            String[] cliArgs;
+            if(args[0].equals("help")) {
+                cliArgs = new String[0];
+            }
+            else {
+                cliArgs = args;
+            }
+            var res = commandLine.execute(cliArgs);
             if (res != 0) {
                 System.exit(res);
             }

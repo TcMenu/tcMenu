@@ -10,7 +10,10 @@ import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Background;
@@ -19,7 +22,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+
+import java.util.LinkedList;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator.LINE_BREAK;
 
@@ -27,8 +31,11 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerat
 public class CodeGenLoggingController {
     public Button closeButton;
     public Button copyButton;
+    public Button includeDebugButton;
     public ListView<LogLine> loggerList;
+    private final LinkedList<LogLine> allLogEntries = new LinkedList<>();
     private final StringBuilder loggingTextBuilder = new StringBuilder(1024);
+    private boolean debugIsEnabled = false;
 
     /**
      * initialises the code generator controller by setting off the conversion and stopping exit until
@@ -49,8 +56,12 @@ public class CodeGenLoggingController {
      */
     private void logLine(System.Logger.Level level, String text) {
         Platform.runLater(()-> {
-            loggingTextBuilder.append(text).append(LINE_BREAK);
-            loggerList.getItems().add(0, new LogLine(text, level));
+            LogLine logLine = new LogLine(text, level);
+                allLogEntries.addFirst(logLine);
+            if(level != System.Logger.Level.DEBUG || debugIsEnabled) {
+                loggingTextBuilder.append(text).append(LINE_BREAK);
+                loggerList.getItems().add(0, logLine);
+            }
         });
     }
 
@@ -74,30 +85,58 @@ public class CodeGenLoggingController {
         closeButton.setDisable(false);
     }
 
+    public void onIncludeDebug(ActionEvent actionEvent) {
+        debugIsEnabled = !debugIsEnabled;
+        includeDebugButton.setText(debugIsEnabled ? "Remove debug" : "Include debug");
+        loggerList.getItems().clear();
+        if(debugIsEnabled) {
+            loggerList.getItems().addAll(allLogEntries);
+        }
+        else {
+            loggerList.getItems().addAll(allLogEntries.stream()
+                    .filter(logLine -> logLine.getLevel() != System.Logger.Level.DEBUG)
+                    .toList());
+        }
+    }
+
     static class ColorLogLineCell extends ListCell<LogLine> {
+
+        ColorLogLineCell() {
+            setStyle("-fx-padding: 0px;");
+        }
+
         @Override
         public void updateItem(LogLine item, boolean empty) {
             super.updateItem(item, empty);
             if (item == null) return;
             Label lbl = new Label(item.getLevel().toString());
             Color bgCol = Color.AQUA;
+            Color fgCol = Color.BLACK;
             switch(item.getLevel()) {
                 case ALL:
                 case TRACE:
                 case DEBUG:
+                    bgCol = Color.GRAY;
+                    fgCol = Color.BLACK;
+                    break;
                 case INFO:
                     bgCol = Color.GREEN;
+                    fgCol = Color.WHITE;
                     break;
                 case WARNING:
-                    bgCol = Color.YELLOW;
+                    bgCol = Color.ORANGE;
+                    fgCol = Color.BLACK;
                     break;
                 case ERROR:
                 case OFF:
                     bgCol = Color.RED;
+                    fgCol = Color.WHITE;
                     break;
             }
             lbl.setBackground(new Background(new BackgroundFill(bgCol, CornerRadii.EMPTY, Insets.EMPTY)));
+            lbl.setTextFill(fgCol);
             lbl.setPrefWidth(100);
+
             Label txtLbl = new Label(item.getText());
             HBox hBox = new HBox(0);
             hBox.getChildren().add(lbl);

@@ -40,7 +40,7 @@ import static java.lang.System.Logger.Level.INFO;
 
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private LibraryVersionDetector versionDetector;
+    private final LibraryVersionDetector versionDetector;
     private final String homeDirectory;
     private final Stage mainStage;
     private final CodePluginManager manager;
@@ -92,6 +92,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     public void alertOnError(String heading, String description) {
         logger.log(ERROR, "Show error with heading: {0}, description: {1}", heading, description);
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         alert.setTitle(heading);
         alert.setHeaderText(heading);
         alert.setContentText(description);
@@ -102,6 +103,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     public boolean questionYesNo(String title, String header) {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, header, ButtonType.YES, ButtonType.NO);
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         alert.setTitle(title);
         alert.setHeaderText(title);
         return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
@@ -148,7 +150,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         logger.log(INFO, "Start - show code generator dialog");
         if(!project.isFileNameSet()) {
             this.alertOnError("No filename set", "Please set a filename to continue");
-            return;
+            throw new IllegalArgumentException("No filename provided");
         }
 
         try {
@@ -172,10 +174,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showGeneralSettings() {
         var updater = new PluginUpgradeTask(manager, installer, versionDetector);
-        var settingsDialog = new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
+        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
     }
 
-    public Optional<UIMenuItem> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
+    public Optional<UIMenuItem<?>> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
                                                        BiConsumer<MenuItem, MenuItem> changeConsumer) {
         logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
         RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree, generator);
@@ -184,11 +186,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         return ret;
     }
 
-    class RenderingChooserVisitor extends AbstractMenuItemVisitor<UIMenuItem> {
+    static class RenderingChooserVisitor extends AbstractMenuItemVisitor<UIMenuItem<?>> {
 
         private final BiConsumer<MenuItem,MenuItem> changeConsumer;
         private final MenuIdChooser menuIdChooser;
-        private VariableNameGenerator nameGenerator;
+        private final VariableNameGenerator nameGenerator;
 
         RenderingChooserVisitor(BiConsumer<MenuItem, MenuItem> changeConsumer, MenuTree tree, VariableNameGenerator nameGenerator) {
             this.changeConsumer = changeConsumer;
@@ -199,6 +201,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         @Override
         public void visit(AnalogMenuItem item) {
             setResult(new UIAnalogMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
+        }
+
+        @Override
+        public void visit(CustomBuilderMenuItem customItem) {
+            setResult(new UICustomMenuItem(customItem, menuIdChooser, nameGenerator, changeConsumer));
         }
 
         @Override

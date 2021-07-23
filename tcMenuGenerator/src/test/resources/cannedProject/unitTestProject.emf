@@ -1,0 +1,139 @@
+{
+  "codeOptions": {
+    "applicationUUID": "52c779d0-0fb9-49d4-94fe-61b2bc6f9164",
+    "applicationName": "Generator integration test",
+    "lastInputUuid": "20409bb8-b8a1-4d1d-b632-2cf9b57353e3",
+    "lastDisplayUuid": "20409bb8-b8a1-4d1d-b632-2cf9b5739888",
+    "lastRemoteUuid": "850b889b-fb15-4d9b-a589-67d5ffe3488d",
+    "embeddedPlatform": "ARDUINO_AVR",
+    "namingRecursive": true,
+    "saveToSrc": false,
+    "useCppMain": false,
+    "eepromDefinition": "at24:80:PAGESIZE_AT24C128",
+    "authenticatorDefinition": "rom:100:6",
+    "lastProperties": []
+  },
+  "projectName": "Uses the DF Robot shield for both input and display",
+  "version": "1.00",
+  "items": [
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "item": {
+        "name": "Value A0",
+        "eepromAddress": -1,
+        "id": 1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "maxValue": 1024,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": ""
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "subMenu",
+      "item": {
+        "name": "LED States",
+        "eepromAddress": -1,
+        "id": 2,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "secured": false
+      }
+    },
+    {
+      "parentId": 2,
+      "type": "boolItem",
+      "item": {
+        "name": "LED 1",
+        "eepromAddress": 2,
+        "id": 3,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "functionName": "onLed1",
+        "naming": "ON_OFF"
+      }
+    },
+    {
+      "parentId": 2,
+      "type": "boolItem",
+      "item": {
+        "name": "LED 2",
+        "eepromAddress": 3,
+        "id": 4,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "functionName": "onLed2",
+        "naming": "ON_OFF"
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "largeNumItem",
+      "item": {
+        "name": "LgeNum",
+        "eepromAddress": 10,
+        "id": 5,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "decimalPlaces": 4,
+        "digitsAllowed": 8,
+        "negativeAllowed": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "textItem",
+      "item": {
+        "name": "Text",
+        "eepromAddress": 4,
+        "id": 6,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "itemType": "PLAIN_TEXT",
+        "textLength": 6
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "scrollItem",
+      "item": {
+        "name": "Choose Item",
+        "eepromAddress": 18,
+        "id": 8,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true,
+        "itemWidth": 10,
+        "numEntries": 20,
+        "variable": null,
+        "eepromOffset": 0,
+        "choiceMode": "CUSTOM_RENDERFN"
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "item": {
+        "name": "Commits",
+        "eepromAddress": -1,
+        "id": 7,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true,
+        "maxValue": 65000,
+        "offset": 0,
+        "divisor": 0,
+        "unitName": null
+      }
+    }
+  ]
+}

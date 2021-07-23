@@ -12,7 +12,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
  * An implementation of menu state for integer values. This stores the current value in the MenuTree for an item
  */
 public class IntegerMenuState extends MenuState<Integer> {
-    public IntegerMenuState(MenuItem<Integer> item, boolean changed, boolean active, Integer value) {
-        super(item, changed, active, value);
+    public IntegerMenuState(MenuItem item, boolean changed, boolean active, Integer value) {
+        super(StateStorageType.INTEGER, item, changed, active, value);
     }
 }

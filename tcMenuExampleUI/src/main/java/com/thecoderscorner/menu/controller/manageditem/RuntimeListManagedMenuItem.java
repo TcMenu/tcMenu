@@ -7,7 +7,8 @@
 package com.thecoderscorner.menu.controller.manageditem;
 
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.state.StringListMenuState;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.Node;
@@ -18,7 +19,7 @@ import java.util.List;
 import static com.thecoderscorner.menu.controller.manageditem.BaseLabelledManagedMenuItem.UPDATED_CLASS_NAME;
 
 public class RuntimeListManagedMenuItem extends ManagedMenuItem<List<String>, RuntimeListMenuItem> {
-    private ListView<String> listView = new ListView<>();
+    private final ListView<String> listView = new ListView<>();
     public RuntimeListManagedMenuItem(RuntimeListMenuItem item) {
         super(item);
     }
@@ -31,9 +32,11 @@ public class RuntimeListManagedMenuItem extends ManagedMenuItem<List<String>, Ru
     }
 
     @Override
-    public void internalChangeItem(MenuState<List<String>> change) {
-        listView.getItems().clear();
-        listView.getItems().addAll(change.getValue());
+    public void internalChangeItem(AnyMenuState change) {
+        if(change instanceof StringListMenuState listState) {
+            listView.getItems().clear();
+            listView.getItems().addAll(listState.getValue());
+        }
     }
 
     @Override

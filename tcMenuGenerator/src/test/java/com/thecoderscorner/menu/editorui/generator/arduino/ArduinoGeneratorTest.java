@@ -9,13 +9,16 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
@@ -54,11 +54,11 @@ public class ArduinoGeneratorTest {
         Files.createDirectories(projectDir);
 
         pluginDir = rootDir.resolve("plugin");
-        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir);
+        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, false);
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.7.0");
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
 
     }
@@ -101,10 +101,10 @@ public class ArduinoGeneratorTest {
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
                 ARDUINO32.getBoardId(),
-                "", "", "", "",
-                List.<CreatorProperty>of(),
+                "", "", List.of(""), "",
+                List.of(),
                 UUID.randomUUID(),
-                "app",
+                "app", new AVREepromDefinition(), new EepromAuthenticatorDefinition(100, 3),
                 recursiveName, false, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
 
@@ -126,8 +126,8 @@ public class ArduinoGeneratorTest {
         var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
         var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
 
-        var cppTemplate = new String(getClass().getResourceAsStream(templateToUse + ".cpp").readAllBytes());
-        var hTemplate = new String(getClass().getResourceAsStream(templateToUse + ".h").readAllBytes());
+        var cppTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream(templateToUse + ".cpp")).readAllBytes());
+        var hTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream(templateToUse + ".h")).readAllBytes());
 
         cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
         cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");

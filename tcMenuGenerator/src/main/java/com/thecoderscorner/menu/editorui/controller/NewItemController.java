@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
 import static java.lang.System.Logger.Level.ERROR;
@@ -39,6 +40,8 @@ public class NewItemController {
     public RadioButton listSelect;
     public RadioButton choiceSelect;
     public RadioButton rgbSelect;
+    public RadioButton iotListSelect;
+    public RadioButton authenticatorSelect;
     public Button okButton;
     public TextField idField;
     private Optional<MenuItem> result = Optional.empty();
@@ -53,7 +56,7 @@ public class NewItemController {
     }
 
     public void onCreatePressed(ActionEvent actionEvent) {
-        Integer id = Integer.parseInt(idField.getText());
+        int id = Integer.parseInt(idField.getText());
 
         if(id < 1 || id > Short.MAX_VALUE) {
             editorUI.alertOnError("ID is not an allowed value",
@@ -163,6 +166,14 @@ public class NewItemController {
                     .withDecimalPlaces(4)
                     .menuItem()
             );
+        }
+        else if(iotListSelect.isSelected()) {
+            result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
+                    .withName("IoT Monitor").withId(id).withEepromAddr(-1).withMenuType(REMOTE_IOT_MONITOR).menuItem());
+        }
+        else if(authenticatorSelect.isSelected()) {
+            result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
+                    .withName("Authenticator").withId(id).withEepromAddr(-1).withMenuType(AUTHENTICATION).menuItem());
         }
         else {
             logger.log(ERROR, "Don't know which item was selected!");

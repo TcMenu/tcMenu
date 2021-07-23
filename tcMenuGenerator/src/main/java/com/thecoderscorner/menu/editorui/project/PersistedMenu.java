@@ -53,6 +53,11 @@ public class PersistedMenu {
             }
 
             @Override
+            public void visit(CustomBuilderMenuItem listItem) {
+                type = CUSTOM_ITEM_PERSIST_TYPE;
+            }
+
+            @Override
             public void visit(ScrollChoiceMenuItem scrollItem) {
                 type = SCROLL_CHOICE_PERSIST_TYPE;
             }

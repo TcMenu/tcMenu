@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
@@ -41,7 +42,7 @@ public class DefaultXmlPluginLoaderTest {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.6.0");
-        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage);
+        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
     }
 
     @AfterEach
@@ -54,7 +55,7 @@ public class DefaultXmlPluginLoaderTest {
 
     @Test
     void testLoadingALibrary() throws IOException {
-        var pluginDir = makeStandardPluginInPath(dir);
+        var pluginDir = makeStandardPluginInPath(dir, false);
         var config = loader.loadPluginLib(pluginDir);
 
         assertEquals("unitTest", config.getModuleName());
@@ -75,7 +76,7 @@ public class DefaultXmlPluginLoaderTest {
 
     @Test
     void testLoadingASinglePlugin() throws IOException {
-        var data = new String(getClass().getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes());
+        var data = new String(Objects.requireNonNull(getClass().getResourceAsStream("/plugins/TestPlugin.xml")).readAllBytes());
         var item = loader.loadPlugin(data);
 
         // test the description fields
@@ -188,31 +189,50 @@ public class DefaultXmlPluginLoaderTest {
 
     }
 
-    public static Path makeStandardPluginInPath(Path thePath) throws IOException {
+    public static Path makeStandardPluginInPath(Path thePath, boolean wantRemoteAndThemes) throws IOException {
 
         var pluginDir = thePath.resolve("plugin1");
         Files.createDirectories(pluginDir);
+        var pluginDefSrc = wantRemoteAndThemes ? "/plugins/tcmenu-plugin.xml" : "/plugins/tcmenu-plugin-small.xml";
         Files.write(
                 pluginDir.resolve("tcmenu-plugin.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/tcmenu-plugin.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream(pluginDefSrc)).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPluginVersionAllowed.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionAllowed.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionAllowed.xml")).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPluginVersionTooLow.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionTooLow.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPluginVersionTooLow.xml")).readAllBytes()
         );
         Files.write(
                 pluginDir.resolve("TestPlugin.xml"),
-                DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml").readAllBytes()
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/TestPlugin.xml")).readAllBytes()
         );
+
+        if(wantRemoteAndThemes) {
+            Files.write(
+                    pluginDir.resolve("test-theme-item-plugin.xml"),
+                    Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-theme-item-plugin.xml")).readAllBytes()
+            );
+            Files.write(
+                    pluginDir.resolve("test-remote-item-plugin.xml"),
+                    Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/test-remote-item-plugin.xml")).readAllBytes()
+            );
+        }
 
         var srcDir = pluginDir.resolve("src");
         Files.createDirectory(srcDir);
         Files.writeString(srcDir.resolve("source.cpp"), "CPP_FILE_CONTENT someKey otherKey");
         Files.writeString(srcDir.resolve("source.h"), "H_FILE_CONTENT someKey otherKey");
+        Files.writeString(srcDir.resolve("MySpecialTransport.h"), "My Transport file");
+        var imgDir = pluginDir.resolve("Images");
+        Files.createDirectory(imgDir);
+        Files.write(
+                imgDir.resolve("joystick.jpg"),
+                Objects.requireNonNull(DefaultXmlPluginLoader.class.getResourceAsStream("/plugins/joystick.jpg")).readAllBytes()
+        );
         return pluginDir;
     }
 }

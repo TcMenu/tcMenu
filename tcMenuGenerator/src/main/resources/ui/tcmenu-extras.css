@@ -13,19 +13,24 @@
   -fx-text-fill: white;
 }
 
-.header{
-  -fx-font-size: 42pt;
-  -fx-font-family: "Segoe UI Light";
-}
-
-.item-title{
-  -fx-font-size: 12pt;
-  -fx-font-family: "Segoe UI Semibold";
+.item-title {
+  -fx-font-size: 16px !important;
+  -fx-font-family: "Arial";
   -fx-opacity: 0.6;
   -fx-font-weight: bold;
 }
 
 .lcdDisplayTextArea .content {
+  -fx-background-color: #1d67c7;
+  -fx-text-fill: white;
+}
+
+.lcdDisplayTextArea .content:hover {
+  -fx-background-color: #1d67c7;
+  -fx-text-fill: white;
+}
+
+.lcdDisplayTextArea .content:selected {
   -fx-background-color: #1d67c7;
   -fx-text-fill: white;
 }
@@ -44,6 +49,7 @@
 
 .libsOK {
   -fx-background-color: #43cb43;
+  -fx-text-fill: #000;
   -fx-border-color: #303030;
   -fx-border-width: 1px;
   -fx-padding: 4;

@@ -30,7 +30,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
     private TextField numItemsField;
     private TextField eepromOffsetField;
     private TextField variableField;
-    private ComboBox<ScrollChoiceMode> modeCombo;
+    private ComboBox<TidyScrollChoiceValue> modeCombo;
 
     public UIScrollChoiceMenuItem(ScrollChoiceMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                   BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -41,37 +41,53 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
     protected Optional<ScrollChoiceMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
 
-        var width = safeIntFromProperty(itemWidthField.textProperty(), "Item Width", errors, 1, 255);
         var numItems = safeIntFromProperty(numItemsField.textProperty(), "Num Items", errors, 0, 255);
-        var eepromOffset = safeIntFromProperty(eepromOffsetField.textProperty(), "EEPROM Offset", errors, 0, 65000);
-        var variable = safeStringFromProperty(variableField.textProperty(), "Variable Name", errors, 64, StringFieldType.OPTIONAL);
         var builder = new ScrollChoiceMenuItemBuilder()
                 .withExisting(getMenuItem())
-                .withChoiceMode(modeCombo.getValue())
-                .withItemWidth(width)
-                .withEepromOffset(eepromOffset)
-                .withNumEntries(numItems)
-                .withVariable(variable);
+                .withChoiceMode(modeCombo.getValue().mode())
+                .withNumEntries(numItems);
+
+        if(modeCombo.getValue().mode() != ScrollChoiceMode.CUSTOM_RENDERFN) {
+            var width = safeIntFromProperty(itemWidthField.textProperty(), "Item Width", errors, 1, 255);
+            builder.withItemWidth(width);
+        }
+
+        if(modeCombo.getValue().mode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
+            var eepromOffset = safeIntFromProperty(eepromOffsetField.textProperty(), "EEPROM Offset", errors, 0, 65000);
+            builder.withEepromOffset(eepromOffset);
+        }
+
+        if(modeCombo.getValue().mode() == ScrollChoiceMode.ARRAY_IN_RAM) {
+            var variable = safeStringFromProperty(variableField.textProperty(), "Variable Name", errors, 64, StringFieldType.VARIABLE);
+            builder.withVariable(variable);
+        }
+
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
+    }
+
+    void enableNeededFieldsBasedOnMode(ScrollChoiceMode newMode) {
+        itemWidthField.setDisable(newMode == ScrollChoiceMode.CUSTOM_RENDERFN);
+        eepromOffsetField.setDisable(newMode != ScrollChoiceMode.ARRAY_IN_EEPROM);
+        variableField.setDisable(newMode != ScrollChoiceMode.ARRAY_IN_RAM);
     }
 
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Mode"), 0, idx);
-        modeCombo = new ComboBox<>(FXCollections.observableList(List.of(ScrollChoiceMode.values())));
-        modeCombo.getSelectionModel().select(getMenuItem().getChoiceMode());
-        modeCombo.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
+        modeCombo = new ComboBox<>(FXCollections.observableList(List.of(
+                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_EEPROM, "Data is in EEPROM"),
+                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_RAM, "Data is in RAM"),
+                new TidyScrollChoiceValue(ScrollChoiceMode.CUSTOM_RENDERFN, "Custom renderFN")
+        )));
+        modeCombo.getSelectionModel().select(choiceToIndex(getMenuItem().getChoiceMode()));
+        modeCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            enableNeededFieldsBasedOnMode(newValue.mode());
+            callChangeConsumer();
+        });
+        modeCombo.setId("choiceModeCombo");
         grid.add(modeCombo, 1, idx);
-
-        idx++;
-        grid.add(new Label("Item Width"), 0, idx);
-        itemWidthField = new TextField(String.valueOf(getMenuItem().getItemWidth()));
-        itemWidthField.textProperty().addListener(this::coreValueChanged);
-        itemWidthField.setId("itemWidthFieldField");
-        TextFormatterUtils.applyIntegerFormatToField(itemWidthField);
-        grid.add(itemWidthField, 1, idx);
 
         idx++;
         grid.add(new Label("Initial Items"), 0, idx);
@@ -80,6 +96,14 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         numItemsField.setId("numItemsFieldField");
         TextFormatterUtils.applyIntegerFormatToField(numItemsField);
         grid.add(numItemsField, 1, idx);
+
+        idx++;
+        grid.add(new Label("Item Width"), 0, idx);
+        itemWidthField = new TextField(String.valueOf(getMenuItem().getItemWidth()));
+        itemWidthField.textProperty().addListener(this::coreValueChanged);
+        itemWidthField.setId("itemWidthFieldField");
+        TextFormatterUtils.applyIntegerFormatToField(itemWidthField);
+        grid.add(itemWidthField, 1, idx);
 
         idx++;
         grid.add(new Label("EEPROM Offset (Rom only)"), 0, idx);
@@ -92,12 +116,29 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         idx++;
         grid.add(new Label("Variable (RAM only)"), 0, idx);
         variableField = new TextField(getMenuItem().getVariable());
-        variableField.setId("varField");
+        variableField.setId("choiceVarField");
         variableField.textProperty().addListener(this::coreValueChanged);
         grid.add(variableField, 1, idx);
+
+        enableNeededFieldsBasedOnMode(getMenuItem().getChoiceMode());
 
         idx++;
 
         return idx;
+    }
+
+    private int choiceToIndex(ScrollChoiceMode choiceMode) {
+        return switch(choiceMode) {
+            case ARRAY_IN_EEPROM -> 0;
+            case ARRAY_IN_RAM -> 1;
+            case CUSTOM_RENDERFN -> 2;
+        };
+    }
+
+    public record TidyScrollChoiceValue (ScrollChoiceMode mode, String name) {
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

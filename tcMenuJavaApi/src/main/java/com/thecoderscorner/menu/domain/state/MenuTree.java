@@ -39,7 +39,7 @@ public class MenuTree {
      * This map holds the state for each item, it's the only semi immutable part of the library, even though
      * the actual state objects are immutable, and are replaced on change.
      */
-    private final Map<Integer, MenuState<?>> menuStates = new ConcurrentHashMap<>(EXPECTED_MAX_VALUES);
+    private final Map<Integer, AnyMenuState> menuStates = new ConcurrentHashMap<>(EXPECTED_MAX_VALUES);
 
     /**
      * Submenus are organised as a sub menu containing a list of items. There is a lock around this object to
@@ -104,10 +104,10 @@ public class MenuTree {
      * ID and item will be cached and therefore fast, if you don't know the sub menu set it to null and it will be
      * determined.
      * @param id the id of the object to find.
-     * @return
+     * @return the menu at the given id
      */
     public Optional<MenuItem> getMenuById(int id) {
-        MenuState state = menuStates.get(id);
+        var state = menuStates.get(id);
         if(state != null) {
             return Optional.of(state.getItem());
         }
@@ -278,9 +278,8 @@ public class MenuTree {
      *
      * @param item the item to change
      * @param menuState the new state
-     * @param <T> the type of the state, picked up automatically
      */
-    public <T> void changeItem(MenuItem<T> item, MenuState<T> menuState) {
+    public void changeItem(MenuItem item, AnyMenuState menuState) {
         menuStates.put(item.getId(), menuState);
     }
 
@@ -292,7 +291,7 @@ public class MenuTree {
      * @return the state for the given menu item
      */
     @SuppressWarnings("unchecked")
-    public <T> MenuState<T> getMenuState(MenuItem<T> item) {
-        return (MenuState<T>) menuStates.get(item.getId());
+    public <T extends AnyMenuState> T getMenuState(MenuItem item) {
+        return (T)menuStates.get(item.getId());
     }
 }

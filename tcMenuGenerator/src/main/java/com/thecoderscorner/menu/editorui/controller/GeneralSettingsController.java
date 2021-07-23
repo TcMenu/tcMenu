@@ -1,35 +1,37 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.util.VersionInfo.ERROR_VERSION;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -49,8 +51,11 @@ public class GeneralSettingsController {
     public TableColumn<NameWithVersion, String> libraryNameColumn;
     public TableColumn<NameWithVersion, String> expectedVerCol;
     public TableColumn<NameWithVersion, String> actualVerCol;
+    public TableColumn<NameWithVersion, NameWithVersion> actionsCol;
     public Button updatePluginsBtn;
     public TableView<NameWithVersion> versionsTable;
+    public ListView<String> additionalPathsList;
+    public Button removePathBtn;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
@@ -89,12 +94,20 @@ public class GeneralSettingsController {
             return Optional.empty();
         });
 
-        libraryNameColumn.setCellValueFactory(cell -> new ImmutableObservableValue(cell.getValue().name()));
-        expectedVerCol.setCellValueFactory(cell -> new ImmutableObservableValue(cell.getValue().available()));
-        actualVerCol.setCellValueFactory(cell -> new ImmutableObservableValue(cell.getValue().installed()));
+        libraryNameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().name()));
+        expectedVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().available().toString()));
+        actualVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().installed().toString()));
+        actionsCol.setCellValueFactory(new NameWithVersionValueFactory());
 
         pluginStreamCombo.setItems(FXCollections.observableList(Arrays.asList(ReleaseType.values())));
         pluginStreamCombo.getSelectionModel().select(versionDetector.getReleaseType());
+
+        additionalPathsList.getSelectionModel().selectedItemProperty().addListener((observableValue, s1, s2) ->
+                removePathBtn.setDisable(additionalPathsList.getSelectionModel().getSelectedItem() == null));
+
+        List<String> additionalPaths = storage.getAdditionalPluginPaths();
+        additionalPathsList.setItems(FXCollections.observableList(additionalPaths));
+        if(!additionalPaths.isEmpty()) additionalPathsList.getSelectionModel().select(0);
 
         populateVersions();
     }
@@ -222,7 +235,23 @@ public class GeneralSettingsController {
     }
 
     public void onUpdatePlugins(ActionEvent actionEvent) {
-        upgrader.startUpdateProcedure(updatePluginsBtn);
+        var corePluginList = List.of("core-remote", "core-themes", "core-display");
+        upgrader.onCompleted(this::populateVersions);
+        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
+                corePluginList,
+                Optional.empty()
+        );
+    }
+
+    private void updateSingleLibrary(String selectedItem, String versionText) {
+        if(versionText == null || selectedItem == null) return;
+        versionText = versionText.replace("*", "");
+        upgrader.onCompleted(this::populateVersions);
+        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
+                Collections.singleton(selectedItem),
+                Optional.of(VersionInfo.fromString(versionText))
+        );
+        populateVersions();
     }
 
     public void onRefreshLibraries(ActionEvent actionEvent) {
@@ -248,7 +277,7 @@ public class GeneralSettingsController {
                 var installedVersion = getVersionOfLibraryOrError(plugin.getModuleName(), CURRENT_PLUGIN);
                 pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
 
-                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", availableVersion, installedVersion);
+                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", plugin.getModuleName(), true, availableVersion, installedVersion);
                 versionsTable.getItems().add(ver);
             }
             logger.log(INFO, "Start library version detection");
@@ -259,12 +288,15 @@ public class GeneralSettingsController {
             versionsTable.getItems().add(findLibVersion("TaskManagerIO"));
 
             versionsTable.getItems().add(new NameWithVersion(
-                    "TcMenuDesigner UI",
+                    "TcMenuDesigner UI", "tcMenuDesigner",
+                    false,
                     getVersionOfLibraryOrError("java-app", AVAILABLE_APP),
                     getVersionOfLibraryOrError("java-app", CURRENT_APP)
             ));
 
-            logger.log(INFO, "Done with version detection");
+            logger.log(INFO, "Done with version detection, setting cell factory and returning");
+
+            registerCellFactoryForActionColumn();
 
             updatePluginsBtn.setDisable(!pluginUpdateNeeded);
         } catch (IOException e) {
@@ -272,53 +304,111 @@ public class GeneralSettingsController {
         }
     }
 
+    private void registerCellFactoryForActionColumn() {
+        actionsCol.setCellFactory((tableColumn) -> new TableCell<>() {
+
+            @Override
+            protected void updateItem(NameWithVersion item, boolean empty) {
+                super.updateItem(item, empty);
+
+                this.setGraphic(null);
+                this.setText(null);
+
+                if(item != null && item.isPlugin()) {
+                    var versions = versionDetector.acquireAllVersionsFor(item.underlyingId());
+
+                    if (versions.isPresent()) {
+                        List<String> list = versions.get().stream()
+                                .sorted(Comparator.comparingInt (VersionInfo::asInteger).reversed())
+                                .map(ver -> ver + ((ver.equals(item.available) ? "*" : "")))
+                                .collect(Collectors.toList());
+
+                        var cbx = new ComboBox<>(FXCollections.observableList(list));
+                        Button updateButton = new Button(">>");
+                        updateButton.setOnAction(e -> updateSingleLibrary(item.underlyingId, cbx.getSelectionModel().getSelectedItem()));
+
+                        cbx.getSelectionModel().selectedItemProperty().addListener((o, s, t1) -> {
+                            var sel = cbx.getSelectionModel().getSelectedItem();
+                            if(sel == null) return;
+                            sel = sel.replace("*", "");
+                            updateButton.setDisable(VersionInfo.fromString(sel).equals(item.installed()));
+                        });
+
+                        cbx.getSelectionModel().select(0);
+                        for(int i = 0; i<list.size(); i++) {
+                            if(list.get(i).equals(item.available() + "*")) {
+                                cbx.getSelectionModel().select(i);
+                                break;
+                            }
+                        }
+
+                        var container = new HBox(4);
+                        container.getChildren().add(cbx);
+                        container.getChildren().add(updateButton);
+                        this.setGraphic(container);
+                        this.setText(null);
+                    }
+                }
+            }
+        });
+    }
+
     private NameWithVersion findLibVersion(String libName) throws IOException {
         var available = installer.getVersionOfLibrary(libName, AVAILABLE_LIB);
         var installed = installer.getVersionOfLibrary(libName, CURRENT_LIB);
 
-        if(available == null) available = VersionInfo.ERROR_VERSION;
-        if(installed == null) installed = VersionInfo.ERROR_VERSION;
+        if(available == null) available = ERROR_VERSION;
+        if(installed == null) installed = ERROR_VERSION;
 
-        return new NameWithVersion(libName + " library", available, installed);
+        return new NameWithVersion(libName + " library", libName, false, available, installed);
     }
 
     private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {
         try {
             var version = installer.getVersionOfLibrary(name, type);
-            if(version == null) version = VersionInfo.ERROR_VERSION;
+            if(version == null) version = ERROR_VERSION;
             return version;
         } catch (IOException e) {
-            return VersionInfo.ERROR_VERSION;
+            return ERROR_VERSION;
         }
     }
 
-    public record NameWithVersion(String name, VersionInfo available, VersionInfo installed) { }
+    public void onAddNewPath(ActionEvent actionEvent) {
+        var maybeDir = directoryNameFromUser(getArduinoDirectory(), true);
+        maybeDir.ifPresent(dir -> {
+            var paths = new ArrayList<>(storage.getAdditionalPluginPaths());
+            paths.add(dir);
+            storage.setAdditionalPluginPaths(paths);
+            refreshAdditionalPaths(paths);
+        });
+    }
 
-    public record ImmutableObservableValue(Object dataItem) implements ObservableValue<String> {
-
-        //
-        // the data never changes
-        //
-        @Override
-        public void addListener(ChangeListener<? super String> changeListener) {
+    private void refreshAdditionalPaths(ArrayList<String> paths) {
+        additionalPathsList.setItems(FXCollections.observableList(paths));
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Reload all plugins?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Plugin reload");
+        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+        var result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.YES) {
+            pluginManager.reload();
         }
+    }
 
-        @Override
-        public void removeListener(ChangeListener<? super String> changeListener) {
-        }
+    public void onRemoveSelectedPath(ActionEvent actionEvent) {
+        var sel = additionalPathsList.getSelectionModel().getSelectedItem();
+        if(sel == null) return;
+        var paths = new ArrayList<>(storage.getAdditionalPluginPaths());
+        paths.remove(sel);
+        storage.setAdditionalPluginPaths(paths);
+        refreshAdditionalPaths(paths);
+    }
 
-        @Override
-        public void addListener(InvalidationListener invalidationListener) {
-        }
+    public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo available, VersionInfo installed) { }
 
+    static class NameWithVersionValueFactory implements Callback<TableColumn.CellDataFeatures<NameWithVersion, NameWithVersion>, ObservableValue<NameWithVersion>> {
         @Override
-        public void removeListener(InvalidationListener invalidationListener) {
-        }
-
-        @Override
-        public String getValue() {
-            if(dataItem == null) return "<NULL>";
-            return dataItem.toString();
+        public ObservableValue<NameWithVersion> call(TableColumn.CellDataFeatures<NameWithVersion, NameWithVersion> data) {
+            return new ReadOnlyObjectWrapper<>(data.getValue());
         }
     }
 }

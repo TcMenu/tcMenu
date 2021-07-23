@@ -9,16 +9,13 @@ package com.thecoderscorner.menu.controller.manageditem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
 
 public abstract class BaseLabelledManagedMenuItem<T, M extends MenuItem> extends ManagedMenuItem<T, M> {
     public static final String UPDATED_CLASS_NAME = "updated";
     protected Label itemLabel = new Label();
-    private Background baseBackground;
 
     public BaseLabelledManagedMenuItem(M item) {
         super(item);
-        baseBackground = itemLabel.getBackground();
     }
 
     @Override

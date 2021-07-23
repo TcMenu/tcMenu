@@ -12,14 +12,9 @@
 #include "EthernetTransport.h"
 #include <TaskManager.h>
 
+using namespace tcremote;
+
 #if ETHERNET_BUFFER_SIZE > 0 // we need buffering when dealing with Ethernet2
-
-EthernetTagValTransport::EthernetTagValTransport() {
-    bufferPosition = 0;
-}
-
-EthernetTagValTransport::~EthernetTagValTransport() {
-}
 
 bool EthernetTagValTransport::available() {
 	return client && client.connected();
@@ -46,7 +41,6 @@ int EthernetTagValTransport::writeChar(char data) {
 int EthernetTagValTransport::writeStr(const char* data) {
     // only uncomment below for worst case debugging..
 //	serdebug2("writing ", data);
-    int i  = 0;
     int len = strlen(data);
 	for(int i = 0; i < len; ++i) {
         if(writeChar(data[i]) == 0) {
@@ -78,12 +72,6 @@ bool EthernetTagValTransport::readAvailable() {
 }
 
 #else // unbuffed client for all fully implemented stacks
-
-EthernetTagValTransport::EthernetTagValTransport() {    
-}
-
-EthernetTagValTransport::~EthernetTagValTransport() {
-}
 
 bool EthernetTagValTransport::available() {
 	return client && client.connected();
@@ -117,41 +105,9 @@ bool EthernetTagValTransport::readAvailable() {
 	return client && client.connected() && client.available();
 }
 
-
 #endif
 
-EthernetTagValServer::EthernetTagValServer() : messageProcessor(msgHandlers, MSG_HANDLERS_SIZE) {
-	this->server = NULL;
-}
-
-void EthernetTagValServer::begin(EthernetServer* server, const ConnectorLocalInfo* localInfo) {
-    serdebugFHex("Initialising server ", (unsigned int)server);
-	this->server = server;
-	this->server->begin();
-    serdebugF("Initialising connector");
-	this->connector.initialise(&transport, &messageProcessor, localInfo);
-	taskManager.scheduleFixedRate(TICK_INTERVAL, this, TIME_MILLIS);
-}
-
-void EthernetTagValTransport::close() {
-	currentField.msgType = UNKNOWN_MSG_TYPE;
-	currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
-	client.stop();
-}
-
-void EthernetTagValServer::exec() {
-    connector.tick();
-
-    if(!transport.connected()) {
-		EthernetClient client = server->available();
-		if(client) {
-            serdebugF("Client found");
-			transport.setClient(client);
-		}
-	}
-}
-
-int fromWiFiRSSITo4StateIndicator(int strength) {
+int tcremote::fromWiFiRSSITo4StateIndicator(int strength) {
     int qualityIcon = 0;
     if(strength > -50) qualityIcon = 4;
     else if(strength > -60) qualityIcon = 3;
@@ -160,4 +116,19 @@ int fromWiFiRSSITo4StateIndicator(int strength) {
     return qualityIcon;
 }
 
-EthernetTagValServer remoteServer = EthernetTagValServer();
+bool tcremote::EthernetInitialisation::attemptInitialisation() {
+    serdebugF("Initialising server ");
+    this->server->begin();
+    initialised = true;
+    return initialised;
+}
+
+bool tcremote::EthernetInitialisation::attemptNewConnection(TagValueTransport *transport) {
+    EthernetClient client = server->available();
+    if(client) {
+        serdebugF("Client found");
+        reinterpret_cast<EthernetTagValTransport*>(transport)->setClient(client);
+        return true;
+    }
+    return false;
+}

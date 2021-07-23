@@ -22,8 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -35,20 +34,23 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
 
     public enum ReleaseType { STABLE, BETA, PREVIOUS }
 
-    public final static String LIBRARY_VERSIONING_URL = "https://www.thecoderscorner.com/tcc/app/getLibraryVersions";
+    public final static String LIBRARY_VERSIONING_URL_APPEND = "/app/getLibraryVersions";
+    private static final String PLUGIN_DOWNLOAD_URL_APPEND = "/app/downloadPlugin";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
-    private static final String PLUGIN_DOWNLOAD_URL = "https://www.thecoderscorner.com/tcc/app/downloadPlugin";
-    private static final int PLUGIN_API_VERSION = 2;
+    private static final int PLUGIN_API_VERSION = 3;
 
+    private final String urlBase;
     private final IHttpClient client;
 
     private final Object cacheLock = new Object();
     private long lastAccess;
     private Map<String, VersionInfo> versionCache;
+    private Map<String, List<VersionInfo>> allVersions;
     private ReleaseType cachedReleaseType;
 
-    public OnlineLibraryVersionDetector(IHttpClient client, ReleaseType initialReleaseType) {
+    public OnlineLibraryVersionDetector(String urlBase, IHttpClient client, ReleaseType initialReleaseType) {
         this.client = client;
+        this.urlBase = urlBase;
         changeReleaseType(initialReleaseType);
     }
 
@@ -56,6 +58,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
         synchronized (cacheLock) {
             lastAccess = 0;
             versionCache = Map.of();
+            allVersions = Map.of();
             cachedReleaseType = relType;
         }
     }
@@ -80,7 +83,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
             logger.log(INFO, "Starting to acquire version, cache not present or timed out");
             var libDict = new HashMap<String, VersionInfo>();
 
-            var verData = client.postRequestForString(LIBRARY_VERSIONING_URL, "pluginVer=" + PLUGIN_API_VERSION, IHttpClient.HttpDataType.FORM);
+            var verData = client.postRequestForString(urlBase + LIBRARY_VERSIONING_URL_APPEND, "pluginVer=" + PLUGIN_API_VERSION, IHttpClient.HttpDataType.FORM);
             var inStream = new ByteArrayInputStream(verData.getBytes());
 
             logger.log(INFO, "Data acquisition from server completed");
@@ -96,17 +99,44 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
             addVersionsToMap(root.getElementsByTagName("Plugins"), "Plugin", relType, libDict);
             addVersionsToMap(root.getElementsByTagName("Apps"), "App", relType, libDict);
 
+
+            var allVer = handleAllVersionBlockForPlugins(root.getElementsByTagName("AllVersions"));
+
             logger.log(INFO, "All done, saving out new versions.");
 
             synchronized (cacheLock) {
                 lastAccess = System.currentTimeMillis();
                 versionCache = libDict;
+                allVersions = allVer;
             }
             return libDict;
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Unable to get versions from main site", e);
         }
         return versionCache;
+    }
+
+    private Map<String, List<VersionInfo>> handleAllVersionBlockForPlugins(NodeList allVersions) {
+        if(allVersions == null || allVersions.getLength() == 0) return Map.of();
+        var allVerMap = new HashMap<String, List<VersionInfo>>();
+        logger.log(System.Logger.Level.INFO, "Starting to acquire version list from core site");
+        for(int i=0; i< allVersions.getLength(); i++) {
+            var item = allVersions.item(i);
+            var name = item.getAttributes().getNamedItem("name").getNodeValue();
+            var children = ((Element)item).getElementsByTagName("Version");
+            var list = new ArrayList<VersionInfo>();
+            for(int j=0; j<children.getLength(); j++) {
+                try {
+                    var versionData = children.item(j);
+                    list.add(new VersionInfo(versionData.getAttributes().getNamedItem("ver").getTextContent()));
+                }
+                catch (Exception e) {
+                    logger.log(WARNING, "Parse error on " + name);
+                }
+            }
+            allVerMap.put(name, list);
+        }
+        return allVerMap;
     }
 
     private void addVersionsToMap(NodeList topLevelElem, String type, ReleaseType relType, HashMap<String, VersionInfo> libDict) {
@@ -126,17 +156,30 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     }
 
     public void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException {
-        var pluginsFolder = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins", name);
-        if (Files.exists(pluginsFolder.resolve(".git"))) throw new LibraryUpgradeException("Not overwriting git repo " + name);
-        performUpgradeFromWeb(name, requestedVersion, pluginsFolder);
+        var pluginsFolder = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
+        if (Files.exists(pluginsFolder.resolve(".git")) || Files.exists(pluginsFolder.resolve(".development"))) {
+            throw new LibraryUpgradeException("Found .development or .git, not overwriting  " + name);
+        }
+        performUpgradeFromWeb(name, requestedVersion, pluginsFolder.resolve(name));
     }
 
     @Override
     public boolean availableVersionsAreValid(boolean doRefresh) {
-        if(versionCache.isEmpty() || (System.currentTimeMillis() - lastAccess) > (REFRESH_TIMEOUT_MILLIS - 1000) && doRefresh) {
-            acquireVersions();
+        synchronized (cacheLock) {
+            if (versionCache.isEmpty() || (System.currentTimeMillis() - lastAccess) > (REFRESH_TIMEOUT_MILLIS - 1000) && doRefresh) {
+                acquireVersions();
+            }
+            return (!versionCache.isEmpty()) && ((System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS);
         }
-        return (!versionCache.isEmpty()) && ((System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS);
+    }
+
+    @Override
+    public Optional<List<VersionInfo>> acquireAllVersionsFor(String pluginName) {
+        if(availableVersionsAreValid(true)) {
+            var allVer = allVersions.get(pluginName);
+            return Optional.ofNullable(allVer);
+        }
+        return Optional.empty();
     }
 
     private void performUpgradeFromWeb(String name, VersionInfo requestedVersion, Path outDir) throws LibraryUpgradeException {
@@ -147,7 +190,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
             logger.log(INFO, "Upgrade in progress for " + name + " to " + requestedVersion);
 
             var json = "{\"name\": \"" + name + "\", \"version\": \"" + requestedVersion + "\"}";
-            byte[] data = client.postRequestForBinaryData(PLUGIN_DOWNLOAD_URL, json, IHttpClient.HttpDataType.JSON_DATA);
+            byte[] data = client.postRequestForBinaryData(urlBase + PLUGIN_DOWNLOAD_URL_APPEND, json, IHttpClient.HttpDataType.JSON_DATA);
             var inStream = new ByteArrayInputStream(data);
 
             extractFilesFromZip(outDir, inStream);

@@ -6,7 +6,12 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +21,7 @@ public class CodeGeneratorOptions {
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
+    private List<String> lastRemoteUuids;
     private String lastThemeUuid;
     private UUID applicationUUID;
     private String applicationName;
@@ -23,19 +29,26 @@ public class CodeGeneratorOptions {
     private boolean namingRecursive;
     private boolean saveToSrc;
     private boolean useCppMain;
+    private EepromDefinition eepromDefinition;
+    private AuthenticatorDefinition authenticatorDefinition;
 
     public CodeGeneratorOptions() {
         // for serialisation
     }
 
-    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, String remoteCapabilitiesId,
+    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
+                                EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
-        this.lastRemoteUuid = remoteCapabilitiesId;
+        if(remoteCapabilities != null && !remoteCapabilities.isEmpty()) {
+            this.lastRemoteUuids = remoteCapabilities;
+            // for backward compatibility as far as possible we save the first in the old format.
+            this.lastRemoteUuid = remoteCapabilities.get(0);
+        }
         this.lastThemeUuid = themeTypeId;
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
@@ -43,6 +56,18 @@ public class CodeGeneratorOptions {
         this.namingRecursive = namingRecursive;
         this.saveToSrc = saveToSrc;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
+        this.eepromDefinition = eepromDef;
+        this.authenticatorDefinition = authDef;
+    }
+
+    public EepromDefinition getEepromDefinition() {
+        if(eepromDefinition == null) return new NoEepromDefinition();
+        return eepromDefinition;
+    }
+
+    public AuthenticatorDefinition getAuthenticatorDefinition() {
+        if(authenticatorDefinition == null) return new NoAuthenticatorDefinition();
+        return authenticatorDefinition;
     }
 
     public String getApplicationName() {
@@ -67,8 +92,11 @@ public class CodeGeneratorOptions {
 
     public String getLastThemeUuid() { return lastThemeUuid; }
 
-    public String getLastRemoteCapabilitiesUuid() {
-        return lastRemoteUuid;
+    public List<String> getLastRemoteCapabilitiesUuids() {
+        if (lastRemoteUuids == null) {
+            lastRemoteUuids = List.of(lastRemoteUuid != null ? lastRemoteUuid : CoreCodeGenerator.NO_REMOTE_ID);
+        }
+        return lastRemoteUuids;
     }
 
     public List<CreatorProperty> getLastProperties() {

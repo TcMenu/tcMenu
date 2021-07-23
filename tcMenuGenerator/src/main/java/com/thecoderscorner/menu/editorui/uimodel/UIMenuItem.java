@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -79,11 +80,21 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         int idx = 0;
 
-        var itemType = (menuItem != null) ? menuItem.getClass().getSimpleName() : "";
+        String itemType;
+        if(menuItem instanceof CustomBuilderMenuItem customItem) {
+            itemType = switch(customItem.getMenuType()) {
+                case AUTHENTICATION -> "AuthenticationItem";
+                case REMOTE_IOT_MONITOR -> "Remote/IoT Monitor";
+            };
+        }
+        else {
+            itemType = (menuItem != null) ? menuItem.getClass().getSimpleName() : "";
+        }
 
         Hyperlink docsHyperlink = new Hyperlink("Online documentation for " + itemType);
         docsHyperlink.setTooltip(new Tooltip("Visit " + urlDocs));
         docsHyperlink.setOnAction(evt -> SafeNavigator.safeNavigateTo(urlDocs));
+        docsHyperlink.setId("onlineDocsHyperlink");
         grid.add(docsHyperlink, 0, idx, 2, 1);
         idx++;
 
@@ -133,7 +144,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
             variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
             callChangeConsumer();
         });
-        varSyncButton.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
         varSyncButton.setId("varSyncButton");
         varNameBox.getChildren().add(variableField);
         varNameBox.getChildren().add(varSyncButton);
@@ -153,7 +163,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
             Button eepromNextBtn = new Button("auto");
             eepromNextBtn.setId("eepromNextBtn");
-            eepromNextBtn.setStyle("-fx-padding: 1px;-fx-border-color:#666; fx-border-width: 2px; -fx-border-radius: 2px;-fx-background-color: #444;-fx-text-fill: white;");
             eepromBox.getChildren().add(eepromNextBtn);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
 
@@ -331,7 +340,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         int val = 0;
         try {
-            val = Integer.valueOf(s);
+            val = Integer.parseInt(s);
             if(val < min || val > max) {
                 errorsBuilder.add(new FieldError("Value must be between " + min + " and " + max, field));
             }

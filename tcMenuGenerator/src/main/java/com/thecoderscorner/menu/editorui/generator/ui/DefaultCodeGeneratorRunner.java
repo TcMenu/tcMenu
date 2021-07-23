@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
@@ -21,7 +22,7 @@ import javafx.stage.Stage;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.util.UiHelper.createDialogStateAndShow;
+import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -29,7 +30,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
     private final System.Logger logger = System.getLogger(DefaultCodeGeneratorRunner.class.getSimpleName());
 
     private final CurrentEditorProject project;
-    private EmbeddedPlatforms platforms;
+    private final EmbeddedPlatforms platforms;
 
     public DefaultCodeGeneratorRunner(CurrentEditorProject project, EmbeddedPlatforms platforms) {
         this.project = project;
