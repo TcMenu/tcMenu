@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="511.0" fx:controller="com.thecoderscorner.menu.editorui.controller.AddFlashRemoteController" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="511.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AddFlashRemoteController">
    <top>
       <Label text="Enter flash values" BorderPane.alignment="TOP_LEFT">
          <font>
@@ -24,7 +23,7 @@
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" styleClass="background" BorderPane.alignment="CENTER">
         <buttons>
             <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
           <Button fx:id="addRemoteButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onAddRemote" text="Add Remote" />
