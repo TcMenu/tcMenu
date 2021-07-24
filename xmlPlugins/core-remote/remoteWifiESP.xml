@@ -19,6 +19,8 @@
     <SourceFiles>
         <Replacement find="Ethernet.h" replace="WiFi.h" whenProperty="TARGET" isValue="ARDUINO_ESP32"/>
         <Replacement find="Ethernet.h" replace="ESP8266WiFi.h" whenProperty="TARGET" isValue="ARDUINO_ESP8266"/>
+        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 128" whenProperty="LIBRARY_TYPE" isValue="ETHERNET_2"/>
+
         <Replacement find="EthernetClient" replace="WiFiClient" />
         <Replacement find="EthernetServer" replace="WiFiServer" />
         <SourceFile name="ethernetSrc/EthernetTransport.cpp"/>
@@ -31,15 +33,22 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="server" type="WiFiServer" export="true">
+        <Variable name="server${LISTEN_PORT}" type="WiFiServer" export="true">
             <Param value="${LISTEN_PORT}" default="3333" />
+        </Variable>
+        <Variable name="ethernetInitialisation${LISTEN_PORT}" type="EthernetInitialisation" export="true">
+            <Param ref="server${LISTEN_PORT}"/>
+        </Variable>
+        <Variable name="ethernetTransport${LISTEN_PORT}" type="EthernetTagValTransport" export="false"/>
+        <Variable name="ethernetConnection${LISTEN_PORT}" type="TagValueRemoteServerConnection" export="false">
+            <Param value="ethernetTransport${LISTEN_PORT}"/>
+            <Param value="ethernetInitialisation${LISTEN_PORT}"/>
         </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="remoteServer">
-            <Param ref="server"/>
-            <Param ref="applicationInfo"/>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="ethernetConnection${LISTEN_PORT}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>
