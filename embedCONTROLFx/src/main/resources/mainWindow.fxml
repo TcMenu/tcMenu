@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="mainBorderPane" prefHeight="611.0" prefWidth="777.0" styleClass="background" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.MainWindowController">
+<BorderPane fx:id="mainBorderPane" prefHeight="611.0" prefWidth="777.0" styleClass="background" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.dialog.MainWindowController">
    <opaqueInsets>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </opaqueInsets>

@@ -8,6 +8,7 @@ package com.thecoderscorner.embedcontrol.jfx;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.jfx.dialog.MainWindowController;
 import com.thecoderscorner.embedcontrol.jfx.panel.AboutPanelPresentable;
 import com.thecoderscorner.embedcontrol.jfx.panel.NewConnectionPanelPresentable;
 import com.thecoderscorner.embedcontrol.jfx.panel.RemoteConnectionPanel;

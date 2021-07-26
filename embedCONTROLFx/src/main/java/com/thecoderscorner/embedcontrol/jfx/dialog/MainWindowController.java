@@ -4,41 +4,18 @@
  *
  */
 
-package com.thecoderscorner.embedcontrol.jfx;
+package com.thecoderscorner.embedcontrol.jfx.dialog;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.manageditem.*;
 import com.thecoderscorner.embedcontrol.jfx.panel.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfx.panel.RemoteConnectionPanel;
-import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
-import com.thecoderscorner.menu.remote.protocol.CorrelationId;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * This is the window controller, responsible for all actions to do the main window. It listens to change
@@ -98,6 +75,7 @@ public class MainWindowController {
 
     public void createdConnection(RemoteConnectionPanel panel) {
         connectionList.getItems().add(panel);
+        connectionList.getSelectionModel().select(panel);
     }
 
     private static class PanelPresentableListCell extends ListCell<PanelPresentable> {
