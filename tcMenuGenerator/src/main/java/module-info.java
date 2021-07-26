@@ -10,7 +10,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires javafx.controls;
     requires java.net.http;
 
-    requires com.fazecast.jSerialComm;
     requires com.thecoderscorner.tcmenu.javaapi;
     requires com.google.gson;
     requires info.picocli;

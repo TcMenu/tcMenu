@@ -151,6 +151,10 @@ public class RemoteMenuController {
         listeners.add(listener);
     }
 
+    public void removeListener(RemoteControllerListener listener) {
+        listeners.remove(listener);
+    }
+
     private void onCommandReceived(RemoteConnector remoteConnector, MenuCommand menuCommand) {
         switch(menuCommand.getCommandType()) {
             case ACKNOWLEDGEMENT:

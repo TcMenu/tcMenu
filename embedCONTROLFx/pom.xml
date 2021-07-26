@@ -10,35 +10,78 @@
 
     <groupId>com.thecoderscorner.tcmenu</groupId>
 
-    <artifactId>TcMenuController</artifactId>
-    <name>TcMenuController</name>
-    <description>TcMenu Remote Controller JavaFX UI for connecting to embedded menu apps</description>
+    <artifactId>embedCONTROL</artifactId>
+    <name>embedCONTROL</name>
+    <description>TcMenu embedCONTROL JavaFX UI for connecting to embedded menu apps</description>
     <version>2.2.0-SNAPSHOT</version>
 
     <dependencies>
 
         <!-- production dependencies -->
-
+        <dependency>
+            <groupId>com.fazecast</groupId>
+            <artifactId>jSerialComm</artifactId>
+            <version>2.4.0</version>
+        </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.thecoderscorner.tcmenu</groupId>
+            <artifactId>embedCONTROLCore</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11</version>
+            <version>16</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>11</version>
+            <version>16</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>jmetro</artifactId>
+            <version>11.6.15</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-graphics</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-base</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>tcMenuController</finalName>
+        <finalName>embedCONTROL</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>version.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

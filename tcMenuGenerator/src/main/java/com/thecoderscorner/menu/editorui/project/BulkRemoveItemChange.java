@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +39,7 @@ public class BulkRemoveItemChange extends MenuItemChange {
         for(var item : toRedoList)
         {
             var par = tree.getMenuById(item.getParentId());
-            if(par.isPresent() && par.get() instanceof SubMenuItem) {
-                var sub = (SubMenuItem)par.get();
+            if(par.isPresent() && par.get() instanceof SubMenuItem sub) {
                 tree.addOrUpdateItem(sub.getId(), item.getItem());
             }
         }

@@ -8,31 +8,61 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.*?>
-<BorderPane fx:id="mainBorderPane" prefHeight="574.0" prefWidth="424.0" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.controller.MainWindowController">
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="mainBorderPane" prefHeight="611.0" prefWidth="777.0" styleClass="background" stylesheets="@form-style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.MainWindowController">
    <opaqueInsets>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </opaqueInsets>
-   <center>
-      <GridPane fx:id="itemGrid" BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" />
-          <ColumnConstraints hgrow="SOMETIMES" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints />
-          <RowConstraints />
-          <RowConstraints />
-        </rowConstraints>
-         <padding>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-         </padding>
-      </GridPane>
-   </center>
    <padding>
       <Insets top="4.0" />
    </padding>
    <bottom>
-      <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="433.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
+      <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="642.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
    </bottom>
+   <left>
+      <VBox prefHeight="551.0" prefWidth="221.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label contentDisplay="TOP" text="embedCONTROL">
+               <font>
+                  <Font name="Arial" size="24.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="111.0" fitWidth="117.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@img/large_icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Label>
+            <Label fx:id="versionField" text="Version 2.0" />
+            <ListView fx:id="connectionList" prefHeight="379.0" prefWidth="208.0">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </ListView>
+         </children>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </VBox>
+   </left>
+   <center>
+      <ScrollPane fx:id="containerArea" prefHeight="551.0" prefWidth="492.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding></ScrollPane>
+   </center>
 </BorderPane>

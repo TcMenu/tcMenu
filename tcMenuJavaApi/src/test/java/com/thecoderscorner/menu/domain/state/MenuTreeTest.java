@@ -49,7 +49,7 @@ public class MenuTreeTest {
     @Test
     public void testThatRemovingMenuItemRemovesState() {
         menuTree.addMenuItem(MenuTree.ROOT, item1);
-        menuTree.changeItem(item1, MenuItemHelper.stateForMenuItem(item1, 1, true, false));
+        menuTree.changeItem(item1, MenuItemHelper.stateForMenuItem(menuTree.getMenuState(item1), item1, 1, true));
 
         assertNotNull(menuTree.getMenuState(item1));
 
@@ -87,15 +87,15 @@ public class MenuTreeTest {
         assertTrue(state.isChanged());
         assertFalse(state.isActive());
 
-        menuTree.changeItem(item3, MenuItemHelper.stateForMenuItem(item3, 1, false, true));
+        menuTree.changeItem(item3, MenuItemHelper.stateForMenuItem(menuTree.getMenuState(item3), item3, 1, false));
         var stateAnalog = menuTree.getMenuState(item3);
         assertTrue(stateAnalog instanceof IntegerMenuState);
         assertEquals(1, stateAnalog.getValue());
         assertFalse(stateAnalog.isChanged());
-        assertTrue(stateAnalog.isActive());
+        assertFalse(stateAnalog.isActive());
 
         menuTree.addOrUpdateItem(MenuTree.ROOT.getId(), itemText);
-        menuTree.changeItem(itemText, MenuItemHelper.stateForMenuItem(itemText, "Hello", false, false));
+        menuTree.changeItem(itemText, MenuItemHelper.stateForMenuItem(menuTree.getMenuState(itemText), itemText, "Hello"));
         assertNotNull(menuTree.getMenuState(itemText));
         assertEquals("Hello", menuTree.getMenuState(itemText).getValue());
     }

@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
-import static com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor.TCMENU_COPY_PREFIX;
+import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings({"unused", "rawtypes"})
@@ -238,13 +238,10 @@ public class MenuEditorController {
         menuItemUp.setDisable(isRoot);
         menuItemDown.setDisable(isRoot);
         menuTreeRemove.setDisable(isRoot);
-        menuTreeCopy.setDisable(isRoot);
+        menuTreeCopy.setDisable(newValue == null);
         menuTreeUp.setDisable(isRoot);
         menuTreeDown.setDisable(isRoot);
         menuTreePaste.setDisable(!isClipboardContentValid());
-
-        // We cannot copy ROOT. Only value items
-        if(newValue.equals(MenuTree.ROOT)) menuTreeCopy.setDisable(true);
     }
 
     private boolean isClipboardContentValid() {
@@ -327,7 +324,7 @@ public class MenuEditorController {
 
     public void onTreeCopy(ActionEvent actionEvent) {
         var selected = menuTree.getSelectionModel().getSelectedItem();
-        if(selected == null || selected.getValue().equals(MenuTree.ROOT)) return;
+        if(selected == null) return;
 
         var cp = editorProject.getProjectPersistor().itemsToCopyText(selected.getValue(), editorProject.getMenuTree());
         Clipboard systemClipboard = Clipboard.getSystemClipboard();

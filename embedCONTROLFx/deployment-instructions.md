@@ -30,7 +30,7 @@ jpackager create-image --output tcMenuDesigner --input jfx/app --name tcMenuDesi
 
 # in the example UI directory
 
-jpackager create-image --output tcMenuController --input jfx/app --name tcMenuController --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.exampleui --version 1.5.0 --icon classes/controller-icon.ico --identifier com.thecoderscorner.tcmenu.exampleui --vendor TheCodersCorner --jvm-args "-Djava.util.logging.config.file=logging.properties" --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
+jpackager create-image --output tcMenuController --input jfx/app --name tcMenuController --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.exampleui --version 1.5.0 --icon classes/controller-icon.ico --identifier com.thecoderscorner.tcmenu.exampleui --vendor TheCodersCorner --jvm-args "-Djava.util.logging.config.file=logging.properties" --verbose -m com.thecoderscorner.tcmenu.exampleui/MenuControllerApp
 
 Copy the plugins into the tcMenuDesigner/app dir at the same level as embedded.
 
@@ -50,7 +50,7 @@ cp classes/img/Icon.icns tcMenuDesigner.icns
 
 $JAVA_HOME/bin/jpackage --input jfx/app --name tcMenuDesigner --module-path jfx/deps --vendor TheCodersCorner  --add-modules com.thecoderscorner.tcmenu.menuEditorUI --verbose --app-version 1.5.0 --icon tcMenuDesigner.icns -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.MenuEditorApp
 
-$JAVA_HOME/bin/jpackage --input jfx/app --name tcMenuController --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.exampleui --app-version 1.5.0 --icon tcMenuController.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/com.thecoderscorner.menu.controller.MenuControllerApp
+$JAVA_HOME/bin/jpackage --input jfx/app --name tcMenuController --module-path jfx/deps --add-modules com.thecoderscorner.tcmenu.exampleui --app-version 1.5.0 --icon tcMenuController.icns --vendor TheCodersCorner --verbose -m com.thecoderscorner.tcmenu.exampleui/MenuControllerApp
 
 add the plugins to the .app file in the same directory as embedded.
 

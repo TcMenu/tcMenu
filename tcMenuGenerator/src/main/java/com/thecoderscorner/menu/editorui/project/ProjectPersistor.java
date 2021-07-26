@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.IOException;
 import java.util.List;

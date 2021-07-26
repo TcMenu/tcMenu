@@ -16,7 +16,7 @@ import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
-import com.thecoderscorner.menu.remote.rs232.Rs232ControllerBuilder;
+import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +35,7 @@ public class StandaloneRs232Test {
      * We pass an empty one of these to the controller, and it populates them. Note that
      * each controller manages exactly one MenuTree.
      */
-    private MenuTree menuTree = new MenuTree();
+    private final MenuTree menuTree = new MenuTree();
     private RemoteMenuController controller;
 
     /**
@@ -63,8 +63,9 @@ public class StandaloneRs232Test {
 
         // Now we use the rs232 builder to make a suitably configured instance of a
         // controller that can talk over serial and work with our menuTree.
-        controller = new Rs232ControllerBuilder()
-                .withRs232(portName, baud)
+        controller = new SocketControllerBuilder()
+                .withAddress("192.168.0.22")
+                .withPort(3333)
                 .withMenuTree(menuTree)
                 .withLocalName(myName)
                 .withUUID(uuid)

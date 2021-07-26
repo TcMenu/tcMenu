@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class PastedItemChange extends MenuItemChange {
 
     @Override
     void unApply(MenuTree tree) {
-        var currentlyLeft = new ArrayList<PersistedMenu>(allItems);
+        var currentlyLeft = new ArrayList<>(allItems);
 
         // we have to iterate until all dependencies have been deleted, potentially more than one go.
         var iterations = 0;

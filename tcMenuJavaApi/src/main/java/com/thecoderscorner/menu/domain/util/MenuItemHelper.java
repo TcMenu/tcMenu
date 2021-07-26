@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.System.Logger.Level.ERROR;
+
 /**
  * A helper class for dealing with MenuItem objects. This class provides the helper for visiting
  * menu items and returning a result. It also provides other helpers for dealing with items.
@@ -267,6 +269,24 @@ public class MenuItemHelper {
         }).orElse(0);
     }
 
+    public static AnyMenuState stateForMenuItem(AnyMenuState existingState, MenuItem item, Object val) {
+        boolean changed = false;
+        boolean active = false;
+        if(existingState != null) {
+            changed = existingState.isChanged();
+            active = existingState.isActive();
+        }
+        return stateForMenuItem(item, val, changed, active);
+    }
+
+    public static AnyMenuState stateForMenuItem(AnyMenuState existingState, MenuItem item, Object val, boolean changed) {
+        boolean active = false;
+        if(existingState != null) {
+            active = existingState.isActive();
+        }
+        return stateForMenuItem(item, val, changed, active);
+    }
+
     public static AnyMenuState stateForMenuItem(MenuItem item, Object val, boolean changed, boolean active) {
         if(val == null || item == null) return new BooleanMenuState(item, false, false, false);
 
@@ -359,5 +379,19 @@ public class MenuItemHelper {
                 setResult(new BooleanMenuState(item, changed, active, false));
             }
         }).orElseThrow();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getValueFor(MenuItem item, MenuTree tree, T def) {
+        if(tree.getMenuState(item) != null) {
+            try {
+                return (T) tree.getMenuState(item).getValue();
+            }
+            catch (Exception ex) {
+                System.getLogger(MenuItemHelper.class.getSimpleName()).log(ERROR, "State type incorrect", ex);
+            }
+        }
+        tree.changeItem(item, MenuItemHelper.stateForMenuItem(item, def, false, false));
+        return def;
     }
 }
