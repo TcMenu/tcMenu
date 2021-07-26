@@ -34,7 +34,7 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     private final int latencyMillis;
     private final Map<Integer, Object> valuesById;
     private final RuntimeListMenuItem simUpdateList;
-    private final List<String> _recentUpdates = new ArrayList<>();
+    private final List<String> recentUpdates = new ArrayList<>();
     public AuthStatus authStatus;
     public RemoteInformation remoteInfo;
     private RemoteConnectorListener connectorListener;
@@ -194,12 +194,12 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     }
 
     private void acknowledgeChange(MenuItem item, String value, CorrelationId correlation, AckStatus status) {
-        if (_recentUpdates.size() > 20) _recentUpdates.remove(0);
-        _recentUpdates.add(String.format("%s %s - %s", item.getName(), value, status));
+        if (recentUpdates.size() > 20) recentUpdates.remove(0);
+        recentUpdates.add(String.format("%s %s - %s", item.getName(), value, status));
         connectorListener.onCommand(this, new MenuChangeCommand(
                 CorrelationId.EMPTY_CORRELATION,
                 simUpdateList.getId(),
-                _recentUpdates));
+                recentUpdates));
         connectorListener.onCommand(this, new MenuAcknowledgementCommand(correlation, status));
     }
 
@@ -318,7 +318,7 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     private void recurseSendingItems(SubMenuItem currentRoot) {
         var items = tree.getMenuItems(currentRoot);
         for(var item : items) {
-            connectorListener.onCommand(this, new MenuBootstrapCommand(MenuBootstrapCommand.BootType.START));
+            sendCommandFor(item);
             var subMenuItem = MenuItemHelper.asSubMenu(item);
             if(subMenuItem != null) {
                 recurseSendingItems(subMenuItem);

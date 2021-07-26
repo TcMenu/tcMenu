@@ -215,10 +215,18 @@ public class RemoteMenuController {
         // we cannot process until the tree is populated
         if(!isTreeFullyPopulated()) return;
 
-        managedMenu.getMenuById(menuCommand.getMenuItemId()).ifPresent((item) -> {
-            managedMenu.changeItem(item, MenuItemHelper.stateForMenuItem(item, menuCommand.getValue(), true, false));
-            listeners.forEach(l-> l.menuItemChanged(item, true));
-        });
+        if(menuCommand.getChangeType() == MenuChangeCommand.ChangeType.ABSOLUTE_LIST) {
+            managedMenu.getMenuById(menuCommand.getMenuItemId()).ifPresent((item) -> {
+                managedMenu.changeItem(item, MenuItemHelper.stateForMenuItem(item, menuCommand.getValues(), true, false));
+                listeners.forEach(l -> l.menuItemChanged(item, true));
+            });
+        }
+        else {
+            managedMenu.getMenuById(menuCommand.getMenuItemId()).ifPresent((item) -> {
+                managedMenu.changeItem(item, MenuItemHelper.stateForMenuItem(item, menuCommand.getValue(), true, false));
+                listeners.forEach(l -> l.menuItemChanged(item, true));
+            });
+        }
     }
 
     public MenuTree getManagedMenu() {

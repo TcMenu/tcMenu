@@ -215,11 +215,11 @@ public class MenuItemFormatter
             }
             else
             {
-                var whole = Integer.toString(calcVal / divisor);
+                int whole = calcVal / divisor;
                 int fractMax = GetActualDecimalDivisor(an.getDivisor());
                 int fraction = Math.abs((calcVal % divisor)) * (fractMax / divisor);
 
-                return String.format("%d.%" + calculateRequiredDigits(divisor) + "d%s", whole, fraction,an.getUnitName());
+                return String.format("%d.%" + calculateRequiredDigits(divisor) + "d%s", whole, fraction,an.getUnitName().toString());
             }
         }
 

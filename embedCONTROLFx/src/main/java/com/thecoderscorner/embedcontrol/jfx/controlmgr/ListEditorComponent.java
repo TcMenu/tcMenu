@@ -23,7 +23,7 @@ import java.util.List;
 import static com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsController.asFxColor;
 
 public class ListEditorComponent extends BaseEditorComponent {
-    private final ObservableList<String> actualData = FXCollections.emptyObservableList();
+    private final ObservableList<String> actualData = FXCollections.observableArrayList();
     private ListView<String> listView;
 
     public ListEditorComponent(RemoteMenuController remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
@@ -39,10 +39,11 @@ public class ListEditorComponent extends BaseEditorComponent {
 
     public Node createComponent() {
         if (item instanceof RuntimeListMenuItem listItem) {
-            listView = new ListView<>(actualData);
+            listView = new ListView<>();
             ConditionalColoring condColor = getDrawingSettings().getColors();
             var bgPaint = asFxColor(condColor.backgroundFor(RenderingStatus.NORMAL, ConditionalColoring.ColorComponentType.BUTTON));
             listView.setBackground(new Background(new BackgroundFill(bgPaint, new CornerRadii(0), new Insets(0))));
+            listView.setItems(actualData);
             return listView;
         } else {
             return new Label("item not a list");
@@ -58,7 +59,7 @@ public class ListEditorComponent extends BaseEditorComponent {
     @Override
     public void onItemUpdated(MenuState<?> state) {
         if (state.getValue() instanceof List list) {
-            updateAll((List<String>) state);
+            updateAll((List<String>) state.getValue());
         }
     }
 
