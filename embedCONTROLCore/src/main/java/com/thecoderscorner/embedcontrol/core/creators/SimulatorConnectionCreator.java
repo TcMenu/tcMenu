@@ -151,7 +151,7 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
             "      \"eepromAddress\": -1,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +

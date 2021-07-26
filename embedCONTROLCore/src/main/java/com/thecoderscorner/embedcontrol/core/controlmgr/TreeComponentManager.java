@@ -136,7 +136,7 @@ public class TreeComponentManager {
                 editorComponents.put(analogItem.getId(), screenManager.addHorizontalSlider(analogItem,
                         new ComponentSettings(prefsColoring,
                                 screenManager.getDefaultFontSize(),
-                                PortableAlignment.CENTER, nextRowCol(false),
+                                PortableAlignment.CENTER, nextRowCol(true),
                                 RedrawingMode.SHOW_NAME_VALUE, false)));
             } else if (item instanceof Rgb32MenuItem) {
                 var rgb = (Rgb32MenuItem) item;
@@ -150,21 +150,21 @@ public class TreeComponentManager {
                 editorComponents.put(enumItem.getId(), screenManager.addUpDownInteger(enumItem,
                         new ComponentSettings(prefsColoring,
                                 screenManager.getDefaultFontSize(),
-                                PortableAlignment.CENTER, nextRowCol(false),
+                                PortableAlignment.CENTER, nextRowCol(true),
                                 RedrawingMode.SHOW_NAME_VALUE, false)));
             } else if (item instanceof ScrollChoiceMenuItem) {
                 var scrollItem = (ScrollChoiceMenuItem) item;
                 editorComponents.put(scrollItem.getId(), screenManager.addUpDownScroll(scrollItem,
                         new ComponentSettings(prefsColoring,
                                 screenManager.getDefaultFontSize(),
-                                PortableAlignment.CENTER, nextRowCol(false),
+                                PortableAlignment.CENTER, nextRowCol(true),
                                 RedrawingMode.SHOW_NAME_VALUE, false)));
             } else if (item instanceof FloatMenuItem) {
                 var floatItem = (FloatMenuItem) item;
                 editorComponents.put(floatItem.getId(), screenManager.addTextEditor(floatItem,
                         new ComponentSettings(prefsColoring,
                                 screenManager.getDefaultFontSize(),
-                                PortableAlignment.CENTER, nextRowCol(false),
+                                PortableAlignment.CENTER, nextRowCol(true),
                                 RedrawingMode.SHOW_NAME_VALUE, false), 0.0F));
             } else if (item instanceof RuntimeListMenuItem) {
                 var listItem = (RuntimeListMenuItem) item;
@@ -181,7 +181,7 @@ public class TreeComponentManager {
                     editorComponents.put(textItem.getId(), screenManager.addDateEditorComponent(textItem,
                             new ComponentSettings(prefsColoring,
                                     screenManager.getDefaultFontSize(),
-                                    PortableAlignment.CENTER, nextRowCol(false),
+                                    PortableAlignment.CENTER, nextRowCol(true),
                                     RedrawingMode.SHOW_LABEL_NAME_VALUE, false)));
                 } else if (textItem.getItemType() == EditItemType.TIME_24_HUNDREDS ||
                         textItem.getItemType() == EditItemType.TIME_12H ||
@@ -189,13 +189,13 @@ public class TreeComponentManager {
                     editorComponents.put(textItem.getId(), screenManager.addTimeEditorComponent(textItem,
                             new ComponentSettings(prefsColoring,
                                     screenManager.getDefaultFontSize(),
-                                    PortableAlignment.CENTER, nextRowCol(false),
+                                    PortableAlignment.CENTER, nextRowCol(true),
                                     RedrawingMode.SHOW_LABEL_NAME_VALUE, false)));
                 } else {
                     editorComponents.put(textItem.getId(), screenManager.addTextEditor(textItem,
                             new ComponentSettings(prefsColoring,
                                     screenManager.getDefaultFontSize(),
-                                    PortableAlignment.CENTER, nextRowCol(false),
+                                    PortableAlignment.CENTER, nextRowCol(true),
                                     RedrawingMode.SHOW_LABEL_NAME_VALUE, false), ""));
                 }
             } else if (item instanceof EditableLargeNumberMenuItem) {
@@ -203,7 +203,7 @@ public class TreeComponentManager {
                 editorComponents.put(largeNum.getId(), screenManager.addTextEditor(largeNum,
                         new ComponentSettings(prefsColoring,
                                 screenManager.getDefaultFontSize(),
-                                PortableAlignment.CENTER, nextRowCol(false),
+                                PortableAlignment.CENTER, nextRowCol(true),
                                 RedrawingMode.SHOW_LABEL_NAME_VALUE, false), BigDecimal.ZERO));
             }
 

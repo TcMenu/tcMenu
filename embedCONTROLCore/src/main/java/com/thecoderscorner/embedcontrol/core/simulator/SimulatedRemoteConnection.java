@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.*;
@@ -129,20 +130,17 @@ public class SimulatedRemoteConnection implements RemoteConnector {
             var item = tree.getMenuById(ch.getMenuItemId()).orElseThrow();
             if (ch.getChangeType() == ChangeType.DELTA) {
                 logger.log(DEBUG, "Delta change on id " + item.getId());
-                var state = (MenuState<Integer>)tree.getMenuState(item);
+                var state = (MenuState<Integer>) tree.getMenuState(item);
                 var prevVal = state.getValue() != null ? state.getValue() : 0;
                 int newVal = prevVal + Integer.parseInt(ch.getValue());
 
-                if (item instanceof AnalogMenuItem)
-                {
+                if (item instanceof AnalogMenuItem) {
                     AnalogMenuItem analog = (AnalogMenuItem) item;
                     if (newVal < 0 || newVal > analog.getMaxValue()) {
                         acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING);
                         return;
                     }
-                }
-                else if (item instanceof EnumMenuItem)
-                {
+                } else if (item instanceof EnumMenuItem) {
                     EnumMenuItem en = (EnumMenuItem) item;
                     if (newVal < 0 || newVal >= en.getEnumEntries().size()) {
                         acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING);
@@ -153,41 +151,43 @@ public class SimulatedRemoteConnection implements RemoteConnector {
                 connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, Integer.toString(newVal)));
                 acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
             } else if (ch.getChangeType() == ChangeType.ABSOLUTE) {
-                if (item instanceof AnalogMenuItem)
-                {
+                if (item instanceof AnalogMenuItem) {
                     AnalogMenuItem analog = (AnalogMenuItem) item;
                     logger.log(DEBUG, "Analog absolute update on id " + item.getId());
                     var state = (MenuState<Integer>) tree.getMenuState(item);
                     tree.changeItem(item, MenuItemHelper.stateForMenuItem(state, item, ch.getValue(), true));
                     connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, ch.getValue()));
                     acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
-                }
-                else if (item instanceof BooleanMenuItem)
-                {
+                } else if (item instanceof BooleanMenuItem) {
                     logger.log(DEBUG, "Boolean change on id " + item.getId());
                     tree.changeItem(item, MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, ch.getValue(), true));
                     connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, ch.getValue()));
                     acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
-                }
-                else if (item instanceof EditableTextMenuItem)
-                {
+                } else if (item instanceof EditableTextMenuItem) {
                     logger.log(DEBUG, "Text change on id " + item.getId());
                     tree.changeItem(item, MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, ch.getValue()));
                     connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, ch.getValue()));
                     acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
-                }
-                else if (item instanceof EditableLargeNumberMenuItem)
-                {
+                } else if (item instanceof EditableLargeNumberMenuItem) {
                     logger.log(DEBUG, "Large number change on id " + item.getId());
                     tree.changeItem(item, MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, ch.getValue(), true));
                     connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, ch.getValue()));
                     acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
-                }
-                else if (item instanceof ActionMenuItem)
-                {
+                } else if (item instanceof ActionMenuItem) {
                     logger.log(DEBUG, "Action event change on id " + item.getId());
                     acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
                     sendDialogAction(DialogMode.SHOW, item.getName(), "Action performed", MenuButtonType.NONE, MenuButtonType.OK, CorrelationId.EMPTY_CORRELATION);
+                } else if (item instanceof ScrollChoiceMenuItem) {
+                    logger.log(DEBUG, "Scroll choice event change on id " + item.getId());
+                    var pos = new CurrentScrollPosition(ch.getValue());
+                    var posToSend = new CurrentScrollPosition(pos.getPosition(), Integer.toString(pos.getPosition()));
+                    connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, posToSend.toString()));
+                    acknowledgeChange(item, posToSend.toString(), ch.getCorrelationId(), AckStatus.SUCCESS);
+                } else if(item instanceof Rgb32MenuItem) {
+                    logger.log(DEBUG, "Scroll choice event change on id " + item.getId());
+                    var col = new PortableColor(ch.getValue());
+                    connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, col.toString()));
+                    acknowledgeChange(item, col.toString(), ch.getCorrelationId(), AckStatus.SUCCESS);
                 }
             }
         }, latencyMillis, TimeUnit.MILLISECONDS);
@@ -217,8 +217,8 @@ public class SimulatedRemoteConnection implements RemoteConnector {
         item.accept(new MenuItemVisitor() {
             @Override
             public void visit(AnalogMenuItem item) {
-                 connectorListener.onCommand(SimulatedRemoteConnection.this, new MenuAnalogBootCommand(parId, item,
-                         MenuItemHelper.getValueFor(item, tree, 0)));
+                connectorListener.onCommand(SimulatedRemoteConnection.this, new MenuAnalogBootCommand(parId, item,
+                        MenuItemHelper.getValueFor(item, tree, 0)));
             }
 
             @Override
@@ -317,10 +317,10 @@ public class SimulatedRemoteConnection implements RemoteConnector {
 
     private void recurseSendingItems(SubMenuItem currentRoot) {
         var items = tree.getMenuItems(currentRoot);
-        for(var item : items) {
+        for (var item : items) {
             sendCommandFor(item);
             var subMenuItem = MenuItemHelper.asSubMenu(item);
-            if(subMenuItem != null) {
+            if (subMenuItem != null) {
                 recurseSendingItems(subMenuItem);
             }
         }
