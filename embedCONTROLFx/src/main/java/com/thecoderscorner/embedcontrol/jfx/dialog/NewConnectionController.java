@@ -9,6 +9,7 @@ import com.thecoderscorner.embedcontrol.core.serial.SerialPortInfo;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortType;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
+import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -36,13 +37,16 @@ public class NewConnectionController {
     private Set<SerialPortInfo> allPorts = new HashSet<>();
     private ScheduledExecutorService executorService;
     private GlobalSettings settings;
+    private JsonMenuItemSerializer serializer;
 
     public void initialise(GlobalSettings settings, ScheduledExecutorService executorService,
-                           PlatformSerialFactory serialFactory, Consumer<ConnectionCreator> creatorConsumer) {
+                           PlatformSerialFactory serialFactory, Consumer<ConnectionCreator> creatorConsumer,
+                           JsonMenuItemSerializer serializer) {
         this.serialFactory = serialFactory;
         this.creatorConsumer = creatorConsumer;
         this.executorService = executorService;
         this.settings = settings;
+        this.serializer = serializer;
         baudCombo.getItems().addAll(BAUD_RATES);
         serialFactory.startPortScan(SerialPortType.ALL_PORTS, this::portChange);
         baudCombo.getSelectionModel().select(0);
@@ -102,7 +106,7 @@ public class NewConnectionController {
         }
         else if(simulatorRadio.isSelected()) {
             creatorConsumer.accept(new SimulatorConnectionCreator(jsonDataField.getText(), connectionNameField.getText(),
-                    executorService));
+                    executorService, serializer));
         }
         else {
             var portNum = Integer.parseInt(portNumberField.getText());

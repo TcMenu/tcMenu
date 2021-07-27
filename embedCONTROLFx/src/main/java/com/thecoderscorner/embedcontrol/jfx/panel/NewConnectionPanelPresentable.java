@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfx.dialog.NewConnectionController;
+import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
@@ -14,17 +15,20 @@ import java.util.function.Consumer;
 
 public class NewConnectionPanelPresentable implements PanelPresentable {
     private final PlatformSerialFactory serialFactory;
-    private Consumer<ConnectionCreator> creatorConsumer;
-    private GlobalSettings settings;
-    private ScheduledExecutorService executorService;
+    private final Consumer<ConnectionCreator> creatorConsumer;
+    private final GlobalSettings settings;
+    private final ScheduledExecutorService executorService;
+    private final JsonMenuItemSerializer serializer;
     private NewConnectionController controller;
 
     public NewConnectionPanelPresentable(PlatformSerialFactory serialFactory, Consumer<ConnectionCreator> creatorConsumer,
-                                         GlobalSettings settings, ScheduledExecutorService executorService) {
+                                         GlobalSettings settings, ScheduledExecutorService executorService,
+                                         JsonMenuItemSerializer serializer) {
         this.serialFactory = serialFactory;
         this.creatorConsumer = creatorConsumer;
         this.settings = settings;
         this.executorService = executorService;
+        this.serializer = serializer;
     }
 
     @Override
@@ -32,7 +36,7 @@ public class NewConnectionPanelPresentable implements PanelPresentable {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/newConnection.fxml"));
         Pane loadedPane = loader.load();
         controller = loader.getController();
-        controller.initialise(settings, executorService, serialFactory, creatorConsumer);
+        controller.initialise(settings, executorService, serialFactory, creatorConsumer, serializer);
         pane.setContent(loadedPane);
     }
 

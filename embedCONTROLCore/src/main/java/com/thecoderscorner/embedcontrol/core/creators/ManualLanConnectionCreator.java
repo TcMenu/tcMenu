@@ -1,17 +1,22 @@
 package com.thecoderscorner.embedcontrol.core.creators;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.prefs.Preferences;
+
+import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
 public class ManualLanConnectionCreator implements ConnectionCreator {
+    public static final String MANUAL_LAN_JSON_TYPE = "manualLan";
     private final GlobalSettings settings;
     private String name;
     private String ipAddr;
@@ -62,16 +67,20 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
     }
 
     @Override
-    public void load(Preferences prefs) {
-        name = prefs.get("name", "");
-        ipAddr = prefs.get("ipAddr", "");
-        port = prefs.getInt("port", 0);
+    public void load(JsonObject prefs) throws IOException {
+        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
+        name = getJsonStrOrThrow(creatorType, "name");
+        ipAddr = getJsonStrOrThrow(creatorType, "ipAddr");
+        port = getJsonIntOrThrow(creatorType, "port");
     }
 
     @Override
-    public void save(Preferences prefs) {
-        prefs.put("name", name);
-        prefs.put("ipAddr", ipAddr);
-        prefs.putInt("port", port);
+    public void save(JsonObject prefs) {
+        JsonObject creator = new JsonObject();
+        creator.add("name", new JsonPrimitive(name));
+        creator.add("ipAddr", new JsonPrimitive(ipAddr));
+        creator.add("port", new JsonPrimitive(port));
+        creator.add("type", new JsonPrimitive(MANUAL_LAN_JSON_TYPE));
+        prefs.add("creator", creator);
     }
 }

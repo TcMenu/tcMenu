@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -20,15 +21,18 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
     private final ConnectionCreator creator;
     private final GlobalSettings settings;
     private final ScheduledExecutorService executorService;
+    private final UUID uuid;
     private RemoteMenuController controller;
     private TreeComponentManager treeManager;
     private JfxScreenManager screenManager;
     private ScheduledFuture<?> taskRef;
 
-    public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, ScheduledExecutorService executorService) {
+    public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, ScheduledExecutorService executorService,
+                                 UUID panelUuid) {
         this.creator = creator;
         this.settings = settings;
         this.executorService = executorService;
+        this.uuid = panelUuid;
     }
 
     @Override
@@ -86,5 +90,13 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
     @Override
     public void statusHasChanged(AuthStatus status) {
 
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public ConnectionCreator getCreator() {
+        return creator;
     }
 }

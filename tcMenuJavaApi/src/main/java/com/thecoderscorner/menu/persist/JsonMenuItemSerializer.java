@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.*;
@@ -156,5 +157,23 @@ public class JsonMenuItemSerializer {
             var nanos = json.getAsJsonObject().get("nanos").getAsInt();
             return Instant.ofEpochSecond(seconds, nanos);
         }
+    }
+
+    public static JsonObject getJsonObjOrThrow(JsonObject object, String child) throws IOException {
+        var data = object.get(child);
+        if(data == null) throw new IOException("Missing mandatory element " + child);
+        return data.getAsJsonObject();
+    }
+
+    public static String getJsonStrOrThrow(JsonObject object, String child) throws IOException {
+        var data = object.get(child);
+        if(data == null) throw new IOException("Missing mandatory element " + child);
+        return data.getAsString();
+    }
+
+    public static int getJsonIntOrThrow(JsonObject object, String child) throws IOException {
+        var data = object.get(child);
+        if(data == null) throw new IOException("Missing mandatory element " + child);
+        return data.getAsInt();
     }
 }

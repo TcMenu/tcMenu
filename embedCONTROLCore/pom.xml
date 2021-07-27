@@ -16,15 +16,20 @@
     <version>2.2.0-SNAPSHOT</version>
 
     <dependencies>
-
         <!-- production dependencies -->
-
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
     </dependencies>
+
+
 
     <build>
         <finalName>embedCONTROL</finalName>

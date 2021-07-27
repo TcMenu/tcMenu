@@ -1,5 +1,6 @@
 module com.thecoderscorner.embedcontrol.core {
     requires java.logging;
+    requires com.google.gson;
 
     requires com.thecoderscorner.tcmenu.javaapi;
     requires java.prefs;

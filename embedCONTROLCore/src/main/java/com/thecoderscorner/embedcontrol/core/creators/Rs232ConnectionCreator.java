@@ -1,12 +1,17 @@
 package com.thecoderscorner.embedcontrol.core.creators;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
-import java.util.prefs.Preferences;
+import java.io.IOException;
+
+import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
 public class Rs232ConnectionCreator implements ConnectionCreator {
+    public static final String MANUAL_RS232_CREATOR_TYPE = "rs232";
     private final PlatformSerialFactory serialFactory;
     private String name;
     private String portId;
@@ -43,16 +48,20 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
     }
 
     @Override
-    public void load(Preferences prefs) {
-        name = prefs.get("name", "?");
-        portId = prefs.get("portId", "?");
-        baudRate = prefs.getInt("baud", 9600);
+    public void load(JsonObject prefs) throws IOException {
+        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
+        name = getJsonStrOrThrow(creatorType, "name");
+        portId = getJsonStrOrThrow(creatorType, "portId");
+        baudRate = getJsonIntOrThrow(creatorType, "baud");
     }
 
     @Override
-    public void save(Preferences prefs) {
-        prefs.put("name", name);
-        prefs.put("portId", portId);
-        prefs.putInt("baudRate", baudRate);
+    public void save(JsonObject prefs) {
+        JsonObject creator = new JsonObject();
+        creator.add("name", new JsonPrimitive(name));
+        creator.add("portId", new JsonPrimitive(portId));
+        creator.add("baud", new JsonPrimitive(baudRate));
+        creator.add("type", new JsonPrimitive(MANUAL_RS232_CREATOR_TYPE));
+        prefs.add("creator", creator);
     }
 }

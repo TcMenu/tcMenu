@@ -1,5 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.creators;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.thecoderscorner.embedcontrol.core.simulator.SimulatedRemoteConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.menu.domain.SubMenuItem;
@@ -8,14 +10,16 @@ import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.prefs.Preferences;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
+import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonObjOrThrow;
+import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStrOrThrow;
 
 public class SimulatorConnectionCreator implements ConnectionCreator {
+    public static final String SIMULATED_CREATOR_TYPE = "simulator";
     private final String DEFAULT_DATA = "tcMenuCopy:[\n" +
             "  {\n" +
             "    \"parentId\": 0,\n" +
@@ -376,15 +380,24 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
             "  }\n" +
             "]";
 
-    private final String jsonForTree;
-    private final String name;
+    private String jsonForTree;
+    private String name;
     private final ScheduledExecutorService executorService;
+    private JsonMenuItemSerializer serializer;
     private SimulatedRemoteConnection remoteConnection;
 
-    public SimulatorConnectionCreator(String jsonForTree, String name, ScheduledExecutorService executorService) {
-        this.jsonForTree = StringHelper.isStringEmptyOrNull(jsonForTree) ? DEFAULT_DATA : jsonForTree;
+    public SimulatorConnectionCreator(String jsonForTree, String name, ScheduledExecutorService executorService,
+                                      JsonMenuItemSerializer serializer) {
+        this.jsonForTree = jsonForTree;
         this.name = name;
         this.executorService = executorService;
+        this.serializer = serializer;
+    }
+
+    public SimulatorConnectionCreator(ScheduledExecutorService executorService, JsonMenuItemSerializer serializer) {
+        this.name = "";
+        this.executorService = executorService;
+        this.serializer = serializer;
     }
 
     @Override
@@ -400,9 +413,9 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     @Override
     public RemoteMenuController start() throws Exception {
         var menuTree = new MenuTree();
-        JsonMenuItemSerializer serializer = new JsonMenuItemSerializer();
         try {
-            var persistedMenus = serializer.copyTextToItems(this.jsonForTree);
+            var treeData = StringHelper.isStringEmptyOrNull(jsonForTree) ? DEFAULT_DATA : jsonForTree;
+            var persistedMenus = serializer.copyTextToItems(treeData);
             for (var persistedItem : persistedMenus) {
                 menuTree.addMenuItem((SubMenuItem) menuTree.getMenuById(persistedItem.getParentId()).orElse(ROOT), persistedItem.getItem());
             }
@@ -418,12 +431,19 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     }
 
     @Override
-    public void load(Preferences prefs) {
-
+    public void load(JsonObject prefs) throws IOException {
+        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
+        name = getJsonStrOrThrow(creatorType, "name");
+        jsonForTree = getJsonStrOrThrow(creatorType, "treeData");
     }
 
     @Override
-    public void save(Preferences prefs) {
+    public void save(JsonObject prefs) {
+        JsonObject creator = new JsonObject();
+        creator.add("name", new JsonPrimitive(name));
+        creator.add("treeData", new JsonPrimitive(jsonForTree));
+        creator.add("type", new JsonPrimitive(SIMULATED_CREATOR_TYPE));
+        prefs.add("creator", creator);
 
     }
 }
