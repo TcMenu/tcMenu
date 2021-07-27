@@ -19,6 +19,7 @@ import com.thecoderscorner.embedcontrol.jfx.panel.*;
 import com.thecoderscorner.embedcontrol.jfx.rs232.Rs232SerialFactory;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -27,7 +28,7 @@ import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,9 +42,9 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonObjOrThrow;
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStrOrThrow;
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public class EmbedControlApp extends Application {
-
     private static final Object metroLock = new Object();
     private static JMetro jMetro = null;
     private static GlobalSettings settings;
@@ -52,6 +53,7 @@ public class EmbedControlApp extends Application {
     private JsonMenuItemSerializer serializer;
     private Rs232SerialFactory serialFactory;
     private Path tcMenuHome;
+    private final System.Logger logger = System.getLogger("PanelSerializer");
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -103,6 +105,11 @@ public class EmbedControlApp extends Application {
         primaryStage.setScene(myScene);
         getJMetro().setScene(myScene);
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest((evt)-> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     private List<PanelPresentable> loadAllRemoteConnections() throws IOException {
@@ -115,6 +122,8 @@ public class EmbedControlApp extends Application {
 
     private Optional<PanelPresentable> processRemotePanel(Path file) {
         try {
+            logger.log(INFO, "Attempt load for " + file);
+
             var content = Files.readString(file);
             var rootElement = JsonParser.parseString(content).getAsJsonObject();
             var panelUuid = UUID.fromString(getJsonStrOrThrow(rootElement, "panelUuid"));
@@ -138,11 +147,14 @@ public class EmbedControlApp extends Application {
             }
 
             creator.load(rootElement);
+
+            logger.log(INFO, "Loaded panel UUID='" + panelUuid + "' type='" + creatorType + "' name='" + creator.getName());
+
             var panel = new RemoteConnectionPanel(creator, settings, coreExecutor, panelUuid);
             return Optional.of(panel);
         }
         catch(Exception ex) {
-            System.getLogger("PanelSerializer").log(ERROR, "Panel load failed for " + file, ex);
+            logger.log(ERROR, "Panel load failed for " + file, ex);
         }
         return Optional.empty();
     }
@@ -150,19 +162,22 @@ public class EmbedControlApp extends Application {
     private void savePanel(RemoteConnectionPanel panel) {
         var panelFileName = tcMenuHome.resolve(panel.getUuid().toString() + "_rc.json");
         try {
+            logger.log(INFO, "Saving panel for " + panel.getPanelName() + " uuid " + panel.getUuid());
             var obj = new JsonObject();
             panel.getCreator().save(obj);
             obj.add("panelUuid", new JsonPrimitive(panel.getUuid().toString()));
             Files.writeString(panelFileName, serializer.getGson().toJson(obj));
         }
         catch (Exception ex) {
-            System.getLogger("PanelSerializer").log(ERROR, "Panel save failed for " + panelFileName, ex);
+            logger.log(ERROR, "Panel save failed for " + panelFileName, ex);
         }
     }
 
     private void creatorConsumer(ConnectionCreator connectionCreator) {
         var panel = new RemoteConnectionPanel(connectionCreator, settings, coreExecutor, UUID.randomUUID());
         controller.createdConnection(panel);
+
+        logger.log(INFO, "Created new panel " + panel.getPanelName());
 
         coreExecutor.execute(() -> savePanel(panel));
     }
