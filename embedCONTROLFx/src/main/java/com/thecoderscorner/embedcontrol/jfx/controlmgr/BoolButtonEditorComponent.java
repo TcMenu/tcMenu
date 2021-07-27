@@ -27,6 +27,7 @@ public class BoolButtonEditorComponent extends BaseBoolEditorComponent {
 
     public Node createComponent() {
         button = new Button(item.getName());
+        button.setMaxWidth(200);
         setNodeConditionalColours(button, getDrawingSettings().getColors(), ColorComponentType.BUTTON);
 
         if (item.isReadOnly()) {

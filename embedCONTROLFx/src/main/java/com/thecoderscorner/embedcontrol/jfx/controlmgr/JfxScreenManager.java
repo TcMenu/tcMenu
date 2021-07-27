@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
 
@@ -45,6 +46,14 @@ public class JfxScreenManager implements ScreenManager {
     @Override
     public void clear() {
         currentGrid = new GridPane();
+        currentGrid.setHgap(5);
+        currentGrid.setVgap(5);
+
+        for(int i=0; i<cols; i++) {
+            var column1 = new ColumnConstraints();
+            column1.setPercentWidth(50);
+            currentGrid.getColumnConstraints().add(column1);
+        }
     }
 
     @Override
