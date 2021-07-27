@@ -2,17 +2,15 @@ package com.thecoderscorner.embedcontrol.jfx.panel;
 
 import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-
-import java.io.IOException;
 
 public class AboutPanelPresentable implements PanelPresentable {
     @Override
-    public void presentPanelIntoArea(ScrollPane pane) throws Exception {
+    public void presentPanelIntoArea(BorderPane pane) throws Exception {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/aboutPage.fxml"));
         Pane loadedPane = loader.load();
-        pane.setContent(loadedPane);
+        pane.setCenter(loadedPane);
     }
 
     @Override

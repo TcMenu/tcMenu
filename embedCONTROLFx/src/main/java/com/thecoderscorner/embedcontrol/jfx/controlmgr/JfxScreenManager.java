@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -48,6 +49,10 @@ public class JfxScreenManager implements ScreenManager {
         currentGrid = new GridPane();
         currentGrid.setHgap(5);
         currentGrid.setVgap(5);
+        currentGrid.setMaxWidth(9999);
+        currentGrid.setPrefWidth(scrollView.widthProperty().doubleValue() - 30.0);
+        scrollView.widthProperty().addListener((cl, oldVal, newVal) ->
+                currentGrid.setPrefWidth(newVal.doubleValue() - 30.0));
 
         for(int i=0; i<cols; i++) {
             var column1 = new ColumnConstraints();
@@ -138,7 +143,11 @@ public class JfxScreenManager implements ScreenManager {
     @Override
     public EditorComponent addHorizontalSlider(MenuItem item, ComponentSettings settings) {
         var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getManagedMenu(), threadMarshaller);
-        addToGridInPosition(settings, slider.createComponent());
+
+        Canvas component = (Canvas) slider.createComponent();
+        component.setWidth(scrollView.getWidth() - 30);
+        component.setHeight(25);
+        addToGridInPosition(settings, component);
         return slider;
     }
 
@@ -157,13 +166,6 @@ public class JfxScreenManager implements ScreenManager {
     @Override
     public void startNesting() {
         level++;
-    }
-
-    private static void setGridPositioning(ComponentSettings settings, Node lbl) {
-        GridPane.setRowIndex(lbl, settings.getPosition().getRow());
-        GridPane.setColumnIndex(lbl, settings.getPosition().getCol());
-        GridPane.setRowSpan(lbl, settings.getPosition().getRowSpan());
-        GridPane.setColumnSpan(lbl, settings.getPosition().getColSpan());
     }
 
     public static TextAlignment toTextAlignment(PortableAlignment justification) {

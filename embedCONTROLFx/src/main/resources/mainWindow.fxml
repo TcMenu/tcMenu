@@ -9,7 +9,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -24,45 +23,52 @@
       <Insets top="4.0" />
    </padding>
    <bottom>
-      <Label fx:id="statusLabel" prefHeight="19.0" prefWidth="642.0" styleClass="statusBar" text="Not Connected" BorderPane.alignment="TOP_LEFT" />
-   </bottom>
-   <left>
-      <VBox prefHeight="551.0" prefWidth="221.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label contentDisplay="TOP" text="embedCONTROL">
-               <font>
-                  <Font name="Arial" size="24.0" />
-               </font>
-               <graphic>
-                  <ImageView fitHeight="111.0" fitWidth="117.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@img/large_icon.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-            </Label>
-            <Label fx:id="versionField" text="Version 2.0" />
-            <ListView fx:id="connectionList" prefHeight="379.0" prefWidth="208.0">
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <VBox.margin>
-                  <Insets top="5.0" />
-               </VBox.margin>
-            </ListView>
-         </children>
-         <padding>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-         </padding>
-      </VBox>
-   </left>
-   <center>
-      <ScrollPane fx:id="containerArea" prefHeight="551.0" prefWidth="492.0" BorderPane.alignment="CENTER">
+      <Label fx:id="statusLabel" maxWidth="1.7976931348623157E308" prefHeight="19.0" prefWidth="789.0" styleClass="statusBar" text="Please consider sponsoring us, for more details open About and visit the documentation" BorderPane.alignment="TOP_LEFT">
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>
          <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding></ScrollPane>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding></Label>
+   </bottom>
+   <center>
+      <BorderPane fx:id="detailPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="10.0" />
+         </BorderPane.margin>
+      </BorderPane>
    </center>
+   <left>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <ListView fx:id="connectionList" prefHeight="379.0" prefWidth="208.0" BorderPane.alignment="CENTER">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </ListView>
+         </center>
+         <top>
+            <VBox prefHeight="178.0" prefWidth="200.0" style="-fx-background-color: #4bf;" BorderPane.alignment="CENTER">
+               <children>
+                  <Label contentDisplay="TOP" text="embedCONTROL">
+                     <font>
+                        <Font name="Arial" size="24.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="111.0" fitWidth="117.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/large_icon.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Label>
+                  <Label fx:id="versionField" text="Version 2.0" />
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+               </padding>
+            </VBox>
+         </top>
+      </BorderPane>
+   </left>
 </BorderPane>

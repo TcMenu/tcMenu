@@ -113,7 +113,7 @@ public abstract class BaseEditorComponent implements EditorComponent {
             if (status != AckStatus.SUCCESS) {
                 markRecentlyUpdated(RenderingStatus.CORRELATION_ERROR);
             } else {
-                markRecentlyUpdated(RenderingStatus.NORMAL);
+                markRecentlyUpdated(RenderingStatus.RECENT_UPDATE);
             }
         }
     }

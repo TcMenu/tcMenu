@@ -38,7 +38,7 @@ public class MainWindowController {
     public BorderPane mainBorderPane;
     public Label versionField;
     public ListView<PanelPresentable> connectionList;
-    public ScrollPane containerArea;
+    public BorderPane detailPane;
     private GlobalSettings settings;
     private PanelPresentable currentlyDisplayed;
 
@@ -61,7 +61,7 @@ public class MainWindowController {
             if(newVal != null) {
                 try {
                     if(currentlyDisplayed == null || currentlyDisplayed.closePanelIfPossible()) {
-                        newVal.presentPanelIntoArea(containerArea);
+                        newVal.presentPanelIntoArea(detailPane);
                         currentlyDisplayed = newVal;
                     }
                 } catch (Exception e) {

@@ -2,11 +2,12 @@ package com.thecoderscorner.embedcontrol.jfx.panel;
 
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
 public interface PanelPresentable {
-    void presentPanelIntoArea(ScrollPane pane) throws Exception;
+    void presentPanelIntoArea(BorderPane pane) throws Exception;
     String getPanelName();
     boolean canBeRemoved();
     boolean closePanelIfPossible();

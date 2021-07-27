@@ -8,6 +8,7 @@ import com.thecoderscorner.embedcontrol.jfx.dialog.NewConnectionController;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,12 +33,12 @@ public class NewConnectionPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public void presentPanelIntoArea(ScrollPane pane) throws Exception {
+    public void presentPanelIntoArea(BorderPane pane) throws Exception {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/newConnection.fxml"));
         Pane loadedPane = loader.load();
         controller = loader.getController();
         controller.initialise(settings, executorService, serialFactory, creatorConsumer, serializer);
-        pane.setContent(loadedPane);
+        pane.setCenter(loadedPane);
     }
 
     @Override

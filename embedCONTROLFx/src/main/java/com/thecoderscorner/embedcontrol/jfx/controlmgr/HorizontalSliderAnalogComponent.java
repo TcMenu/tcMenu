@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
@@ -31,7 +32,6 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
 
     public Node createComponent() {
         canvas = new Canvas();
-
         if(isItemEditable(item)) {
             canvas.setOnMouseReleased(mouseEvent -> sendItemAbsolute());
             canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted((int)mouseEvent.getX()));
@@ -78,16 +78,17 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(RenderingStatus.NORMAL, ColorComponentType.HIGHLIGHT)));
         gc.fillRect(0, 0, displayWidth * currentPercentage, canvas.getHeight());
 
-        gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.TEXT_FIELD)));
+        gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.BUTTON)));
         gc.fillRect(displayWidth * currentPercentage, 0, displayWidth, canvas.getHeight());
 
-        gc.setStroke(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.TEXT_FIELD)));
+        gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.HIGHLIGHT)));
 
-        var toDraw = lastStr + " " + currentPercentage + "%";
-
+        String toDraw = "";
+        if(controlTextIncludesName()) toDraw = item.getName();
+        if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.formatForDisplay(item, currentVal);
         final Text textObj = new Text(toDraw);
         var bounds = textObj.getLayoutBounds();
-        gc.strokeText(toDraw, (displayWidth - bounds.getWidth()) / 2.0F, canvas.getHeight() / 2.0F - bounds.getHeight());
+        gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (canvas.getHeight() - (bounds.getHeight() / 2.0)));
     }
 
     @Override

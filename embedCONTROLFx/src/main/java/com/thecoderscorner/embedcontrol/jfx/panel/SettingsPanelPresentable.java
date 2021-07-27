@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
@@ -17,10 +18,10 @@ public class SettingsPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public void presentPanelIntoArea(ScrollPane pane) throws IOException {
+    public void presentPanelIntoArea(BorderPane pane) throws IOException {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/generalSettings.fxml"));
         Pane loadedPane = loader.load();
-        pane.setContent(loadedPane);
+        pane.setCenter(loadedPane);
         GeneralSettingsController controller = loader.getController();
         controller.initialise(settings);
     }

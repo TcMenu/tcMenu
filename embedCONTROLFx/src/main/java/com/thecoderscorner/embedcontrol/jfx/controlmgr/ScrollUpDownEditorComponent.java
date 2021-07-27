@@ -13,7 +13,10 @@ public class ScrollUpDownEditorComponent extends UpDownEditorComponentBase<Curre
 
     @Override
     public String getControlText() {
-        return currentVal.getValue();
+        var text = "";
+        if(controlTextIncludesName()) text += item.getName();
+        if(controlTextIncludesValue()) text += " " + currentVal.getValue();
+        return text;
     }
 
     @Override

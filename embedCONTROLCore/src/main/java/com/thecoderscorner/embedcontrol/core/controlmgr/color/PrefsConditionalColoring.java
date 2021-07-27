@@ -45,7 +45,7 @@ public class PrefsConditionalColoring implements ConditionalColoring {
     public PortableColor foregroundFor(RenderingStatus status, ColorComponentType compType) {
         switch (status) {
             case RECENT_UPDATE:
-                return settings.getUpdateColor().getBg();
+                return settings.getUpdateColor().getFg();
             case EDIT_IN_PROGRESS:
                 return settings.getPendingColor().getFg();
             case CORRELATION_ERROR:
