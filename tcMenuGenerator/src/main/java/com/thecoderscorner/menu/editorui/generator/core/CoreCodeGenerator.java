@@ -249,15 +249,16 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     logLine(WARNING, "Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
                 }
                 else {
+                    logLine(INFO, "Copy plugin file: " + srcFile.getFileName());
                     for (var cr : srcFile.getReplacementList()) {
                         if (cr.getApplicability().isApplicable(context.getProperties())) {
+                            logLine(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());
                             var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
                             fileData = fileData.replaceAll(cr.getFind(), replacement);
                         }
                     }
 
                     Files.write(resolvedOutputFile, fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
-                    logLine(INFO, "Copied with replacement " + srcFile);
                 }
 
                 // and copy into the destination

@@ -41,7 +41,7 @@
         <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
         <Replacement find="EthernetClient" replace="UIPClient" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
         <Replacement find="EthernetServer" replace="UIPServer" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 64" whenProperty="LIBRARY_TYPE" isValue="ETHERNET_2"/>
+        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 64" whenProperty="ETH_LIBRARY_TYPE" isValue="ETHERNET_2"/>
 
         <SourceFile name="ethernetSrc/EthernetTransport.cpp"/>
         <SourceFile name="ethernetSrc/EthernetTransport.h"/>
@@ -53,7 +53,7 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="server" type="WiFiServer" export="true">
+        <Variable name="server" type="EthernetServer" export="true">
             <Param value="${ETH_LISTEN_PORT1}" default="3333" />
         </Variable>
         <Variable name="ethernetInitialisation" type="EthernetInitialisation" export="true">
@@ -66,7 +66,7 @@
         </Variable>
 
         <Variable name="server2" type="EthernetServer" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
-            <Param value="${ESPWIFI_LISTEN_PORT2}" default="3334" />
+            <Param value="${ETH_LISTEN_PORT2}" default="3334" />
         </Variable>
         <Variable name="ethernetInitialisation2" type="EthernetInitialisation" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
             <Param ref="server2"/>
@@ -78,7 +78,7 @@
         </Variable>
 
         <Variable name="server3" type="EthernetServer" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
-            <Param value="${ESPWIFI_LISTEN_PORT3}" default="3335" />
+            <Param value="${ETH_LISTEN_PORT3}" default="3335" />
         </Variable>
         <Variable name="ethernetInitialisation3" type="EthernetInitialisation" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
             <Param ref="server3"/>

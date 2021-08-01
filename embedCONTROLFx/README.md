@@ -1,11 +1,5 @@
-# JavaFX UI that connects using tcMenuAPI
+## embedCONTROL UI JavaFX version
 
-Contained in this package is a JavaFX user interface that can connect to a remote device running tcMenu using either a serial port or ethernet.
+Contained in this package is the source code for the complete user interface that connects to a remote device running tcMenu, as long as the board is using one of the supported Serial or Network based plugins.
 
-To get started with this just create a project in your favourite Java IDE and import the maven file `pom.xml`.
-
-Run it by starting the `SimpleFxApp` class. It should work on any desktop platform.
-
-You can simply try this by building the `remoteControlSerial` example packaged with the tcMenu library.
-
-This is not designed to be a full product, but rather to show a starting point of how to use the Java API.
+It is built with every release and available from the releases page, it ships as an installed  with an extended validation certificate for Windows, Notarized for macOS and as a package for Debian / Ubuntu Linux. We'll announce the Android and iOS versions soon.

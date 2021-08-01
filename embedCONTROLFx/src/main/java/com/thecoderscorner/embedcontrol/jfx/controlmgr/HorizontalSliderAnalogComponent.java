@@ -20,9 +20,8 @@ import static com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsControl
 
 public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<Integer> {
     private RenderingStatus lastStatus = RenderingStatus.NORMAL;
-    private String lastStr = "";
     private final MenuTree tree;
-    private int displayWidth;
+    private double displayWidth;
     private Canvas canvas;
 
     public HorizontalSliderAnalogComponent(RemoteMenuController controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
@@ -34,22 +33,22 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         canvas = new Canvas();
         if(isItemEditable(item)) {
             canvas.setOnMouseReleased(mouseEvent -> sendItemAbsolute());
-            canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted((int)mouseEvent.getX()));
+            canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted(mouseEvent.getX()));
         }
         return makeTextComponent(canvas, null,false);
     }
 
 
-    private void onMouseAdjusted(int newPositionInControl) {
+    private void onMouseAdjusted(double newPositionInControl) {
         AnyMenuState menuState = tree.getMenuState(item);
         if ((menuState == null) || !(item instanceof AnalogMenuItem analog))return;
 
-        var oneTick = displayWidth / analog.getMaxValue();
+        var oneTick = displayWidth / (double)analog.getMaxValue();
         var value = Math.max(0, Math.min(analog.getMaxValue(), newPositionInControl / oneTick));
         AnyMenuState newState = MenuItemHelper.stateForMenuItem(item, value, true, menuState.isActive());
         tree.changeItem(item, newState);
         onItemUpdated((MenuState<?>) newState);
-        currentVal = value;
+        currentVal = (int)value;
 
         onPaintSurface(canvas.getGraphicsContext2D());
     }
@@ -94,7 +93,6 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
     @Override
     public void changeControlSettings(RenderingStatus status, String text) {
         lastStatus = status;
-        lastStr = text;
         onPaintSurface(canvas.getGraphicsContext2D());
     }
 }

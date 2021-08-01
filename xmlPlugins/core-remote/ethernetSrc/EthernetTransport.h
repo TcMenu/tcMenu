@@ -41,7 +41,7 @@ namespace tcremote {
     public:
         EthernetTagValTransport() : BaseBufferedRemoteTransport(BUFFER_MESSAGES_TILL_FULL, ETHERNET_BUFFER_SIZE, MAX_VALUE_LEN) { }
         ~EthernetTagValTransport() override = default;
-        void setClient(WiFiClient cl) { this->client = cl; }
+        void setClient(EthernetClient cl) { this->client = cl; }
 
         int fillReadBuffer(uint8_t* data, int maxSize) override;
         void flush() override;
