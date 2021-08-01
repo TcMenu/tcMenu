@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
@@ -53,6 +54,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     private final LocalIdentifier ourLocalId;
     private final AtomicReference<RemoteConnectorState> connectorState= new AtomicReference<>();
     private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
+    private final AtomicBoolean connectionRunning = new AtomicBoolean(false);
 
     protected StreamRemoteConnector(LocalIdentifier ourLocalId, MenuCommandProtocol protocol,
                                     ScheduledExecutorService executor, Clock clock) {
@@ -79,11 +81,13 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
             logByteBuffer("Line read from stream", inputBuffer);
 
             byte protoId = inputBuffer.get();
-            if(protoId != protocol.getKeyIdentifier()) throw new TcProtocolException("Bad protocol " + protoId);
+            if(protoId != protocol.getKeyIdentifier()) {
+                throw new TcProtocolException("Bad protocol " + protoId);
+            }
 
             // now we take a shallow buffer copy and process the message
             MenuCommand mc = protocol.fromChannel(inputBuffer);
-            if(logger.isLoggable(DEBUG)) logger.log(DEBUG, "Menu command read: " + mc);
+            if(logger.isLoggable(DEBUG)) connectionLog(DEBUG, "Menu command read: " + mc);
             return mc;
         }
         catch(TcProtocolException ex) {
@@ -93,8 +97,45 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
         }
     }
 
+    protected void stopThreadProc() {
+        connectionRunning.set(false);
+    }
+
+    protected void startThreadProc() {
+        connectionRunning.set(true);
+        executor.execute(this::tickerThreadProc);
+    }
+
+    @SuppressWarnings("BusyWait")
+    private void tickerThreadProc() {
+        connectionLog(INFO, "Started ticker thread for " + getConnectionName());
+        while (connectionRunning.get() && !Thread.currentThread().isInterrupted()) {
+            var rcs = connectorState.get();
+            try {
+                if (rcs == null) {
+                    Thread.sleep(100);
+                }
+                else {
+                    rcs.runLoop();
+                }
+            }
+            catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                connectionRunning.set(false);
+                logger.log(ERROR, "Thread is interrupted and will stop", ex);
+            }
+            catch (Exception ex) {
+                logger.log(ERROR, "Exception in thread proc during state " + rcs);
+            }
+        }
+        logger.log(INFO, "Stopped ticker thread for " + getConnectionName());
+    }
+
     @Override
     public void close() {
+        inputBuffer.clear();
+        outputBuffer.clear();
+        cmdBuffer.clear();
         notifyConnection();
     }
 
@@ -138,6 +179,8 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
             stateMachineMappings.put(AuthStatus.BOOTSTRAPPING, BootstrapInProgressState.class);
             stateMachineMappings.put(AuthStatus.CONNECTION_READY, ConnectionReadyState.class);
         }
+
+        stateMachineMappings.put(AuthStatus.CONNECTION_FAILED, ConnectionHasFailedState.class);
 
     }
 
@@ -237,7 +280,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
             pos++;
         }
 
-        logger.log(DEBUG, sb.toString());
+        connectionLog(DEBUG, sb.toString());
     }
 
     public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {
@@ -263,7 +306,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     @Override
     public void changeState(RemoteConnectorState newState) {
         var oldState = connectorState.get();
-        logger.log(INFO, "Transition " + stateName(oldState) + "->" + stateName(newState) + " for " + getConnectionName());
+        connectionLog(INFO, "Transition " + stateName(oldState) + "->" + stateName(newState) + " for " + getConnectionName());
         if(oldState != null)  oldState.exitState(newState);
         connectorState.set(newState);
         newState.enterState();
@@ -295,7 +338,7 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
         try {
             sendMenuCommand(CommandFactory.newHeartbeatCommand(frequency, mode));
         } catch (IOException e) {
-            logger.log(ERROR, "Exception sending heartbeat on channel", e);
+            connectionLog(ERROR, "Exception sending heartbeat on channel", e);
         }
     }
 
@@ -322,6 +365,14 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     @Override
     public Clock getClock() {
         return clock;
+    }
+
+    protected void connectionLog(System.Logger.Level l, String s) {
+        logger.log(l, getConnectionName() + " - " + s);
+    }
+
+    protected void connectionLog(System.Logger.Level l, String s, Throwable e) {
+        logger.log(l, getConnectionName() + " - " + s, e);
     }
 
 }

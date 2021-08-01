@@ -32,7 +32,7 @@ public class SendPairingMessageState extends BaseMessageProcessingState {
             logger.log(ERROR, "Unable to send pairing request", e);
             markDone();
             context.close();
-            context.changeState(AWAITING_CONNECTION);
+            context.changeState(CONNECTION_FAILED);
         }
     }
 
@@ -41,7 +41,7 @@ public class SendPairingMessageState extends BaseMessageProcessingState {
         logger.log(ERROR, "Timeout while pairing");
         markDone();
         context.close();
-        context.changeState(AWAITING_CONNECTION);
+        context.changeState(CONNECTION_FAILED);
     }
 
     @Override

@@ -71,6 +71,7 @@ public class TreeComponentManager {
             @Override
             public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
                 connectionChanged(connected);
+                dialogViewer.statusHasChanged(connected);
             }
 
             @Override
@@ -107,7 +108,7 @@ public class TreeComponentManager {
         var tree = controller.getManagedMenu();
         var prefsColoring = new PrefsConditionalColoring(appSettings);
 
-        var menuName = sub == MenuTree.ROOT ? controller.getConnector().getConnectionName() : sub.getName();
+        var menuName = sub == MenuTree.ROOT ? getConnectionName() : sub.getName();
         screenManager.addStaticLabel(menuName, new ComponentSettings(prefsColoring,
                 screenManager.getDefaultFontSize(),
                 PortableAlignment.LEFT, nextRowCol(true), RedrawingMode.SHOW_VALUE, false), true);
@@ -213,6 +214,14 @@ public class TreeComponentManager {
         }
 
         screenManager.endNesting();
+    }
+
+    private String getConnectionName() {
+        var rp = controller.getConnector().getRemoteParty();
+        if(rp != null) {
+            return rp.getName() + " - " + rp.getPlatform().getDescription() + " V" + rp.getMajorVersion() + "." + rp.getMinorVersion();
+        }
+        else return controller.getConnector().getConnectionName();
     }
 
     private ComponentPositioning nextRowCol(boolean startNewRow) {

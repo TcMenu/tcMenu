@@ -40,7 +40,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
 
         applyStates(connectMode);
 
-        logger.log(INFO, "Created RS232 connector with port {0} and baud {1}.", portName, baud);
+        connectionLog(INFO, "Created RS232 connector with port " + portName + "@" + baud);
     }
 
     private void applyStates(ConnectMode connectMode) {
@@ -52,11 +52,13 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     public void start() {
-        logger.log(INFO, "Starting RS232 connector {0}", portName);
+        connectionLog(INFO, "Starting RS232 connector" + portName);
         changeState(new StreamNotConnectedState(this));
+        startThreadProc();
     }
 
     public void stop() {
+        stopThreadProc();
         changeState(AuthStatus.NOT_STARTED);
     }
 

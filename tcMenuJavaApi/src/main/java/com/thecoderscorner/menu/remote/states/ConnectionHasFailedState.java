@@ -13,30 +13,28 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class PairingAuthSuccessState implements RemoteConnectorState {
+public class ConnectionHasFailedState implements RemoteConnectorState {
+
     private final RemoteConnectorContext context;
-    private final CountDownLatch latch = new CountDownLatch(1);
     private AtomicBoolean exited = new AtomicBoolean(false);
 
-    public PairingAuthSuccessState(RemoteConnectorContext context) {
+    public ConnectionHasFailedState(RemoteConnectorContext context) {
         this.context = context;
     }
 
     @Override
     public void enterState() {
-        if(context.isDeviceConnected()) {
-            context.close();
-        }
+        context.close();
     }
 
     @Override
     public void exitState(RemoteConnectorState nextState) {
-        latch.countDown();
+        exited.set(true);
     }
 
     @Override
     public AuthStatus getAuthenticationStatus() {
-        return AuthStatus.AUTHENTICATED;
+        return AuthStatus.CONNECTION_FAILED;
     }
 
     @Override
@@ -48,6 +46,10 @@ public class PairingAuthSuccessState implements RemoteConnectorState {
     public void runLoop() throws Exception {
         if(exited.get()) return;
 
-        exited.set(latch.await(500, TimeUnit.MILLISECONDS));
+        Thread.sleep(5000);
+
+        context.changeState(AuthStatus.AWAITING_CONNECTION);
+
+        exited.set(true);
     }
 }

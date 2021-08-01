@@ -36,7 +36,7 @@ public class JoinMessageArrivedState extends BaseMessageProcessingState {
     protected void processTimeout() {
         markDone();
         context.close();
-        context.changeState(AuthStatus.AWAITING_CONNECTION);
+        context.changeState(AuthStatus.CONNECTION_FAILED);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class JoinMessageArrivedState extends BaseMessageProcessingState {
             MenuHeartbeatCommand hb = (MenuHeartbeatCommand) cmd;
             if(hb.getMode() == MenuHeartbeatCommand.HeartbeatMode.END) {
                 markDone();
-                context.changeState(AuthStatus.AWAITING_CONNECTION);
+                context.changeState(AuthStatus.CONNECTION_FAILED);
                 return true;
             }
             return true;

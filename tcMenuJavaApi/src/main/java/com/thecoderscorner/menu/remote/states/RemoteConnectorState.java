@@ -31,4 +31,11 @@ public interface RemoteConnectorState {
      * @return true to send, false to suppress.
      */
     boolean canSendCommandToRemote(MenuCommand command);
+
+    /**
+     * called when a state is the current state, the state can read messages and attempt connections
+     * in this loop. It must be returned once the state is exited to avoid deadlocking the API. Exceptions
+     * can be thrown by the loop safely and will be logged in the connection logic.
+     */
+    void runLoop() throws Exception;
 }

@@ -32,7 +32,7 @@ public class AwaitingBootstrapState extends BaseMessageProcessingState {
     @Override
     protected void processTimeout() {
         context.close();
-        context.changeState(AuthStatus.AWAITING_CONNECTION);
+        context.changeState(AuthStatus.CONNECTION_FAILED);
         markDone();
     }
 

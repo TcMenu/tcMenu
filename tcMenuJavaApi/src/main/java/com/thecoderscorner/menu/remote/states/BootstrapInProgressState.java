@@ -51,7 +51,7 @@ public class BootstrapInProgressState extends BaseMessageProcessingState {
     @Override
     protected void processTimeout() {
         context.close();
-        context.changeState(AuthStatus.AWAITING_CONNECTION);
+        context.changeState(AuthStatus.CONNECTION_FAILED);
         markDone();
     }
 
@@ -71,7 +71,7 @@ public class BootstrapInProgressState extends BaseMessageProcessingState {
             else {
                 markDone();
                 logger.log(ERROR, "Received a boot start unexpectedly", context.getConnectionName());
-                context.changeState(AuthStatus.AWAITING_CONNECTION);
+                context.changeState(AuthStatus.CONNECTION_FAILED);
                 context.close();
                 return true;
             }

@@ -17,6 +17,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
+import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.ERROR;
+
 /**
  * This is the window controller, responsible for all actions to do the main window. It listens to change
  * from the tcMenu remote control and renders them to the display, and sends commands to the Arduino when
@@ -31,6 +34,7 @@ import java.util.Properties;
  * allows you to use most of the API objects on any thread.
  */
 public class MainWindowController {
+    private final System.Logger logger = System.getLogger(MainWindowController.class.getSimpleName());
     //
     // Begin JavaFX field bindings.
     //
@@ -60,11 +64,14 @@ public class MainWindowController {
         connectionList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldVal, newVal) -> {
             if(newVal != null) {
                 try {
+                    logger.log(INFO, "Change panel to ", newVal.getPanelName());
                     if(currentlyDisplayed == null || currentlyDisplayed.closePanelIfPossible()) {
+                        logger.log(INFO, "Present new panel ", newVal.getPanelName());
                         newVal.presentPanelIntoArea(detailPane);
                         currentlyDisplayed = newVal;
                     }
                 } catch (Exception e) {
+                    logger.log(ERROR, "Failed to open the new panel", e);
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Form did not load", ButtonType.CLOSE);
                     alert.showAndWait();
                 }

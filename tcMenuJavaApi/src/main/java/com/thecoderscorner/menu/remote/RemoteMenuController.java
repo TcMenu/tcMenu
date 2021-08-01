@@ -19,12 +19,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.thecoderscorner.menu.remote.AuthStatus.AWAITING_CONNECTION;
-import static com.thecoderscorner.menu.remote.AuthStatus.CONNECTION_READY;
+import static com.thecoderscorner.menu.remote.AuthStatus.*;
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 
 /**
  * This class manages a single remote connection to an Arduino. It is responsible for check
@@ -59,7 +57,7 @@ public class RemoteMenuController {
     private void onConnectionChange(RemoteConnector remoteConnector, AuthStatus status) {
         logger.log(INFO, "Connection state changed to connected = " + status);
 
-        if(status == AWAITING_CONNECTION) {
+        if(status == AWAITING_CONNECTION || status == CONNECTION_FAILED) {
             itemsInProgress.forEach((key, item) ->
                     listeners.forEach(rcl -> rcl.ackReceived(key, item, AckStatus.UNKNOWN_ERROR))
             );
@@ -74,7 +72,14 @@ public class RemoteMenuController {
      */
     @SuppressWarnings("unused")
     public void stop() {
-        connector.stop();
+        if(connector.getAuthenticationStatus() != NOT_STARTED) {
+            try {
+                connector.stop();
+            }
+            catch(Exception ex) {
+                logger.log(WARNING, "Problem while stopping, probably two stop attempts", ex);
+            }
+        }
     }
 
     /**

@@ -11,7 +11,6 @@ import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuCommandType;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,8 +19,6 @@ import static java.lang.System.Logger.Level.*;
 
 public abstract class BaseMessageProcessingState implements RemoteConnectorState {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
-
-    private volatile Future<?> readThread;
     private final AtomicBoolean taskDone = new AtomicBoolean(false);
     protected final RemoteConnectorContext context;
     protected AtomicInteger disconnectInterval = new AtomicInteger(5000);
@@ -34,10 +31,10 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
     @Override
     public void enterState() {
         lastReception.set(context.getClock().millis());
-        readThread = context.getScheduledExecutor().submit(this::threadReadLoop);
     }
 
-    private void threadReadLoop() {
+    @Override
+    public void runLoop() {
         while (context.isDeviceConnected() && !taskDone.get() && !Thread.currentThread().isInterrupted()) {
             if((context.getClock().millis() - lastReception.get()) > disconnectInterval.get()) {
                 logger.log(INFO, "Connection timeout recorded " + context.getConnectionName());
@@ -50,13 +47,13 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
                     if(!processMessage(cmd)) {
                         logger.log(WARNING, "Unexpected msg, resetting with HB close for " + context.getConnectionName());
                         context.sendHeartbeat(5000, MenuHeartbeatCommand.HeartbeatMode.END);
-                        context.changeState(AuthStatus.AWAITING_CONNECTION);
+                        context.changeState(AuthStatus.CONNECTION_FAILED);
                     }
                 }
             } catch (Exception e) {
                 markDone();
                 logger.log(ERROR, "Exception while processing connection start on " + context.getConnectionName(), e);
-                context.changeState(AuthStatus.AWAITING_CONNECTION);
+                context.changeState(AuthStatus.CONNECTION_FAILED);
                 return;
             }
         }
@@ -77,7 +74,6 @@ public abstract class BaseMessageProcessingState implements RemoteConnectorState
         if (!taskDone.get()) {
             taskDone.set(true);
             logger.log(INFO, "Force closing connection " + context.getConnectionName());
-            readThread.cancel(false);
         }
     }
 

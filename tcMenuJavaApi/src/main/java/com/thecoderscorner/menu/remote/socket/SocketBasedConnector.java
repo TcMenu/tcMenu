@@ -7,9 +7,7 @@
 package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
-import com.thecoderscorner.menu.remote.states.SocketAwaitJoinState;
-import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
+import com.thecoderscorner.menu.remote.states.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -46,18 +44,20 @@ public class SocketBasedConnector extends StreamRemoteConnector {
         stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
         stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
         stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SocketAwaitJoinState.class);
-        stateMachineMappings.put(AuthStatus.FAILED_AUTH, StreamNotConnectedState.class);
+        stateMachineMappings.put(AuthStatus.FAILED_AUTH, PairingAuthFailedState.class);
         handleCoreConnectionStates(mode);
     }
 
     @Override
     public void start() {
-        logger.log(INFO, "Starting ethernet connector {0}", remoteHost);
+        connectionLog(INFO, "Starting ethernet connector" + remoteHost);
         changeState(AuthStatus.AWAITING_CONNECTION);
+        startThreadProc();
     }
 
     @Override
     public void stop() {
+        stopThreadProc();
         changeState(AuthStatus.NOT_STARTED);
     }
 
@@ -70,7 +70,6 @@ public class SocketBasedConnector extends StreamRemoteConnector {
             socketChannel.set(ch);
         }
     }
-
 
     @Override
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException {
@@ -110,45 +109,17 @@ public class SocketBasedConnector extends StreamRemoteConnector {
 
     @Override
     public void close() {
-        logger.log(INFO, "Closing socket " + getConnectionName());
+        connectionLog(INFO, "Closing socket " + getConnectionName());
         SocketChannel sc = socketChannel.get();
         if(sc != null) {
             try {
-                socketChannel.get().close();
+                sc.close();
             } catch (IOException e) {
-                logger.log(ERROR, "Unexpected error closing socket", e);
+                connectionLog(ERROR, "Unexpected error closing socket", e);
             }
         }
         super.close();
         socketChannel.set(null);
     }
 
-//    private void threadReadLoop() {
-//        logger.log(INFO, "Starting socket read loop for " + remoteHost + ":" + remotePort);
-//        while(!Thread.currentThread().isInterrupted()) {
-//            try {
-//                if(attemptToConnect()) {
-//                    disconnectionCount.set(0);
-//                    processMessagesOnConnection();
-//                }
-//                sleepResettingInterrupt();
-//            }
-//            catch(Exception ex) {
-//                logger.log(ERROR, "Exception on socket " + remoteHost + ":" + remotePort, ex);
-//                close();
-//                sleepResettingInterrupt();
-//            }
-//        }
-//        close();
-//        logger.log(INFO, "Exiting socket read loop for " + remoteHost + ":" + remotePort);
-//    }
-//
-//    private void sleepResettingInterrupt() {
-//        try {
-//            Thread.sleep(Math.min(30000, 2000 * disconnectionCount.incrementAndGet()));
-//        } catch (InterruptedException e) {
-//            logger.log(INFO, "Thread has been interrupted");
-//            Thread.currentThread().interrupt();
-//        }
-//    }
 }

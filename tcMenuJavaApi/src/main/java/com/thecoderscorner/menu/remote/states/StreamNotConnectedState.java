@@ -9,8 +9,7 @@ package com.thecoderscorner.menu.remote.states;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -19,57 +18,50 @@ import static java.lang.System.Logger.Level.INFO;
 public class StreamNotConnectedState implements RemoteConnectorState {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final RemoteConnectorContext context;
-    private volatile Future<?> connectionTask;
     private final AtomicInteger connectionDelay = new AtomicInteger(2000);
-    private final Object connectionWaiter = new Object();
+    private final AtomicBoolean exited = new AtomicBoolean(false);
 
     public StreamNotConnectedState(RemoteConnectorContext context) {
         this.context = context;
     }
 
-    private void tryConnect() {
-        try {
-            logger.log(INFO, "Attempting connection to " + context.getConnectionName());
-            if(!context.isDeviceConnected()) {
-                context.performConnection();
-            }
-
-            if(context.isDeviceConnected()) {
-                logger.log(INFO, "Connection established to " + context.getConnectionName());
-                context.changeState(AuthStatus.ESTABLISHED_CONNECTION);
-            }
-        } catch (Exception e) {
-            logger.log(ERROR, "Exception while trying to connect to " + context.getConnectionName(), e);
+    @Override
+    public void runLoop() throws InterruptedException {
+        if(!exited.get() && context.isDeviceConnected()) {
+            context.changeState(AuthStatus.ESTABLISHED_CONNECTION);
+            return;
         }
-        finally {
-            if(!context.isDeviceConnected()) {
-                synchronized (connectionWaiter) {
-                    try {
-                        connectionWaiter.wait(connectionDelay.get());
-                    } catch (InterruptedException e) {
-                        logger.log(INFO, "Thread exiting, interrupted during wait");
-                        Thread.currentThread().interrupt();
-                    }
+
+        while(!exited.get() && !context.isDeviceConnected()) {
+            try {
+                logger.log(INFO, "Attempting connection to " + context.getConnectionName());
+                if (!context.isDeviceConnected()) {
+                    context.performConnection();
                 }
-                if(connectionDelay.get() < 10000) connectionDelay.addAndGet(connectionDelay.get());
 
+                if (context.isDeviceConnected()) {
+                    logger.log(INFO, "Connection established to " + context.getConnectionName());
+                    context.changeState(AuthStatus.ESTABLISHED_CONNECTION);
+                    return;
+                }
+            } catch (Exception e) {
+                logger.log(ERROR, "Exception while trying to connect to " + context.getConnectionName(), e);
+            } finally {
+                if (!context.isDeviceConnected()) {
+                    Thread.sleep(connectionDelay.get());
+                    if (connectionDelay.get() < 10000) connectionDelay.addAndGet(connectionDelay.get());
+                }
             }
         }
-
     }
 
     @Override
     public void enterState() {
-        connectionTask = context.getScheduledExecutor().scheduleAtFixedRate(this::tryConnect, 1, 5, TimeUnit.SECONDS);
     }
 
     @Override
     public void exitState(RemoteConnectorState nextState) {
-        synchronized (connectionWaiter) {
-            connectionWaiter.notify();
-        }
-        boolean stopped = connectionTask.cancel(false);
-        logger.log(INFO, "We are connected so stopping connection task: status = " + stopped);
+        exited.set(true);
     }
 
     @Override

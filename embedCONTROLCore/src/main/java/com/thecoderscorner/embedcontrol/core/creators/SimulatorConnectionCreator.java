@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.remote.RemoteMenuController;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonObjOrThrow;
@@ -428,6 +429,11 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
         var controller = new RemoteMenuController(remoteConnection, menuTree);
         controller.start();
         return controller;
+    }
+
+    @Override
+    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
+        return true;
     }
 
     @Override

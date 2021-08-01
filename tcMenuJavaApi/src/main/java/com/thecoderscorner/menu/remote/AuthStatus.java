@@ -18,7 +18,8 @@ public enum AuthStatus {
     AUTHENTICATED("Authenticated"),
     FAILED_AUTH("Authentication failed"),
     BOOTSTRAPPING("Bootstrap Started"),
-    CONNECTION_READY("Connection Ready");
+    CONNECTION_READY("Connection Ready"),
+    CONNECTION_FAILED("Connection Failed");
 
     private final String description;
 

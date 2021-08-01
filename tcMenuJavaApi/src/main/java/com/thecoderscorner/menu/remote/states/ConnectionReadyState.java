@@ -71,7 +71,7 @@ public class ConnectionReadyState extends BaseMessageProcessingState {
     protected void processTimeout() {
         context.close();
         markDone();
-        context.changeState(AuthStatus.AWAITING_CONNECTION);
+        context.changeState(AuthStatus.CONNECTION_FAILED);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
@@ -45,6 +46,11 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
     public RemoteMenuController start() throws Exception {
         controller = serialFactory.getPortByIdWithBaud(name, baudRate).orElseThrow();
         return controller;
+    }
+
+    @Override
+    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) {
+        return serialFactory.attemptPairing(name, baudRate, statusConsumer);
     }
 
     @Override

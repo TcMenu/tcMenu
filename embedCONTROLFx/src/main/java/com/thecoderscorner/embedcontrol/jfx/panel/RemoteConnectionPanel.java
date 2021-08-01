@@ -5,23 +5,22 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
-import com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsController;
+import com.thecoderscorner.embedcontrol.jfx.dialog.PairingController;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 
 import java.util.UUID;
@@ -29,9 +28,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsController.*;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
+    private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
     private final ConnectionCreator creator;
     private final GlobalSettings settings;
     private final ScheduledExecutorService executorService;
@@ -47,6 +48,8 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
     private Button dlgButton2;
     private MenuButtonType dlg1ButtonType = MenuButtonType.NONE;
     private MenuButtonType dlg2ButtonType = MenuButtonType.NONE;
+    private ScrollPane scrollPane;
+    private Label statusLabel;
 
     public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, ScheduledExecutorService executorService,
                                  UUID panelUuid) {
@@ -59,7 +62,7 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
     @Override
     public void presentPanelIntoArea(BorderPane pane) throws Exception {
         Label waitingLabel = new Label("Waiting for connection...");
-        var scrollPane = new ScrollPane();
+        scrollPane = new ScrollPane();
         pane.setCenter(scrollPane);
         scrollPane.setContent(waitingLabel);
         controller = creator.start();
@@ -67,8 +70,48 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
         treeManager = new TreeComponentManager(screenManager, controller, settings, this, executorService, Platform::runLater);
 
         generateDialogComponents(pane);
+        generateButtonBar(pane);
 
         taskRef = executorService.schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
+    }
+
+    private void generateButtonBar(BorderPane pane) {
+        var bar = new ToolBar();
+        var delButton = new Button("Delete Connection");
+        delButton.setOnAction(this::deleteConnection);
+        var restartButton = new Button("Restart Connection");
+        restartButton.setOnAction(this::restartConnection);
+        statusLabel = new Label("No status yet");
+        delButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
+        restartButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
+        bar.getItems().add(delButton);
+        bar.getItems().add(restartButton);
+        bar.getItems().add(statusLabel);
+
+        pane.setBottom(bar);
+    }
+
+    private void restartConnection(ActionEvent actionEvent) {
+        // force a connection restart but only if already connected
+        if(controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
+            controller.getConnector().close();
+        }
+    }
+
+    private void deleteConnection(ActionEvent actionEvent) {
+        // confirm and then delete the connection information.
+        var alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete " + getPanelName());
+        alert.setHeaderText("Really delete " + getPanelName());
+        alert.setContentText("This will remove all associated information about this connection");
+        alert.getButtonTypes().clear();
+        alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+        alert.showAndWait().ifPresent(btn -> {
+            if(btn == ButtonType.YES) {
+                // todo, delete connection?
+            }
+        });
+
     }
 
     private void generateDialogComponents(BorderPane pane) {
@@ -125,13 +168,18 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
 
     @Override
     public boolean closePanelIfPossible() {
-        taskRef.cancel(false);
-        controller.stop();
-        screenManager.clear();
-        treeManager.dispose();
-        treeManager = null;
-        screenManager = null;
-        controller = null;
+        try {
+            taskRef.cancel(false);
+            if (controller != null) controller.stop();
+            if(screenManager != null) screenManager.clear();
+            if(treeManager != null) treeManager.dispose();
+            treeManager = null;
+            screenManager = null;
+            controller = null;
+        }
+        catch (Exception ex) {
+            logger.log(ERROR, "Exception while closing panel", ex);
+        }
         return true;
     }
 
@@ -174,7 +222,56 @@ public class RemoteConnectionPanel implements PanelPresentable, DialogViewer {
 
     @Override
     public void statusHasChanged(AuthStatus status) {
+        if(status == AuthStatus.FAILED_AUTH) {
+            scrollPane.setDisable(false);
+            try {
+                logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
+                controller.stop();
+                controller = null;
+                Platform.runLater(this::doPairing);
+            } catch (Exception e) {
+                var alert = new Alert(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
+                alert.showAndWait();
+            }
+        }
+        else {
+            scrollPane.setDisable(status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED);
+        }
+        Platform.runLater(() -> {
+            var name = "No connection";
+            if(controller != null) {
+                name = controller.getConnector().getConnectionName();
+            }
+            statusLabel.setText(name + " - " + status.getDescription());
+        });
+    }
 
+    private void doPairing() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pairingDialog.fxml"));
+            Pane myPane = loader.load();
+            PairingController pairingController = loader.getController();
+            pairingController.initialise(creator, executorService, this::pairingHasFinished);
+            scrollPane.setContent(myPane);
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR, "Pairing failed", ButtonType.CLOSE);
+            alert.showAndWait();
+            logger.log(ERROR, "Could not start the remote connector", e);
+        }
+    }
+
+    private void pairingHasFinished(Boolean aBoolean) {
+        try {
+            scrollPane.setContent(new Label("Please wait.."));
+            controller = creator.start();
+            screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
+            treeManager = new TreeComponentManager(screenManager, controller, settings, this, executorService, Platform::runLater);
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
+            alert.showAndWait();
+            logger.log(ERROR, "Unable to restart connection after pairing", e);
+        }
     }
 
     public UUID getUuid() {

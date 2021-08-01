@@ -50,7 +50,7 @@ public class SocketAwaitJoinState extends BaseMessageProcessingState {
     protected void processTimeout() {
         markDone();
         context.close();
-        context.changeState(AuthStatus.AWAITING_CONNECTION);
+        context.changeState(AuthStatus.CONNECTION_FAILED);
     }
 
     @Override

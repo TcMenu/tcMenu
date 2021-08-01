@@ -44,8 +44,8 @@
             <Param value="applicationInfo"/>
         </Variable>
 
-        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
-        <Variable name="ethernetConnection" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
+        <Variable name="ethernetConnection" type="RemoteServerConnection" export="false">
             <Param value="ethernetTransport"/>
             <Param value="mbedEthInitialisation"/>
         </Variable>
@@ -56,8 +56,8 @@
             <Param value="mbedEthInitialisation"/>
         </Variable>
 
-        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
-        <Variable name="ethernetConnection3" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3"/>
+        <Variable name="ethernetConnection3" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3">
             <Param value="ethernetTransport3"/>
             <Param value="mbedEthInitialisation"/>
         </Variable>

@@ -6,6 +6,7 @@ import com.thecoderscorner.embedcontrol.core.serial.SerialPortInfo;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortType;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteConnector;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
@@ -50,5 +51,18 @@ public class Rs232SerialFactory implements PlatformSerialFactory {
                 .withClock(Clock.systemDefaultZone())
                 .withExecutor(coreExecutor)
                 .build());
+    }
+
+    @Override
+    public boolean attemptPairing(String deviceId, int baud, Consumer<AuthStatus> authStatusConsumer) {
+        Rs232ControllerBuilder builder = new Rs232ControllerBuilder();
+        return builder.withLocalName(settings.getAppName())
+                .withUUID(UUID.fromString(settings.getAppUuid()))
+                .withRs232(deviceId, baud)
+                .withMenuTree(new MenuTree())
+                .withProtocol(new TagValMenuCommandProtocol())
+                .withClock(Clock.systemDefaultZone())
+                .withExecutor(coreExecutor)
+                .attemptPairing(Optional.of(authStatusConsumer));
     }
 }
