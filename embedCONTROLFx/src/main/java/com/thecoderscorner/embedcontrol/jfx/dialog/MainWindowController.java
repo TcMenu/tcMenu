@@ -66,6 +66,7 @@ public class MainWindowController {
                 try {
                     logger.log(INFO, "Change panel to ", newVal.getPanelName());
                     if(currentlyDisplayed == null || currentlyDisplayed.closePanelIfPossible()) {
+                        clearBorderPanel();
                         logger.log(INFO, "Present new panel ", newVal.getPanelName());
                         newVal.presentPanelIntoArea(detailPane);
                         currentlyDisplayed = newVal;
@@ -78,6 +79,13 @@ public class MainWindowController {
             }
         });
         connectionList.getSelectionModel().select(0);
+    }
+
+    private void clearBorderPanel() {
+        detailPane.setTop(null);
+        detailPane.setCenter(null);
+        detailPane.setBottom(null);
+        detailPane.setRight(null);
     }
 
     public void createdConnection(RemoteConnectionPanel panel) {

@@ -38,48 +38,48 @@ public class AddDialogTestCases {
     }
 
     @Test
-    void testSelectingItems(FxRobot robot) {
+    void testSelectingItems(FxRobot robot) throws InterruptedException {
         checkForItem(AnalogMenuItem.class, DEFAULT_ID, "analogSelect", robot);
     }
 
     @Test
-    void testSelectingEnum(FxRobot robot) {
+    void testSelectingEnum(FxRobot robot) throws InterruptedException {
         checkForItem(EnumMenuItem.class, DEFAULT_ID, "enumSelect",robot);
     }
 
     @Test
-    void testSelectingBoolean(FxRobot robot) {
+    void testSelectingBoolean(FxRobot robot) throws InterruptedException {
         checkForItem(BooleanMenuItem.class, NON_DEFAULT_ID, "boolSelect", robot);
     }
 
     @Test
-    void testSelectingText(FxRobot robot) {
+    void testSelectingText(FxRobot robot) throws InterruptedException {
         checkForItem(EditableTextMenuItem.class, DEFAULT_ID, "textSelect", robot);
     }
 
     @Test
-    void testSelectingFloat(FxRobot robot) {
+    void testSelectingFloat(FxRobot robot) throws InterruptedException {
         checkForItem(FloatMenuItem.class, DEFAULT_ID, "floatSelect", robot);
     }
 
     @Test
-    void testSelectingSubMenu(FxRobot robot) {
+    void testSelectingSubMenu(FxRobot robot) throws InterruptedException {
         checkForItem(SubMenuItem.class, DEFAULT_ID, "subMenuSelect", robot);
     }
 
     @Test
-    void testSelectingAction(FxRobot robot) {
+    void testSelectingAction(FxRobot robot) throws InterruptedException {
         checkForItem(ActionMenuItem.class, NON_DEFAULT_ID, "actionSelect", robot);
     }
 
     @Test
-    void testSelectingAuthenticator(FxRobot robot) {
+    void testSelectingAuthenticator(FxRobot robot) throws InterruptedException {
         checkForItem(CustomBuilderMenuItem.class, DEFAULT_ID, "authenticatorSelect", robot);
         assertTrue(dialog.getResultOrEmpty().orElseThrow() instanceof CustomBuilderMenuItem b && b.getMenuType() == AUTHENTICATION);
     }
 
     @Test
-    void testSelectingIoTMonitor(FxRobot robot) {
+    void testSelectingIoTMonitor(FxRobot robot) throws InterruptedException {
         checkForItem(CustomBuilderMenuItem.class, DEFAULT_ID, "iotListSelect", robot);
         assertTrue(dialog.getResultOrEmpty().orElseThrow() instanceof CustomBuilderMenuItem b && b.getMenuType() == REMOTE_IOT_MONITOR);
     }
@@ -115,7 +115,7 @@ public class AddDialogTestCases {
         robot.clickOn("#okButton");
     }
 
-    private void checkForItem(Class<? extends MenuItem> clazz, boolean defaultId, String idOfSelectItem, FxRobot robot) {
+    private void checkForItem(Class<? extends MenuItem> clazz, boolean defaultId, String idOfSelectItem, FxRobot robot) throws InterruptedException {
         robot.clickOn("#" + idOfSelectItem);
         if(!defaultId) {
             robot.clickOn("#idField");
@@ -123,6 +123,7 @@ public class AddDialogTestCases {
             robot.write("102");
         }
         robot.clickOn("#okButton");
+        Thread.sleep(100);
         assertTrue(dialog.getResultOrEmpty().isPresent());
         MenuItem item = dialog.getResultOrEmpty().get();
         assertThat(item.getClass()).isEqualTo(clazz);

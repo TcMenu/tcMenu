@@ -45,7 +45,7 @@ public class AppInformationPanel {
     public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
     public static final String EEPROM_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/io-abstraction/eeprom-impl-seamless-8-and-32-bit/";
     public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/#setting-up-an-authentication-manager";
-    public static final String SPONSOR_TCMENU_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/sponsoring-tcmenu-development.md";
+    public static final String SPONSOR_TCMENU_PAGE = "https://github.com/sponsors/davetcc";
 
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;

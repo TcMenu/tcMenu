@@ -16,14 +16,18 @@
     <ImageFile>mbed-ethernet.jpg</ImageFile>
 
     <Properties>
-        <Property id="NUM_CONCURRENT_ETH" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+        <Property id="MBED_NUM_CONCURRENT_ETH" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
             <Choices>
-                <Choice desc="One concurrent remote">1</Choice>
-                <Choice desc="Two concurrent remotes">2</Choice>
-                <Choice desc="Three concurrent remotes">3</Choice>
+                <Choice desc="One remote at a time">1</Choice>
+                <Choice desc="Up to two remotes at once">2</Choice>
+                <Choice desc="Up to three remotes at once">3</Choice>
             </Choices>
         </Property>
-        <Property id="LISTEN_PORT" name="Port on which to listen" initial="3333" desc="The port on which to listen" type="int" min="0" max="65535"/>
+        <Property id="MBED_LISTEN_PORT1" name="First port on which to listen" initial="3333" desc="The port on which to listen" type="int" min="0" max="65535"/>
+        <Property id="MBED_LISTEN_PORT2" name="Second port on which to listen" initial="3334" desc="The port on which to listen" type="int" min="0" max="65535"
+                  whenProperty="MBED_NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Property id="MBED_LISTEN_PORT3" name="Third port on which to listen" initial="3335" desc="The port on which to listen" type="int" min="0" max="65535"
+                  whenProperty="MBED_NUM_CONCURRENT_ETH" isValue="3"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -39,32 +43,46 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="mbedEthInitialisation" type="MbedEthernetInitialisation" export="true">
-            <Param value="${LISTEN_PORT}"/>
-            <Param value="applicationInfo"/>
+        <Variable name="mbedEthInitialisation" type="MbedEthernetInitialiser" export="true">
+            <Param value="${MBED_LISTEN_PORT1}"/>
         </Variable>
-
-        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
-        <Variable name="ethernetConnection" type="RemoteServerConnection" export="false">
+        <Variable name="ethernetTransport" type="MBedEthernetTransport" export="false"/>
+        <Variable name="ethernetConnection" type="TagValueRemoteServerConnection" export="false">
             <Param value="ethernetTransport"/>
             <Param value="mbedEthInitialisation"/>
         </Variable>
 
-        <Variable name="ethernetTransport2" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]"/>
-        <Variable name="ethernetConnection2" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" matches="[23]">
+        <Variable name="mbedEthInitialisation2" type="MbedEthernetInitialiser" export="true" whenProperty="MBED_NUM_CONCURRENT_ETH" matches="[23]">
+            <Param value="${MBED_LISTEN_PORT2}"/>
+        </Variable>
+        <Variable name="ethernetTransport2" type="MBedEthernetTransport" export="false" whenProperty="MBED_NUM_CONCURRENT_ETH" matches="[23]"/>
+        <Variable name="ethernetConnection2" type="TagValueRemoteServerConnection" export="false" whenProperty="MBED_NUM_CONCURRENT_ETH" matches="[23]">
             <Param value="ethernetTransport2"/>
-            <Param value="mbedEthInitialisation"/>
+            <Param value="mbedEthInitialisation2"/>
         </Variable>
 
-        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3"/>
-        <Variable name="ethernetConnection3" type="RemoteServerConnection" export="false" whenProperty="NUM_CONCURRENT_ETH" isValue="3">
+        <Variable name="mbedEthInitialisation3" type="MbedEthernetInitialiser" export="true" whenProperty="MBED_NUM_CONCURRENT_ETH" isValue="3">
+            <Param value="${MBED_LISTEN_PORT3}"/>
+        </Variable>
+        <Variable name="ethernetTransport3" type="MBedEthernetTransport3" export="false" whenProperty="MBED_NUM_CONCURRENT_ETH" isValue="3"/>
+        <Variable name="ethernetConnection3" type="TagValueRemoteServerConnection" export="false" whenProperty="MBED_NUM_CONCURRENT_ETH" isValue="3">
             <Param value="ethernetTransport3"/>
-            <Param value="mbedEthInitialisation"/>
+            <Param value="mbedEthInitialisation3"/>
         </Variable>
 
     </GlobalVariables>
 
     <SetupFunctions>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="ethernetConnection"/>
+        </Function>
 
+        <Function name="addConnection" object="remoteServer" whenProperty="MBED_NUM_CONCURRENT_ETH" matches="[23]">
+            <Param ref="ethernetConnection2"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="MBED_NUM_CONCURRENT_ETH" isValue="3">
+            <Param ref="ethernetConnection3"/>
+        </Function>
     </SetupFunctions>
 </TcMenuPlugin>
