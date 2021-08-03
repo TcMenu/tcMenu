@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 
 public class DateFieldEditorComponent extends JfxTextEditorComponentBase<String>
     {
-        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         private DatePicker dateField;
 
         public DateFieldEditorComponent(RemoteMenuController remote, ComponentSettings settings, MenuItem item, ThreadMarshaller threadMarshaller) {

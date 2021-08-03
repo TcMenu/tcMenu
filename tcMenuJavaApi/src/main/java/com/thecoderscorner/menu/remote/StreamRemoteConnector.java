@@ -134,6 +134,8 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     @Override
     public void close() {
         inputBuffer.clear();
+        inputBuffer.flip();
+
         outputBuffer.clear();
         cmdBuffer.clear();
         notifyConnection();

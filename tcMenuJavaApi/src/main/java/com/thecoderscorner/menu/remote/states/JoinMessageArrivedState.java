@@ -41,6 +41,8 @@ public class JoinMessageArrivedState extends BaseMessageProcessingState {
 
     @Override
     protected boolean processMessage(MenuCommand cmd) {
+        if(cmd.getCommandType() == MenuCommandType.CHANGE_INT_FIELD) return true;
+
         if(cmd.getCommandType() == MenuCommandType.HEARTBEAT) {
             MenuHeartbeatCommand hb = (MenuHeartbeatCommand) cmd;
             if(hb.getMode() == MenuHeartbeatCommand.HeartbeatMode.END) {

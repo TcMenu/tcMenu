@@ -24,7 +24,7 @@
             "type": {
               "type": "string",
               "enum": ["analogItem", "enumItem", "subMenu", "actionMenu", "runtimeList", "boolItem", "textItem", "floatItem",
-                       "largeNumItem", "scrollItem", "rgbItem"]
+                       "largeNumItem", "scrollItem", "rgbItem", "customBuildItem"]
             },
             "item": {
               "type": "object",
@@ -76,6 +76,10 @@
                 },
                 "secured": {
                   "type": "boolean"
+                },
+                "menuType": {
+                  "type": "string",
+                  "enum": ["REMOTE_IOT_MONITOR", "AUTHENTICATION"]
                 },
                 "includeAlphaChannel": {
                   "type": "boolean"
@@ -166,6 +170,12 @@
         },
         "lastRemoteUuid": {
           "type": "string"
+        },
+        "lastRemoteUuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "lastThemeUuid": {
           "type": "string"

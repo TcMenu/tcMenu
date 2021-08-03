@@ -40,6 +40,8 @@ public class AwaitingBootstrapState extends BaseMessageProcessingState {
     protected boolean processMessage(MenuCommand cmd) {
         if(checkIfThereIsAnHbEnd(cmd)) return true;
 
+        if(cmd.getCommandType() == MenuCommandType.CHANGE_INT_FIELD) return true;
+
         if(cmd.getCommandType() == MenuCommandType.BOOTSTRAP) {
             MenuBootstrapCommand bs = (MenuBootstrapCommand) cmd;
 

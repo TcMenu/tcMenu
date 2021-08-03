@@ -32,7 +32,7 @@
     <SourceFiles>
         <Replacement find="Ethernet.h" replace="WiFi.h" whenProperty="TARGET" isValue="ARDUINO_ESP32"/>
         <Replacement find="Ethernet.h" replace="ESP8266WiFi.h" whenProperty="TARGET" isValue="ARDUINO_ESP8266"/>
-        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 128" whenProperty="ESPWIFI_BUFFERED" isValue="true"/>
+        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 96" whenProperty="ESPWIFI_BUFFERED" isValue="true"/>
 
         <Replacement find="EthernetClient" replace="WiFiClient" />
         <Replacement find="EthernetServer" replace="WiFiServer" />

@@ -262,7 +262,15 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
 
         int parentId = parser.getValueAsInt(KEY_PARENT_ID_FIELD);
         var text = parser.getValue(KEY_CURRENT_VAL).replaceAll("[\\[\\]]", "");
-        return newLargeNumberBootItem(parentId, item, new BigDecimal(text));
+        return newLargeNumberBootItem(parentId, item, safeBigDecimal(text));
+    }
+
+    private BigDecimal safeBigDecimal(String text) {
+        try {
+            return new BigDecimal(text);
+        } catch (Exception ex) {
+            return BigDecimal.ZERO;
+        }
     }
 
     private MenuCommand processTextItem(TagValTextParser parser) throws IOException {

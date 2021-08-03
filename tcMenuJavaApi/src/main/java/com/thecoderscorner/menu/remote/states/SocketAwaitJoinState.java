@@ -43,7 +43,8 @@ public class SocketAwaitJoinState extends BaseMessageProcessingState {
             context.changeState(AuthStatus.SEND_AUTH);
             return true;
         }
-        return false;
+
+        return cmd.getCommandType() == MenuCommandType.CHANGE_INT_FIELD;
     }
 
     @Override
