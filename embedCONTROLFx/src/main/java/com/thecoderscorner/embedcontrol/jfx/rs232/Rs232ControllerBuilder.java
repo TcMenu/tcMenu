@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
@@ -121,7 +122,7 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
      * the actual instance.
      * @return the actual instance.
      */
-    public RemoteMenuController build() {
+    public RemoteMenuController build() throws IOException {
         initialiseBasics();
         Rs232RemoteConnector connector = new Rs232RemoteConnector(
                 new LocalIdentifier(uuid, name),  portName, baud,
@@ -151,7 +152,7 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
      * @param maybePairingListener an optional of a consumer that can receive updates, mainly for UI's.
      * @return true if paired otherwise false.
      */
-    public boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener)  {
+    public boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener) throws IOException {
         initialiseBasics();
 
         Rs232RemoteConnector connector = new Rs232RemoteConnector(

@@ -37,6 +37,14 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
         return name;
     }
 
+    public String getPortId() {
+        return portId;
+    }
+
+    public int getBaudRate() {
+        return baudRate;
+    }
+
     @Override
     public AuthStatus currentState() {
         return controller != null ? controller.getConnector().getAuthenticationStatus() : AuthStatus.NOT_STARTED;
@@ -44,12 +52,13 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
 
     @Override
     public RemoteMenuController start() throws Exception {
-        controller = serialFactory.getPortByIdWithBaud(name, baudRate).orElseThrow();
+        controller = serialFactory.getPortByIdWithBaud(portId, baudRate).orElseThrow();
+        controller.start();
         return controller;
     }
 
     @Override
-    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) {
+    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws IOException {
         return serialFactory.attemptPairing(name, baudRate, statusConsumer);
     }
 

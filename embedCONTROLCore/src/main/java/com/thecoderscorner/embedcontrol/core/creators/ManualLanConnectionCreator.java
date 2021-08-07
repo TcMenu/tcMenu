@@ -44,6 +44,14 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
         this.port = port;
     }
 
+    public String getIpAddr() {
+        return ipAddr;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
     @Override
     public String getName() {
         return name;

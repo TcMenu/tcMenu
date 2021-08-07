@@ -91,8 +91,12 @@ public abstract class FileConnectionStorage<T extends RemotePanelDisplayable> im
 
     protected abstract T createPanel(ConnectionCreator creator, UUID panelUuid);
 
+    private Path resolvePanelFile(UUID panelId) {
+        return baseDir.resolve(panelId.toString() + "_rc.json");
+    }
+
     public void savePanel(T panel) {
-        var panelFileName = baseDir.resolve(panel.getUuid().toString() + "_rc.json");
+        var panelFileName = resolvePanelFile(panel.getUuid());
         try {
             logger.log(INFO, "Saving panel for " + panel.getPanelName() + " uuid " + panel.getUuid());
             var obj = new JsonObject();
@@ -102,6 +106,17 @@ public abstract class FileConnectionStorage<T extends RemotePanelDisplayable> im
         }
         catch (Exception ex) {
             logger.log(ERROR, "Panel save failed for " + panelFileName, ex);
+        }
+    }
+
+    public boolean deletePanel(UUID uuid) {
+        var panelFileName = resolvePanelFile(uuid);
+        try {
+            logger.log(INFO, "Delete panel request for " + uuid + ", file ", panelFileName);
+            return Files.deleteIfExists(panelFileName);
+        } catch (IOException e) {
+            logger.log(ERROR, "Panel File could not be deleted " + uuid);
+            return false;
         }
     }
 }

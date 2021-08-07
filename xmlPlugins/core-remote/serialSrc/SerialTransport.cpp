@@ -11,28 +11,15 @@
 
 #include "SerialTransport.h"
 #include <tcMenu.h>
-#include <MessageProcessors.h>
 
-SerialTagValServer remoteServer;
-
-SerialTagValueTransport::SerialTagValueTransport() : TagValueTransport() {
-	this->serialPort = NULL;
+SerialTagValueTransport::SerialTagValueTransport(Stream* thePort) : TagValueTransport(TVAL_UNBUFFERED) {
+	this->serialPort = thePort;
 }
 
 void SerialTagValueTransport::close() {
 	currentField.msgType = UNKNOWN_MSG_TYPE;
 	currentField.fieldType = FVAL_PROCESSING_AWAITINGMSG;
 }
-
-void SerialTagValServer::begin(Stream* portStream, const ConnectorLocalInfo* localInfo) {
-	serPort.setStream(portStream);
-    connector.initialise(&serPort, &messageProcessor, localInfo);
-	taskManager.scheduleFixedRate(TICK_INTERVAL, []{remoteServer.runLoop();}, TIME_MILLIS);
-}
-
-SerialTagValServer::SerialTagValServer() : messageProcessor(msgHandlers, MSG_HANDLERS_SIZE) {
-}
-
 
 // DO NOT replace this with the standard char* write method on serial.
 // It cannot handle large volumes of data going through at once and often
@@ -69,6 +56,3 @@ int SerialTagValueTransport::writeStr(const char* str) {
     return i;
 }
 
-void SerialTagValServer::runLoop() {
-	connector.tick();
-}

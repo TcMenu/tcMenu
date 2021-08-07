@@ -6,10 +6,11 @@
 
 package com.thecoderscorner.menu.remote;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface ConnectorFactory {
-    RemoteMenuController build();
-    boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener);
+    RemoteMenuController build() throws IOException;
+    boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener) throws IOException;
 }

@@ -406,6 +406,10 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
         return name;
     }
 
+    public String getJsonForTree() {
+        return jsonForTree;
+    }
+
     @Override
     public AuthStatus currentState() {
         return null;

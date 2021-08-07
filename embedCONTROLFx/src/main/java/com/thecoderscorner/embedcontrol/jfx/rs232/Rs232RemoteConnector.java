@@ -15,6 +15,7 @@ import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.System.Logger.Level.INFO;
@@ -31,9 +32,11 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     private final int baud;
 
     public Rs232RemoteConnector(LocalIdentifier localId, String portName, int baud, MenuCommandProtocol protocol,
-                                ScheduledExecutorService executor, Clock clock, ConnectMode connectMode) {
+                                ScheduledExecutorService executor, Clock clock, ConnectMode connectMode) throws IOException {
         super(localId, protocol, executor, clock);
-        serialPort = SerialPort.getCommPort(portName);
+        serialPort = Arrays.stream(SerialPort.getCommPorts())
+                .filter(sp -> sp.getSystemPortName().equals(portName))
+                .findFirst().orElseThrow(IOException::new);
         serialPort.setBaudRate(baud);
         this.portName = portName;
         this.baud = baud;

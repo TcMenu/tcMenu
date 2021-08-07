@@ -9,6 +9,7 @@ package com.thecoderscorner.embedcontrol.jfx.dialog;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.panel.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfx.panel.RemoteConnectionPanel;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
@@ -46,7 +47,7 @@ public class MainWindowController {
     private GlobalSettings settings;
     private PanelPresentable currentlyDisplayed;
 
-    public void initialise(GlobalSettings settings, List<PanelPresentable> initialPanels) {
+    public void initialise(GlobalSettings settings, ObservableList<PanelPresentable> initialPanels) {
         this.settings = settings;
 
         try {
@@ -60,7 +61,7 @@ public class MainWindowController {
 
 
         connectionList.setCellFactory(list -> new PanelPresentableListCell());
-        connectionList.getItems().addAll(initialPanels);
+        connectionList.setItems(initialPanels);
         connectionList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldVal, newVal) -> {
             if(newVal != null) {
                 try {
@@ -93,12 +94,20 @@ public class MainWindowController {
         connectionList.getSelectionModel().select(panel);
     }
 
+    public void selectPanel(PanelPresentable panelPresentable) {
+        connectionList.getSelectionModel().select(panelPresentable);
+    }
+
     private static class PanelPresentableListCell extends ListCell<PanelPresentable> {
         @Override
         public void updateItem(PanelPresentable item, boolean empty) {
             super.updateItem(item, empty);
-            if (item == null) return;
-            setText(item.getPanelName());
+            if (item == null) {
+                setText("");
+            }
+            else {
+                setText(item.getPanelName());
+            }
         }
     }
 }

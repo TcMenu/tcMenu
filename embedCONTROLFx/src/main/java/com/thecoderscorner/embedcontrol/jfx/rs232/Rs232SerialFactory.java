@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.remote.RemoteConnector;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class Rs232SerialFactory implements PlatformSerialFactory {
     }
 
     @Override
-    public Optional<RemoteMenuController> getPortByIdWithBaud(String deviceId, int baud) {
+    public Optional<RemoteMenuController> getPortByIdWithBaud(String deviceId, int baud) throws IOException {
         Rs232ControllerBuilder builder = new Rs232ControllerBuilder();
         return Optional.ofNullable(builder.withLocalName(settings.getAppName())
                 .withUUID(UUID.fromString(settings.getAppUuid()))
@@ -54,7 +55,7 @@ public class Rs232SerialFactory implements PlatformSerialFactory {
     }
 
     @Override
-    public boolean attemptPairing(String deviceId, int baud, Consumer<AuthStatus> authStatusConsumer) {
+    public boolean attemptPairing(String deviceId, int baud, Consumer<AuthStatus> authStatusConsumer) throws IOException {
         Rs232ControllerBuilder builder = new Rs232ControllerBuilder();
         return builder.withLocalName(settings.getAppName())
                 .withUUID(UUID.fromString(settings.getAppUuid()))

@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.jfx.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
 import com.thecoderscorner.embedcontrol.jfx.dialog.PairingController;
 import com.thecoderscorner.menu.domain.state.PortableColor;
@@ -16,7 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -25,7 +25,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -34,9 +33,9 @@ import static java.lang.System.Logger.Level.INFO;
 
 public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDisplayable, DialogViewer {
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
-    private final ConnectionCreator creator;
+    private ConnectionCreator creator;
     private final GlobalSettings settings;
-    private final ScheduledExecutorService executorService;
+    private final EmbedControlContext context;
     private final UUID uuid;
     private RemoteMenuController controller;
     private TreeComponentManager treeManager;
@@ -51,45 +50,59 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     private MenuButtonType dlg2ButtonType = MenuButtonType.NONE;
     private ScrollPane scrollPane;
     private Label statusLabel;
+    private BorderPane rootPanel;
 
-    public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, ScheduledExecutorService executorService,
+    public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, EmbedControlContext context,
                                  UUID panelUuid) {
         this.creator = creator;
         this.settings = settings;
-        this.executorService = executorService;
+        this.context = context;
         this.uuid = panelUuid;
     }
 
     @Override
     public void presentPanelIntoArea(BorderPane pane) throws Exception {
-        Label waitingLabel = new Label("Waiting for connection...");
-        scrollPane = new ScrollPane();
-        pane.setCenter(scrollPane);
-        scrollPane.setContent(waitingLabel);
-        controller = creator.start();
-        screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
-        treeManager = new TreeComponentManager(screenManager, controller, settings, this, executorService, Platform::runLater);
-
+        rootPanel = pane;
+        initialiseConnectionComponents();
         generateDialogComponents(pane);
         generateButtonBar(pane);
 
-        taskRef = executorService.schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
+    }
+
+    private void initialiseConnectionComponents() throws Exception {
+        Label waitingLabel = new Label("Waiting for connection...");
+        scrollPane = new ScrollPane();
+        rootPanel.setCenter(scrollPane);
+        scrollPane.setContent(waitingLabel);
+        controller = creator.start();
+        screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
+        treeManager = new TreeComponentManager(screenManager, controller, settings, this, context.getExecutorService(), Platform::runLater);
+        taskRef = context.getExecutorService().schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
+
     }
 
     private void generateButtonBar(BorderPane pane) {
         var bar = new ToolBar();
-        var delButton = new Button("Delete Connection");
+        var editButton = new Button("Edit");
+        editButton.setOnAction(this::editConnection);
+        var delButton = new Button("Delete");
         delButton.setOnAction(this::deleteConnection);
-        var restartButton = new Button("Restart Connection");
+        var restartButton = new Button("Restart");
         restartButton.setOnAction(this::restartConnection);
         statusLabel = new Label("No status yet");
         delButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
+        editButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
         restartButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
+        bar.getItems().add(editButton);
         bar.getItems().add(delButton);
         bar.getItems().add(restartButton);
         bar.getItems().add(statusLabel);
 
         pane.setBottom(bar);
+    }
+
+    private void editConnection(ActionEvent actionEvent) {
+        context.editConnection(getUuid());
     }
 
     private void restartConnection(ActionEvent actionEvent) {
@@ -109,7 +122,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(btn -> {
             if(btn == ButtonType.YES) {
-                // todo, delete connection?
+                context.deleteConnection(uuid);
             }
         });
 
@@ -248,12 +261,11 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     }
 
     private void doPairing() {
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/pairingDialog.fxml"));
             Pane myPane = loader.load();
             PairingController pairingController = loader.getController();
-            pairingController.initialise(creator, executorService, this::pairingHasFinished);
+            pairingController.initialise(creator, context.getExecutorService(), this::pairingHasFinished);
             scrollPane.setContent(myPane);
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Pairing failed", ButtonType.CLOSE);
@@ -267,7 +279,8 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
             scrollPane.setContent(new Label("Please wait.."));
             controller = creator.start();
             screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
-            treeManager = new TreeComponentManager(screenManager, controller, settings, this, executorService, Platform::runLater);
+            treeManager = new TreeComponentManager(screenManager, controller, settings, this,
+                    context.getExecutorService(), Platform::runLater);
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             alert.showAndWait();
@@ -281,5 +294,15 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
 
     public ConnectionCreator getCreator() {
         return creator;
+    }
+
+    public void changeConnectionCreator(ConnectionCreator connectionCreator) {
+        try {
+            closePanelIfPossible();
+            creator = connectionCreator;
+            initialiseConnectionComponents();
+        } catch (Exception e) {
+            logger.log(ERROR, "Failed to re-initialise connection", e);
+        }
     }
 }
