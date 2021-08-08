@@ -47,8 +47,8 @@ public class AuthenticatorDefinitionTest {
 
         assertThat(definition.generateHeader()).contains(new HeaderDefinition("RemoteAuthentication.h", GLOBAL, PRIORITY_NORMAL, new AlwaysApplicable()));
         assertThat(definition.generateGlobal()).contains("const AuthBlock authMgrAllowedRemotes[] PROGMEM = {" + LINE_BREAK +
-                "    { \"super123\", \"94242-234234-23423-2342\" }," + LINE_BREAK +
-                "    { \"super2\", \"342342-234234-234-234-234\" }" + LINE_BREAK +
+                "    { \"94242-234234-23423-2342\", \"super123\" }," + LINE_BREAK +
+                "    { \"342342-234234-234-234-234\", \"super2\" }" + LINE_BREAK +
                 "};" + LINE_BREAK +
                 "const char pgmAuthMgrPassword[] PROGMEM = \"1234\";" + LINE_BREAK +
                 "ReadOnlyAuthenticationManager authManager(authMgrAllowedRemotes, 2, pgmAuthMgrPassword);");

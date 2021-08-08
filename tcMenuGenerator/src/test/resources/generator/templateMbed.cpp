@@ -17,8 +17,8 @@ const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
 TcMenuRemoteServer remoteServer(applicationInfo);
 HalStm32EepromAbstraction glBspRom;
 const AuthBlock authMgrAllowedRemotes[] PROGMEM = {
-    { "name1", "first-uuid" },
-    { "name2", "second-uuid" }
+    { "first-uuid", "name1" },
+    { "second-uuid", "name2" }
 };
 const char pgmAuthMgrPassword[] PROGMEM = "1234";
 ReadOnlyAuthenticationManager authManager(authMgrAllowedRemotes, 2, pgmAuthMgrPassword);
