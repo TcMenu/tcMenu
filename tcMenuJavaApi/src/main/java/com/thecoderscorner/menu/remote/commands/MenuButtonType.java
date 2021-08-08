@@ -7,11 +7,11 @@
 package com.thecoderscorner.menu.remote.commands;
 
 public enum MenuButtonType {
-    NONE(0, ""),
-    OK(1, "OK"),
-    ACCEPT(2, "Accept"),
-    CANCEL(3, "Cancel"),
-    CLOSE(4, "Close");
+    OK(0, "OK"),
+    ACCEPT(1, "Accept"),
+    CANCEL(2, "Cancel"),
+    CLOSE(3, "Close"),
+    NONE(4, "");
 
     private final int typeVal;
     private final String buttonName;
