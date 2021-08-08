@@ -14,33 +14,22 @@
 #include <RuntimeMenuItem.h>
 #include "SimhubConnector.h"
 
-SimhubConnector::SimhubConnector() {
-    this->serialPort = nullptr;
-    this->linePosition = 0;
-    this->statusMenuItem = nullptr;
-}
-
-void SimhubConnector::begin(SerPortName *serialPort, int statusMenuId) {
+SimhubConnector::SimhubConnector(SerPortName* serialPort, uint16_t statusMenuId) : lineBuffer {} {
     this->serialPort = serialPort;
-    if(statusMenuId != -1) {
-        statusMenuItem = reinterpret_cast<BooleanMenuItem*>(getMenuItemById(statusMenuId));
-    }
+    statusMenuItem = (statusMenuId != INVALID_MENU_ID) ? reinterpret_cast<BooleanMenuItem*>(getMenuItemById(statusMenuId)) : nullptr;
+    this->linePosition = 0;
     changeStatus(false);
-
-    if(serialPort) {
-        taskManager.scheduleFixedRate(1, this);
-    }
 }
 
-void SimhubConnector::exec() {
-    while(serialPort->available()) {
+void SimhubConnector::tick() {
+    while(serialPort && serialPort->available()) {
         if(linePosition >= MAX_LINE_WIDTH) {
             lineBuffer[MAX_LINE_WIDTH - 1] = 0;
             serdebugF2("Error occurred during Rx ", lineBuffer);
             linePosition = 0;
         }
 
-        lineBuffer[linePosition] = serialPort->read();
+        lineBuffer[linePosition] = (char)serialPort->read();
 
         if(lineBuffer[linePosition] == '\n') {
             lineBuffer[linePosition] = 0;
@@ -68,6 +57,7 @@ void SimhubConnector::processCommandFromSimhub() {
 }
 
 void SimhubConnector::changeStatus(bool connected) {
+    this->connected = connected;
     if(statusMenuItem != nullptr) {
         statusMenuItem->setBoolean(connected);
     }
@@ -89,11 +79,36 @@ void SimhubConnector::processTcMenuCommand() {
 
     MenuItem* menuItem = getMenuItemById(menuId);
     if(menuItem->getMenuType() == MENUTYPE_INT_VALUE || menuItem->getMenuType() == MENUTYPE_ENUM_VALUE || menuItem->getMenuType() == MENUTYPE_BOOLEAN_VALUE) {
-        ValueMenuItem* valItem = reinterpret_cast<ValueMenuItem*>(menuItem);
+        auto* valItem = reinterpret_cast<ValueMenuItem*>(menuItem);
         valItem->setCurrentValue(atoi(value));
     }
     else if(menuItem->getMenuType() == MENUTYPE_TEXT_VALUE) {
-        TextMenuItem* txtItem = reinterpret_cast<TextMenuItem*>(menuItem);
+        auto* txtItem = reinterpret_cast<TextMenuItem*>(menuItem);
         txtItem->setTextValue(value);
+    }
+}
+
+void SimHubRemoteConnection::init(int remoteNumber, const ConnectorLocalInfo &info) {
+    /* currently does nothing, simhub connector presently only receives information */
+}
+
+void SimHubRemoteConnection::tick() {
+    connector.tick();
+}
+
+bool SimHubRemoteConnection::connected() {
+    return connector.getStatus();
+}
+
+const char pgmSimHubConnectionText[] PROGMEM = "SimHub: ";
+
+void SimHubRemoteConnection::copyConnectionStatus(char *buffer, int bufferSize) {
+    if(bufferSize < 11) {
+        buffer[0] = 'S'; buffer[1] = 'H';
+        buffer[2] = ':'; buffer[3] = connector.getStatus() ? 'Y' : 'N';
+        buffer[4] = 0;
+    } else {
+        safeProgCpy(buffer, pgmSimHubConnectionText, bufferSize);
+        appendChar(buffer, connector.getStatus() ? 'Y' : 'N', bufferSize);
     }
 }

@@ -19,7 +19,7 @@
 
     <SourceFiles>
         <Replacement find="Stream&#92;*" replace="HardwareSerial*" whenProperty="HARDWARE_PORT" isValue="true"/>
-        <Replacement find="serialPort->availableForWrite() != 0" replace="true*" whenProperty="HARDWARE_PORT" isValue="false"/>
+        <Replacement find="serialPort->availableForWrite() != 0" replace="true" whenProperty="HARDWARE_PORT" isValue="false"/>
         <SourceFile name="serialSrc/SerialTransport.cpp"/>
         <SourceFile name="serialSrc/SerialTransport.h"/>
     </SourceFiles>
@@ -29,12 +29,22 @@
         <Header name="SerialTransport.h" inSource="true"/>
     </IncludeFiles>
 
-    <GlobalVariables/>
+    <GlobalVariables>
+        <Variable name="serialInitializer" type="NoInitialisationNeeded"/>
+
+        <Variable name="serialTransport" type="SerialTagValueTransport">
+            <Param ref="${SERIAL_PORT}"/>
+        </Variable>
+
+        <Variable name="serialConnection" type="TagValueRemoteServerConnection">
+            <Param value="serialTransport"/>
+            <Param value="serialInitializer"/>
+        </Variable>
+    </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="remoteServer">
-            <Param ref="${SERIAL_PORT}"/>
-            <Param ref="applicationInfo"/>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="serialConnection"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>

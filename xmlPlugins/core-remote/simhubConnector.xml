@@ -15,7 +15,7 @@
     <ImageFile>simhub.jpg</ImageFile>
 
     <Properties>
-        <Property id="SERIAL_PORT" name="Serial port" desc="Enter the variable name of the serial port, E.G: Serial" initial="Serial" type="variable"/>
+        <Property id="SH_SERIAL_PORT" name="Serial port" desc="Enter the variable name of the serial port, E.G: Serial" initial="Serial" type="variable"/>
         <Property id="STATUS_MENUITEM" name="Connection Status menu item (-1 none)" desc="Optional BooleanMenuItem that shows connection status" initial="-1" type="BooleanMenuItem"/>
     </Properties>
 
@@ -31,13 +31,15 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable  name="connector" type="SimhubConnector"/>
+        <Variable  name="simhubConnection" type="SimHubRemoteConnection">
+            <Param ref="${SH_SERIAL_PORT}"/>
+            <Param value="${STATUS_MENUITEM}"/>
+        </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="connector">
-            <Param ref="${SERIAL_PORT}"/>
-            <Param value="${STATUS_MENUITEM}"/>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="simhubConnection"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>

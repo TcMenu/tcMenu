@@ -21,6 +21,7 @@
 #include <TaskManager.h>
 #include <HardwareSerial.h>
 #include <IoLogging.h>
+#include <remote/BaseRemoteComponents.h>
 
 #if defined(ESP8266) || defined(ESP32)
 # define SerPortName HardwareSerial
@@ -28,22 +29,47 @@
 # define SerPortName Stream
 #endif
 
-class SimhubConnector : public Executable {
-private:
-    SerPortName* serialPort;
-    BooleanMenuItem* statusMenuItem;
-    char lineBuffer[MAX_LINE_WIDTH];
-    int linePosition;
-public:
-    SimhubConnector();
-    void begin(SerPortName* serialPort, int statusMenuId);
+namespace tcremote {
 
-    void exec() override;
-private:
-    void processCommandFromSimhub();
-    void processTcMenuCommand();
-    void changeStatus(bool b);
-};
+    class SimhubConnector {
+    private:
+        SerPortName* serialPort;
+        BooleanMenuItem* statusMenuItem;
+        char lineBuffer[MAX_LINE_WIDTH];
+        int linePosition;
+        bool connected;
+    public:
+        SimhubConnector(SerPortName* serialPort, menuid_t statusMenuId);
+        void tick();
+        bool getStatus() { return connected; }
+    private:
+        void processCommandFromSimhub();
+        void processTcMenuCommand();
+        void changeStatus(bool b);
+    };
 
+
+    class SimHubRemoteConnection : public BaseRemoteServerConnection {
+    private:
+        SimhubConnector connector;
+        NoInitialisationNeeded noInitialisation;
+    public:
+        SimHubRemoteConnection(SerPortName* serialPort, menuid_t statusMenuId)
+        : BaseRemoteServerConnection(noInitialisation, SIMHUB_CONNECTOR), connector(serialPort, statusMenuId) {
+        }
+
+        void init(int remoteNumber, const ConnectorLocalInfo &info) override;
+
+        void tick() override;
+
+        bool connected() override;
+
+        void copyConnectionStatus(char *buffer, int bufferSize) override;
+    };
+}
+
+#ifndef TC_MANUAL_NAMESPACING
+using namespace tcremote;
+#endif // TC_MANUAL_NAMESPACING
 
 #endif //TCLIBRARYDEV_SIMHUBCONNECTOR_H

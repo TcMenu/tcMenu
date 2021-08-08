@@ -39,7 +39,7 @@ public class ReadOnlyAuthenticatorDefinition implements AuthenticatorDefinition 
         StringBuilder sb = new StringBuilder(255);
         sb.append("const AuthBlock authMgrAllowedRemotes[] PROGMEM = {").append(LINE_BREAK);
         sb.append(remoteIds.stream()
-                .map(rem -> "    { \"" + rem.name() + "\", \"" + rem.uuid() + "\" }")
+                .map(rem -> "    { \"" + rem.uuid() + "\", \"" + rem.name() + "\" }")
                 .collect(Collectors.joining("," + LINE_BREAK)));
         sb.append(LINE_BREAK);
         sb.append("};");
