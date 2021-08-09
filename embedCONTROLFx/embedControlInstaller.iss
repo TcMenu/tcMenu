@@ -26,7 +26,7 @@ LicenseFile=C:\Users\dave\IdeaProjects\tcMenu\LICENSE
 OutputBaseFilename=setupEmbedCONTROL-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
-SignTool=standardSign
+SignTool=ecSign
 SignedUninstaller=yes
 SetupIconFile={#MyEmbedControlDir}\classes\img\embedCONTROL.ico
 
