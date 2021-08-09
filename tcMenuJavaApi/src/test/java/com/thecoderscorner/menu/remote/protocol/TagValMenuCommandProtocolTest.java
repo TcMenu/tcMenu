@@ -62,8 +62,8 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(DialogMode.SHOW, dlg.getDialogMode());
         assertEquals("Hello|", dlg.getHeader());
         assertEquals("Buffer=", dlg.getBuffer());
-        assertEquals(MenuButtonType.NONE, dlg.getButton1());
-        assertEquals(MenuButtonType.CLOSE, dlg.getButton2());
+        assertEquals(MenuButtonType.OK, dlg.getButton1());
+        assertEquals(MenuButtonType.NONE, dlg.getButton2());
     }
 
     @Test
@@ -500,7 +500,7 @@ public class TagValMenuCommandProtocolTest {
 
         protocol.toChannel(bb, newDialogCommand(DialogMode.SHOW, "Hello", "Buffer", MenuButtonType.NONE,
                 MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
-        testBufferAgainstExpected(DIALOG_UPDATE, "MO=S|HF=Hello|BU=Buffer|B1=0|B2=4|IC=00000000|\u0002");
+        testBufferAgainstExpected(DIALOG_UPDATE, "MO=S|HF=Hello|BU=Buffer|B1=4|B2=3|IC=00000000|\u0002");
     }
 
 

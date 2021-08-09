@@ -110,7 +110,7 @@
                                     <directory>${project.basedir}/target</directory>
                                     <filtering>false</filtering>
                                     <includes>
-                                        <include>tcMenuController.jar</include>
+                                        <include>embedCONTROL.jar</include>
                                     </includes>
                                 </resource>
                             </resources>
