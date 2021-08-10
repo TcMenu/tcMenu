@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
@@ -57,19 +58,7 @@ public class MenuEditorApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        if(System.getProperty("java.util.logging.config.file") == null) {
-            // if the logging was not set up, force it use logging.properties and ensure it's loaded.
-            System.setProperty("java.util.logging.config.file", "logging.properties");
-            try(var loggingProd = getClass().getResourceAsStream("/baseLoggingConfig.properties")) {
-                LogManager manager = LogManager.getLogManager();
-                manager.readConfiguration(loggingProd);
-            }
-            catch(Exception ex) {
-                Alert alert = new Alert(AlertType.ERROR, "Logging configuration could not be loaded: " + ex.getMessage(), ButtonType.CLOSE);
-                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-                alert.showAndWait();
-            }
-        }
+        startUpLogging();
 
         Platform.runLater(() -> {
             final String os = System.getProperty("os.name");
@@ -167,13 +156,14 @@ public class MenuEditorApp extends Application {
             var current = new VersionInfo(storage.getVersion());
             boolean noPluginDir = !Files.exists(pluginDir);
             if(!storage.getLastRunVersion().equals(current) || noPluginDir) {
-                if(Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
-                    System.getLogger("Main").log(System.Logger.Level.WARNING, "Not upgrading core plugins, this is a development system");
-                    return;
-                }
-
                 try {
                     if(noPluginDir) Files.createDirectories(pluginDir);
+
+                    if(Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
+                        System.getLogger("Main").log(System.Logger.Level.WARNING, "Not upgrading core plugins, this is a development system");
+                        return;
+                    }
+
                     InputStream resourceAsStream = MenuEditorApp.class.getResourceAsStream("/packaged-plugins/initialPlugins.zip");
                     OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
                 }
@@ -187,6 +177,19 @@ public class MenuEditorApp extends Application {
             BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
+        }
+    }
+
+    private void startUpLogging() {
+        var logName = System.getProperty("devlog") != null ? "dev-logging" : "logging";
+        var inputStream = MenuEditorApp.class.getResourceAsStream("/logconf/" + logName + ".properties");
+        try
+        {
+            LogManager.getLogManager().readConfiguration(inputStream);
+        }
+        catch (final IOException e)
+        {
+            Logger.getAnonymousLogger().severe("Could not load default logger:" + e.getMessage());
         }
     }
 
