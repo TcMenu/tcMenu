@@ -42,8 +42,12 @@ public class BuildStructInitializer {
         return this;
     }
 
+    private String safeValue(Object val) {
+        return (val != null) ? val.toString() : "";
+    }
+
     public BuildStructInitializer addElement(Object value) {
-        structElements.add(value.toString());
+        structElements.add(safeValue(value));
         return this;
     }
 
