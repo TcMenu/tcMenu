@@ -30,8 +30,8 @@ void EthernetTagValTransport::flush() {
     if((int)client.write(writeBuffer, writeBufferPos) == writeBufferPos) {
         serdebugF2("Buffer written ", writeBufferPos);
         writeBufferPos = 0;
-    client.flush();
-}
+        client.flush();
+    }
     else {
         close();
     }

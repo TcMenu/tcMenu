@@ -78,7 +78,8 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     public TcMenuReleaseType getReleaseType() {
-        boolean beta = props.getProperty(BUILD_VERSION_KEY, "0.0").contains("SNAPSHOT");
+        String version = props.getProperty(BUILD_VERSION_KEY, "0.0");
+        boolean beta = version.contains("SNAPSHOT") || version.contains("BETA") || version.contains("ALPHA");
         return beta ? TcMenuReleaseType.BETA : TcMenuReleaseType.REGULAR;
     }
 

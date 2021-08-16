@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "embedCONTROL"
-#define MyAppVersion "2.2.0-alpha"
+#define MyAppVersion "2.2.1-BETA"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "embedCONTROL.exe"

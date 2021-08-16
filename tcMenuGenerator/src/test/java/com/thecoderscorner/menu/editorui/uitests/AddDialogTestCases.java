@@ -123,7 +123,10 @@ public class AddDialogTestCases {
             robot.write("102");
         }
         robot.clickOn("#okButton");
-        Thread.sleep(100);
+        int attempts = 0;
+        while(dialog.getResultOrEmpty().isEmpty() && ++attempts < 10) {
+            Thread.sleep(100);
+        }
         assertTrue(dialog.getResultOrEmpty().isPresent());
         MenuItem item = dialog.getResultOrEmpty().get();
         assertThat(item.getClass()).isEqualTo(clazz);

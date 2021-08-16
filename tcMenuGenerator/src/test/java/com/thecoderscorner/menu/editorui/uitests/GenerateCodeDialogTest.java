@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
@@ -40,7 +39,7 @@ import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController.ROM_PAGE_SIZES;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
-import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -270,7 +269,7 @@ public class GenerateCodeDialogTest {
         }
     }
 
-    private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) {
+    private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
         // try the default font x2
         var dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
         robot.clickOn("#defaultFontSelect");
@@ -297,7 +296,8 @@ public class GenerateCodeDialogTest {
         TestUtils.clickOnButtonInDialog(robot, dialogPane, "Cancel");
     }
 
-    private Node compareFontDialogToProperty(FxRobot robot, String nodeName, CreatorProperty prop) {
+    private Node compareFontDialogToProperty(FxRobot robot, String nodeName, CreatorProperty prop) throws InterruptedException {
+        Thread.sleep(250);
         String latestValue = fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
         FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
 
