@@ -101,7 +101,7 @@ public class AddDialogTestCases {
                 "ID must be unique, greater than 0 and less than 32768");
 
         writeIntoIdFIeld(robot, "32000");
-        MenuItem item = dialog.getResultOrEmpty().get();
+        MenuItem item = dialog.getResultOrEmpty().orElseThrow();
         assertThat(item.getClass()).isEqualTo(ActionMenuItem.class);
         assertThat(item.getId()).isEqualTo(32000);
 
