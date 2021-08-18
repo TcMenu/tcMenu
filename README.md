@@ -24,9 +24,11 @@ Releases are directly available from the releases page, there is a signed Window
 
 Although most will use the above packages, it's also possible to build from source, full instructions are in the tcMenuGenerator folder. We ask that you only build from source for your own use.
 
-Here's a couple of screen-shots of the designer UI
+Here's a couple of screen-shots of the designer UI - runs on Windows, macOS and Linux:
 
 ![Menu designer for Arduino](zMedia/design-menu-for-arduino.jpg)
+
+and embedCONTROL desktop that can control menu based apps - runs on Windows, macOS and Linux:
 
 ![Code generator runs on many platforms](zMedia/generate-code-for-your-platform.jpg)
 
