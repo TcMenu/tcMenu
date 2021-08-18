@@ -43,8 +43,8 @@ public class AppInformationPanel {
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
     public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
     public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
-    public static final String EEPROM_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/io-abstraction/eeprom-impl-seamless-8-and-32-bit/";
-    public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/#setting-up-an-authentication-manager";
+    public static final String EEPROM_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-eeprom-integrations/";
+    public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/secure-menuitem-pins-and-remotes/";
     public static final String SPONSOR_TCMENU_PAGE = "https://github.com/sponsors/davetcc";
 
     private final MenuEditorController controller;
