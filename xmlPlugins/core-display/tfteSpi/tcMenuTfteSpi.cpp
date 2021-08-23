@@ -14,7 +14,7 @@
 
 
 #include "tcMenuTfteSpi.h"
-#include <TfT_eSPI.h>
+#include <TFT_eSPI.h>
 
 TfteSpiDrawable::TfteSpiDrawable(TFT_eSPI *tft, int spriteHeight) : tft(tft), spriteWithConfig(nullptr), spriteHeight(spriteHeight) {}
 
