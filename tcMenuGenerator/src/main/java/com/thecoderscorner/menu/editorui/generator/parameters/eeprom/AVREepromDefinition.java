@@ -21,6 +21,11 @@ public class AVREepromDefinition implements EepromDefinition {
     }
 
     @Override
+    public Optional<String> generateExport() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<HeaderDefinition> generateHeader() {
         return Optional.of(new HeaderDefinition("EepromAbstraction.h", GLOBAL, PRIORITY_NORMAL, new AlwaysApplicable()));
     }

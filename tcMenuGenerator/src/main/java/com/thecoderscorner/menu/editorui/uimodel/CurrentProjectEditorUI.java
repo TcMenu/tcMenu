@@ -89,9 +89,8 @@ public interface CurrentProjectEditorUI {
 
     /**
      * Shows the new project creation window, it is assumed that a dirty check has already been done
-     * @param editorProject the project file.
      */
-    void showCreateProjectDialog(CurrentEditorProject editorProject);
+    void showCreateProjectDialog();
 
     /**
      * Shows the About dialog, which also shows all the version info
@@ -101,10 +100,15 @@ public interface CurrentProjectEditorUI {
 
     /**
      * Shows the code generator dialog that can be used to build native Arduino code.
-     * @param editorProject the project that is currently active in the editor
      * @param installer the arduino installer object.
      */
-    void showCodeGeneratorDialog(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer);
+    void showCodeGeneratorDialog(ArduinoLibraryInstaller installer);
+
+    /**
+     * Get the currently open project
+     * @return the open project
+     */
+    CurrentEditorProject getCurrentProject();
 
     /**
      * Browses to a URL using the default external browser

@@ -329,6 +329,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var used = Boolean.parseBoolean(getAttributeOrDefault(param, "used", "true"));
             var refType = getAttrOrNull(param, "ref");
             var fontType = getAttrOrNull(param, "font");
+            var ioExpanderType = getAttrOrNull(param, "ioDevice");
             var lambdaType = getAttrOrNull(param, "lambda");
             var defVal = getAttrOrNull(param, "default");
 
@@ -339,6 +340,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return new LambdaCodeParameter(lambda);
             } else if(fontType != null) {
                 return new FontCodeParameter(fontType, defVal, used);
+            } else if (ioExpanderType != null) {
+                return new IoExpanderCodeParameter(ioExpanderType, defVal, used);
             } else {
                 var valueType = getAttributeOrDefault(param, "value", param.getAttribute("name"));
                 return new CodeParameter(classType, used, valueType, defVal);
@@ -404,6 +407,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return makeChoices(elem, initialValue);
             case "pin":
                 return CannedPropertyValidators.pinValidator();
+            case "io-device":
+                return CannedPropertyValidators.ioExpanderValidator();
 
             case "MenuItem": return CannedPropertyValidators.menuItemValidatorForAllItems();
             case "BooleanMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(BooleanMenuItem.class);
@@ -414,7 +419,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             case "FloatMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(FloatMenuItem.class);
             case "RuntimeMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(RuntimeListMenuItem.class);
             case "LargeNumberMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableLargeNumberMenuItem.class);
-
             case "text":
             default:
                 return CannedPropertyValidators.textValidator();

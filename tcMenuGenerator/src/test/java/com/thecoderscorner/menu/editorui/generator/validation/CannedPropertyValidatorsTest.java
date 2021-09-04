@@ -6,7 +6,13 @@
 
 package com.thecoderscorner.menu.editorui.generator.validation;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,6 +21,8 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CannedPropertyValidatorsTest {
 
@@ -117,5 +125,24 @@ class CannedPropertyValidatorsTest {
         assertThat(validator.choices()).isEmpty();
         assertFalse(validator.isValueValid("asdfasdf"));
         assertTrue(validator.isValueValid(new FontDefinition(FontMode.DEFAULT_FONT, "", 0).toString()));
+    }
+
+    @Test
+    public void testIoExpanderValidator() {
+        var collection = new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("helloWorld")));
+        var codeOptions = new CodeGeneratorOptionsBuilder().withExpanderDefinitions(collection).codeOptions();
+        var project = mock(CurrentEditorProject.class);
+        when(project.getGeneratorOptions()).thenReturn(codeOptions);
+
+        var validator = CannedPropertyValidators.ioExpanderValidator();
+        validator.initialise(project);
+
+        assertFalse(validator.hasChoices());
+        assertThat(validator.choices()).isEmpty();
+        assertFalse(validator.isValueValid("notFound"));
+        assertTrue(validator.isValueValid(InternalDeviceExpander.DEVICE_ID));
+        assertTrue(validator.isValueValid("helloWorld"));
+        assertEquals("Device pins", validator.getNameOfCurrentChoice(InternalDeviceExpander.DEVICE_ID));
+        assertEquals("IoExpander Validator", validator.toString());
     }
 }

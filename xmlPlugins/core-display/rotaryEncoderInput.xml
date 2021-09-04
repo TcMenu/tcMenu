@@ -1,4 +1,6 @@
-<TcMenuPlugin name="Control menu with rotary encoder" id="6dd87e7d-e751-4912-a70d-91793b1d3d87" subsystem="INPUT"
+<TcMenuPlugin name="Control menu with rotary encoder"
+              id="6dd87e7d-e751-4912-a70d-91793b1d3d87" subsystem="INPUT"
+              requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
@@ -17,7 +19,7 @@
     <Properties>
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
         <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable this to use interrupts instead of polling for switches" type="boolean"/>
-        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="" desc="This allows you to provide an IoAbstractionRef if your input is on an IO expander" type="variable"/>
+        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="This allows you to provide an IoAbstractionRef if your input is on an IO expander" type="io-device"/>
         <Property id="ENCODER_PIN_A" name="PinA of Encoder" initial="2" desc="The pin on which A from the encoder is connected, must be interrupt capable" type="pin"/>
         <Property id="ENCODER_PIN_B" name="PinB of Encoder" initial="3" desc="The pin on which B from the encoder is connected" type="pin"/>
         <Property id="ENCODER_PIN_OK" name="PinOK of Encoder" initial="8" desc="The pin on which OK from the encoder is connected" type="pin"/>
@@ -32,17 +34,15 @@
 
     <IncludeFiles/>
 
-    <GlobalVariables>
-        <Variable name="${SWITCH_IODEVICE}" type="IoAbstractionRef" export="only" whenProperty="SWITCH_IODEVICE" isNotValue="" />
-    </GlobalVariables>
+    <GlobalVariables/>
 
     <SetupFunctions>
         <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
-            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
+            <Param ioDevice="${SWITCH_IODEVICE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
+            <Param ioDevice="${SWITCH_IODEVICE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 

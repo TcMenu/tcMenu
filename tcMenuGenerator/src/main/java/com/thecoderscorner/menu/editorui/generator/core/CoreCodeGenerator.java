@@ -108,10 +108,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // Prepare the generator by initialising all the structures ready for conversion.
             String root = getFirstMenuVariable(menuTree);
             var allProps = codeGenerators.stream().flatMap(gen -> gen.getProperties().stream()).collect(Collectors.toList());
-            context = new CodeConversionContext(embeddedPlatform, root, allProps);
-            CodeVariableExtractor extractor = new CodeVariableCppExtractor(
-                    context, usesProgMem
-            );
+            context = new CodeConversionContext(embeddedPlatform, root, options, allProps);
+            var extractor = new CodeVariableCppExtractor(context, usesProgMem);
 
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
 
@@ -494,8 +492,15 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     .collect(Collectors.toList())
             ));
             writer.write(TWO_LINES);
-            writer.write("// Global Menu Item exports" + LINE_BREAK);
+            writer.write("// Any externals needed by IO expanders, EEPROMs etc");
+            writer.write(LINE_BREAK);
+            writer.write(extraCodeDefinitions().stream()
+                    .map(CodeGeneratorCapable::generateExport)
+                    .filter(Optional::isPresent).map(Optional::get)
+                    .collect(Collectors.joining(LINE_BREAK)));
+            writer.write(TWO_LINES);
 
+            writer.write("// Global Menu Item exports" + LINE_BREAK);
             writer.write(menuStructure.stream()
                     .map(extractor::mapStructHeader)
                     .filter(hdr -> !hdr.isEmpty())
@@ -559,7 +564,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     private Collection<CodeGeneratorCapable> extraCodeDefinitions() {
-        return List.of(options.getEepromDefinition(), options.getAuthenticatorDefinition());
+        var extraDefs = new ArrayList<CodeGeneratorCapable>(options.getExpanderDefinitions().getAllExpanders());
+        extraDefs.add(options.getEepromDefinition());
+        extraDefs.add(options.getAuthenticatorDefinition());
+        return extraDefs;
     }
 
     protected void doSanityChecks() {

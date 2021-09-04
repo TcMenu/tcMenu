@@ -89,6 +89,7 @@
             <items>
               <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
               <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="Show ID &amp; ROM Layout" />
+              <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="Show IO Expanders" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -96,7 +97,9 @@
               <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="About.." />
               <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="Documentation.." />
                   <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="Getting Started.." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="TCC Forum" />
+                  <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics" text="Prepare Diagnostics" />
             </items>
           </Menu>
         </menus>

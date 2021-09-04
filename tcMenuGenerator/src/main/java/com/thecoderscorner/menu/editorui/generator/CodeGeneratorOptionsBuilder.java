@@ -9,25 +9,35 @@ package com.thecoderscorner.menu.editorui.generator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.NO_CREATOR_SELECTED;
+
 public class CodeGeneratorOptionsBuilder {
-    private String embeddedPlatform;
-    private String lastDisplayUuid;
-    private String lastInputUuid;
-    private List<String> lastRemoteUuids;
-    private String lastThemeUuid;
-    private UUID applicationUUID;
-    private String applicationName;
-    private List<CreatorProperty> lastProperties;
-    private boolean namingRecursive;
-    private boolean saveToSrc;
-    private boolean useCppMain;
-    private EepromDefinition eepromDef;
-    private AuthenticatorDefinition authDef;
+    private String embeddedPlatform = EmbeddedPlatform.ARDUINO32.getBoardId();
+    private String lastDisplayUuid = NO_CREATOR_SELECTED;
+    private String lastInputUuid = NO_CREATOR_SELECTED;
+    private List<String> lastRemoteUuids = List.of(NO_CREATOR_SELECTED);
+    private String lastThemeUuid = NO_CREATOR_SELECTED;
+    private UUID applicationUUID = UUID.randomUUID();
+    private String applicationName = "New Device";
+    private List<CreatorProperty> lastProperties = List.of();
+    private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
+    private boolean namingRecursive = false;
+    private boolean saveToSrc = false;
+    private boolean useCppMain = false;
+    private EepromDefinition eepromDef = new NoEepromDefinition();
+    private AuthenticatorDefinition authDef = new NoAuthenticatorDefinition();
 
     public CodeGeneratorOptionsBuilder withExisting(CodeGeneratorOptions other) {
         embeddedPlatform = other.getEmbeddedPlatform();
@@ -43,12 +53,14 @@ public class CodeGeneratorOptionsBuilder {
         useCppMain = other.isUseCppMain();
         eepromDef = other.getEepromDefinition();
         authDef = other.getAuthenticatorDefinition();
+        expanderDefinitions = other.getExpanderDefinitions();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
-                lastProperties, applicationUUID, applicationName, eepromDef, authDef, namingRecursive, saveToSrc, useCppMain);
+                lastProperties, applicationUUID, applicationName, eepromDef, authDef, expanderDefinitions,
+                namingRecursive, saveToSrc, useCppMain);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -112,6 +124,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withAuthenticationDefinition(AuthenticatorDefinition authSel) {
         this.authDef = authSel;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withExpanderDefinitions(IoExpanderDefinitionCollection expanders) {
+        this.expanderDefinitions = expanders;
         return this;
     }
 }

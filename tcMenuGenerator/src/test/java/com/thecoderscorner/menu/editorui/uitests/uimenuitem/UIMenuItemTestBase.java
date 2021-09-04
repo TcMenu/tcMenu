@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
@@ -51,8 +52,8 @@ public abstract class UIMenuItemTestBase {
         manager = mock(CodePluginManager.class);
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         editorUI = new CurrentProjectEditorUIImpl(manager, stage, mock(EmbeddedPlatforms.class),
-                mock(ArduinoLibraryInstaller.class), storage, mock(LibraryVersionDetector.class),
-                System.getProperty("user.home")
+                mock(ArduinoLibraryInstaller.class), storage,
+                mock(LibraryVersionDetector.class), System.getProperty("user.home")
         );
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);

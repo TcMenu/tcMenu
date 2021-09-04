@@ -21,6 +21,7 @@
 #include <ScrollChoiceMenuItem.h>
 #include <RuntimeMenuItem.h>
 #include <EditableLargeNumberMenuItem.h>
+#include <IoAbstraction.h>
 #include <mbed/HalStm32EepromAbstraction.h>
 #include <RemoteAuthentication.h>
 
@@ -30,6 +31,9 @@ extern TcMenuRemoteServer remoteServer;
 extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
 extern const GFXfont sans24p7b;
+
+// Any externals needed by IO expanders, EEPROMs etc
+
 
 // Global Menu Item exports
 extern RemoteMenuItem menuIoTMonitor;

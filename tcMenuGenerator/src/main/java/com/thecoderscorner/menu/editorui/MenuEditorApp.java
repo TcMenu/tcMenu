@@ -106,7 +106,8 @@ public class MenuEditorApp extends Application {
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
-        CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor);
+        CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor, prefsStore);
+        editorUI.setEditorProject(project);
 
         controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
 

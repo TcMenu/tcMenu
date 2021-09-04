@@ -33,6 +33,11 @@ public class BspStm32EepromDefinition implements EepromDefinition {
     }
 
     @Override
+    public Optional<String> generateExport() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<HeaderDefinition> generateHeader() {
         return Optional.of(new HeaderDefinition("mbed/HalStm32EepromAbstraction.h", GLOBAL, PRIORITY_NORMAL, new AlwaysApplicable()));
     }

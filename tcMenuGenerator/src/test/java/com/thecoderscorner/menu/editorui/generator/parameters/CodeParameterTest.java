@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class CodeParameterTest {
 
@@ -24,7 +26,7 @@ class CodeParameterTest {
 
     @BeforeEach
     public void InitTest() {
-        context = new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "volumeMenuItem", props);
+        context = new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "volumeMenuItem", mock(CodeGeneratorOptions.class), props);
     }
 
     @Test

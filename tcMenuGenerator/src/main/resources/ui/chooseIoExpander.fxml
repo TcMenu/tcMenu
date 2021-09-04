@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseIoExpanderController">
+   <top>
+      <Label text="Select IO Expander" BorderPane.alignment="TOP_LEFT">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+   </top>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddExpander" text="Add New"/>
+            <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveExpander" text="Remove" />
+            <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="Cancel" />
+            <Button fx:id="selectButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelect" text="Select" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+   <center>
+      <TableView fx:id="mainTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="tableNameCol" prefWidth="126.0" text="Expander name" />
+          <TableColumn fx:id="tableDescCol" prefWidth="351.0" text="Expander Description" />
+            <TableColumn fx:id="tableInUseCol" prefWidth="87.0" text="In Use?" />
+        </columns>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </TableView>
+   </center>
+</BorderPane>

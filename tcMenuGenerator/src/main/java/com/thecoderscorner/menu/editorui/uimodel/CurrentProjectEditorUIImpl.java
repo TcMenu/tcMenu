@@ -47,6 +47,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final EmbeddedPlatforms platforms;
     private final ArduinoLibraryInstaller installer;
     private final ConfigurationStorage configStore;
+    private CurrentEditorProject editorProject;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
@@ -58,6 +59,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         this.configStore = storage;
         this.versionDetector = versionDetector;
         this.homeDirectory = home;
+    }
+
+    public void setEditorProject(CurrentEditorProject project) {
+        this.editorProject = project;
     }
 
     @Override
@@ -134,7 +139,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public void showCreateProjectDialog(CurrentEditorProject editorProject) {
+    public void showCreateProjectDialog() {
         logger.log(INFO, "Create project dialog show");
         new NewProjectDialog(mainStage, configStore, platforms, editorProject, true);
     }
@@ -146,16 +151,16 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public void showCodeGeneratorDialog(CurrentEditorProject project, ArduinoLibraryInstaller installer) {
+    public void showCodeGeneratorDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Start - show code generator dialog");
-        if(!project.isFileNameSet()) {
+        if(!editorProject.isFileNameSet()) {
             this.alertOnError("No filename set", "Please set a filename to continue");
             throw new IllegalArgumentException("No filename provided");
         }
 
         try {
-            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(project, platforms);
-            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, project, codeGeneratorRunner, platforms);
+            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms);
+            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms);
             dialog.showCodeGenerator(mainStage, true);
         }
         catch (Exception ex) {
@@ -164,6 +169,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         logger.log(INFO, "End - show code generator dialog");
+    }
+
+    @Override
+    public CurrentEditorProject getCurrentProject() {
+        return editorProject;
     }
 
     @Override

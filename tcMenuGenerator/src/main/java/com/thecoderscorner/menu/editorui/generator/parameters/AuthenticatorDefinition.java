@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDef
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
 
@@ -42,4 +43,8 @@ public interface AuthenticatorDefinition extends CodeGeneratorCapable {
         }
     }
 
+    @Override
+    default Optional<String> generateExport() {
+        return Optional.empty();
+    }
 }

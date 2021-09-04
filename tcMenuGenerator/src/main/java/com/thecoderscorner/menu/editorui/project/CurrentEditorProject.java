@@ -10,8 +10,11 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
 import java.io.IOException;
@@ -28,14 +31,7 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  */
 public class CurrentEditorProject {
 
-    private static final String NO_CREATOR_SELECTED = "";
-    public static final CodeGeneratorOptions BLANK_GEN_OPTIONS = new CodeGeneratorOptions(
-            ARDUINO_AVR.getBoardId(),
-            NO_CREATOR_SELECTED, NO_CREATOR_SELECTED, List.of(NO_CREATOR_SELECTED), NO_CREATOR_SELECTED,
-            Collections.emptyList(), UUID.randomUUID(), "New Device",
-            new NoEepromDefinition(), new NoAuthenticatorDefinition(),
-            true, false, false
-    );
+    public static final String NO_CREATOR_SELECTED = "";
 
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
@@ -44,19 +40,22 @@ public class CurrentEditorProject {
     private final CurrentProjectEditorUI editorUI;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ProjectPersistor projectPersistor;
+    private final ConfigurationStorage configStore;
     private final Set<Integer> uncommittedItems = new HashSet<>();
 
     private MenuTree menuTree;
     private Optional<String> fileName = Optional.empty();
     private String description;
     private boolean dirty = true; // always assume dirty at first..
-    private CodeGeneratorOptions generatorOptions = BLANK_GEN_OPTIONS;
+    private CodeGeneratorOptions generatorOptions;
+
     private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
-    public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor) {
+    public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor, ConfigurationStorage storage) {
         this.editorUI = editorUI;
         projectPersistor = persistor;
+        configStore = storage;
         cleanDown();
     }
 
@@ -65,7 +64,7 @@ public class CurrentEditorProject {
         fileName = Optional.empty();
         description = "";
         uncommittedItems.clear();
-        generatorOptions = BLANK_GEN_OPTIONS;
+        generatorOptions = makeBlankGeneratorOptions();
         setDirty(false);
         updateTitle();
     }
@@ -105,7 +104,7 @@ public class CurrentEditorProject {
                 menuTree = openedProject.getMenuTree();
                 description = openedProject.getDescription();
                 generatorOptions = openedProject.getOptions();
-                if (generatorOptions == null) generatorOptions = BLANK_GEN_OPTIONS;
+                if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
                 setDirty(false);
                 updateTitle();
                 changeHistory.clear();
@@ -247,5 +246,12 @@ public class CurrentEditorProject {
 
     public boolean canUndo() {
         return !changeHistory.isEmpty();
+    }
+
+    public CodeGeneratorOptions makeBlankGeneratorOptions() {
+        return new CodeGeneratorOptionsBuilder()
+                .withRecursiveNaming(configStore.isDefaultRecursiveNamingOn())
+                .withSaveToSrc(configStore.isDefaultSaveToSrcOn())
+                .codeOptions();
     }
 }

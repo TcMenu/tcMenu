@@ -87,4 +87,8 @@ public class CannedPropertyValidators {
      */    public static MenuItemValidationRules menuItemValidatorForSpecifcType(Class<? extends MenuItem> cls) {
         return new MenuItemValidationRules((i) -> cls.equals(i.getClass()));
     }
+
+    public static IoExpanderPropertyValidationRules ioExpanderValidator() {
+        return new IoExpanderPropertyValidationRules();
+    }
 }

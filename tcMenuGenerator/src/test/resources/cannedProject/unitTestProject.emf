@@ -11,7 +11,8 @@
     "useCppMain": false,
     "eepromDefinition": "at24:80:PAGESIZE_AT24C128",
     "authenticatorDefinition": "rom:100:6",
-    "lastProperties": []
+    "lastProperties": [],
+    "projectIoExpanders": ["customIO:custom123", "pcf8574:myIoI2c:32:-1"]
   },
   "projectName": "Uses the DF Robot shield for both input and display",
   "version": "1.00",

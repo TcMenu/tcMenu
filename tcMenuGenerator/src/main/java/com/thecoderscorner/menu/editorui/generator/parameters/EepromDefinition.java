@@ -30,4 +30,9 @@ public interface EepromDefinition extends CodeGeneratorCapable {
             return new NoEepromDefinition();
         }
     }
+
+    @Override
+    default Optional<String> generateExport() {
+        return Optional.empty();
+    }
 }

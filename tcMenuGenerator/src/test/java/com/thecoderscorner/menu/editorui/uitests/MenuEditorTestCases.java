@@ -102,7 +102,8 @@ public class MenuEditorTestCases {
         // create a basic project, that has a few menu items in it.
         project = new CurrentEditorProject(
                 editorProjectUI,
-                persistor
+                persistor,
+                mock(ConfigurationStorage.class)
         );
 
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
@@ -190,7 +191,7 @@ public class MenuEditorTestCases {
         verify(editorProjectUI, atLeastOnce()).showAboutDialog(installer);
 
         pushCtrlAndKey(robot, KeyCode.G);
-        verify(editorProjectUI, atLeastOnce()).showCodeGeneratorDialog(project, installer);
+        verify(editorProjectUI, atLeastOnce()).showCodeGeneratorDialog(installer);
     }
 
     @Test
@@ -260,7 +261,7 @@ public class MenuEditorTestCases {
     @Test
     public void testRecentsExamplesAndSketches(FxRobot robot) throws InterruptedException {
         var recentItems = TestUtils.findItemsInMenuWithId(robot, "menuRecents");
-        var itemStrings = recentItems.stream().map(r -> r.getText()).collect(Collectors.toList());
+        var itemStrings = recentItems.stream().map(javafx.scene.control.MenuItem::getText).collect(Collectors.toList());
         assertThat(itemStrings).containsExactlyInAnyOrder("sketches1.EMF", "sketches2.EMF");
         project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
@@ -269,7 +270,7 @@ public class MenuEditorTestCases {
         clearInvocations(editorProjectUI);
 
         var exampleItems = TestUtils.findItemsInMenuWithId(robot, "examplesMenu");
-        var exampleStrings = exampleItems.stream().map(r -> r.getText()).collect(Collectors.toList());
+        var exampleStrings = exampleItems.stream().map(javafx.scene.control.MenuItem::getText).collect(Collectors.toList());
         assertThat(exampleStrings).containsExactlyInAnyOrder("exampleSketch1", "exampleSketch2");
         project.applyCommand(EditedItemChange.Command.NEW, aNewMenuItem());
         when(editorProjectUI.questionYesNo(any(), any())).thenReturn(Boolean.FALSE);
@@ -277,7 +278,7 @@ public class MenuEditorTestCases {
         verify(editorProjectUI).questionYesNo(any(), any());
 
         var sketchItems = TestUtils.findItemsInMenuWithId(robot, "menuSketches");
-        var sketchStrings = sketchItems.stream().map(r -> r.getText()).collect(Collectors.toList());
+        var sketchStrings = sketchItems.stream().map(javafx.scene.control.MenuItem::getText).collect(Collectors.toList());
         assertThat(sketchStrings).containsExactlyInAnyOrder("sketches1", "sketches2");
     }
 
@@ -329,7 +330,7 @@ public class MenuEditorTestCases {
         // send a menu -> file -> new which should ask first as structure is dirty, say no this time around. Should prevent action
         when(editorProjectUI.questionYesNo("Changes will be lost", "Do you want to discard the current menu?")).thenReturn(false);
         pushCtrlAndKey(robot, KeyCode.N);
-        Mockito.verify(editorProjectUI).showCreateProjectDialog(project);
+        Mockito.verify(editorProjectUI).showCreateProjectDialog();
     }
 
 

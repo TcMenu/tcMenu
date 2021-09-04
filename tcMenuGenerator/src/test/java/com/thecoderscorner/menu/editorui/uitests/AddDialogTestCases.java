@@ -112,7 +112,7 @@ public class AddDialogTestCases {
         robot.clickOn("#idField");
         robot.eraseText(6);
         robot.write(s);
-        robot.clickOn("#okButton");
+        robot.clickOn(".addItemDialog #okButton");
     }
 
     private void checkForItem(Class<? extends MenuItem> clazz, boolean defaultId, String idOfSelectItem, FxRobot robot) throws InterruptedException {
@@ -122,13 +122,11 @@ public class AddDialogTestCases {
             robot.eraseText(3);
             robot.write("102");
         }
-        robot.clickOn("#okButton");
+        robot.clickOn(".addItemDialog #okButton");
         int attempts = 0;
-        while(dialog.getResultOrEmpty().isEmpty() && ++attempts < 10) {
-            Thread.sleep(100);
-        }
-        assertTrue(dialog.getResultOrEmpty().isPresent());
-        MenuItem item = dialog.getResultOrEmpty().get();
+
+        TestUtils.withRetryOnFxThread(() -> dialog.getResultOrEmpty().isPresent());
+        MenuItem item = dialog.getResultOrEmpty().orElseThrow();
         assertThat(item.getClass()).isEqualTo(clazz);
         assertThat(item.getId()).isEqualTo(defaultId ? 101 : 102);
     }

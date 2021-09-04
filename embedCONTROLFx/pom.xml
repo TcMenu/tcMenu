@@ -13,7 +13,7 @@
     <artifactId>embedCONTROL</artifactId>
     <name>embedCONTROL</name>
     <description>TcMenu embedCONTROL JavaFX UI for connecting to embedded menu apps</description>
-    <version>2.2.1-BETA</version>
+    <version>2.2.2-BETA</version>
 
     <dependencies>
 

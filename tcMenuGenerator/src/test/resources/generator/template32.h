@@ -16,6 +16,7 @@
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
+#include <IoAbstraction.h>
 #include <EepromAbstraction.h>
 #include <RemoteAuthentication.h>
 
@@ -24,6 +25,9 @@ extern const PROGMEM ConnectorLocalInfo applicationInfo;
 extern ArduinoAnalogDevice analogDevice;
 extern char[] expOnly;
 extern const GFXfont sans24p7b;
+
+// Any externals needed by IO expanders, EEPROMs etc
+extern IoExpanderRef 123;
 
 // Global Menu Item exports
 extern IpAddressMenuItem menuOverrideSubNameIpItem;

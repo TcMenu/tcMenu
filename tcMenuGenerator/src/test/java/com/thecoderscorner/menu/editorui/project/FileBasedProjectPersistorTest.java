@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
@@ -39,6 +40,7 @@ public class FileBasedProjectPersistorTest {
         dir = Files.createTempDirectory("tcmenu");
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @AfterEach
     public void tearDown() throws Exception {
         Files.walk(dir)
@@ -63,7 +65,8 @@ public class FileBasedProjectPersistorTest {
                 remoteUuids,
                 "uuid4",
                 propsList,
-                APPLICATION_UUID, "app name", new NoEepromDefinition(), new NoAuthenticatorDefinition() , false, false, false
+                APPLICATION_UUID, "app name", new NoEepromDefinition(), new NoAuthenticatorDefinition() ,
+                new IoExpanderDefinitionCollection(), false, false, false
         );
         persistor.save(projFile.toString(), "", tree, options);
 

@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
+import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -49,9 +50,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public class MenuEditorController {
@@ -402,7 +406,7 @@ public class MenuEditorController {
     }
 
     public void onFileNew(ActionEvent event) {
-        editorUI.showCreateProjectDialog(editorProject);
+        editorUI.showCreateProjectDialog();
         redrawTreeControl();
         handleRecents();
     }
@@ -446,7 +450,7 @@ public class MenuEditorController {
 
     public void onGenerateCode(ActionEvent event) {
         try {
-            editorUI.showCodeGeneratorDialog(editorProject, installer);
+            editorUI.showCodeGeneratorDialog(installer);
             editorProject.saveProject(EditorSaveMode.SAVE);
             redrawTreeControl();
             handleRecents();
@@ -575,6 +579,47 @@ public class MenuEditorController {
 
     public void onSponsorLinkPressed(ActionEvent actionEvent) {
         editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
+    }
+
+    public void onShowExpanders(ActionEvent actionEvent) {
+        ChooseIoExpanderDialog dlg = new ChooseIoExpanderDialog((Stage)prototypeTextArea.getScene().getWindow(),
+                Optional.empty(), editorProject, true);
+    }
+
+    public void onPrepareDiagnostics(ActionEvent actionEvent) {
+        try {
+            StringBuilder sb = new StringBuilder(255);
+            sb.append("tcMenu diagnostics - stream ").append(libVerDetector.getReleaseType()).append(LINE_BREAK);
+            sb.append("TcMenuDesigner Version - ").append(configStore.getVersion()).append(LINE_BREAK);
+            sb.append("Plugin versions:").append(LINE_BREAK);
+            for(var pl : pluginManager.getLoadedPlugins()) {
+                sb.append(pl.getModuleName()).append(" - ").append(pl.getVersion()).append(LINE_BREAK);
+            }
+            if(!pluginManager.getLoadErrors().isEmpty()) {
+                sb.append("Plugin load errors").append(LINE_BREAK);
+                for(var err : pluginManager.getLoadErrors()) {
+                    sb.append(err).append(LINE_BREAK);
+                }
+            }
+            sb.append("Library versions:").append(LINE_BREAK);
+            sb.append("tcMenu - ").append(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).append(LINE_BREAK);
+            sb.append("LiquidCrystalIO - ").append(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).append(LINE_BREAK);
+            sb.append("TaskManagerIO - ").append(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).append(LINE_BREAK);
+            sb.append("IoAbstraction - ").append(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).append(LINE_BREAK);
+            sb.append("Diagnostics END");
+
+            Clipboard systemClipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(sb.toString());
+            systemClipboard.setContent(content);
+
+            var alert = new Alert(Alert.AlertType.INFORMATION, "Diagnostic data copied to clipboard", ButtonType.CLOSE);
+            alert.showAndWait();
+            logger.log(INFO, "Diagnostics generated successfully");
+
+        } catch (IOException e) {
+            logger.log(ERROR, "Diagnostics failed to generate", e);
+        }
     }
 
     private record RecentlyUsedItem(String name, String path) {

@@ -1,6 +1,6 @@
 <TcMenuPlugin name="LCD shield renderer for any configuration"
               id="61f370f4-0294-41cf-8988-1458f242914a" subsystem="DISPLAY"
-              requiresDesigner="2.0"
+              requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
@@ -27,7 +27,7 @@
         <Property id="LCD_D7" name="LCD D7 Pin" initial="7" desc="D7 Pin connection to LCD" type="pin"/>
         <Property id="LCD_BACKLIGHT" name="Backlight Pin" initial="-1" desc="Optional backlight pin, -1 for none" type="pin"/>
         <Property id="LCD_PWM_PIN" name="PWM Contrast Pin" initial="-1" desc="Optional PWM contrast pin, -1 for none" type="pin"/>
-        <Property id="LCD_IO_DEVICE" name="LCD IO Device (default blank)" initial="" desc="This allows you to provide an IoAbstractionRef if your display is on a non-standard IO expander" type="variable"/>
+        <Property id="LCD_IO_DEVICE" name="LCD IO Device (default blank)" initial="devicePins" desc="This allows you to provide an IoAbstractionRef if your display is on a non-standard IO expander" type="io-device"/>
         <Property id="UNO_OR_FULL" name="Uno (less functional) or Full (8K bigger)" initial="unoLcd" desc="Uno (less functional/smaller) of Full functionality plugin ~8K difference" type="choice">
             <Choices>
                 <Choice desc="Uno - Low Memory">unoLcd</Choice>
@@ -50,8 +50,6 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="${LCD_IO_DEVICE}" type="IoAbstractionRef" export="only" whenProperty="LCD_IO_DEVICE" isNotValue="" />
-
         <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false">
             <Param value="${LCD_RS}"/>
             <Param value="${LCD_EN}"/>
@@ -70,7 +68,7 @@
 
     <SetupFunctions>
         <Function name="setIoAbstraction" object="lcd">
-            <Param value="${LCD_IO_DEVICE}" default="internalDigitalIo()"/>
+            <Param ioDevice="${LCD_IO_DEVICE}"/>
         </Function>
 
         <Function name="begin" object="lcd">

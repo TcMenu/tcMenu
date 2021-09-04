@@ -29,12 +29,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.testfx.api.FxAssert.verifyThat;
 
 
@@ -73,6 +74,26 @@ public class TestUtils {
         return prop;
     }
 
+    public static void withRetryOnFxThread(Supplier<Boolean> workToDo) throws InterruptedException {
+        withRetryOnFxThread(workToDo, "");
+    }
+
+    public static void withRetryOnFxThread(Supplier<Boolean> workToDo, String failureReason) throws InterruptedException {
+        int i = 0;
+        while (++i < 100) {
+            var didFinish = new AtomicBoolean(false);
+            var latch = new CountDownLatch(1);
+            Platform.runLater(() -> {
+                didFinish.set(workToDo.get());
+                latch.countDown();
+            });
+            assertTrue(latch.await(5, TimeUnit.SECONDS));
+            if(didFinish.get()) return;
+            Thread.sleep(100);
+        }
+        fail("Timed out " + failureReason);
+    }
+
     public static void runOnFxThreadAndWait(Runnable runnable) throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(()-> {
@@ -89,6 +110,20 @@ public class TestUtils {
             for(var item : combo.getItems()) {
                 if(matcher.test(item)) {
                     combo.getSelectionModel().select(item);
+                    found.set(true);
+                }
+            }
+        });
+        return found.get();
+    }
+
+    public static <T> boolean selectItemInTable(FxRobot robot, String query, Predicate<T> matcher) throws InterruptedException {
+        AtomicBoolean found = new AtomicBoolean(false);
+        runOnFxThreadAndWait(()-> {
+            TableView<T> table = robot.lookup(query).queryTableView();
+            for(var item : table.getItems()) {
+                if(matcher.test(item)) {
+                    table.getSelectionModel().select(item);
                     found.set(true);
                 }
             }

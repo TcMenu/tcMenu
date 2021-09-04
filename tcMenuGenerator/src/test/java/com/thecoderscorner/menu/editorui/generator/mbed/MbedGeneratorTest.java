@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.BspStm32EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
@@ -105,6 +106,7 @@ public class MbedGeneratorTest {
                 UUID.randomUUID(),
                 "app",
                 new BspStm32EepromDefinition(50), new ReadOnlyAuthenticatorDefinition("1234", flashRemotes),
+                new IoExpanderDefinitionCollection(),
                 true, true, false);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS, standardOptions);
 

@@ -8,6 +8,8 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,7 @@ import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 
 public class CurrentEditorProjectTest {
 
@@ -33,9 +36,9 @@ public class CurrentEditorProjectTest {
 
     @BeforeEach
     public void setUp() {
-        editorUI = Mockito.mock(CurrentProjectEditorUI.class);
-        persistor = Mockito.mock(ProjectPersistor.class);
-        project = new CurrentEditorProject(editorUI, persistor);
+        editorUI = mock(CurrentProjectEditorUI.class);
+        persistor = mock(ProjectPersistor.class);
+        project = new CurrentEditorProject(editorUI, persistor, mock(ConfigurationStorage.class));
 
         item1 = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(1)
@@ -173,7 +176,7 @@ public class CurrentEditorProjectTest {
         Mockito.when(editorUI.findFileNameFromUser(true)).thenReturn(Optional.of("filename"));
         MenuTree replacementMenu = TestUtils.buildSimpleTree();
         Mockito.when(persistor.open("filename")).thenReturn(new MenuTreeWithCodeOptions(
-                replacementMenu, CurrentEditorProject.BLANK_GEN_OPTIONS, "my project description"
+                replacementMenu, new CodeGeneratorOptionsBuilder().codeOptions(), "my project description"
         ));
         project.openProject();
 

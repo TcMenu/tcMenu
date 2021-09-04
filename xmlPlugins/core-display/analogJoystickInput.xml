@@ -1,4 +1,6 @@
-<TcMenuPlugin name="Control menu with analog joystick" id="20409bb8-b8a1-4d1d-b632-2cf9b57353e3" subsystem="INPUT"
+<TcMenuPlugin name="Control menu with analog joystick"
+              id="20409bb8-b8a1-4d1d-b632-2cf9b57353e3" subsystem="INPUT"
+              requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
 <SupportedPlatforms>
@@ -17,7 +19,7 @@
     <Properties>
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
         <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable this to use interrupts instead of polling for switches" type="boolean"/>
-        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="" desc="Advanced: IoAbstractionRef (default is Arduino pins)" type="variable"/>
+        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="Advanced: IoAbstractionRef (default is Arduino pins)" type="io-device"/>
         <Property id="JOYSTICK_PIN" name="Analog Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
         <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
     </Properties>
@@ -37,11 +39,11 @@
 
     <SetupFunctions>
             <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
-            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
+            <Param ioDevice="${SWITCH_IODEVICE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
         <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param value="${SWITCH_IODEVICE}" default="internalDigitalIo()"/>
+            <Param ioDevice="${SWITCH_IODEVICE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 

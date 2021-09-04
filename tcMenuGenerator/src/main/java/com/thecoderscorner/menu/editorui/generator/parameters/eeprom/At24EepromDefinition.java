@@ -37,6 +37,11 @@ public class At24EepromDefinition implements EepromDefinition {
     }
 
     @Override
+    public Optional<String> generateExport() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<HeaderDefinition> generateHeader() {
         return Optional.of(new HeaderDefinition("EepromAbstractionWire.h", GLOBAL, PRIORITY_NORMAL, new AlwaysApplicable()));
     }

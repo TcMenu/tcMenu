@@ -10,6 +10,8 @@ import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 
@@ -31,6 +33,7 @@ public class CodeGeneratorOptions {
     private boolean useCppMain;
     private EepromDefinition eepromDefinition;
     private AuthenticatorDefinition authenticatorDefinition;
+    private IoExpanderDefinitionCollection projectIoExpanders;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -40,6 +43,7 @@ public class CodeGeneratorOptions {
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
+                                IoExpanderDefinitionCollection projectIoExpanders,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
@@ -49,6 +53,7 @@ public class CodeGeneratorOptions {
             // for backward compatibility as far as possible we save the first in the old format.
             this.lastRemoteUuid = remoteCapabilities.get(0);
         }
+        this.projectIoExpanders = projectIoExpanders;
         this.lastThemeUuid = themeTypeId;
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
@@ -113,5 +118,10 @@ public class CodeGeneratorOptions {
 
     public boolean isUseCppMain() {
         return useCppMain;
+    }
+
+    public IoExpanderDefinitionCollection getExpanderDefinitions() {
+        if(projectIoExpanders == null) return new IoExpanderDefinitionCollection();
+        return projectIoExpanders;
     }
 }

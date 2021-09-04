@@ -9,15 +9,14 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
+import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.validation.BooleanPropertyValidationRules;
-import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
-import com.thecoderscorner.menu.editorui.generator.validation.FontPropertyValidationRules;
-import com.thecoderscorner.menu.editorui.generator.validation.MenuItemValidationRules;
+import com.thecoderscorner.menu.editorui.generator.validation.*;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -187,6 +186,9 @@ public class UICodePluginItem extends BorderPane {
                 propertiesPanel.getChildren().add(new Label(property.getDescription()));
                 if (property.getValidationRules().hasChoices()) {
                     uiNodeToAdd = generateRegularComboField(property);
+                } else if (property.getValidationRules() instanceof IoExpanderPropertyValidationRules ioRules) {
+                    ioRules.initialise(editorUI.getCurrentProject());
+                    uiNodeToAdd = generateIoExpanderField(propertiesPanel, property, ioRules);
                 } else if (property.getValidationRules() instanceof FontPropertyValidationRules) {
                     uiNodeToAdd = generateFontField(propertiesPanel, property);
                 } else {
@@ -220,6 +222,31 @@ public class UICodePluginItem extends BorderPane {
                     actionButton.setGraphic(imgView);
                     actionButton.setContentDisplay(ContentDisplay.TOP);
                 });
+    }
+
+    private Node generateIoExpanderField(VBox propertiesPanel, CreatorProperty property, IoExpanderPropertyValidationRules ioRules) {
+        HBox hBox = new HBox(2);
+        TextField expanderLabel = new TextField(ioRules.getNameOfCurrentChoice(property.getLatestValue()));
+        expanderLabel.setTooltip(new Tooltip(property.getExtendedDescription()));
+        expanderLabel.setDisable(true);
+        expanderLabel.setId(makeAnId(property.getName()));
+        Button fontButton = new Button("Choose IO");
+        fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
+        fontButton.setId(makeAnId(property.getName() + "_btn"));
+        fontButton.setOnAction(actionEvent -> {
+            Stage scene = (Stage) propertiesPanel.getScene().getWindow();
+            IoExpanderDefinitionCollection expanderDefinitions = editorUI.getCurrentProject().getGeneratorOptions().getExpanderDefinitions();
+            var dialog = new ChooseIoExpanderDialog(scene, expanderDefinitions.getDefinitionById(property.getLatestValue()),
+                    editorUI.getCurrentProject(), true);
+            dialog.getResultOrEmpty().ifPresent(ioExpanderId -> {
+                commitEdit(property, ioExpanderId);
+                expanderLabel.setText(ioRules.getNameOfCurrentChoice(ioExpanderId));
+            });
+        });
+        hBox.getChildren().add(expanderLabel);
+        hBox.getChildren().add(fontButton);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        return hBox;
     }
 
     private Node generateFontField(VBox propertiesPanel, CreatorProperty property) {

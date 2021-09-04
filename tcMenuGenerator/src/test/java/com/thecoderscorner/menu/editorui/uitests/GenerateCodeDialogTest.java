@@ -1,6 +1,8 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.ui.CodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
@@ -13,10 +15,7 @@ import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -35,11 +34,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController.ROM_PAGE_SIZES;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
 import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -72,12 +77,13 @@ public class GenerateCodeDialogTest {
 
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);
-
-        createTheProject();
+        var prjDir = pluginTemp.resolve("myProject");
+        project = createTheProject(Files.createDirectory(prjDir), editorUI);
+        when(editorUI.getCurrentProject()).thenReturn(project);
     }
 
     @Start
-    public  void onStart(Stage stage) {
+    public void onStart(Stage stage) {
         this.stage = stage;
 
         assertEquals(1, pluginManager.getLoadedPlugins().size());
@@ -86,21 +92,21 @@ public class GenerateCodeDialogTest {
         genDialog.showCodeGenerator(stage, false);
     }
 
-    private static void createTheProject() throws IOException {
-        var prjDir = pluginTemp.resolve("myProject");
-        Files.createDirectory(prjDir);
+    public static CurrentEditorProject createTheProject(Path prjDir, CurrentProjectEditorUI editorUI) throws IOException {
         var projectFile = prjDir.resolve("myProject.emf");
         var prj = Objects.requireNonNull(GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf")).readAllBytes();
         Files.write(projectFile, prj);
-        project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor());
+        var project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor(), mock(ConfigurationStorage.class));
         project.openProject(projectFile.toString());
+        return project;
     }
 
     @AfterEach
     public void closeDialog() {
-        Platform.runLater(()-> stage.close());
+        Platform.runLater(() -> stage.close());
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @AfterAll
     public static void tearDownProjectFiles() throws IOException {
         Files.walk(pluginTemp)
@@ -110,7 +116,7 @@ public class GenerateCodeDialogTest {
     }
 
     @Test
-    public void testCodeGeneratorProperties(FxRobot robot) throws Exception{
+    public void testCodeGeneratorProperties(FxRobot robot) throws Exception {
         verifyThat("#appNameLabel", LabeledMatchers.hasText("Generator integration test - 52c779d0-0fb9-49d4-94fe-61b2bc6f9164"));
         verifyThat("#platformCombo", (ComboBox<EmbeddedPlatform> cbx) -> cbx.getSelectionModel().getSelectedItem() == EmbeddedPlatform.ARDUINO_AVR);
 
@@ -126,7 +132,7 @@ public class GenerateCodeDialogTest {
         // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
         // on the line below.
         //
-        robot.scroll(100, VerticalDirection.DOWN);
+        robot.scroll(100, VerticalDirection.UP);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
 
         assertTrue(robot.lookup("#themePlugin").tryQuery().isEmpty());
@@ -149,39 +155,35 @@ public class GenerateCodeDialogTest {
     }
 
     @Test
-    public void checkAuthenticationEditing(FxRobot robot) {
+    public void checkAuthenticationEditing(FxRobot robot)  throws Exception {
         verifyThat("#authModeLabel", LabeledMatchers.hasText("EEPROM Authenticator, offset=100"));
         robot.clickOn("#authModeButton");
 
         verifyThat("#eepromAuthRadio", RadioButton::isSelected);
         verifyThat("#eepromStartField", TextInputControlMatchers.hasText("100"));
         verifyThat("#eepromNumRemotes", TextInputControlMatchers.hasText("6"));
-
-        TestUtils.writeIntoField(robot, "#eepromStartField", 250, 10);
+        writeIntoField(robot, "#eepromStartField", 250, 10);
         robot.clickOn("#okButton");
-        verifyThat("#authModeLabel", LabeledMatchers.hasText("EEPROM Authenticator, offset=250"));
+        withRetryOnFxThread(new TextFieldPredicate(robot, "#authModeLabel", "EEPROM Authenticator, offset=250"));
         robot.clickOn("#authModeButton");
 
         robot.clickOn("#flashAuthRadio");
         verifyThat("#okButton", Node::isDisabled);
-
-        TestUtils.writeIntoField(robot, "#pinFlashField", "1234", 5);
+        writeIntoField(robot, "#pinFlashField", "1234", 5);
 
         robot.clickOn("#addButton");
-
         var generatedUuid = UUID.randomUUID().toString();
         verifyThat("#addRemoteButton", Node::isDisabled);
-        TestUtils.writeIntoField(robot, "#uuidField", generatedUuid, 1);
-        TestUtils.writeIntoField(robot, "#nameField", "unit123", 1);
+        writeIntoField(robot, "#uuidField", generatedUuid, 1);
+        writeIntoField(robot, "#nameField", "unit123", 1);
         robot.clickOn("#addRemoteButton");
 
         FxAssert.verifyThat("#flashVarList", (ListView<FlashRemoteId> lv) ->
-            lv.getItems().size() == 1 && lv.getItems().get(0).name().equals("unit123"));
+                lv.getItems().size() == 1 && lv.getItems().get(0).name().equals("unit123"));
 
         robot.clickOn("#okButton");
 
-        verifyThat("#authModeLabel", LabeledMatchers.hasText("FLASH Authenticator, remotes=1"));
-
+        withRetryOnFxThread(new TextFieldPredicate(robot, "#authModeLabel", "FLASH Authenticator, remotes=1"));
     }
 
     @Test
@@ -195,7 +197,7 @@ public class GenerateCodeDialogTest {
         verifyThat("#i2cAddrField", TextInputControlMatchers.hasText("0x50"));
         verifyThat("#romPageCombo", (ComboBox<?> n) -> n.getSelectionModel().getSelectedIndex() == 2);
         verifyThat("#memOffsetField", Node::isDisabled);
-        TestUtils.selectItemInCombo(robot, "#romPageCombo", o -> o.equals(ROM_PAGE_SIZES.get(1)));
+        selectItemInCombo(robot, "#romPageCombo", o -> o.equals(ROM_PAGE_SIZES.get(1)));
         robot.clickOn("#okButton");
         Thread.sleep(250);
         verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C64"));
@@ -233,7 +235,7 @@ public class GenerateCodeDialogTest {
 
         verifyThat("#noRomRadio", RadioButton::isSelected);
         robot.clickOn("#bspStRadio");
-        TestUtils.writeIntoField(robot, "#memOffsetField", 100, 5);
+        writeIntoField(robot, "#memOffsetField", 100, 5);
         robot.clickOn("#okButton");
         Thread.sleep(250);
         verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("STM32 BSP offset=100"));
@@ -246,64 +248,76 @@ public class GenerateCodeDialogTest {
         FxAssert.verifyThat("#" + id + "WhichPlugin", LabeledMatchers.hasText(moduleName));
         FxAssert.verifyThat("#" + id + "Docs", LabeledMatchers.hasText("Click for documentation"));
 
-        for (var prop: item.getProperties()) {
+        for (var prop : item.getProperties()) {
             String nodeName = "#" + id + prop.getName();
-            if(prop.getValidationRules() instanceof BooleanPropertyValidationRules) {
+            if (prop.getValidationRules() instanceof BooleanPropertyValidationRules) {
                 checkBooleanPropertyEditing(robot, prop, nodeName);
-            }
-            else if(prop.getValidationRules() instanceof IntegerPropertyValidationRules intVal) {
+            } else if (prop.getValidationRules() instanceof IntegerPropertyValidationRules intVal) {
                 checkIntegerPropertyEditing(robot, id, prop, nodeName, intVal);
-            }
-            else if(prop.getValidationRules() instanceof StringPropertyValidationRules) {
+            } else if (prop.getValidationRules() instanceof StringPropertyValidationRules) {
                 checkStringPropertyEditing(robot, id, prop, nodeName);
-            }
-            else if(prop.getValidationRules() instanceof PinPropertyValidationRules) {
+            } else if (prop.getValidationRules() instanceof PinPropertyValidationRules) {
                 checkPinPropertyEditing(robot, id, prop, nodeName);
-            }
-            else if(prop.getValidationRules() instanceof ChoicesPropertyValidationRules choiceVal) {
+            } else if (prop.getValidationRules() instanceof ChoicesPropertyValidationRules choiceVal) {
                 checkChoicePropertyEditing(robot, prop, nodeName, choiceVal);
-            }
-            else if(prop.getValidationRules() instanceof FontPropertyValidationRules) {
+            } else if (prop.getValidationRules() instanceof FontPropertyValidationRules) {
                 checkFontPropertyEditing(robot, prop, nodeName);
+            } else if (prop.getValidationRules() instanceof IoExpanderPropertyValidationRules) {
+                checkIoExpanderEditing(robot, prop, nodeName);
             }
         }
+    }
+
+    private void checkIoExpanderEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
+        Thread.sleep(250);
+        IoExpanderDefinitionCollection expanders = project.getGeneratorOptions().getExpanderDefinitions();
+        String latestValue = expanders.getDefinitionById(prop.getLatestValue()).orElseThrow().getNicePrintableName();
+        Thread.sleep(4000);
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
+
+        robot.clickOn(nodeName + "_btn");
+
+        assertTrue(selectItemInTable(robot, "#mainTable", (IoExpanderDefinition iod) -> iod.getId().equals("custom123")));
+        robot.clickOn("#selectButton");
+        assertEquals("custom123", prop.getLatestValue());
+        latestValue = expanders.getDefinitionById(prop.getLatestValue()).orElseThrow().getNicePrintableName();
+        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
     }
 
     private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
         // try the default font x2
         var dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
         robot.clickOn("#defaultFontSelect");
-        TestUtils.writeIntoField(robot, "#fontVarField", "", 10);
-        TestUtils.writeIntoField(robot, "#fontNumField", 2, 4);
-        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+        writeIntoField(robot, "#fontVarField", "", 10);
+        writeIntoField(robot, "#fontNumField", 2, 4);
+        clickOnButtonInDialog(robot, dialogPane, "Set Font");
 
         // try the numbered x2
         dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
         robot.clickOn("#largeNumSelect");
-        TestUtils.writeIntoField(robot, "#fontNumField", 9, 4);
-        TestUtils.writeIntoField(robot, "#fontVarField", "", 10);
-        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+        writeIntoField(robot, "#fontNumField", 9, 4);
+        writeIntoField(robot, "#fontVarField", "", 10);
+        clickOnButtonInDialog(robot, dialogPane, "Set Font");
 
         // try ada font x1
         dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
         robot.clickOn("#adafruitFontSel");
-        TestUtils.writeIntoField(robot, "#fontNumField", 2, 4);
-        TestUtils.writeIntoField(robot, "#fontVarField", "myFont", 10);
-        TestUtils.clickOnButtonInDialog(robot, dialogPane,"Set Font");
+        writeIntoField(robot, "#fontNumField", 2, 4);
+        writeIntoField(robot, "#fontVarField", "myFont", 10);
+        clickOnButtonInDialog(robot, dialogPane, "Set Font");
 
         robot.clickOn(nodeName + "_btn");
         dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
-        TestUtils.clickOnButtonInDialog(robot, dialogPane, "Cancel");
+        clickOnButtonInDialog(robot, dialogPane, "Cancel");
     }
 
     private Node compareFontDialogToProperty(FxRobot robot, String nodeName, CreatorProperty prop) throws InterruptedException {
-        Thread.sleep(250);
         String latestValue = fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
-        FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
+        withRetryOnFxThread(new TextFieldPredicate(robot, nodeName, latestValue), "nodeName check for " + latestValue);
 
         robot.clickOn(nodeName + "_btn");
         var def = fromString(prop.getLatestValue()).orElseThrow();
-        var radioToCheck = switch(def.getFontMode()) {
+        var radioToCheck = switch (def.getFontMode()) {
             case DEFAULT_FONT -> "#defaultFontSelect";
             case ADAFRUIT -> "#adafruitFontSel";
             case ADAFRUIT_LOCAL -> "#adafruitLocalFontSel";
@@ -318,9 +332,10 @@ public class GenerateCodeDialogTest {
 
     }
 
-    private void checkChoicePropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName, ChoicesPropertyValidationRules choiceVal) throws InterruptedException {
-        for(var choice : choiceVal.choices()) {
-            assertTrue(TestUtils.selectItemInCombo(robot, nodeName, (ChoiceDescription cd) ->
+    private void checkChoicePropertyEditing(FxRobot robot, CreatorProperty prop, String
+            nodeName, ChoicesPropertyValidationRules choiceVal) throws InterruptedException {
+        for (var choice : choiceVal.choices()) {
+            assertTrue(selectItemInCombo(robot, nodeName, (ChoiceDescription cd) ->
                     cd.getChoiceValue().equals(choice.getChoiceValue())
             ));
             assertEquals(choice.getChoiceValue(), prop.getLatestValue());
@@ -343,7 +358,8 @@ public class GenerateCodeDialogTest {
         writeIntoTextFieldAndVerify(robot, prop, id, originalValue);
     }
 
-    private void checkIntegerPropertyEditing(FxRobot robot, String id, CreatorProperty prop, String nodeName, IntegerPropertyValidationRules intVal) {
+    private void checkIntegerPropertyEditing(FxRobot robot, String id, CreatorProperty prop, String
+            nodeName, IntegerPropertyValidationRules intVal) {
         FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(prop.getLatestValue()));
         var originalValue = prop.getLatestValue();
         writeIntoTextFieldAndVerify(robot, prop, id, intVal.getMaxVal() - 1);
@@ -363,8 +379,31 @@ public class GenerateCodeDialogTest {
     void writeIntoTextFieldAndVerify(FxRobot robot, CreatorProperty property, String id, Object value) {
         String nodeName = "#" + id + property.getName();
         robot.clickOn(nodeName);
-        TestUtils.writeIntoField(robot, nodeName, value, 5);
+        writeIntoField(robot, nodeName, value, 5);
         robot.clickOn("#" + id + "Title");
         assertEquals(value.toString(), property.getLatestValue());
+    }
+
+    private class TextFieldPredicate implements Supplier<Boolean> {
+        private final FxRobot robot;
+        private final String nodeName;
+        private final String latestValue;
+
+        public TextFieldPredicate(FxRobot robot, String nodeName, String latestValue) {
+            this.robot = robot;
+            this.nodeName = nodeName;
+            this.latestValue = latestValue;
+        }
+
+        @Override
+        public Boolean get() {
+            var node = robot.lookup(nodeName).query();
+            if (node instanceof Labeled labeled) {
+                return labeled.getText().equals(latestValue);
+            } else if (node instanceof TextInputControl textControl) {
+                return textControl.getText().equals(latestValue);
+            }
+            return false;
+        }
     }
 }

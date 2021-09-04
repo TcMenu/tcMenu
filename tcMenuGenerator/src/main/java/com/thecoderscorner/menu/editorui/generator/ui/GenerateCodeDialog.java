@@ -17,12 +17,17 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.validation.IoExpanderPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -33,6 +38,7 @@ import javafx.stage.Stage;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -84,6 +90,7 @@ public class GenerateCodeDialog {
         this.project = project;
         this.runner = runner;
         this.platforms = platforms;
+
     }
 
     public void showCodeGenerator(Stage stage, boolean modal)  {
@@ -349,8 +356,49 @@ public class GenerateCodeDialog {
                 prop.resetToInitial();
             }
         }
+
+        ensureIoFullyDeclared(itemToSetFor);
     }
 
+    private void ensureIoFullyDeclared(CodePluginItem pluginItem) {
+        logger.log(INFO, "Checking for unmapped IO devices: " + pluginItem.getDescription());
+        var codeOptions = project.getGeneratorOptions();
+
+        // find any IO device declarations that do not match to an entry in the expanders
+        var anyIoWithoutEntries = pluginItem.getProperties().stream()
+                .filter(prop -> prop.getValidationRules() instanceof IoExpanderPropertyValidationRules)
+                .filter(prop -> codeOptions.getExpanderDefinitions().getDefinitionById(prop.getLatestValue()).isEmpty())
+                .collect(Collectors.toList());
+
+        // nothing to do if list is empty
+        if(anyIoWithoutEntries.isEmpty()) {
+            logger.log(INFO, "All IO devices mapped");
+            return;
+        }
+
+        var allExpanders = new HashSet<>(codeOptions.getExpanderDefinitions().getAllExpanders());
+        // now we iterate through the unmapped expanders, which must be from prior to the automated support.
+        for (var customIo : anyIoWithoutEntries) {
+            if (StringHelper.isStringEmptyOrNull(customIo.getLatestValue())) {
+                // for empty strings, the previous assumption was using device IO. This is now explicitly defined
+                // as deviceIO
+                customIo.setLatestValue(InternalDeviceExpander.DEVICE_ID);
+                logger.log(INFO, "Device being mapped as internal: " + customIo.getLatestValue());
+            } else {
+                // otherwise, previously the assumption was using a custom defined expander in the sketch, now we'll
+                // actually add that to the sketch.
+                allExpanders.add(new CustomDeviceExpander(customIo.getLatestValue()));
+                logger.log(INFO, "Device being mapped as custom: " + customIo.getLatestValue());
+            }
+        }
+
+        project.setGeneratorOptions(
+                new CodeGeneratorOptionsBuilder().withExisting(codeOptions)
+                        .withExpanderDefinitions(new IoExpanderDefinitionCollection(allExpanders))
+                        .codeOptions()
+        );
+        logger.log(INFO, "Done mapping all IO devices");
+    }
 
     private void onCancel(ActionEvent actionEvent) {
         var stage = (Stage)(currentInput.getScene().getWindow());
@@ -358,6 +406,18 @@ public class GenerateCodeDialog {
     }
 
     private void onGenerateCode(ActionEvent actionEvent) {
+        saveCodeGeneratorChanges();
+        runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
+                                   Paths.get(project.getFileName()).getParent().toString(),
+                                   getAllPluginsForConversion(),
+                                   initialPlugins,
+                                   true);
+
+        var stage = (Stage)(currentInput.getScene().getWindow());
+        stage.close();
+    }
+
+    private void saveCodeGeneratorChanges() {
         var allProps = new ArrayList<CreatorProperty>();
         allProps.addAll(currentDisplay.getItem().getProperties());
         allProps.addAll(currentInput.getItem().getProperties());
@@ -379,15 +439,6 @@ public class GenerateCodeDialog {
                 .withProperties(allProps)
                 .codeOptions()
         );
-
-        runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
-                                   Paths.get(project.getFileName()).getParent().toString(),
-                                   getAllPluginsForConversion(),
-                                   initialPlugins,
-                                   true);
-
-        var stage = (Stage)(currentInput.getScene().getWindow());
-        stage.close();
     }
 
     private List<CodePluginItem> getAllPluginsForConversion() {

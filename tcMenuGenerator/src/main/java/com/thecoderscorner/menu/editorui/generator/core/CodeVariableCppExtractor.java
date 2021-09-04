@@ -102,8 +102,17 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             else if(p instanceof FontCodeParameter) {
                 paramVal = decodeFontDefinition(paramVal);
             }
+            else if(p instanceof IoExpanderCodeParameter) {
+                paramVal = decodeIoExpanderDefinition(paramVal);
+            }
         }
         return paramVal;
+    }
+
+    private String decodeIoExpanderDefinition(String paramVal) {
+        var expanders = context.getOptions().getExpanderDefinitions();
+        var expander = expanders.getDefinitionById(paramVal).orElse(expanders.getInternalExpander());
+        return expander.getVariableName();
     }
 
     private String decodeFontDefinition(String paramVal) {

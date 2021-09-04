@@ -13,13 +13,22 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.validation.IoExpanderPropertyValidationRules;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.INFO;
@@ -38,7 +47,9 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             gsonBuilder.registerTypeAdapter(EepromDefinition.class, new EepromDefinitionSerialiser())
                     .registerTypeAdapter(EepromDefinition.class, new EepromDefinitionDeseriailiser())
                     .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionSerialiser())
-                    .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionDeseriailiser()));
+                    .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionDeseriailiser())
+                    .registerTypeAdapter(IoExpanderDefinitionCollection.class, new IoExpanderDefinitionSerialiser())
+                    .registerTypeAdapter(IoExpanderDefinitionCollection.class, new IoExpanderDefinitionDeseriailiser()));
 
     @Override
     public MenuTreeWithCodeOptions open(String fileName) throws IOException {
@@ -108,6 +119,29 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         @Override
         public AuthenticatorDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             return AuthenticatorDefinition.readFromProject(jsonElement.getAsString());
+        }
+    }
+
+    static class IoExpanderDefinitionSerialiser implements JsonSerializer<IoExpanderDefinitionCollection> {
+        @Override
+        public JsonElement serialize(IoExpanderDefinitionCollection definitionCollection, Type type, JsonSerializationContext jsonSerializationContext) {
+            var array = new JsonArray();
+            for(var def : definitionCollection.getAllExpanders()) {
+                array.add(def.toString());
+            }
+            return array;
+        }
+    }
+
+    static class IoExpanderDefinitionDeseriailiser implements JsonDeserializer<IoExpanderDefinitionCollection> {
+        @Override
+        public IoExpanderDefinitionCollection deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            var list = new ArrayList<IoExpanderDefinition>();
+            var jsonArray = jsonElement.getAsJsonArray();
+            for(var def : jsonArray) {
+                IoExpanderDefinition.fromString(def.getAsString()).ifPresent(list::add);
+            }
+            return new IoExpanderDefinitionCollection(list);
         }
     }
 }
