@@ -62,10 +62,9 @@ public class ArduinoGenerator extends CoreCodeGenerator {
 
     private void checkIfUpToDateWarningNeeded() {
         if (!installer.statusOfAllLibraries().isUpToDate()) {
-            logLine(WARNING, "WARNING===============================================================");
-            logLine(WARNING, "The embedded libraries are not up-to-date, build problems are likely");
-            logLine(WARNING, "Select ROOT menu item and choose update libraries from the editor");
-            logLine(WARNING, "WARNING===============================================================");
+            logLine(WARNING, "WARNING==================================================================");
+            logLine(WARNING, "Embedded libraries are not on recommended versions, build problems likely");
+            logLine(WARNING, "WARNING==================================================================");
         }
     }
 
