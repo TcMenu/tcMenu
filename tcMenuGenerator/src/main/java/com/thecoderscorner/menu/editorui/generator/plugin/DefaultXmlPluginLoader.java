@@ -406,7 +406,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             case "choice":
                 return makeChoices(elem, initialValue);
             case "pin":
-                return CannedPropertyValidators.pinValidator();
+                return CannedPropertyValidators.optPinValidator();
             case "io-device":
                 return CannedPropertyValidators.ioExpanderValidator();
 
