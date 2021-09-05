@@ -27,7 +27,7 @@ extern char[] expOnly;
 extern const GFXfont sans24p7b;
 
 // Any externals needed by IO expanders, EEPROMs etc
-extern IoExpanderRef 123;
+extern IoAbstractionRef 123;
 
 // Global Menu Item exports
 extern IpAddressMenuItem menuIpItem;

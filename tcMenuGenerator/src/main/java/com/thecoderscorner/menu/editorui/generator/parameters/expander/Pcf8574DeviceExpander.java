@@ -60,7 +60,7 @@ public class Pcf8574DeviceExpander extends IoExpanderDefinition {
 
     @Override
     public Optional<String> generateExport() {
-        return Optional.empty();
+        return Optional.of(String.format("extern IoAbstractionRef ioexp_%s;", name));
     }
 
     @Override

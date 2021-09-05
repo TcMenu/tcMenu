@@ -33,6 +33,7 @@ void EthernetTagValTransport::flush() {
         client.flush();
     }
     else {
+        writeBufferPos = 0;
         close();
     }
 }

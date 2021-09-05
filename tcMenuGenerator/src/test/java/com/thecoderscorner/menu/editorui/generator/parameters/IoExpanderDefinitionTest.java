@@ -25,6 +25,8 @@ class IoExpanderDefinitionTest {
         assertEquals("Custom IO: superDuper", custom.getNicePrintableName());
         assertThat(custom.generateCode()).isEmpty();
         assertThat(custom.generateGlobal()).isEmpty();
+        assertEquals("extern IoAbstractionRef superDuper;", custom.generateExport().orElseThrow());
+
         assertThat(custom.generateHeader()).contains(new HeaderDefinition("IoAbstraction.h", GLOBAL, PRIORITY_NORMAL, new AlwaysApplicable()));
         assertEquals("customIO:superDuper", custom.toString());
 
@@ -67,6 +69,8 @@ class IoExpanderDefinitionTest {
         assertEquals("PCF8574(0x20, -1)", custom.getNicePrintableName());
         assertThat(custom.generateCode()).isEmpty();
         assertEquals("IoAbstractionRef ioexp_io8574 = ioFrom8574(0x20, -1);", custom.generateGlobal().orElseThrow());
+        assertEquals("extern IoAbstractionRef ioexp_io8574;", custom.generateExport().orElseThrow());
+
         assertEquals("IoAbstractionWire.h", custom.generateHeader().orElseThrow().getHeaderName());
         assertEquals(GLOBAL, custom.generateHeader().orElseThrow().getHeaderType());
         assertEquals("pcf8574:io8574:32:-1", custom.toString());
@@ -81,7 +85,8 @@ class IoExpanderDefinitionTest {
         assertEquals("io23017", custom.getId());
         assertEquals("MCP23017(0x20, 77)", custom.getNicePrintableName());
         assertThat(custom.generateCode()).isEmpty();
-        assertEquals("IoAbstractionRef ioexp_io23017 = ioFrom23017(0x20, 77);", custom.generateGlobal().orElseThrow());
+        assertEquals("IoAbstractionRef ioexp_io23017 = ioFrom23017(0x20, ACTIVE_LOW_OPEN, 77);", custom.generateGlobal().orElseThrow());
+        assertEquals("extern IoAbstractionRef ioexp_io23017;", custom.generateExport().orElseThrow());
         assertEquals("IoAbstractionWire.h", custom.generateHeader().orElseThrow().getHeaderName());
         assertEquals(GLOBAL, custom.generateHeader().orElseThrow().getHeaderType());
         assertEquals("mcp23017:io23017:32:77", custom.toString());

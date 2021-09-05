@@ -50,12 +50,12 @@ public class Mcp23017DeviceExpander extends IoExpanderDefinition {
 
     @Override
     public Optional<String> generateGlobal() {
-        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom23017(0x%02x, %d);", name, i2cAddress, intPin));
+        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom23017(0x%02x, ACTIVE_LOW_OPEN, %d);", name, i2cAddress, intPin));
     }
 
     @Override
     public Optional<String> generateExport() {
-        return Optional.empty();
+        return Optional.of(String.format("extern IoAbstractionRef ioexp_%s;", name));
     }
 
     @Override

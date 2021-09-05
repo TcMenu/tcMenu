@@ -48,7 +48,7 @@ public class CustomDeviceExpander extends IoExpanderDefinition {
 
     @Override
     public Optional<String> generateExport() {
-        return Optional.of("extern IoExpanderRef " + varName + ";");
+        return Optional.of("extern IoAbstractionRef " + varName + ";");
     }
 
     @Override
