@@ -53,6 +53,7 @@ There are several types of property:
 * font - allow any font definition, see theme documentation on fonts.
 * choice - allow one of a number of choices
 * pin - allow a variable or pin to be provided.
+* io-device - a reference to an IoAbstractionRef (default should be devicePins)
 
 Here are some example properties:
 
