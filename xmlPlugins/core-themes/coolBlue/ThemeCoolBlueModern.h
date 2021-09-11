@@ -7,7 +7,7 @@
 
 #include <graphics/BaseGraphicalRenderer.h>
 
-const color_t coolBlueTitlePalette[] = {RGB(0,0,0), RGB(20,132,255), RGB(192,192,192), RGB(0,133,255)};
+const color_t coolBlueTitlePalette[] = {RGB(0,0,0), RGB(20,132,255), RGB(192,192,192), RGB(64, 64, 64)};
 const color_t coolBlueItemPalette[] = {RGB(255, 255, 255), RGB(0,64,135), RGB(20,133,255), RGB(31,100,178)};
 const color_t coolBlueActionPalette[] = {RGB(255, 255, 255), RGB(0,45,120), RGB(20,133,255), RGB(31,100,178)};
 
