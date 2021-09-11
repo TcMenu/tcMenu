@@ -2,14 +2,12 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.ConfigureIoExpanderDialog;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -50,8 +48,9 @@ public class ChooseIoExpanderController {
         tableDescCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getNicePrintableName()));
         tableInUseCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(isExpanderInUse(cell.getValue().getId()) ? "Yes":"No"));
         ioItems.addAll(project.getGeneratorOptions().getExpanderDefinitions().getAllExpanders());
-        mainTable.setItems(ioItems);
 
+        mainTable.setItems(ioItems);
+        current.ifPresent(io -> mainTable.getSelectionModel().select(io));
         mainTable.getSelectionModel().selectedIndexProperty().addListener((ov, oldVal, newVal) -> {
             int selection = (newVal != null) ? newVal.intValue() : -1;
             selectButton.setDisable(selection < 0 || current.isEmpty());
