@@ -65,8 +65,7 @@ int MBedEthernetTransport::fillReadBuffer(uint8_t* dataBuffer, int maxData) {
 }
 
 bool MBedEthernetTransport::available() {
-    return (socket == nullptr && isOpen);
-
+    return (socket != nullptr && isOpen);
 }
 
 void MBedEthernetTransport::close() {
