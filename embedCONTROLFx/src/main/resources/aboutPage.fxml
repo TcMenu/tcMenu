@@ -19,14 +19,14 @@
             <Font size="24.0" />
          </font>
       </Label>
-      <Label text="Alpha prototype version, treat it gently, expect and please report  issues!">
+      <Label text="Release Candidate version, please report any issues!">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
       <Label text="For evaluation purposes only" />
       <Label text="Select a connection from the left panel, or create a new one" />
-      <Hyperlink onAction="#onVisitDocs" text="Visit the online documention (thecoderscorner.com)" />
+      <Hyperlink onAction="#onVisitDocs" text="Visit the online documentation (thecoderscorner.com)" />
       <Hyperlink onAction="#onVisitForum" text="Visit the forum (thecoderscorner.com)" />
    </children>
 </VBox>
