@@ -216,7 +216,7 @@
    </center>
    <bottom>
        <VBox>
-          <Label prefWidth="803.0" text="Have you considered sponsoring or donating to TcMenu Designer? About 3,000 people have used this framework." wrapText="true" BorderPane.alignment="CENTER">
+          <Label prefWidth="803.0" text="Please help keep TcMenu Designer going by sponsoring us. Thank you if you already have!" wrapText="true" BorderPane.alignment="CENTER">
              <font>
                 <Font size="14.0" />
              </font>
