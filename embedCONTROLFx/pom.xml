@@ -7,13 +7,17 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.thecoderscorner.tcmenu</groupId>
-
     <artifactId>embedCONTROL</artifactId>
     <name>embedCONTROL</name>
     <description>TcMenu embedCONTROL JavaFX UI for connecting to embedded menu apps</description>
     <version>2.2.3</version>
+
+    <properties>
+        <jdk.version>16</jdk.version>
+        <jmetro.version>11.6.15</jmetro.version>
+        <jserialcomm.version>2.4.0</jserialcomm.version>
+    </properties>
 
     <dependencies>
 
@@ -21,7 +25,7 @@
         <dependency>
             <groupId>com.fazecast</groupId>
             <artifactId>jSerialComm</artifactId>
-            <version>2.4.0</version>
+            <version>${jserialcomm.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
@@ -36,17 +40,17 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>16</version>
+            <version>${jdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>16</version>
+            <version>${jdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jmetro</artifactId>
-            <version>11.6.15</version>
+            <version>${jmetro.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
@@ -88,8 +92,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
             <plugin>
