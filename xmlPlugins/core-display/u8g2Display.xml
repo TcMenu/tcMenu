@@ -22,7 +22,9 @@
         <Property id="DISPLAY_TYPE" name="Display variable type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="Type of the variable as declared in sketch" type="variable" />
         <Property id="DISPLAY_CONFIG" name="Deprecated Optional display config" initial="" desc="Deprecated, do not use in new designs, leave blank)" type="variable" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
-        <Property id="YIELDING_WIRE_CB" name="Improve latency using yield (HW I2C only)" initial="true" desc="For hardware I2C using Wire, call yield during redrawing of buffer to improve latency on slower I2C devices" type="boolean" />
+        <Property id="YIELDING_WIRE_CB" name="Improve latency of I2C calls with custom byte callback" initial="false" type="boolean"
+                  whenProperty="DISPLAY_TYPE" matches=".*HW_I2C"
+                  desc="Overrides byte callback calling yieldForMicros frequently to improve latency, you must call Wire.begin() yourself" />
     </Properties>
 
     <ApplicabilityDefs/>

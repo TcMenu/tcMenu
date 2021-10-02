@@ -29,7 +29,7 @@ public class ChoiceDescription {
         if(choiceDesc.equals(choiceValue)) {
             return choiceValue;
         }
-        return choiceDesc + " (" + choiceValue + ")";
+        return choiceDesc;
     }
 
     @Override

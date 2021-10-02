@@ -323,7 +323,6 @@ public class UICodePluginItem extends BorderPane {
     private void commitEdit(CreatorProperty property, String value) {
         if(property.getValidationRules().isValueValid(value)) {
             property.setLatestValue(value);
-
             evaluateAllEditorFieldsAgainstProps();
         }
         else if(editorUI != null) {
