@@ -4,7 +4,7 @@
 
 Firstly, ensure that you have OpenJDK 17 and a recent maven 3 on your system, without these it will not be possible to build.
 
-* All OpenJDK's that we've tested work for this, we've tried: Adpotium and Amazon Corretto   
+* All OpenJDK's that we've tested work for this, we've tried: Adoptium and Amazon Corretto   
 * For Apache maven we recommend using [https://maven.apache.org/]
 
 Using git or zip download, get the contents of the tcMenu repository locally, for example: 
