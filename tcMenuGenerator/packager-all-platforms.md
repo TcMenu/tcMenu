@@ -1,11 +1,11 @@
 # How to build tcMenu Designer into a native package using OpenJDK 16 onwards.
 
-**For most users, we recommend using our pre-packaged software.** However, should you wish to build it yourself, follow these instructions, you'll end up with a native installer for Windows, a disk image for macOS, or a debian install archive for Linux.
+**For most users, we recommend using our pre-packaged software.** However, should you wish to build it yourself, follow these instructions, you'll end up with a native installer for Windows, a disk image for macOS, or a debian install archive for Linux. Please only use these steps to build a UI for you own purposes.
 
-Firstly, ensure that you have OpenJDK 16 and a recent maven 3 on your system, without these it will not be possible to build. We recommend that you install AdoptOpenJDK 16 and the latest maven 3 from the Apache website. 
+Firstly, ensure that you have OpenJDK 17 and a recent maven 3 on your system, without these it will not be possible to build.
 
-* For OpenJDK we recommend [https://adoptopenjdk.net/]
-* For apache maven always use [https://maven.apache.org/]
+* All OpenJDK's that we've tested work for this, we've tried: Adpotium and Amazon Corretto   
+* For Apache maven we recommend using [https://maven.apache.org/]
 
 Using git or zip download, get the contents of the tcMenu repository locally, for example: 
 
