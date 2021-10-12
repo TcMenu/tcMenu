@@ -48,8 +48,8 @@
         <Function name="initForUpDownOk" object="menuMgr">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
-            <Param value="${ENCODER_UP_PIN}"/>
             <Param value="${ENCODER_DOWN_PIN}"/>
+            <Param value="${ENCODER_UP_PIN}"/>
             <Param value="${ENCODER_OK_PIN}"/>
         </Function>
 
