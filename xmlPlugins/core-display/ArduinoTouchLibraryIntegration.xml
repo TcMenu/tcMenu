@@ -1,0 +1,78 @@
+<TcMenuPlugin name="FT6206/XPT2046 touch screen plugin that provides integration with library"
+              id="406a3089-6bc6-491e-9e3b-2cc2ec20a3cb" subsystem="INPUT"
+              requiresDesigner="2.2"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+       <Platform>ARDUINO_ESP8266</Platform>
+       <Platform>ARDUINO_ESP32</Platform>
+    </SupportedPlatforms>
+    <Description>FT6206/XPT2046 touchscreen plugins that integrates with either Adafruit's FT6206 or Paul Stoffregen's XPT2046 library. Works with a wide range of touch screens.</Description>
+    <Documentation link=""/>
+    <RequiredLibraries/>
+    <ImageFile>resistive-touch.jpg</ImageFile>
+
+    <Properties>
+        <Property id="TOUCH_ROTATION" name="Rotation" initial="PORTRAIT" desc="Sets the orientation of the touch screen" type="choice">
+            <Choices>
+                <Choice desc="Portrait">PORTRAIT</Choice>
+                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
+                <Choice desc="Landscape">LANDSCAPE</Choice>
+                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
+            </Choices>
+        </Property>
+        <Property id="TOUCH_LIBRARY" name="Touch Library (must be installed)" initial="Adafruit_FT6206" type="choice"
+                  desc="The touch library that supports the touch device, library must be installed">
+            <Choices>
+                <Choice desc="FT6206 - AdaFruit">Adafruit_FT6206</Choice>
+                <Choice desc="XPT2046 - Paul Stoffregen">XPT2046_Touchscreen</Choice>
+            </Choices>
+        </Property>
+        <Property id="TOUCH_INTERRUPT_PIN" name="Touch device interrupt pin" initial="0xFF" whenProperty="TOUCH_LIBRARY" isNotValue="Adafruit_FT6206"
+                  desc="Interrupt pin reduces polling so the library will only read upon changes" type="pin" />
+        <Property id="TOUCH_CS_PIN" name="Touch CS pin" initial="9" whenProperty="TOUCH_LIBRARY" isNotValue="Adafruit_FT6206"
+                  desc="As the touch device is on SPI, it must have a CS pin to select it" type="pin" />
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="Adafruit_FT6206" replace="${TOUCH_LIBRARY}"/>
+        <SourceFile name="adaTouchDriver/tcMenuAdaTouchDriver.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuAdaTouchDriver.h" inSource="true" />
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="touchDevice" type="${TOUCH_LIBRARY}" export="true" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
+        <Variable name="touchDevice" type="${TOUCH_LIBRARY}" export="true" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen">
+            <Param value="${TOUCH_CS_PIN}"/>
+            <Param value="${TOUCH_INTERRUPT_PIN}"/>
+        </Variable>
+
+        <Variable name="touchInterrogator" type="iotouch::AdaLibTouchInterrogator" export="true">
+            <Param value="touchDevice"/>
+        </Variable>
+
+        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true">
+            <Param ref="touchInterrogator"/>
+            <Param ref="renderer"/>
+            <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="init" object="touchInterrogator"/>
+        <Function name="start" object="touchScreen"/>
+
+        <Function name="initWithoutInput" object="menuMgr">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

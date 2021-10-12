@@ -14,7 +14,8 @@
     <version>2.2.3</version>
 
     <properties>
-        <jdk.version>16</jdk.version>
+        <jdk.version>17</jdk.version>
+        <jfx.version>17.0.0.1</jfx.version>
         <jmetro.version>11.6.15</jmetro.version>
         <jserialcomm.version>2.4.0</jserialcomm.version>
     </properties>
@@ -40,12 +41,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>

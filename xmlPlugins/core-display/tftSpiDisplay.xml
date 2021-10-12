@@ -47,9 +47,9 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function object="tft" name="begin"/>
+        <Function object="${DISPLAY_VARIABLE}" name="begin"/>
 
-        <Function object="tft" name="setRotation">
+        <Function object="${DISPLAY_VARIABLE}" name="setRotation">
             <Param value="${DISPLAY_ROTATION}"/>
         </Function>
 

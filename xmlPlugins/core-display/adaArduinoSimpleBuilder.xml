@@ -33,6 +33,16 @@
         <Property id="DISPLAY_RS_PIN" name="RS Pin (SPI only)" initial="-1" desc="Option the pin on which RS is connected" type="pin" />
         <Property id="DISPLAY_DATA_PIN" name="Data Pin (SW SPI only)" initial="-1" desc="Optionally specify the data pin for SW SPI" type="pin" />
         <Property id="DISPLAY_CLOCK_PIN" name="Clock Pin (SW SPI only)" initial="-1" desc="Optionally specify the clock pin for SW SPI" type="pin" />
+        <Property id="ST7735_TAB_TYPE" name="Tab Type for ST7735" initial="INITR_BLACKTAB"  type="choice"  whenProperty="DISPLAY_TYPE" matches="(Adafruit_ST7735|Adafruit_ST7789)"
+                  desc="When using ST7735 based displays the type color of the tab usually denotes the display type">
+            <Choices>
+                <Choice desc="Black Tab">INITR_BLACKTAB</Choice>
+                <Choice desc="Green Tab">INITR_GREENTAB</Choice>
+                <Choice desc="Red Tab">INITR_REDTAB</Choice>
+                <Choice desc="Mini 160x80">INITR_MINI160x80</Choice>
+                <Choice desc="Hallowing">INITR_HALLOWING</Choice>
+            </Choices>
+        </Property>
         <Property id="DISPLAY_ROTATION" name="Display Rotation (0..3)" initial="0" desc="See AdafruitGFX guide for more on rotation" type="int" min="0" max="3"/>
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
     </Properties>
@@ -161,7 +171,7 @@
 
         <Function name="begin" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="^((?!Adafruit_ST77).)*$"/>
         <Function name="initR" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="Adafruit_ST7735">
-            <Param value="INITR_BLACKTAB"/>
+            <Param value="${ST7735_TAB_TYPE}"/>
         </Function>
         <Function name="init" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" matches="Adafruit_ST7789">
             <Param value="${DISPLAY_WIDTH}"/>

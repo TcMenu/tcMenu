@@ -30,6 +30,7 @@
         <Plugin>upDownSwitchesInput.xml</Plugin>
         <Plugin>analogJoystickInput.xml</Plugin>
         <Plugin>analogResistiveTouchScreen.xml</Plugin>
+        <Plugin>ArduinoTouchLibraryIntegration.xml</Plugin>
         <Plugin>esp32TouchSensor.xml</Plugin>
 
         <!-- mbed specific displays -->

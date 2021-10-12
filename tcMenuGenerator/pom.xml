@@ -19,7 +19,8 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <!-- production deps -->
-        <jdk.version>16</jdk.version>
+        <jdk.version>17</jdk.version>
+        <jfx.version>17.0.0.1</jfx.version>
         <jmetro.version>11.6.15</jmetro.version>
         <google.gson.version>2.8.8</google.gson.version>
         <picocli.version>4.6.1</picocli.version>
@@ -56,22 +57,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>${jdk.version}</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>
