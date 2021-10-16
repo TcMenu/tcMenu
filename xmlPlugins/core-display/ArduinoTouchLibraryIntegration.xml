@@ -40,7 +40,10 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="Adafruit_FT6206" replace="${TOUCH_LIBRARY}"/>
+        <Replacement find="XPT2046_Touchscreen" replace="${TOUCH_LIBRARY}"/>
+        <Replacement find="KNOWN_DEVICE_TOUCH_RANGE_X 4096.0F" replace="KNOWN_DEVICE_TOUCH_RANGE_X 240.0F" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
+        <Replacement find="KNOWN_DEVICE_TOUCH_RANGE_Y 4096.0F" replace="KNOWN_DEVICE_TOUCH_RANGE_Y 320.0F" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
+        <Replacement find="Y_INVERTED false" replace="Y_INVERTED true" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
         <SourceFile name="adaTouchDriver/tcMenuAdaTouchDriver.h" />
     </SourceFiles>
 

@@ -4,7 +4,8 @@
  */
 
 /**
- * Touch integration for all libraries that are compatible with the Adafruit_FT2606 library interface.
+ * Touch integration for libraries that are compatible with the Adafruit_FT2606 library interface. It has been tested
+ * with both the XPT_2046 and FT_6206 libraries.
  * This file is a plugin file and should not be directly edited, it will be replaced each time the project
  * is built. If you want to edit this file in place, make sure to rename it first.
  * @file tcMenuAdaTouchDriver.h
@@ -19,7 +20,9 @@
 //
 // This is the known absolute maximum value of the touch unit before calibration. It will become 1.0F
 //
-#define KNOWN_DEVICE_TOUCH_RANGE 4096.0F
+#define KNOWN_DEVICE_TOUCH_RANGE_X 4096.0F
+#define KNOWN_DEVICE_TOUCH_RANGE_Y 4096.0F
+#define Y_INVERTED false
 
 namespace iotouch {
 
@@ -40,9 +43,10 @@ namespace iotouch {
             if(theTouchDevice.touched() == 0) return iotouch::NOT_TOUCHED;
 
             TS_Point pt = theTouchDevice.getPoint();
+            //serdebugF3("point at ", pt.x, pt.y);
 
-            *ptrX = calib.calibrateX(float(pt.x) / KNOWN_DEVICE_TOUCH_RANGE, false);
-            *ptrY = calib.calibrateY(float(pt.y) / KNOWN_DEVICE_TOUCH_RANGE, false);
+            *ptrX = calib.calibrateX(float(pt.x) / KNOWN_DEVICE_TOUCH_RANGE_X, false);
+            *ptrY = calib.calibrateY(float(pt.y) / KNOWN_DEVICE_TOUCH_RANGE_Y, Y_INVERTED);
             return iotouch::TOUCHED;
         }
     };
