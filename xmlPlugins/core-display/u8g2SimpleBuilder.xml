@@ -26,7 +26,7 @@
                 <Choice desc="SSD1305 128x32 HW I2C">U8G2_SSD1305_128X32_NONAME_F_HW_I2C</Choice>
                 <Choice desc="SSD1305 128x32 SW I2C">U8G2_SSD1305_128X32_NONAME_F_SW_I2C</Choice>
                 <Choice desc="SSD1306 128x64 4W SW SPI">U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI</Choice>
-                <Choice desc="SSD1305 128x32 4W HW SPI">U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI</Choice>
+                <Choice desc="SSD1306 128x32 4W HW SPI">U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI</Choice>
                 <Choice desc="SSD1306 128x64 HW I2C">U8G2_SSD1306_128X64_NONAME_F_HW_I2C</Choice>
                 <Choice desc="SSD1306 128x64 SW I2C">U8G2_SSD1306_128X64_NONAME_F_SW_I2C</Choice>
                 <Choice desc="SSD1306 128x32 3W HW I2C">U8G2_SSD1306_128X64_NONAME_F_3W_HW_SPI</Choice>
@@ -43,9 +43,9 @@
                 <Choice desc="SSD1305 128X32 4W SW SPI Adafruit">U8G2_SSD1305_128X32_ADAFRUIT_F_4W_SW_SPI</Choice>
                 <Choice desc="SSD1305 128X32 4W HW SPI Adafruit">U8G2_SSD1305_128X32_ADAFRUIT_F_4W_HW_SPI</Choice>
                 <Choice desc="SSD1305 128X64 HW I2C Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_HW_I2C</Choice>
-                <Choice desc="SH1106 128X64 SW I2C Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_SW_I2C</Choice>
+                <Choice desc="SSD1305 128X64 SW I2C Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_SW_I2C</Choice>
                 <Choice desc="SSD1305 128X64 SW 4W SPI Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_4W_SW_SPI</Choice>
-                <Choice desc="SH1106 128X64 HW 4W SPI Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_4W_HW_SPI</Choice>
+                <Choice desc="SSD1305 128X64 HW 4W SPI Adafruit">U8G2_SSD1305_128X64_ADAFRUIT_F_4W_HW_SPI</Choice>
 
                 <Choice desc="SSD1607 200X200 HW 3W SPI">U8G2_SSD1607_200X200_F_3W_HW_SPI</Choice>
                 <Choice desc="SSD1607 GD 200X200 SW 4W SPI">U8G2_SSD1607_GD_200X200_F_4W_SW_SPI</Choice>
