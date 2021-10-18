@@ -32,13 +32,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.Style;
-
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -155,7 +151,7 @@ public class MenuEditorApp extends Application {
             }
             Path pluginDir = homeDir.resolve(".tcmenu/plugins");
             var current = new VersionInfo(storage.getVersion());
-            boolean noPluginDir = !Files.exists(pluginDir);
+            var noPluginDir = !isDirectoryPresentAndPopulated(pluginDir);
             if(!storage.getLastRunVersion().equals(current) || noPluginDir) {
                 try {
                     if(noPluginDir) Files.createDirectories(pluginDir);
@@ -165,8 +161,9 @@ public class MenuEditorApp extends Application {
                         return;
                     }
 
-                    InputStream resourceAsStream = MenuEditorApp.class.getResourceAsStream("/packaged-plugins/initialPlugins.zip");
-                    OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
+                    try(var resourceAsStream = Files.newInputStream(Paths.get("./app/initialPlugins.zip"))) {
+                        OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
+                    }
                 }
                 catch(Exception ex) {
                     // ignored
@@ -179,6 +176,15 @@ public class MenuEditorApp extends Application {
             alert.setContentText("Couldn't create user directory: " + e.getMessage());
             alert.showAndWait();
         }
+    }
+
+    public static boolean isDirectoryPresentAndPopulated(Path path) throws IOException {
+        if(!Files.exists(path)) return false;
+        if (Files.isDirectory(path)) {
+            return Files.find(path, 1, (p, a) -> p.getFileName().toString().startsWith("core-"))
+                    .findFirst().isPresent();
+        }
+        return false;
     }
 
     private void startUpLogging() {

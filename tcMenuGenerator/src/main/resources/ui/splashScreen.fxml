@@ -12,18 +12,19 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<GridPane styleClass="background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="249.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="419.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="252.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="348.0" minWidth="10.0" prefWidth="348.0" />
   </columnConstraints>
   <rowConstraints>
-    <RowConstraints maxHeight="98.0" minHeight="10.0" prefHeight="18.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="192.0" minHeight="10.0" prefHeight="192.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="135.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="98.0" minHeight="4.0" prefHeight="32.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="282.0" minHeight="10.0" prefHeight="233.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="161.0" minHeight="6.0" prefHeight="106.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="161.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <ImageView fitHeight="233.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="3">
+      <ImageView fitHeight="233.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
          <image>
             <Image url="@../img/menu-icon-large.png" />
          </image>
@@ -31,23 +32,51 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </ImageView>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Thanks for using TcMenu designer!" wrappingWidth="348.39453125" GridPane.columnIndex="1">
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Thanks for using TcMenu designer!" wrappingWidth="598.39453125" GridPane.columnSpan="2">
          <font>
-            <Font name="System Bold" size="14.0" />
+            <Font name="System Bold" size="18.0" />
          </font>
+         <GridPane.margin>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </GridPane.margin>
       </Text>
-      <VBox prefHeight="192.0" prefWidth="321.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <VBox prefHeight="248.0" prefWidth="348.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="A new version of tcMenu has been installed! If you're new to TcMenu then we recommend that you watch the getting started video first." wrappingWidth="346.103515625" />
             <Hyperlink onAction="#onGettingStartedVideo" text="Getting started video on youtube" />
             <Hyperlink onAction="#onTcMenuDocs" text="TcMenu documentation" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Registration is now optional for all users, select File-&gt;Register from the menu if you wish to do so." wrappingWidth="338.9375" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Releasing a UI on three platforms costs money, licenses, certificates etc. Please consider sponsoring us at the link below." wrappingWidth="338.9375" />
+            <Hyperlink onAction="#onSponsorOptions" text="One off payment or monthly sponsorship options" />
          </children>
       </VBox>
-      <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+      <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </Button>
+      <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode" prefHeight="100.0" prefWidth="208.0" text="Light mode" GridPane.rowIndex="2">
+         <graphic>
+            <ImageView fitHeight="83.0" fitWidth="118.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../img/lightModeSnap.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <GridPane.margin>
+            <Insets left="4.0" />
+         </GridPane.margin>
+      </Button>
+      <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode" text="Dark mode" GridPane.columnIndex="1" GridPane.rowIndex="2">
+         <graphic>
+            <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../img/darkModeSnap.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
    </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
 </GridPane>

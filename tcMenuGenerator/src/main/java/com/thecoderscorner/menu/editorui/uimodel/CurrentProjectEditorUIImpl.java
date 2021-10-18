@@ -34,6 +34,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -133,9 +134,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public void showSplashScreen() {
+    public void showSplashScreen(Consumer<String> themeChangeListener) {
         logger.log(INFO, "Showing splash screen");
-        new SplashScreenDialog(mainStage, this, true);
+        new SplashScreenDialog(mainStage, this, themeChangeListener, true);
     }
 
     @Override

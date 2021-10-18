@@ -12,7 +12,7 @@
     <name>menuEditorUI</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>    
     <description>JavaFX based menu editor UI</description>
-    <version>2.2.4</version>
+    <version>2.2.5</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -248,6 +248,25 @@
                                     </includes>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals><goal>single</goal></goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>${project.build.directory}/jfx/app</outputDirectory>
+                            <finalName>InitialPlugins</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zipUpPlugins.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>

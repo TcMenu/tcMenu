@@ -56,7 +56,7 @@ To allow for CLI on macOS: alias tcmenu=/Applications/tcMenuDesigner.app/Content
 
 ## Notes about the packaged plugins
 
-We keep a set of packaged plugins with the designer, they are assembled from the tcMenu/xmlPlugins directory into a zip file that's even in the repository, to make builds easier. The packaged plugins file is  tcMenuGenerator/src/main/resources/packaged-plugins/initialPlugins.zip and can be built by zipping up the .tcmenu/plugins directory once they are in a satisfactory state. Each plugin is at the top level and will be expanded into ~/.tcmenu/plugins directory by the app.
+We keep a set of packaged plugins with the designer, they are assembled from the tcMenu/xmlPlugins directory into a zip file that's even in the repository, to make builds easier. The packaged plugins are now built automatically as part of the maven build (see the assembly plugin). Each plugin is at the top level and will be expanded into ~/.tcmenu/plugins directory by the app.
 
 ## Extra steps that we follow for production releases
 

@@ -250,11 +250,7 @@ public class MenuEditorController {
 
     private boolean isClipboardContentValid() {
         var clipboard = Clipboard.getSystemClipboard();
-        if(clipboard.hasContent(DataFormat.PLAIN_TEXT)) {
-            var data = clipboard.getContent(DataFormat.PLAIN_TEXT);
-            return (data != null && data.toString().startsWith(TCMENU_COPY_PREFIX));
-        }
-        return false;
+        return (clipboard.hasContent(DataFormat.PLAIN_TEXT));
     }
 
     private void redrawTreeControl() {
@@ -473,10 +469,13 @@ public class MenuEditorController {
         Platform.runLater(this::handleRecents);
 
         var current = new VersionInfo(configStore.getVersion());
-        if(!configStore.getLastRunVersion().equals(current)) {
+        if(!configStore.getLastRunVersion().equals(current) || System.getProperty("alwaysShowSplash", "N").equals("Y")) {
             Platform.runLater(()-> {
                 configStore.setLastRunVersion(current);
-                editorUI.showSplashScreen();
+                editorUI.showSplashScreen(themeName -> {
+                    darkModeMenuFlag.setSelected(themeName.equals("darkMode"));
+                    BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+                });
                 TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
                     onTreeChangeSelection(item.getValue());

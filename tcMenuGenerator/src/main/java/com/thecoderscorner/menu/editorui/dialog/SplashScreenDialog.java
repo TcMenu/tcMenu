@@ -10,18 +10,22 @@ import com.thecoderscorner.menu.editorui.controller.SplashScreenController;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.stage.Stage;
 
+import java.util.function.Consumer;
+
 
 /** Example of displaying a splash page for a standalone JavaFX application */
 public class SplashScreenDialog extends BaseDialogSupport<SplashScreenController> {
     private final CurrentProjectEditorUI editorUI;
+    private final Consumer<String> themeListener;
 
-    public SplashScreenDialog(Stage stage, CurrentProjectEditorUI editorUI, boolean modal) {
+    public SplashScreenDialog(Stage stage, CurrentProjectEditorUI editorUI, Consumer<String> themeListener, boolean modal) {
         this.editorUI = editorUI;
+        this.themeListener = themeListener;
         tryAndCreateDialog(stage, "/ui/splashScreen.fxml", "TcMenu Designer", modal);
     }
 
     @Override
     protected void initialiseController(SplashScreenController controller) {
-        controller.initialise(editorUI);
+        controller.initialise(editorUI, themeListener);
     }
 }

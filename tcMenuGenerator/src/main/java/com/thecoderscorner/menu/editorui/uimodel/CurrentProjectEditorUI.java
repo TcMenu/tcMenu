@@ -15,6 +15,7 @@ import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * An interface that provides helper methods around displaying alert dialogs, setting display titles and rendering a
@@ -85,7 +86,7 @@ public interface CurrentProjectEditorUI {
     /**
      * Shows a splash screen dialog as modal
      */
-    void showSplashScreen();
+    void showSplashScreen(Consumer<String> themeChangeListener);
 
     /**
      * Shows the new project creation window, it is assumed that a dirty check has already been done

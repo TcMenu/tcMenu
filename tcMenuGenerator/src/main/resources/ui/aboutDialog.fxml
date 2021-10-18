@@ -19,9 +19,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="285.0" prefWidth="386.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
+<BorderPane prefHeight="327.0" prefWidth="427.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
    <top>
-      <ImageView fitHeight="72.0" fitWidth="376.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+      <ImageView fitHeight="76.0" fitWidth="418.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
             <Image url="@../img/logo.png" />
          </image>
@@ -44,11 +44,11 @@
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <center>
-      <GridPane prefHeight="182.0" prefWidth="321.0" BorderPane.alignment="CENTER">
+      <GridPane prefHeight="213.0" prefWidth="425.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="10.0" prefWidth="167.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="72.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.0" minWidth="10.0" prefWidth="116.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
