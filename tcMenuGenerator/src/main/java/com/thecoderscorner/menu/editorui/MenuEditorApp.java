@@ -161,7 +161,7 @@ public class MenuEditorApp extends Application {
                         return;
                     }
 
-                    try(var resourceAsStream = Files.newInputStream(Paths.get("./app/initialPlugins.zip"))) {
+                    try(var resourceAsStream = Files.newInputStream(Paths.get("./app/InitialPlugins.zip"))) {
                         OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
                     }
                 }
