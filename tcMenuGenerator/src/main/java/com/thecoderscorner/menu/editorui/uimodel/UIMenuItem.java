@@ -325,15 +325,14 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
 
         // callbacks have a special mode where they are still function names, but they can start with "@"
-        if(fieldType == CALLBACK_FN && s.startsWith("@")) {
-            s = s.substring(1);
+        // otherwise check the variable or text against the regex.
+        if(fieldType == CALLBACK_FN && !s.matches("^@?[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
+            errorsBuilder.add(new FieldError("Field must use only letters, digits, and '_'", field));
         }
-
-        // now we check against either the variable regex or the plain text regex.
-        if((fieldType == CALLBACK_FN || fieldType == VARIABLE) && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
-            errorsBuilder.add(new FieldError("Function fields must use only letters, digits, and '_'", field));
+        else if(fieldType == VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
+            errorsBuilder.add(new FieldError("Field must use only letters, digits, and '_'", field));
         }
-        else if(!s.matches("^[\\p{L}\\p{N}\\s\\-_*%()]*$")) {
+        else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()]*$")) {
             errorsBuilder.add(new FieldError("Text can only contain letters, numbers, spaces and '-_()*%'", field));
         }
         return s;

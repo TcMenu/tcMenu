@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -132,6 +131,7 @@ public class ArduinoSketchFileAdjusterTest {
         ensureLinesContaining(lines,"void CALLBACK_FUNCTION onIpChange(int id) {",
                 "// TODO - your menu change code",
                 "}");
+        ensureDoesNotContainLine(lines, "void CALLBACK_FUNCTION includeOnly(int id)");
 
         // and very importantly, make sure the backup is made
         Path backup = inoFile.resolveSibling("superProject.ino.backup");
@@ -171,6 +171,10 @@ public class ArduinoSketchFileAdjusterTest {
         // Shouldn't do anything this time around.
         Path backup = inoFile.resolveSibling("superProject.ino.backup");
         assertFalse(Files.exists(backup));
+    }
+
+    private boolean ensureDoesNotContainLine(List<String> lines, String search) {
+        return lines.stream().noneMatch(line -> line.contains(search));
     }
 
     private void ensureLinesContaining(List<String> lines, String search, String... next) {
