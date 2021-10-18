@@ -47,6 +47,7 @@ public class ArduinoSketchFileAdjusterTest {
         emptyLogger = Mockito.mock(BiConsumer.class);
         adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
 
+        MenuItem itemId6 = tree.getMenuById(6).orElseThrow();
         MenuItem itemId8 = tree.getMenuById(8).orElseThrow();
         MenuItem itemId9 = tree.getMenuById(9).orElseThrow();
         MenuItem itemId10 = tree.getMenuById(10).orElseThrow();
@@ -58,7 +59,8 @@ public class ArduinoSketchFileAdjusterTest {
         callbacks = List.of(
                 new CallbackRequirement(generator, "callback", itemId8),
                 new CallbackRequirement(generator, "fnListRtCall", itemId10),
-                new CallbackRequirement(generator, "onIpChange", itemId9)
+                new CallbackRequirement(generator, "onIpChange", itemId9),
+                new CallbackRequirement(generator, "@includeOnly", itemId6)
         );
     }
 

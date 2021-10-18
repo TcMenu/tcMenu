@@ -227,6 +227,7 @@ public class TestUtils {
                 .withEepromAddr(-1)
                 .withName("Ip Item")
                 .withLength(20)
+                .withFunctionName("@headerOnly")
                 .withEditItemType(EditItemType.IP_ADDRESS)
                 .menuItem();
         RuntimeListMenuItem listItem = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()

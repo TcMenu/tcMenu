@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldType.*;
+
 /**
  * This represents a UI editor that can edit the fields of a MenuItem, specialised for each type of menu item in a
  * similiar way to the underlying items.
@@ -44,7 +46,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     private boolean variableChanged = false;
 
-    public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL}
+    public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
 
     private final MenuIdChooser chooser;
@@ -116,6 +118,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.add(new Label("Name"), 0, idx);
         nameField = new TextField(menuItem.getName());
         nameField.setId("nameField");
+        nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
+
         nameField.textProperty().addListener((observableValue, s, t1) -> {
             if(variableNameGenerator.getUncommittedItems().contains(getMenuItem().getId())) {
                 variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
@@ -135,6 +139,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         variableField = new TextField(varName);
         variableField.setId("variableField");
+        variableField.setTooltip(new Tooltip("The name of the variable to be created. Always prepended with menu"));
         variableField.textProperty().addListener(this::coreValueChanged);
         variableField.setOnKeyPressed((keyEvent) ->
                 variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
@@ -157,6 +162,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
             eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
             eepromField.setId("eepromField");
+            eepromField.setTooltip(new Tooltip("The location in EEPROM to store this value or -1 for none"));
             eepromField.textProperty().addListener(this::coreValueChanged);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
             eepromBox.getChildren().add(eepromField);
@@ -179,27 +185,32 @@ public abstract class UIMenuItem<T extends MenuItem> {
         functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
         functionNameTextField.textProperty().addListener(this::coreValueChanged);
         functionNameTextField.setId("functionNameTextField");
+        functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
         grid.add(functionNameTextField, 1, idx);
 
         idx = internalInitPanel(grid, idx);
 
         readOnlyCheck = new CheckBox("Read Only");
         readOnlyCheck.setId("readOnlyField");
+        readOnlyCheck.setTooltip(new Tooltip("Prevents any editing of the item both locally and remotely"));
         readOnlyCheck.setOnAction(this::checkboxChanged);
         readOnlyCheck.setSelected(menuItem.isReadOnly());
 
         noRemoteCheck = new CheckBox("Do not send remotely");
         noRemoteCheck.setId("dontRemoteField");
+        noRemoteCheck.setTooltip(new Tooltip("Prevent the item being sent over IoT when checked"));
         noRemoteCheck.setOnAction(this::checkboxChanged);
         noRemoteCheck.setSelected(menuItem.isLocalOnly());
 
         visibleCheck = new CheckBox("Item is visible");
         visibleCheck.setId("visibleItemField");
+        visibleCheck.setTooltip(new Tooltip("Control the visibility of this item"));
         visibleCheck.setOnAction(this::checkboxChanged);
         visibleCheck.setSelected(menuItem.isVisible());
 
         idx++;
-        grid.add(readOnlyCheck, 0, idx);
+        grid.add(readOnlyCheck, 1, idx);
+        idx++;
         grid.add(noRemoteCheck, 1, idx);
         idx++;
         grid.add(visibleCheck, 1, idx);
@@ -218,7 +229,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             return null;
         }
         return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
-                errors, 32, StringFieldType.VARIABLE);
+                errors, 32, CALLBACK_FN);
     }
 
     protected void getChangedDefaults(MenuItemBuilder<?,?> builder, List<FieldError> errorsBuilder) {
@@ -229,10 +240,10 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
 
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
-                errorsBuilder, 19, StringFieldType.MANDATORY);
+                errorsBuilder, 19, MANDATORY);
 
         String varName = safeStringFromProperty(variableField.textProperty(), "VariableName",
-                errorsBuilder, 128, StringFieldType.OPTIONAL);
+                errorsBuilder, 128, OPTIONAL);
 
         builder.withFunctionName(getFunctionName(errorsBuilder))
                 .withEepromAddr(eeprom)
@@ -299,20 +310,27 @@ public abstract class UIMenuItem<T extends MenuItem> {
                                             int maxLen, StringFieldType fieldType) {
         String s = stringProperty.get();
         if(s == null) {
-            if(fieldType != StringFieldType.OPTIONAL) {
+            if(fieldType != OPTIONAL) {
                 errorsBuilder.add(new FieldError("field must be populated", field));
             }
             return "";
         }
 
-        if(fieldType == StringFieldType.OPTIONAL &&  s.length() > maxLen) {
+        // check the size of the text is within the allowable range.
+        if(fieldType == OPTIONAL &&  s.length() > maxLen) {
             errorsBuilder.add(new FieldError("field must be less than " + maxLen + " characters", field));
         }
-        else if(fieldType != StringFieldType.OPTIONAL  && (s.length() > maxLen || s.isEmpty())) {
+        else if(fieldType != OPTIONAL  && (s.length() > maxLen || s.isEmpty())) {
             errorsBuilder.add(new FieldError("field must not be blank and less than " + maxLen + " characters", field));
         }
 
-        if(fieldType == StringFieldType.VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
+        // callbacks have a special mode where they are still function names, but they can start with "@"
+        if(fieldType == CALLBACK_FN && s.startsWith("@")) {
+            s = s.substring(1);
+        }
+
+        // now we check against either the variable regex or the plain text regex.
+        if((fieldType == CALLBACK_FN || fieldType == VARIABLE) && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
             errorsBuilder.add(new FieldError("Function fields must use only letters, digits, and '_'", field));
         }
         else if(!s.matches("^[\\p{L}\\p{N}\\s\\-_*%()]*$")) {

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
+import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
@@ -63,7 +64,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         Path source = Paths.get(inoFile);
         if (!Files.exists(source)) {
-            logger.accept(System.Logger.Level.INFO, "No existing sketch, generating an empty one");
+            logger.accept(INFO, "No existing sketch, generating an empty one");
             Files.write(source, emptyFileContents().getBytes());
         }
 
@@ -76,18 +77,18 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         try(var fileLines = Files.lines(source)) {
             for (String line : fileLines.collect(Collectors.toList())) {
                 if (line.contains("#include") && line.contains(projectName + "_menu.h")) {
-                    logger.accept(System.Logger.Level.INFO, "found include in INO");
+                    logger.accept(INFO, "found include in INO");
                     needsInclude = false;
                 } else if (line.contains("taskManager.runLoop()")) {
-                    logger.accept(System.Logger.Level.INFO, "found runLoop in INO");
+                    logger.accept(INFO, "found runLoop in INO");
                     needsTaskMgr = false;
                 } else if (line.contains("setupMenu(")) {
-                    logger.accept(System.Logger.Level.INFO, "found setup in INO");
+                    logger.accept(INFO, "found setup in INO");
                     needsSetup = false;
                 } else if (line.contains("CALLBACK_FUNCTION")) {
                     Matcher fnMatch = FUNCTION_PATTERN.matcher(line);
                     if (fnMatch.matches()) {
-                        logger.accept(System.Logger.Level.INFO, "found callback for " + fnMatch.group(2));
+                        logger.accept(INFO, "found callback for " + fnMatch.group(2));
                         callbacksDefined.add(fnMatch.group(2));
                     }
                 }
@@ -102,15 +103,15 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         makeNewCallbacks(lines, callbacksToMake, callbacksDefined);
 
         if(changed) {
-            logger.accept(System.Logger.Level.INFO, "INO Previously existed, backup existing file");
+            logger.accept(INFO, "INO Previously existed, backup existing file");
             Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
 
-            logger.accept(System.Logger.Level.INFO, "Writing out changes to INO sketch file");
+            logger.accept(INFO, "Writing out changes to INO sketch file");
             chompBlankLines(lines);
             Files.write(Paths.get(inoFile), lines);
         }
         else {
-            logger.accept(System.Logger.Level.INFO, "No changes to the INO file, not writing out");
+            logger.accept(INFO, "No changes to the INO file, not writing out");
         }
     }
 
@@ -129,27 +130,31 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                                   List<String> alreadyDefined) {
 
         var filteredCb = callbacksToMake.stream()
-                .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) || isRuntimeStructureNeeded(cb.getCallbackItem()))
+                .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) ||
+                                isRuntimeStructureNeeded(cb.getCallbackItem()))
                 .collect(Collectors.toList());
 
         var definedList = new ArrayList<>(alreadyDefined);
 
-        for (CallbackRequirement cb : filteredCb) {
-            if(!definedList.contains(cb.getCallbackName())) {
-                logger.accept(System.Logger.Level.INFO, "Adding new callback to sketch for: " + cb.getCallbackItem());
+        for (var cb : filteredCb) {
+            if(cb.isHeaderOnlyCallback()) {
+                logger.accept(INFO, "Callback function void " + cb.getCallbackName() + "(int id) must be implemented by you");
+            }
+            else if(!definedList.contains(cb.getCallbackName())) {
+                logger.accept(INFO, "Adding new callback to sketch for: " + cb.getCallbackItem());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
                 definedList.add(cb.getCallbackName());
                 changed = true;
             }
             else {
-                logger.accept(System.Logger.Level.DEBUG, "Skip callback generation for " + cb.getCallbackName());
+                logger.accept(DEBUG, "Skip callback generation for " + cb.getCallbackName());
             }
         }
     }
 
     private void addSetupCode(ArrayList<String> lines, Pattern codePattern, String extraLine) {
-        logger.accept(System.Logger.Level.INFO, "Running sketch setup adjustments: " + extraLine);
+        logger.accept(INFO, "Running sketch setup adjustments: " + extraLine);
         for(int i=0;i<lines.size();i++) {
             Matcher matcher = codePattern.matcher(lines.get(i));
             if(matcher.matches()) {
@@ -159,7 +164,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                     }
                 }
                 lines.add(++i, extraLine);
-                logger.accept(System.Logger.Level.DEBUG, "-> line added to sketch: " + extraLine);
+                logger.accept(DEBUG, "-> line added to sketch: " + extraLine);
                 changed = true;
                 return; // no need to continue
             }

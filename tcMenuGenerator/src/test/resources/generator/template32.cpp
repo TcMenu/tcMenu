@@ -21,7 +21,7 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NO_CALLBACK)
+RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, headerOnly)
 IpAddressMenuItem menuOverrideSubNameIpItem(fnOverrideSubNameIpItemRtCall, 79, NULL);
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
 TextMenuItem menuOverrideSubNameTextItem(fnOverrideSubNameTextItemRtCall, 99, 10, &menuOverrideSubNameIpItem);

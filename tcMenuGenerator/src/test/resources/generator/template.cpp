@@ -21,7 +21,7 @@ const int PROGMEM anotherVar;
 const int PROGMEM allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_INVOKE(fnIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, NO_CALLBACK)
+RENDERING_CALLBACK_NAME_INVOKE(fnIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, headerOnly)
 IpAddressMenuItem menuIpItem(fnIpItemRtCall, 79, NULL);
 RENDERING_CALLBACK_NAME_INVOKE(fnTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
 TextMenuItem menuTextItem(fnTextItemRtCall, 99, 10, &menuIpItem);

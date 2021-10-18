@@ -21,10 +21,12 @@ public class CallbackRequirement {
     private final VariableNameGenerator generator;
     private final String callbackName;
     private final MenuItem callbackItem;
+    private final boolean headerOnlyCallback;
 
     public CallbackRequirement(VariableNameGenerator generator, String callbackName, MenuItem callbackItem) {
         this.generator = generator;
-        this.callbackName = callbackName;
+        headerOnlyCallback = !StringHelper.isStringEmptyOrNull(callbackName) && callbackName.startsWith("@");
+        this.callbackName = headerOnlyCallback ? callbackName.substring(1) : callbackName;
         this.callbackItem = callbackItem;
     }
 
@@ -220,5 +222,9 @@ public class CallbackRequirement {
     @Override
     public int hashCode() {
         return Objects.hash(getCallbackName(), callbackItem);
+    }
+
+    public boolean isHeaderOnlyCallback() {
+        return headerOnlyCallback;
     }
 }

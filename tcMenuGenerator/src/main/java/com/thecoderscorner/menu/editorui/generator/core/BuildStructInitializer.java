@@ -57,8 +57,12 @@ public class BuildStructInitializer {
     }
 
     public BuildStructInitializer addPossibleFunction(String functionName) {
-        structElements.add((!isStringEmptyOrNull(functionName)) ? functionName : "NO_CALLBACK");
+        structElements.add((!isStringEmptyOrNull(functionName)) ? actualFunctionName(functionName) : "NO_CALLBACK");
         return this;
+    }
+
+    private String actualFunctionName(String functionName) {
+        return functionName.startsWith("@") ? functionName.substring(1) : functionName;
     }
 
     public BuildStructInitializer addEeprom(int eepromAddress) {

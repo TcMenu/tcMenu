@@ -49,5 +49,6 @@ void setupMenu();
 void CALLBACK_FUNCTION callback1(int id);
 void CALLBACK_FUNCTION callback2(int id);
 int fnAbcRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
+void CALLBACK_FUNCTION headerOnly(int id);
 
 #endif // MENU_GENERATED_CODE_H
