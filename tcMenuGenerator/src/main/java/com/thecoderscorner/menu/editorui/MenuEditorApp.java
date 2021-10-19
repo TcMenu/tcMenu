@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
+import static java.lang.System.Logger.Level.*;
 
 /**
  * The application starting point for the JavaFX version of the application
@@ -82,7 +83,7 @@ public class MenuEditorApp extends Application {
 
         if(System.getProperty("localTccService") != null) {
             urlBase = System.getProperty("localTccService");
-            System.getLogger("Main").log(System.Logger.Level.WARNING, "Overriding the TCC service to " + urlBase);
+            System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
         }
 
         LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
@@ -157,16 +158,16 @@ public class MenuEditorApp extends Application {
                     if(noPluginDir) Files.createDirectories(pluginDir);
 
                     if(Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
-                        System.getLogger("Main").log(System.Logger.Level.WARNING, "Not upgrading core plugins, this is a development system");
+                        System.getLogger("Main").log(WARNING, "Not upgrading core plugins, this is a development system");
                         return;
                     }
 
-                    try(var resourceAsStream = Files.newInputStream(Paths.get("./app/InitialPlugins.zip"))) {
+                    try(var resourceAsStream = MenuEditorApp.class.getResourceAsStream("/plugins/InitialPlugins.zip")) {
                         OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
                     }
                 }
                 catch(Exception ex) {
-                    // ignored
+                    System.getLogger("Main").log(ERROR, "failed to prepare directory structure", ex);
                 }
             }
 

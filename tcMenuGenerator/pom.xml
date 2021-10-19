@@ -258,11 +258,11 @@
                 <version>3.3.0</version>
                 <executions>
                     <execution>
-                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <phase>compile</phase> <!-- bind to the packaging phase -->
                         <goals><goal>single</goal></goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <outputDirectory>${project.build.directory}/jfx/app</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/plugins</outputDirectory>
                             <finalName>InitialPlugins</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/zipUpPlugins.xml</descriptor>
