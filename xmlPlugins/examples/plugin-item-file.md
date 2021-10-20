@@ -2,7 +2,7 @@
 
 Each `Plugin` entry in the `tcmenu-plugin.xml` library xml definition is pointing to a file in this format. It must be a vaild XML file that can be parsed using a standard XML parser.  
 
-For an example of this see [example-plugin-item.xml], the schema is also available [../tcmenu-plugin-item.xsd]
+For an example of this see the `example` directory where a simple plugin is demonstrated, the schema is also available see `tcmenu-plugin-item.xsd`
 
 ## The plugin item file format
 
