@@ -201,10 +201,10 @@
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label styleClass="item-title" text="Prototype view" />
-            <TextArea fx:id="prototypeTextArea" editable="false" prefHeight="94.0" prefWidth="350.0" styleClass="lcdDisplayTextArea" />
-            <Label styleClass="item-title" text="Editor">
+            <TextArea fx:id="prototypeTextArea" editable="false" minHeight="94.0" prefHeight="94.0" prefWidth="350.0" styleClass="lcdDisplayTextArea" />
+            <Label fx:id="currentEditLabel" prefHeight="30.0" prefWidth="582.0" styleClass="item-title" text="Editor">
                <padding>
-                  <Insets top="10.0" />
+                  <Insets bottom="6.0" top="10.0" />
                </padding>
             </Label>
             <BorderPane fx:id="editorBorderPane" />

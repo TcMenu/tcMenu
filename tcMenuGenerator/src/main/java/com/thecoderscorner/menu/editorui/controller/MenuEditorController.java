@@ -63,6 +63,7 @@ public class MenuEditorController {
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     public CheckMenuItem darkModeMenuFlag;
+    public Label currentEditLabel;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -214,6 +215,7 @@ public class MenuEditorController {
     }
 
     public void presentInfoPanel() {
+        currentEditLabel.setText("Edit Project Settings");
         AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector, configStore);
         editorBorderPane.setCenter(panel.showEmptyInfoPanel());
         currentEditor = Optional.empty();
@@ -225,6 +227,7 @@ public class MenuEditorController {
                 editorProject.getGeneratorOptions().isNamingRecursive(),
                 editorProject.getUncommittedItems()
         );
+
         editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), gen, this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
                     ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel());
@@ -233,6 +236,7 @@ public class MenuEditorController {
                     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                     editorBorderPane.setCenter(scrollPane);
                     currentEditor = Optional.of(uiMenuItem);
+                    currentEditLabel.setText("Edit " + newValue.getClass().getSimpleName() + " ID: " + newValue.getId());
                 }, this::presentInfoPanel
         );
 
