@@ -6,7 +6,7 @@
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
     <Description>Use this option to be able to control the menu over many kinds of serial link from ESP boards, for example RS232, USBSerial, Bluetooth. The full menu structure will be available to the remote using either the protocol or the API..</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/serial-remote-plugin/"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/serial-remote-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>serial-connection.jpg</ImageFile>
 

@@ -40,3 +40,17 @@ Lastly we terminate the top level element
 
     </TcMenuPluginDefinition>
 
+## File layout within the plugin at runtime
+
+    plugins
+      +--plugin-name
+          +--tcmenu-plugin.xml
+          +--example-plugin-item.xml
+          +--Images
+             +--All image files
+          +--src
+             +--source.cpp
+             +--source.h
+
+Above shows graphically the structure of the example plugin at runtime. Notice that you should always ship the arduino source with the plugin, it will be copied into the project directory automatically during code generation, it will be kept up to date with every code generation too. Any images declared in the plugins should be in the Images directory.
+

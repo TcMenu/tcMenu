@@ -11,7 +11,7 @@
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Blue theme that fits small to medium displays with less spacing and padding, scales better to small screens than modern. This can only be used with color displays</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/color-themes-for-all-display-sizes/"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/color-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-cool-blue-traditional.jpg</ImageFile>
 

@@ -11,7 +11,7 @@
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>This theme is designed for OLED and other monochrome displays of low to medium resolution. It draws the title line in inverse video and uses the standard edit/active icons.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/monochrome-themes-for-oled-5110/"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
     <ImageFile>theme-oled-inverse.jpg</ImageFile>
 
