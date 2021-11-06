@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class TagValMenuCommandProtocolTest {
-    private TagValMenuCommandProtocol protocol = new TagValMenuCommandProtocol();
+    private final TagValMenuCommandProtocol protocol = new TagValMenuCommandProtocol();
     private byte[] msgData;
     private ByteBuffer bb;
 
@@ -496,7 +496,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingDialogUpdate() throws IOException {
+    public void testWritingDialogUpdate() {
 
         protocol.toChannel(bb, newDialogCommand(DialogMode.SHOW, "Hello", "Buffer", MenuButtonType.NONE,
                 MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
@@ -506,6 +506,8 @@ public class TagValMenuCommandProtocolTest {
 
     private void testBufferAgainstExpected(MenuCommandType expectedMsg, String expectedData) {
         bb.flip();
+
+        expectedData = "\u0001\u0001" + expectedMsg.getHigh() + expectedMsg.getLow() + expectedData;
 
         // check the actual data is right
         String s = new String(msgData, 0, bb.limit());

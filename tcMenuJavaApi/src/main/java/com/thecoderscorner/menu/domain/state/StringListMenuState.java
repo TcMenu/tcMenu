@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class StringListMenuState extends MenuState<List<String>> {
     public StringListMenuState(MenuItem item, boolean changed, boolean active, List<String> value) {
-        super(StateStorageType.STRING_LIST, item, changed, active, value);
+        super(StateStorageType.STRING_LIST, item, changed, active, List.copyOf(value));
     }
 
     public StringListMenuState(MenuItem item, boolean changed, boolean active, String... value) {

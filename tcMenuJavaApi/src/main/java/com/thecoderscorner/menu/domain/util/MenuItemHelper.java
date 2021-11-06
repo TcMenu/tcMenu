@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.domain.util;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.remote.commands.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -294,6 +295,8 @@ public class MenuItemHelper {
             @Override
             public void visit(AnalogMenuItem item) {
                 int res = (val instanceof String) ? Integer.parseInt(val.toString()) : ((Number)val).intValue();
+                if(res < 0) res = 0;
+                if(res > item.getMaxValue()) res = item.getMaxValue();
                 setResult(new IntegerMenuState(item, changed, active, res));
             }
 
@@ -319,6 +322,8 @@ public class MenuItemHelper {
             @Override
             public void visit(EnumMenuItem item) {
                 int res = (val instanceof String) ? Integer.parseInt(val.toString()) : ((Number)val).intValue();
+                if(res < 0) res = 0;
+                if(res > item.getEnumEntries().size()) res = item.getEnumEntries().size() - 1;
                 setResult(new IntegerMenuState(item, changed, active, res));
             }
 
@@ -381,6 +386,15 @@ public class MenuItemHelper {
         }).orElseThrow();
     }
 
+    public static void setMenuState(MenuItem item, Object value, MenuTree tree) {
+        var oldState = tree.getMenuState(item);
+        if(oldState != null) {
+            tree.changeItem(item, stateForMenuItem(item, value, !value.equals(oldState.getValue()), oldState.isActive()));
+        } else {
+            tree.changeItem(item, stateForMenuItem(item, value, false, false));
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T getValueFor(MenuItem item, MenuTree tree, T def) {
         if(tree.getMenuState(item) != null) {
@@ -394,4 +408,32 @@ public class MenuItemHelper {
         tree.changeItem(item, MenuItemHelper.stateForMenuItem(item, def, false, false));
         return def;
     }
+
+    public static Optional<BootItemMenuCommand<?, ?>> getBootMsgForItem(MenuItem item, SubMenuItem parent, MenuTree tree) {
+        if(item instanceof AnalogMenuItem) {
+            return Optional.of(new MenuAnalogBootCommand(parent.getId(), (AnalogMenuItem) item, getValueFor(item, tree, 0)));
+        } else if(item instanceof EnumMenuItem) {
+            return Optional.of(new MenuEnumBootCommand(parent.getId(), (EnumMenuItem) item, getValueFor(item, tree, 0)));
+        } else if(item instanceof FloatMenuItem) {
+            return Optional.of(new MenuFloatBootCommand(parent.getId(), (FloatMenuItem) item, getValueFor(item, tree, 0.0F)));
+        } else if(item instanceof BooleanMenuItem) {
+            return Optional.of(new MenuBooleanBootCommand(parent.getId(), (BooleanMenuItem) item, getValueFor(item, tree, false)));
+        } else if(item instanceof SubMenuItem) {
+            return Optional.of(new MenuSubBootCommand(parent.getId(), (SubMenuItem) item, false));
+        } else if(item instanceof ActionMenuItem) {
+            return Optional.of(new MenuActionBootCommand(parent.getId(), (ActionMenuItem) item, false));
+        } else if(item instanceof EditableLargeNumberMenuItem) {
+            return Optional.of(new MenuLargeNumBootCommand(parent.getId(), (EditableLargeNumberMenuItem) item, getValueFor(item, tree, BigDecimal.ZERO)));
+        } else if(item instanceof  EditableTextMenuItem) {
+            return Optional.of(new MenuTextBootCommand(parent.getId(), (EditableTextMenuItem) item, getValueFor(item, tree, "")));
+        } else if(item instanceof Rgb32MenuItem) {
+            return Optional.of(new MenuRgb32BootCommand(parent.getId(), (Rgb32MenuItem) item, getValueFor(item, tree, new PortableColor(0, 0, 0))));
+        } else if(item instanceof  RuntimeListMenuItem) {
+            return Optional.of(new MenuRuntimeListBootCommand(parent.getId(), (RuntimeListMenuItem) item, getValueFor(item, tree, List.of())));
+        } else if(item instanceof  ScrollChoiceMenuItem) {
+            return Optional.of(new MenuScrollChoiceBootCommand(parent.getId(), (ScrollChoiceMenuItem) item, getValueFor(item, tree, new CurrentScrollPosition(0, ""))));
+        }
+        return Optional.empty();
+    }
+
 }

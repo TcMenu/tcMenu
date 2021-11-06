@@ -9,15 +9,21 @@ package com.thecoderscorner.menu.domain.util;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.AnyMenuState.StateStorageType;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.remote.commands.*;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.domain.DomainFixtures.*;
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
 import static org.junit.Assert.*;
 
 public class MenuItemHelperTest {
@@ -35,38 +41,55 @@ public class MenuItemHelperTest {
     private final Rgb32MenuItem rgbItem = new Rgb32MenuItemBuilder().withId(10).withName("rgb").withAlpha(true).menuItem();
     private final ScrollChoiceMenuItem scrollItem = new ScrollChoiceMenuItemBuilder().withId(15).withName("scroll").withItemWidth(10)
             .withNumEntries(20).withEepromOffset(10).withChoiceMode(ScrollChoiceMode.ARRAY_IN_RAM).menuItem();
+    private final MenuTree tree = new MenuTree();
+
+    @Before
+    public void init() {
+        tree.addMenuItem(MenuTree.ROOT, analogItem);
+        tree.addMenuItem(MenuTree.ROOT, enumItem);
+        tree.addMenuItem(MenuTree.ROOT, subItem);
+        tree.addMenuItem(subItem, boolMenuItem);
+        tree.addMenuItem(subItem, listItem);
+        tree.addMenuItem(subItem, textItem);
+        tree.addMenuItem(subItem, ipItem);
+        tree.addMenuItem(subItem, floatItem);
+        tree.addMenuItem(subItem, actionItem);
+        tree.addMenuItem(subItem, largeNum);
+        tree.addMenuItem(subItem, rgbItem);
+        tree.addMenuItem(subItem, scrollItem);
+    }
 
     @Test
     public void testSubMenuHelper() {
-        assertEquals(subItem, MenuItemHelper.asSubMenu(subItem));
-        assertNull(MenuItemHelper.asSubMenu(enumItem));
-        assertNull(MenuItemHelper.asSubMenu(analogItem));
-        assertNull(MenuItemHelper.asSubMenu(floatItem));
+        assertEquals(subItem, asSubMenu(subItem));
+        assertNull(asSubMenu(enumItem));
+        assertNull(asSubMenu(analogItem));
+        assertNull(asSubMenu(floatItem));
     }
 
     @Test
     public void testIsRuntimeItem() {
-        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(textItem));
-        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(ipItem));
-        assertFalse(MenuItemHelper.isRuntimeStructureNeeded(floatItem));
-        assertFalse(MenuItemHelper.isRuntimeStructureNeeded(boolMenuItem));
-        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(subItem));
-        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(rgbItem));
-        assertTrue(MenuItemHelper.isRuntimeStructureNeeded(scrollItem));
+        assertTrue(isRuntimeStructureNeeded(textItem));
+        assertTrue(isRuntimeStructureNeeded(ipItem));
+        assertFalse(isRuntimeStructureNeeded(floatItem));
+        assertFalse(isRuntimeStructureNeeded(boolMenuItem));
+        assertTrue(isRuntimeStructureNeeded(subItem));
+        assertTrue(isRuntimeStructureNeeded(rgbItem));
+        assertTrue(isRuntimeStructureNeeded(scrollItem));
     }
 
     @Test
     public void testCreateFromExisting() {
-        MenuItem newAnalog = MenuItemHelper.createFromExistingWithId(analogItem, 11);
-        MenuItem newEnum = MenuItemHelper.createFromExistingWithId(enumItem, 94);
-        MenuItem newSub = MenuItemHelper.createFromExistingWithId(subItem, 97);
-        MenuItem newBool = MenuItemHelper.createFromExistingWithId(boolMenuItem, 99);
-        MenuItem newFloat = MenuItemHelper.createFromExistingWithId(floatItem, 3333);
-        MenuItem newText = MenuItemHelper.createFromExistingWithId(textItem, 1111);
-        MenuItem newAction = MenuItemHelper.createFromExistingWithId(actionItem, 9999);
-        MenuItem newList = MenuItemHelper.createFromExistingWithId(listItem, 20093);
-        MenuItem newRgb = MenuItemHelper.createFromExistingWithId(rgbItem, 20095);
-        MenuItem newScroll = MenuItemHelper.createFromExistingWithId(scrollItem, 20096);
+        MenuItem newAnalog = createFromExistingWithId(analogItem, 11);
+        MenuItem newEnum = createFromExistingWithId(enumItem, 94);
+        MenuItem newSub = createFromExistingWithId(subItem, 97);
+        MenuItem newBool = createFromExistingWithId(boolMenuItem, 99);
+        MenuItem newFloat = createFromExistingWithId(floatItem, 3333);
+        MenuItem newText = createFromExistingWithId(textItem, 1111);
+        MenuItem newAction = createFromExistingWithId(actionItem, 9999);
+        MenuItem newList = createFromExistingWithId(listItem, 20093);
+        MenuItem newRgb = createFromExistingWithId(rgbItem, 20095);
+        MenuItem newScroll = createFromExistingWithId(scrollItem, 20096);
 
         assertTrue(newList instanceof RuntimeListMenuItem);
         assertEquals(20093, newList.getId());
@@ -101,24 +124,25 @@ public class MenuItemHelperTest {
 
     @Test
     public void testEepromSizeForItem() {
-        assertEquals(0, MenuItemHelper.eepromSizeForItem(listItem));
-        assertEquals(2, MenuItemHelper.eepromSizeForItem(analogItem));
-        assertEquals(2, MenuItemHelper.eepromSizeForItem(enumItem));
-        assertEquals(0, MenuItemHelper.eepromSizeForItem(subItem));
-        assertEquals(1, MenuItemHelper.eepromSizeForItem(boolMenuItem));
-        assertEquals(10, MenuItemHelper.eepromSizeForItem(textItem));
-        assertEquals(4, MenuItemHelper.eepromSizeForItem(ipItem));
-        assertEquals(0, MenuItemHelper.eepromSizeForItem(floatItem));
-        assertEquals(0, MenuItemHelper.eepromSizeForItem(actionItem));
-        assertEquals(4, MenuItemHelper.eepromSizeForItem(rgbItem));
-        assertEquals(2, MenuItemHelper.eepromSizeForItem(scrollItem));
+        assertEquals(0, eepromSizeForItem(listItem));
+        assertEquals(2, eepromSizeForItem(analogItem));
+        assertEquals(2, eepromSizeForItem(enumItem));
+        assertEquals(0, eepromSizeForItem(subItem));
+        assertEquals(1, eepromSizeForItem(boolMenuItem));
+        assertEquals(10, eepromSizeForItem(textItem));
+        assertEquals(4, eepromSizeForItem(ipItem));
+        assertEquals(0, eepromSizeForItem(floatItem));
+        assertEquals(0, eepromSizeForItem(actionItem));
+        assertEquals(4, eepromSizeForItem(rgbItem));
+        assertEquals(2, eepromSizeForItem(scrollItem));
     }
 
     @Test
     public void testCreateStateFunction() {
         checkState(analogItem, StateStorageType.INTEGER, 10, true, false);
         checkState(analogItem, StateStorageType.INTEGER, 102.2F, true, true, 102);
-        checkState(analogItem, StateStorageType.INTEGER, "1033", false, true, 1033);
+        checkState(analogItem, StateStorageType.INTEGER, "1033", false, true, 255); // above maximum
+        checkState(analogItem, StateStorageType.INTEGER, -200, false, true, 0); // below min
         checkState(boolMenuItem, StateStorageType.BOOLEAN, "true", false, true, true);
         checkState(boolMenuItem, StateStorageType.BOOLEAN, "0", false, false, false);
         checkState(boolMenuItem, StateStorageType.BOOLEAN, "1", false, false, true);
@@ -127,8 +151,9 @@ public class MenuItemHelperTest {
         checkState(boolMenuItem, StateStorageType.BOOLEAN, "Y", false, false, true);
         checkState(floatItem, StateStorageType.FLOAT, "100.4", false, true, 100.4F);
         checkState(floatItem, StateStorageType.FLOAT, 10034.3, false, false, 10034.3F);
-        checkState(enumItem, StateStorageType.INTEGER, 4, false, true);
-        checkState(enumItem, StateStorageType.INTEGER, "3", true, false, 3);
+        checkState(enumItem, StateStorageType.INTEGER, 4, false, true, 1); // exceeds max
+        checkState(enumItem, StateStorageType.INTEGER, "1", true, false, 1);
+        checkState(enumItem, StateStorageType.INTEGER, "-221", true, false, 0); // below 0
         checkState(textItem, StateStorageType.STRING, "12345", true, true);
         checkState(largeNum, StateStorageType.BIG_DECIMAL, "12345.432", true, true, new BigDecimal("12345.432"));
         checkState(largeNum, StateStorageType.BIG_DECIMAL, new BigDecimal("12345.432"), true, false);
@@ -139,12 +164,33 @@ public class MenuItemHelperTest {
         checkState(rgbItem, StateStorageType.PORTABLE_COLOR, new PortableColor("#000000"), true, false);
     }
 
+    @Test
+    public void testGetBootMessageForItem() {
+        checkGetBootItemMenuCommand(analogItem, 10, MenuAnalogBootCommand.class);
+        checkGetBootItemMenuCommand(enumItem, 1, MenuEnumBootCommand.class);
+        checkGetBootItemMenuCommand(boolMenuItem, true, MenuBooleanBootCommand.class);
+        checkGetBootItemMenuCommand(floatItem, 133.23F, MenuFloatBootCommand.class);
+        checkGetBootItemMenuCommand(scrollItem, new CurrentScrollPosition("11"), MenuScrollChoiceBootCommand.class);
+        checkGetBootItemMenuCommand(rgbItem, new PortableColor("#aabbcc"), MenuRgb32BootCommand.class);
+        checkGetBootItemMenuCommand(largeNum, BigDecimal.TEN, MenuLargeNumBootCommand.class);
+        checkGetBootItemMenuCommand(textItem, "text", MenuTextBootCommand.class);
+        checkGetBootItemMenuCommand(listItem, List.of("hello"), MenuRuntimeListBootCommand.class);
+        checkGetBootItemMenuCommand(subItem, false, MenuSubBootCommand.class);
+    }
+
+    private void checkGetBootItemMenuCommand(MenuItem item, Object value, Class<? extends BootItemMenuCommand<?,?>> cmdClass) {
+        MenuItemHelper.setMenuState(item, value, tree);
+        var theBootCmd = getBootMsgForItem(item, MenuTree.ROOT, tree);
+        Assertions.assertThat(theBootCmd.orElseThrow()).isInstanceOf(cmdClass);
+        assertEquals(value, theBootCmd.get().getCurrentValue());
+    }
+
     private void checkState(MenuItem item, StateStorageType ty, Object value, boolean changed, boolean active) {
         checkState(item, ty, value, changed, active, value);
     }
 
     private void checkState(MenuItem item, StateStorageType ty, Object value, boolean changed, boolean active, Object actual) {
-        var state = MenuItemHelper.stateForMenuItem(item, value, changed, active);
+        var state = stateForMenuItem(item, value, changed, active);
         assertEquals(ty, state.getStorageType());
         assertEquals(changed, state.isChanged());
         assertEquals(active, state.isActive());

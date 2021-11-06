@@ -64,6 +64,15 @@ public class JsonMenuItemSerializer {
         return gson.fromJson(jsonStr, ArrayList.class);
     }
 
+    public MenuTree newMenuTreeWithItems(String tcMenuCopy) {
+        var tree = new MenuTree();
+        var items = copyTextToItems(tcMenuCopy);
+        for (var item : items) {
+            tree.addMenuItem(tree.getSubMenuById(item.getParentId()).orElse(MenuTree.ROOT), item.getItem());
+        }
+        return tree;
+    }
+
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private Gson makeGsonProcessor(Consumer<GsonBuilder> builderConsumer) {
         ArrayList<PersistedMenu> example = new ArrayList<>();

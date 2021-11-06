@@ -34,23 +34,15 @@ import static java.lang.System.Logger.Level.*;
  * Stream remote connector is the base class for all stream implementations, such as Socket and RS232. Any remote
  * with stream like semantics can use this as the base for building out an adapter.
  */
-public abstract class StreamRemoteConnector implements RemoteConnector, RemoteConnectorContext {
+public abstract class StreamRemoteConnector extends SharedStreamConnection implements RemoteConnector, RemoteConnectorContext {
     public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
-
-    private static final int MAX_MSG_EXPECTED = 1024;
-
-    protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     protected final ScheduledExecutorService executor;
     protected final Clock clock;
     protected final Map<AuthStatus, Class<? extends RemoteConnectorState>> stateMachineMappings = new HashMap<>();
 
-    private final MenuCommandProtocol protocol;
     private final List<RemoteConnectorListener> connectorListeners = new CopyOnWriteArrayList<>();
     private final List<ConnectionChangeListener> connectionListeners = new CopyOnWriteArrayList<>();
-    private final ByteBuffer inputBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
-    private final ByteBuffer outputBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
-    private final ByteBuffer cmdBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
     private final LocalIdentifier ourLocalId;
     private final AtomicReference<RemoteConnectorState> connectorState= new AtomicReference<>();
     private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
@@ -58,43 +50,16 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
 
     protected StreamRemoteConnector(LocalIdentifier ourLocalId, MenuCommandProtocol protocol,
                                     ScheduledExecutorService executor, Clock clock) {
+        super(protocol);
         this.ourLocalId = ourLocalId;
-        this.protocol = protocol;
         this.executor = executor;
         this.clock = clock;
         changeState(new NoOperationInitialState(this));
     }
 
-    public MenuCommand readCommandFromStream() throws IOException {
-        try {
-            // Find the start of message
-            byte byStart = 0;
-            while(byStart != START_OF_MSG) {
-                if(Thread.currentThread().isInterrupted()) throw new IOException("Connection thread interrupted");
-                if(!isDeviceConnected()) throw new IOException("Connection thread not connected");
-                byStart = nextByte(inputBuffer);
-            }
-
-            // and then make sure there are enough bytes and read the protocol
-            readCompleteMessage(inputBuffer);
-
-            logByteBuffer("Line read from stream", inputBuffer);
-
-            byte protoId = inputBuffer.get();
-            if(protoId != protocol.getKeyIdentifier()) {
-                throw new TcProtocolException("Bad protocol " + protoId);
-            }
-
-            // now we take a shallow buffer copy and process the message
-            MenuCommand mc = protocol.fromChannel(inputBuffer);
-            if(logger.isLoggable(DEBUG)) connectionLog(DEBUG, "Menu command read: " + mc);
-            return mc;
-        }
-        catch(TcProtocolException ex) {
-            // a protocol problem shouldn't drop the connection
-            logger.log(WARNING, "Protocol error: " + ex.getMessage() + ", remote=" + getConnectionName());
-            return null;
-        }
+    @Override
+    public boolean canSendMessageNow(MenuCommand cmd) {
+        return connectorState.get().canSendCommandToRemote(cmd);
     }
 
     protected void stopThreadProc() {
@@ -135,38 +100,8 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
     public void close() {
         inputBuffer.clear();
         inputBuffer.flip();
-
-        outputBuffer.clear();
         cmdBuffer.clear();
         notifyConnection();
-    }
-
-    /**
-     * Sends a command to the remote with the protocol and usual headers.
-     * @param msg the message to send.
-     * @throws IOException if there are issues with the transport
-     */
-    @Override
-    public void sendMenuCommand(MenuCommand msg) throws IOException {
-        if (connectorState.get().canSendCommandToRemote(msg)) {
-            synchronized (outputBuffer) {
-                cmdBuffer.clear();
-                protocol.toChannel(cmdBuffer, msg);
-                cmdBuffer.flip();
-                outputBuffer.clear();
-                outputBuffer.put(START_OF_MSG);
-                outputBuffer.put(protocol.getKeyIdentifier());
-                outputBuffer.put((byte) msg.getCommandType().getHigh());
-                outputBuffer.put((byte) msg.getCommandType().getLow());
-                outputBuffer.put(cmdBuffer);
-                outputBuffer.flip();
-                logByteBuffer("Sending message on " + getConnectionName(), outputBuffer);
-                sendInternal(outputBuffer);
-                outputBuffer.clear();
-            }
-        } else {
-            throw new IOException("Not connected to port");
-        }
     }
 
     protected void handleCoreConnectionStates(ConnectMode connectMode) {
@@ -192,33 +127,6 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
      * @throws IOException if there are problems writing
      */
     protected abstract void sendInternal(ByteBuffer outputBuffer) throws IOException;
-
-    /**
-     * Reads the next available byte from the input buffer provided, waiting if data is not
-     * available.
-     * @param inputBuffer the buffer to read from
-     * @return one byte of data from the stream
-     * @throws IOException if there are problems reading data.
-     */
-    private byte nextByte(ByteBuffer inputBuffer) throws IOException {
-        getAtLeastBytes(inputBuffer, 1, ReadMode.ONLY_WHEN_EMPTY);
-        return inputBuffer.get();
-    }
-
-    /**
-     * Reads at least the number of bytes requested waiting if need be for more data.
-     * @param inputBuffer the buffer to read from
-     * @param len the minimum number of bytes needed
-     * @throws IOException if there are problems reading.
-     */
-    protected abstract void getAtLeastBytes(ByteBuffer inputBuffer, int len, ReadMode mode) throws IOException;
-
-    protected void readCompleteMessage(ByteBuffer inputBuffer) throws IOException {
-        while(!doesBufferHaveEOM(inputBuffer)) {
-            if(inputBuffer.remaining() > MAX_MSG_EXPECTED) throw new TcProtocolException("Message corrupt, no EOM");
-            getAtLeastBytes(inputBuffer, 1, ReadMode.READ_MORE);
-        }
-    }
 
     /**
      * Register for connector messages, when new messages are received from this stream.
@@ -254,44 +162,6 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
      */
     protected void notifyConnection() {
         connectionListeners.forEach(listener-> listener.connectionChange(this, getAuthenticationStatus()));
-    }
-
-    /**
-     * Helper method that logs the entire message buffer when at debug logging level.
-     * @param msg the message to print first
-     * @param inBuffer the buffer to be logged
-     */
-    protected void logByteBuffer(String msg, ByteBuffer inBuffer) {
-        if(!logger.isLoggable(DEBUG)) return;
-
-        ByteBuffer bb = inBuffer.duplicate();
-
-        StringBuilder sb = new StringBuilder(256);
-        sb.append(msg).append(". Content: ");
-
-        int len = Math.min(400, bb.remaining());
-        int pos = 0;
-        while(pos < len) {
-            byte dataByte = bb.get();
-            if(dataByte > 31) {
-                sb.append((char)dataByte);
-            }
-            else {
-                sb.append(String.format("<0x%02x>", dataByte));
-            }
-            pos++;
-        }
-
-        connectionLog(DEBUG, sb.toString());
-    }
-
-    public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {
-        ByteBuffer bbCopy = inputBuffer.slice();
-        boolean foundMsg = false;
-        while(!foundMsg && bbCopy.hasRemaining()) {
-            foundMsg = (bbCopy.get() == FIELD_TERMINATOR && bbCopy.hasRemaining() && bbCopy.get() == END_OF_MSG);
-        }
-        return foundMsg;
     }
 
     @Override
@@ -369,9 +239,6 @@ public abstract class StreamRemoteConnector implements RemoteConnector, RemoteCo
         return clock;
     }
 
-    protected void connectionLog(System.Logger.Level l, String s) {
-        logger.log(l, getConnectionName() + " - " + s);
-    }
 
     protected void connectionLog(System.Logger.Level l, String s, Throwable e) {
         logger.log(l, getConnectionName() + " - " + s, e);

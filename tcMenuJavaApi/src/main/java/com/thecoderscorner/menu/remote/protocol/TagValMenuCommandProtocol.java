@@ -101,10 +101,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private String getMsgTypeFromBuffer(ByteBuffer buffer) {
-        StringBuilder sb = new StringBuilder();
-        return sb.append((char)buffer.get())
-                .append((char)buffer.get())
-                .toString();
+        return String.valueOf((char) buffer.get()) + (char) buffer.get();
     }
 
     private MenuCommand processDialogUpdate(TagValTextParser parser) throws IOException {
@@ -427,6 +424,11 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     public void toChannel(ByteBuffer buffer, MenuCommand cmd) {
         StringBuilder sb = new StringBuilder(128);
 
+        buffer.put(START_OF_MSG);
+        buffer.put(PROTOCOL_TAG_VAL);
+        buffer.put((byte) cmd.getCommandType().getHigh());
+        buffer.put((byte) cmd.getCommandType().getLow());
+
         switch(cmd.getCommandType()) {
             case HEARTBEAT:
                 writeHeartbeat(sb, (MenuHeartbeatCommand)cmd);
@@ -600,7 +602,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue() ? 1  : 0);
     }
 
-    private void writeCommonBootFields(StringBuilder sb, BootItemMenuCommand cmd) {
+    private void writeCommonBootFields(StringBuilder sb, BootItemMenuCommand<?, ?> cmd) {
         appendField(sb, KEY_PARENT_ID_FIELD, cmd.getSubMenuId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItem().getId());
         appendField(sb, KEY_EEPROM_FIELD, cmd.getMenuItem().getEepromAddress());

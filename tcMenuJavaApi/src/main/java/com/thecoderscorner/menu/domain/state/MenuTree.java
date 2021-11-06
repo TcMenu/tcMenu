@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
@@ -73,7 +74,7 @@ public class MenuTree {
     }
 
     /**
-     * This will either add or update an existing item, depending if the ID is already present.
+     * This will either add or update an existing item, depending on the ID is already present.
      * @param parentId the parent where it should be placed / already exists
      * @param item the item to either add or update.
      */
@@ -91,7 +92,7 @@ public class MenuTree {
     }
 
     /**
-     * gets a submenu by it's ID. Returns an optional that will be empty when not present
+     * gets a submenu by its ID. Returns an optional that will be empty when not present
      * @param parentId the parent to obtain
      * @return an optional that will be populated when present with the sub menu.
      */
@@ -101,7 +102,7 @@ public class MenuTree {
 
     /**
      * Gets the menu item with the specified ID, finding the submenu if needed. In most cases the linkage between
-     * ID and item will be cached and therefore fast, if you don't know the sub menu set it to null and it will be
+     * ID and item will be cached and therefore fast, if you don't know the sub menu set it to null, and it will be
      * determined.
      * @param id the id of the object to find.
      * @return the menu at the given id
@@ -112,7 +113,7 @@ public class MenuTree {
             return Optional.of(state.getItem());
         }
 
-        // short cut to find the submenu by ID if possible before going through everything.
+        // shortcut to find the submenu by ID if possible before going through everything.
         var maybeSubMenuId = getAllSubMenus().stream().filter(item -> item.getId() == id).findFirst();
         if(maybeSubMenuId.isPresent()) return maybeSubMenuId;
 
@@ -172,7 +173,7 @@ public class MenuTree {
 
             items.remove(idx);
 
-            idx = (moveType == MoveType.MOVE_UP)? --idx : ++idx;
+            idx = (moveType == MoveType.MOVE_UP)? idx -1 : idx + 1;
             if(idx<0) idx=0;
 
             if(idx>=items.size()) {
@@ -293,5 +294,21 @@ public class MenuTree {
     @SuppressWarnings("unchecked")
     public <T extends AnyMenuState> T getMenuState(MenuItem item) {
         return (T)menuStates.get(item.getId());
+    }
+
+    /**
+     * Recurse the whole menu tree calling the consumer for each item in turn. This will always be in order so that
+     * a child item never comes before its parent.
+     * @param root the starting point, normally ROOT
+     * @param consumer the consumer that will be called for each item, providing the item and the parent
+     */
+    public void recurseTreeIteratingOnItems(SubMenuItem root, BiConsumer<MenuItem, SubMenuItem> consumer) {
+        var sub = getMenuItems(root);
+        for(var child : sub) {
+            consumer.accept(child, root);
+            if(child instanceof SubMenuItem) {
+                recurseTreeIteratingOnItems((SubMenuItem) child, consumer);
+            }
+        }
     }
 }
