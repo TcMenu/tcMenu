@@ -36,7 +36,6 @@ public class RemoteMenuController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final RemoteConnector connector;
     private final MenuTree managedMenu;
-    private final AtomicReference<RemoteInformation> remoteParty = new AtomicReference<>(NOT_CONNECTED);
     private final ConcurrentMap<CorrelationId, MenuItem> itemsInProgress = new ConcurrentHashMap<>();
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -64,7 +63,7 @@ public class RemoteMenuController {
             itemsInProgress.clear();
         }
 
-        listeners.forEach(l-> l.connectionState(remoteParty.get(), status));
+        listeners.forEach(l-> l.connectionState(connector.getRemoteParty(), status));
     }
 
     /**

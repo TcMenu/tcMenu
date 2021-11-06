@@ -15,6 +15,7 @@ import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,6 +31,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final MenuAuthenticator authenticator;
     private final AtomicBoolean successfulLogin = new AtomicBoolean(false);
     private final Clock clock;
+    private ScheduledFuture<?> hbSchedule;
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, ServerConnectionManager serverManager,
                              String serverName, UUID uuid, MenuAuthenticator authenticator, Clock clock) {
@@ -44,7 +46,16 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     public void start() {
         serverManager.start(this);
-        executorService.scheduleAtFixedRate(this::checkHeartbeats, 200, 200, TimeUnit.MILLISECONDS);
+        hbSchedule = executorService.scheduleAtFixedRate(this::checkHeartbeats, 200, 200, TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+        if(hbSchedule != null) hbSchedule.cancel(false);
+        try {
+            serverManager.stop();
+        } catch (Exception e) {
+            logger.log(System.Logger.Level.ERROR, "Server manager threw error during stop", e);
+        }
     }
 
     private void checkHeartbeats() {
@@ -111,6 +122,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
         } catch (Exception e) {
             conn.closeConnection();
         }
+    }
+
+    public MenuTree getManagedMenu() {
+        return tree;
     }
 
     public void updateMenuItem(MenuItem item, Object newValue) {
