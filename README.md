@@ -8,6 +8,12 @@ TheCodersCorner.com invest a lot of time and resources into making this open sou
 
 In any fork, please ensure all text up to here is left unaltered.
 
+## Documentation
+
+[UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+
+[Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
+
 ## Questions, community forum and support
 
 You can get help from the community forum, there are also support and consultancy options available from TheCodersCorner.
@@ -31,12 +37,6 @@ Here's a couple of screen-shots of the designer UI - runs on Windows, macOS and 
 and embedCONTROL desktop that can control menu based apps - runs on Windows, macOS and Linux:
 
 ![Code generator runs on many platforms](zMedia/generate-code-for-your-platform.jpg)
-
-## Documentation
-
-[UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
-
-[Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
 
 ## Generating a menu from the UI for the impatient
 
