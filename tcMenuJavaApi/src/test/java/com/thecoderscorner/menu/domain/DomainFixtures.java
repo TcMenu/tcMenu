@@ -501,6 +501,36 @@ public class DomainFixtures {
             "  },\n" +
             "  {\n" +
             "    \"parentId\": 12,\n" +
+            "    \"type\": \"textItem\",\n" +
+            "    \"item\": {\n" +
+            "      \"textLength\": 20,\n" +
+            "      \"itemType\": \"TIME_24_HUNDREDS\",\n" +
+            "      \"name\": \"Time 24\",\n" +
+            "      \"variableName\": \"\",\n" +
+            "      \"id\": 91,\n" +
+            "      \"eepromAddress\": -1,\n" +
+            "      \"readOnly\": false,\n" +
+            "      \"localOnly\": false,\n" +
+            "      \"visible\": true\n" +
+            "    }\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"parentId\": 12,\n" +
+            "    \"type\": \"textItem\",\n" +
+            "    \"item\": {\n" +
+            "      \"textLength\": 20,\n" +
+            "      \"itemType\": \"GREGORIAN_DATE\",\n" +
+            "      \"name\": \"Date field\",\n" +
+            "      \"variableName\": \"\",\n" +
+            "      \"id\": 92,\n" +
+            "      \"eepromAddress\": -1,\n" +
+            "      \"readOnly\": false,\n" +
+            "      \"localOnly\": false,\n" +
+            "      \"visible\": true\n" +
+            "    }\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"parentId\": 12,\n" +
             "    \"type\": \"customBuildItem\",\n" +
             "    \"item\": {\n" +
             "      \"menuType\": \"REMOTE_IOT_MONITOR\",\n" +
@@ -520,6 +550,21 @@ public class DomainFixtures {
             "      \"name\": \"Authenticator\",\n" +
             "      \"id\": 27,\n" +
             "      \"eepromAddress\": -1,\n" +
+            "      \"readOnly\": false,\n" +
+            "      \"localOnly\": false,\n" +
+            "      \"visible\": true\n" +
+            "    }\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"parentId\": 12,\n" +
+            "    \"type\": \"rgbItem\",\n" +
+            "    \"item\": {\n" +
+            "      \"includeAlphaChannel\": false,\n" +
+            "      \"name\": \"RGB\",\n" +
+            "      \"variableName\": \"\",\n" +
+            "      \"id\": 90,\n" +
+            "      \"eepromAddress\": 16,\n" +
+            "      \"functionName\": \"onRgbChanged\",\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
             "      \"visible\": true\n" +
