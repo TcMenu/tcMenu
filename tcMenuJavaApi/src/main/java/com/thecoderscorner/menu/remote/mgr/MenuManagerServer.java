@@ -4,9 +4,11 @@ import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.StringListMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
@@ -19,6 +21,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
 
 public class MenuManagerServer implements NewServerConnectionListener {
@@ -137,8 +140,18 @@ public class MenuManagerServer implements NewServerConnectionListener {
         logger.log(System.Logger.Level.INFO, "Sending item update for " + item);
         var state = tree.getMenuState(item);
         if(state == null) return;
+
+        MenuCommand cmd;
+        if(state instanceof StringListMenuState) {
+            cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ((StringListMenuState)state).getValue());
+        }
+        else {
+            cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE,
+                    state.getValue().toString());
+        }
+
         for(var socket : serverManager.getServerConnections()) {
-            socket.sendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), MenuChangeCommand.ChangeType.ABSOLUTE, state.getValue().toString()));
+            socket.sendCommand(cmd);
         }
     }
 
@@ -150,7 +163,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
         var item = maybeItem.get();
 
-        if(cmd.getChangeType() == MenuChangeCommand.ChangeType.DELTA) {
+        if(cmd.getChangeType() == ChangeType.DELTA) {
             MenuState<Integer> state = tree.getMenuState(item);
             if(state == null) state = new IntegerMenuState(item, true, false, 0);
             int val = state.getValue() + Integer.parseInt(cmd.getValue());
@@ -162,7 +175,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
             state = new IntegerMenuState(item, state.isChanged(), state.isActive(), val);
             tree.changeItem(item, state);
             sendChangeAndAck(socket, item, val, cmd.getCorrelationId());
-        } else if(cmd.getChangeType() == MenuChangeCommand.ChangeType.ABSOLUTE) {
+        } else if(cmd.getChangeType() == ChangeType.ABSOLUTE) {
             var newState = MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, cmd.getValue());
             tree.changeItem(item, newState);
             sendChangeAndAck(socket, item, cmd.getValue(), cmd.getCorrelationId());
@@ -171,6 +184,13 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void sendChangeAndAck(ServerConnection socket, MenuItem item, Object val, CorrelationId correlationId) {
         socket.sendCommand(new MenuAcknowledgementCommand(correlationId, AckStatus.SUCCESS));
-        socket.sendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), MenuChangeCommand.ChangeType.ABSOLUTE, val.toString()));
+        socket.sendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, val.toString()));
+    }
+
+    public void reportDialogUpdate(DialogMode show, String title, String content, MenuButtonType b1, MenuButtonType b2) {
+        var cmd = new MenuDialogCommand(show, title, content, b1, b2, CorrelationId.EMPTY_CORRELATION);
+        for(var socket : serverManager.getServerConnections()) {
+            socket.sendCommand(cmd);
+        }
     }
 }

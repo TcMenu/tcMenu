@@ -545,6 +545,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItemId());
         appendField(sb, KEY_CHANGE_TYPE, MenuChangeCommand.changeTypeToInt(cmd.getChangeType()));
         if(cmd.getValues() != null) {
+            appendField(sb, KEY_NO_OF_CHOICES, cmd.getValues().size());
             appendChoices(sb, cmd.getValues());
         }
         else appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
