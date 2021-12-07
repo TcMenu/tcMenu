@@ -79,7 +79,7 @@ public class MenuEditorApp extends Application {
         var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
         var httpClient = new SimpleHttpClient();
 
-        var urlBase = "https://www.thecoderscorner.com/tcc";
+        var urlBase = "https://www.thecoderscorner.com";
 
         if(System.getProperty("localTccService") != null) {
             urlBase = System.getProperty("localTccService");

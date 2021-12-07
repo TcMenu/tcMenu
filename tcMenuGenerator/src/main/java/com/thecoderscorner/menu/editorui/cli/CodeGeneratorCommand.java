@@ -168,16 +168,8 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         }
 
         @Override
-        public void upgradePlugin(String name, VersionInfo requestedVersion) { }
-
-        @Override
         public boolean availableVersionsAreValid(boolean refresh) {
             return true;
-        }
-
-        @Override
-        public Optional<List<VersionInfo>> acquireAllVersionsFor(String pluginName) {
-            return Optional.empty();
         }
     }
 }

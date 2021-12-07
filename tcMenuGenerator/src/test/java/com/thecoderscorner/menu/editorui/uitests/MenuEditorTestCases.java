@@ -453,7 +453,6 @@ public class MenuEditorTestCases {
 
         Thread.sleep(500);
         verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Libraries are out of date, see Edit -> General Settings"));
-        verifyThat("#tcMenuPluginIndicator", LabeledMatchers.hasText("Plugin updates are available in Edit -> General Settings"));
     }
 
     @Test

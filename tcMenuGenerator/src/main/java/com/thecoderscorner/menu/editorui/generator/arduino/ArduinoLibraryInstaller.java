@@ -6,18 +6,17 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -112,7 +111,11 @@ public class ArduinoLibraryInstaller {
             return versions.get(installTypeToMapEntry(name, installationType));
         }
         else if(installationType == CURRENT_APP) {
-            return new VersionInfo(configStore.getVersion());
+            var version = configStore.getVersion();
+            if(version.endsWith("-SNAPSHOT")) {
+                version = version.replace("-SNAPSHOT", "");
+            }
+            return new VersionInfo(version);
         }
         else if(installationType == CURRENT_LIB){
             Optional<String> libsDir = configStore.getArduinoLibrariesOverrideDirectory();
@@ -139,10 +142,6 @@ public class ArduinoLibraryInstaller {
                     .map(pl -> new VersionInfo(pl.getVersion()))
                     .findFirst().orElse(new VersionInfo("0.0.0"));
         }
-    }
-
-    List<VersionInfo> getVersionsForPlugin(String pluginName) {
-        return versionDetector.acquireAllVersionsFor(pluginName).orElse(List.of());
     }
 
     private String installTypeToMapEntry(String name, InstallationType installationType) {

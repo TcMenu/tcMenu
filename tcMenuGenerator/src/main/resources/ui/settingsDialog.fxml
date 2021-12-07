@@ -109,14 +109,12 @@
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="Library name" />
                                   <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="92.0" text="Available" />
                                     <TableColumn fx:id="actualVerCol" editable="false" prefWidth="92.0" text="Actual" />
-                                    <TableColumn fx:id="actionsCol" prefWidth="160.0" text="Actions" />
                                 </columns>
                               </TableView>
                            </center>
                            <bottom>
                               <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                                 <buttons>
-                                  <Button fx:id="updatePluginsBtn" mnemonicParsing="false" onAction="#onUpdatePlugins" text="Update core plugins" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="Refresh libraries and plugins" />
                                 </buttons>
                               </ButtonBar>

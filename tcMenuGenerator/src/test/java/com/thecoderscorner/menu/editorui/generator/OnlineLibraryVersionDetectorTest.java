@@ -129,13 +129,4 @@ public class OnlineLibraryVersionDetectorTest {
         assertEquals("1.7.2", versions.get("core-remote/Plugin").toString());
         assertEquals("1.7.0", versions.get("java-app/App").toString());
     }
-
-    @Test
-    public void testGettingAllVersionsForPlugin() {
-        var allVersions = verDet.acquireAllVersionsFor("core-display").orElseThrow();
-        assertThat(allVersions).containsExactly(new VersionInfo("1.7.0"),new VersionInfo("1.7.1"), new VersionInfo("1.7.2"));
-
-        allVersions = verDet.acquireAllVersionsFor("core-remote").orElseThrow();
-        assertThat(allVersions).containsExactly(new VersionInfo("1.4.1"),new VersionInfo("1.4.2"), new VersionInfo("1.4.3"));
-    }
 }

@@ -6,14 +6,12 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -27,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
@@ -51,22 +48,18 @@ public class GeneralSettingsController {
     public TableColumn<NameWithVersion, String> libraryNameColumn;
     public TableColumn<NameWithVersion, String> expectedVerCol;
     public TableColumn<NameWithVersion, String> actualVerCol;
-    public TableColumn<NameWithVersion, NameWithVersion> actionsCol;
-    public Button updatePluginsBtn;
     public TableView<NameWithVersion> versionsTable;
     public ListView<String> additionalPathsList;
     public Button removePathBtn;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
-    private PluginUpgradeTask upgrader;
     private CodePluginManager pluginManager;
     private ArduinoLibraryInstaller installer;
 
     public void initialise(ConfigurationStorage storage, LibraryVersionDetector versionDetector,
                            ArduinoLibraryInstaller installer, CodePluginManager pluginManager,
-                           PluginUpgradeTask upgrader, String homeDirectory) {
-        this.upgrader = upgrader;
+                           String homeDirectory) {
         this.installer = installer;
         this.pluginManager = pluginManager;
         this.storage = storage;
@@ -97,7 +90,6 @@ public class GeneralSettingsController {
         libraryNameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().name()));
         expectedVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().available().toString()));
         actualVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().installed().toString()));
-        actionsCol.setCellValueFactory(new NameWithVersionValueFactory());
 
         pluginStreamCombo.setItems(FXCollections.observableList(Arrays.asList(ReleaseType.values())));
         pluginStreamCombo.getSelectionModel().select(versionDetector.getReleaseType());
@@ -182,7 +174,7 @@ public class GeneralSettingsController {
         }
         if (!Files.exists(arduinoPath)) {
             logger.log(System.Logger.Level.INFO, "Not found in " + arduinoPath);
-            // try again in the onedrive folder, noticed it there on several windows machines
+            // try again in the onedrive folder, noticed it there on several Windows machines
             arduinoPath = Paths.get(homeDirectory, "OneDrive/Documents/Arduino");
         }
         if (!Files.exists(arduinoPath)) {
@@ -234,26 +226,6 @@ public class GeneralSettingsController {
         }
     }
 
-    public void onUpdatePlugins(ActionEvent actionEvent) {
-        var corePluginList = List.of("core-remote", "core-themes", "core-display");
-        upgrader.onCompleted(this::populateVersions);
-        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
-                corePluginList,
-                Optional.empty()
-        );
-    }
-
-    private void updateSingleLibrary(String selectedItem, String versionText) {
-        if(versionText == null || selectedItem == null) return;
-        versionText = versionText.replace("*", "");
-        upgrader.onCompleted(this::populateVersions);
-        upgrader.startUpdateProcedure((Stage) additionalPathsList.getScene().getWindow(),
-                Collections.singleton(selectedItem),
-                Optional.of(VersionInfo.fromString(versionText))
-        );
-        populateVersions();
-    }
-
     public void onRefreshLibraries(ActionEvent actionEvent) {
         populateVersions();
     }
@@ -270,22 +242,13 @@ public class GeneralSettingsController {
         versionsTable.getItems().clear();
 
         try {
-            logger.log(INFO, "Start plugin version detection");
-
-            for(var plugin : pluginManager.getLoadedPlugins()) {
-                var availableVersion = getVersionOfLibraryOrError(plugin.getModuleName(), AVAILABLE_PLUGIN);
-                var installedVersion = getVersionOfLibraryOrError(plugin.getModuleName(), CURRENT_PLUGIN);
-                pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
-
-                var ver = new NameWithVersion(plugin.getModuleName() + " plugin", plugin.getModuleName(), true, availableVersion, installedVersion);
-                versionsTable.getItems().add(ver);
-            }
             logger.log(INFO, "Start library version detection");
 
             versionsTable.getItems().add(findLibVersion("tcMenu"));
             versionsTable.getItems().add(findLibVersion("IoAbstraction"));
             versionsTable.getItems().add(findLibVersion("LiquidCrystalIO"));
             versionsTable.getItems().add(findLibVersion("TaskManagerIO"));
+            versionsTable.getItems().add(findLibVersion("SimpleCollections"));
 
             versionsTable.getItems().add(new NameWithVersion(
                     "TcMenuDesigner UI", "tcMenuDesigner",
@@ -296,61 +259,9 @@ public class GeneralSettingsController {
 
             logger.log(INFO, "Done with version detection, setting cell factory and returning");
 
-            registerCellFactoryForActionColumn();
-
-            updatePluginsBtn.setDisable(!pluginUpdateNeeded);
         } catch (IOException e) {
             logger.log(ERROR, "Unable to load plugin and lib versions", e);
         }
-    }
-
-    private void registerCellFactoryForActionColumn() {
-        actionsCol.setCellFactory((tableColumn) -> new TableCell<>() {
-
-            @Override
-            protected void updateItem(NameWithVersion item, boolean empty) {
-                super.updateItem(item, empty);
-
-                this.setGraphic(null);
-                this.setText(null);
-
-                if(item != null && item.isPlugin()) {
-                    var versions = versionDetector.acquireAllVersionsFor(item.underlyingId());
-
-                    if (versions.isPresent()) {
-                        List<String> list = versions.get().stream()
-                                .sorted(Comparator.comparingInt (VersionInfo::asInteger).reversed())
-                                .map(ver -> ver + ((ver.equals(item.available) ? "*" : "")))
-                                .collect(Collectors.toList());
-
-                        var cbx = new ComboBox<>(FXCollections.observableList(list));
-                        Button updateButton = new Button(">>");
-                        updateButton.setOnAction(e -> updateSingleLibrary(item.underlyingId, cbx.getSelectionModel().getSelectedItem()));
-
-                        cbx.getSelectionModel().selectedItemProperty().addListener((o, s, t1) -> {
-                            var sel = cbx.getSelectionModel().getSelectedItem();
-                            if(sel == null) return;
-                            sel = sel.replace("*", "");
-                            updateButton.setDisable(VersionInfo.fromString(sel).equals(item.installed()));
-                        });
-
-                        cbx.getSelectionModel().select(0);
-                        for(int i = 0; i<list.size(); i++) {
-                            if(list.get(i).equals(item.available() + "*")) {
-                                cbx.getSelectionModel().select(i);
-                                break;
-                            }
-                        }
-
-                        var container = new HBox(4);
-                        container.getChildren().add(cbx);
-                        container.getChildren().add(updateButton);
-                        this.setGraphic(container);
-                        this.setText(null);
-                    }
-                }
-            }
-        });
     }
 
     private NameWithVersion findLibVersion(String libName) throws IOException {

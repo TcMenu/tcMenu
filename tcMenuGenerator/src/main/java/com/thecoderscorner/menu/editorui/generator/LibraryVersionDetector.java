@@ -6,23 +6,15 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.generator.plugin.LibraryUpgradeException;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 
 public interface LibraryVersionDetector {
     void changeReleaseType(ReleaseType releaseType);
     ReleaseType getReleaseType();
-
     Map<String, VersionInfo> acquireVersions();
-    void upgradePlugin(String name, VersionInfo requestedVersion) throws LibraryUpgradeException;
-
     boolean availableVersionsAreValid(boolean refresh);
-
-    Optional<List<VersionInfo>> acquireAllVersionsFor(String pluginName);
 }

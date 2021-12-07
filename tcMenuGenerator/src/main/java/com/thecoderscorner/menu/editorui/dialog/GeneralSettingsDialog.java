@@ -11,7 +11,6 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import javafx.stage.Stage;
 
 
@@ -21,17 +20,14 @@ public class GeneralSettingsDialog extends BaseDialogSupport<GeneralSettingsCont
     private final LibraryVersionDetector detector;
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager manager;
-    private final PluginUpgradeTask upgrader;
     private final String home;
 
     public GeneralSettingsDialog(Stage stage, ConfigurationStorage storage, LibraryVersionDetector detector,
-                                 ArduinoLibraryInstaller installer, CodePluginManager manager, PluginUpgradeTask upgrader,
-                                 String home) {
+                                 ArduinoLibraryInstaller installer, CodePluginManager manager, String home) {
         this.storage = storage;
         this.detector = detector;
         this.installer = installer;
         this.manager = manager;
-        this.upgrader = upgrader;
         this.home = home;
 
         tryAndCreateDialog(stage, "/ui/settingsDialog.fxml", "General Application Settings", true);
@@ -40,6 +36,6 @@ public class GeneralSettingsDialog extends BaseDialogSupport<GeneralSettingsCont
 
     @Override
     protected void initialiseController(GeneralSettingsController controller) {
-        controller.initialise(storage, detector, installer, manager, upgrader, home);
+        controller.initialise(storage, detector, installer, manager, home);
     }
 }

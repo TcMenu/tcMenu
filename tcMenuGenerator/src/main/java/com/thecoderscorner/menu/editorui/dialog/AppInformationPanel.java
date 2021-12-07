@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
@@ -27,15 +28,14 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.getJMetro;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.AVAILABLE_PLUGIN;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_PLUGIN;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
@@ -77,7 +77,7 @@ public class AppInformationPanel {
         vbox.setSpacing(5);
 
         String title = "TcMenu designer";
-        if(storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
+        if (storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
             title += " This is a BETA version - don't use in production";
         }
         Label docsLbl = new Label(title);
@@ -92,7 +92,7 @@ public class AppInformationPanel {
         ColumnConstraints col1 = new ColumnConstraints(120);
         ColumnConstraints col2 = new ColumnConstraints(300, 300, Double.MAX_VALUE);
         col2.setHgrow(Priority.ALWAYS);
-        ColumnConstraints col3 = new ColumnConstraints(100,100, Double.MAX_VALUE);
+        ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
         gridPane.add(new Label("File name"), 0, 0);
@@ -110,7 +110,7 @@ public class AppInformationPanel {
         changeId.setId("changeIdBtn");
         changeId.setPrefWidth(99);
         changeId.setOnAction(e -> {
-            if(editorUI.questionYesNo("Really change ID", "The ID is used by IoT devices to identify the device, so changing it may cause problems.")) {
+            if (editorUI.questionYesNo("Really change ID", "The ID is used by IoT devices to identify the device, so changing it may cause problems.")) {
                 controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                         .withExisting(options)
                         .withNewId(UUID.randomUUID())
@@ -184,7 +184,7 @@ public class AppInformationPanel {
         vbox.getChildren().clear();
         vbox.getChildren().add(new Label("Reading version information.."));
         executor.submit(() -> {
-            if(libraryVersionDetector.availableVersionsAreValid(true)) {
+            if (libraryVersionDetector.availableVersionsAreValid(true)) {
                 Platform.runLater(this::redrawTheTitlePage);
             }
         });
@@ -194,70 +194,87 @@ public class AppInformationPanel {
         var vbox = libraryInfoVBox;
         vbox.getChildren().clear();
         boolean needRefresh = false;
-        if(installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
-            Label setManually = new Label("Set Arduino directory from Edit -> General Settings");
-            setManually.setId("tcMenuStatusArea");
-            setManually.getStyleClass().add("libsNotOK");
-            vbox.getChildren().add(setManually);
-            needRefresh = true;
-        }
-        else if(storage.isUsingArduinoIDE() && installer.statusOfAllLibraries().isUpToDate()) {
-            Label lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
-            lblTcMenuOK.setId("tcMenuStatusArea");
-            lblTcMenuOK.getStyleClass().add("libsOK");
-            vbox.getChildren().add(lblTcMenuOK);
-        }
-        else if(storage.isUsingArduinoIDE()) {
-            Label libsNotOK = new Label("Libraries are out of date, see Edit -> General Settings");
-            libsNotOK.getStyleClass().add("libsNotOK");
-            libsNotOK.setId("tcMenuStatusArea");
-            vbox.getChildren().add(libsNotOK);
-            needRefresh = true;
-        }
 
-        boolean pluginUpdateNeeded = (pluginManager.getLoadedPlugins().size() == 0);
+        try {
+            var currentUI = installer.getVersionOfLibrary("java-app", CURRENT_APP);
+            if (!installer.getVersionOfLibrary("java-app", AVAILABLE_APP).equals(currentUI)) {
+                var uiNeedsUpdate = new Button("There is a UI update available, you can check versions from General Settings");
+                uiNeedsUpdate.setId("tcMenuStatusArea");
+                uiNeedsUpdate.getStyleClass().add("libsNotOK");
+                uiNeedsUpdate.setOnAction(actionEvent -> editorUI.showGeneralSettings());
+                vbox.getChildren().add(uiNeedsUpdate);
+                needRefresh = true;
+            }
 
-        for(var plugin : pluginManager.getLoadedPlugins()) {
-            var availableVersion = getVersionOfLibraryOrError(plugin, AVAILABLE_PLUGIN);
-            var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
-            pluginUpdateNeeded = pluginUpdateNeeded || !installedVersion.equals(availableVersion);
-        }
+            if (installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
+                var setManually = new Button("Set Arduino directory in General Settings");
+                setManually.setId("tcMenuStatusArea");
+                setManually.getStyleClass().add("libsNotOK");
+                vbox.getChildren().add(setManually);
+                setManually.setOnAction(actionEvent -> editorUI.showGeneralSettings());
+                needRefresh = true;
+            } else if (storage.isUsingArduinoIDE() && installer.statusOfAllLibraries().isUpToDate()) {
+                var lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
+                lblTcMenuOK.setId("tcMenuStatusArea");
+                lblTcMenuOK.getStyleClass().add("libsOK");
+                vbox.getChildren().add(lblTcMenuOK);
+            } else if (storage.isUsingArduinoIDE()) {
+                var libsNotOK = new Button("Libraries need updating, check in General Settings");
+                libsNotOK.getStyleClass().add("libsNotOK");
+                libsNotOK.setId("tcMenuStatusArea");
+                libsNotOK.setOnAction(actionEvent -> editorUI.showGeneralSettings());
+                vbox.getChildren().add(libsNotOK);
+                needRefresh = true;
+            }
 
-        if(!pluginManager.getLoadErrors().isEmpty()) {
-            List<String> loadErrors = pluginManager.getLoadErrors();
-            if(!loadErrors.isEmpty()) {
-                var errors = "Plugins did not load, please check designer and plugin versions are compatible:\n"
-                        + loadErrors.stream().limit(10).collect(Collectors.joining("\n"));
+            boolean pluginsNotUpdated = (pluginManager.getLoadedPlugins().size() == 0);
 
-                if(loadErrors.size() > 10) {
-                    errors += "\nTruncated at 10 errors, please see logs..";
+            for (var plugin : pluginManager.getLoadedPlugins()) {
+                var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
+                pluginsNotUpdated = pluginsNotUpdated || !installedVersion.equals(currentUI);
+            }
+
+            if (!pluginManager.getLoadErrors().isEmpty()) {
+                List<String> loadErrors = pluginManager.getLoadErrors();
+                if (!loadErrors.isEmpty()) {
+                    var errors = "At least one plugins failed, default plugins in ~/.tcmenu/plugins:\n"
+                            + loadErrors.stream().limit(10).collect(Collectors.joining("\n"));
+
+                    if (loadErrors.size() > 10) {
+                        errors += "\nTruncated at 10 errors, please see logs..";
+                    }
+
+                    var pluginLabel = new Label(errors);
+                    pluginLabel.setId("tcMenuPluginIndicator");
+                    pluginLabel.getStyleClass().add("libsNotOK");
+                    vbox.getChildren().add(pluginLabel);
                 }
-
-                var pluginLabel = new Label(errors);
+            } else if (pluginsNotUpdated) {
+                var pluginLabel = new Button("SEVERE ERROR: Code generator plugins did not automatically update, click to retry");
                 pluginLabel.setId("tcMenuPluginIndicator");
                 pluginLabel.getStyleClass().add("libsNotOK");
+                pluginLabel.setOnAction(actionEvent -> {
+                    var alert = new Alert(Alert.AlertType.INFORMATION);
+                    getJMetro().setScene(alert.getDialogPane().getScene());
+                    alert.setTitle("Code Generator Plugin update");
+                    alert.setHeaderText("Notes about plugins not updating");
+                    alert.setContentText("When designer updated it could not update the plugins automatically. " +
+                            "Before proceeding we recommend deleting ~/.tcmenu/plugins");
+                    alert.showAndWait();
+                    MenuEditorApp.createOrUpdateDirectoriesAsNeeded(storage);
+                    controller.presentInfoPanel();
+                });
                 vbox.getChildren().add(pluginLabel);
+                needRefresh = true;
             }
-        }
-        else if(pluginUpdateNeeded) {
-            var noPlugins = pluginManager.getLoadedPlugins().isEmpty();
-            var pluginLabel = new Label(noPlugins ? "No plugins installed, fix in Edit -> General Settings" : "Plugin updates are available in Edit -> General Settings");
-            pluginLabel.setId("tcMenuPluginIndicator");
-            pluginLabel.getStyleClass().add("libsNotOK");
-            vbox.getChildren().add(pluginLabel);
-            needRefresh = true;
-        }
-        else {
-            Label lblPluginsOk = new Label("All plugins are up to date.");
-            lblPluginsOk.setId("tcMenuPluginIndicator");
-            lblPluginsOk.getStyleClass().add("libsOK");
-            vbox.getChildren().add(lblPluginsOk);
-        }
 
-        if(needRefresh) {
-            var refreshButton = new Button("Refresh library status");
-            refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
-            vbox.getChildren().add(refreshButton);
+            if (needRefresh) {
+                var refreshButton = new Button("Refresh library status");
+                refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
+                vbox.getChildren().add(refreshButton);
+            }
+        } catch (IOException e) {
+            vbox.getChildren().add(new Label("Error - " + e.getMessage()));
         }
     }
 
@@ -273,7 +290,7 @@ public class AppInformationPanel {
         Hyperlink docs = new Hyperlink(title);
         docs.setTooltip(new Tooltip(urlToVisit));
         docs.setStyle("-fx-vgap: 5px; -fx-border-insets: 0;");
-        docs.setOnAction((event)->  editorUI.browseToURL(urlToVisit));
+        docs.setOnAction((event) -> editorUI.browseToURL(urlToVisit));
         docs.setId(fxId);
         vbox.getChildren().add(docs);
     }

@@ -23,7 +23,6 @@ import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
-import com.thecoderscorner.menu.editorui.util.PluginUpgradeTask;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -184,8 +183,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showGeneralSettings() {
-        var updater = new PluginUpgradeTask(manager, installer, versionDetector);
-        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, updater, homeDirectory);
+        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, homeDirectory);
     }
 
     public Optional<UIMenuItem<?>> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
