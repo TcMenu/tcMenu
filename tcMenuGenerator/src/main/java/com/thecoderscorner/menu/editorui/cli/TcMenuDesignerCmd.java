@@ -15,7 +15,8 @@ import static picocli.CommandLine.*;
         VersionCommand.class,
         StartUICommand.class,
         GetConfigCommand.class,
-        SetConfigCommand.class
+        SetConfigCommand.class,
+        WrapWebServerFilesCommand.class
 })
 public class TcMenuDesignerCmd {
 
