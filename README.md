@@ -16,7 +16,7 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Questions, community forum and support
 
-You can get help from the community forum, there are also support and consultancy options available from TheCodersCorner.
+There is a forum where questions can be asked, but the rules of engagement are: **this is my hobby, I make it available because it helps others**. Don't expect immediate answers, make sure you've recreated the problem in a simple sketch that you can send to me. Please consider making at least a one time donation using the sponsor link above before using the forum.
 
 * [TCC Libraries community discussion forum](https://www.thecoderscorner.com/jforum/)
 * [Consultancy pages on the coders corner](https://www.thecoderscorner.com/support-services/consultancy/)
