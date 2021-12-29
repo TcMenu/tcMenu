@@ -4,7 +4,6 @@ import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.IntegerMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -21,7 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.*;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
 
 public class MenuManagerServer implements NewServerConnectionListener {
@@ -34,6 +33,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final MenuAuthenticator authenticator;
     private final AtomicBoolean successfulLogin = new AtomicBoolean(false);
     private final Clock clock;
+    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
     private ScheduledFuture<?> hbSchedule;
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, ServerConnectionManager serverManager,
@@ -82,6 +82,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void messageReceived(ServerConnection conn, MenuCommand cmd) {
         try {
+            if(pairingMode.get()) return; // nothing further is done on a pairing connection.
             switch(cmd.getCommandType()) {
                 case JOIN: {
                     var join = (MenuJoinCommand) cmd;
@@ -107,6 +108,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
                     }
                     break;
                 }
+                case PAIRING_REQUEST:
+                    startPairingMode(conn, (MenuPairingCommand)cmd);
+                    break;
                 case HEARTBEAT: {
                     var hb = (MenuHeartbeatCommand) cmd;
                     if(hb.getMode() == HeartbeatMode.START) {
@@ -125,6 +129,13 @@ public class MenuManagerServer implements NewServerConnectionListener {
         } catch (Exception e) {
             conn.closeConnection();
         }
+    }
+
+    private void startPairingMode(ServerConnection conn, MenuPairingCommand cmd) {
+        pairingMode.set(true);
+        var success = authenticator.addAuthentication(cmd.getName(), cmd.getUuid());
+        var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
+        conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
     }
 
     public MenuTree getManagedMenu() {

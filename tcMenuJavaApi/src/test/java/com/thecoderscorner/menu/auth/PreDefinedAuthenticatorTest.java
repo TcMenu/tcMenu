@@ -2,7 +2,11 @@ package com.thecoderscorner.menu.auth;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,11 +37,37 @@ class PreDefinedAuthenticatorTest {
                 new PreDefinedAuthenticator.AuthenticationToken("marianna", mariannasUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("daniel", danielsUuid.toString()))
         );
-        auth.addAuthenticationToken("pete", petesUuid.toString());
+        auth.addAuthentication("pete", UUID.fromString(petesUuid.toString()));
 
         assertTrue(auth.authenticate("dave", davesUuid));
         assertFalse(auth.authenticate("dave", petesUuid));
         assertFalse(auth.authenticate("daniel", petesUuid));
         assertTrue(auth.authenticate("pete", petesUuid));
+    }
+
+    @Test
+    void testPropertiesAuthenticator() throws Exception {
+        var tempFile = Files.createTempFile("tcmenuProps", ".properties");
+
+        try {
+            Files.writeString(tempFile, "dave=" + davesUuid + "\nmarianna=" + mariannasUuid + "\npete=" + petesUuid + "\n");
+            var auth = new PropertiesAuthenticator(tempFile.toString());
+            assertTrue(auth.authenticate("dave", davesUuid));
+            assertFalse(auth.authenticate("dave", petesUuid));
+            assertFalse(auth.authenticate("daniel", danielsUuid));
+
+            auth.addAuthentication("daniel", danielsUuid);
+            assertTrue(auth.authenticate("daniel", danielsUuid));
+
+            var props = new Properties();
+            props.load(Files.newBufferedReader(tempFile));
+            assertEquals(props.getProperty("daniel"), danielsUuid.toString());
+            assertEquals(props.getProperty("dave"), davesUuid.toString());
+            assertEquals(props.getProperty("pete"), petesUuid.toString());
+
+        }
+        finally {
+            Files.deleteIfExists(tempFile);
+        }
     }
 }

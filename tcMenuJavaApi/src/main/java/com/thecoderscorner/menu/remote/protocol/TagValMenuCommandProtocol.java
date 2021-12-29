@@ -544,8 +544,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_CORRELATION_FIELD, cmd.getCorrelationId());
         appendField(sb, KEY_ID_FIELD, cmd.getMenuItemId());
         appendField(sb, KEY_CHANGE_TYPE, MenuChangeCommand.changeTypeToInt(cmd.getChangeType()));
-        if(cmd.getValues() != null) {
-            appendField(sb, KEY_NO_OF_CHOICES, cmd.getValues().size());
+        if(cmd.getChangeType() == ChangeType.ABSOLUTE_LIST) {
             appendChoices(sb, cmd.getValues());
         }
         else appendField(sb, KEY_CURRENT_VAL, cmd.getValue());
@@ -652,9 +651,14 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
     }
 
     private void appendChoices(StringBuilder sb, List<String> entries) {
-        appendField(sb, KEY_NO_OF_CHOICES, entries.size());
-        for(int i=0;i<entries.size();++i) {
-            appendField(sb, KEY_PREPEND_CHOICE + (char)('A' + i), entries.get(i));
+        if(entries == null) {
+            appendField(sb, KEY_NO_OF_CHOICES, 0);
+        }
+        else {
+            appendField(sb, KEY_NO_OF_CHOICES, entries.size());
+            for (int i = 0; i < entries.size(); ++i) {
+                appendField(sb, KEY_PREPEND_CHOICE + (char) ('A' + i), entries.get(i));
+            }
         }
     }
 

@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Implements the authentication interface using a pre-defined upfront set of name and UUID pairs that must be provided
+ * upfront. This implementation will never save authentication blocks to storage.
+ */
 public class PreDefinedAuthenticator implements MenuAuthenticator {
     private final List<AuthenticationToken> authenticationItems = new CopyOnWriteArrayList<>();
     private final boolean alwaysAllow;
@@ -17,8 +21,9 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
         authenticationItems.addAll(upfrontTokens);
     }
 
-    public void addAuthenticationToken(String name, String uuid) {
-        authenticationItems.add(new AuthenticationToken(name, uuid));
+    public boolean addAuthentication(String name, UUID uuid) {
+        authenticationItems.add(new AuthenticationToken(name, uuid.toString()));
+        return true;
     }
 
     @Override
