@@ -137,10 +137,6 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
 
 The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
 
-## Coming Soon C# / .NET API
-
-We are currently quite far along on a C# port of the API. There's an issue in the issue track for the port and we'll let you know when it's further along.
-
 ## Loading and saving menu items
 
 tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 

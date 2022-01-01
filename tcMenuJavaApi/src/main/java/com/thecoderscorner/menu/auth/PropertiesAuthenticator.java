@@ -31,16 +31,21 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
 
     @Override
     public boolean authenticate(String user, UUID uuid) {
-        var val = this.properties.getProperty(user);
+        String val;
+        synchronized (this.properties) {
+            val = this.properties.getProperty(user);
+        }
         if(val == null) return false;
         return UUID.fromString(val).equals(uuid);
     }
 
     @Override
-    public boolean addAuthentication(String user, UUID uuid) {
+    public synchronized boolean addAuthentication(String user, UUID uuid) {
         try {
-            properties.setProperty(user, uuid.toString());
-            properties.store(Files.newBufferedWriter(Path.of(location)), "TcMenu Auth properties");
+            synchronized (properties) {
+                properties.setProperty(user, uuid.toString());
+                properties.store(Files.newBufferedWriter(Path.of(location)), "TcMenu Auth properties");
+            }
             logger.log(INFO, "Wrote auth properties to ", location);
             return true;
         } catch (Exception e) {

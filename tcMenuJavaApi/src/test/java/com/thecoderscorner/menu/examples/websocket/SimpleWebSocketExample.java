@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.examples.websocket;
 
 import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
+import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -43,36 +44,39 @@ public class SimpleWebSocketExample {
         }
         var menuManager = new MenuManagerServer(executor, tree, socketServer,
                 "WS Test", UUID.randomUUID(),
-                new PreDefinedAuthenticator(true),
+                new PropertiesAuthenticator("./auth.properties"),
                 clock);
         menuManager.start();
 
         var menuList = menuManager.getManagedMenu().getMenuById(21).orElseThrow();
         menuManager.updateMenuItem(menuList, List.of("salad", "pasta", "pizza"));
 
-        executor.scheduleAtFixedRate(() -> {
-            menuManager.updateMenuItem(menuList, randomListData());
-            menuManager.reportDialogUpdate(Math.random() > 0.5 ? DialogMode.SHOW :  DialogMode.HIDE, "Title 123", "Content", MenuButtonType.OK, MenuButtonType.CANCEL);
-        }, 5000, 5000, TimeUnit.MILLISECONDS);
+        if(Boolean.getBoolean("sendSimulatedUpdates")) {
 
-        executor.scheduleAtFixedRate(() -> {
-            if(socketServer.getServerConnections().isEmpty()) return;
-            var menuVolume = (AnalogMenuItem)tree.getMenuById(1).orElseThrow();
-            var menuLeftVU = (AnalogMenuItem)tree.getMenuById(15).orElseThrow();
-            var menuRightVU = (AnalogMenuItem)tree.getMenuById(16).orElseThrow();
+            executor.scheduleAtFixedRate(() -> {
+                menuManager.updateMenuItem(menuList, randomListData());
+                menuManager.reportDialogUpdate(Math.random() > 0.5 ? DialogMode.SHOW : DialogMode.HIDE, "Title 123", "Content", MenuButtonType.OK, MenuButtonType.CANCEL);
+            }, 5000, 5000, TimeUnit.MILLISECONDS);
 
-            int amt = (int) (Math.random() * 2000);
-            if(Math.random() > 0.5) {
-                menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) + amt);
-                menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) - amt);
-            } else {
-                menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) - amt);
-                menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) + amt);
+            executor.scheduleAtFixedRate(() -> {
+                if (socketServer.getServerConnections().isEmpty()) return;
+                var menuVolume = (AnalogMenuItem) tree.getMenuById(1).orElseThrow();
+                var menuLeftVU = (AnalogMenuItem) tree.getMenuById(15).orElseThrow();
+                var menuRightVU = (AnalogMenuItem) tree.getMenuById(16).orElseThrow();
 
-            }
+                int amt = (int) (Math.random() * 2000);
+                if (Math.random() > 0.5) {
+                    menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) + amt);
+                    menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) - amt);
+                } else {
+                    menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) - amt);
+                    menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) + amt);
 
-            menuManager.updateMenuItem(menuVolume, Math.random() * menuVolume.getMaxValue());
-        }, 150, 150, TimeUnit.MILLISECONDS);
+                }
+
+                menuManager.updateMenuItem(menuVolume, Math.random() * menuVolume.getMaxValue());
+            }, 150, 150, TimeUnit.MILLISECONDS);
+        }
     }
 
     private static List<String> randomListData() {

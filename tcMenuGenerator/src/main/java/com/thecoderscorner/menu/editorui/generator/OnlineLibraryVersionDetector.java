@@ -67,7 +67,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     public Map<String, VersionInfo> acquireVersions() {
         ReleaseType relType;
         synchronized (cacheLock) {
-            if (!versionCache.isEmpty() && (System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS) {
+            if ((System.currentTimeMillis() - lastAccess) < REFRESH_TIMEOUT_MILLIS) {
                 return versionCache;
             }
             relType = cachedReleaseType;
