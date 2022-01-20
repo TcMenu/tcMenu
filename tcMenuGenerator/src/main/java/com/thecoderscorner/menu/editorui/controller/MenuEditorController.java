@@ -1,5 +1,5 @@
 /*
- * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
  * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
  *
  */
@@ -14,7 +14,6 @@ import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
-import com.thecoderscorner.menu.editorui.dialog.RegistrationDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -320,10 +319,6 @@ public class MenuEditorController {
 
     public void onMenuTCCForum(ActionEvent actionEvent) {
         editorUI.browseToURL(TCC_FORUM_PAGE);
-    }
-
-    public void registerMenuPressed(ActionEvent actionEvent) {
-        new RegistrationDialog(configStore, getStage(), REGISTRATION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {

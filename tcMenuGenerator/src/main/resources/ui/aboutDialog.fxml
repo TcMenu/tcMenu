@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c)  2016-2019 https://www.thecoderscorner.com (Nutricherry LTD).
+  ~ Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
   ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
   ~
   -->
@@ -71,11 +71,9 @@
             </Text>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Version" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Built on" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Registration" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2021 by Nutricherry LTD" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2022 by TheCodersCorner.com" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label fx:id="apiVersion" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <Label fx:id="buildDateLabel" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Label fx:id="registeredLabel" prefHeight="17.0" prefWidth="121.0" text="-" GridPane.columnIndex="2" GridPane.rowIndex="3" />
             <Label text="Thanks to both OpenJDK, OpenJFX for the runtime and and JMetro for the theme that we use." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
          </children>
       </GridPane>
