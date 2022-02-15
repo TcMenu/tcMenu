@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Manually set the theme up yourself" id="b186c809-d9ef-4ca8-9d4b-e4780a041ccc"
+<TcMenuPlugin name="No theme selected" id="2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -10,7 +10,7 @@
        <Platform>ARDUINO_ESP32</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Advanced users only - manual theme allows you to create your own theme from scratch using the tcMenu theme documentation.</Description>
+    <Description>Please select a theme that can be used with your display, take care to only use mono themes with monochrome displays.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/rendering-with-tcmenu-lcd-tft-oled/"/>
     <RequiredLibraries/>
     <ImageFile>no-theme.png</ImageFile>

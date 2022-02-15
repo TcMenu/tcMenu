@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import static java.lang.System.Logger.Level.*;
 
@@ -40,7 +41,7 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
     }
 
     @Override
-    public synchronized boolean addAuthentication(String user, UUID uuid) {
+    public boolean addAuthentication(String user, UUID uuid) {
         try {
             synchronized (properties) {
                 properties.setProperty(user, uuid.toString());

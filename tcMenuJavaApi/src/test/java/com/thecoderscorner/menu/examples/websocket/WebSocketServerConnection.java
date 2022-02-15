@@ -10,6 +10,7 @@ import org.java_websocket.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +32,7 @@ public class WebSocketServerConnection implements ServerConnection {
     private final AtomicInteger heartbeatFrequency = new AtomicInteger(1500);
     private final Object socketLock = new Object();
     private final Object handlerLock = new Object();
+    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
 
     public WebSocketServerConnection(WebSocket socket, MenuCommandProtocol protocol, Clock clock) {
         this.socket = socket;
@@ -99,6 +101,16 @@ public class WebSocketServerConnection implements ServerConnection {
         synchronized (handlerLock) {
             this.messageHandler.set(messageHandler);
         }
+    }
+
+    @Override
+    public boolean isPairing() {
+        return this.pairingMode.get();
+    }
+
+    @Override
+    public void enablePairingMode() {
+        this.pairingMode.set(true);
     }
 
     public void informClosed() {

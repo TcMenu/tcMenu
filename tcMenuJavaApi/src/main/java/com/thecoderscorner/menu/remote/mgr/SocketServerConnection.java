@@ -30,6 +30,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
     private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
     private final Thread readThread;
+    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
 
     public SocketServerConnection(Socket socket, MenuCommandProtocol protocol, Clock clock) {
         super(protocol);
@@ -113,6 +114,16 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     @Override
     public void registerMessageHandler(BiConsumer<ServerConnection, MenuCommand> messageHandler) {
         this.messageHandler.set(messageHandler);
+    }
+
+    @Override
+    public boolean isPairing() {
+        return this.pairingMode.get();
+    }
+
+    @Override
+    public void enablePairingMode() {
+        this.pairingMode.set(true);
     }
 
     @Override

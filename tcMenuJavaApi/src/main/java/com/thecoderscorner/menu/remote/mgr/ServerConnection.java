@@ -13,4 +13,6 @@ public interface ServerConnection {
     boolean isConnected();
     void registerConnectionListener(BiConsumer<ServerConnection, Boolean> connectionListener);
     void registerMessageHandler(BiConsumer<ServerConnection, MenuCommand> messageHandler);
+    boolean isPairing();
+    void enablePairingMode();
 }

@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
+import java.lang.System.Logger.Level;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +34,6 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final MenuAuthenticator authenticator;
     private final AtomicBoolean successfulLogin = new AtomicBoolean(false);
     private final Clock clock;
-    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
     private ScheduledFuture<?> hbSchedule;
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, ServerConnectionManager serverManager,
@@ -57,18 +57,18 @@ public class MenuManagerServer implements NewServerConnectionListener {
         try {
             serverManager.stop();
         } catch (Exception e) {
-            logger.log(System.Logger.Level.ERROR, "Server manager threw error during stop", e);
+            logger.log(Level.ERROR, "Server manager threw error during stop", e);
         }
     }
 
     private void checkHeartbeats() {
         for (var socket : serverManager.getServerConnections()) {
             if((clock.millis() - socket.lastReceivedHeartbeat())  > (socket.getHeartbeatFrequency() * 3L)) {
-                logger.log(System.Logger.Level.WARNING, "HB timeout, no received message within frequency");
+                logger.log(Level.WARNING, "HB timeout, no received message within frequency");
                 socket.closeConnection();
             }
             else if((clock.millis() - socket.lastTransmittedHeartbeat()) > socket.getHeartbeatFrequency()) {
-                logger.log(System.Logger.Level.INFO, "Sending HB due to inactivity");
+                logger.log(Level.INFO, "Sending HB due to inactivity");
                 socket.sendCommand(new MenuHeartbeatCommand(socket.getHeartbeatFrequency(), HeartbeatMode.NORMAL));
             }
         }
@@ -82,18 +82,21 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void messageReceived(ServerConnection conn, MenuCommand cmd) {
         try {
-            if(pairingMode.get()) return; // nothing further is done on a pairing connection.
+            if(conn.isPairing()) {
+                logger.log(Level.INFO, "Connection is in pairing mode, ignoring " + cmd);
+                return; // nothing further is done on a pairing connection.
+            }
             switch(cmd.getCommandType()) {
                 case JOIN: {
                     var join = (MenuJoinCommand) cmd;
                     if (authenticator != null && !authenticator.authenticate(join.getMyName(), join.getAppUuid())) {
-                        logger.log(System.Logger.Level.WARNING, "Invalid credentials from " + join.getMyName());
+                        logger.log(Level.WARNING, "Invalid credentials from " + join.getMyName());
                         conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, AckStatus.INVALID_CREDENTIALS));
                         conn.closeConnection();
                     }
                     else {
                         successfulLogin.set(true);
-                        logger.log(System.Logger.Level.WARNING, "Successful login from " + join.getMyName());
+                        logger.log(Level.WARNING, "Successful login from " + join.getMyName());
                         conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, AckStatus.SUCCESS));
                         conn.sendCommand(new MenuBootstrapCommand(MenuBootstrapCommand.BootType.START));
 
@@ -120,7 +123,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
                 }
                 case CHANGE_INT_FIELD:
                     if(!successfulLogin.get()) {
-                        logger.log(System.Logger.Level.WARNING, "Un-authenticated change command ignored");
+                        logger.log(Level.WARNING, "Un-authenticated change command ignored");
                         return;
                     }
                     handleIncomingChange(conn, (MenuChangeCommand) cmd);
@@ -132,7 +135,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     }
 
     private void startPairingMode(ServerConnection conn, MenuPairingCommand cmd) {
-        pairingMode.set(true);
+        conn.enablePairingMode();
         var success = authenticator.addAuthentication(cmd.getName(), cmd.getUuid());
         var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
         conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
@@ -148,7 +151,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     }
 
     public void menuItemDidUpdate(MenuItem item) {
-        logger.log(System.Logger.Level.INFO, "Sending item update for " + item);
+        logger.log(Level.INFO, "Sending item update for " + item);
         var state = tree.getMenuState(item);
         if(state == null) return;
 

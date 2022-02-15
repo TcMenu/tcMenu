@@ -7,6 +7,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
 import com.thecoderscorner.menu.editorui.dialog.SelectEepromTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -49,7 +50,7 @@ import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class GenerateCodeDialog {
-    private final static String DEFAULT_THEME_ID = "b186c809-d9ef-4ca8-9d4b-e4780a041ccc"; // manual theme, works for most displays
+    private final static String DEFAULT_THEME_ID = "2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e"; // manual theme, works for most displays
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
@@ -402,6 +403,18 @@ public class GenerateCodeDialog {
     }
 
     private void onGenerateCode(ActionEvent actionEvent) {
+        if(currentDisplay.getItem().isThemeNeeded() && currentTheme.getItem().getId().equals(DEFAULT_THEME_ID)) {
+            var alert = new Alert(Alert.AlertType.WARNING, "No theme selected", ButtonType.CLOSE);
+            alert.setTitle("Theme Configuration Error");
+            alert.setHeaderText("Selected display requires a theme");
+            alert.setContentText("Displays need configuration to work properly, this is provided by the theme. " +
+                    "We strongly recommend you start with one of our core themes and modify it to meet your needs." +
+                    "However, advanced users could start with the manual theme.");
+
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+            alert.showAndWait();
+            return;
+        }
         saveCodeGeneratorChanges();
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),

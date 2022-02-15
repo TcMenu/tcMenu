@@ -12,7 +12,7 @@
     <name>menuEditorUI</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>    
     <description>JavaFX based menu editor UI</description>
-    <version>2.2.6-SNAPSHOT</version>
+    <version>2.2.7</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
