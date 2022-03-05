@@ -37,6 +37,16 @@ public class EmbeddedJavaGeneratorFileData {
                 public void menuItemHasChanged(MenuItem item, boolean remoteAction) {
                     // Called every time any menu item changes
                 }
+                
+                @Override
+                public void managerWillStart() {
+                    // This is called just before the menu manager starts up, you can initialise your system here.
+                }
+                        
+                @Override
+                public void managerWillStop() {
+                    // This is called just before the menu manager stops, you can do any shutdown tasks here.
+                }
                         
             }
             """;
@@ -61,8 +71,8 @@ public class EmbeddedJavaGeneratorFileData {
                 }
 
                 public void start() {
-                    manager.start();
                     manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));
+                    manager.start();
                 }
 
                 public static void main(String[] args) {
@@ -77,11 +87,13 @@ public class EmbeddedJavaGeneratorFileData {
                         
             import com.thecoderscorner.menu.auth.*;
             import com.thecoderscorner.menu.mgr.MenuManagerServer;
+            import com.thecoderscorner.menu.persist.*;
             import org.springframework.beans.factory.annotation.Value;
             import org.springframework.context.annotation.*;
             import java.time.Clock;
             import java.util.UUID;
             import java.util.concurrent.*;
+            import com.thecoderscorner.menu.auth;
                         
             /**
              * Spring creates an application context out of all these components, you can wire together your own objects in either
@@ -97,6 +109,11 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 @Bean
+                public MenuStateSerialiser menuStateSerialiser(UnitTestMenu menuDef, @Value("${file.menu.storage}") String filePath) {
+                    return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));
+                }
+                        
+                @Bean
                 public UnitTestMenu menuDef() {
                     return new UnitTestMenu();
                 }
@@ -107,11 +124,6 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 @Bean
-                public MenuAuthenticator menuAuthenticator() {
-                    return new PreDefinedAuthenticator(true);
-                }
-                        
-                @Bean
                 public ScheduledExecutorService executor(@Value("${threading.pool.size}") int poolSize) {
                     return Executors.newScheduledThreadPool(poolSize);
                 }
@@ -119,6 +131,11 @@ public class EmbeddedJavaGeneratorFileData {
                 @Bean
                 public MenuManagerServer menuManagerServer(ScheduledExecutorService executor, UnitTestMenu menuDef, @Value("${server.name}") String serverName, @Value("${server.uuid}") String serverUUID, MenuAuthenticator authenticator, Clock clock) {
                     return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);
+                }
+                        
+                @Bean
+                public MenuAuthenticator menuAuthenticator() {
+                    return new PreDefinedAuthenticator(true);
                 }
                         
             }

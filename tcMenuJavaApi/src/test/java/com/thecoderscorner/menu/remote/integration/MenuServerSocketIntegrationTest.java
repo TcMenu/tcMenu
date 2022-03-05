@@ -50,7 +50,7 @@ public class MenuServerSocketIntegrationTest {
     void setUp() throws IOException {
         var executor = Executors.newSingleThreadScheduledExecutor();
         var tree = DomainFixtures.fullEspAmplifierTestTree();
-        var authenticator = new PreDefinedAuthenticator(List.of(new AuthenticationToken("integration-client", localUuid.toString())));
+        var authenticator = new PreDefinedAuthenticator("4321", List.of(new AuthenticationToken("integration-client", localUuid.toString())));
         serverConnection = new SocketServerConnectionManager(protocol, executor, 9876, Clock.systemDefaultZone());
         menuServer = new MenuManagerServer(executor, tree, "integration-test", serverUuid, authenticator, Clock.systemDefaultZone());
         menuServer.addConnectionManager(serverConnection);

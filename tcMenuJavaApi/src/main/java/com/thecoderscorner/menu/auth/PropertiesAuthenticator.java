@@ -5,12 +5,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 /**
- * Stores authentication to a properties file and then validates against the stored values.
+ * Stores authentication to a properties file and then validates against the stored values. By default, there are no
+ * authentication pairs stored, and the secure passcode is "1234"
  *
  * NOTE:
  * This is only suited to very simple use cases where the level of security required is not particularly high and
@@ -60,5 +61,10 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
             logger.log(ERROR, "Failed to write auth properties to ", location);
             return false;
         }
+    }
+
+    @Override
+    public boolean doesPasscodeMatch(String passcode) {
+        return properties.getProperty("securityPasscode", "1234").equals(passcode);
     }
 }

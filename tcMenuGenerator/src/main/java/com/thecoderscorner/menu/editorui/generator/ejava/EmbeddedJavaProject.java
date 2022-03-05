@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.ejava;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -131,8 +132,17 @@ public class EmbeddedJavaProject {
     public JavaClassBuilder classBuilder(String postfix) {
         return new JavaClassBuilder(this, getMenuPackage(), getAppClassName(postfix), uiLogger);
     }
+
     public JavaClassBuilder classBuilderFullName(String name) {
         return new JavaClassBuilder(this, getMenuPackage(), name, uiLogger);
+    }
+
+    public List<CodeGeneratorCapable> getAllCodeGeneratorCapables() {
+        var capables = new ArrayList<CodeGeneratorCapable>();
+        capables.add(codeOptions.getEepromDefinition());
+        capables.add(codeOptions.getAuthenticatorDefinition());
+        // TODO, do we need to support io expanders?
+        return capables;
     }
 
 }

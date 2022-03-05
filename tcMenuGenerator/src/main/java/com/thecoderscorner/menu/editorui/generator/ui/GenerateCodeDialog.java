@@ -77,6 +77,7 @@ public class GenerateCodeDialog {
     private Label themeTitle;
     private VBox centerPane;
     private Label eepromTypeLabel;
+    private Button eepromTypeButton;
     private Label authModeLabel;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
@@ -261,7 +262,7 @@ public class GenerateCodeDialog {
 
         eepromTypeLabel = new Label(project.getGeneratorOptions().getEepromDefinition().toString());
         eepromTypeLabel.setId("eepromTypeLabel");
-        var eepromTypeButton = new Button("Change EEPROM");
+        eepromTypeButton = new Button("Change EEPROM");
         eepromTypeButton.setOnAction(this::onEepromButtonPressed);
         eepromTypeButton.setPrefWidth(120);
         eepromTypeButton.setId("eepromTypeButton");
@@ -303,6 +304,9 @@ public class GenerateCodeDialog {
     }
 
     private void onEepromButtonPressed(ActionEvent actionEvent) {
+        // raspberry PI always has "load" and "save" operations without the need for EEPROM
+        if(EmbeddedPlatform.RASPBERRY_PIJ.equals(platformCombo.getSelectionModel().getSelectedItem())) return;
+
         var dlg = new SelectEepromTypeDialog(mainStage, project.getGeneratorOptions().getEepromDefinition(),true);
         dlg.getResultOrEmpty().ifPresent(newRom -> {
             eepromTypeLabel.setText(newRom.toString());
@@ -334,6 +338,9 @@ public class GenerateCodeDialog {
     }
 
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
+        boolean embeddedJava = newVal.equals(EmbeddedPlatform.RASPBERRY_PIJ);
+        eepromTypeButton.setDisable(embeddedJava);
+        if(embeddedJava) eepromTypeLabel.setText("Embedded Java uses inbuilt storage instead of EEPROM");
         reloadAllPlugins(newVal);
         refreshPluginContents(newVal, currentDisplay, displaysSupported);
         refreshPluginContents(newVal, currentInput, inputsSupported);

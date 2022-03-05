@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.auth;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -12,13 +11,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PreDefinedAuthenticator implements MenuAuthenticator {
     private final List<AuthenticationToken> authenticationItems = new CopyOnWriteArrayList<>();
     private final boolean alwaysAllow;
+    private final String securePasscode;
 
     public PreDefinedAuthenticator(boolean alwaysAllow) {
         this.alwaysAllow = alwaysAllow;
+        this.securePasscode = null;
     }
 
-    public PreDefinedAuthenticator(List<AuthenticationToken> upfrontTokens) {
+    public PreDefinedAuthenticator(String securePasscode, List<AuthenticationToken> upfrontTokens) {
         this.alwaysAllow = false;
+        this.securePasscode = securePasscode;
         authenticationItems.addAll(upfrontTokens);
     }
 
@@ -36,6 +38,11 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
         }
 
         return false;
+    }
+
+    public boolean doesPasscodeMatch(String passcode) {
+        if(securePasscode == null) return alwaysAllow;
+        return securePasscode.equals(passcode);
     }
 
     public static class AuthenticationToken {

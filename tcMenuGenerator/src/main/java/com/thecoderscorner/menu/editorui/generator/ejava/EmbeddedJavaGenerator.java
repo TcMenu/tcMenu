@@ -27,6 +27,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     private final ConfigurationStorage configStorage;
     private BiConsumer<System.Logger.Level, String> loggerDelegate;
     private VariableNameGenerator varGenerator;
+    JavaCodeGeneratorCapableWrapper wrapper = new JavaCodeGeneratorCapableWrapper();
 
     public EmbeddedJavaGenerator(ConfigurationStorage storage) {
         this.configStorage = storage;
@@ -65,7 +66,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
     private void generateMenuAppContext(EmbeddedJavaProject javaProject, String clazzBaseName) throws IOException {
         logLine(INFO, "Creating or updating the spring application context");
-        javaProject.classBuilderFullName("MenuConfig")
+        var builder = javaProject.classBuilderFullName("MenuConfig")
                 .addPackageImport("com.thecoderscorner.menu.auth.*")
                 .addPackageImport("com.thecoderscorner.menu.mgr.MenuManagerServer")
                 .addPackageImport("com.thecoderscorner.menu.persist.*")
@@ -84,17 +85,15 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         @PropertySource("classpath:application.properties")
                         """)
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "Clock", "clock")
-                        .withStatement("return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));").withAnnotation("Bean"))
+                        .withStatement("return Clock.systemUTC();").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuStateSerialiser", "menuStateSerialiser")
                         .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${file.menu.storage}\") String filePath")
-                        .withStatement("return Clock.systemUTC();").withAnnotation("Bean"))
+                        .withStatement("return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Menu", "menuDef")
                         .withStatement("return new " + clazzBaseName + "Menu();").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Controller", "menuController")
                         .withStatement("return new " + clazzBaseName + "Controller(menuDef);").withAnnotation("Bean")
                         .withParameter(clazzBaseName + "Menu menuDef"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
-                        .withStatement("return new PreDefinedAuthenticator(true);").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScheduledExecutorService", "executor")
                         .withParameter("@Value(\"${threading.pool.size}\") int poolSize").withAnnotation("Bean")
                         .withStatement("return Executors.newScheduledThreadPool(poolSize);"))
@@ -102,13 +101,17 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withAnnotation("Bean").withParameter("ScheduledExecutorService executor")
                         .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${server.name}\") String serverName")
                         .withParameter("@Value(\"${server.uuid}\") String serverUUID").withParameter("MenuAuthenticator authenticator").withParameter("Clock clock")
-                        .withStatement("return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);"))
-                .persistClassByPatching();
+                        .withStatement("return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);"));
+
+        for(var cap : javaProject.getAllCodeGeneratorCapables()) {
+            wrapper.addToContext(cap, builder);
+        }
+        builder.persistClassByPatching();
     }
 
     private void generateMenuApplicationClass(EmbeddedJavaProject javaProject) throws IOException {
         logLine(INFO, "Building the menu application class based on the plugins and options");
-        javaProject.classBuilder("App")
+        var builder = javaProject.classBuilder("App")
                 .setStatementBeforeClass("""
                         /**
                          * This class is the application class and should not be edited, it will be recreated on each code generation
@@ -118,8 +121,12 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("org.springframework.context.ApplicationContext")
                 .addPackageImport("org.springframework.context.annotation.AnnotationConfigApplicationContext")
                 .addStatement(new GeneratedJavaField("MenuManagerServer", "manager"))
-                .addStatement(new GeneratedJavaField("ApplicationContext", "context"))
-                .blankLine()
+                .addStatement(new GeneratedJavaField("ApplicationContext", "context"));
+        for(var cap : javaProject.getAllCodeGeneratorCapables()) {
+            wrapper.addAppFields(cap, builder);
+        }
+
+        builder.blankLine()
                 .addStatement(new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
                         .withStatement("context = new AnnotationConfigApplicationContext(MenuConfig.class);")
                         .withStatement("manager = context.getBean(MenuManagerServer.class);"))
@@ -127,8 +134,13 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));")
                         .withStatement("manager.start();"))
                 .addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")
-                        .withStatement("new Testsupp123App().start();"))
-                .persistClass();
+                        .withStatement("new Testsupp123App().start();"));
+
+        for(var cap : javaProject.getAllCodeGeneratorCapables()) {
+            wrapper.addAppMethods(cap, builder);
+        }
+
+        builder.persistClass();
     }
 
     private void generateMenuControllerClass(EmbeddedJavaProject project, MenuTree tree) throws IOException {

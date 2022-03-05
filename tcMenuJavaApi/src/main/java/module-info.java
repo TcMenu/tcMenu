@@ -9,6 +9,7 @@ module com.thecoderscorner.tcmenu.javaapi {
     exports com.thecoderscorner.menu.remote.protocol;
     exports com.thecoderscorner.menu.remote.socket;
     exports com.thecoderscorner.menu.persist;
+    exports com.thecoderscorner.menu.auth;
 
     opens com.thecoderscorner.menu.domain to com.google.gson;
     opens com.thecoderscorner.menu.persist to com.google.gson;

@@ -32,7 +32,7 @@ class PreDefinedAuthenticatorTest {
 
     @Test
     void testContainsItemsPass() {
-        var auth = new PreDefinedAuthenticator(List.of(
+        var auth = new PreDefinedAuthenticator("4321", List.of(
                 new PreDefinedAuthenticator.AuthenticationToken("dave", davesUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("marianna", mariannasUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("daniel", danielsUuid.toString()))
@@ -43,6 +43,8 @@ class PreDefinedAuthenticatorTest {
         assertFalse(auth.authenticate("dave", petesUuid));
         assertFalse(auth.authenticate("daniel", petesUuid));
         assertTrue(auth.authenticate("pete", petesUuid));
+        assertTrue(auth.doesPasscodeMatch("4321"));
+        assertFalse(auth.doesPasscodeMatch("1234"));
     }
 
     @Test
@@ -55,6 +57,8 @@ class PreDefinedAuthenticatorTest {
             assertTrue(auth.authenticate("dave", davesUuid));
             assertFalse(auth.authenticate("dave", petesUuid));
             assertFalse(auth.authenticate("daniel", danielsUuid));
+            assertTrue(auth.doesPasscodeMatch("1234"));
+            assertFalse(auth.doesPasscodeMatch("4321"));
 
             auth.addAuthentication("daniel", danielsUuid);
             assertTrue(auth.authenticate("daniel", danielsUuid));

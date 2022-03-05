@@ -22,4 +22,11 @@ public interface MenuAuthenticator {
      * @return true if added, otherwise false.
      */
     boolean addAuthentication(String user, UUID uuid);
+
+    /**
+     * Checks if the provided passcode matches with the security passcode and returns false if it does not match.
+     * @param passcode the passcode to check
+     * @return true if matching, otherwise false
+     */
+    boolean doesPasscodeMatch(String passcode);
 }
