@@ -40,6 +40,13 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
         return UUID.fromString(val).equals(uuid);
     }
 
+    /**
+     * Adds an authentication token to the store, it assumes that all appropriate permission from the user has
+     * been sought.
+     * @param user the user to add
+     * @param uuid the uuid associated with the user
+     * @return
+     */
     @Override
     public boolean addAuthentication(String user, UUID uuid) {
         try {

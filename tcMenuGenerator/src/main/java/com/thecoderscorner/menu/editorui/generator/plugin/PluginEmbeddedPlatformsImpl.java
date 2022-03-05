@@ -11,8 +11,10 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
+import com.thecoderscorner.menu.editorui.generator.ejava.EmbeddedJavaGenerator;
 import com.thecoderscorner.menu.editorui.generator.mbed.MbedGenerator;
 import com.thecoderscorner.menu.editorui.generator.mbed.MbedSketchFileAdjuster;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 
 import java.util.List;
 
@@ -26,10 +28,12 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS);
-    private final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32); // at the moment all platforms are Arduino.
-    private final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS); // at the moment all platforms are Arduino.
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS);
+    private final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
+    private final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS);
+    private final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
     private ArduinoLibraryInstaller installer;
+    private ConfigurationStorage configStorage;
 
     public PluginEmbeddedPlatformsImpl() {
     }
@@ -41,16 +45,14 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
-        if(installer == null) throw new IllegalArgumentException("Please call setInstaller first");
-        if(arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options), installer,
-                                        platform, options);
-        }
-        else if(mbedPlatforms.contains(platform)) {
-            return new MbedGenerator(new MbedSketchFileAdjuster(options), installer,
-                                        platform, options);
-        }
-        else {
+        if (installer == null) throw new IllegalArgumentException("Please call setInstaller first");
+        if (arduinoPlatforms.contains(platform)) {
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options), installer, platform);
+        } else if (mbedPlatforms.contains(platform)) {
+            return new MbedGenerator(new MbedSketchFileAdjuster(options), installer, platform);
+        } else if(javaPlatforms.contains(platform)) {
+            return new EmbeddedJavaGenerator(configStorage);
+        } else {
             throw new IllegalArgumentException("No such board type: " + platform);
         }
     }
@@ -61,6 +63,10 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     public boolean isMbed(EmbeddedPlatform platform) {
         return mbedPlatforms.contains(platform);
+    }
+
+    public boolean isJava(EmbeddedPlatform platform) {
+        return javaPlatforms.contains(platform);
     }
 
     @Override
@@ -78,15 +84,22 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         else if(id.equals(ARDUINO_ESP32.getBoardId())) {
             return ARDUINO_ESP32;
         }
+        else if(id.equals(STM32DUINO.getBoardId())) {
+            return STM32DUINO;
+        }
         else if(id.equals(MBED_RTOS.getBoardId())) {
             return MBED_RTOS;
+        }
+        else if(id.equals(RASPBERRY_PIJ.getBoardId())) {
+            return RASPBERRY_PIJ;
         }
         else {
             throw new IllegalArgumentException("No such board type: " + id);
         }
     }
 
-    public void setInstaller(ArduinoLibraryInstaller installer) {
+    public void setInstallerConfiguration(ArduinoLibraryInstaller installer, ConfigurationStorage storage) {
         this.installer = installer;
+        this.configStorage = storage;
     }
 }

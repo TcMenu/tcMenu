@@ -14,7 +14,7 @@ import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfx.dialog.MainWindowController;
 import com.thecoderscorner.embedcontrol.jfx.dialog.NewConnectionController;
 import com.thecoderscorner.embedcontrol.jfx.panel.*;
-import com.thecoderscorner.embedcontrol.jfx.rs232.Rs232SerialFactory;
+import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Application;
 import javafx.application.Platform;

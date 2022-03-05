@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
@@ -58,16 +59,13 @@ public class FileBasedProjectPersistorTest {
         MenuTree tree = TestUtils.buildCompleteTree();
         List<String> remoteUuids = List.of("uuid3");
         List<CreatorProperty> propsList = Collections.singletonList(new CreatorProperty("name", "desc", "extra desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
-        CodeGeneratorOptions options = new CodeGeneratorOptions(
-                ARDUINO_AVR.getBoardId(),
-                "uuid1",
-                "uuid2",
-                remoteUuids,
-                "uuid4",
-                propsList,
-                APPLICATION_UUID, "app name", new NoEepromDefinition(), new NoAuthenticatorDefinition() ,
-                new IoExpanderDefinitionCollection(), false, false, false
-        );
+        var options = new CodeGeneratorOptionsBuilder()
+                .withPlatform(ARDUINO_AVR.getBoardId())
+                .withDisplay("uuid1").withInput("uuid2").withTheme("uuid4").withRemotes(remoteUuids)
+                .withProperties(propsList).withAppName("app name").withNewId(APPLICATION_UUID)
+                .withEepromDefinition(new NoEepromDefinition()).withAuthenticationDefinition(new NoAuthenticatorDefinition())
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection())
+                .codeOptions();
         persistor.save(projFile.toString(), "", tree, options);
 
         MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());

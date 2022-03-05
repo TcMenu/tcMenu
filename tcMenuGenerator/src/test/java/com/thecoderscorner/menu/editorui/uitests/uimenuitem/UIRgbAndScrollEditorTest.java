@@ -147,7 +147,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         verifyExpectedFields(ARRAY_IN_RAM);
 
         tryToEnterBadValueIntoField(robot, "choiceVarField", "nameField", "123 45",
-                "Variable Name - Function fields must use only letters, digits, and '_'");
+                "Variable Name - Field must use only letters, digits, and '_'");
 
         writeIntoField(robot, "choiceVarField", "ramVarName");
         writeIntoField(robot, "itemWidthFieldField", 10);

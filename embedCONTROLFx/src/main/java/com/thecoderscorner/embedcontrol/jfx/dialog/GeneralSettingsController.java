@@ -10,6 +10,8 @@ import javafx.scene.paint.Color;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.fromFxColor;
 import static com.thecoderscorner.embedcontrol.jfx.EmbedControlApp.getJMetro;
 
 public class GeneralSettingsController {
@@ -54,20 +56,6 @@ public class GeneralSettingsController {
     private void populateColor(ControlColor col, ColorPicker bg, ColorPicker fg) {
         bg.setValue(asFxColor(col.getBg()));
         fg.setValue(asFxColor(col.getFg()));
-    }
-
-    public static Color asFxColor(PortableColor bg) {
-        return new Color(
-                bg.getRed() / 255.0, bg.getGreen() / 255.0,
-                bg.getBlue() / 255.0, bg.getAlpha() / 255.0
-        );
-    }
-
-    public static PortableColor fromFxColor(Color color) {
-        return new PortableColor(
-                (short)(color.getRed() * 255.0), (short)(color.getGreen() * 255.0),
-                (short)(color.getBlue() * 255.0), (short)(color.getOpacity() * 255.0)
-        );
     }
 
     public void onChangeUUID(ActionEvent actionEvent) {

@@ -1,10 +1,10 @@
 package com.thecoderscorner.menu.examples.websocket;
 
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.mgr.NewServerConnectionListener;
+import com.thecoderscorner.menu.mgr.ServerConnection;
+import com.thecoderscorner.menu.mgr.ServerConnectionManager;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.remote.mgr.NewServerConnectionListener;
-import com.thecoderscorner.menu.remote.mgr.ServerConnection;
-import com.thecoderscorner.menu.remote.mgr.ServerConnectionManager;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;

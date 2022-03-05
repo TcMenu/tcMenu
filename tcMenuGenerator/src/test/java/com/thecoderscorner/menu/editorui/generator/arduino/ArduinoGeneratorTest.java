@@ -9,14 +9,11 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
@@ -43,7 +40,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class ArduinoGeneratorTest {
-
+    public static final UUID SERVER_UUID = UUID.fromString("d7e57e8d-4528-4081-9b1b-cec5bc37a82e");
     private Path projectDir;
     private Path pluginDir;
     private Path rootDir;
@@ -102,15 +99,15 @@ public class ArduinoGeneratorTest {
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
 
-        CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
-                ARDUINO32.getBoardId(),
-                "", "", List.of(""), "",
-                List.of(),
-                UUID.randomUUID(),
-                "app", new AVREepromDefinition(), new EepromAuthenticatorDefinition(100, 3),
-                new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))),
-                recursiveName, false, false);
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform, standardOptions);
+        var standardOptions = new CodeGeneratorOptionsBuilder()
+                .withPlatform(ARDUINO32.getBoardId())
+                .withEepromDefinition(new AVREepromDefinition())
+                .withAuthenticationDefinition(new EepromAuthenticatorDefinition(100, 3))
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
+                .withAppName("app")
+                .withRecursiveNaming(recursiveName)
+                .codeOptions();
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
@@ -118,8 +115,7 @@ public class ArduinoGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
-                new NameAndKey("uuid1", "tester"), List.of(), false));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions));
 
         VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
         assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));

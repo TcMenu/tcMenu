@@ -8,11 +8,10 @@ package com.thecoderscorner.menu.editorui.generator.mbed;
 
 import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.BspStm32EepromDefinition;
@@ -35,12 +34,13 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
-import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGeneratorTest.SERVER_UUID;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
 import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -99,16 +99,14 @@ public class MbedGeneratorTest {
                 new FlashRemoteId("name2", "second-uuid")
         );
 
-        CodeGeneratorOptions standardOptions = new CodeGeneratorOptions(
-                MBED_RTOS.getBoardId(),
-                "", "", List.of(""), "",
-                List.of(),
-                UUID.randomUUID(),
-                "app",
-                new BspStm32EepromDefinition(50), new ReadOnlyAuthenticatorDefinition("1234", flashRemotes),
-                new IoExpanderDefinitionCollection(),
-                true, true, false);
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS, standardOptions);
+        var options = new CodeGeneratorOptionsBuilder()
+                .withPlatform(MBED_RTOS.getBoardId()).withAppName("tester").withNewId(SERVER_UUID)
+                .withEepromDefinition(new BspStm32EepromDefinition(50))
+                .withAuthenticationDefinition(new ReadOnlyAuthenticatorDefinition("1234", flashRemotes))
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection())
+                .withRecursiveNaming(true).withSaveToSrc(true)
+                .codeOptions();
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
@@ -116,8 +114,7 @@ public class MbedGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree,
-                new NameAndKey("uuid1", "tester"), List.of(), true));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options));
 
         var sourceDir = projectDir.resolve("src");
 

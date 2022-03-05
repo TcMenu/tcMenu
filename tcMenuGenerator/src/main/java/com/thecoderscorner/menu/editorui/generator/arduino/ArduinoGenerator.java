@@ -32,9 +32,8 @@ public class ArduinoGenerator extends CoreCodeGenerator {
 
     public ArduinoGenerator(SketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
-                            EmbeddedPlatform embeddedPlatform,
-                            CodeGeneratorOptions options) {
-        super(adjuster, installer, embeddedPlatform, options);
+                            EmbeddedPlatform embeddedPlatform) {
+        super(adjuster, installer, embeddedPlatform);
     }
 
     @Override

@@ -59,7 +59,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             var platforms = new PluginEmbeddedPlatformsImpl();
             DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
             loader.loadPlugins();
-            platforms.setInstaller(new ArduinoLibraryInstaller(new OfflineDetector(), loader, prefsStore));
+            platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(new OfflineDetector(), loader, prefsStore), prefsStore);
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(project.getOptions().getEmbeddedPlatform());
             var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
 
@@ -82,16 +82,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
             System.out.format("Executing code generator");
 
-            var saveSrc = project.getOptions().isSaveToSrc();
-            var nameAndKey = new NameAndKey(
-                    project.getOptions().getApplicationUUID().toString(),
-                    project.getOptions().getApplicationName()
-            );
             var location = Paths.get(loadedProjectFile.getParent());
             codeGen.setLoggerFunction((level, s) -> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
-            codeGen.startConversion(location, plugins, project.getMenuTree(), nameAndKey, Collections.emptyList(), saveSrc);
+            codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions());
             return 0;
         }
         catch (Exception ex) {

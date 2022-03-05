@@ -25,9 +25,8 @@ import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
 public class MbedGenerator extends CoreCodeGenerator {
-    public MbedGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
-                         CodeGeneratorOptions options) {
-        super(adjuster, installer, embeddedPlatform, options);
+    public MbedGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform) {
+        super(adjuster, installer, embeddedPlatform);
     }
 
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +

@@ -3,8 +3,8 @@ package com.thecoderscorner.menu.examples.websocket;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
-import com.thecoderscorner.menu.remote.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.remote.mgr.ServerConnection;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.mgr.ServerConnection;
 import org.java_websocket.WebSocket;
 
 import java.nio.ByteBuffer;

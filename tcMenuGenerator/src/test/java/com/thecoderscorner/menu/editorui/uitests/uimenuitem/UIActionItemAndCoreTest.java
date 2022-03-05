@@ -150,13 +150,13 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
                 "Name - field must not be blank and less than 19 characters");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "variableField", "name spaces",
-                "Function fields must use only letters, digits, and '_'");
+                "Field must use only letters, digits, and '_'");
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This name is too long for menuitem",
                                     "Name - field must not be blank and less than 19 characters");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "19_Bad",
-                                    "Function fields must use only letters, digits, and '_'");
+                                    "Field must use only letters, digits, and '_'");
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(eq(subItem), captor.capture());

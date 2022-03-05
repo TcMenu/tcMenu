@@ -89,7 +89,7 @@ public class OnlineLibraryVersionDetectorTest {
     @BeforeEach
     public void setup() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
-        when(mockHttp.postRequestForString("https://mockAddr" + LIBRARY_VERSIONING_URL_APPEND, "pluginVer=3", HttpDataType.FORM)).thenReturn(xmlData);
+        when(mockHttp.postRequestForString("https://mockAddr" + LIBRARY_VERSIONING_URL_APPEND, "", HttpDataType.FORM)).thenReturn(xmlData);
         verDet = new OnlineLibraryVersionDetector("https://mockAddr", mockHttp, ReleaseType.STABLE);
     }
 

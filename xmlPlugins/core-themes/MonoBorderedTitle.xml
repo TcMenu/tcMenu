@@ -8,6 +8,7 @@
        <Platform>ARDUINO_32</Platform>
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>This theme is designed for OLED and other monochrome displays of low to medium resolution. It draws the title line with a border at the bottom, and uses the standard edit/active icons.</Description>

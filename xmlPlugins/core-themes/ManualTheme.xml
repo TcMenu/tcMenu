@@ -8,6 +8,7 @@
        <Platform>ARDUINO_32</Platform>
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Advanced users only - manual theme allows you to create your own theme from scratch using the tcMenu theme documentation.</Description>

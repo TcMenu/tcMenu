@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr.color;
 
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import javafx.scene.paint.Color;
 
 public class ControlColor {
     public static final PortableColor BLACK = new PortableColor(0, 0, 0);
@@ -42,4 +43,19 @@ public class ControlColor {
     public void setBg(PortableColor bg) {
         this.bg = bg;
     }
+
+    public static Color asFxColor(PortableColor bg) {
+        return new Color(
+                bg.getRed() / 255.0, bg.getGreen() / 255.0,
+                bg.getBlue() / 255.0, bg.getAlpha() / 255.0
+        );
+    }
+
+    public static PortableColor fromFxColor(Color color) {
+        return new PortableColor(
+                (short)(color.getRed() * 255.0), (short)(color.getGreen() * 255.0),
+                (short)(color.getBlue() * 255.0), (short)(color.getOpacity() * 255.0)
+        );
+    }
+
 }

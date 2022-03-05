@@ -13,7 +13,8 @@
             <xs:enumeration value="ARDUINO_32"/>
             <xs:enumeration value="ARDUINO_ESP8266"/>
             <xs:enumeration value="ARDUINO_ESP32"/>
-            <xs:enumeration value="ARDUINO_ESP8266"/>
+            <xs:enumeration value="STM32DUINO"/>
+            <xs:enumeration value="RASPBERRY_PIJ"/>
             <xs:enumeration value="MBED_RTOS"/>
           </xs:restriction>
         </xs:simpleType>

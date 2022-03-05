@@ -178,6 +178,13 @@ public class MenuItemHelperTest {
         checkGetBootItemMenuCommand(subItem, false, MenuSubBootCommand.class);
     }
 
+    @Test
+    public void testGetValueFor() {
+        assertEquals(-1, (int)getValueFor(analogItem, tree, -1));
+        setMenuState(analogItem, 22, tree);
+        assertEquals(22, (int)getValueFor(analogItem, tree, -1));
+    }
+
     private void checkGetBootItemMenuCommand(MenuItem item, Object value, Class<? extends BootItemMenuCommand<?,?>> cmdClass) {
         MenuItemHelper.setMenuState(item, value, tree);
         var theBootCmd = getBootMsgForItem(item, MenuTree.ROOT, tree);

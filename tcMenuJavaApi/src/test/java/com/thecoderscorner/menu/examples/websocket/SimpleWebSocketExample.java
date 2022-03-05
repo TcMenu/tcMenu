@@ -1,26 +1,25 @@
 package com.thecoderscorner.menu.examples.websocket;
 
-import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
-import com.thecoderscorner.menu.remote.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.remote.mgr.ServerConnectionManager;
-import com.thecoderscorner.menu.remote.mgr.SocketServerConnectionManager;
+import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 
-import java.sql.Time;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class SimpleWebSocketExample {
 
@@ -35,17 +34,12 @@ public class SimpleWebSocketExample {
         var executor = Executors.newSingleThreadScheduledExecutor();
         var clock = Clock.systemDefaultZone();
         MenuCommandProtocol tagValProtocol = new TagValMenuCommandProtocol();
-        boolean useWebSockets = Boolean.getBoolean("useWebSockets");
-        ServerConnectionManager socketServer;
-        if(useWebSockets) {
-            socketServer = new WebSocketServerConnectionManager(tagValProtocol, 3333, clock);
-        } else {
-            socketServer = new SocketServerConnectionManager(tagValProtocol, executor, 3333, clock);
-        }
-        var menuManager = new MenuManagerServer(executor, tree, socketServer,
+        var menuManager = new MenuManagerServer(executor, tree,
                 "WS Test", UUID.randomUUID(),
                 new PropertiesAuthenticator("./auth.properties"),
                 clock);
+        menuManager.addConnectionManager(new WebSocketServerConnectionManager(tagValProtocol, 3333, clock));
+        menuManager.addConnectionManager(new SocketServerConnectionManager(tagValProtocol, executor, 3334, clock));
         menuManager.start();
 
         var menuList = menuManager.getManagedMenu().getMenuById(21).orElseThrow();
@@ -59,7 +53,7 @@ public class SimpleWebSocketExample {
             }, 5000, 5000, TimeUnit.MILLISECONDS);
 
             executor.scheduleAtFixedRate(() -> {
-                if (socketServer.getServerConnections().isEmpty()) return;
+                if (menuManager.isAnyRemoteConnection()) return;
                 var menuVolume = (AnalogMenuItem) tree.getMenuById(1).orElseThrow();
                 var menuLeftVU = (AnalogMenuItem) tree.getMenuById(15).orElseThrow();
                 var menuRightVU = (AnalogMenuItem) tree.getMenuById(16).orElseThrow();

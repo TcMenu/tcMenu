@@ -63,7 +63,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final ArduinoLibraryInstaller installer;
     protected final SketchFileAdjuster sketchAdjuster;
     protected final EmbeddedPlatform embeddedPlatform;
-    protected final CodeGeneratorOptions options;
     protected BiConsumer<System.Logger.Level, String> uiLogger = null;
     protected MenuTree menuTree;
     protected List<String> previousPluginFiles = List.of();
@@ -72,20 +71,19 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected VariableNameGenerator namingGenerator;
     protected NameAndKey nameAndKey;
     protected boolean hasRemotePlugins;
+    protected CodeGeneratorOptions options;
     private final AtomicInteger logEntryNum = new AtomicInteger(0);
 
-    public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform,
-                             CodeGeneratorOptions options) {
+    public CoreCodeGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform) {
         this.installer = installer;
         this.sketchAdjuster = adjuster;
         this.embeddedPlatform = embeddedPlatform;
-        this.options = options;
     }
 
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
-                                   NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc) {
+                                   List<String> previousPluginFiles, CodeGeneratorOptions options) {
         this.menuTree = menuTree;
-        this.nameAndKey = nameKey;
+        this.options = options;
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
         logLine(INFO, "Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
@@ -97,7 +95,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         try {
             Path srcDir = directory;
-            if (saveToSrc) {
+            if (options.isSaveToSrc()) {
                 srcDir = directory.resolve("src");
             }
             if (!Files.exists(srcDir)) Files.createDirectories(srcDir);

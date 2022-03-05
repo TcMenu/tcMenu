@@ -1,13 +1,16 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,14 +50,15 @@ public class CreateProjectCommand implements Callable<Integer> {
             "    }" + LINE_BREAK +
             "}" + LINE_BREAK;
 
-    public enum SupportedPlatform { ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS }
+    private final PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
+
 
     @Option(names = {"-d", "--directory"}, description = "optional directory name (defaults to current)")
     private File projectLocation;
 
     @SuppressWarnings("FieldMayBeFinal")
-    @Option(names = {"-p", "--platform"}, description = "one of ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, MBED_RTOS", required = true)
-    private SupportedPlatform platform = SupportedPlatform.ARDUINO_AVR;
+    @Option(names = {"-p", "--platform"}, description = "A platformID returned by the list-platforms command", required = true)
+    private String platform = "ARDUINO_AVR";
 
     @Option(names = {"-m", "--cpp"}, description = "use a cpp file for main")
     private boolean cppMain;
@@ -65,6 +69,9 @@ public class CreateProjectCommand implements Callable<Integer> {
     @Option(names = {"-v", "--verbose"}, description = "verbose logging")
     private boolean verbose;
 
+    @Option(names = {"-n", "namespace"}, description = "the java package name or C++ namespace")
+    private String namespace;
+
     @Override
     public Integer call() throws Exception {
         if(projectLocation == null) projectLocation = new File(System.getProperty("user.dir"));
@@ -74,13 +81,14 @@ public class CreateProjectCommand implements Callable<Integer> {
             return -1;
         }
 
-        if(newProject == null || newProject.length != 1 || !VAR_PATTERN.matcher(newProject[0]).matches()) {
+        if(newProject == null  || newProject.length != 1 || !VAR_PATTERN.matcher(newProject[0]).matches()) {
             System.out.println("Please enter a valid new project name without spaces");
             return -1;
         }
 
         try {
-            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, platform, System.out::println);
+            var embeddedPlatform = platforms.getEmbeddedPlatformFromId(platform);
+            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform, System.out::println, namespace);
             return 0;
         }
         catch(Exception ex) {
@@ -98,14 +106,13 @@ public class CreateProjectCommand implements Callable<Integer> {
      * @param location location for creation
      * @param newProject new project name (will create dir)
      * @param cppMain if a c++ main file is to be used
-     * @param suppPlat the platform as a SupportedPlatform.
+     * @param platform the platform as a SupportedPlatform.
      * @throws IOException when the directory and files are not properly created
      */
-    public static void createNewProject(Path location, String newProject, boolean cppMain,
-                                         SupportedPlatform suppPlat, Consumer<String> logger) throws IOException {
-        var platforms = new PluginEmbeddedPlatformsImpl();
+    public void createNewProject(Path location, String newProject, boolean cppMain,
+                                 EmbeddedPlatform platform, Consumer<String> logger,
+                                 String packageOrNamespace) throws IOException {
         var configurationStorage = new PrefsConfigurationStorage();
-        var platform = platforms.getEmbeddedPlatformFromId(suppPlat.toString());
 
         logger.accept(String.format("Creating directory %s in %s", newProject, location));
         var dir = Paths.get(location.toString(), newProject);
@@ -122,11 +129,19 @@ public class CreateProjectCommand implements Callable<Integer> {
         var recursiveNaming = configurationStorage.isDefaultRecursiveNamingOn();
         var saveToSrc = configurationStorage.isDefaultSaveToSrcOn();
 
+        if(platforms.isJava(platform) && StringHelper.isStringEmptyOrNull(packageOrNamespace)) {
+            throw new IllegalArgumentException("For Java platforms you must provide a package name");
+        }
+
         var persistor = new FileBasedProjectPersistor();
         var  tree = new MenuTree();
-        persistor.save(projectEmf.toString(), "Project description", tree, new CodeGeneratorOptions(platform.getBoardId(), null, null, null, null,
-                List.of(), UUID.randomUUID(), newProject, new NoEepromDefinition(), new NoAuthenticatorDefinition(),
-                new IoExpanderDefinitionCollection(), recursiveNaming, saveToSrc, cppMain));
+        var generator = new CodeGeneratorOptionsBuilder()
+                .withPlatform(platform.getBoardId())
+                .withAppName(newProject).withNewId(UUID.randomUUID())
+                .withCppMain(cppMain).withSaveToSrc(saveToSrc).withRecursiveNaming(recursiveNaming)
+                .withPackageNamespace(packageOrNamespace)
+                .codeOptions();
+        persistor.save(projectEmf.toString(), "Project description", tree, generator);
         logger.accept("Project created!");
     }
 }

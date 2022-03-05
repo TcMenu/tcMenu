@@ -94,7 +94,7 @@ public class MenuEditorApp extends Application {
 
         ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(libraryVersionDetector, manager, prefsStore);
 
-        platforms.setInstaller(installer);
+        platforms.setInstallerConfiguration(installer, prefsStore);
 
         manager.loadPlugins();
 

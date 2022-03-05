@@ -9,6 +9,7 @@
         <Platform>ARDUINO_UNO</Platform>
         <Platform>ARDUINO_AVR</Platform>
         <Platform>ARDUINO_32</Platform>
+        <Platform>STM32DUINO</Platform>
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>

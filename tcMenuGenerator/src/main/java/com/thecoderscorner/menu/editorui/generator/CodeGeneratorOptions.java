@@ -34,6 +34,7 @@ public class CodeGeneratorOptions {
     private EepromDefinition eepromDefinition;
     private AuthenticatorDefinition authenticatorDefinition;
     private IoExpanderDefinitionCollection projectIoExpanders;
+    private String packageNamespace;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -41,7 +42,7 @@ public class CodeGeneratorOptions {
 
     public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
                                 String themeTypeId, List<CreatorProperty> lastProperties,
-                                UUID applicationUUID, String applicationName,
+                                UUID applicationUUID, String applicationName, String packageNamespace,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
@@ -58,6 +59,7 @@ public class CodeGeneratorOptions {
         this.lastProperties = lastProperties;
         this.applicationUUID = applicationUUID;
         this.applicationName = applicationName;
+        this.packageNamespace = packageNamespace;
         this.namingRecursive = namingRecursive;
         this.saveToSrc = saveToSrc;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
@@ -74,6 +76,8 @@ public class CodeGeneratorOptions {
         if(authenticatorDefinition == null) return new NoAuthenticatorDefinition();
         return authenticatorDefinition;
     }
+
+    public String getPackageNamespace() { return packageNamespace; }
 
     public String getApplicationName() {
         return applicationName;

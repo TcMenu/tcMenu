@@ -10,9 +10,7 @@ import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +19,8 @@ import javafx.stage.Stage;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static java.lang.System.Logger.Level.ERROR;
@@ -31,10 +31,12 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
 
     private final CurrentEditorProject project;
     private final EmbeddedPlatforms platforms;
+    private final CodePluginManager manager;
 
-    public DefaultCodeGeneratorRunner(CurrentEditorProject project, EmbeddedPlatforms platforms) {
+    public DefaultCodeGeneratorRunner(CurrentEditorProject project, EmbeddedPlatforms platforms, CodePluginManager mgr) {
         this.project = project;
         this.platforms = platforms;
+        this.manager = mgr;
     }
 
     @Override
@@ -53,12 +55,11 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 // here we get access to objects we need on the other thread, ensuring they are all safe to use on
                 // the other thread, then we create the other thread.
                 var threadSafeCreators = List.copyOf(creators);
-                var threadSafePreviousPlugins = List.copyOf(previousPlugins);
+                var threadSafePreviousPluginFiles = allPreviousSourceFiles(previousPlugins);
                 var threadSafeMenuTree = project.getMenuTree();
-                var isSaveToSrc = project.getGeneratorOptions().isSaveToSrc();
                 new Thread(() -> {
-                    gen.startConversion(Paths.get(path), threadSafeCreators, threadSafeMenuTree, newNameAndKey(project),
-                            threadSafePreviousPlugins, isSaveToSrc);
+                    gen.startConversion(Paths.get(path), threadSafeCreators, threadSafeMenuTree,
+                            threadSafePreviousPluginFiles, project.getGeneratorOptions());
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal);
@@ -70,6 +71,17 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
         catch(Exception e) {
             logger.log(ERROR, "Unable to create the form", e);
         }
+    }
+
+    private List<String> allPreviousSourceFiles(List<String> previousPlugins) {
+
+        return previousPlugins.stream()
+                .map(manager::getPluginById)
+                .filter(Optional::isPresent)
+                .map(Optional::orElseThrow)
+                .flatMap(pl -> pl.getRequiredSourceFiles().stream())
+                .map(RequiredSourceFile::getFileName)
+                .collect(Collectors.toList());
     }
 
     private NameAndKey newNameAndKey(CurrentEditorProject project) {

@@ -9,15 +9,10 @@ package com.thecoderscorner.menu.editorui.generator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +26,7 @@ public class CodeGeneratorOptionsBuilder {
     private String lastThemeUuid = NO_CREATOR_SELECTED;
     private UUID applicationUUID = UUID.randomUUID();
     private String applicationName = "New Device";
+    private String packageNamespace = "";
     private List<CreatorProperty> lastProperties = List.of();
     private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
     private boolean namingRecursive = false;
@@ -54,12 +50,13 @@ public class CodeGeneratorOptionsBuilder {
         eepromDef = other.getEepromDefinition();
         authDef = other.getAuthenticatorDefinition();
         expanderDefinitions = other.getExpanderDefinitions();
+        packageNamespace = other.getPackageNamespace();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
-                lastProperties, applicationUUID, applicationName, eepromDef, authDef, expanderDefinitions,
+                lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
                 namingRecursive, saveToSrc, useCppMain);
     }
 
@@ -85,6 +82,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withAppName(String newValue) {
         applicationName = newValue;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withPackageNamespace(String namespace) {
+        packageNamespace = namespace;
         return this;
     }
 
@@ -117,7 +119,7 @@ public class CodeGeneratorOptionsBuilder {
         return this;
     }
 
-    public CodeGeneratorOptionsBuilder withProperties(ArrayList<CreatorProperty> allProps) {
+    public CodeGeneratorOptionsBuilder withProperties(List<CreatorProperty> allProps) {
         this.lastProperties = allProps;
         return this;
     }

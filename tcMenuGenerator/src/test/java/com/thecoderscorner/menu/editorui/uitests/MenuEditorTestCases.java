@@ -134,6 +134,8 @@ public class MenuEditorTestCases {
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
         when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
+        when(installer.getVersionOfLibrary("java-app", AVAILABLE_APP)).thenReturn(new VersionInfo("1.0.0"));
+        when(installer.getVersionOfLibrary("java-app", CURRENT_APP)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
@@ -452,7 +454,7 @@ public class MenuEditorTestCases {
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         Thread.sleep(500);
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Libraries are out of date, see Edit -> General Settings"));
+        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Libraries need updating, check in General Settings"));
     }
 
     @Test
@@ -478,7 +480,6 @@ public class MenuEditorTestCases {
         Thread.sleep(500);
 
         verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries all up-to-date"));
-        verifyThat("#tcMenuPluginIndicator", LabeledMatchers.hasText("All plugins are up to date."));
 
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
     }

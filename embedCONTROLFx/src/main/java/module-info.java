@@ -12,7 +12,7 @@ module com.thecoderscorner.tcmenu.embedcontrolfx {
     requires com.thecoderscorner.embedcontrol.core;
     requires com.thecoderscorner.tcmenu.javaapi;
 
-    exports com.thecoderscorner.embedcontrol.jfx;
     exports com.thecoderscorner.embedcontrol.jfx.dialog;
     exports com.thecoderscorner.embedcontrol.jfx.panel;
+    exports com.thecoderscorner.embedcontrol.jfx;
 }

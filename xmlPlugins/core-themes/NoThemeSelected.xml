@@ -8,6 +8,8 @@
        <Platform>ARDUINO_32</Platform>
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
+       <Platform>STM32DUINO</Platform>
+       <Platform>RASPBERRY_PIJ</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Please select a theme that can be used with your display, take care to only use mono themes with monochrome displays.</Description>

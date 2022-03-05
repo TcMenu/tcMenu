@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.ui.LogLine;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -20,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.cli.CreateProjectCommand.SupportedPlatform.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -34,6 +34,7 @@ public class NewProjectController {
     public Button createButton;
     public TextField locationTextField;
     public CheckBox cppMainCheckbox;
+    public TextField namespaceField;
     private Optional<String> maybeDirectory;
     private CurrentEditorProject project;
     private ConfigurationStorage storage;
@@ -61,13 +62,15 @@ public class NewProjectController {
         projectNameField.setDisable(newOnlyMode);
         dirChooseButton.setDisable(newOnlyMode);
         platformCombo.setDisable(newOnlyMode);
-        cppMainCheckbox.setDisable(newOnlyMode);
+        var isJavaPlatform = EmbeddedPlatform.RASPBERRY_PIJ.equals(platformCombo.getSelectionModel().getSelectedItem());
+        cppMainCheckbox.setDisable(newOnlyMode && !isJavaPlatform);
 
         if(newOnlyMode) {
             createButton.setDisable(false);
         }
         else {
             var ok = (!StringHelper.isStringEmptyOrNull(projectNameField.getText()) && maybeDirectory.isPresent());
+            if(isJavaPlatform && namespaceField.getText().isEmpty()) ok = false;
             createButton.setDisable(!ok);
         }
     }
@@ -100,11 +103,13 @@ public class NewProjectController {
             if(!passDirtyCheck()) return;
             try {
                 String projName = projectNameField.getText();
-                CreateProjectCommand.createNewProject(
+                var projectCreator = new CreateProjectCommand();
+                projectCreator.createNewProject(
                         Paths.get(maybeDirectory.get()), projName,
                         cppMainCheckbox.isSelected(),
-                        asSupportedPlatform(platformCombo.getSelectionModel().getSelectedItem()),
-                        s -> logger.log(INFO, s)
+                        platformCombo.getSelectionModel().getSelectedItem(),
+                        s -> logger.log(INFO, s),
+                        namespaceField.getText()
                 );
                 Path emfFileName = Paths.get(maybeDirectory.get(), projName, projName + ".emf");
                 project.openProject(emfFileName.toString());
@@ -139,16 +144,6 @@ public class NewProjectController {
             else return false;
         }
         return true;
-    }
-
-    private CreateProjectCommand.SupportedPlatform asSupportedPlatform(EmbeddedPlatform selectedItem) {
-        return switch(selectedItem.getBoardId()) {
-            case "ARDUINO32" -> ARDUINO32;
-            case "ARDUINO_ESP8266" -> ARDUINO_ESP8266;
-            case "ARDUINO_ESP32" -> ARDUINO_ESP32;
-            case "MBED_RTOS" -> MBED_RTOS;
-            default -> ARDUINO_AVR;
-        };
     }
 
     public void onTextChanged(KeyEvent keyEvent) {

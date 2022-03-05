@@ -20,6 +20,7 @@ public abstract class BaseEditorComponent implements EditorComponent {
     private long lastCorrelation = System.currentTimeMillis();
     private long lastUpdate = System.currentTimeMillis();
     protected volatile RenderingStatus status = RenderingStatus.NORMAL;
+    private boolean locallyReadOnly;
 
     protected BaseEditorComponent(RemoteMenuController controller, ComponentSettings settings,
                                   MenuItem item, ThreadMarshaller threadMarshaller) {
@@ -27,6 +28,10 @@ public abstract class BaseEditorComponent implements EditorComponent {
         this.item = item;
         this.drawingSettings = settings;
         this.threadMarshaller = threadMarshaller;
+    }
+
+    public void setLocallyReadOnly(boolean locallyReadOnly) {
+        this.locallyReadOnly = locallyReadOnly;
     }
 
     public abstract void changeControlSettings(RenderingStatus status, String text);
@@ -129,7 +134,7 @@ public abstract class BaseEditorComponent implements EditorComponent {
     }
 
     public boolean isItemEditable(MenuItem item) {
-        return userEditableMenuTypes.contains(item.getClass()) && !item.isReadOnly();
+        return userEditableMenuTypes.contains(item.getClass()) && !item.isReadOnly() && !locallyReadOnly;
     }
 
     @Override

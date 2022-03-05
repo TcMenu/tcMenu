@@ -76,14 +76,9 @@ public class VariableNameGenerator {
         return "fn" + makeNameToVar(item) + "RtCall";
     }
 
-    protected String makeNameFromVariable(String name) {
+    public String makeNameFromVariable(String name) {
         Collection<String> parts = Arrays.asList(name.split("[\\p{P}\\p{Z}\\t\\r\\n\\v\\f^]+"));
-        return parts.stream().map(this::capitaliseFirst).collect(Collectors.joining());
-    }
-
-    protected String capitaliseFirst(String s) {
-        if (s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+        return parts.stream().map(StringHelper::capitaliseFirst).collect(Collectors.joining());
     }
 
 }

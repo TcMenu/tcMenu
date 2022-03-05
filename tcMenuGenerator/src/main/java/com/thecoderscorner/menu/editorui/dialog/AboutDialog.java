@@ -16,16 +16,14 @@ import javafx.stage.Stage;
 public class AboutDialog extends BaseDialogSupport<AboutController> {
 
     private final ConfigurationStorage storage;
-    private final ArduinoLibraryInstaller installer;
 
-    public AboutDialog(ConfigurationStorage storage, Stage stage, ArduinoLibraryInstaller installer, boolean modal) {
+    public AboutDialog(ConfigurationStorage storage, Stage stage, boolean modal) {
         this.storage = storage;
-        this.installer = installer;
         tryAndCreateDialog(stage, "/ui/aboutDialog.fxml", "About tcMenu Designer", modal);
     }
 
     @Override
     protected void initialiseController(AboutController controller) throws Exception {
-        controller.initialise(storage, installer);
+        controller.initialise(storage);
     }
 }

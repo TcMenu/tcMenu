@@ -40,8 +40,7 @@ public class AboutDialogTestCases {
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.getVersion()).thenReturn("V1.0.2");
         when(storage.getBuildTimestamp()).thenReturn("20/10/2018 09:30");
-        ArduinoLibraryInstaller installer = mock(ArduinoLibraryInstaller.class);
-        AboutDialog dialog = new AboutDialog(storage, stage, installer, false);
+        new AboutDialog(storage, stage, false);
     }
 
     @AfterEach
@@ -53,7 +52,6 @@ public class AboutDialogTestCases {
     public void testAboutDialog(FxRobot robot) {
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));
-        verifyThat("#registeredLabel", hasText("UnitTesterII"));
         robot.clickOn(".button:default");
     }
 }

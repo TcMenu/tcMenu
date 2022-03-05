@@ -147,7 +147,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showAboutDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Showing about dialog");
-        new AboutDialog(configStore, mainStage, installer, true);
+        new AboutDialog(configStore, mainStage, true);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         try {
-            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms);
+            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms, manager);
             GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms);
             dialog.showCodeGenerator(mainStage, true);
         }

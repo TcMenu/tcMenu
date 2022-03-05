@@ -132,8 +132,7 @@ public class GenerateCodeDialogTest {
         // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
         // on the line below.
         //
-        String osName = System.getProperty("os.name").toLowerCase();
-        var dir = osName.contains("mac") ? VerticalDirection.DOWN : VerticalDirection.UP;
+        var dir = VerticalDirection.UP;
 
         robot.scroll(100, dir);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
@@ -146,10 +145,10 @@ public class GenerateCodeDialogTest {
         var expectedPlugins = List.of(displayPlugin, inputPlugin, remotePlugin);
 
         var previousPluinFiles = List.of(
-                "src/source.h",
-                "src/source.cpp",
-                "src/extra.cpp",
-                "src/MySpecialTransport.h"
+                "20409bb8-b8a1-4d1d-b632-2cf9b57353e3",
+                "20409bb8-b8a1-4d1d-b632-2cf9b5739888",
+                "0BB96E3C-192F-4A29-97E1-A5004E9816F7",
+                "850b889b-fb15-4d9b-a589-67d5ffe3488d"
         );
 
         verify(generatorRunner).startCodeGeneration(

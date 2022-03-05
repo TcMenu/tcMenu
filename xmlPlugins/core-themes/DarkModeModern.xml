@@ -8,6 +8,7 @@
        <Platform>ARDUINO_32</Platform>
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
     <Description>Dark mode theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts. This can only be used with color displays</Description>

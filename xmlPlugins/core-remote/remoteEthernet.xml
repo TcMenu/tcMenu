@@ -7,6 +7,7 @@
         <Platform>ARDUINO_32</Platform>
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>Use this option to be able to control the menu over many kinds of ethernet shields and devices. The full menu structure will be available to the remote using either the protocol or the API.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
@@ -25,6 +26,7 @@
             <Choices>
                 <Choice desc="Ethernet 2">ETHERNET_2</Choice>
                 <Choice desc="UIP Ethernet">UIP_ENC28J60</Choice>
+                <Choice desc="STM32Ethernet">STM32ETHERNET</Choice>
             </Choices>
         </Property>
         <Property id="ETH_LISTEN_PORT1" name="First port on which to listen " initial="3333" desc="The first port on which to listen for connections"
@@ -38,6 +40,7 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <Replacement find="Ethernet.h" replace="STM32Ethernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="STM32ETHERNET"/>
         <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
         <Replacement find="EthernetClient" replace="UIPClient" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
         <Replacement find="EthernetServer" replace="UIPServer" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>

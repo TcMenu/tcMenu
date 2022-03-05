@@ -8,8 +8,8 @@ import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
-import com.thecoderscorner.menu.remote.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.remote.mgr.SocketServerConnectionManager;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import com.thecoderscorner.menu.remote.socket.SocketBasedConnector;
@@ -52,8 +52,8 @@ public class MenuServerSocketIntegrationTest {
         var tree = DomainFixtures.fullEspAmplifierTestTree();
         var authenticator = new PreDefinedAuthenticator(List.of(new AuthenticationToken("integration-client", localUuid.toString())));
         serverConnection = new SocketServerConnectionManager(protocol, executor, 9876, Clock.systemDefaultZone());
-        menuServer = new MenuManagerServer(executor, tree, serverConnection, "integration-test", serverUuid,
-                authenticator, Clock.systemDefaultZone());
+        menuServer = new MenuManagerServer(executor, tree, "integration-test", serverUuid, authenticator, Clock.systemDefaultZone());
+        menuServer.addConnectionManager(serverConnection);
 
         clientConnector = new SocketBasedConnector(new LocalIdentifier(localUuid, "integration-client"), executor,
                 Clock.systemDefaultZone(), protocol, "localhost", 9876, ConnectMode.FULLY_AUTHENTICATED);

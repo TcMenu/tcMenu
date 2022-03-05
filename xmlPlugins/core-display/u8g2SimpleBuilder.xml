@@ -11,6 +11,7 @@
         <Platform>ARDUINO_32</Platform>
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>Draw menus using U8G2 library. Let code generator build a simple U8G2 display object for you, handles most simple configurations in full buffer mode.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>

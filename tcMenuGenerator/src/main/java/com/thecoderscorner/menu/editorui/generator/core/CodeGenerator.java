@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 
@@ -30,7 +31,7 @@ public interface CodeGenerator {
      * @return true if conversion successful
      */
     boolean startConversion(Path directory, List<CodePluginItem> generators, MenuTree menuTree,
-                            NameAndKey nameKey, List<String> previousPluginFiles, boolean saveToSrc);
+                            List<String> previousPluginFiles, CodeGeneratorOptions options);
 
     /**
      * Called before the conversion starts to set the logger to use for the rest of the conversion.

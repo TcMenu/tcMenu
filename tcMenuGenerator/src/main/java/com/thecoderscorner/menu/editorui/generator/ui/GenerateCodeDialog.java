@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
@@ -42,7 +43,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
-import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.*;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static java.lang.System.Logger.Level.ERROR;
@@ -60,16 +60,16 @@ public class GenerateCodeDialog {
     private final CodeGeneratorRunner runner;
     private final EmbeddedPlatforms platforms;
 
-    private List<CodePluginItem> displaysSupported;
-    private List<CodePluginItem> inputsSupported;
-    private List<CodePluginItem> remotesSupported;
-    private List<CodePluginItem> themesSupported;
+    private final List<CodePluginItem> displaysSupported = new ArrayList<>();
+    private final List<CodePluginItem> inputsSupported = new ArrayList<>();
+    private final List<CodePluginItem> remotesSupported = new ArrayList<>();
+    private final List<CodePluginItem> themesSupported = new ArrayList<>();
     private final List<String> initialPlugins = new ArrayList<>();
+    private final List<UICodePluginItem> currentRemotes = new ArrayList<>();
 
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentTheme;
     private UICodePluginItem currentInput;
-    private final List<UICodePluginItem> currentRemotes = new ArrayList<>();
 
     private ComboBox<EmbeddedPlatform> platformCombo;
     private Stage mainStage;
@@ -96,26 +96,22 @@ public class GenerateCodeDialog {
         pane.getStyleClass().add("background");
 
         placeDirectoryAndEmbeddedPanels(pane);
-        filterChoicesByPlatform(platformCombo.getValue());
 
         centerPane = new VBox(5);
         addTitleLabel(centerPane, "Select the input type:");
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         var allItems = project.getMenuTree().getAllMenuItems();
 
+        reloadAllPlugins(platforms.getEmbeddedPlatformFromId(genOptions.getEmbeddedPlatform()));
         CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid(), Optional.empty());
         CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid(), Optional.empty());
         CodePluginItem itemTheme = findItemByUuidOrDefault(themesSupported, genOptions.getLastThemeUuid(), Optional.of(DEFAULT_THEME_ID));
 
-        addToInitialSourceFilesForRemovalCheck(itemInput);
-        addToInitialSourceFilesForRemovalCheck(itemTheme);
-        addToInitialSourceFilesForRemovalCheck(itemDisplay);
+        initialPlugins.addAll(List.of(itemInput.getId(), itemDisplay.getId(), itemTheme.getId()));
 
         setAllPropertiesToLastValues(itemInput);
         setAllPropertiesToLastValues(itemDisplay);
-        if(itemTheme != null) {
-            setAllPropertiesToLastValues(itemTheme);
-        }
+        setAllPropertiesToLastValues(itemTheme);
 
         currentInput = new UICodePluginItem(manager, itemInput, CHANGE, this::onInputChange, editorUI, allItems, 0, "inputPlugin");
         currentInput.getStyleClass().add("uiCodeGen");
@@ -156,7 +152,7 @@ public class GenerateCodeDialog {
             int count = 0;
             for(var remoteId : remoteIds) {
                 CodePluginItem itemRemote = findItemByUuidOrDefault(remotesSupported, remoteId, Optional.of(CoreCodeGenerator.NO_REMOTE_ID));
-                addToInitialSourceFilesForRemovalCheck(itemRemote);
+                initialPlugins.add(itemRemote.getId());
                 setAllPropertiesToLastValues(itemRemote);
                 String pluginId = "remotePlugin" + count;
                 var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, count, pluginId);
@@ -174,6 +170,8 @@ public class GenerateCodeDialog {
             currentRemote.getStyleClass().add("uiCodeGen");
             centerPane.getChildren().add(currentRemote);
         }
+
+        filterChoicesByPlatform(platformCombo.getValue());
 
         ButtonBar buttonBar = new ButtonBar();
         Button generateButton = new Button("Generate Code");
@@ -213,15 +211,6 @@ public class GenerateCodeDialog {
         currentRemote.getStyleClass().add("uiCodeGen");
         currentRemotes.add(currentRemote);
         centerPane.getChildren().add(currentRemote);
-    }
-
-    private void addToInitialSourceFilesForRemovalCheck(CodePluginItem pluginItem) {
-        if(pluginItem == null) return;
-        for(var sf : pluginItem.getRequiredSourceFiles()) {
-            if(sf.isOverwritable()) {
-                initialPlugins.add(sf.getFileName());
-            }
-        }
     }
 
     private Label addTitleLabel(Pane vbox, String text) {
@@ -288,6 +277,12 @@ public class GenerateCodeDialog {
         embeddedPane.add(authModeLabel, 1, 4);
         embeddedPane.add(authModeButton, 2, 4);
 
+        var appNamespace = project.getGeneratorOptions().getPackageNamespace();
+        Label namespaceLabel = new Label("Namespace");
+        embeddedPane.add(namespaceLabel, 0, 5);
+        TextField namespaceTextField = new TextField(appNamespace);
+        embeddedPane.add(namespaceTextField, 1, 5, 2, 1);
+
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(400, 500, 999, Priority.ALWAYS, HPos.LEFT, true);
         ColumnConstraints column3 = new ColumnConstraints(120);
@@ -333,11 +328,38 @@ public class GenerateCodeDialog {
         return platform;
     }
 
+    private void refreshPluginContents(EmbeddedPlatform newPlatform, UICodePluginItem pluginItem, List<CodePluginItem> items) {
+        if(pluginItem.getItem().getSupportedPlatforms().contains(newPlatform)) return;
+        pluginItem.setItem(items.stream().findFirst().orElseThrow()); // there should ALWAYS be at least one plugin
+    }
+
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
-        displaysSupported = manager.getPluginsThatMatch(newVal, DISPLAY);
-        inputsSupported = manager.getPluginsThatMatch(newVal, INPUT);
-        remotesSupported = manager.getPluginsThatMatch(newVal, REMOTE);
-        themesSupported = manager.getPluginsThatMatch(newVal, THEME);
+        reloadAllPlugins(newVal);
+        refreshPluginContents(newVal, currentDisplay, displaysSupported);
+        refreshPluginContents(newVal, currentInput, inputsSupported);
+        refreshPluginContents(newVal, currentTheme, themesSupported);
+        for (var remote : currentRemotes) {
+            refreshPluginContents(newVal, remote, remotesSupported);
+        }
+
+        var themeNeeded = currentDisplay.getItem().isThemeNeeded();
+        currentTheme.setVisible(themeNeeded);
+        currentTheme.setManaged(themeNeeded);
+        themeTitle.setVisible(themeNeeded);
+        themeTitle.setManaged(themeNeeded);
+    }
+
+    private void reloadAllPlugins(EmbeddedPlatform newVal) {
+        reloadPlugins(newVal, SubSystem.DISPLAY, displaysSupported);
+        reloadPlugins(newVal, SubSystem.INPUT, inputsSupported);
+        reloadPlugins(newVal, SubSystem.REMOTE, remotesSupported);
+        reloadPlugins(newVal, SubSystem.THEME, themesSupported);
+    }
+
+    private void reloadPlugins(EmbeddedPlatform platform, SubSystem what, List<CodePluginItem> items) {
+        items.clear();
+        items.addAll(manager.getPluginsThatMatch(platform, what));
+
     }
 
     private void setAllPropertiesToLastValues(CodePluginItem itemToSetFor) {

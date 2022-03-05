@@ -1,0 +1,40 @@
+<TcMenuPlugin name="Serve up embedCONTROL JS from webserver" id="36f98a10-7ffc-468c-8b6b-3961b5c87cbe" subsystem="REMOTE"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>RASPBERRY_PIJ</Platform>
+    </SupportedPlatforms>
+    <Description>Control your embedded device remotely using embedCONTROL JS served up using a lightweight webserver.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/embedded_java_raspberru_pi/"/>
+    <RequiredLibraries/>
+    <ImageFile>embedCONTROL.png</ImageFile>
+
+    <Properties>
+        <Property id="EJ_FX_THEME" name="Choose the JavaFX theme to use" initial="METRO_DARK" type="choice"
+                  desc="Choose one of the supported themes for your UI">
+            <Choices>
+                <Choice desc="Standard Theme">STANDARD</Choice>
+                <Choice desc="Metro Light">METRO_LIGHT</Choice>
+                <Choice desc="Metro Dark">METRO_DARK</Choice>
+            </Choices>
+        </Property>
+        <Property id="EJ_JUST_IN_TIME_UI" name="Create a just in time UI" initial="true" type="boolean"
+                  desc="Create a UI on the fly from the menu, needs minimal configuration to get started."/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+    </SourceFiles>
+
+    <IncludeFiles/>
+
+    <GlobalVariables/>
+
+    <SetupFunctions>
+        <Function name="initWithoutInput" object="menuMgr">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>
