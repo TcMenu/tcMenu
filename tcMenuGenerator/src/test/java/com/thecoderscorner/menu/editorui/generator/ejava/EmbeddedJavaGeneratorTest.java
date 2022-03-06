@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.generator.ejava;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,7 @@ class EmbeddedJavaGeneratorTest {
     @BeforeEach
     public void setupGenerator() throws IOException {
         storage = mock(ConfigurationStorage.class);
-        generator = new EmbeddedJavaGenerator(storage);
+        generator = new EmbeddedJavaGenerator(storage, EmbeddedPlatform.RASPBERRY_PIJ);
         tempPath = Files.createTempDirectory("gentest");
         tree = buildSimpleTreeReadOnly();
         when(storage.getVersion()).thenReturn("1.2.3");

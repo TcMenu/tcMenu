@@ -31,7 +31,7 @@ class CodeParameterTest {
 
     @Test
     public void TestVariableSubstitution() {
-        var param = new CodeParameter("MyType", false, "unquoted");
+        var param = new CodeParameter("MyType", "name", false, "unquoted");
         assertEquals("unquotedText", param.expandExpression(context, "unquotedText"));
         assertEquals("part 12345 app", param.expandExpression(context, "part ${VAR1} app"));
         assertEquals("54321", param.expandExpression(context, "${VAR2}"));

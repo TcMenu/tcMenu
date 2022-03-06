@@ -12,21 +12,25 @@ import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 import java.util.regex.Pattern;
 
 public class CodeParameter {
+    public static final String NO_TYPE = "";
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(.*)\\/([^\\/]*)\\/");
     private final String type;
+    private final String name;
     private final boolean paramUsed;
     private final String value;
     private final String defaultValue;
 
-    public CodeParameter(String type, boolean paramUsed, String value) {
+    public CodeParameter(String type, String name, boolean paramUsed, String value) {
         this.type = type;
+        this.name = name;
         this.paramUsed = paramUsed;
         this.value = value;
         this.defaultValue = null;
     }
 
-    public CodeParameter(String type, boolean paramUsed, String value, String defaultValue) {
+    public CodeParameter(String type, String name, boolean paramUsed, String value, String defaultValue) {
         this.type = type;
+        this.name = name;
         this.paramUsed = paramUsed;
         this.value = value;
         this.defaultValue = defaultValue;
@@ -110,6 +114,10 @@ public class CodeParameter {
         }
         return i;
 
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getType() {

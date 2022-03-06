@@ -20,7 +20,6 @@ import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGen
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
@@ -38,9 +37,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.*;
-import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.*;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.*;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR;
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_EEPROM;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -142,7 +142,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> {
-                    var params = List.of(new CodeParameter(null, true, "true"));
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null,true, "true"));
                     return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
@@ -150,7 +150,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> {
-                    var params = List.of(new CodeParameter(null, true, "true"));
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
                     return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
@@ -158,7 +158,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
-                    var params = List.of(new CodeParameter(null, true, "true"));
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
                     return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
@@ -167,7 +167,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         // lastly we deal with any INVISIBLE items, visible is the default.
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
                 .map(item -> {
-                    var params = List.of(new CodeParameter(null, true, "false"));
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "false"));
                     return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
@@ -220,7 +220,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     protected void generatePluginsForCreator(CodePluginItem item, Path directory) throws TcMenuConversionException {
-        var expando = new CodeParameter(null, true, "");
+        var expando = new CodeParameter(CodeParameter.NO_TYPE, null, true, "");
         var filteredSourceFiles = item.getRequiredSourceFiles().stream()
                 .filter(sf-> sf.getApplicability().isApplicable(context.getProperties()))
                 .collect(Collectors.toList());

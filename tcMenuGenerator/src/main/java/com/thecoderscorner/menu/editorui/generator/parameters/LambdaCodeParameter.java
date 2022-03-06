@@ -16,7 +16,7 @@ public class LambdaCodeParameter extends CodeParameter {
     private final LambdaDefinition lambda;
 
     public LambdaCodeParameter(LambdaDefinition lambda) {
-        super(null, true, "");
+        super(CodeParameter.NO_TYPE, null, true, "");
         this.lambda = lambda;
     }
 

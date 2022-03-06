@@ -16,15 +16,18 @@ public class CodeVariable {
     private final String objectName;
     private final VariableDefinitionMode definitionMode;
     private final boolean progMem;
+    private final boolean inContext;
     private final List<CodeParameter> parameterList;
     private final CodeApplicability applicability;
 
     public CodeVariable(String variableName, String objectName, VariableDefinitionMode definitionMode,
-                        boolean progMem, List<CodeParameter> parameterList, CodeApplicability applicability) {
+                        boolean progMem, boolean inContext, List<CodeParameter> parameterList,
+                        CodeApplicability applicability) {
         this.variableName = variableName;
         this.objectName = objectName;
         this.definitionMode = definitionMode;
         this.progMem = progMem;
+        this.inContext = inContext;
         this.parameterList = parameterList;
         this.applicability = applicability;
     }
@@ -44,6 +47,8 @@ public class CodeVariable {
     public boolean isProgMem() {
         return progMem;
     }
+
+    public boolean isInContext() { return inContext; }
 
     public List<CodeParameter> getParameterList() {
         return parameterList;

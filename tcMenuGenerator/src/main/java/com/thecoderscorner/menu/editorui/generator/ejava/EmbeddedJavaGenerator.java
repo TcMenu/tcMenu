@@ -3,9 +3,11 @@ package com.thecoderscorner.menu.editorui.generator.ejava;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -25,12 +27,17 @@ import static java.lang.System.Logger.Level.INFO;
 public class EmbeddedJavaGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ConfigurationStorage configStorage;
+    private final EmbeddedPlatform platform;
     private BiConsumer<System.Logger.Level, String> loggerDelegate;
     private VariableNameGenerator varGenerator;
-    JavaCodeGeneratorCapableWrapper wrapper = new JavaCodeGeneratorCapableWrapper();
+    private final JavaCodeGeneratorCapableWrapper wrapper = new JavaCodeGeneratorCapableWrapper();
+    private CodeConversionContext context;
+    private EmbeddedJavaPluginCreator pluginCreator;
+    private List<CodePluginItem> allPlugins;
 
-    public EmbeddedJavaGenerator(ConfigurationStorage storage) {
+    public EmbeddedJavaGenerator(ConfigurationStorage storage, EmbeddedPlatform platform) {
         this.configStorage = storage;
+        this.platform = platform;
     }
 
     @Override
@@ -38,7 +45,12 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                                    List<String> previousPluginFiles, CodeGeneratorOptions options) {
         try {
             logLine(INFO,"Starting conversion, Embedded Java to directory " + directory);
+            allPlugins = plugins;
             varGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive(), Set.of());
+            var rootMenuName = getFirstMenuItemVariableName(menuTree, options.isNamingRecursive());
+            context = new CodeConversionContext(platform, rootMenuName, options, options.getLastProperties());
+            pluginCreator = new EmbeddedJavaPluginCreator(context);
+
             EmbeddedJavaProject javaProject = new EmbeddedJavaProject(directory, options, configStorage, this::logLine);
             logLine(INFO, "Determining that required project files are in place");
             javaProject.setupProjectIfNeeded();
@@ -62,6 +74,12 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             logger.log(ERROR, "Exception during java project conversion", ex);
         }
         return false;
+    }
+
+    private String getFirstMenuItemVariableName(MenuTree tree, boolean recursive) {
+        var rootList = tree.getMenuItems(MenuTree.ROOT);
+        if(rootList.isEmpty()) return "";
+        return varGenerator.makeNameToVar(rootList.get(0));
     }
 
     private void generateMenuAppContext(EmbeddedJavaProject javaProject, String clazzBaseName) throws IOException {
@@ -106,6 +124,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addToContext(cap, builder);
         }
+
+        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).toList(), builder);
+        pluginCreator.mapContext(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), builder);
+
         builder.persistClassByPatching();
     }
 
@@ -125,15 +147,23 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addAppFields(cap, builder);
         }
+        pluginCreator.mapVariables(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), builder);
+        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).toList(), builder);
 
-        builder.blankLine()
-                .addStatement(new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
-                        .withStatement("context = new AnnotationConfigApplicationContext(MenuConfig.class);")
-                        .withStatement("manager = context.getBean(MenuManagerServer.class);"))
-                .addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
-                        .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));")
-                        .withStatement("manager.start();"))
-                .addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")
+        var constructor = new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
+                .withStatement("context = new AnnotationConfigApplicationContext(MenuConfig.class);")
+                .withStatement("manager = context.getBean(MenuManagerServer.class);");
+        pluginCreator.mapConstructorStatements(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), constructor);
+
+        builder.blankLine().addStatement(constructor);
+        var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
+                .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));")
+                .withStatement("manager.start();");
+        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod);
+
+        builder.addStatement(startMethod);
+
+        builder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")
                         .withStatement("new Testsupp123App().start();"));
 
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {

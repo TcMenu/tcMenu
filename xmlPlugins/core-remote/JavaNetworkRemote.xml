@@ -26,12 +26,12 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="tagVal" type="TagValMenuCommandProtocol" />
-        <Variable name="socketClient" type="SocketServerConnectionManager">
-            <Param value="tagVal"/>
-            <Param ref="ScheduledExecutorService.class"/>
-            <Param value="${EJ_NET_PORT_NUMBER}"/>
-            <Param ref="Clock.class"/>
+        <Variable name="tagVal" type="TagValMenuCommandProtocol" inContext="true"/>
+        <Variable name="socketClient" type="SocketServerConnectionManager" inContext="true">
+            <Param ref="TagValMenuCommandProtocol" name="protocol" />
+            <Param ref="ScheduledExecutorService" name="executor" />
+            <Param value="${EJ_NET_PORT_NUMBER}" name="portNum" type="int" />
+            <Param ref="Clock.class" name="clock" />
         </Variable>
     </GlobalVariables>
 

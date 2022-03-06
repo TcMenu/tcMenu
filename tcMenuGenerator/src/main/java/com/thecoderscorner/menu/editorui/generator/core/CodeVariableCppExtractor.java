@@ -24,7 +24,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private final CodeConversionContext context;
     private final boolean progMemNeeded;
     private int levels = 1;
-    private final CodeParameter expando = new CodeParameter("", true, "");
+    private final CodeParameter expando = new CodeParameter(CodeParameter.NO_TYPE, "", true, "");
 
     public CodeVariableCppExtractor(CodeConversionContext context) {
         this(context, true);

@@ -265,6 +265,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                             getAttributeOrDefault(ele, "object", ele.getAttribute("type")),
                             toDefinitionMode(ele.getAttribute("export")),
                             Boolean.parseBoolean(getAttributeOrDefault(ele, "progmem", "false")),
+                            Boolean.parseBoolean(getAttributeOrDefault(ele, "inContext", "false")),
                             toCodeParameters(ele, new HashMap<>()),
                             toApplicability(ele, applicabilityByKey)
                     )
@@ -325,7 +326,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         if (ele == null) return List.of();
 
         return transformElements(ele, null, "Param", (param) -> {
-            var classType = param.getAttribute("type");
+            var classType = getAttributeOrDefault(param,"type", CodeParameter.NO_TYPE);
+            var objectName = getAttributeOrDefault(param, "name", "");
             var used = Boolean.parseBoolean(getAttributeOrDefault(param, "used", "true"));
             var refType = getAttrOrNull(param, "ref");
             var fontType = getAttrOrNull(param, "font");
@@ -334,7 +336,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var defVal = getAttrOrNull(param, "default");
 
             if (refType != null) {
-                return new ReferenceCodeParameter(refType, defVal, used);
+                return new ReferenceCodeParameter(classType, objectName, refType, defVal, used);
             } else if (lambdaType != null) {
                 var lambda = lambdaMap.get(lambdaType);
                 return new LambdaCodeParameter(lambda);
@@ -344,7 +346,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return new IoExpanderCodeParameter(ioExpanderType, defVal, used);
             } else {
                 var valueType = getAttributeOrDefault(param, "value", param.getAttribute("name"));
-                return new CodeParameter(classType, used, valueType, defVal);
+                return new CodeParameter(classType, objectName, used, valueType, defVal);
             }
         });
     }

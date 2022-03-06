@@ -51,7 +51,7 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         } else if (mbedPlatforms.contains(platform)) {
             return new MbedGenerator(new MbedSketchFileAdjuster(options), installer, platform);
         } else if(javaPlatforms.contains(platform)) {
-            return new EmbeddedJavaGenerator(configStorage);
+            return new EmbeddedJavaGenerator(configStorage, platform);
         } else {
             throw new IllegalArgumentException("No such board type: " + platform);
         }
