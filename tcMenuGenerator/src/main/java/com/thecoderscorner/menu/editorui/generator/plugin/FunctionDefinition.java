@@ -15,16 +15,18 @@ public class FunctionDefinition {
     private final String functionName;
     private final String objectName;
     private final boolean objectPointer;
+    private final boolean infiniteLoop;
     private final List<CodeParameter> parameters;
     private final CodeApplicability applicability;
 
-    public FunctionDefinition(String functionName, String objectName, boolean objectPointer,
+    public FunctionDefinition(String functionName, String objectName, boolean objectPointer, boolean infiniteLoop,
                               List<CodeParameter> parameters, CodeApplicability applicability) {
         this.functionName = functionName;
         this.objectName = objectName;
         this.objectPointer = objectPointer;
         this.parameters = parameters;
         this.applicability = applicability;
+        this.infiniteLoop = infiniteLoop;
     }
 
     @Override
@@ -56,5 +58,9 @@ public class FunctionDefinition {
 
     public CodeApplicability getApplicability() {
         return applicability;
+    }
+
+    public boolean isInfiniteLoopFn() {
+        return infiniteLoop;
     }
 }

@@ -13,7 +13,7 @@
 #include <Fonts/sans24p7b.h>
 
 // Global variable declarations
-const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
+const  ConnectorLocalInfo applicationInfo = { "tester", "d7e57e8d-4528-4081-9b1b-cec5bc37a82e" };
 TcMenuRemoteServer remoteServer(applicationInfo);
 HalStm32EepromAbstraction glBspRom;
 const AuthBlock authMgrAllowedRemotes[] PROGMEM = {

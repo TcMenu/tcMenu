@@ -23,11 +23,11 @@
     <SourceFiles/>
 
     <IncludeFiles>
-        <Header name="BaseRenderer.h" inSource="false" whenProperty="PLATFORM" isNotValue="RASPBERRY_PIJ"/>
+        <Header name="BaseRenderer.h" inSource="false" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ"/>
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="renderer" type="NoRenderer" export="true" progmem="false" whenProperty="PLATFORM" isNotValue="RASPBERRY_PIJ"/>
+        <Variable name="renderer" type="NoRenderer" export="true" progmem="false" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ"/>
     </GlobalVariables>
 
     <SetupFunctions/>

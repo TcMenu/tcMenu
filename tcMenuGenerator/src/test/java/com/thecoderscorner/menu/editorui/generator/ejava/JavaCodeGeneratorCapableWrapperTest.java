@@ -80,9 +80,7 @@ class JavaCodeGeneratorCapableWrapperTest {
         TestUtils.assertEqualsIgnoringCRLF("""
                 package com.unittest.tcmenu;
                                 
-                import com.thecoderscorner.menu.auth;
-                import com.thecoderscorner.menu.auth;
-                import com.thecoderscorner.menu.auth;
+                import com.thecoderscorner.menu.auth.*;
                                 
                 public class TestClass {
                     @Bean

@@ -10,16 +10,10 @@
     <ImageFile>embedCONTROL.png</ImageFile>
 
     <Properties>
-        <Property id="EJ_FX_THEME" name="Choose the JavaFX theme to use" initial="METRO_DARK" type="choice"
-                  desc="Choose one of the supported themes for your UI">
-            <Choices>
-                <Choice desc="Standard Theme">STANDARD</Choice>
-                <Choice desc="Metro Light">METRO_LIGHT</Choice>
-                <Choice desc="Metro Dark">METRO_DARK</Choice>
-            </Choices>
-        </Property>
-        <Property id="EJ_JUST_IN_TIME_UI" name="Create a just in time UI" initial="true" type="boolean"
-                  desc="Create a UI on the fly from the menu, needs minimal configuration to get started."/>
+        <Property id="EJ_WEB_SERVER_PORT" name="HTTP port to listen on" initial="8080" type="int"
+                  desc="Port on which to listen for HTTP requests, to listen on port 80 we recommend a proxy"/>
+        <Property id="EJ_WEB_SOCKET_PORT" name="HTTP web socket port" initial="8083" type="int"
+                  desc="Port on which to listen for web socket data"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -29,12 +23,17 @@
 
     <IncludeFiles/>
 
-    <GlobalVariables/>
+    <GlobalVariables>
+        <Variable name="tagVal" type="TagValMenuCommandProtocol" inContext="true"/>
+
+        <Variable name="webSockets" type="WebSocketServerConnectionManager" export="true">
+            <Param ref="TagValMenuCommandProtocol" name="protocol"/>
+            <Param value="${EJ_WEB_SOCKET_PORT}" name="wsPort"/>
+            <Param ref="Clock" name="clock"/>
+        </Variable>
+    </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="initWithoutInput" object="menuMgr">
-            <Param ref="renderer"/>
-            <Param ref="${ROOT}"/>
-        </Function>
+
     </SetupFunctions>
 </TcMenuPlugin>

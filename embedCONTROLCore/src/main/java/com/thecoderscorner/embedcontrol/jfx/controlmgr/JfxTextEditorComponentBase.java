@@ -2,12 +2,12 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.BaseTextEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
@@ -19,9 +19,9 @@ import javafx.scene.layout.Region;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
 
-public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorComponent<T> {
+public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorComponent<T, Node> {
 
-    protected JfxTextEditorComponentBase(RemoteMenuController controller, ComponentSettings settings, MenuItem item, ThreadMarshaller threadMarshaller) {
+    protected JfxTextEditorComponentBase(MenuComponentControl controller, ComponentSettings settings, MenuItem item, ThreadMarshaller threadMarshaller) {
         super(controller, settings, item, threadMarshaller);
     }
 

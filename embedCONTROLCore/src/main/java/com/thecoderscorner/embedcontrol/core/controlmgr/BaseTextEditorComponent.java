@@ -3,13 +3,12 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
-public abstract class BaseTextEditorComponent<T> extends BaseEditorComponent {
+public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<W> {
     public T currentVal;
 
-    protected BaseTextEditorComponent(RemoteMenuController controller, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
+    protected BaseTextEditorComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
     }
 
@@ -18,7 +17,7 @@ public abstract class BaseTextEditorComponent<T> extends BaseEditorComponent {
 
         try {
             var toSend = MenuItemFormatter.formatToWire(item, text);
-            var correlation =  remoteController.sendAbsoluteUpdate(item, toSend);
+            var correlation =  componentControl.editorUpdatedItem(item, toSend);
             editStarted(correlation);
         } catch (Exception ex) {
             logger.log(System.Logger.Level.ERROR, "Failed to send message", ex);

@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfx.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.DialogViewer;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
@@ -8,10 +9,13 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
 import com.thecoderscorner.embedcontrol.jfx.dialog.PairingController;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -38,7 +42,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     private final EmbedControlContext context;
     private final UUID uuid;
     private RemoteMenuController controller;
-    private TreeComponentManager treeManager;
+    private RemoteTreeComponentManager treeManager;
     private JfxScreenManager screenManager;
     private ScheduledFuture<?> taskRef;
     private GridPane dialogPane;
@@ -75,8 +79,10 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         rootPanel.setCenter(scrollPane);
         scrollPane.setContent(waitingLabel);
         controller = creator.start();
-        screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
-        treeManager = new TreeComponentManager(screenManager, controller, settings, this, context.getExecutorService(), Platform::runLater);
+        RemoteMenuComponentControl theMenuController = new RemoteMenuComponentControl();
+        screenManager = new JfxScreenManager(theMenuController, scrollPane, Platform::runLater, 2);
+        treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, this,
+                context.getExecutorService(), Platform::runLater, theMenuController);
         taskRef = context.getExecutorService().schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
 
     }
@@ -278,9 +284,9 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         try {
             scrollPane.setContent(new Label("Please wait.."));
             controller = creator.start();
-            screenManager = new JfxScreenManager(controller, scrollPane, Platform::runLater, 2);
-            treeManager = new TreeComponentManager(screenManager, controller, settings, this,
-                    context.getExecutorService(), Platform::runLater);
+            screenManager = new JfxScreenManager(new RemoteMenuComponentControl(), scrollPane, Platform::runLater, 2);
+            treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, this,
+                    context.getExecutorService(), Platform::runLater, new RemoteMenuComponentControl());
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             alert.showAndWait();
@@ -303,6 +309,32 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
             initialiseConnectionComponents();
         } catch (Exception e) {
             logger.log(ERROR, "Failed to re-initialise connection", e);
+        }
+    }
+
+    class RemoteMenuComponentControl implements MenuComponentControl {
+        @Override
+        public CorrelationId editorUpdatedItem(MenuItem item, Object val) {
+            return controller.sendAbsoluteUpdate(item, val);
+        }
+
+        @Override
+        public CorrelationId editorUpdatedItemDelta(MenuItem item, int delta) {
+            return controller.sendDeltaUpdate(item, delta);
+        }
+
+        @Override
+        public MenuTree getMenuTree() {
+            return controller.getManagedMenu();
+        }
+
+        @Override
+        public String getConnectionName() {
+            var rp = controller.getConnector().getRemoteParty();
+            if(rp != null) {
+                return rp.getName() + " - " + rp.getPlatform().getDescription() + " V" + rp.getMajorVersion() + "." + rp.getMinorVersion();
+            }
+            else return controller.getConnector().getConnectionName();
         }
     }
 }

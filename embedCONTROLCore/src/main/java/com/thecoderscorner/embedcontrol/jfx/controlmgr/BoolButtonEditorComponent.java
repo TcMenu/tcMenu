@@ -2,10 +2,10 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.BaseBoolEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -14,17 +14,18 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase.setNodeConditionalColours;
 
-public class BoolButtonEditorComponent extends BaseBoolEditorComponent {
+public class BoolButtonEditorComponent extends BaseBoolEditorComponent<Node> {
     private Button button;
 
-    public BoolButtonEditorComponent(MenuItem item, RemoteMenuController remote, ComponentSettings settings, ThreadMarshaller threadMarshaller) {
+    public BoolButtonEditorComponent(MenuItem item, MenuComponentControl remote, ComponentSettings settings, ThreadMarshaller threadMarshaller) {
         super(remote, settings, item, threadMarshaller);
     }
 
+    @Override
     public Node createComponent() {
         button = new Button(item.getName());
         button.setMaxWidth(9999);

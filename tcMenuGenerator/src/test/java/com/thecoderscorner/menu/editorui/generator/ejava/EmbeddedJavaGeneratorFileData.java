@@ -53,32 +53,39 @@ public class EmbeddedJavaGeneratorFileData {
 
     public static final String EJAVA_APP_CODE = """
             package com.tester.tcmenu;
-
+                        
             import com.thecoderscorner.menu.mgr.*;
             import org.springframework.context.ApplicationContext;
             import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
+            import com.thecoderscorner.menu.remote.protocol.*;
+            import com.thecoderscorner.menu.remote.mgrclient.*;
+            import java.util.concurrent.*;
+                        
             /**
              * This class is the application class and should not be edited, it will be recreated on each code generation
              */
             public class UnitTestApp {
                 private final MenuManagerServer manager;
                 private final ApplicationContext context;
+                private final TagValMenuCommandProtocol tagVal;
                \s
                 public UnitTestApp() {
                     context = new AnnotationConfigApplicationContext(MenuConfig.class);
                     manager = context.getBean(MenuManagerServer.class);
+                    tagVal = context.getBean(TagValMenuCommandProtocol.class);
                 }
-
+                        
                 public void start() {
                     manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));
+                    manager.addConnectionManager(socketClient);
+                    tagVal.unitTestMe();
                     manager.start();
                 }
-
+                        
                 public static void main(String[] args) {
                     new Testsupp123App().start();
                 }
-
+                        
             }
             """;
 
@@ -93,7 +100,9 @@ public class EmbeddedJavaGeneratorFileData {
             import java.time.Clock;
             import java.util.UUID;
             import java.util.concurrent.*;
-            import com.thecoderscorner.menu.auth;
+            import java.nio.file.Path;
+            import com.thecoderscorner.menu.remote.protocol.*;
+            import com.thecoderscorner.menu.remote.mgrclient.*;
                         
             /**
              * Spring creates an application context out of all these components, you can wire together your own objects in either
@@ -137,7 +146,18 @@ public class EmbeddedJavaGeneratorFileData {
                 public MenuAuthenticator menuAuthenticator() {
                     return new PreDefinedAuthenticator(true);
                 }
-                        
+                       
+                @Bean
+                public TagValMenuCommandProtocol tagVal() {
+                    return new TagValMenuCommandProtocol();
+                }
+            
+                @Bean
+                public SocketServerConnectionManager socketClient(TagValMenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
+                    return new SocketServerConnectionManager(protocol, executor, 3333, clock);
+                }
+                
+                // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
             }
             """;
 
@@ -307,4 +327,127 @@ public class EmbeddedJavaGeneratorFileData {
                         
             }
             """;
+
+    public static final String EJAVA_POM_WITH_DEP = """
+            <?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- it is safe to edit this file, it will not be replaced by TcMenu designer unless you delete it --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <groupId>com.tester</groupId>
+                <artifactId>UnitTest</artifactId>
+                <name>UnitTest</name>
+                <description>An application built with TcMenu Designer</description>
+                <version>0.0.1-SNAPSHOT</version>
+                        
+                <properties>
+                    <jdk.version>17</jdk.version>
+                    <jserialcomm.version>2.4.0</jserialcomm.version>
+                    <jfx.version>17.0.0.1</jfx.version>
+                    <tcmenu.api.version>1.2.3</tcmenu.api.version>
+                    <springframework.version>5.3.16</springframework.version>
+                </properties>
+                        
+                <dependencies>
+                    <dependency>
+                        <groupId>com.fazecast</groupId>
+                        <artifactId>jSerialComm</artifactId>
+                        <version>${jserialcomm.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.thecoderscorner.tcmenu</groupId>
+                        <artifactId>tcMenuJavaAPI</artifactId>
+                        <version>${tcmenu.api.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                        <version>${springframework.version}</version>
+                    </dependency>
+                <dependency><groupId>com.thecoderscorner.tcmenu</groupId><artifactId>TestDep</artifactId><version>1.2.3</version></dependency></dependencies>
+                        
+                <build>
+                    <finalName>UnitTest</finalName>
+                    <resources>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <includes>
+                                <include>version.properties</include>
+                            </includes>
+                            <filtering>true</filtering>
+                        </resource>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <excludes>
+                                <exclude>version.properties</exclude>
+                            </excludes>
+                            <filtering>false</filtering>
+                        </resource>
+                    </resources>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.8.0</version>
+                            <configuration>
+                                <source>${jdk.version}</source>
+                                <target>${jdk.version}</target>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <version>3.0.2</version>
+                            <executions>
+                                <execution>
+                                    <id>copy-dependencies</id>
+                                    <phase>prepare-package</phase>
+                                    <goals>
+                                        <goal>copy-dependencies</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                        <overWriteReleases>false</overWriteReleases>
+                                        <overWriteSnapshots>false</overWriteSnapshots>
+                                        <overWriteIfNewer>true</overWriteIfNewer>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>copy-deps-to-package</id>
+                                    <phase>prepare-package</phase>
+                                    <goals>
+                                        <goal>copy-dependencies</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${project.build.directory}/jfx/deps</outputDirectory>
+                                        <includeScope>runtime</includeScope>
+                                        <overWriteReleases>false</overWriteReleases>
+                                        <overWriteSnapshots>false</overWriteSnapshots>
+                                        <overWriteIfNewer>true</overWriteIfNewer>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <artifactId>maven-resources-plugin</artifactId>
+                            <version>3.0.2</version>
+                            <executions>
+                                <execution>
+                                    <id>copy-resources-logging</id>
+                                    <phase>validate</phase>
+                                    <goals>
+                                        <goal>copy-resources</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${basedir}/target/jfx/app/</outputDirectory>
+                                        <resources>
+                                            <resource>
+                                                <directory>${project.basedir}/src/main/deploy</directory>
+                                                <filtering>false</filtering>
+                                            </resource>
+                                        </resources>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </build>
+            </project>""";
 }

@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.remote.mgrclient;
 
 import com.thecoderscorner.menu.mgr.ServerConnection;
+import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.SharedStreamConnection;
 import com.thecoderscorner.menu.remote.StreamRemoteConnector;
@@ -31,7 +32,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
     private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
     private final Thread readThread;
-    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
+    private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
 
     public SocketServerConnection(Socket socket, MenuCommandProtocol protocol, Clock clock) {
         super(protocol);
@@ -45,7 +46,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
 
     private void readLoop() {
         connectionLog(INFO, "read loop start");
-        while (isConnected() && !Thread.currentThread().isInterrupted()) {
+        while (connectionMode.get() != ServerConnectionMode.DISCONNECTED && !Thread.currentThread().isInterrupted()) {
             try {
                 MenuCommand cmd = readCommandFromStream();
                 if (cmd != null && messageHandler.get() != null) {
@@ -103,11 +104,6 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     }
 
     @Override
-    public boolean isConnected() {
-        return !socketClosed.get();
-    }
-
-    @Override
     public void registerConnectionListener(BiConsumer<ServerConnection, Boolean> connectionListener) {
         this.connectionListener.set(connectionListener);
     }
@@ -118,13 +114,13 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     }
 
     @Override
-    public boolean isPairing() {
-        return this.pairingMode.get();
+    public void setConnectionMode(ServerConnectionMode mode) {
+        connectionMode.set(mode);
     }
 
     @Override
-    public void enablePairingMode() {
-        this.pairingMode.set(true);
+    public ServerConnectionMode getConnectionMode() {
+        return connectionMode.get();
     }
 
     @Override

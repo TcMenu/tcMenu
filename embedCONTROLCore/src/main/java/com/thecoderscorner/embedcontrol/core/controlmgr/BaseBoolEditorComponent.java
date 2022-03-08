@@ -3,12 +3,11 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 
-public abstract class BaseBoolEditorComponent extends BaseEditorComponent {
+public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> {
     protected boolean currentVal = false;
 
-    protected BaseBoolEditorComponent(RemoteMenuController controller, ComponentSettings settings,
+    protected BaseBoolEditorComponent(MenuComponentControl controller, ComponentSettings settings,
                                       MenuItem item, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
     }
@@ -36,7 +35,7 @@ public abstract class BaseBoolEditorComponent extends BaseEditorComponent {
         if (status == RenderingStatus.EDIT_IN_PROGRESS) return;
 
         try {
-            var correlation =  remoteController.sendAbsoluteUpdate(item, !currentVal);
+            var correlation =  componentControl.editorUpdatedItem(item, !currentVal);
             editStarted(correlation);
         } catch (Exception ex) {
             logger.log(System.Logger.Level.ERROR, "Failed to send message", ex);

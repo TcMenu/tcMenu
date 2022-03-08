@@ -193,4 +193,18 @@ public class MenuTreeTest {
 
         Assertions.assertThat(items).containsExactly(subMenu, item3, item1, item2);
     }
+
+    @Test
+    public void testTreeInitialiseCall() {
+        menuTree.addMenuItem(ROOT, subMenu);
+        menuTree.addMenuItem(subMenu, item3);
+        menuTree.addMenuItem(ROOT, item1);
+        menuTree.addMenuItem(ROOT, item2);
+        menuTree.initialiseStateForEachItem();
+
+        assertNotNull(menuTree.getMenuState(item1));
+        assertNotNull(menuTree.getMenuState(item2));
+        assertNotNull(menuTree.getMenuState(item3));
+        assertNotNull(menuTree.getMenuState(subMenu));
+    }
 }

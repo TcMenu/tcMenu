@@ -10,9 +10,8 @@ public interface ServerConnection {
     long lastReceivedHeartbeat();
     long lastTransmittedHeartbeat();
     void sendCommand(MenuCommand command);
-    boolean isConnected();
     void registerConnectionListener(BiConsumer<ServerConnection, Boolean> connectionListener);
     void registerMessageHandler(BiConsumer<ServerConnection, MenuCommand> messageHandler);
-    boolean isPairing();
-    void enablePairingMode();
+    void setConnectionMode(ServerConnectionMode mode);
+    ServerConnectionMode getConnectionMode();
 }

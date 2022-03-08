@@ -22,7 +22,7 @@ public class DateFieldEditHandler implements FieldEditHandler {
         else {
             var strippedStr = startingValue.toString().replace("[", "");
             strippedStr = strippedStr.replace("]", "");
-            var current = formatter.parse(startingValue.toString());
+            var current = formatter.parse(strippedStr);
             this.datePicker = new DatePicker(LocalDate.from(current));
         }
     }

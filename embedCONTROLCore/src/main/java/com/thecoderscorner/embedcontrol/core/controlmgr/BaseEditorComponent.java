@@ -1,17 +1,16 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.util.Set;
 
-public abstract class BaseEditorComponent implements EditorComponent {
+public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
     public static final int MAX_CORRELATION_WAIT = 5000;
 
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    protected final RemoteMenuController remoteController;
+    protected final MenuComponentControl componentControl;
     private final ComponentSettings drawingSettings;
     protected final ThreadMarshaller threadMarshaller;
     protected final MenuItem item;
@@ -22,9 +21,9 @@ public abstract class BaseEditorComponent implements EditorComponent {
     protected volatile RenderingStatus status = RenderingStatus.NORMAL;
     private boolean locallyReadOnly;
 
-    protected BaseEditorComponent(RemoteMenuController controller, ComponentSettings settings,
+    protected BaseEditorComponent(MenuComponentControl controller, ComponentSettings settings,
                                   MenuItem item, ThreadMarshaller threadMarshaller) {
-        this.remoteController = controller;
+        this.componentControl = controller;
         this.item = item;
         this.drawingSettings = settings;
         this.threadMarshaller = threadMarshaller;
@@ -58,6 +57,7 @@ public abstract class BaseEditorComponent implements EditorComponent {
     }
 
     public void editStarted(CorrelationId correlation) {
+        if(correlation == null || correlation.equals(CorrelationId.EMPTY_CORRELATION)) return;
         status = RenderingStatus.EDIT_IN_PROGRESS;
         synchronized (tickLock) {
             lastCorrelation = System.currentTimeMillis();

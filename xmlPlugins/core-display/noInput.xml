@@ -27,7 +27,7 @@
     <GlobalVariables/>
 
     <SetupFunctions>
-        <Function name="initWithoutInput" object="menuMgr">
+        <Function name="initWithoutInput" object="menuMgr" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
         </Function>

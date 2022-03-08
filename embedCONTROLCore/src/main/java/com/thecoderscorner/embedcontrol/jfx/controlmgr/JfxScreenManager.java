@@ -6,7 +6,6 @@ import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
@@ -25,13 +24,13 @@ public class JfxScreenManager implements ScreenManager {
     public static final int DEFAULT_FONT_SIZE = 16;
 
     private final ScrollPane scrollView;
-    private final RemoteMenuController controller;
+    private final MenuComponentControl controller;
     private final int cols;
     private int level;
     private GridPane currentGrid;
     private final ThreadMarshaller threadMarshaller;
 
-    public JfxScreenManager(RemoteMenuController controller, ScrollPane scrollView, ThreadMarshaller marshaller, int cols) {
+    public JfxScreenManager(MenuComponentControl controller, ScrollPane scrollView, ThreadMarshaller marshaller, int cols) {
         this.threadMarshaller = marshaller;
         this.scrollView = scrollView;
         this.controller = controller;
@@ -143,7 +142,7 @@ public class JfxScreenManager implements ScreenManager {
 
     @Override
     public EditorComponent addHorizontalSlider(MenuItem item, ComponentSettings settings) {
-        var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getManagedMenu(), threadMarshaller);
+        var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
 
         Canvas component = (Canvas) slider.createComponent();
         component.setWidth(scrollView.getWidth() - 30);

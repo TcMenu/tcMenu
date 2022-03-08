@@ -4,14 +4,18 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.XMLDOMHelper;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.persist.XMLDOMHelper.writeXml;
 import static java.lang.System.Logger.Level.*;
 
 public class EmbeddedJavaProject {
@@ -36,6 +40,7 @@ public class EmbeddedJavaProject {
             # you can add any other properties needed by your application here.
             """;
 
+    private final Pattern dependencyMatcher = Pattern.compile("mvn:(.*)/(.*)@(.*)");
     private final Path mainResources;
     private final Path mainJava;
     private final Path testJava;
@@ -69,8 +74,8 @@ public class EmbeddedJavaProject {
         Path versionPropertiesPath = getMainResources().resolve("application.properties");
         if(!Files.exists(versionPropertiesPath)) Files.writeString(versionPropertiesPath,
                 VERSION_PROPERTIES_CONTENTS.replaceAll("%SERVERNAME%", codeOptions.getApplicationName())
-                        .replaceAll("%SERVERUUID", codeOptions.getApplicationUUID().toString())
-                        .replaceAll("%DATADIR", data.toString()));
+                        .replaceAll("%SERVERUUID%", codeOptions.getApplicationUUID().toString())
+                        .replaceAll("%DATADIR%", data.toString()));
 
         Path readmeFile = getMainResources().resolve("README.md");
         var readmeTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/packaged-plugins/packaged-readme.md")).readAllBytes());
@@ -88,14 +93,6 @@ public class EmbeddedJavaProject {
             pom = pom.replaceAll("%TCMENU_VERSION%", configStorage.getVersion());
 
             Files.writeString(pomXml, pom);
-        }
-
-        if(Files.exists(pomXml)) {
-            uiLogger.accept(INFO, "Checking if dependencies need adding");
-            // TODO check for dependencies and add.
-        }
-        else {
-            uiLogger.accept(INFO, "We do not add dependencies automatically to gradle builds");
         }
     }
 
@@ -145,4 +142,56 @@ public class EmbeddedJavaProject {
         return capables;
     }
 
+    public void addDependencyToPomIfNeeded(String dependency) {
+        var pom = root.resolve("pom.xml");
+        if(!Files.exists(pom)) {
+            uiLogger.accept(WARNING, "Not using maven: You need to manually add dependency - " + dependency);
+            return;
+        }
+        try {
+            var matcher = dependencyMatcher.matcher(dependency);
+            if(!matcher.matches()) {
+                uiLogger.accept(WARNING, "Not a maven dependency " + dependency);
+            }
+            var org = matcher.group(1);
+            var artifact = matcher.group(2);
+            var version = matcher.group(3);
+
+            var doc = XMLDOMHelper.loadDocumentFromPath(pom);
+            var allDeps = XMLDOMHelper.transformElements(
+                    doc.getDocumentElement(), "dependencies", "dependency", (ele) ->
+                        new MavenDependency(
+                                XMLDOMHelper.textOfElementByName(ele, "groupId"),
+                                XMLDOMHelper.textOfElementByName(ele, "artifactId")
+                        )
+            );
+            if(allDeps.contains(new MavenDependency(org, artifact))) {
+                uiLogger.accept(INFO, "POM already contains dependency for " + org + "/" + artifact);
+            } else {
+                var deps = XMLDOMHelper.elementWithName(doc.getDocumentElement(), "dependencies");
+                if(deps == null) throw new IllegalStateException("No dependencies section in maven pom");
+                var dep = doc.createElement("dependency");
+                var orgEle = doc.createElement("groupId");
+                orgEle.setTextContent(org);
+                var artifactEle = doc.createElement("artifactId");
+                artifactEle.setTextContent(artifact);
+                var verEle = doc.createElement("version");
+                verEle.setTextContent(version);
+                dep.appendChild(orgEle);
+                dep.appendChild(artifactEle);
+                dep.appendChild(verEle);
+                deps.appendChild(dep);
+
+                try (FileOutputStream output = new FileOutputStream(pom.toFile())) {
+                    writeXml(doc, output);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            uiLogger.accept(ERROR, "Did not manage to modify project model" + e.getMessage());
+        }
+    }
+
+    private record MavenDependency(String org, String artifact) {}
 }

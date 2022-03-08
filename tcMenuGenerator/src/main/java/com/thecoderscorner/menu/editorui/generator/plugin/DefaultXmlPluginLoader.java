@@ -7,24 +7,25 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
-import com.thecoderscorner.menu.editorui.generator.validation.*;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
+import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
+import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.scene.image.Image;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,9 +33,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.persist.XMLDOMHelper.*;
 import static java.lang.System.Logger.Level.*;
 
 public class DefaultXmlPluginLoader implements CodePluginManager {
@@ -155,13 +156,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         logger.log(System.Logger.Level.INFO, "Loading plugins in directory " + directoryPath);
 
         try {
-            var pluginConfigFile = directoryPath.resolve("tcmenu-plugin.xml");
-            byte[] dataToLoad = Files.readAllBytes(pluginConfigFile);
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder;
-            dBuilder = factory.newDocumentBuilder();
-            ByteArrayInputStream in = new ByteArrayInputStream(dataToLoad);
-            Document doc = dBuilder.parse(in);
+            Document doc = XMLDOMHelper.loadDocumentFromPath(directoryPath.resolve("tcmenu-plugin.xml"));
             var root = doc.getDocumentElement();
 
             var shortName = root.getAttribute("shortName");
@@ -219,12 +214,9 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         }
     }
 
-    public CodePluginItem loadPlugin(String dataToLoad) {
+    public CodePluginItem loadPlugin(String data) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = factory.newDocumentBuilder();
-            ByteArrayInputStream in = new ByteArrayInputStream(dataToLoad.getBytes());
-            Document doc = dBuilder.parse(in);
+            Document doc = XMLDOMHelper.loadDocumentFromData(data);
             var root = doc.getDocumentElement();
 
             CodePluginItem item = new CodePluginItem();
@@ -285,7 +277,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
             return item;
         } catch (Exception ex) {
-            logger.log(ERROR, "Unable to generate plugin " + dataToLoad, ex);
+            logger.log(ERROR, "Unable to generate plugin " + data, ex);
             return null;
         }
     }
@@ -316,7 +308,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 var obj = childElem.getAttribute("object");
                 var applicability = toApplicability(childElem, applicabilityMap);
                 var isPtr = getAttrOrNull(childElem, "pointer") != null;
-                functionList.add(new FunctionDefinition(name, obj, isPtr, toCodeParameters(childElem, lambdas), applicability));
+                var isInfinite = getAttributeOrDefault(childElem, "neverReturns", "false").equalsIgnoreCase("true");
+                functionList.add(new FunctionDefinition(name, obj, isPtr, isInfinite, toCodeParameters(childElem, lambdas), applicability));
             }
         }
         return functionList;
@@ -497,20 +490,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         }
     }
 
-    private String getAttrOrNull(Element ele, String attr) {
-        var node = ele.getAttributes().getNamedItem(attr);
-        if (node == null) return null;
-        return node.getTextContent();
-    }
-
-    private String getAttributeOrDefault(Element elem, String val, Object def) {
-        String att = elem.getAttribute(val);
-        if (att == null || att.length() == 0) {
-            return def.toString();
-        }
-        return att;
-    }
-
     private void generateDescriptionFromXml(Element root, CodePluginItem config) {
         config.setSubsystem(SubSystem.valueOf(root.getAttribute("subsystem")));
         config.setThemeNeeded(Boolean.parseBoolean(getAttributeOrDefault(root, "needsTheme", "false")));
@@ -523,47 +502,5 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setRequiredLibraries(transformElements(root, "RequiredLibraries", "Library", Node::getTextContent));
         var docs = elementWithName(root, "Documentation");
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
-    }
-
-    private List<Element> getChildElementsWithName(Element ele, String name) {
-        if (ele == null) return List.of();
-
-        var childNodes = ele.getChildNodes();
-        var list = new ArrayList<Element>();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            var ch = childNodes.item(i);
-            if (ch instanceof Element && ch.getNodeName().equals(name)) {
-                list.add((Element) ch);
-            }
-        }
-        return list;
-    }
-
-    private <T> List<T> transformElements(Element root, String eleName, String childName, Function<Element, T> transform) {
-        var ret = new ArrayList<T>();
-        Element ele = root;
-        if (eleName != null) {
-            ele = elementWithName(root, eleName);
-            if (ele == null) return Collections.emptyList();
-        }
-
-        var childList = getChildElementsWithName(ele, childName);
-        for (var ch : childList) {
-            var created = transform.apply(ch);
-            if (created != null) ret.add(created);
-        }
-        return ret;
-    }
-
-    private String textOfElementByName(Element elem, String child) {
-        var ch = getChildElementsWithName(elem, child);
-        if (ch == null || ch.size() == 0) return "";
-        return ch.get(0).getTextContent();
-    }
-
-    private Element elementWithName(Element elem, String child) {
-        var ch = getChildElementsWithName(elem, child);
-        if (ch == null || ch.size() == 0) return null;
-        return ch.get(0);
     }
 }

@@ -6,8 +6,10 @@
 
 package com.thecoderscorner.menu.domain.state;
 
+import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -310,5 +312,16 @@ public class MenuTree {
                 recurseTreeIteratingOnItems((SubMenuItem) child, consumer);
             }
         }
+    }
+
+    /**
+     * Initialise the state of each menu item to the default value, should be used during initialisation of a local
+     * menu application.
+     */
+    public void initialiseStateForEachItem() {
+        recurseTreeIteratingOnItems(ROOT, (menuItem, subMenuItem) -> {
+            var state = MenuItemHelper.stateForMenuItem(menuItem, null, false, false);
+            changeItem(menuItem, state);
+        });
     }
 }

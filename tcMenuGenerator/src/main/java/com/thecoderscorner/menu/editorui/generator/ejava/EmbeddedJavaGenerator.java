@@ -3,9 +3,7 @@ package com.thecoderscorner.menu.editorui.generator.ejava;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
-import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.core.*;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
@@ -13,6 +11,7 @@ import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -68,12 +67,34 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
             logLine(INFO, "Generating the menu application context class");
             generateMenuAppContext(javaProject, javaProject.getAppClassName(""));
+
+            var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
+            fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), previousPluginFiles);
+
+            logLine(INFO, "Checking if all dependencies are in the maven POM");
+            allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
+                    .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
+                    .filter(inc -> inc.getHeaderType() == HeaderDefinition.HeaderType.GLOBAL)
+                    .forEach(inc -> javaProject.addDependencyToPomIfNeeded(inc.getHeaderName()));
+            logLine(INFO, "Completed code generation for java project");
         }
         catch (Exception ex) {
             loggerDelegate.accept(ERROR, "Failed to generate code for java project" + ex.getMessage());
             logger.log(ERROR, "Exception during java project conversion", ex);
         }
         return false;
+    }
+
+    private Path makePluginPath(EmbeddedJavaProject javaProject) throws IOException {
+        var pluginStr = javaProject.getMenuPackage() + ".plugins";
+        var pluginPath = javaProject.getMainJava();
+        for(var part : pluginStr.split("\\.")) {
+            pluginPath = pluginPath.resolve(part);
+        }
+        if(!Files.exists(pluginPath)) {
+            Files.createDirectories(pluginPath);
+        }
+        return pluginPath;
     }
 
     private String getFirstMenuItemVariableName(MenuTree tree, boolean recursive) {
@@ -93,6 +114,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("java.time.Clock")
                 .addPackageImport("java.util.UUID")
                 .addPackageImport("java.util.concurrent.*")
+                .addPackageImport("java.nio.file.Path")
                 .setStatementBeforeClass("""
                         /**
                          * Spring creates an application context out of all these components, you can wire together your own objects in either
@@ -128,6 +150,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).toList(), builder);
         pluginCreator.mapContext(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), builder);
 
+        builder.addStatement(GeneratedJavaMethod.END_OF_METHODS_TEXT);
+
         builder.persistClassByPatching();
     }
 
@@ -157,12 +181,11 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
         builder.blankLine().addStatement(constructor);
         var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
-                .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));")
-                .withStatement("manager.start();");
-        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod);
+                .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));");
+        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod,
+                List.of("manager.start();"));
 
         builder.addStatement(startMethod);
-
         builder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")
                         .withStatement("new Testsupp123App().start();"));
 
@@ -220,8 +243,9 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addStatement(new GeneratedJavaField("JsonMenuItemSerializer", "jsonSerializer", true, true))
                 .blankLine()
                 .addStatement(new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
-                        .withStatement("        jsonSerializer = new JsonMenuItemSerializer();")
-                        .withStatement("        menuTree = jsonSerializer.newMenuTreeWithItems(APP_MENU_ITEMS);"))
+                        .withStatement("jsonSerializer = new JsonMenuItemSerializer();")
+                        .withStatement("menuTree = jsonSerializer.newMenuTreeWithItems(APP_MENU_ITEMS);")
+                        .withStatement("menuTree.initialiseStateForEachItem();"))
                 .addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "MenuTree", "getMenuTree")
                         .withStatement("return menuTree;"))
                 .addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "JsonMenuItemSerializer", "getJsonSerializer")

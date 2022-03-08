@@ -104,7 +104,7 @@ public class ArduinoGeneratorTest {
                 .withEepromDefinition(new AVREepromDefinition())
                 .withAuthenticationDefinition(new EepromAuthenticatorDefinition(100, 3))
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
-                .withAppName("app")
+                .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
                 .withRecursiveNaming(recursiveName)
                 .codeOptions();
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);

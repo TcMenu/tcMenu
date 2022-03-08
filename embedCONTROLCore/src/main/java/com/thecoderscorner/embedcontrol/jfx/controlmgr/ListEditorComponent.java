@@ -2,12 +2,12 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.BaseEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -22,11 +22,11 @@ import java.util.List;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
-public class ListEditorComponent extends BaseEditorComponent {
+public class ListEditorComponent extends BaseEditorComponent<Node> {
     private final ObservableList<String> actualData = FXCollections.observableArrayList();
     private ListView<String> listView;
 
-    public ListEditorComponent(RemoteMenuController remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
+    public ListEditorComponent(MenuComponentControl remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
     }
 
@@ -38,7 +38,7 @@ public class ListEditorComponent extends BaseEditorComponent {
     }
 
     public Node createComponent() {
-        if (item instanceof RuntimeListMenuItem listItem) {
+        if (item instanceof RuntimeListMenuItem) {
             listView = new ListView<>();
             ConditionalColoring condColor = getDrawingSettings().getColors();
             var bgPaint = asFxColor(condColor.backgroundFor(RenderingStatus.NORMAL, ConditionalColoring.ColorComponentType.BUTTON));
@@ -55,10 +55,10 @@ public class ListEditorComponent extends BaseEditorComponent {
         return null;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     @Override
     public void onItemUpdated(MenuState<?> state) {
-        if (state.getValue() instanceof List list) {
+        if (state.getValue() instanceof List) {
             updateAll((List<String>) state.getValue());
         }
     }

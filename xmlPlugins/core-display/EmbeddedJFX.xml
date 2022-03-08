@@ -14,15 +14,29 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <SourceFile name="emb_jfx/JfxLocalAutoUI.java" />
+        <SourceFile name="emb_jfx/LocalTreeComponentManager.java" />
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="depend:embedCONTROL" inSource="false"/>
+        <!-- dependencies needed for just in time UI -->
+        <Header name="com.thecoderscorner.testsup123.tcmenu.plugins.*" inSource="true"/>
+        <Header name="javafx.application.Application" inSource="true"/>
+        <Header name="mvn:com.thecoderscorner.tcmenu/embedCONTROLCore@${tcmenu.api.version}" inSource="false"/>
+        <Header name="mvn:org.openjfx/javafx-controls@${jfx.version}" inSource="false"/>
+        <Header name="mvn:org.openjfx/javafx-fxml@${jfx.version}" inSource="false"/>
     </IncludeFiles>
 
     <GlobalVariables>
     </GlobalVariables>
 
     <SetupFunctions>
+        <Function object="JfxLocalAutoUI" name="setAppContext" >
+            <Param value="context"/>
+        </Function>
+
+        <Function object="Application" name="launch" neverReturns="true">
+            <Param value="JfxLocalAutoUI.class"/>
+        </Function>
     </SetupFunctions>
 </TcMenuPlugin>

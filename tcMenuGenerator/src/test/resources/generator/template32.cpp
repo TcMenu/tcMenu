@@ -13,7 +13,7 @@
 #include <Fonts/sans24p7b.h>
 
 // Global variable declarations
-const  ConnectorLocalInfo applicationInfo = { "tester", "uuid1" };
+const  ConnectorLocalInfo applicationInfo = { "app", "4490f2fb-a48b-4c89-b6e5-7f557e5f6faf" };
 AvrEeprom glAvrRom;
 EepromAuthenticatorManager authManager(3);
 ArduinoAnalogDevice analogDevice(42);

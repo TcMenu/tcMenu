@@ -2,10 +2,10 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.BaseUpDownIntEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -15,7 +15,7 @@ import javafx.scene.layout.BorderPane;
 
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase.setNodeConditionalColours;
 
-public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorComponent<T> {
+public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorComponent<T, Node> {
     private static final int REDUCE = -1;
     private static final int INCREASE = 1;
     private long lastRepeatStart = 0;
@@ -27,10 +27,11 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
 
     private RepeatTypes repeating;
 
-    public UpDownEditorComponentBase(MenuItem item, RemoteMenuController remote, ComponentSettings settings, ThreadMarshaller marshaller) {
+    public UpDownEditorComponentBase(MenuItem item, MenuComponentControl remote, ComponentSettings settings, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
     }
 
+    @Override
     public Node createComponent() {
         itemLabel = new Label();
         itemLabel.setPadding(new Insets(3, 0, 3, 0));

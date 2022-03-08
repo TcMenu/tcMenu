@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.texted.*;
@@ -22,10 +23,11 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private Button actionButton;
     private Optional<FieldEditHandler> editorComponent;
 
-    public TextFieldEditorComponent(RemoteMenuController remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
+    public TextFieldEditorComponent(MenuComponentControl remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
     }
 
+    @Override
     public Node createComponent() {
         borderPane = new BorderPane();
         textField = new Label(getControlText());

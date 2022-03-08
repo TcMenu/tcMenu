@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.domain.DomainFixtures.fullEspAmplifierTestTree;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class MenuManagerServerTest {
@@ -83,7 +85,7 @@ class MenuManagerServerTest {
         assertTrue(simConnection.ensureMessageMatching(MenuAcknowledgementCommand.class, mac -> mac.getAckStatus().isError()));
         assertTrue(simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode()== MenuHeartbeatCommand.HeartbeatMode.START));
         assertTrue(simConnection.ensureMessageMatching(MenuJoinCommand.class, jn -> jn.getMyName().equals(SERVER_NAME) && jn.getAppUuid().equals(SERVER_UUID)));
-        assertFalse(simConnection.isConnected());
+        assertEquals(ServerConnectionMode.DISCONNECTED, simConnection.getConnectionMode());
 
         assertEquals(0, listener.getItemLevelChanges());
     }
@@ -190,8 +192,8 @@ class MenuManagerServerTest {
 
     private static class SimulatedConnection implements ServerConnection {
         private final List<MenuCommand> commandsSent = new ArrayList<>();
-        private boolean open;
         private BiConsumer<ServerConnection, MenuCommand> messageHandler;
+        private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
 
         void simulateMessageToMessageHandler(MenuCommand cmd) {
             messageHandler.accept(this, cmd);
@@ -210,7 +212,7 @@ class MenuManagerServerTest {
 
         @Override
         public void closeConnection() {
-            open = false;
+            connectionMode.set(ServerConnectionMode.DISCONNECTED);
         }
 
         @Override
@@ -229,11 +231,6 @@ class MenuManagerServerTest {
         }
 
         @Override
-        public boolean isConnected() {
-            return open;
-        }
-
-        @Override
         public void registerConnectionListener(BiConsumer<ServerConnection, Boolean> connectionListener) {
 
         }
@@ -243,14 +240,15 @@ class MenuManagerServerTest {
             this.messageHandler = messageHandler;
         }
 
+
         @Override
-        public boolean isPairing() {
-            return false;
+        public void setConnectionMode(ServerConnectionMode mode) {
+            connectionMode.set(mode);
         }
 
         @Override
-        public void enablePairingMode() {
-
+        public ServerConnectionMode getConnectionMode() {
+            return connectionMode.get();
         }
 
     }

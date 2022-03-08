@@ -34,7 +34,6 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final String serverName;
     private final UUID serverUuid;
     private final MenuAuthenticator authenticator;
-    private final AtomicBoolean successfulLogin = new AtomicBoolean(false);
     private final Clock clock;
     private final AtomicBoolean alreadyStarted = new AtomicBoolean(false);
     private final  List<MenuManagerListener> eventListeners = new CopyOnWriteArrayList<>();
@@ -63,6 +62,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
             if(annotation != null) {
                 mapOfMethodsToId.put(annotation.id(), new MethodWithObject(method, listener));
             }
+        }
+        if(alreadyStarted.get()) {
+            listener.managerWillStart();
         }
     }
 
@@ -147,7 +149,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void messageReceived(ServerConnection conn, MenuCommand cmd) {
         try {
-            if(conn.isPairing()) {
+            if(conn.getConnectionMode() == ServerConnectionMode.PAIRING) {
                 logger.log(Level.INFO, "Connection is in pairing mode, ignoring " + cmd);
                 return; // nothing further is done on a pairing connection.
             }
@@ -160,7 +162,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
                         conn.closeConnection();
                     }
                     else {
-                        successfulLogin.set(true);
+                        conn.setConnectionMode(ServerConnectionMode.AUTHENTICATED);
                         logger.log(Level.WARNING, "Successful login from " + join.getMyName());
                         conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, AckStatus.SUCCESS));
                         conn.sendCommand(new MenuBootstrapCommand(MenuBootstrapCommand.BootType.START));
@@ -187,7 +189,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
                     break;
                 }
                 case CHANGE_INT_FIELD:
-                    if(!successfulLogin.get()) {
+                    if(conn.getConnectionMode() != ServerConnectionMode.AUTHENTICATED) {
                         logger.log(Level.WARNING, "Un-authenticated change command ignored");
                         return;
                     }
@@ -200,7 +202,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     }
 
     private void startPairingMode(ServerConnection conn, MenuPairingCommand cmd) {
-        conn.enablePairingMode();
+        conn.setConnectionMode(ServerConnectionMode.PAIRING);
         var success = authenticator.addAuthentication(cmd.getName(), cmd.getUuid());
         var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
         conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
@@ -280,6 +282,14 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private void sendChangeAndAck(ServerConnection socket, MenuItem item, Object val, CorrelationId correlationId) {
         socket.sendCommand(new MenuAcknowledgementCommand(correlationId, AckStatus.SUCCESS));
         socket.sendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, val.toString()));
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public UUID getServerUuid() {
+        return serverUuid;
     }
 
     public void reportDialogUpdate(DialogMode show, String title, String content, MenuButtonType b1, MenuButtonType b2) {

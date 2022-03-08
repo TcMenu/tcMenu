@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -9,7 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -24,11 +24,12 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
     private double displayWidth;
     private Canvas canvas;
 
-    public HorizontalSliderAnalogComponent(RemoteMenuController controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
+    public HorizontalSliderAnalogComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
         this.tree = tree;
     }
 
+    @Override
     public Node createComponent() {
         canvas = new Canvas();
         if(isItemEditable(item)) {
@@ -58,7 +59,7 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         try {
             if (tree.getMenuState(item) != null)
             {
-                var correlation = remoteController.sendAbsoluteUpdate(item, currentVal);
+                var correlation = componentControl.editorUpdatedItem(item, currentVal);
                 editStarted(correlation);
             }
         } catch (Exception ex) {

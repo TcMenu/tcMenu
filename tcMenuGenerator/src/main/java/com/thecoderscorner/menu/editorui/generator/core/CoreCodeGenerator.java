@@ -24,11 +24,13 @@ import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDef
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
-import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,9 +44,8 @@ import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuTy
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_EEPROM;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
-import static java.lang.System.Logger.Level.*;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public abstract class CoreCodeGenerator implements CodeGenerator {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -69,7 +70,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected boolean usesProgMem;
     protected CodeConversionContext context;
     protected VariableNameGenerator namingGenerator;
-    protected NameAndKey nameAndKey;
     protected boolean hasRemotePlugins;
     protected CodeGeneratorOptions options;
     private final AtomicInteger logEntryNum = new AtomicInteger(0);
@@ -116,7 +116,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
             generateHeaders(codeGenerators, headerFile, menuStructure, extractor, callbackFunctions);
             generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
-            dealWithRequiredPlugins(codeGenerators, srcDir);
+            var fileProcessor = new PluginRequiredFileProcessor(context, uiLogger);
+            fileProcessor.dealWithRequiredPlugins(codeGenerators, srcDir, previousPluginFiles);
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
 
@@ -143,7 +144,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null,true, "true"));
-                    return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -151,7 +152,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
-                    return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -159,7 +160,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
-                    return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -168,7 +169,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter((item) -> !item.isVisible())
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "false"));
-                    return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, params, new AlwaysApplicable());
+                    return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
                 })
                 .collect(Collectors.toList())
         );
@@ -188,81 +189,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         return item != null && item.isSecured();
     }
 
-    protected void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory) throws TcMenuConversionException {
-        logLine(INFO, "Checking if any plugin files need removal because of plugin changes");
-
-        var newPluginFileSet = generators.stream()
-                .flatMap(gen -> gen.getRequiredSourceFiles().stream())
-                .filter(sf -> sf.getApplicability().isApplicable(context.getProperties()))
-                .map(RequiredSourceFile::getFileName)
-                .collect(Collectors.toSet());
-
-        for (var plugin : previousPluginFiles) {
-            if (!newPluginFileSet.contains(plugin)) {
-                var fileNamePart = Paths.get(plugin).getFileName().toString();
-                var actualFile = directory.resolve(fileNamePart);
-                try {
-                    if (Files.exists(actualFile)) {
-                        logLine(WARNING, "Removing unused plugin: " + actualFile);
-                        Files.delete(actualFile);
-                    }
-                } catch (IOException e) {
-                    logLine(ERROR, "Could not delete plugin: " + actualFile + " error " + e.getMessage());
-                }
-            }
-        }
-
-        logLine(INFO, "Adding all files required by selected plugins");
-
-        for (var gen : generators) {
-            generatePluginsForCreator(gen, directory);
-        }
-    }
-
-    protected void generatePluginsForCreator(CodePluginItem item, Path directory) throws TcMenuConversionException {
-        var expando = new CodeParameter(CodeParameter.NO_TYPE, null, true, "");
-        var filteredSourceFiles = item.getRequiredSourceFiles().stream()
-                .filter(sf-> sf.getApplicability().isApplicable(context.getProperties()))
-                .collect(Collectors.toList());
-
-        for (var srcFile : filteredSourceFiles) {
-            try {
-                var fileName = expando.expandExpression(context, srcFile.getFileName());
-                // get the source (either from the plugin or from the tcMenu library)
-                String fileNamePart;
-                String fileData;
-                Path location = item.getConfig().getPath().resolve(fileName);
-                try (var sourceInputStream = new FileInputStream(location.toFile())) {
-                    fileData = new String(sourceInputStream.readAllBytes());
-                    fileNamePart = Paths.get(fileName).getFileName().toString();
-                } catch (Exception e) {
-                    throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
-                }
-
-                Path resolvedOutputFile = directory.resolve(fileNamePart);
-
-                if(!srcFile.isOverwritable() && Files.exists(resolvedOutputFile)) {
-                    logLine(WARNING, "Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
-                }
-                else {
-                    logLine(INFO, "Copy plugin file: " + srcFile.getFileName());
-                    for (var cr : srcFile.getReplacementList()) {
-                        if (cr.getApplicability().isApplicable(context.getProperties())) {
-                            logLine(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());
-                            var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                            fileData = fileData.replaceAll(cr.getFind(), replacement);
-                        }
-                    }
-
-                    Files.write(resolvedOutputFile, fileData.getBytes(), TRUNCATE_EXISTING, CREATE);
-                }
-
-                // and copy into the destination
-            } catch (Exception e) {
-                throw new TcMenuConversionException("Unexpected exception processing " + srcFile, e);
-            }
-        }
-    }
 
     @Override
     public void setLoggerFunction(BiConsumer<System.Logger.Level, String> uiLogger) {
@@ -356,7 +282,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("// Global variable declarations");
             writer.write(LINE_BREAK);
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
-                    nameAndKey.getName() + "\", \"" + nameAndKey.getUuid() + "\" };");
+                    options.getApplicationName() + "\", \"" + options.getApplicationUUID().toString() + "\" };");
             writer.write(LINE_BREAK);
             if(hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");

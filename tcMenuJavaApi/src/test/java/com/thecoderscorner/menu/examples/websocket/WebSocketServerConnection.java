@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.examples.websocket;
 
+import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
@@ -33,6 +34,7 @@ public class WebSocketServerConnection implements ServerConnection {
     private final Object socketLock = new Object();
     private final Object handlerLock = new Object();
     private final AtomicBoolean pairingMode = new AtomicBoolean(false);
+    private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
 
     public WebSocketServerConnection(WebSocket socket, MenuCommandProtocol protocol, Clock clock) {
         this.socket = socket;
@@ -85,11 +87,6 @@ public class WebSocketServerConnection implements ServerConnection {
     }
 
     @Override
-    public boolean isConnected() {
-        return false;
-    }
-
-    @Override
     public void registerConnectionListener(BiConsumer<ServerConnection, Boolean> connectionListener) {
         synchronized (socketLock) {
             this.connectionListener.set(connectionListener);
@@ -104,13 +101,13 @@ public class WebSocketServerConnection implements ServerConnection {
     }
 
     @Override
-    public boolean isPairing() {
-        return this.pairingMode.get();
+    public void setConnectionMode(ServerConnectionMode mode) {
+        connectionMode.set(mode);
     }
 
     @Override
-    public void enablePairingMode() {
-        this.pairingMode.set(true);
+    public ServerConnectionMode getConnectionMode() {
+        return connectionMode.get();
     }
 
     public void informClosed() {

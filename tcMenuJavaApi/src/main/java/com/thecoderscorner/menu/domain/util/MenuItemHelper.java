@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.domain.state.AnyMenuState.StateStorageType.*;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
@@ -288,8 +289,25 @@ public class MenuItemHelper {
         return stateForMenuItem(item, val, changed, active);
     }
 
-    public static AnyMenuState stateForMenuItem(MenuItem item, Object val, boolean changed, boolean active) {
-        if(val == null || item == null) return new BooleanMenuState(item, false, false, false);
+    public static void applyIncrementalValueChange(MenuItem item, int delta, MenuTree tree) {
+        var state = tree.getMenuState(item);
+        if(state == null) {
+            state = stateForMenuItem(item, delta, false, false);
+            tree.changeItem(item, state);
+        } else if(state.getStorageType() == INTEGER) {
+            var intState = (IntegerMenuState) state;
+            tree.changeItem(item, stateForMenuItem(intState, item, intState.getValue() + delta));
+        }
+        else if(state.getStorageType() == SCROLL_POSITION) {
+            var scrState = (CurrentScrollPositionMenuState) state;
+            var currentScrollPosition = new CurrentScrollPosition(scrState.getValue().getPosition() + delta, "");
+            tree.changeItem(item, stateForMenuItem(scrState, item, currentScrollPosition));
+        }
+    }
+
+    public static AnyMenuState stateForMenuItem(MenuItem item, Object v, boolean changed, boolean active) {
+        if(item == null) return new BooleanMenuState(item, false, false, false);
+         var val = (v!=null) ? v : defaultValueForItem(item);
 
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<AnyMenuState>() {
             @Override
@@ -369,8 +387,13 @@ public class MenuItemHelper {
 
             @Override
             public void visit(ScrollChoiceMenuItem scrollItem) {
-                CurrentScrollPosition res = (val instanceof String) ? new CurrentScrollPosition(val.toString()) : (CurrentScrollPosition) val;
-                setResult(new CurrentScrollPositionMenuState(item, changed, active, res));
+                CurrentScrollPosition pos;
+                if(val instanceof Integer) pos = new CurrentScrollPosition(val + "-");
+                else if(val instanceof CurrentScrollPosition) pos = (CurrentScrollPosition) val;
+                else pos = new CurrentScrollPosition(val.toString());
+                if(pos.getPosition() >= 0 && pos.getPosition() < scrollItem.getNumEntries()) {
+                    setResult(new CurrentScrollPositionMenuState(item, changed, active, pos));
+                }
             }
 
             @Override
@@ -384,6 +407,55 @@ public class MenuItemHelper {
                 setResult(new BooleanMenuState(item, changed, active, false));
             }
         }).orElseThrow();
+    }
+
+    private static Object defaultValueForItem(MenuItem item) {
+        return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<>() {
+            @Override
+            public void visit(AnalogMenuItem item) {
+                setResult(0);
+            }
+
+            @Override
+            public void visit(EnumMenuItem item) {
+                setResult(0);
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                setResult("");
+            }
+
+            @Override
+            public void visit(FloatMenuItem item) {
+                setResult(0.0F);
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem scrollItem) {
+                setResult(new CurrentScrollPosition(0, ""));
+            }
+
+            @Override
+            public void visit(RuntimeListMenuItem listItem) {
+                setResult(List.of());
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                setResult(BigDecimal.ZERO);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                setResult(new PortableColor("#000000"));
+            }
+
+            @Override
+            public void anyItem(MenuItem item) {
+                setResult(false);
+            }
+        }).orElse(false);
     }
 
     public static void setMenuState(MenuItem item, Object value, MenuTree tree) {
@@ -435,5 +507,4 @@ public class MenuItemHelper {
         }
         return Optional.empty();
     }
-
 }

@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.remote.mgrclient;
 import com.thecoderscorner.menu.mgr.NewServerConnectionListener;
 import com.thecoderscorner.menu.mgr.ServerConnection;
 import com.thecoderscorner.menu.mgr.ServerConnectionManager;
+import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 
 import java.io.IOException;
@@ -25,19 +26,25 @@ public class SocketServerConnectionManager implements ServerConnectionManager {
     private volatile NewServerConnectionListener connectionListener;
 
     public SocketServerConnectionManager(MenuCommandProtocol protocol, ScheduledExecutorService service,
-                                         int port, Clock clock) throws IOException {
+                                         int port, Clock clock)  {
         this.protocol = protocol;
         this.port = port;
         this.clock = clock;
         acceptThread = new Thread(this::acceptConnections);
-        serverSocket = new ServerSocket();
+        try {
+            serverSocket = new ServerSocket();
+        }
+        catch (IOException ex) {
+            logger.log(System.Logger.Level.ERROR, "Server socket not created", ex);
+            throw new IllegalStateException("Could not start server socket", ex);
+        }
         taskFuture = service.scheduleAtFixedRate(this::checkAllConnections, 1, 1, TimeUnit.SECONDS);
     }
 
     private void checkAllConnections() {
         var connectionsToRemove = new ArrayList<ServerConnection>();
         for(var connection : connections) {
-            if(!connection.isConnected()) {
+            if(connection.getConnectionMode() == ServerConnectionMode.DISCONNECTED) {
                 connectionsToRemove.add(connection);
             }
         }

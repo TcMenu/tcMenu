@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
@@ -143,7 +144,7 @@ public class MenuServerSocketIntegrationTest {
 
         // now check we are actually connected
         assertFalse(serverConnection.getServerConnections().isEmpty());
-        assertTrue(serverConnection.getServerConnections().get(0).isConnected());
+        assertEquals(ServerConnectionMode.AUTHENTICATED, serverConnection.getServerConnections().get(0).getConnectionMode());
         assertTrue(clientConnector.isDeviceConnected());
         assertNotNull(remoteInfoReceived.get());
         assertEquals("integration-test", remoteInfoReceived.get().getName());

@@ -179,6 +179,34 @@ public class MenuItemHelperTest {
     }
 
     @Test
+    public void testSettingDeltaStateInteger() {
+        MenuItemHelper.setMenuState(analogItem, 10, tree);
+        assertEquals(10, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
+        MenuItemHelper.applyIncrementalValueChange(analogItem, 1, tree);
+        assertEquals(11, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
+        MenuItemHelper.applyIncrementalValueChange(analogItem, -2, tree);
+        assertEquals(9, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
+        MenuItemHelper.applyIncrementalValueChange(analogItem, -100, tree);
+        assertEquals(0, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
+    }
+
+    @Test
+    public void testSettingDeltaStateEnum() {
+        MenuItemHelper.setMenuState(enumItem, 1, tree);
+        assertEquals(1, (int) MenuItemHelper.getValueFor(enumItem, tree, -1));
+        MenuItemHelper.applyIncrementalValueChange(enumItem, -1, tree);
+        assertEquals(0, (int)MenuItemHelper.getValueFor(enumItem, tree, -1));
+    }
+
+    @Test
+    public void testSettingDeltaStatePosition() {
+        MenuItemHelper.setMenuState(scrollItem, 1, tree);
+        assertEquals(1, MenuItemHelper.getValueFor(scrollItem, tree, new CurrentScrollPosition("0-")).getPosition());
+        MenuItemHelper.applyIncrementalValueChange(scrollItem, 1, tree);
+        assertEquals(2, MenuItemHelper.getValueFor(scrollItem, tree, new CurrentScrollPosition("0-")).getPosition());
+    }
+
+    @Test
     public void testGetValueFor() {
         assertEquals(-1, (int)getValueFor(analogItem, tree, -1));
         setMenuState(analogItem, 22, tree);

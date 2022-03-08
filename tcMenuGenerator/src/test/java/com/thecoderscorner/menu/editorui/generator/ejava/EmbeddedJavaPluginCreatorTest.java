@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
@@ -92,11 +93,11 @@ class EmbeddedJavaPluginCreatorTest {
         builder.addStatement(ctor);
 
         List<FunctionDefinition> functionStatements = List.of(
-                new FunctionDefinition("function1", "${prop2}", false, parameters, new AlwaysApplicable()),
-                new FunctionDefinition("${prop1}", "FromTheContext.class", true, parameters, new AlwaysApplicable())
+                new FunctionDefinition("function1", "${prop2}", false, false, parameters, new AlwaysApplicable()),
+                new FunctionDefinition("${prop1}", "FromTheContext.class", true, true, parameters, new AlwaysApplicable())
         );
         var setupMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start");
-        creator.mapMethodCalls(functionStatements, setupMethod);
+        creator.mapMethodCalls(functionStatements, setupMethod, Collections.singletonList("superDuper.streamIt();"));
         builder.addStatement(setupMethod);
 
         var headerDefs = List.of(
@@ -113,21 +114,20 @@ class EmbeddedJavaPluginCreatorTest {
 
         assertEqualsIgnoringCRLF("""
                 package com.unittest.tcmenu;
-
-                import org.somelib.xyz;
+                                
                 import org.somelib.xyz;
                                 
                 public class UnitTester {
                     private final Field1Type field1;
                     private final Field3Type field3;
                     @Bean
-                    public Field1Type field1(String param1, replacement2 param2, SpannerType replacement2) {
-                        return new Field1Type(name1, replacement1, spanner);
+                    public Field1Type field1(SpannerType spanner) {
+                        return new Field1Type(param1, param2, spanner);
                     }
-                                
+                
                     @Bean
-                    public Field2Type field2(String param1, replacement2 param2, SpannerType replacement2) {
-                        return new Field2Type(name1, replacement1, spanner);
+                    public Field2Type field2(SpannerType spanner) {
+                        return new Field2Type(param1, param2, spanner);
                     }
                                 
                     public UnitTester() {
@@ -137,6 +137,7 @@ class EmbeddedJavaPluginCreatorTest {
                                 
                     public void start() {
                         replacement2.function1(param1, param2, context.getBean(replacement2));
+                        superDuper.streamIt();
                         context.getBean(FromTheContext.class).replacement1(param1, param2, context.getBean(replacement2));
                     }
                                 

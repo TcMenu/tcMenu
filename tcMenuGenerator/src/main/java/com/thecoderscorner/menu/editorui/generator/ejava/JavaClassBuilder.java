@@ -82,7 +82,7 @@ public class JavaClassBuilder {
         if(Files.exists(javaClassFileLoc)) {
             var linesFromOriginalFile = trimEmptyLinesTopBottom(Files.readAllLines(javaClassFileLoc));
 
-            for (var imp : importStatements) {
+            for (var imp : importStatements.stream().distinct().toList()) {
                 if (noReferencesInFile(Pattern.compile("import.*" + imp + ";"), linesFromOriginalFile)) {
                     int idx = findLastStatementOfType(IMPORT_PATTERN, linesFromOriginalFile);
                     linesFromOriginalFile.add(idx, "import " + imp + ";");
@@ -187,7 +187,7 @@ public class JavaClassBuilder {
         sb.append("package ").append(pkgName).append(';').append(TWO_LINES);
 
         boolean hadImports = false;
-        for (var imp : importStatements) {
+        for (var imp : importStatements.stream().distinct().toList()) {
             sb.append("import ").append(imp).append(';').append(LINE_BREAK);
             hadImports = true;
         }
