@@ -1,0 +1,232 @@
+{
+  "version": "1.00",
+  "projectName": "",
+  "author": "dave",
+  "items": [
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "%",
+        "name": "LED1  brightness",
+        "variableName": "LED1Brightness",
+        "id": 1,
+        "eepromAddress": 4,
+        "functionName": "led1BrightnessHasChanged",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "%",
+        "name": "LED2 brightness",
+        "variableName": "LED2Brightness",
+        "id": 2,
+        "eepromAddress": 2,
+        "functionName": "led2BrightnessHasChanged",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "enumItem",
+      "item": {
+        "enumEntries": [
+          "AC Input",
+          "Battery",
+          "Unregulated"
+        ],
+        "name": "Input Control",
+        "variableName": "InputControl",
+        "id": 3,
+        "eepromAddress": 11,
+        "functionName": "inputControlHasChanged",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "boolItem",
+      "item": {
+        "naming": "ON_OFF",
+        "name": "Logging Monitor",
+        "variableName": "LoggingMonitor",
+        "id": 4,
+        "eepromAddress": 10,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Status",
+        "variableName": "Status",
+        "id": 5,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 5,
+      "type": "floatItem",
+      "item": {
+        "numDecimalPlaces": 1,
+        "name": "Case Temp oC",
+        "variableName": "StatusCaseTempOC",
+        "id": 6,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 5,
+      "type": "rgbItem",
+      "item": {
+        "includeAlphaChannel": false,
+        "name": "Light Color",
+        "variableName": "StatusLightColor",
+        "id": 7,
+        "eepromAddress": 6,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 5,
+      "type": "textItem",
+      "item": {
+        "textLength": 5,
+        "itemType": "IP_ADDRESS",
+        "name": "IP Address",
+        "variableName": "SettingsNewTextItem",
+        "id": 10,
+        "eepromAddress": -1,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 5,
+      "type": "customBuildItem",
+      "item": {
+        "menuType": "AUTHENTICATION",
+        "name": "Authenticator",
+        "id": 12,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 5,
+      "type": "customBuildItem",
+      "item": {
+        "menuType": "REMOTE_IOT_MONITOR",
+        "name": "IoT Monitor",
+        "id": 13,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Settings",
+        "variableName": "Settings",
+        "id": 8,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 8,
+      "type": "textItem",
+      "item": {
+        "textLength": 15,
+        "itemType": "PLAIN_TEXT",
+        "name": "Some Text",
+        "variableName": "SettingsSomeText",
+        "id": 11,
+        "eepromAddress": 21,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 8,
+      "type": "largeNumItem",
+      "item": {
+        "digitsAllowed": 8,
+        "decimalPlaces": 3,
+        "negativeAllowed": true,
+        "name": "Large Num",
+        "variableName": "SettingsLargeNum",
+        "id": 14,
+        "eepromAddress": 13,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    }
+  ],
+  "codeOptions": {
+    "embeddedPlatform": "RASPBERRY_PIJ",
+    "lastDisplayUuid": "59f05a22-8873-4bfe-86d4-73ef874a0283",
+    "lastInputUuid": "89cd7f70-0457-4884-97c2-0db904ccb0ba",
+    "lastRemoteUuid": "814334f5-fa50-43b1-9fcb-f34c6c5c4e40",
+    "lastRemoteUuids": [
+      "814334f5-fa50-43b1-9fcb-f34c6c5c4e40"
+    ],
+    "lastThemeUuid": "2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e",
+    "applicationUUID": "1a9d30d8-b7cb-4ca6-85e4-4df5eb1f4fbe",
+    "applicationName": "Embedded Java Demo",
+    "lastProperties": [
+      {
+        "name": "EJ_NET_PORT_NUMBER",
+        "latestValue": "3333",
+        "subsystem": "REMOTE"
+      }
+    ],
+    "namingRecursive": true,
+    "saveToSrc": false,
+    "useCppMain": false,
+    "eepromDefinition": "",
+    "authenticatorDefinition": "rom:2:6",
+    "projectIoExpanders": [
+      "deviceIO:"
+    ],
+    "packageNamespace": "com.thecoderscorner.menuexample"
+  }
+}

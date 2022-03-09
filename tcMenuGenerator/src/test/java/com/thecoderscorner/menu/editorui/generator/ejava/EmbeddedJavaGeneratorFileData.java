@@ -76,14 +76,14 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 public void start() {
-                    manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));
+                    manager.addMenuManagerListener(context.getBean(UnitTestController.class));
                     manager.addConnectionManager(socketClient);
                     tagVal.unitTestMe();
                     manager.start();
                 }
                         
                 public static void main(String[] args) {
-                    new Testsupp123App().start();
+                    new UnitTestApp().start();
                 }
                         
             }
