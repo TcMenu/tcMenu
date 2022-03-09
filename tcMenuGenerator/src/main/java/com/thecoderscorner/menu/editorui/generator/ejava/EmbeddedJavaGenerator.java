@@ -181,13 +181,13 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
         builder.blankLine().addStatement(constructor);
         var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
-                .withStatement("manager.addMenuManagerListener(context.getBean(Testsupp123Controller.class));");
+                .withStatement("manager.addMenuManagerListener(context.getBean(" + javaProject.getAppClassName("Controller") + ".class));");
         pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod,
                 List.of("manager.start();"));
 
         builder.addStatement(startMethod);
         builder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")
-                        .withStatement("new Testsupp123App().start();"));
+                        .withStatement("new " + javaProject.getAppClassName("App") + "().start();"));
 
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addAppMethods(cap, builder);

@@ -283,8 +283,9 @@ public class EmbeddedJavaGeneratorFileData {
                 private final JsonMenuItemSerializer jsonSerializer;
                \s
                 public UnitTestMenu() {
-                            jsonSerializer = new JsonMenuItemSerializer();
-                            menuTree = jsonSerializer.newMenuTreeWithItems(APP_MENU_ITEMS);
+                    jsonSerializer = new JsonMenuItemSerializer();
+                    menuTree = jsonSerializer.newMenuTreeWithItems(APP_MENU_ITEMS);
+                    menuTree.initialiseStateForEachItem();
                 }
                         
                 public MenuTree getMenuTree() {
@@ -436,7 +437,7 @@ public class EmbeddedJavaGeneratorFileData {
                                         <goal>copy-resources</goal>
                                     </goals>
                                     <configuration>
-                                        <outputDirectory>${basedir}/target/jfx/app/</outputDirectory>
+                                        <outputDirectory>${project.basedir}/target/jfx/app/</outputDirectory>
                                         <resources>
                                             <resource>
                                                 <directory>${project.basedir}/src/main/deploy</directory>

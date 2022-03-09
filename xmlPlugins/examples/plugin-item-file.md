@@ -73,6 +73,14 @@ Here are some example properties:
             </Property>
         </Properties>
 
+There are a few additional property variables that you can use within your xml, these are always added so safe to use in any item:
+
+* ROOT - this property always references the first menu item
+* TARGET - always set to the board type you selected
+* NAMESPACE - always set to the namespace entered during setup
+* APP_NAME - the name of the application
+* APP_UUID - the UUID of the application
+
 Complex applicability conditions can be added by nesting ApplicabilityDef entries. See the separate [page on applicability definitions](applicability-definitions.md). You can apply applicability on nearly all definitions within this file, either as a reference to one declared here, or locally. When defined in the applicability defs section the applicabilities can be nested with `and` / `or` operations. 
 
     <ApplicabilityDefs>

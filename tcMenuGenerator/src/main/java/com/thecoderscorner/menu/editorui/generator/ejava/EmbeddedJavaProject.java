@@ -77,7 +77,7 @@ public class EmbeddedJavaProject {
                         .replaceAll("%SERVERUUID%", codeOptions.getApplicationUUID().toString())
                         .replaceAll("%DATADIR%", data.toString()));
 
-        Path readmeFile = getMainResources().resolve("README.md");
+        Path readmeFile = getProjectRoot().resolve("README.md");
         var readmeTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/packaged-plugins/packaged-readme.md")).readAllBytes());
         readmeTemplate = readmeTemplate.replaceAll("%APPNAME%", codeOptions.getApplicationName())
                 .replaceAll("%APPCLASSNAME%", getAppClassName(""));

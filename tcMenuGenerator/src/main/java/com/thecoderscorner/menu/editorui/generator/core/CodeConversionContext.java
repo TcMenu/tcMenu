@@ -32,6 +32,9 @@ public class CodeConversionContext {
         properties = new ArrayList<>(properties);
         properties.add(new CreatorProperty("ROOT", "Root", "Root", rootObject, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         properties.add(new CreatorProperty("TARGET", "Target", "Target", platform.getBoardId(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+        properties.add(new CreatorProperty("NAMESPACE", "Namespace", "Namespace", options.getPackageNamespace(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+        properties.add(new CreatorProperty("APP_NAME", "App name", "App name", options.getApplicationName(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+        properties.add(new CreatorProperty("APP_UUID", "App ID", "App ID", options.getApplicationUUID().toString(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         this.properties = properties;
         this.platform = platform;
     }

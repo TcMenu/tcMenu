@@ -20,7 +20,7 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
-public class JfxScreenManager implements ScreenManager {
+public class JfxScreenManager implements ScreenManager<Node> {
     public static final int DEFAULT_FONT_SIZE = 16;
 
     private final ScrollPane scrollView;
@@ -72,42 +72,42 @@ public class JfxScreenManager implements ScreenManager {
     }
 
     @Override
-    public EditorComponent addUpDownInteger(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addUpDownInteger(MenuItem item, ComponentSettings settings) {
         var analogEditor = new IntegerUpDownEditorComponent(item, controller, settings, threadMarshaller);
         addToGridInPosition(settings, analogEditor.createComponent());
         return analogEditor;
     }
 
     @Override
-    public EditorComponent addUpDownScroll(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addUpDownScroll(MenuItem item, ComponentSettings settings) {
         var scrollEditor = new ScrollUpDownEditorComponent(item, controller, settings, threadMarshaller);
         addToGridInPosition(settings, scrollEditor.createComponent());
         return scrollEditor;
     }
 
     @Override
-    public EditorComponent addBooleanButton(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addBooleanButton(MenuItem item, ComponentSettings settings) {
         var boolBtn = new BoolButtonEditorComponent(item, controller, settings, threadMarshaller);
         addToGridInPosition(settings, boolBtn.createComponent());
         return boolBtn;
     }
 
     @Override
-    public EditorComponent addRgbColorControl(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addRgbColorControl(MenuItem item, ComponentSettings settings) {
         var colorRgb = new TextFieldEditorComponent<PortableColor>(controller, settings, item, threadMarshaller);
         addToGridInPosition(settings, colorRgb.createComponent());
         return colorRgb;
     }
 
     @Override
-    public <T> EditorComponent addTextEditor(MenuItem item, ComponentSettings settings, T prototype) {
-        var textEd = new TextFieldEditorComponent<T>(controller, settings, item, threadMarshaller);
+    public <P> EditorComponent<Node> addTextEditor(MenuItem item, ComponentSettings settings, P prototype) {
+        var textEd = new TextFieldEditorComponent<P>(controller, settings, item, threadMarshaller);
         addToGridInPosition(settings, textEd.createComponent());
         return textEd;
     }
 
     @Override
-    public EditorComponent addDateEditorComponent(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addDateEditorComponent(MenuItem item, ComponentSettings settings) {
         if (item instanceof EditableTextMenuItem textFld && textFld.getItemType() == EditItemType.GREGORIAN_DATE) {
             var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, threadMarshaller);
             addToGridInPosition(settings, dateEditor.createComponent());
@@ -123,7 +123,7 @@ public class JfxScreenManager implements ScreenManager {
     );
 
     @Override
-    public EditorComponent addTimeEditorComponent(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addTimeEditorComponent(MenuItem item, ComponentSettings settings) {
         if (item instanceof EditableTextMenuItem textFld && ALLOWED_TIME_TYPES.contains(textFld.getItemType())) {
             var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, threadMarshaller);
             addToGridInPosition(settings, dateEditor.createComponent());
@@ -134,14 +134,14 @@ public class JfxScreenManager implements ScreenManager {
     }
 
     @Override
-    public EditorComponent addListEditor(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addListEditor(MenuItem item, ComponentSettings settings) {
         var listEd = new ListEditorComponent(controller, settings, item, threadMarshaller);
         addToGridInPosition(settings, listEd.createComponent());
         return listEd;
     }
 
     @Override
-    public EditorComponent addHorizontalSlider(MenuItem item, ComponentSettings settings) {
+    public EditorComponent<Node> addHorizontalSlider(MenuItem item, ComponentSettings settings) {
         var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
 
         Canvas component = (Canvas) slider.createComponent();

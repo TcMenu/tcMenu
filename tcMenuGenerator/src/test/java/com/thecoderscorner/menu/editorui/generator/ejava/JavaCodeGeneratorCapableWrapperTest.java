@@ -88,7 +88,8 @@ class JavaCodeGeneratorCapableWrapperTest {
                         var remoteTokens = List.of(new PreDefinedAuthenticator.AuthenticationToken("name1", "8782b33c-a259-4d16-9f1c-fab149c836b5"), new PreDefinedAuthenticator.AuthenticationToken("name2", "0f666ed1-7f88-437b-80c7-d92585f1967b"));
                         return new PreDefinedAuthenticator("4321", remoteTokens);
                     }
-                                
+                    
+                    @Bean            
                     public MenuAuthenticator menuAuthenticator(@Value("${file.auth.storage}") String propsPath) {
                         return new PropertiesAuthenticator(propsPath);
                     }

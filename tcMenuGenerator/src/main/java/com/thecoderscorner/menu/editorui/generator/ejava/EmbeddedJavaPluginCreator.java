@@ -30,7 +30,7 @@ public class EmbeddedJavaPluginCreator {
                 .filter(h -> h.getApplicability().isApplicable(context.getProperties()) && h.getHeaderType() == HeaderDefinition.HeaderType.SOURCE)
                 .toList();
         for(var h : applicableHeaders) {
-            builder.addPackageImport(h.getHeaderName());
+            builder.addPackageImport(expando.expandExpression(context, h.getHeaderName()));
         }
     }
 

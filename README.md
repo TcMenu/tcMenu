@@ -42,19 +42,40 @@ and embedCONTROL desktop that can control menu based apps - runs on Windows, mac
 
 If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI and set up your Arduino directory in "Edit -> General Settings", then check the "Library Versions" tab to ensure the embedded libraries are installed / up to date.
 
-Once the tcMenu library directory is located, the "File -> Examples" menu will load with all the exmaples. Load the example closest to the hardware you have. Once it's open, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
+Once the tcMenu library directory is located, the "File -> Examples" menu will load with all the examples. Load the example closest to the hardware you have. Once it's open, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
 Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate hardware arrangements and hit generate.
 
 The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
 
-## Where's all the source live
-
-The designer UI code base and plugins for 2.0 onwards are located in this repository, the 1.7 plugins were here [https://github.com/davetcc/tcMenuXmlPlugins]. The tcMenu library is in [https://github.com/davetcc/tcMenuLib]. The designer, library and shipped plugins are all Apache licensed.
-
 ## TcMenu still supports Uno with LiquidCrystal dfRobot shield or Ssd1306Ascii
 
 We try to keep Uno viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
+
+## Libraries required for tcMenu
+
+TcMenu supports different boards and build tools. It is possible to use it directly with both platformIO and Arduino IDE. It should also work with most mbed tooling as the libraries compile on mbed.
+
+**The easiest way to get started is to install tcMenu library using library manager**, all the dependencies are automatically installed. However, if you like to manually manage libraries, below are the links to their repos:
+
+### Embedded Libraries for Arduino and mbed 
+
+* tcMenuLib - https://github.com/davetcc/tcMenuLib
+* IoAbstraction - https://github.com/davetcc/IoAbstraction
+* TaskManagerIO - https://github.com/davetcc/TaskManagerIO
+* SimpleCollections - https://github.com/davetcc/SimpleCollections
+
+### Additional libraries you may need depending on display
+
+* LiquidCrystalIO forked from Arduino version - https://github.com/davetcc/LiquidCrystalIO 
+* Adafruit-GFX-mbed-fork - https://github.com/davetcc/Adafruit-GFX-mbed-fork
+* TFT-eSPI by Bodmer - https://github.com/Bodmer/TFT_eSPI
+* Adafruit_GFX by AdaFruit- https://github.com/adafruit/Adafruit-GFX-Library 
+* U8G2 by olikraus - https://github.com/olikraus/u8g2
+
+### Main Java source code locations
+
+The designer UI code base and plugins for 2.0 onwards are located in this repository, the 1.7 plugins were here https://github.com/davetcc/tcMenuXmlPlugins. The designer, library and shipped plugins are all Apache licensed.
 
 ## Input and display technologies
 

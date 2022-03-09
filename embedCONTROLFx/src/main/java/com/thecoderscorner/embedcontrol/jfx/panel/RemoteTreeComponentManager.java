@@ -12,14 +12,15 @@ import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import javafx.scene.Node;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-public class RemoteTreeComponentManager extends TreeComponentManager {
+public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
     private final RemoteControllerListener remoteListener;
     private final RemoteMenuController remoteController;
 
-    public RemoteTreeComponentManager(ScreenManager screenManager, RemoteMenuController controller,
+    public RemoteTreeComponentManager(ScreenManager<Node> screenManager, RemoteMenuController controller,
                                       GlobalSettings appSettings, DialogViewer dialogViewer,
                                       ScheduledExecutorService executor, ThreadMarshaller marshaller,
                                       MenuComponentControl componentControl) {
@@ -39,7 +40,7 @@ public class RemoteTreeComponentManager extends TreeComponentManager {
                     reset();
                     screenManager.clear();
                     editorComponents.clear();
-                    renderMenuRecursive(MenuTree.ROOT, screenManager, appSettings, true);
+                    renderMenuRecursive(MenuTree.ROOT, true);
                 });
             }
 

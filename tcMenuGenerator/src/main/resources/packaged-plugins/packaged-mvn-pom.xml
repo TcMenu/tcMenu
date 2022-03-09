@@ -109,7 +109,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/jfx/app/</outputDirectory>
+                            <outputDirectory>${project.basedir}/target/jfx/app/</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/src/main/deploy</directory>

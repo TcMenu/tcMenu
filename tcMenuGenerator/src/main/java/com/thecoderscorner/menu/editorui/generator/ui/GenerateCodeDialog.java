@@ -79,6 +79,7 @@ public class GenerateCodeDialog {
     private Label eepromTypeLabel;
     private Button eepromTypeButton;
     private Label authModeLabel;
+    private TextField namespaceField;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -281,8 +282,8 @@ public class GenerateCodeDialog {
         var appNamespace = project.getGeneratorOptions().getPackageNamespace();
         Label namespaceLabel = new Label("Namespace");
         embeddedPane.add(namespaceLabel, 0, 5);
-        TextField namespaceTextField = new TextField(appNamespace);
-        embeddedPane.add(namespaceTextField, 1, 5, 2, 1);
+        namespaceField = new TextField(appNamespace);
+        embeddedPane.add(namespaceField, 1, 5, 2, 1);
 
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(400, 500, 999, Priority.ALWAYS, HPos.LEFT, true);
@@ -394,7 +395,7 @@ public class GenerateCodeDialog {
         var anyIoWithoutEntries = pluginItem.getProperties().stream()
                 .filter(prop -> prop.getValidationRules() instanceof IoExpanderPropertyValidationRules)
                 .filter(prop -> codeOptions.getExpanderDefinitions().getDefinitionById(prop.getLatestValue()).isEmpty())
-                .collect(Collectors.toList());
+                .toList();
 
         // nothing to do if list is empty
         if(anyIoWithoutEntries.isEmpty()) {
@@ -473,6 +474,7 @@ public class GenerateCodeDialog {
                 .withDisplay(currentDisplay.getItem().getId())
                 .withInput(currentInput.getItem().getId())
                 .withRemotes(currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()))
+                .withPackageNamespace(namespaceField.getText())
                 .withTheme(themeId)
                 .withProperties(allProps)
                 .codeOptions()
@@ -560,7 +562,7 @@ public class GenerateCodeDialog {
                     popup.hide();
                     eventHandler.accept(ui, item);
                 }, 0, "pluginSel_" + display.getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         VBox vbox = new VBox(5);
         addTitleLabel(vbox, "Select the " + changeWhat + " to use:");

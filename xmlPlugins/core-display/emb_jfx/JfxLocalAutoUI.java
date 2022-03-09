@@ -1,4 +1,4 @@
-package com.thecoderscorner.testsup123.tcmenu.plugins;
+package PACKAGE_NAME_REPLACEMENT.tcmenu.plugins;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;

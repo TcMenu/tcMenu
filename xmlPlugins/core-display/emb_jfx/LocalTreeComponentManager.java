@@ -1,4 +1,4 @@
-package com.thecoderscorner.testsup123.tcmenu.plugins;
+package PACKAGE_NAME_REPLACEMENT.tcmenu.plugins;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
@@ -12,10 +12,10 @@ import javafx.scene.Node;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-public class LocalTreeComponentManager extends TreeComponentManager implements MenuManagerListener {
+public class LocalTreeComponentManager extends TreeComponentManager<Node> implements MenuManagerListener {
     private MenuManagerServer menuMgr;
 
-    public LocalTreeComponentManager(ScreenManager screenManager, GlobalSettings appSettings, DialogViewer dialogViewer,
+    public LocalTreeComponentManager(ScreenManager<Node> screenManager, GlobalSettings appSettings, DialogViewer dialogViewer,
                                      ScheduledExecutorService executor, ThreadMarshaller marshaller,
                                      MenuComponentControl controller, MenuManagerServer menuMgr) {
         super(screenManager, appSettings, dialogViewer, executor, marshaller, controller);
@@ -25,7 +25,7 @@ public class LocalTreeComponentManager extends TreeComponentManager implements M
     }
 
     public void presentSubMenu(SubMenuItem root, boolean recurse) {
-        renderMenuRecursive(root, screenManager, appSettings, recurse);
+        renderMenuRecursive(root, recurse);
     }
 
     @Override
