@@ -4,18 +4,17 @@
  *
  */
 
-package com.thecoderscorner.embedcontrol.jfx.dialog;
+package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.panel.PanelPresentable;
-import com.thecoderscorner.embedcontrol.jfx.panel.RemoteConnectionPanel;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.PanelPresentable;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 
 import static java.lang.System.Logger.Level.*;

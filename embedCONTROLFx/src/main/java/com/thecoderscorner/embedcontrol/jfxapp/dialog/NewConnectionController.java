@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx.dialog;
+package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.ManualLanConnectionCreator;
@@ -8,7 +8,7 @@ import com.thecoderscorner.embedcontrol.core.serial.SerialPortInfo;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortType;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.embedcontrol.jfx.EmbedControlContext;
+import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;

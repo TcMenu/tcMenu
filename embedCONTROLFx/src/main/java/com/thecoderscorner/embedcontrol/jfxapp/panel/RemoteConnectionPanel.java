@@ -1,14 +1,13 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.DialogViewer;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.EmbedControlContext;
+import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
-import com.thecoderscorner.embedcontrol.jfx.dialog.PairingController;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.PairingController;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;

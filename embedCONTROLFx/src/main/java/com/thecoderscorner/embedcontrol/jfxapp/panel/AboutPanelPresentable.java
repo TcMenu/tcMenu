@@ -1,6 +1,6 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
-import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;

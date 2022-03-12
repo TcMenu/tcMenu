@@ -1,10 +1,9 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
-import com.thecoderscorner.embedcontrol.jfx.dialog.GeneralSettingsController;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 

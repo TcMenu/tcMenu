@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx.dialog;
+package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.menu.remote.AuthStatus;

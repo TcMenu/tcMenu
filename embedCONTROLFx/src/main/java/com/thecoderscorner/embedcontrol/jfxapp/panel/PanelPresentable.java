@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;

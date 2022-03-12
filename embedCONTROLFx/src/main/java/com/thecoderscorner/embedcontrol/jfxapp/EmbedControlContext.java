@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx;
+package com.thecoderscorner.embedcontrol.jfxapp;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;

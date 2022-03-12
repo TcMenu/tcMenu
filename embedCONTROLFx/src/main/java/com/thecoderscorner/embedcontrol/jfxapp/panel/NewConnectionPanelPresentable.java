@@ -1,19 +1,15 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
-import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.EmbedControlContext;
-import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
-import com.thecoderscorner.embedcontrol.jfx.dialog.NewConnectionController;
-import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
+import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.NewConnectionController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Consumer;
 
 public class NewConnectionPanelPresentable implements PanelPresentable {
     private final GlobalSettings settings;

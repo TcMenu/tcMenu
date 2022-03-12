@@ -1,18 +1,16 @@
-package com.thecoderscorner.embedcontrol.jfx.dialog;
+package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.menu.domain.state.PortableColor;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.fromFxColor;
-import static com.thecoderscorner.embedcontrol.jfx.EmbedControlApp.getJMetro;
+import static com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp.getJMetro;
 
 public class GeneralSettingsController {
     public ColorPicker pendingFgEditor;

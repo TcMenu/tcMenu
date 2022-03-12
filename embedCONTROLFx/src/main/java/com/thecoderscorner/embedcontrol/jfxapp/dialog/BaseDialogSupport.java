@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx.dialog;
+package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

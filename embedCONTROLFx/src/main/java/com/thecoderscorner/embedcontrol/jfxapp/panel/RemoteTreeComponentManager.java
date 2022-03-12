@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfx.panel;
+package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;

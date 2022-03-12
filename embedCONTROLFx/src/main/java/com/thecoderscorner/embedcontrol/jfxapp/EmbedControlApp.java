@@ -4,17 +4,17 @@
  *
  */
 
-package com.thecoderscorner.embedcontrol.jfx;
+package com.thecoderscorner.embedcontrol.jfxapp;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.FileConnectionStorage;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.dialog.BaseDialogSupport;
-import com.thecoderscorner.embedcontrol.jfx.dialog.MainWindowController;
-import com.thecoderscorner.embedcontrol.jfx.dialog.NewConnectionController;
-import com.thecoderscorner.embedcontrol.jfx.panel.*;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.MainWindowController;
+import com.thecoderscorner.embedcontrol.jfxapp.dialog.NewConnectionController;
 import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.*;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Application;
 import javafx.application.Platform;
