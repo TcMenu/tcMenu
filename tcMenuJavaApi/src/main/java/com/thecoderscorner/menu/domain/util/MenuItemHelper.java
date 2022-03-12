@@ -289,20 +289,35 @@ public class MenuItemHelper {
         return stateForMenuItem(item, val, changed, active);
     }
 
-    public static void applyIncrementalValueChange(MenuItem item, int delta, MenuTree tree) {
+    public static Optional<AnyMenuState> applyIncrementalValueChange(MenuItem item, int delta, MenuTree tree) {
         var state = tree.getMenuState(item);
-        if(state == null) {
-            state = stateForMenuItem(item, delta, false, false);
-            tree.changeItem(item, state);
-        } else if(state.getStorageType() == INTEGER) {
+        if(state == null) state = MenuItemHelper.stateForMenuItem(item, 0, false, false);
+
+        if(state.getStorageType() == INTEGER) {
             var intState = (IntegerMenuState) state;
-            tree.changeItem(item, stateForMenuItem(intState, item, intState.getValue() + delta));
+            var val = intState.getValue() + delta;
+
+            if(val < 0 || (item instanceof AnalogMenuItem && val > ((AnalogMenuItem) item).getMaxValue()) ||
+                    (item instanceof EnumMenuItem && val > ((EnumMenuItem) item).getEnumEntries().size())) {
+                return Optional.empty();
+            }
+
+            AnyMenuState menuState = stateForMenuItem(intState, item, intState.getValue() + delta);
+            tree.changeItem(item, menuState);
+            return Optional.ofNullable(menuState);
         }
         else if(state.getStorageType() == SCROLL_POSITION) {
             var scrState = (CurrentScrollPositionMenuState) state;
+            var val = scrState.getValue().getPosition() + delta;
+            if(val <= 0 || (item instanceof ScrollChoiceMenuItem && val >= ((ScrollChoiceMenuItem) item).getNumEntries())) {
+                return Optional.empty();
+            }
             var currentScrollPosition = new CurrentScrollPosition(scrState.getValue().getPosition() + delta, "");
-            tree.changeItem(item, stateForMenuItem(scrState, item, currentScrollPosition));
+            AnyMenuState menuState = stateForMenuItem(scrState, item, currentScrollPosition);
+            tree.changeItem(item, menuState);
+            return Optional.ofNullable(menuState);
         }
+        return Optional.empty();
     }
 
     public static AnyMenuState stateForMenuItem(MenuItem item, Object v, boolean changed, boolean active) {
@@ -388,7 +403,7 @@ public class MenuItemHelper {
             @Override
             public void visit(ScrollChoiceMenuItem scrollItem) {
                 CurrentScrollPosition pos;
-                if(val instanceof Integer) pos = new CurrentScrollPosition(val + "-");
+                if(val instanceof Integer) pos = new CurrentScrollPosition((int)val, "");
                 else if(val instanceof CurrentScrollPosition) pos = (CurrentScrollPosition) val;
                 else pos = new CurrentScrollPosition(val.toString());
                 if(pos.getPosition() >= 0 && pos.getPosition() < scrollItem.getNumEntries()) {

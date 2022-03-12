@@ -4,7 +4,6 @@ import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -12,19 +11,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.stubbing.answers.CallsRealMethods;
 
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.domain.DomainFixtures.fullEspAmplifierTestTree;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.getValueFor;
+import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.NORMAL;
+import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.START;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class MenuManagerServerTest {
@@ -37,13 +40,17 @@ class MenuManagerServerTest {
     private MenuManagerServer mgr;
     private ScheduledExecutorService executor;
     private MenuAuthenticator authenticator;
+    private Clock clock;
 
     @BeforeEach
     public void setupManager() {
         tree = fullEspAmplifierTestTree();
-        executor = mock(ScheduledExecutorService.class);
+
         authenticator = mock(MenuAuthenticator.class);
-        mgr = new MenuManagerServer(executor, tree, SERVER_NAME, SERVER_UUID, authenticator, Clock.systemDefaultZone());
+        clock = mock(Clock.class);
+        executor = mock(MockedScheduledExecutor.class);
+        doAnswer(new CallsRealMethods()).when(executor).execute(any(Runnable.class));
+        mgr = new MenuManagerServer(executor, tree, SERVER_NAME, SERVER_UUID, authenticator, clock);
     }
 
     @AfterEach
@@ -66,14 +73,20 @@ class MenuManagerServerTest {
 
     @Test
     public void testChangingScrollPositionUsesPopulator() {
+        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(false);
+        mgr.addMenuManagerListener(listener);
         ScrollChoiceMenuItem scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
         mgr.updateMenuItem(scroll, "9999-");
-        assertEquals("", MenuItemHelper.getValueFor(scroll, tree, new CurrentScrollPosition("0-").toString()));
+        assertEquals("0-Item 0 type ARRAY_IN_EEPROM", getValueFor(scroll, tree, new CurrentScrollPosition("0-")).toString());
 
         tree.addOrUpdateItem(
                 tree.findParent(scroll).getId(),
                 new ScrollChoiceMenuItemBuilder().withExisting(scroll).withNumEntries(20).menuItem()
         );
+        scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
+
+        mgr.updateMenuItem(scroll, "9-");
+        assertEquals("9-Item 9 type ARRAY_IN_EEPROM", getValueFor(scroll, tree, new CurrentScrollPosition("0-")).toString());
     }
 
     @Test
@@ -86,15 +99,17 @@ class MenuManagerServerTest {
         doNothing().when(serverConnectionMgr).start(captor.capture());
         mgr.addConnectionManager(serverConnectionMgr);
         SimulatedConnection simConnection = new SimulatedConnection();
+        when(serverConnectionMgr.getServerConnections()).thenReturn(List.of());
         mgr.start();
         captor.getValue().connectionCreated(simConnection);
 
         when(authenticator.authenticate(CLIENT_NAME, CLIENT_UUID)).thenReturn(false);
-        simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, MenuHeartbeatCommand.HeartbeatMode.START));
+        simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, START));
         simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100));
 
+        assertFalse(mgr.isAnyRemoteConnection());
         assertTrue(simConnection.ensureMessageMatching(MenuAcknowledgementCommand.class, mac -> mac.getAckStatus().isError()));
-        assertTrue(simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode()== MenuHeartbeatCommand.HeartbeatMode.START));
+        assertTrue(simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode()== START));
         assertTrue(simConnection.ensureMessageMatching(MenuJoinCommand.class, jn -> jn.getMyName().equals(SERVER_NAME) && jn.getAppUuid().equals(SERVER_UUID)));
         assertEquals(ServerConnectionMode.DISCONNECTED, simConnection.getConnectionMode());
 
@@ -113,17 +128,19 @@ class MenuManagerServerTest {
         SimulatedConnection simConnection = new SimulatedConnection();
         mgr.start();
         captor.getValue().connectionCreated(simConnection);
+        when(serverConnectionMgr.getServerConnections()).thenReturn(List.of(simConnection));
 
         when(authenticator.authenticate(CLIENT_NAME, CLIENT_UUID)).thenReturn(true);
-        simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, MenuHeartbeatCommand.HeartbeatMode.START));
+        simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, START));
         simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, MenuChangeCommand.ChangeType.ABSOLUTE, "22"));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, MenuChangeCommand.ChangeType.ABSOLUTE, "24"));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 3, MenuChangeCommand.ChangeType.ABSOLUTE, "true"));
 
+        assertTrue(mgr.isAnyRemoteConnection());
         assertTrue(listener.getStarted() > 0);
         assertTrue(simConnection.ensureMessageMatching(MenuAcknowledgementCommand.class, mac -> !mac.getAckStatus().isError()));
-        assertTrue(simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode()== MenuHeartbeatCommand.HeartbeatMode.START));
+        assertTrue(simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode()== START));
         assertTrue(simConnection.ensureMessageMatching(MenuJoinCommand.class, jn -> jn.getMyName().equals(SERVER_NAME) && jn.getAppUuid().equals(SERVER_UUID)));
         assertTrue(simConnection.ensureMessageMatching(MenuBootstrapCommand.class, b -> b.getBootType() == MenuBootstrapCommand.BootType.START));
         assertTrue(simConnection.ensureMessageMatching(MenuAnalogBootCommand.class, b -> b.getSubMenuId() == 0 && b.getMenuItem().getId() == 1));
@@ -131,6 +148,17 @@ class MenuManagerServerTest {
         assertEquals(3, listener.getItemLevelChanges());
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
+
+        simConnection.setHeartbeatFrequency(2000);
+        when(clock.millis()).thenReturn(simConnection.getHeartbeatFrequency() * 2L);
+        mgr.checkHeartbeats();
+
+        simConnection.ensureMessageMatching(MenuHeartbeatCommand.class, hb -> hb.getMode() == NORMAL && hb.getHearbeatInterval() == 2000);
+
+        when(clock.millis()).thenReturn(simConnection.getHeartbeatFrequency() * 10L);
+        mgr.checkHeartbeats();
+
+        assertEquals(ServerConnectionMode.DISCONNECTED, simConnection.getConnectionMode());
 
         mgr.stop();
         assertTrue(listener.getStopped() > 0);
@@ -173,14 +201,14 @@ class MenuManagerServerTest {
 
         @MenuCallback(id=1)
         public void volumeHasChanged(AnalogMenuItem item, boolean remoteChange) {
-            if(remoteExpected == remoteChange &&  volumeChanges[countOfVolumeChanges] == MenuItemHelper.getValueFor(item, tree, -1)) {
+            if(remoteExpected == remoteChange &&  volumeChanges[countOfVolumeChanges] == getValueFor(item, tree, -1)) {
                 countOfVolumeChanges++;
             }
         }
 
         @MenuCallback(id=3)
         public void directHasChanged(BooleanMenuItem item, boolean remoteChange) {
-            if(remoteExpected == remoteChange && MenuItemHelper.getValueFor(item, tree, false)) {
+            if(remoteExpected == remoteChange && getValueFor(item, tree, false)) {
                 countOfDirectChanges++;
             }
         }
@@ -210,6 +238,7 @@ class MenuManagerServerTest {
         private final List<MenuCommand> commandsSent = new ArrayList<>();
         private BiConsumer<ServerConnection, MenuCommand> messageHandler;
         private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
+        private AtomicInteger hbFrequency = new AtomicInteger(1500);
 
         void simulateMessageToMessageHandler(MenuCommand cmd) {
             messageHandler.accept(this, cmd);
@@ -223,7 +252,11 @@ class MenuManagerServerTest {
 
         @Override
         public int getHeartbeatFrequency() {
-            return 1500;
+            return hbFrequency.get();
+        }
+
+        public void setHeartbeatFrequency(int i) {
+            hbFrequency.set(i);
         }
 
         @Override
@@ -233,12 +266,12 @@ class MenuManagerServerTest {
 
         @Override
         public long lastReceivedHeartbeat() {
-            return System.currentTimeMillis();
+            return 0;
         }
 
         @Override
         public long lastTransmittedHeartbeat() {
-            return System.currentTimeMillis();
+            return 0;
         }
 
         @Override
@@ -266,6 +299,12 @@ class MenuManagerServerTest {
         public ServerConnectionMode getConnectionMode() {
             return connectionMode.get();
         }
+    }
 
+    public abstract class MockedScheduledExecutor implements ScheduledExecutorService {
+        @Override
+        public void execute(Runnable command) {
+            command.run();
+        }
     }
 }

@@ -49,7 +49,7 @@ public class MenuServerSocketIntegrationTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        var executor = Executors.newSingleThreadScheduledExecutor();
+        var executor = Executors.newScheduledThreadPool(4);
         var tree = DomainFixtures.fullEspAmplifierTestTree();
         var authenticator = new PreDefinedAuthenticator("4321", List.of(new AuthenticationToken("integration-client", localUuid.toString())));
         serverConnection = new SocketServerConnectionManager(protocol, executor, 9876, Clock.systemDefaultZone());
@@ -180,4 +180,5 @@ public class MenuServerSocketIntegrationTest {
 
         }
     }
+
 }

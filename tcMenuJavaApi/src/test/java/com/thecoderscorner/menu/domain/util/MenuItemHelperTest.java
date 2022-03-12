@@ -184,10 +184,10 @@ public class MenuItemHelperTest {
         assertEquals(10, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
         MenuItemHelper.applyIncrementalValueChange(analogItem, 1, tree);
         assertEquals(11, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
-        MenuItemHelper.applyIncrementalValueChange(analogItem, -2, tree);
+        assertEquals(analogItem, MenuItemHelper.applyIncrementalValueChange(analogItem, -2, tree).orElseThrow().getItem());
         assertEquals(9, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
-        MenuItemHelper.applyIncrementalValueChange(analogItem, -100, tree);
-        assertEquals(0, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
+        assertTrue(MenuItemHelper.applyIncrementalValueChange(analogItem, -100, tree).isEmpty());
+        assertEquals(9, (int)MenuItemHelper.getValueFor(analogItem, tree, -1));
     }
 
     @Test
@@ -196,6 +196,10 @@ public class MenuItemHelperTest {
         assertEquals(1, (int) MenuItemHelper.getValueFor(enumItem, tree, -1));
         MenuItemHelper.applyIncrementalValueChange(enumItem, -1, tree);
         assertEquals(0, (int)MenuItemHelper.getValueFor(enumItem, tree, -1));
+        // can't go past 0.
+        MenuItemHelper.applyIncrementalValueChange(enumItem, -1, tree);
+        assertEquals(0, (int)MenuItemHelper.getValueFor(enumItem, tree, -1));
+
     }
 
     @Test

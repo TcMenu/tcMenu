@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
 /**
@@ -151,13 +152,21 @@ public class MenuTree {
             }
 
             if (idx != -1) {
+                // We found the original, so we now change that index to the new entry
                 MenuItem oldItem = list.set(idx, toReplace);
+
+                // Now we update the "state" which also acts like a cache of menu items for lookup
+                if(menuStates.containsKey(toReplace.getId())) {
+                    var oldState = menuStates.get(toReplace.getId());
+                    menuStates.put(toReplace.getId(), stateForMenuItem(oldState, toReplace, oldState.getValue()));
+                }
+
+                // lastly if the item was a submenu, we need change the top level submenu list as well.
                 if (toReplace.hasChildren()) {
                     ArrayList<MenuItem> items = subMenuItems.remove(oldItem);
                     subMenuItems.put(toReplace, items);
                 }
             }
-
         }
     }
 
@@ -320,7 +329,7 @@ public class MenuTree {
      */
     public void initialiseStateForEachItem() {
         recurseTreeIteratingOnItems(ROOT, (menuItem, subMenuItem) -> {
-            var state = MenuItemHelper.stateForMenuItem(menuItem, null, false, false);
+            var state = stateForMenuItem(menuItem, null, false, false);
             changeItem(menuItem, state);
         });
     }
