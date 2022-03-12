@@ -20,6 +20,7 @@ public class CurrentScrollPositionTest {
 
         Assert.assertEquals(pos5.getPosition(), 252);
         Assert.assertEquals(pos5.getValue(), "");
+        pos5.setTextValue("987654321");
 
         Assert.assertEquals(pos2, new CurrentScrollPosition("20-Another Super-Duper"));
         Assert.assertNotEquals(pos2, new CurrentScrollPosition("10-Another Super-Duper"));
@@ -29,7 +30,7 @@ public class CurrentScrollPositionTest {
         Assert.assertEquals("20-Another Super-Duper", pos2.toString());
         Assert.assertEquals("0-Unknown", pos3.toString());
         Assert.assertEquals("0-ABC", pos4.toString());
-        Assert.assertEquals("252-", pos5.toString());
+        Assert.assertEquals("252-987654321", pos5.toString());
 
     }
 }

@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.MenuManagerListener;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import javafx.application.Platform;
 import javafx.scene.Node;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +38,7 @@ public class LocalTreeComponentManager extends TreeComponentManager<Node> implem
 
     @Override
     public void managerWillStart() {
-        presentSubMenu(MenuTree.ROOT, false);
+        marshaller.runOnUiThread(() -> presentSubMenu(MenuTree.ROOT, false));
     }
 
     @Override

@@ -1,14 +1,15 @@
 package com.thecoderscorner.menu.domain.state;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CurrentScrollPosition {
     private final int position;
-    private final String value;
+    private final AtomicReference<String> value = new AtomicReference<>();
 
     public CurrentScrollPosition(int position, String value) {
         this.position = position;
-        this.value = value;
+        this.value.set(value);
     }
 
     public CurrentScrollPosition(String text) {
@@ -24,11 +25,11 @@ public class CurrentScrollPosition {
                 // ignored, there's nothing we can do if we get a bad value
             }
             position = pos;
-            value = text.substring(splitPoint + 1);
+            value.set(text.substring(splitPoint + 1));
             return;
         }
         position = 0;
-        value = "Unknown";
+        value.set("Unknown");
     }
 
     public int getPosition() {
@@ -36,7 +37,7 @@ public class CurrentScrollPosition {
     }
 
     public String getValue() {
-        return value;
+        return value.get();
     }
 
     @Override
@@ -49,12 +50,15 @@ public class CurrentScrollPosition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CurrentScrollPosition that = (CurrentScrollPosition) o;
-        return position == that.position &&
-                Objects.equals(value, that.value);
+        return position == that.position && Objects.equals(value.get(), that.value.get());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(position, value);
+        return Objects.hash(position, value.get());
+    }
+
+    public void setTextValue(Object txt) {
+        value.set((txt != null) ? txt.toString() : "");
     }
 }

@@ -49,7 +49,6 @@ public class JfxLocalAutoUI extends Application {
         localTree = new LocalTreeComponentManager(screenManager, settings, new LocalDialogViewer(), executor,
                 Platform::runLater, localControl, mgr);
         border.setCenter(scroller);
-
         stage.setScene(new Scene(border, 800, 500));
         stage.show();
     }

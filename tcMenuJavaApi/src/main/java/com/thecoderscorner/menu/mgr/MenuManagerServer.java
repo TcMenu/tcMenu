@@ -4,16 +4,15 @@ import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.IntegerMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.state.StringListMenuState;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.state.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.lang.System.Logger.Level;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Clock;
 import java.util.List;
@@ -37,8 +36,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final Clock clock;
     private final AtomicBoolean alreadyStarted = new AtomicBoolean(false);
     private final  List<MenuManagerListener> eventListeners = new CopyOnWriteArrayList<>();
-    private ScheduledFuture<?> hbSchedule;
-    private final Map<Integer, MethodWithObject> mapOfMethodsToId = new ConcurrentHashMap<>();
+    private ScheduledFuture<?> hbScheduleThread;
+    private final Map<Integer, MethodWithObject> mapOfCallbacksById = new ConcurrentHashMap<>();
+    private final Map<Integer, MethodWithObject> mapOfChoicePopulatorsById = new ConcurrentHashMap<>();
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, String serverName, UUID uuid,
                              MenuAuthenticator authenticator, Clock clock) {
@@ -58,9 +58,13 @@ public class MenuManagerServer implements NewServerConnectionListener {
     public void addMenuManagerListener(MenuManagerListener listener) {
         eventListeners.add(listener);
         for(var method : listener.getClass().getMethods()) {
-            var annotation = method.getAnnotation(MenuCallback.class);
-            if(annotation != null) {
-                mapOfMethodsToId.put(annotation.id(), new MethodWithObject(method, listener));
+            var callbackAnnotation = method.getAnnotation(MenuCallback.class);
+            if(callbackAnnotation != null) {
+                mapOfCallbacksById.put(callbackAnnotation.id(), new MethodWithObject(method, listener));
+            }
+            var scrollAnnotation  = method.getAnnotation(ScrollChoiceValueRetriever.class);
+            if(scrollAnnotation != null) {
+                mapOfChoicePopulatorsById.put(scrollAnnotation.id(), new MethodWithObject(method, listener));
             }
         }
         if(alreadyStarted.get()) {
@@ -88,7 +92,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
             }
         }
 
-        hbSchedule = executorService.scheduleAtFixedRate(this::checkHeartbeats, 200, 200, TimeUnit.MILLISECONDS);
+        hbScheduleThread = executorService.scheduleAtFixedRate(this::checkHeartbeats, 200, 200, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
@@ -101,9 +105,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
         alreadyStarted.set(false);
 
-        if(hbSchedule != null) {
-            hbSchedule.cancel(false);
-            hbSchedule = null;
+        if(hbScheduleThread != null) {
+            hbScheduleThread.cancel(false);
+            hbScheduleThread = null;
         }
 
         try {
@@ -221,6 +225,19 @@ public class MenuManagerServer implements NewServerConnectionListener {
         logger.log(Level.INFO, "Sending item update for " + item);
         var state = tree.getMenuState(item);
         if(state == null) return;
+
+        if(item instanceof ScrollChoiceMenuItem && mapOfChoicePopulatorsById.containsKey(item.getId())) {
+            var scrollState = (CurrentScrollPositionMenuState) state;
+            MethodWithObject methodObject = mapOfChoicePopulatorsById.get(item.getId());
+            Method method = methodObject.getMethod();
+            MenuManagerListener listener = methodObject.getListener();
+            try {
+                scrollState.getValue().setTextValue(method.invoke(listener, item, scrollState.getValue().getPosition()));
+            } catch (Exception e) {
+                logger.log(Level.ERROR, "Exception while setting text value for " + item, e);
+            }
+        }
+
         fireEventToListeners(item, false);
 
         MenuCommand cmd;
@@ -240,7 +257,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private void fireEventToListeners(MenuItem item, boolean remoteAction) {
         for(var l : eventListeners) l.menuItemHasChanged(item, remoteAction);
 
-        var m = mapOfMethodsToId.get(item.getId());
+        var m = mapOfCallbacksById.get(item.getId());
         if(m != null) {
             try {
                 m.getMethod().invoke(m.getListener(), item, remoteAction);
@@ -258,7 +275,27 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
         var item = maybeItem.get();
 
-        if(cmd.getChangeType() == ChangeType.DELTA) {
+        if(cmd.getChangeType() == ChangeType.DELTA && item instanceof ScrollChoiceMenuItem) {
+            var scrollItem = (ScrollChoiceMenuItem) item;
+            MenuState<CurrentScrollPosition> state = tree.getMenuState(scrollItem);
+            if(state == null) state = new CurrentScrollPositionMenuState(scrollItem, true, false, new CurrentScrollPosition("0-"));
+            int val = state.getValue().getPosition() + Integer.parseInt(cmd.getValue());
+            if(val <= 0 || val >= scrollItem.getNumEntries()) {
+                socket.sendCommand(new MenuAcknowledgementCommand(cmd.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING));
+                return;
+            }
+            MethodWithObject methodObject = mapOfChoicePopulatorsById.get(item.getId());
+            Method method = methodObject.getMethod();
+            MenuManagerListener listener = methodObject.getListener();
+            Object text = "";
+            try {
+                text = method.invoke(listener, item, val);
+            } catch (Exception e) {
+                logger.log(Level.ERROR, "Exception while setting text value for " + item, e);
+            }
+            tree.changeItem(scrollItem, MenuItemHelper.stateForMenuItem(state, scrollItem, new CurrentScrollPosition(val, text.toString())));
+
+        } else if(cmd.getChangeType() == ChangeType.DELTA) {
             MenuState<Integer> state = tree.getMenuState(item);
             if(state == null) state = new IntegerMenuState(item, true, false, 0);
             int val = state.getValue() + Integer.parseInt(cmd.getValue());

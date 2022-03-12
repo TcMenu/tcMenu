@@ -1,9 +1,8 @@
 package com.thecoderscorner.menu.mgr;
 
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
-import com.thecoderscorner.menu.domain.AnalogMenuItem;
-import com.thecoderscorner.menu.domain.BooleanMenuItem;
-import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
@@ -63,6 +62,18 @@ class MenuManagerServerTest {
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
         assertEquals(3, listener.getItemLevelChanges());
+    }
+
+    @Test
+    public void testChangingScrollPositionUsesPopulator() {
+        ScrollChoiceMenuItem scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
+        mgr.updateMenuItem(scroll, "9999-");
+        assertEquals("", MenuItemHelper.getValueFor(scroll, tree, new CurrentScrollPosition("0-").toString()));
+
+        tree.addOrUpdateItem(
+                tree.findParent(scroll).getId(),
+                new ScrollChoiceMenuItemBuilder().withExisting(scroll).withNumEntries(20).menuItem()
+        );
     }
 
     @Test
@@ -172,6 +183,11 @@ class MenuManagerServerTest {
             if(remoteExpected == remoteChange && MenuItemHelper.getValueFor(item, tree, false)) {
                 countOfDirectChanges++;
             }
+        }
+
+        @ScrollChoiceValueRetriever(id=2)
+        public String scrollChoiceChannelNeedsValue(ScrollChoiceMenuItem item, int row) {
+            return "Item " + row + " type " + item.getChoiceMode();
         }
 
         @Override

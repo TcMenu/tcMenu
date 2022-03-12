@@ -341,7 +341,7 @@ public class MenuItemHelper {
             public void visit(EnumMenuItem item) {
                 int res = (val instanceof String) ? Integer.parseInt(val.toString()) : ((Number)val).intValue();
                 if(res < 0) res = 0;
-                if(res > item.getEnumEntries().size()) res = item.getEnumEntries().size() - 1;
+                if(res >= item.getEnumEntries().size()) res = item.getEnumEntries().size() - 1;
                 setResult(new IntegerMenuState(item, changed, active, res));
             }
 
@@ -394,6 +394,8 @@ public class MenuItemHelper {
                 if(pos.getPosition() >= 0 && pos.getPosition() < scrollItem.getNumEntries()) {
                     setResult(new CurrentScrollPositionMenuState(item, changed, active, pos));
                 }
+                else setResult(new CurrentScrollPositionMenuState(scrollItem, changed, active,
+                        new CurrentScrollPosition(0, "No entries")));
             }
 
             @Override
