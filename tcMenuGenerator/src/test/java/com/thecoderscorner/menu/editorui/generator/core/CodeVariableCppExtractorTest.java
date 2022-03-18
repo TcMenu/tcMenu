@@ -16,16 +16,27 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CodeVariableCppExtractorTest {
-    private CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(
-            new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "root", mock(CodeGeneratorOptions.class), Collections.emptyList())
-    );
+    private CodeVariableCppExtractor extractor;
+    private final UUID APPUUID = UUID.randomUUID();
+
+    {
+        CodeGeneratorOptions opts = mock(CodeGeneratorOptions.class);
+        when(opts.getApplicationName()).thenReturn("MyAppName");
+        when(opts.getApplicationUUID()).thenReturn(APPUUID);
+        when(opts.getPackageNamespace()).thenReturn("my.namespace");
+        extractor = new CodeVariableCppExtractor(
+                new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "root", opts, Collections.emptyList())
+        );
+    }
 
     @Test
     public void testIntialiseInfoStructure() {

@@ -12,9 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CodeParameterTest {
 
@@ -23,10 +25,25 @@ class CodeParameterTest {
             new CreatorProperty("VAR2", "Var 2", "Var 2 desc", "54321", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()),
             new CreatorProperty("VAR3", "Var 3", "Var 3 desc", "ada:font,1", SubSystem.DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
     private CodeConversionContext context;
+    private final UUID APPUUID = UUID.randomUUID();
 
     @BeforeEach
     public void InitTest() {
-        context = new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "volumeMenuItem", mock(CodeGeneratorOptions.class), props);
+        CodeGeneratorOptions opts = mock(CodeGeneratorOptions.class);
+        when(opts.getApplicationName()).thenReturn("MyAppName");
+        when(opts.getApplicationUUID()).thenReturn(APPUUID);
+        when(opts.getPackageNamespace()).thenReturn("my.namespace");
+        context = new CodeConversionContext(EmbeddedPlatform.ARDUINO_AVR, "volumeMenuItem", opts, props);
+    }
+
+    @Test
+    public void testDefaultVariables() {
+        var param = new CodeParameter("MyType", "name", false, "unquoted");
+        assertEquals("MyAppName", param.expandExpression(context, "${APP_NAME}"));
+        assertEquals(APPUUID.toString(), param.expandExpression(context, "${APP_UUID}"));
+        assertEquals("volumeMenuItem", param.expandExpression(context, "${ROOT}"));
+        assertEquals("ARDUINO_AVR", param.expandExpression(context, "${TARGET}"));
+        assertEquals("my.namespace", param.expandExpression(context, "${NAMESPACE}"));
     }
 
     @Test

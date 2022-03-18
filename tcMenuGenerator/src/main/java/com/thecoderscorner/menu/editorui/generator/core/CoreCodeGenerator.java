@@ -116,7 +116,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
             generateHeaders(codeGenerators, headerFile, menuStructure, extractor, callbackFunctions);
             generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
-            var fileProcessor = new PluginRequiredFileProcessor(context, uiLogger);
+            var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
             fileProcessor.dealWithRequiredPlugins(codeGenerators, srcDir, previousPluginFiles);
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
