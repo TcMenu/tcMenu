@@ -375,15 +375,13 @@ public class GenerateCodeDialog {
 
         for(var prop :  itemToSetFor.getProperties().stream()
                 .filter(p -> p.getInitialValue().equals(p.getLatestValue())).toList()) {
-            if(prop.getInitialValue().equals(prop.getLatestValue())) {
-                var lastProp = project.getGeneratorOptions().getLastProperties().stream()
-                        .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
-                        .findFirst();
-                if (lastProp.isPresent()) {
-                    prop.setLatestValue(lastProp.get().getLatestValue());
-                } else {
-                    prop.resetToInitial();
-                }
+            var lastProp = project.getGeneratorOptions().getLastProperties().stream()
+                    .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
+                    .findFirst();
+            if (lastProp.isPresent()) {
+                prop.setLatestValue(lastProp.get().getLatestValue());
+            } else {
+                prop.resetToInitial();
             }
         }
 
