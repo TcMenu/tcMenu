@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColorin
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -15,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
@@ -97,6 +99,13 @@ public class JfxScreenManager implements ScreenManager<Node> {
         var colorRgb = new TextFieldEditorComponent<PortableColor>(controller, settings, item, threadMarshaller);
         addToGridInPosition(settings, colorRgb.createComponent());
         return colorRgb;
+    }
+
+    @Override
+    public EditorComponent<Node> addButtonWithAction(SubMenuItem subItem, String text, ComponentSettings componentSettings, Consumer<SubMenuItem> actionConsumer) {
+        var btnEd = new SubMenuSelectButtonEditorComponent(subItem, text, controller, componentSettings, threadMarshaller, actionConsumer);
+        addToGridInPosition(componentSettings, btnEd.createComponent());
+        return btnEd;
     }
 
     @Override

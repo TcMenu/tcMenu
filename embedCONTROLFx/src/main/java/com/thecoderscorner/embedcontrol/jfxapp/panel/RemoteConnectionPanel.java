@@ -1,18 +1,19 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.DialogViewer;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
+import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.PairingController;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
-public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDisplayable, DialogViewer {
+public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDisplayable {
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
     private ConnectionCreator creator;
     private final GlobalSettings settings;
@@ -49,11 +50,10 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     private Label messageLabel;
     private Button dlgButton1;
     private Button dlgButton2;
-    private MenuButtonType dlg1ButtonType = MenuButtonType.NONE;
-    private MenuButtonType dlg2ButtonType = MenuButtonType.NONE;
     private ScrollPane scrollPane;
     private Label statusLabel;
     private BorderPane rootPanel;
+    private RemoteDialogManager dialogManager;
 
     public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, EmbedControlContext context,
                                  UUID panelUuid) {
@@ -80,10 +80,10 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         controller = creator.start();
         RemoteMenuComponentControl theMenuController = new RemoteMenuComponentControl();
         screenManager = new JfxScreenManager(theMenuController, scrollPane, Platform::runLater, 2);
-        treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, this,
+        dialogManager = new RemoteDialogManager();
+        treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, dialogManager,
                 context.getExecutorService(), Platform::runLater, theMenuController);
         taskRef = context.getExecutorService().schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
-
     }
 
     private void generateButtonBar(BorderPane pane) {
@@ -164,11 +164,11 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         dialogPane.add(dlgButton2, 1, 2);
         GridPane.setHalignment(headerLabel, HPos.CENTER);
         GridPane.setHalignment(messageLabel, HPos.CENTER);
-        show(false);
+        showDialog(false);
         pane.setTop(dialogPane);
 
-        dlgButton1.setOnAction(evt -> controller.sendDialogAction(dlg1ButtonType));
-        dlgButton2.setOnAction(evt -> controller.sendDialogAction(dlg2ButtonType));
+        dlgButton1.setOnAction(evt -> dialogManager.buttonWasPressed(dialogManager.getButtonType(1)));
+        dlgButton2.setOnAction(evt -> dialogManager.buttonWasPressed(dialogManager.getButtonType(2)));
     }
 
     private String asHtml(PortableColor col) {
@@ -202,44 +202,6 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         return true;
     }
 
-    @Override
-    public void setButton1(MenuButtonType type) {
-        dlg1ButtonType = type;
-        dlgButton1.setText(toPrintableText(type));
-        dlgButton1.setVisible(type != MenuButtonType.NONE );
-    }
-
-    private String toPrintableText(MenuButtonType type) {
-        return switch (type) {
-            case NONE -> "";
-            case OK -> "OK";
-            case ACCEPT -> "Accept";
-            case CANCEL -> "Cancel";
-            case CLOSE -> "Close";
-        };
-    }
-
-    @Override
-    public void setButton2(MenuButtonType type) {
-        dlg2ButtonType = type;
-        dlgButton2.setText(toPrintableText(type));
-        dlgButton2.setVisible(type != MenuButtonType.NONE );
-    }
-
-    @Override
-    public void show(boolean visible) {
-        dialogPane.setVisible(visible);
-        dialogPane.setManaged(visible);
-
-    }
-
-    @Override
-    public void setText(String title, String subject) {
-        headerLabel.setText(title);
-        messageLabel.setText(subject);
-    }
-
-    @Override
     public void statusHasChanged(AuthStatus status) {
         if(status == AuthStatus.FAILED_AUTH) {
             scrollPane.setDisable(false);
@@ -284,7 +246,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
             scrollPane.setContent(new Label("Please wait.."));
             controller = creator.start();
             screenManager = new JfxScreenManager(new RemoteMenuComponentControl(), scrollPane, Platform::runLater, 2);
-            treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, this,
+            treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, new RemoteDialogManager(),
                     context.getExecutorService(), Platform::runLater, new RemoteMenuComponentControl());
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
@@ -311,6 +273,31 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         }
     }
 
+    private void showDialog(boolean visible) {
+        dialogPane.setVisible(visible);
+        dialogPane.setManaged(visible);
+    }
+
+    class RemoteDialogManager extends DialogManager {
+        @Override
+        protected void dialogDidChange() {
+            Platform.runLater(() -> {
+                headerLabel.setText(title);
+                messageLabel.setText(message);
+                dlgButton1.setText(toPrintableText(button1));
+                dlgButton1.setVisible(button1 != MenuButtonType.NONE);
+                dlgButton2.setText(toPrintableText(button2));
+                dlgButton2.setVisible(button2 != MenuButtonType.NONE);
+                showDialog(mode == DialogMode.SHOW);
+            });
+        }
+
+        @Override
+        protected void buttonWasPressed(MenuButtonType btn) {
+            controller.sendDialogAction(btn);
+        }
+    }
+
     class RemoteMenuComponentControl implements MenuComponentControl {
         @Override
         public CorrelationId editorUpdatedItem(MenuItem item, Object val) {
@@ -320,6 +307,11 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         @Override
         public CorrelationId editorUpdatedItemDelta(MenuItem item, int delta) {
             return controller.sendDeltaUpdate(item, delta);
+        }
+
+        @Override
+        public void connectionStatusChanged(AuthStatus authStatus) {
+            statusHasChanged(authStatus);
         }
 
         @Override
@@ -334,6 +326,11 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
                 return rp.getName() + " - " + rp.getPlatform().getDescription() + " V" + rp.getMajorVersion() + "." + rp.getMinorVersion();
             }
             else return controller.getConnector().getConnectionName();
+        }
+
+        @Override
+        public void menuWasDisplayed(MenuItem item) {
+
         }
     }
 }

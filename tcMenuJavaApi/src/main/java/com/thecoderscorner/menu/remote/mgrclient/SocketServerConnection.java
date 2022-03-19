@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.time.Clock;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,7 +27,6 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     private final AtomicLong lastHeartbeatRx = new AtomicLong();
     private final Socket socket;
     private final Clock clock;
-    private final AtomicBoolean socketClosed = new AtomicBoolean(false);
     private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
     private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
     private final Thread readThread;
@@ -72,7 +70,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     @Override
     public void closeConnection() {
         try {
-            socketClosed.set(true);
+            connectionMode.set(ServerConnectionMode.DISCONNECTED);
             connectionLog(INFO, "Close connection called");
             readThread.interrupt();
             socket.close();
@@ -127,15 +125,15 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, StreamRemoteConnector.ReadMode mode) throws IOException {
         if(mode == StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY && inputBuffer.remaining() >= len) return;
 
-        if(socketClosed.get()) throw new IOException("Socket closed during read");
+        if(connectionMode.get() == ServerConnectionMode.DISCONNECTED) throw new IOException("Socket closed during read");
 
         do {
             inputBuffer.compact();
             byte[] dataBytes = new byte[256];
             int actual = socket.getInputStream().read(dataBytes);
+            if (actual <= 0) throw new IOException("Socket probably closed, read return was 0 or less");
             inputBuffer.put(dataBytes, 0, actual);
             inputBuffer.flip();
-            if (actual <= 0) throw new IOException("Socket probably closed, read return was 0 or less");
         } while(inputBuffer.remaining()<len);
     }
 

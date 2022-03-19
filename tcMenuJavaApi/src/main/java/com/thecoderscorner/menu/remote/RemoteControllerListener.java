@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
+import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 /**
@@ -51,11 +52,7 @@ public interface RemoteControllerListener {
 
     /**
      * Called when a dialog event occurs on the remote, be it to show or hide a dialog
-     * @param mode the mode of the dialog update
-     * @param header the text for the header
-     * @param buffer the text for the buffer
-     * @param btn1 the first button type
-     * @param btn2 the second button type
+     * @param cmd the dialog command that has been received
      */
-    void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2);
+    void dialogUpdate(MenuDialogCommand cmd);
 }

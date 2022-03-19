@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
@@ -176,7 +177,7 @@ public class MenuServerSocketIntegrationTest {
         }
 
         @Override
-        public void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType btn1, MenuButtonType btn2) {
+        public void dialogUpdate(MenuDialogCommand cmd) {
 
         }
     }

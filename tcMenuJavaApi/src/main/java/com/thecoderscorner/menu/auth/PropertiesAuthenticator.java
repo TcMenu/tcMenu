@@ -1,13 +1,22 @@
 package com.thecoderscorner.menu.auth;
 
+import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
+import static java.nio.file.StandardOpenOption.*;
 
 /**
  * Stores authentication to a properties file and then validates against the stored values. By default, there are no
@@ -21,14 +30,24 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Properties properties = new Properties();
     private final String location;
+    private DialogManager dialogManager;
 
     public PropertiesAuthenticator(String location) {
+        this(location, null);
+    }
+
+    public PropertiesAuthenticator(String location, DialogManager dialogManager) {
         this.location = location;
+        this.dialogManager = dialogManager;
         try {
             this.properties.load(Files.newBufferedReader(Path.of(location)));
         } catch (IOException e) {
             logger.log(ERROR, "Unable to read authentication properties");
         }
+    }
+
+    public void setDialogManager(DialogManager dialogManager) {
+        this.dialogManager = dialogManager;
     }
 
     @Override
@@ -49,18 +68,42 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
      * @return
      */
     @Override
-    public boolean addAuthentication(String user, UUID uuid) {
-        try {
-            synchronized (properties) {
-                properties.setProperty(user, uuid.toString());
-                properties.store(Files.newBufferedWriter(Path.of(location)), "TcMenu Auth properties");
+    public CompletableFuture<Boolean> addAuthentication(String user, UUID uuid) {
+        if(dialogManager == null) return CompletableFuture.completedFuture(false);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                logger.log(INFO, "Request for authentication with " + user);
+                var shouldProceed = new AtomicBoolean(false);
+                var dialogLatch = new CountDownLatch(1);
+                dialogManager.withTitle("Pair with " + user, true)
+                        .withMessage("Be sure you know where this connection originated", true)
+                        .withDelegate(menuButtonType -> {
+                            shouldProceed.set(menuButtonType == MenuButtonType.ACCEPT);
+                            dialogLatch.countDown();
+                            return true;
+                        })
+                        .showDialogWithButtons(MenuButtonType.ACCEPT, MenuButtonType.CANCEL);
+                if(!dialogLatch.await(30, TimeUnit.SECONDS)) {
+                    logger.log(INFO, "Dialog Latch timed out without user operation");
+                }
+                if(shouldProceed.get()) {
+                    synchronized (properties) {
+                        Path pathLocation = Path.of(location);
+                        properties.setProperty(user, uuid.toString());
+                        properties.store(Files.newBufferedWriter(pathLocation, CREATE, TRUNCATE_EXISTING), "TcMenu Auth properties");
+                    }
+                    logger.log(INFO, "Wrote auth properties to ", location);
+                    return true;
+                }
+                else {
+                    logger.log(INFO, "Pairing dialog was not accepted");
+                    return false;
+                }
+            } catch (Exception e) {
+                logger.log(ERROR, "Failed to write auth properties to ", location);
+                return false;
             }
-            logger.log(INFO, "Wrote auth properties to ", location);
-            return true;
-        } catch (Exception e) {
-            logger.log(ERROR, "Failed to write auth properties to ", location);
-            return false;
-        }
+        });
     }
 
     @Override

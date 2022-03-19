@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.auth;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -24,9 +25,10 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
         authenticationItems.addAll(upfrontTokens);
     }
 
-    public boolean addAuthentication(String name, UUID uuid) {
-        authenticationItems.add(new AuthenticationToken(name, uuid.toString()));
-        return true;
+    @Override
+    public CompletableFuture<Boolean> addAuthentication(String name, UUID uuid) {
+        // pre defined authenticator cannot add items at runtime.
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override

@@ -207,9 +207,12 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void startPairingMode(ServerConnection conn, MenuPairingCommand cmd) {
         conn.setConnectionMode(ServerConnectionMode.PAIRING);
-        var success = authenticator.addAuthentication(cmd.getName(), cmd.getUuid());
-        var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
-        conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
+        authenticator.addAuthentication(cmd.getName(), cmd.getUuid())
+                .thenApply(success -> {
+                    var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
+                    conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
+                    return true;
+                });
     }
 
     public MenuTree getManagedMenu() {
@@ -314,9 +317,8 @@ public class MenuManagerServer implements NewServerConnectionListener {
         return serverUuid;
     }
 
-    public void reportDialogUpdate(DialogMode show, String title, String content, MenuButtonType b1, MenuButtonType b2) {
-        var cmd = new MenuDialogCommand(show, title, content, b1, b2, CorrelationId.EMPTY_CORRELATION);
-        updateRemotesWithLatestState(cmd);
+    public void sendCommand(MenuCommand command) {
+        updateRemotesWithLatestState(command);
     }
 
     private static class MethodWithObject {

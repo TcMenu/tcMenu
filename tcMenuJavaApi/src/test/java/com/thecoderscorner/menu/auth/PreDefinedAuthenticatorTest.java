@@ -1,13 +1,18 @@
 package com.thecoderscorner.menu.auth;
 
+import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.remote.commands.DialogMode;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,18 +36,18 @@ class PreDefinedAuthenticatorTest {
     }
 
     @Test
-    void testContainsItemsPass() {
+    void testContainsItemsPass() throws Exception {
         var auth = new PreDefinedAuthenticator("4321", List.of(
                 new PreDefinedAuthenticator.AuthenticationToken("dave", davesUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("marianna", mariannasUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("daniel", danielsUuid.toString()))
         );
-        auth.addAuthentication("pete", UUID.fromString(petesUuid.toString()));
+        assertFalse(auth.addAuthentication("pete", UUID.fromString(petesUuid.toString())).get());
 
         assertTrue(auth.authenticate("dave", davesUuid));
         assertFalse(auth.authenticate("dave", petesUuid));
-        assertFalse(auth.authenticate("daniel", petesUuid));
-        assertTrue(auth.authenticate("pete", petesUuid));
+        assertFalse(auth.authenticate("daniel", davesUuid));
+        assertFalse(auth.authenticate("pete", petesUuid));
         assertTrue(auth.doesPasscodeMatch("4321"));
         assertFalse(auth.doesPasscodeMatch("1234"));
     }
@@ -53,15 +58,24 @@ class PreDefinedAuthenticatorTest {
 
         try {
             Files.writeString(tempFile, "dave=" + davesUuid + "\nmarianna=" + mariannasUuid + "\npete=" + petesUuid + "\n");
-            var auth = new PropertiesAuthenticator(tempFile.toString());
+            UnitDialogManager dialogManager = new UnitDialogManager();
+            var auth = new PropertiesAuthenticator(tempFile.toString(), dialogManager);
             assertTrue(auth.authenticate("dave", davesUuid));
             assertFalse(auth.authenticate("dave", petesUuid));
             assertFalse(auth.authenticate("daniel", danielsUuid));
             assertTrue(auth.doesPasscodeMatch("1234"));
             assertFalse(auth.doesPasscodeMatch("4321"));
 
-            auth.addAuthentication("daniel", danielsUuid);
+            dialogManager.setPressedButton(MenuButtonType.ACCEPT);
+            var future = auth.addAuthentication("daniel", danielsUuid);
+            assertTrue(future.get());
             assertTrue(auth.authenticate("daniel", danielsUuid));
+
+            dialogManager.setPressedButton(MenuButtonType.CANCEL);
+            UUID another = UUID.randomUUID();
+            future = auth.addAuthentication("jjsdlf", another);
+            assertFalse(future.get());
+            assertFalse(auth.authenticate("jjsdlf", another));
 
             var props = new Properties();
             props.load(Files.newBufferedReader(tempFile));
@@ -72,6 +86,34 @@ class PreDefinedAuthenticatorTest {
         }
         finally {
             Files.deleteIfExists(tempFile);
+        }
+    }
+
+    private class UnitDialogManager extends DialogManager {
+        private MenuButtonType pressedButton;
+
+        void assertContents(String title, String text) {
+            assertEquals(title, this.title);
+            assertEquals(message, this.message);
+        }
+
+        private void setPressedButton(MenuButtonType btn) {
+            synchronized (lock) {
+                pressedButton = btn;
+            }
+        }
+
+        @Override
+        protected void dialogDidChange() {
+            synchronized (lock) {
+                if (mode == DialogMode.SHOW) {
+                    delegate.apply(pressedButton);
+                }
+            }
+        }
+
+        @Override
+        protected void buttonWasPressed(MenuButtonType btn) {
         }
     }
 }

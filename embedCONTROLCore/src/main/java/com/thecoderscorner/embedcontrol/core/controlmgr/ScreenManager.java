@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -21,4 +22,6 @@ public interface ScreenManager<T>
     EditorComponent<T> addTimeEditorComponent(MenuItem item, ComponentSettings settings);
     EditorComponent<T> addHorizontalSlider(MenuItem item, ComponentSettings settings);
     EditorComponent<T> addRgbColorControl(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> addButtonWithAction(SubMenuItem subItem, String text, ComponentSettings componentSettings,
+                                           Consumer<SubMenuItem> actionConsumer);
 }

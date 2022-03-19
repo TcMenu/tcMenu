@@ -196,10 +196,7 @@ public class RemoteMenuController {
     }
 
     private void onDialogChange(MenuDialogCommand menuCommand) {
-        listeners.forEach(l -> l.dialogUpdate(
-                menuCommand.getDialogMode(),
-                menuCommand.getHeader(), menuCommand.getBuffer(),
-                menuCommand.getButton1(), menuCommand.getButton2()));
+        listeners.forEach(l -> l.dialogUpdate(menuCommand));
     }
 
     private void onAcknowledgementCommand(MenuAcknowledgementCommand menuCommand) {

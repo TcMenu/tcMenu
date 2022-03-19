@@ -35,7 +35,7 @@ public class EmbeddedJavaProject {
                         
             ## here we put the location of the data files needed by the application
             file.menu.storage=%DATADIR%/menuStorage.properties
-            file.auth.storage=%DATADIR%/data/auth.properties
+            file.auth.storage=%DATADIR%/auth.properties
                         
             # you can add any other properties needed by your application here.
             """;

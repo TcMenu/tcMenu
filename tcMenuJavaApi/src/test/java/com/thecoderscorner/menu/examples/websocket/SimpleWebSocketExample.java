@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.mgr.NoDialogFacilities;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
@@ -36,7 +37,7 @@ public class SimpleWebSocketExample {
         MenuCommandProtocol tagValProtocol = new TagValMenuCommandProtocol();
         var menuManager = new MenuManagerServer(executor, tree,
                 "WS Test", UUID.randomUUID(),
-                new PropertiesAuthenticator("./auth.properties"),
+                new PropertiesAuthenticator("./auth.properties", new NoDialogFacilities()),
                 clock);
         menuManager.addConnectionManager(new WebSocketServerConnectionManager(tagValProtocol, 3333, clock));
         menuManager.addConnectionManager(new SocketServerConnectionManager(tagValProtocol, executor, 3334, clock));
@@ -49,7 +50,6 @@ public class SimpleWebSocketExample {
 
             executor.scheduleAtFixedRate(() -> {
                 menuManager.updateMenuItem(menuList, randomListData());
-                menuManager.reportDialogUpdate(Math.random() > 0.5 ? DialogMode.SHOW : DialogMode.HIDE, "Title 123", "Content", MenuButtonType.OK, MenuButtonType.CANCEL);
             }, 5000, 5000, TimeUnit.MILLISECONDS);
 
             executor.scheduleAtFixedRate(() -> {

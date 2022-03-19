@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.auth;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The authenticator interface that supports the checking of name and UUID pairs. It is used to validate users against
@@ -21,7 +22,7 @@ public interface MenuAuthenticator {
      * @param uuid the uuid associated with the user
      * @return true if added, otherwise false.
      */
-    boolean addAuthentication(String user, UUID uuid);
+    CompletableFuture<Boolean> addAuthentication(String user, UUID uuid);
 
     /**
      * Checks if the provided passcode matches with the security passcode and returns false if it does not match.

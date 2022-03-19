@@ -4,6 +4,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.PrefsConditionalCo
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.mgr.DialogViewer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 
 import java.math.BigDecimal;
@@ -57,18 +58,27 @@ public class TreeComponentManager<T> {
     }
 
     public void renderMenuRecursive(SubMenuItem sub, boolean recurse) {
+        renderMenuRecursive(sub, recurse, 0);
+    }
+
+    public void renderMenuRecursive(SubMenuItem sub, boolean recurse, int level) {
         var tree = controller.getMenuTree();
 
-        var menuName = sub == MenuTree.ROOT ? controller.getConnectionName() : sub.getName();
-        screenManager.addStaticLabel(menuName, new ComponentSettings(prefsColoring,
-                screenManager.getDefaultFontSize(),
-                PortableAlignment.LEFT, nextRowCol(true), RedrawingMode.SHOW_VALUE, false), true);
+        if(level == 0) {
+            controller.menuWasDisplayed(sub);
+        }
+        else {
+            screenManager.addStaticLabel(sub.getName(), new ComponentSettings(prefsColoring,
+                    screenManager.getDefaultFontSize(),
+                    PortableAlignment.LEFT, nextRowCol(true), RedrawingMode.SHOW_VALUE, false), true);
+        }
 
         screenManager.startNesting();
+
         for (var item : tree.getMenuItems(sub)) {
             if (!item.isVisible()) continue;
             if (item instanceof SubMenuItem && recurse) {
-                renderMenuRecursive((SubMenuItem) item, recurse);
+                renderMenuRecursive((SubMenuItem) item, recurse, level + 1);
             }
             else {
                 if(item instanceof RuntimeListMenuItem) {
@@ -90,8 +100,19 @@ public class TreeComponentManager<T> {
         screenManager.endNesting();
     }
 
+    private void presentNewMenu(SubMenuItem subMenuItem) {
+        reset();
+        screenManager.clear();
+        renderMenuRecursive(subMenuItem, false);
+    }
+
     public EditorComponent<T> getComponentEditorItem(MenuItem item, Optional<ComponentPositioning> positioning) {
-        if (item instanceof BooleanMenuItem boolItem) {
+        if(item instanceof SubMenuItem sub) {
+            ComponentSettings componentSettings = new ComponentSettings(prefsColoring, screenManager.getDefaultFontSize(),
+                    PortableAlignment.CENTER, nextRowCol(true), RedrawingMode.SHOW_NAME, false);
+            return screenManager.addButtonWithAction(sub, sub.getName(), componentSettings, this::presentNewMenu);
+        }
+        else if (item instanceof BooleanMenuItem boolItem) {
             return screenManager.addBooleanButton(boolItem, new ComponentSettings(prefsColoring,
                             screenManager.getDefaultFontSize(),
                             PortableAlignment.CENTER, positioning.orElse(nextRowCol(false)),

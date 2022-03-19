@@ -1,16 +1,19 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.*;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ScreenManager;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
+import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.mgr.DialogViewer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
+import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
 
@@ -47,7 +50,7 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
             @Override
             public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
                 connectionChanged(connected);
-                dialogViewer.statusHasChanged(connected);
+                componentControl.connectionStatusChanged(connected);
             }
 
             @Override
@@ -58,15 +61,8 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
             }
 
             @Override
-            public void dialogUpdate(DialogMode mode, String header, String buffer, MenuButtonType b1, MenuButtonType b2) {
-                marshaller.runOnUiThread(() -> {
-                    dialogViewer.show(mode == DialogMode.SHOW);
-                    if (mode == DialogMode.SHOW) {
-                        dialogViewer.setButton1(b1);
-                        dialogViewer.setButton2(b2);
-                        dialogViewer.setText(header, buffer);
-                    }
-                });
+            public void dialogUpdate(MenuDialogCommand cmd) {
+                marshaller.runOnUiThread(() -> dialogViewer.updateStateFromCommand(cmd));
             }
         };
         controller.addListener(remoteListener);

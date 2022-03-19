@@ -5,16 +5,15 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.DialogViewer;
 import com.thecoderscorner.menu.mgr.MenuManagerListener;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
-import javafx.application.Platform;
 import javafx.scene.Node;
 
 import java.util.concurrent.ScheduledExecutorService;
 
 public class LocalTreeComponentManager extends TreeComponentManager<Node> implements MenuManagerListener {
-    private MenuManagerServer menuMgr;
+    private final MenuManagerServer menuMgr;
 
     public LocalTreeComponentManager(ScreenManager<Node> screenManager, GlobalSettings appSettings, DialogViewer dialogViewer,
                                      ScheduledExecutorService executor, ThreadMarshaller marshaller,
