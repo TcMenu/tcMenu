@@ -18,7 +18,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;

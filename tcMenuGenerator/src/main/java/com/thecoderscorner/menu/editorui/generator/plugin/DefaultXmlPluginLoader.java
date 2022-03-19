@@ -12,7 +12,7 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;

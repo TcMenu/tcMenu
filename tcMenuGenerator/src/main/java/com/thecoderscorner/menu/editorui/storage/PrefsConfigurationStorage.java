@@ -1,7 +1,7 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.InputStream;

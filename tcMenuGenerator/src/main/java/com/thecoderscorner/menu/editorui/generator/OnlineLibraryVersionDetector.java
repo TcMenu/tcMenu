@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -2,6 +2,7 @@ package com.thecoderscorner.menuexample.tcmenu.plugins;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxHeaderBar;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
@@ -44,6 +45,7 @@ public class JfxLocalAutoUI extends Application {
     private JfxScreenManager screenManager;
     private JfxHeaderBar appHeader;
     private LocalDialogManager dlgMgr;
+    private MenuAppVersion versionData;
 
     public static void setAppContext(ApplicationContext context) {
         GLOBAL_CONTEXT.set(context);
@@ -54,6 +56,7 @@ public class JfxLocalAutoUI extends Application {
         var ctx = GLOBAL_CONTEXT.get();
         mgr = ctx.getBean(MenuManagerServer.class);
         var executor = ctx.getBean(ScheduledExecutorService.class);
+        versionData = ctx.getBean(MenuAppVersion.class);
 
         dlgMgr = new LocalDialogManager();
         var auth = ctx.getBean(MenuAuthenticator.class);
@@ -135,7 +138,7 @@ public class JfxLocalAutoUI extends Application {
             else {
                 appHeader.showLeftButton("?");
                 appHeader.setLeftButtonFunction(() -> {
-                    dlgMgr.withRemoteAllowed(false).withMessage("Get version information here", true)
+                    dlgMgr.withRemoteAllowed(false).withMessage(versionData.toString(), true)
                             .withTitle(mgr.getServerName(), true)
                             .showDialogWithButtons(MenuButtonType.CLOSE, MenuButtonType.NONE);
                 });

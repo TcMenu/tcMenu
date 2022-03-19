@@ -1,5 +1,6 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
+import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
 import com.thecoderscorner.menu.auth.*;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.persist.*;
@@ -66,6 +67,12 @@ public class MenuConfig {
     @Bean
     public SocketServerConnectionManager socketClient(TagValMenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
         return new SocketServerConnectionManager(protocol, executor, 3333, clock);
+    }
+
+    @Bean
+    public MenuAppVersion versionInfo(@Value("${build.version}") String version, @Value("${build.timestamp}") String timestamp,
+                                      @Value("${build.groupId}") String groupId, @Value("${build.artifactId}") String artifact) {
+        return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
     }
 
     // Auto generated menu callbacks end here. Please do not remove this line or change code after it.

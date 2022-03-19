@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.generator.util;
+package com.thecoderscorner.menu.persist;
 
 import java.util.Objects;
 

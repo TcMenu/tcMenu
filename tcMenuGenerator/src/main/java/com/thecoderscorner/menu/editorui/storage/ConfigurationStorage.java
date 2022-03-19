@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.editorui.storage;
 
-import com.thecoderscorner.menu.editorui.generator.util.VersionInfo;
+import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.List;
 import java.util.Optional;
