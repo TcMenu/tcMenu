@@ -373,14 +373,17 @@ public class GenerateCodeDialog {
     private void setAllPropertiesToLastValues(CodePluginItem itemToSetFor) {
         if(itemToSetFor == null || itemToSetFor.getProperties() == null) return;
 
-        for(var prop :  itemToSetFor.getProperties()) {
-            var lastProp = project.getGeneratorOptions().getLastProperties().stream()
-                    .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
-                    .findFirst();
-            if (lastProp.isPresent()) {
-                prop.setLatestValue(lastProp.get().getLatestValue());
-            } else {
-                prop.resetToInitial();
+        for(var prop :  itemToSetFor.getProperties().stream()
+                .filter(p -> p.getInitialValue().equals(p.getLatestValue())).toList()) {
+            if(prop.getInitialValue().equals(prop.getLatestValue())) {
+                var lastProp = project.getGeneratorOptions().getLastProperties().stream()
+                        .filter(p -> prop.getName().equals(p.getName()) && prop.getSubsystem().equals(p.getSubsystem()))
+                        .findFirst();
+                if (lastProp.isPresent()) {
+                    prop.setLatestValue(lastProp.get().getLatestValue());
+                } else {
+                    prop.resetToInitial();
+                }
             }
         }
 
