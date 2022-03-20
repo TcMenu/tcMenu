@@ -17,4 +17,5 @@ module com.thecoderscorner.embedcontrol.core {
     exports com.thecoderscorner.embedcontrol.core.rs232;
     exports com.thecoderscorner.embedcontrol.core.controlmgr.color;
     exports com.thecoderscorner.embedcontrol.jfx.controlmgr;
+    exports com.thecoderscorner.embedcontrol.customization;
 }

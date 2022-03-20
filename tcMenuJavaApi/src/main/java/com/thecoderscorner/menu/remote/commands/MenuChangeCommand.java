@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MenuChangeCommand implements MenuCommand {
-    public enum ChangeType { ABSOLUTE, ABSOLUTE_LIST, DELTA }
+    public enum ChangeType { ABSOLUTE, ABSOLUTE_LIST, LIST_STATE_CHANGE, DELTA }
     private final int menuItemId;
     private final CorrelationId correlationId;
     private final ChangeType changeType;
@@ -72,6 +72,7 @@ public class MenuChangeCommand implements MenuCommand {
         switch(changeType) {
             case 1: return ChangeType.ABSOLUTE;
             case 2: return ChangeType.ABSOLUTE_LIST;
+            case 3: return ChangeType.LIST_STATE_CHANGE;
             default:
             case 0: return ChangeType.DELTA;
         }

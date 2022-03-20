@@ -45,7 +45,7 @@
       <Label fx:id="pairingStatus" text="Not Started" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <ImageView fitHeight="168.0" fitWidth="218.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
          <image>
-            <Image url="@img/pairingExample.jpg" />
+            <Image url="@fximg/pairingExample.jpg" />
          </image>
          <GridPane.margin>
             <Insets left="10.0" />

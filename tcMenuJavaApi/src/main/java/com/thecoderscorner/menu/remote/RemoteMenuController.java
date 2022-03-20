@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
@@ -17,10 +18,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.remote.AuthStatus.*;
-import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static java.lang.System.Logger.Level.*;
 
@@ -126,7 +125,12 @@ public class RemoteMenuController {
     public CorrelationId sendAbsoluteUpdate(MenuItem item, Object newValue) {
         CorrelationId correlationId = new CorrelationId();
         itemsInProgress.put(correlationId, item);
-        sendCommand(newAbsoluteMenuChangeCommand(correlationId, item, newValue));
+        if(newValue instanceof ListResponse) {
+            sendCommand(newListResponseChangeCommand(correlationId, item, (ListResponse)newValue));
+        }
+        else {
+            sendCommand(newAbsoluteMenuChangeCommand(correlationId, item, newValue));
+        }
         return correlationId;
     }
 

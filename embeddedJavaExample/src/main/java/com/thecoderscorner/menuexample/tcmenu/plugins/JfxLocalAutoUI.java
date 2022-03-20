@@ -89,7 +89,11 @@ public class JfxLocalAutoUI extends Application {
         stage.setScene(scene);
         stage.show();
 
-        executor.scheduleAtFixedRate(()-> wifiWidget.setCurrentState((int)(Math.random() * 5)), 1000, 1000, TimeUnit.MILLISECONDS);
+        executor.scheduleAtFixedRate(()-> wifiWidget.setCurrentState((int)(Math.random() * 5)), 1000, 100, TimeUnit.MILLISECONDS);
+    }
+
+    JfxHeaderBar getAppHeader() {
+        return appHeader;
     }
 
     class LocalMenuController implements MenuComponentControl {

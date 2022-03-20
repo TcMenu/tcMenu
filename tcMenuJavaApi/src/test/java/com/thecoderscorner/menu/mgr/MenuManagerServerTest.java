@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.mgr;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
@@ -25,6 +26,7 @@ import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.domain.DomainFixtures.fullEspAmplifierTestTree;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.getValueFor;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType.*;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.NORMAL;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.START;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,10 +67,12 @@ class MenuManagerServerTest {
         mgr.updateMenuItem(tree.getMenuById(1).orElseThrow(), 22);
         mgr.updateMenuItem(tree.getMenuById(3).orElseThrow(), true);
         mgr.updateMenuItem(tree.getMenuById(1).orElseThrow(), 24);
+        mgr.updateMenuItem(tree.getMenuById(21).orElseThrow(), ListResponse.fromString("29:1").orElseThrow());
 
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
-        assertEquals(3, listener.getItemLevelChanges());
+        assertEquals(4, listener.getItemLevelChanges());
+        assertEquals(29, listener.getListRowSentAsInvoke());
     }
 
     @Test
@@ -133,9 +137,10 @@ class MenuManagerServerTest {
         when(authenticator.authenticate(CLIENT_NAME, CLIENT_UUID)).thenReturn(true);
         simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, START));
         simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100));
-        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, MenuChangeCommand.ChangeType.ABSOLUTE, "22"));
-        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, MenuChangeCommand.ChangeType.ABSOLUTE, "24"));
-        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 3, MenuChangeCommand.ChangeType.ABSOLUTE, "true"));
+        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, ABSOLUTE, "22"));
+        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, ABSOLUTE, "24"));
+        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 3, ABSOLUTE, "true"));
+        simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 21, LIST_STATE_CHANGE, "33:1"));
 
         assertTrue(mgr.isAnyRemoteConnection());
         assertTrue(listener.getStarted() > 0);
@@ -144,10 +149,12 @@ class MenuManagerServerTest {
         assertTrue(simConnection.ensureMessageMatching(MenuJoinCommand.class, jn -> jn.getMyName().equals(SERVER_NAME) && jn.getAppUuid().equals(SERVER_UUID)));
         assertTrue(simConnection.ensureMessageMatching(MenuBootstrapCommand.class, b -> b.getBootType() == MenuBootstrapCommand.BootType.START));
         assertTrue(simConnection.ensureMessageMatching(MenuAnalogBootCommand.class, b -> b.getSubMenuId() == 0 && b.getMenuItem().getId() == 1));
+        assertTrue(simConnection.ensureMessageMatching(MenuRuntimeListBootCommand.class, b -> b.getSubMenuId() == 6 && b.getMenuItem().getId() == 21));
 
-        assertEquals(3, listener.getItemLevelChanges());
+        assertEquals(4, listener.getItemLevelChanges());
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
+        assertEquals(33, listener.getListRowSentAsInvoke());
 
         simConnection.setHeartbeatFrequency(2000);
         when(clock.millis()).thenReturn(simConnection.getHeartbeatFrequency() * 2L);
@@ -174,9 +181,14 @@ class MenuManagerServerTest {
         private int started = 0;
         private int stopped = 0;
         private final boolean remoteExpected;
+        private int listRowSent;
 
         public MyMenuListenerWithAnnotation(boolean remoteExpected) {
             this.remoteExpected = remoteExpected;
+        }
+
+        public int getListRowSentAsInvoke() {
+            return listRowSent;
         }
 
         public int getStarted() {
@@ -210,6 +222,13 @@ class MenuManagerServerTest {
         public void directHasChanged(BooleanMenuItem item, boolean remoteChange) {
             if(remoteExpected == remoteChange && getValueFor(item, tree, false)) {
                 countOfDirectChanges++;
+            }
+        }
+
+        @MenuCallback(id=21, listResult = true)
+        public void listEntryAction(RuntimeListMenuItem list, boolean remoteChange, ListResponse response) {
+            if (remoteExpected == remoteChange && response.getResponseType() == ListResponse.ResponseType.INVOKE_ITEM) {
+                listRowSent = response.getRow();
             }
         }
 

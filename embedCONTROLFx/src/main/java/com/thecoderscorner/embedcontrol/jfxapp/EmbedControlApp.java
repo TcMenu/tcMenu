@@ -70,7 +70,7 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
 
         // At this point we build a JavaFX stage and load up our main window
         primaryStage.getIcons().add(new Image(
-                Objects.requireNonNull(getClass().getResourceAsStream("/img/large_icon.png"))));
+                Objects.requireNonNull(getClass().getResourceAsStream("/fximg/large_icon.png"))));
         primaryStage.setTitle("embedCONTROL desktop");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
         Pane myPane = loader.load();

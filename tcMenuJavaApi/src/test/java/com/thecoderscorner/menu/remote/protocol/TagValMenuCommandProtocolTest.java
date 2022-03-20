@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
@@ -322,6 +323,14 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
+    public void testReceiveListStatusChange() throws IOException {
+        MenuChangeCommand cmd = (MenuChangeCommand) protocol.fromChannel(toBuffer(CHANGE_INT_FIELD, "IC=CA039424|ID=22|TC=3|VC=109:1|\u0002"));
+        assertEquals(CHANGE_INT_FIELD, cmd.getCommandType());
+        assertEquals(ChangeType.LIST_STATE_CHANGE, cmd.getChangeType());
+        assertEquals("109:1", cmd.getValue());
+    }
+
+    @Test
     public void testReceiveAbsoluteChange() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer(CHANGE_INT_FIELD,"IC=ca039424|ID=22|TC=1|VC=-10000|\u0002"));
         verifyChangeFields(cmd, ChangeType.ABSOLUTE, -10000);
@@ -481,6 +490,13 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, newAbsoluteListChangeCommand(new CorrelationId("C04239"), 2,
                 List.of("123", "456")));
         testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=2|NC=2|CA=123|CB=456|\u0002");
+    }
+
+    @Test
+    public void testWritingListStatusChange() {
+        protocol.toChannel(bb, newListResponseChangeCommand(new CorrelationId("C04239"), 2,
+                ListResponse.fromString("12343:1").orElseThrow()));
+        testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=2|VC=12343:1|\u0002");
     }
 
     @Test

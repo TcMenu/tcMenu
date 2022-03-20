@@ -3,10 +3,7 @@ package com.thecoderscorner.menu.mgr;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
-import com.thecoderscorner.menu.domain.state.AnyMenuState;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPositionMenuState;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.state.StringListMenuState;
+import com.thecoderscorner.menu.domain.state.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
@@ -60,11 +57,11 @@ public class MenuManagerServer implements NewServerConnectionListener {
         for(var method : listener.getClass().getMethods()) {
             var callbackAnnotation = method.getAnnotation(MenuCallback.class);
             if(callbackAnnotation != null) {
-                mapOfCallbacksById.put(callbackAnnotation.id(), new MethodWithObject(method, listener));
+                mapOfCallbacksById.put(callbackAnnotation.id(), new MethodWithObject(method, listener, callbackAnnotation.listResult()));
             }
             var scrollAnnotation  = method.getAnnotation(ScrollChoiceValueRetriever.class);
             if(scrollAnnotation != null) {
-                mapOfChoicePopulatorsById.put(scrollAnnotation.id(), new MethodWithObject(method, listener));
+                mapOfChoicePopulatorsById.put(scrollAnnotation.id(), new MethodWithObject(method, listener, false));
             }
         }
         if(alreadyStarted.get()) {
@@ -220,8 +217,14 @@ public class MenuManagerServer implements NewServerConnectionListener {
     }
 
     public void updateMenuItem(MenuItem item, Object newValue) {
-        MenuItemHelper.setMenuState(item, newValue, tree);
-        menuItemDidUpdate(item);
+        if(newValue instanceof ListResponse) {
+            // for list responses, we don't store them, we just trigger and forget.
+            fireEventToListeners(item, newValue, false);
+        }
+        else {
+            MenuItemHelper.setMenuState(item, newValue, tree);
+            menuItemDidUpdate(item);
+        }
     }
 
     public void menuItemDidUpdate(MenuItem item) {
@@ -230,7 +233,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
         if(state == null) return;
 
         applyScrollChoiceValueIfNeeded(item, state);
-        fireEventToListeners(item, false);
+        fireEventToListeners(item, state.getValue(), false);
 
         MenuCommand cmd;
         if(state instanceof StringListMenuState) {
@@ -252,13 +255,18 @@ public class MenuManagerServer implements NewServerConnectionListener {
         });
     }
 
-    private void fireEventToListeners(MenuItem item, boolean remoteAction) {
+    private void fireEventToListeners(MenuItem item, Object data, boolean remoteAction) {
         for(var l : eventListeners) l.menuItemHasChanged(item, remoteAction);
 
         var m = mapOfCallbacksById.get(item.getId());
         if(m != null) {
             try {
-                m.getMethod().invoke(m.getListener(), item, remoteAction);
+                if(m.isListResult() && data instanceof ListResponse) {
+                    m.getMethod().invoke(m.getListener(), item, remoteAction, data);
+                }
+                else {
+                    m.getMethod().invoke(m.getListener(), item, remoteAction);
+                }
             } catch (Exception e) {
                 logger.log(Level.ERROR, "Callback method threw an exception ", e);
             }
@@ -277,7 +285,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
             var newVal = MenuItemHelper.applyIncrementalValueChange(item, Integer.parseInt(cmd.getValue()), tree);
             if(newVal.isPresent()) {
                 applyScrollChoiceValueIfNeeded(item, newVal.get());
-                fireEventToListeners(item, true);
+                fireEventToListeners(item, newVal.get().getValue(), true);
                 sendChangeAndAck(socket, item, newVal.get().getValue(), cmd.getCorrelationId());
             }
             else {
@@ -287,8 +295,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
             var newState = MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, cmd.getValue());
             tree.changeItem(item, newState);
             applyScrollChoiceValueIfNeeded(item, newState);
-            fireEventToListeners(item, true);
+            fireEventToListeners(item, newState.getValue(), true);
             sendChangeAndAck(socket, item, cmd.getValue(), cmd.getCorrelationId());
+        } else if(cmd.getChangeType() == ChangeType.LIST_STATE_CHANGE) {
+            ListResponse.fromString(cmd.getValue()).ifPresent(resp -> fireEventToListeners(item, resp, true));
         }
     }
 
@@ -324,10 +334,12 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private static class MethodWithObject {
         private final Method method;
         private final MenuManagerListener listener;
+        private final boolean listResult;
 
-        private MethodWithObject(Method method, MenuManagerListener listener) {
+        private MethodWithObject(Method method, MenuManagerListener listener, boolean listResult) {
             this.method = method;
             this.listener = listener;
+            this.listResult = listResult;
         }
 
         public Method getMethod() {
@@ -336,6 +348,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
         public MenuManagerListener getListener() {
             return listener;
+        }
+
+        public boolean isListResult() {
+            return listResult;
         }
     }
 }

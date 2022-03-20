@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.remote.protocol;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
@@ -169,6 +170,13 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                     correlation,
                     parser.getValueAsInt(KEY_ID_FIELD),
                     parser.getValue(KEY_CURRENT_VAL)
+            );
+        }
+        else if(type == ChangeType.LIST_STATE_CHANGE) {
+            return newListResponseChangeCommand(
+                    correlation,
+                    parser.getValueAsInt(KEY_ID_FIELD),
+                    ListResponse.fromString(parser.getValue(KEY_CURRENT_VAL)).orElse(ListResponse.EMPTY)
             );
         }
         else {

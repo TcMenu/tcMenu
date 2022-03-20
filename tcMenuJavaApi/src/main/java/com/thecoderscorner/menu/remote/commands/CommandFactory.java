@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.protocol.ProtocolUtil;
@@ -196,6 +197,28 @@ public class CommandFactory {
      */
     public static MenuChangeCommand newAbsoluteMenuChangeCommand(CorrelationId correlation, MenuItem item, Object value) {
         return new MenuChangeCommand(correlation, item.getId(), ChangeType.ABSOLUTE, value.toString());
+    }
+
+    /**
+     * Creates a new change command that represents a list item either being selected or invoked
+     * @param correlation a correlation ID that will be returned in the subsequent acknowledgement.
+     * @param item the item for which to send
+     * @param value the new value, must be a ListResponse
+     * @return a new change message
+     */
+    public static MenuChangeCommand newListResponseChangeCommand(CorrelationId correlation, MenuItem item, ListResponse value) {
+        return new MenuChangeCommand(correlation, item.getId(), ChangeType.LIST_STATE_CHANGE, value.toString());
+    }
+
+    /**
+     * Creates a new change command that represents a list item either being selected or invoked
+     * @param correlation a correlation ID that will be returned in the subsequent acknowledgement.
+     * @param itemId the item for which to send
+     * @param value the new value, must be a ListResponse
+     * @return a new change message
+     */
+    public static MenuChangeCommand newListResponseChangeCommand(CorrelationId correlation, int itemId, ListResponse value) {
+        return new MenuChangeCommand(correlation, itemId, ChangeType.LIST_STATE_CHANGE, value.toString());
     }
 
     /**
