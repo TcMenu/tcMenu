@@ -65,7 +65,8 @@ public class MenuChangeCommand implements MenuCommand {
 
         if(changeType == ChangeType.DELTA) return 0;
         else if(changeType == ChangeType.ABSOLUTE) return 1;
-        else return 2;
+        else if(changeType == ChangeType.ABSOLUTE_LIST) return 2;
+        else return 3;
     }
 
     public static ChangeType changeTypeFromInt(int changeType) {

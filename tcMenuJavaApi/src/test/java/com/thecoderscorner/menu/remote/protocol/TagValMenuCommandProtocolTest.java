@@ -496,7 +496,7 @@ public class TagValMenuCommandProtocolTest {
     public void testWritingListStatusChange() {
         protocol.toChannel(bb, newListResponseChangeCommand(new CorrelationId("C04239"), 2,
                 ListResponse.fromString("12343:1").orElseThrow()));
-        testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=2|VC=12343:1|\u0002");
+        testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=3|VC=12343:1|\u0002");
     }
 
     @Test
