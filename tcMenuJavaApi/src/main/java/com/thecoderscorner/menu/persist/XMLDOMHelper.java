@@ -109,6 +109,23 @@ public class XMLDOMHelper {
     }
 
     /**
+     * Gets the int value associated with the named child, or the default if it does not exist or can't be parsed.
+     * @param element the parent element
+     * @param child the name of the child element
+     * @param def the default value in case of problem
+     */
+    public static int integerOfElementByName(Element element, String child, int def) {
+        var txt = textOfElementByName(element, child);
+        if(txt.isEmpty()) return def;
+        try {
+            return Integer.parseInt(txt);
+        }
+        catch (Exception e) {
+            return def;
+        }
+    }
+
+    /**
      * Gets an element with a given name or null
      *
      * @param elem  the parent element

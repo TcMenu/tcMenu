@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class XMLDOMHelperTest {
-    private final String xmlToLoad = "<Animals><Dogs><Dog type=\"Beagle\"/><Dog type=\"Poodle\"/></Dogs><Elephant>Huge animal</Elephant></Animals>";
+    private final String xmlToLoad = "<Animals><IntEle>4</IntEle><Dogs><Dog type=\"Beagle\"/><Dog type=\"Poodle\"/></Dogs><Elephant>Huge animal</Elephant></Animals>";
 
     @Test
     void testXMLReading() throws Exception {
@@ -24,6 +24,8 @@ class XMLDOMHelperTest {
         assertEquals("Beagle", XMLDOMHelper.getAttrOrNull(allDogElements.get(0), "type"));
         assertEquals("Poodle", XMLDOMHelper.getAttributeOrDefault(allDogElements.get(1), "type", "??"));
         assertEquals("??", XMLDOMHelper.getAttributeOrDefault(allDogElements.get(1), "unknown", "??"));
+        assertEquals(4, XMLDOMHelper.integerOfElementByName(doc.getDocumentElement(), "IntEle", 99));
+        assertEquals(99, XMLDOMHelper.integerOfElementByName(doc.getDocumentElement(), "IntNone", 99));
 
         assertEquals("Huge animal", XMLDOMHelper.textOfElementByName(doc.getDocumentElement(), "Elephant"));
     }
