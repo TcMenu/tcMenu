@@ -49,7 +49,7 @@
             <Hyperlink onAction="#onSponsorOptions" text="One off payment or monthly sponsorship options" />
          </children>
       </VBox>
-      <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>

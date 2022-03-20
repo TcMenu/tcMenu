@@ -95,6 +95,7 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.menu.auth.*;
             import com.thecoderscorner.menu.mgr.MenuManagerServer;
             import com.thecoderscorner.menu.persist.*;
+            import com.thecoderscorner.embedcontrol.core.util.*;
             import org.springframework.beans.factory.annotation.Value;
             import org.springframework.context.annotation.*;
             import java.time.Clock;
@@ -136,7 +137,12 @@ public class EmbeddedJavaGeneratorFileData {
                 public ScheduledExecutorService executor(@Value("${threading.pool.size}") int poolSize) {
                     return Executors.newScheduledThreadPool(poolSize);
                 }
-                        
+
+                @Bean
+                public MenuAppVersion versionInfo(@Value("${build.version}") String version, @Value("${build.timestamp}") String timestamp, @Value("${build.groupId}") String groupId, @Value("${build.artifactId}") String artifact) {
+                    return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
+                }
+                
                 @Bean
                 public MenuManagerServer menuManagerServer(ScheduledExecutorService executor, UnitTestMenu menuDef, @Value("${server.name}") String serverName, @Value("${server.uuid}") String serverUUID, MenuAuthenticator authenticator, Clock clock) {
                     return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);
@@ -151,7 +157,7 @@ public class EmbeddedJavaGeneratorFileData {
                 public TagValMenuCommandProtocol tagVal() {
                     return new TagValMenuCommandProtocol();
                 }
-            
+                        
                 @Bean
                 public SocketServerConnectionManager socketClient(TagValMenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
                     return new SocketServerConnectionManager(protocol, executor, 3333, clock);
@@ -344,6 +350,7 @@ public class EmbeddedJavaGeneratorFileData {
                     <jfx.version>17.0.0.1</jfx.version>
                     <tcmenu.api.version>1.2.3</tcmenu.api.version>
                     <springframework.version>5.3.16</springframework.version>
+                    <timestamp>${maven.build.timestamp}</timestamp>
                 </properties>
                         
                 <dependencies>
@@ -370,14 +377,14 @@ public class EmbeddedJavaGeneratorFileData {
                         <resource>
                             <directory>src/main/resources</directory>
                             <includes>
-                                <include>version.properties</include>
+                                <include>application.properties</include>
                             </includes>
                             <filtering>true</filtering>
                         </resource>
                         <resource>
                             <directory>src/main/resources</directory>
                             <excludes>
-                                <exclude>version.properties</exclude>
+                                <exclude>application.properties</exclude>
                             </excludes>
                             <filtering>false</filtering>
                         </resource>

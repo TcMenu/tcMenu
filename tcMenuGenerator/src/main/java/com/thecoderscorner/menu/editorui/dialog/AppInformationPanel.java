@@ -60,6 +60,7 @@ public class AppInformationPanel {
     private CheckBox recursiveNamingCheck;
     private CheckBox saveToSrcCheck;
     private CheckBox useCppMainCheck;
+    private TextField appNameTextField;
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -121,7 +122,7 @@ public class AppInformationPanel {
         gridPane.add(changeId, 2, 1);
 
         gridPane.add(new Label("Project name"), 0, 2);
-        TextField appNameTextField = new TextField(options.getApplicationName());
+        appNameTextField = new TextField(options.getApplicationName());
         appNameTextField.setId("appNameTextField");
         appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                 .withExisting(options)
@@ -293,5 +294,9 @@ public class AppInformationPanel {
         docs.setOnAction((event) -> editorUI.browseToURL(urlToVisit));
         docs.setId(fxId);
         vbox.getChildren().add(docs);
+    }
+
+    public void focusFirst() {
+        Platform.runLater(() -> appNameTextField.requestFocus());
     }
 }

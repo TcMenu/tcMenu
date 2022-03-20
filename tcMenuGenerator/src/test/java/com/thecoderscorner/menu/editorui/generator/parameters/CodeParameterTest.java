@@ -42,7 +42,7 @@ class CodeParameterTest {
         assertEquals("MyAppName", param.expandExpression(context, "${APP_NAME}"));
         assertEquals(APPUUID.toString(), param.expandExpression(context, "${APP_UUID}"));
         assertEquals("volumeMenuItem", param.expandExpression(context, "${ROOT}"));
-        assertEquals("ARDUINO_AVR", param.expandExpression(context, "${TARGET}"));
+        assertEquals("ARDUINO", param.expandExpression(context, "${TARGET}"));
         assertEquals("my.namespace", param.expandExpression(context, "${NAMESPACE}"));
     }
 

@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -43,8 +44,6 @@ import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldTy
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
-
-    private boolean variableChanged = false;
 
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
@@ -221,6 +220,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .collect(Collectors.toList());
 
         return grid;
+    }
+
+    public void focusFirst() {
+        // need to defer this until the form is properly loaded.
+        Platform.runLater(() -> nameField.requestFocus());
     }
 
     private String getFunctionName(List<FieldError> errors) {
@@ -449,9 +453,9 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return systemClipboard.hasContent(DataFormat.PLAIN_TEXT);
     }
 
-    protected class FieldError {
-        private String field;
-        private String message;
+    protected static class FieldError {
+        private final String field;
+        private final String message;
 
         public FieldError(String message, String field) {
             this.field = field;

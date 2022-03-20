@@ -30,7 +30,7 @@
    <bottom>
       <ButtonBar prefHeight="36.0" prefWidth="366.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="OK" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="OK" />
         </buttons>
          <BorderPane.margin>
             <Insets />

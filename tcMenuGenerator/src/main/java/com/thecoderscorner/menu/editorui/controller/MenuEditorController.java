@@ -92,6 +92,7 @@ public class MenuEditorController {
     public MenuBar mainMenu;
 
     private Optional<UIMenuItem> currentEditor = Optional.empty();
+    private Optional<AppInformationPanel> appInfoPanel = Optional.empty();
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
@@ -218,6 +219,12 @@ public class MenuEditorController {
         AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector, configStore);
         editorBorderPane.setCenter(panel.showEmptyInfoPanel());
         currentEditor = Optional.empty();
+        appInfoPanel = Optional.of(panel);
+    }
+
+    public void onFocusCurrentEditor(ActionEvent actionEvent) {
+        if(appInfoPanel.isPresent()) appInfoPanel.get().focusFirst();
+        else currentEditor.ifPresent(UIMenuItem::focusFirst);
     }
 
     public void onTreeChangeSelection(MenuItem newValue) {
@@ -235,7 +242,9 @@ public class MenuEditorController {
                     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                     editorBorderPane.setCenter(scrollPane);
                     currentEditor = Optional.of(uiMenuItem);
+                    appInfoPanel = Optional.empty();
                     currentEditLabel.setText("Edit " + newValue.getClass().getSimpleName() + " ID: " + newValue.getId());
+                    uiMenuItem.focusFirst();
                 }, this::presentInfoPanel
         );
 
@@ -400,6 +409,10 @@ public class MenuEditorController {
         redrawTreeControl();
     }
 
+    public void onFocusMenuTree(ActionEvent actionEvent) {
+        menuTree.requestFocus();
+    }
+
     public void onFileNew(ActionEvent event) {
         editorUI.showCreateProjectDialog();
         redrawTreeControl();
@@ -460,8 +473,7 @@ public class MenuEditorController {
         List<String> recentPaths = configStore.loadRecents();
 
         var recentList = recentPaths.stream()
-                .map(recentPath -> new RecentlyUsedItem(Paths.get(recentPath).getFileName().toString(), recentPath))
-                .collect(Collectors.toList());
+                .map(recentPath -> new RecentlyUsedItem(Paths.get(recentPath).getFileName().toString(), recentPath)).toList();
 
         recentItems.addAll(recentList);
 

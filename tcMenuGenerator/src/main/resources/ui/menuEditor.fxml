@@ -70,6 +70,16 @@
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#onFocusMenuTree" text="Focus Menu Tree">
+                      <accelerator>
+                          <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                      </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="Focus Current Editor">
+                      <accelerator>
+                          <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                      </accelerator>
+                  </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="Move Item Up">
                      <accelerator>

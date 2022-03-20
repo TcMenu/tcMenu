@@ -16,6 +16,7 @@
         <jfx.version>17.0.0.1</jfx.version>
         <tcmenu.api.version>%TCMENU_VERSION%</tcmenu.api.version>
         <springframework.version>5.3.16</springframework.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
     <dependencies>
@@ -42,14 +43,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>version.properties</include>
+                    <include>application.properties</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>version.properties</exclude>
+                    <exclude>application.properties</exclude>
                 </excludes>
                 <filtering>false</filtering>
             </resource>

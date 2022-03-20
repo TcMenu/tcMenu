@@ -10,11 +10,13 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ import static java.lang.System.Logger.Level.ERROR;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class NewItemController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    private static Optional<String> lastRadioId = Optional.empty();
 
     public RadioButton subMenuSelect;
     public RadioButton analogSelect;
@@ -52,7 +55,25 @@ public class NewItemController {
         this.menuIdChooser = menuIdChooser;
         this.editorUI = editorUI;
         idField.setText(Integer.toString(menuIdChooser.nextHighestId()));
+    }
 
+    @FXML
+    public void initialize() {
+        switch(lastRadioId.orElse("subMenuSelect")) {
+            case "subMenuSelect" -> subMenuSelect.setSelected(true);
+            case "analogSelect" -> analogSelect.setSelected(true);
+            case "enumSelect" -> enumSelect.setSelected(true);
+            case "boolSelect" -> boolSelect.setSelected(true);
+            case "textSelect" -> textSelect.setSelected(true);
+            case "floatSelect" -> floatSelect.setSelected(true);
+            case "actionSelect" -> actionSelect.setSelected(true);
+            case "largeNumSelect" -> largeNumSelect.setSelected(true);
+            case "listSelect" -> listSelect.setSelected(true);
+            case "choiceSelect" -> choiceSelect.setSelected(true);
+            case "rgbSelect" -> rgbSelect.setSelected(true);
+            case "iotListSelect" -> iotListSelect.setSelected(true);
+            case "authenticatorSelect" -> authenticatorSelect.setSelected(true);
+        }
     }
 
     public void onCreatePressed(ActionEvent actionEvent) {
@@ -71,6 +92,7 @@ public class NewItemController {
         }
 
         if(subMenuSelect.isSelected()) {
+            lastRadioId = Optional.of(subMenuSelect.getId());
             result = Optional.of(aSubMenuItemBuilder()
                     .withName("New SubMenu")
                     .withId(id)
@@ -78,6 +100,7 @@ public class NewItemController {
                     .menuItem());
         }
         else if(analogSelect.isSelected()) {
+            lastRadioId = Optional.of(analogSelect.getId());
             result = Optional.of(anAnalogMenuItemBuilder()
                     .withName("New AnalogItem")
                     .withId(id)
@@ -89,6 +112,7 @@ public class NewItemController {
                     .menuItem());
         }
         else if(enumSelect.isSelected()) {
+            lastRadioId = Optional.of(enumSelect.getId());
             result = Optional.of(anEnumMenuItemBuilder()
                     .withName("New EnumItem")
                     .withId(id)
@@ -97,6 +121,7 @@ public class NewItemController {
                     .menuItem());
         }
         else if(boolSelect.isSelected()) {
+            lastRadioId = Optional.of(boolSelect.getId());
             result = Optional.of(aBooleanMenuItemBuilder()
                     .withName("New BoolItem")
                     .withId(id)
@@ -105,6 +130,7 @@ public class NewItemController {
             );
         }
         else if(textSelect.isSelected()) {
+            lastRadioId = Optional.of(textSelect.getId());
             result = Optional.of(EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                     .withName("New TextItem")
                     .withId(id)
@@ -115,6 +141,7 @@ public class NewItemController {
             );
         }
         else if(floatSelect.isSelected()) {
+            lastRadioId = Optional.of(floatSelect.getId());
             result = Optional.of(FloatMenuItemBuilder.aFloatMenuItemBuilder()
                     .withName("New FloatItem")
                     .withId(id)
@@ -124,6 +151,7 @@ public class NewItemController {
             );
         }
         else if(actionSelect.isSelected()) {
+            lastRadioId = Optional.of(actionSelect.getId());
             result = Optional.of(ActionMenuItemBuilder.anActionMenuItemBuilder()
                     .withName("New ActionItem")
                     .withId(id)
@@ -132,6 +160,7 @@ public class NewItemController {
             );
         }
         else if(listSelect.isSelected()) {
+            lastRadioId = Optional.of(listSelect.getId());
             result = Optional.of(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
                     .withName("New Runtime List")
                     .withId(id)
@@ -141,6 +170,7 @@ public class NewItemController {
             );
         }
         else if(choiceSelect.isSelected()) {
+            lastRadioId = Optional.of(choiceSelect.getId());
             result = Optional.of(new ScrollChoiceMenuItemBuilder()
                     .withName("New Choice Item")
                     .withId(id)
@@ -149,6 +179,7 @@ public class NewItemController {
             );
         }
         else if(rgbSelect.isSelected()) {
+            lastRadioId = Optional.of(rgbSelect.getId());
             result = Optional.of(new Rgb32MenuItemBuilder()
                     .withName("New RGB")
                     .withId(id)
@@ -158,6 +189,7 @@ public class NewItemController {
             );
         }
         else if(largeNumSelect.isSelected()) {
+            lastRadioId = Optional.of(largeNumSelect.getId());
             result = Optional.of(EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                     .withName("New Large Number")
                     .withId(id)
@@ -168,10 +200,12 @@ public class NewItemController {
             );
         }
         else if(iotListSelect.isSelected()) {
+            lastRadioId = Optional.of(iotListSelect.getId());
             result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
                     .withName("IoT Monitor").withId(id).withEepromAddr(-1).withMenuType(REMOTE_IOT_MONITOR).menuItem());
         }
         else if(authenticatorSelect.isSelected()) {
+            lastRadioId = Optional.of(authenticatorSelect.getId());
             result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
                     .withName("Authenticator").withId(id).withEepromAddr(-1).withMenuType(AUTHENTICATION).menuItem());
         }
