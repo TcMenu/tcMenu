@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -59,21 +60,28 @@ public class NewItemController {
 
     @FXML
     public void initialize() {
-        switch(lastRadioId.orElse("subMenuSelect")) {
-            case "subMenuSelect" -> subMenuSelect.setSelected(true);
-            case "analogSelect" -> analogSelect.setSelected(true);
-            case "enumSelect" -> enumSelect.setSelected(true);
-            case "boolSelect" -> boolSelect.setSelected(true);
-            case "textSelect" -> textSelect.setSelected(true);
-            case "floatSelect" -> floatSelect.setSelected(true);
-            case "actionSelect" -> actionSelect.setSelected(true);
-            case "largeNumSelect" -> largeNumSelect.setSelected(true);
-            case "listSelect" -> listSelect.setSelected(true);
-            case "choiceSelect" -> choiceSelect.setSelected(true);
-            case "rgbSelect" -> rgbSelect.setSelected(true);
-            case "iotListSelect" -> iotListSelect.setSelected(true);
-            case "authenticatorSelect" -> authenticatorSelect.setSelected(true);
-        }
+        Platform.runLater(() -> {
+            switch (lastRadioId.orElse("subMenuSelect")) {
+                case "subMenuSelect" -> selectAndFocus(subMenuSelect);
+                case "analogSelect" -> selectAndFocus(analogSelect);
+                case "enumSelect" -> selectAndFocus(enumSelect);
+                case "boolSelect" -> selectAndFocus(boolSelect);
+                case "textSelect" -> selectAndFocus(textSelect);
+                case "floatSelect" -> selectAndFocus(floatSelect);
+                case "actionSelect" -> selectAndFocus(actionSelect);
+                case "largeNumSelect" -> selectAndFocus(largeNumSelect);
+                case "listSelect" -> selectAndFocus(listSelect);
+                case "choiceSelect" -> selectAndFocus(choiceSelect);
+                case "rgbSelect" -> selectAndFocus(rgbSelect);
+                case "iotListSelect" -> selectAndFocus(iotListSelect);
+                case "authenticatorSelect" -> selectAndFocus(authenticatorSelect);
+            }
+        });
+    }
+
+    private void selectAndFocus(RadioButton r) {
+        r.setSelected(true);
+        r.requestFocus();
     }
 
     public void onCreatePressed(ActionEvent actionEvent) {
