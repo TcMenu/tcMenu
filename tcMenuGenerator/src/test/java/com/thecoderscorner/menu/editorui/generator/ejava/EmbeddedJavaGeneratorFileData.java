@@ -6,6 +6,7 @@ public class EmbeddedJavaGeneratorFileData {
                         
             import com.thecoderscorner.menu.mgr.*;
             import com.thecoderscorner.menu.domain.*;
+            import com.thecoderscorner.menu.domain.state.*;
                         
             public class UnitTestController implements MenuManagerListener {
                 private final UnitTestMenu  menuDef;
@@ -33,7 +34,12 @@ public class EmbeddedJavaGeneratorFileData {
                 public void callback2(EditableTextMenuItem item, boolean remoteAction) {
                     // TODO - implement your menu behaviour here for Text Item
                 }
-                        
+                
+                @MenuCallback(id=2039, listResult=true)
+                public void listHasChanged(RuntimeListMenuItem item, boolean remoteAction, ListResponse selInfo) {
+                    // TODO - implement your menu behaviour here for My List
+                }
+        
                 public void menuItemHasChanged(MenuItem item, boolean remoteAction) {
                     // Called every time any menu item changes
                 }
@@ -283,6 +289,20 @@ public class EmbeddedJavaGeneratorFileData {
                   "localOnly": false,
                   "visible": true
                 }
+              },
+              {
+                "parentId": 0,
+                "type": "runtimeList",
+                "item": {
+                  "initialRows": 10,
+                  "name": "My List",
+                  "id": 2039,
+                  "eepromAddress": 0,
+                  "functionName": "listHasChanged",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
               }
             ]""\";
                 private final MenuTree menuTree;
@@ -330,6 +350,10 @@ public class EmbeddedJavaGeneratorFileData {
                         
                 public RuntimeListMenuItem getAbc() {
                     return (RuntimeListMenuItem) menuTree.getMenuById(1043).orElseThrow();
+                }
+
+                public RuntimeListMenuItem getMyList() {
+                    return (RuntimeListMenuItem) menuTree.getMenuById(2039).orElseThrow();
                 }
                         
             }

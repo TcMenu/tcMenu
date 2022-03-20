@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.ejava;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.*;
@@ -208,6 +209,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .supportsInterface("MenuManagerListener")
                 .addPackageImport("com.thecoderscorner.menu.mgr.*")
                 .addPackageImport("com.thecoderscorner.menu.domain.*")
+                .addPackageImport("com.thecoderscorner.menu.domain.state.*")
                 .addStatement(new GeneratedJavaField(project.getAppClassName("Menu"), " menuDef", true, true))
                 .blankLine()
                 .addStatement(new GeneratedJavaMethod(CONSTRUCTOR_IF_MISSING)
@@ -219,10 +221,17 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .sorted(Comparator.comparingInt(MenuItem::getId))
                 .forEach(item -> {
                     String methodName = item.getFunctionName().replace('@', '_');
-                    builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", methodName)
+                    var javaMethod = new GeneratedJavaMethod(METHOD_IF_MISSING, "void", methodName)
                             .withParameter(item.getClass().getSimpleName() +  " item").withParameter("boolean remoteAction")
-                            .withStatement("// TODO - implement your menu behaviour here for " + item.getName())
-                            .withAnnotation("MenuCallback(id=" + item.getId() + ")"));
+                            .withStatement("// TODO - implement your menu behaviour here for " + item.getName());
+                    if(item instanceof RuntimeListMenuItem) {
+                        javaMethod.withAnnotation("MenuCallback(id=" + item.getId() + ", listResult=true)");
+                        javaMethod.withParameter("ListResponse selInfo");
+
+                    } else {
+                        javaMethod.withAnnotation("MenuCallback(id=" + item.getId() + ")");
+                    }
+                    builder.addStatement(javaMethod);
                 });
 
         builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "menuItemHasChanged")

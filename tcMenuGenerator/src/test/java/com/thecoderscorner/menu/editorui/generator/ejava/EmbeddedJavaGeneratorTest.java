@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.ejava;
 
+import com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
@@ -41,6 +42,8 @@ class EmbeddedJavaGeneratorTest {
         generator = new EmbeddedJavaGenerator(storage, EmbeddedPlatform.RASPBERRY_PIJ);
         tempPath = Files.createTempDirectory("gentest");
         tree = buildSimpleTreeReadOnly();
+        tree.addMenuItem(MenuTree.ROOT, new RuntimeListMenuItemBuilder()
+                .withId(2039).withName("My List").withFunctionName("listHasChanged").withInitialRows(10).menuItem());
         when(storage.getVersion()).thenReturn("1.2.3");
 
         var pluginMgr = new DefaultXmlPluginLoader(new PluginEmbeddedPlatformsImpl(), storage, true);
