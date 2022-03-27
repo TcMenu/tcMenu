@@ -85,7 +85,6 @@ public class EmbeddedJavaGeneratorFileData {
                     manager.addMenuManagerListener(context.getBean(UnitTestController.class));
                     manager.addConnectionManager(socketClient);
                     tagVal.unitTestMe();
-                    manager.start();
                 }
                         
                 public static void main(String[] args) {
@@ -126,7 +125,7 @@ public class EmbeddedJavaGeneratorFileData {
                         
                 @Bean
                 public MenuStateSerialiser menuStateSerialiser(UnitTestMenu menuDef, @Value("${file.menu.storage}") String filePath) {
-                    return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));
+                    return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve("menuStorage.properties"));
                 }
                         
                 @Bean
@@ -138,10 +137,26 @@ public class EmbeddedJavaGeneratorFileData {
                 public UnitTestController menuController(UnitTestMenu menuDef) {
                     return new UnitTestController(menuDef);
                 }
+                
+                @Bean
+                public GlobalSettings globalSettings() {
+                    return new GlobalSettings();
+                }
+            
+                @Bean
+                public ScreenLayoutPersistence menuLayoutPersistence(EmbeddedJavaDemoMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
+                    Consumer<Element> noAdditionalSerialisation = (ele) -> {};
+                    return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);
+                }
                         
                 @Bean
                 public ScheduledExecutorService executor(@Value("${threading.pool.size}") int poolSize) {
                     return Executors.newScheduledThreadPool(poolSize);
+                }
+
+                @Bean
+                public JfxNavigationHeader navigationManager(ScreenLayoutPersistence layoutPersistence) {
+                    return new JfxNavigationHeader(layoutPersistence);
                 }
 
                 @Bean

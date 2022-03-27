@@ -1,10 +1,13 @@
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
+package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Safe navigator provides a way to navigate to a web page that works on all platforms.
+ */
 public class SafeNavigator {
     private final static System.Logger logger = System.getLogger(SafeNavigator.class.getSimpleName());
 

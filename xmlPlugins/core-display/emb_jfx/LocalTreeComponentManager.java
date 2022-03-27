@@ -1,11 +1,11 @@
 package PACKAGE_NAME_REPLACEMENT.tcmenu.plugins;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.*;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
+import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.mgr.DialogViewer;
 import com.thecoderscorner.menu.mgr.MenuManagerListener;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import javafx.scene.Node;
@@ -15,17 +15,12 @@ import java.util.concurrent.ScheduledExecutorService;
 public class LocalTreeComponentManager extends TreeComponentManager<Node> implements MenuManagerListener {
     private final MenuManagerServer menuMgr;
 
-    public LocalTreeComponentManager(ScreenManager<Node> screenManager, GlobalSettings appSettings, DialogViewer dialogViewer,
-                                     ScheduledExecutorService executor, ThreadMarshaller marshaller,
-                                     MenuComponentControl controller, MenuManagerServer menuMgr) {
-        super(screenManager, appSettings, dialogViewer, executor, marshaller, controller);
+        public LocalTreeComponentManager(GlobalSettings appSettings, ScheduledExecutorService executor, ThreadMarshaller marshaller,
+                                         MenuComponentControl controller, MenuManagerServer menuMgr, ScreenLayoutPersistence layoutPersistence) {
+            super(appSettings, executor, marshaller, controller, layoutPersistence);
         this.menuMgr = menuMgr;
 
         menuMgr.addMenuManagerListener(this);
-    }
-
-    public void presentSubMenu(SubMenuItem root, boolean recurse) {
-        renderMenuRecursive(root, recurse);
     }
 
     @Override
@@ -37,7 +32,6 @@ public class LocalTreeComponentManager extends TreeComponentManager<Node> implem
 
     @Override
     public void managerWillStart() {
-        marshaller.runOnUiThread(() -> presentSubMenu(MenuTree.ROOT, false));
     }
 
     @Override

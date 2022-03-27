@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.SafeNavigator;
 import javafx.event.ActionEvent;
 
 public class AboutController {

@@ -27,8 +27,12 @@
     </IncludeFiles>
 
     <GlobalVariables>
+
         <Variable name="renderer" type="NoRenderer" export="true" progmem="false" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ"/>
     </GlobalVariables>
 
-    <SetupFunctions/>
+    <SetupFunctions>
+        <!-- For Embedded Java normally the display starts the menu, to keep the ordering intact, for no-display we must do it -->
+        <Function object="MenuManager.class" name="start" whenProperty="TARGET" isValue="RASPBERRY_PIJ"/>
+    </SetupFunctions>
 </TcMenuPlugin>

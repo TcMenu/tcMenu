@@ -34,7 +34,7 @@ public class EmbeddedJavaProject {
             threading.pool.size=4
                         
             ## here we put the location of the data files needed by the application
-            file.menu.storage=%DATADIR%/menuStorage.properties
+            file.menu.storage=%DATADIR%
             file.auth.storage=%DATADIR%/auth.properties
                         
             # you can add any other properties needed by your application here.

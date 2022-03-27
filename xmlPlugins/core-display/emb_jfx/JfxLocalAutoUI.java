@@ -1,9 +1,11 @@
 package PACKAGE_NAME_REPLACEMENT.tcmenu.plugins;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.*;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxHeaderBar;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
+import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -30,20 +32,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationContext;
 
-import javax.swing.*;
-import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class JfxLocalAutoUI extends Application {
     private static final AtomicReference<ApplicationContext> GLOBAL_CONTEXT = new AtomicReference<>(null);
+    private static final int DEFAULT_INDENTATION = 8;
+
     private MenuManagerServer mgr;
-    private LocalTreeComponentManager localTree;
-    private JfxScreenManager screenManager;
-    private JfxHeaderBar appHeader;
+    private JfxNavigationHeader navigationHeader;
     private LocalDialogManager dlgMgr;
+    private MenuAppVersion versionData;
+    private ScreenLayoutPersistence layoutPersistence;
 
     public static void setAppContext(ApplicationContext context) {
         GLOBAL_CONTEXT.set(context);
@@ -54,6 +54,7 @@ public class JfxLocalAutoUI extends Application {
         var ctx = GLOBAL_CONTEXT.get();
         mgr = ctx.getBean(MenuManagerServer.class);
         var executor = ctx.getBean(ScheduledExecutorService.class);
+        versionData = ctx.getBean(MenuAppVersion.class);
 
         dlgMgr = new LocalDialogManager();
         var auth = ctx.getBean(MenuAuthenticator.class);
@@ -61,32 +62,33 @@ public class JfxLocalAutoUI extends Application {
 
         stage.setTitle(mgr.getServerName());
         var scroller = new ScrollPane();
-        var settings = new GlobalSettings();
-        LocalMenuController localControl = new LocalMenuController();
-        screenManager = new JfxScreenManager(localControl, scroller, Platform::runLater, 2);
-        localTree = new LocalTreeComponentManager(screenManager, settings, dlgMgr, executor, Platform::runLater, localControl, mgr);
+        var settings = ctx.getBean(GlobalSettings.class);
+        layoutPersistence = ctx.getBean(ScreenLayoutPersistence.class);
 
-        var wifiWidget = JfxHeaderBar.widgetFromImages(
-                JfxHeaderBar.class.getResource("/img/con-fail.png"),
-                JfxHeaderBar.class.getResource("/img/con-fail.png"),
-                JfxHeaderBar.class.getResource("/img/wifi-poor.png"),
-                JfxHeaderBar.class.getResource("/img/wifi-low.png"),
-                JfxHeaderBar.class.getResource("/img/wifi-fair.png"),
-                JfxHeaderBar.class.getResource("/img/wifi-full.png")
-        );
+        stage.setOnCloseRequest(event -> {
+            layoutPersistence.serialiseAll();
+            executor.shutdown();
+            Platform.exit();
+        });
+
+        var localController = new LocalMenuController();
+        var localTree = new LocalTreeComponentManager(settings, executor, Platform::runLater, localController, mgr, layoutPersistence);
+        navigationHeader = ctx.getBean(JfxNavigationHeader.class);
+        navigationHeader.initialiseUI(localTree, dlgMgr, localController, scroller);
+
+        mgr.start();
+        navigationHeader.pushMenuNavigation(MenuTree.ROOT);
+
+        var dialogComponents = dlgMgr.initialiseControls();
         var border = new BorderPane();
-        appHeader = new JfxHeaderBar(List.of(wifiWidget));
-        GridPane dialogComponents = dlgMgr.initialiseControls();
         border.setCenter(scroller);
-        VBox vbox = new VBox(dialogComponents, appHeader.initialiseControls());
+        VBox vbox = new VBox(dialogComponents, navigationHeader.initialiseControls());
         border.setTop(vbox);
         BorderPane.setMargin(scroller, new Insets(4));
 
         Scene scene = new Scene(border, 800, 500);
         stage.setScene(scene);
         stage.show();
-
-        executor.scheduleAtFixedRate(()-> wifiWidget.setCurrentState((int)(Math.random() * 5)), 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
     class LocalMenuController implements MenuComponentControl {
@@ -121,25 +123,8 @@ public class JfxLocalAutoUI extends Application {
         }
 
         @Override
-        public void menuWasDisplayed(MenuItem item) {
-            var text = item == MenuTree.ROOT ? mgr.getServerName() : item.getName();
-            Platform.runLater(() -> appHeader.titleChanged(text));
-
-            if(!item.equals(MenuTree.ROOT)) {
-                appHeader.showLeftButton("<");
-                appHeader.setLeftButtonFunction(() -> {
-                    localTree.reset();
-                    localTree.presentSubMenu(getMenuTree().findParent(item), false);
-                });
-            }
-            else {
-                appHeader.showLeftButton("?");
-                appHeader.setLeftButtonFunction(() -> {
-                    dlgMgr.withRemoteAllowed(false).withMessage("Get version information here", true)
-                            .withTitle(mgr.getServerName(), true)
-                            .showDialogWithButtons(MenuButtonType.CLOSE, MenuButtonType.NONE);
-                });
-            }
+        public JfxNavigationManager getNavigationManager() {
+            return navigationHeader;
         }
     }
 

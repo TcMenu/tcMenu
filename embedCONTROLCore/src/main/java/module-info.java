@@ -8,6 +8,7 @@ module com.thecoderscorner.embedcontrol.core {
     requires javafx.controls;
     requires java.prefs;
     requires java.desktop;
+    requires javafx.fxml;
 
     exports com.thecoderscorner.embedcontrol.core.controlmgr;
     exports com.thecoderscorner.embedcontrol.core.serial;

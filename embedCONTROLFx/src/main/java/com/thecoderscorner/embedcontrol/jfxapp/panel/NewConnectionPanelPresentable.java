@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
+import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;

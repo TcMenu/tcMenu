@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.embedcontrol.jfxapp;
 
+import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.FileConnectionStorage;

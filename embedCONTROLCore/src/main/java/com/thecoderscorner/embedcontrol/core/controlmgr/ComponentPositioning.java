@@ -9,8 +9,8 @@ public class ComponentPositioning {
     public ComponentPositioning(int row, int col) {
         this(row, col, 1, 1);
     }
-    public ComponentPositioning(int row, int col, int rowSpan, int colSpan)
-    {
+
+    public ComponentPositioning(int row, int col, int rowSpan, int colSpan) {
         this.row = row;
         this.col = col;
         this.rowSpan = rowSpan;

@@ -11,5 +11,5 @@ public interface MenuComponentControl {
     void connectionStatusChanged(AuthStatus authStatus);
     MenuTree getMenuTree();
     String getConnectionName();
-    void menuWasDisplayed(MenuItem item);
+    NavigationManager getNavigationManager();
 }

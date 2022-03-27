@@ -4,11 +4,13 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public interface ScreenManager<T>
+/**
+ * The screen manager object is responsible for creating components
+ * @param <T>
+ */
+public interface MenuControlGrid<T>
 {
-    int getDefaultFontSize();
     void clear();
     void startNesting();
     void endNesting();

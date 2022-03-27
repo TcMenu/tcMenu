@@ -130,15 +130,26 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withStatement("return Clock.systemUTC();").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuStateSerialiser", "menuStateSerialiser")
                         .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${file.menu.storage}\") String filePath")
-                        .withStatement("return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));").withAnnotation("Bean"))
+                        .withStatement("return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve(\"menuStorage.properties\"));").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Menu", "menuDef")
                         .withStatement("return new " + clazzBaseName + "Menu();").withAnnotation("Bean"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Controller", "menuController")
                         .withStatement("return new " + clazzBaseName + "Controller(menuDef);").withAnnotation("Bean")
                         .withParameter(clazzBaseName + "Menu menuDef"))
+                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "GlobalSettings", "globalSettings")
+                        .withAnnotation("Bean").withStatement("return new GlobalSettings();"))
+                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScreenLayoutPersistence", "menuLayoutPersistence")
+                        .withAnnotation("Bean").withParameter("EmbeddedJavaDemoMenu menuDef").withParameter("GlobalSettings settings")
+                        .withParameter("MenuManagerServer manager").withParameter("@Value(\"${file.menu.storage}\") String filePath")
+                        .withParameter("@Value(\"${default.font.size}\") int fontSize")
+                        .withStatement("Consumer<Element> noAdditionalSerialisation = (ele) -> {};")
+                        .withStatement("return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScheduledExecutorService", "executor")
                         .withParameter("@Value(\"${threading.pool.size}\") int poolSize").withAnnotation("Bean")
                         .withStatement("return Executors.newScheduledThreadPool(poolSize);"))
+                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "JfxNavigationHeader", "navigationManager")
+                        .withParameter("ScreenLayoutPersistence layoutPersistence").withAnnotation("Bean")
+                        .withStatement("return new JfxNavigationHeader(layoutPersistence);"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAppVersion", "versionInfo")
                         .withAnnotation("Bean").withParameter("@Value(\"${build.version}\") String version")
                         .withParameter("@Value(\"${build.timestamp}\") String timestamp")
@@ -190,8 +201,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         builder.blankLine().addStatement(constructor);
         var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
                 .withStatement("manager.addMenuManagerListener(context.getBean(" + javaProject.getAppClassName("Controller") + ".class));");
-        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod,
-                List.of("manager.start();"));
+        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod, List.of());
 
         builder.addStatement(startMethod);
         builder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")

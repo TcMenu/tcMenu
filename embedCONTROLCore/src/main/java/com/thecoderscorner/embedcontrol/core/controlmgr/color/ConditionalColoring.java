@@ -7,7 +7,7 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*
 
 public interface ConditionalColoring
 {
-    enum ColorComponentType { TEXT_FIELD, BUTTON, HIGHLIGHT, CUSTOM }
+    enum ColorComponentType { TEXT_FIELD, BUTTON, HIGHLIGHT, CUSTOM, DIALOG, ERROR, PENDING }
 
     PortableColor foregroundFor(RenderingStatus status, ColorComponentType compType);
     PortableColor backgroundFor(RenderingStatus status, ColorComponentType compType);

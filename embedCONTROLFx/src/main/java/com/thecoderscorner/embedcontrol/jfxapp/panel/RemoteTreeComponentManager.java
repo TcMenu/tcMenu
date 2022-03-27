@@ -1,7 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.ScreenManager;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuControlGrid;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
@@ -23,11 +23,11 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
     private final RemoteControllerListener remoteListener;
     private final RemoteMenuController remoteController;
 
-    public RemoteTreeComponentManager(ScreenManager<Node> screenManager, RemoteMenuController controller,
+    public RemoteTreeComponentManager(MenuControlGrid<Node> screenManager, RemoteMenuController controller,
                                       GlobalSettings appSettings, DialogViewer dialogViewer,
                                       ScheduledExecutorService executor, ThreadMarshaller marshaller,
                                       MenuComponentControl componentControl) {
-        super(screenManager, appSettings, dialogViewer, executor, marshaller, componentControl);
+        super(appSettings, executor, marshaller, componentControl, layoutPeristence);
         remoteController = controller;
         remoteListener = new RemoteControllerListener() {
             @Override
@@ -40,10 +40,9 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
             @Override
             public void treeFullyPopulated() {
                 marshaller.runOnUiThread(() -> {
-                    reset();
                     screenManager.clear();
                     editorComponents.clear();
-                    renderMenuRecursive(MenuTree.ROOT, true);
+                    renderMenuRecursive(screenManager, MenuTree.ROOT, true);
                 });
             }
 

@@ -28,7 +28,6 @@ public class EmbeddedJavaDemoApp {
         manager.addMenuManagerListener(context.getBean(EmbeddedJavaDemoController.class));
         JfxLocalAutoUI.setAppContext(context);
         manager.addConnectionManager(socketClient);
-        manager.start();
         Application.launch(JfxLocalAutoUI.class);
     }
 

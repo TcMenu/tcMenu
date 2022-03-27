@@ -5,8 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.print.Doc;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,5 +48,20 @@ class XMLDOMHelperTest {
                 element -> XMLDOMHelper.getAttrOrNull(element, "type"));
 
         assertThat(out).containsExactly("Beagle", "Poodle");
+    }
+
+    @Test
+    void testWritingOutXml() throws Exception {
+        var doc = XMLDOMHelper.newDocumentRoot("Animals");
+        var dog = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "Dog", "Beagle");
+        dog.setAttribute("breed", "beagle");
+        var cat = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "Cat", "Tabby");
+        cat.setAttribute("type", "short-hair");
+
+        try(var os = new ByteArrayOutputStream()) {
+            XMLDOMHelper.writeXml(doc, os);
+            assertThat(os.toString()).isEqualToNormalizingNewlines("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Animals><Dog breed=\"beagle\">Beagle</Dog><Cat type=\"short-hair\">Tabby</Cat></Animals>");
+
+        }
     }
 }

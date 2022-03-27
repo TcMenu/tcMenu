@@ -7,7 +7,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -221,5 +220,22 @@ public class XMLDOMHelper {
         var result = new StreamResult(output);
         transformer.transform(source, result);
 
+    }
+
+    public static Document newDocumentRoot(String name) throws ParserConfigurationException {
+        var factory = DocumentBuilderFactory.newInstance();
+        var builder = factory.newDocumentBuilder();
+        var doc = builder.newDocument();
+        doc.appendChild(doc.createElement(name));
+        return doc;
+    }
+
+    public static Element appendElementWithNameValue(Element parent, String name, Object value) {
+        var childEle = parent.getOwnerDocument().createElement(name);
+        if(value != null) {
+            childEle.setTextContent(value.toString());
+        }
+        parent.appendChild(childEle);
+        return childEle;
     }
 }

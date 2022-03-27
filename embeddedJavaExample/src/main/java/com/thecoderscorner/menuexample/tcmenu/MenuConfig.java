@@ -1,20 +1,34 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
+import com.thecoderscorner.embedcontrol.core.controlmgr.NavigationManager;
+import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
-import com.thecoderscorner.menu.auth.*;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.menu.auth.MenuAuthenticator;
+import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.persist.*;
+import com.thecoderscorner.menu.persist.MenuStateSerialiser;
+import com.thecoderscorner.menu.persist.PropertiesMenuStateSerialiser;
+import com.thecoderscorner.menu.persist.VersionInfo;
+import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
+import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.UUID;
-import java.util.concurrent.*;
-import java.nio.file.Path;
-import com.thecoderscorner.menuexample.tcmenu.plugins.*;
-import javafx.application.Application;
-import com.thecoderscorner.menu.remote.protocol.*;
-import com.thecoderscorner.menu.remote.mgrclient.*;
-import java.time.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 /**
  * Spring creates an application context out of all these components, you can wire together your own objects in either
@@ -31,7 +45,27 @@ public class MenuConfig {
 
     @Bean
     public MenuStateSerialiser menuStateSerialiser(EmbeddedJavaDemoMenu menuDef, @Value("${file.menu.storage}") String filePath) {
-        return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath));
+        return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve("menuStorage.properties"));
+    }
+
+    @Bean GlobalSettings globalSettings() {
+        return new GlobalSettings();
+    }
+
+    @Bean
+    public ScreenLayoutPersistence menuLayoutPersistence(
+            EmbeddedJavaDemoMenu menuDef,
+            GlobalSettings settings,
+            MenuManagerServer manager,
+            @Value("${file.menu.storage}") String filePath,
+            @Value("${default.font.size}") int fontSize) {
+        Consumer<Element> noAdditionalSerialisation = (ele) -> {};
+        return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);
+    }
+
+    @Bean
+    public JfxNavigationHeader navigationManager(ScreenLayoutPersistence layoutPersistence) {
+        return new JfxNavigationHeader(layoutPersistence);
     }
 
     @Bean
@@ -40,8 +74,8 @@ public class MenuConfig {
     }
 
     @Bean
-    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef) {
-        return new EmbeddedJavaDemoController(menuDef);
+    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationMgr, ScheduledExecutorService executor, GlobalSettings settings) {
+        return new EmbeddedJavaDemoController(menuDef, navigationMgr, executor, settings);
     }
 
     @Bean

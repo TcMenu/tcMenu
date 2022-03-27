@@ -44,6 +44,11 @@ public class ControlColor {
         this.bg = bg;
     }
 
+    public void copyColorsFrom(ControlColor controlColor) {
+        this.fg = controlColor.getFg();
+        this.bg = controlColor.getBg();
+    }
+
     public static Color asFxColor(PortableColor bg) {
         return new Color(
                 bg.getRed() / 255.0, bg.getGreen() / 255.0,
@@ -57,5 +62,4 @@ public class ControlColor {
                 (short)(color.getBlue() * 255.0), (short)(color.getOpacity() * 255.0)
         );
     }
-
 }

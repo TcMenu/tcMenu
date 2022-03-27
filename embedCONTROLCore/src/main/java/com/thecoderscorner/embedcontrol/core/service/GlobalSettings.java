@@ -18,11 +18,14 @@ public class GlobalSettings {
     private boolean darkMode;
     private String appUuid;
     private String appName;
+    private boolean defaultRecursiveRendering;
+    private int defaultFontSize;
 
     public GlobalSettings() {
         setColorsForDefault(false);
         appUuid = UUID.randomUUID().toString();
         appName = "untitled";
+        defaultFontSize = 16;
     }
 
     public ControlColor getTextColor() {
@@ -89,6 +92,8 @@ public class GlobalSettings {
         appName = prefs.get("appName", "unknown");
         appUuid = prefs.get("appUUID", UUID.randomUUID().toString());
         darkMode = prefs.getBoolean("darkMode", false);
+        defaultFontSize = prefs.getInt("defaultFontSize", 16);
+        defaultRecursiveRendering = prefs.getBoolean("defaultRecursiveRender", false);
     }
 
     private void populateColorIfPresent(Preferences prefs, String colorName, ControlColor colorInfo) {
@@ -111,6 +116,8 @@ public class GlobalSettings {
         prefs.putBoolean("darkMode", darkMode);
         prefs.put("appUUID", appUuid);
         prefs.put("appName", appName);
+        prefs.putBoolean("defaultRecursiveRender", defaultRecursiveRendering);
+        prefs.putInt("defaultFontSize", defaultFontSize);
     }
 
     private void saveColor(Preferences prefs, String name, ControlColor colorData) {
@@ -134,9 +141,17 @@ public class GlobalSettings {
             pendingColor = new ControlColor(ControlColor.LIGHT_GRAY, ControlColor.GREY);
             buttonColor = new ControlColor(ControlColor.BLACK, ControlColor.CORNFLOWER_BLUE);
             errorColor = new ControlColor(ControlColor.WHITE, ControlColor.RED);
-            highlightColor = new ControlColor(ControlColor.WHITE, ControlColor.CORAL);
+            highlightColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
             dialogColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
             textColor = new ControlColor(ControlColor.BLACK, ControlColor.ANTIQUE_WHITE);
         }
+    }
+
+    public int getDefaultFontSize() {
+        return defaultFontSize;
+    }
+
+    public boolean isDefaultRecursiveRendering() {
+        return defaultRecursiveRendering;
     }
 }

@@ -1,10 +1,11 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
+import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxScreenManager;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuControlGrid;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.PairingController;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -43,7 +44,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     private final UUID uuid;
     private RemoteMenuController controller;
     private RemoteTreeComponentManager treeManager;
-    private JfxScreenManager screenManager;
+    private JfxMenuControlGrid screenManager;
     private ScheduledFuture<?> taskRef;
     private GridPane dialogPane;
     private Label headerLabel;
@@ -79,7 +80,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         scrollPane.setContent(waitingLabel);
         controller = creator.start();
         RemoteMenuComponentControl theMenuController = new RemoteMenuComponentControl();
-        screenManager = new JfxScreenManager(theMenuController, scrollPane, Platform::runLater, 2);
+        screenManager = new JfxMenuControlGrid(theMenuController, scrollPane, Platform::runLater, layoutPersistence);
         dialogManager = new RemoteDialogManager();
         treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, dialogManager,
                 context.getExecutorService(), Platform::runLater, theMenuController);
@@ -130,7 +131,6 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
                 context.deleteConnection(uuid);
             }
         });
-
     }
 
     private void generateDialogComponents(BorderPane pane) {
@@ -245,7 +245,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         try {
             scrollPane.setContent(new Label("Please wait.."));
             controller = creator.start();
-            screenManager = new JfxScreenManager(new RemoteMenuComponentControl(), scrollPane, Platform::runLater, 2);
+            screenManager = new JfxMenuControlGrid(new RemoteMenuComponentControl(), scrollPane, Platform::runLater, layoutPersistence);
             treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, new RemoteDialogManager(),
                     context.getExecutorService(), Platform::runLater, new RemoteMenuComponentControl());
         } catch (Exception e) {

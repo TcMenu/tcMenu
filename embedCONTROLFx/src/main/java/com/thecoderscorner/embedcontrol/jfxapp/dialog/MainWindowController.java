@@ -7,7 +7,7 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.PanelPresentable;
+import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;

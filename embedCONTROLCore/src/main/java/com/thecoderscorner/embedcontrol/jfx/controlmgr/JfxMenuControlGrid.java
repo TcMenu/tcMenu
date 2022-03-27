@@ -2,15 +2,18 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
@@ -22,41 +25,73 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
-public class JfxScreenManager implements ScreenManager<Node> {
-    public static final int DEFAULT_FONT_SIZE = 16;
-
-    private final ScrollPane scrollView;
+public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentable<Node> {
+    private static final int DEFAULT_INDENTATION = 8;
     private final MenuComponentControl controller;
-    private final int cols;
-    private int level;
-    private GridPane currentGrid;
+    private final ScreenLayoutPersistence layoutPersistence;
+    private final TreeComponentManager<Node> treeComponentManager;
     private final ThreadMarshaller threadMarshaller;
+    private final int levelIndentation;
+    private final MenuItem presentedItem;
+    private final boolean recursive;
+    private GridPane currentGrid;
+    private int level;
+    private double presentableWidth = 999.99;
+    private boolean createdLayout = false;
 
-    public JfxScreenManager(MenuComponentControl controller, ScrollPane scrollView, ThreadMarshaller marshaller, int cols) {
+    public JfxMenuControlGrid(MenuComponentControl controller, ThreadMarshaller marshaller, TreeComponentManager componentManager,
+                              ScreenLayoutPersistence layoutPersistence, MenuItem presentedItem) {
         this.threadMarshaller = marshaller;
-        this.scrollView = scrollView;
+        this.treeComponentManager = componentManager;
+        this.presentedItem = presentedItem;
+        this.recursive = layoutPersistence.isRecursive(presentedItem);
         this.controller = controller;
-        this.cols = cols;
+        this.layoutPersistence = layoutPersistence;
+        this.levelIndentation = DEFAULT_INDENTATION;
+    }
 
+    @Override
+    public Node getPanelToPresent(double preferredWidth) throws Exception {
+        if(!createdLayout) {
+            createdLayout = true;
+            presentableWidth = preferredWidth;
+            layoutPersistence.resetAutoLayout();
+            clear();
+            treeComponentManager.renderMenuRecursive(this, MenuItemHelper.asSubMenu(presentedItem), recursive);
+        }
+        return currentGrid;
+    }
+
+    @Override
+    public String getPanelName() {
+        return presentedItem == MenuTree.ROOT ? controller.getConnectionName() : presentedItem.getName();
+    }
+
+    @Override
+    public boolean canBeRemoved() {
+        return true;
+    }
+
+    @Override
+    public boolean canClose() {
+        return presentedItem != MenuTree.ROOT;
+    }
+
+    @Override
+    public void closePanel() {
         clear();
     }
 
     @Override
-    public int getDefaultFontSize() {
-        return DEFAULT_FONT_SIZE;
-    }
-
-    @Override
     public void clear() {
+        level = 0;
         currentGrid = new GridPane();
         currentGrid.setHgap(5);
         currentGrid.setVgap(5);
         currentGrid.setMaxWidth(9999);
-        currentGrid.setPrefWidth(scrollView.widthProperty().doubleValue() - 30.0);
-        scrollView.widthProperty().addListener((cl, oldVal, newVal) ->
-                currentGrid.setPrefWidth(newVal.doubleValue() - 30.0));
+        currentGrid.setPrefWidth(presentableWidth);
 
-        for(int i=0; i<cols; i++) {
+        for(int i=0; i<layoutPersistence.getGridSize(); i++) {
             var column1 = new ColumnConstraints();
             column1.setPercentWidth(50);
             currentGrid.getColumnConstraints().add(column1);
@@ -154,7 +189,7 @@ public class JfxScreenManager implements ScreenManager<Node> {
         var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
 
         Canvas component = (Canvas) slider.createComponent();
-        component.setWidth(scrollView.getWidth() - 30);
+        component.setWidth(presentableWidth - 30);
         component.setHeight(25);
         addToGridInPosition(settings, component);
         return slider;
@@ -163,13 +198,12 @@ public class JfxScreenManager implements ScreenManager<Node> {
     private void addToGridInPosition(ComponentSettings settings, Node sp) {
         ComponentPositioning pos = settings.getPosition();
         currentGrid.add(sp, pos.getCol(), pos.getRow(), pos.getColSpan(), pos.getRowSpan());
+        GridPane.setMargin(sp, new Insets(0, 0, 0, level * levelIndentation));
     }
 
     @Override
     public void endNesting() {
-        if (--level == 0) {
-            scrollView.setContent(currentGrid);
-        }
+        --level;
     }
 
     @Override
