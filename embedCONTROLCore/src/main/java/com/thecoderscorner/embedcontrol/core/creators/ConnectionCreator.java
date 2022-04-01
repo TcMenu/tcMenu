@@ -12,6 +12,4 @@ public interface ConnectionCreator {
     AuthStatus currentState();
     RemoteMenuController start() throws Exception;
     boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception;
-    void load(JsonObject prefs) throws IOException;
-    void save(JsonObject prefs) throws IOException;
 }

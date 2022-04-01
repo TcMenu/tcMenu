@@ -524,4 +524,25 @@ public class MenuItemHelper {
         }
         return Optional.empty();
     }
+
+    public static Object getDefaultFor(MenuItem item) {
+        if(item instanceof AnalogMenuItem || item instanceof EnumMenuItem) {
+            return 0;
+        } else if(item instanceof FloatMenuItem) {
+            return 0.0F;
+        } else if(item instanceof BooleanMenuItem || item instanceof SubMenuItem || item instanceof ActionMenuItem) {
+            return false;
+        } else if(item instanceof EditableLargeNumberMenuItem) {
+            return BigDecimal.ZERO;
+        } else if(item instanceof  EditableTextMenuItem) {
+            return "";
+        } else if(item instanceof Rgb32MenuItem) {
+            return new PortableColor(0, 0, 0);
+        } else if(item instanceof  RuntimeListMenuItem) {
+            return List.of();
+        } else if(item instanceof  ScrollChoiceMenuItem) {
+            return new CurrentScrollPosition(0, "");
+        }
+        else throw new IllegalArgumentException("Unknown menu type " + item + "of type " + item.getClass());
+    }
 }

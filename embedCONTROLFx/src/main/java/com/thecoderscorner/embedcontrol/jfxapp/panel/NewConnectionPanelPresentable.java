@@ -6,13 +6,14 @@ import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.NewConnectionController;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class NewConnectionPanelPresentable implements PanelPresentable {
+public class NewConnectionPanelPresentable implements PanelPresentable<Node> {
     private final GlobalSettings settings;
     private final ScheduledExecutorService executorService;
     private final EmbedControlContext context;
@@ -25,12 +26,12 @@ public class NewConnectionPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public void presentPanelIntoArea(BorderPane pane) throws Exception {
+    public Node getPanelToPresent(double width) throws Exception {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/newConnection.fxml"));
         Pane loadedPane = loader.load();
         controller = loader.getController();
         controller.initialise(settings, context, Optional.empty());
-        pane.setCenter(loadedPane);
+        return loadedPane;
     }
 
     @Override
@@ -44,8 +45,12 @@ public class NewConnectionPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public boolean closePanelIfPossible() {
-        controller.destroy();
+    public boolean canClose() {
         return true;
+    }
+
+    @Override
+    public void closePanel() {
+        controller.destroy();
     }
 }

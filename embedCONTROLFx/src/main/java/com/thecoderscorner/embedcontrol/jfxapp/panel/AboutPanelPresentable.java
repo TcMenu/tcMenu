@@ -3,15 +3,14 @@ package com.thecoderscorner.embedcontrol.jfxapp.panel;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
-public class AboutPanelPresentable implements PanelPresentable {
+public class AboutPanelPresentable implements PanelPresentable<Node> {
     @Override
-    public void presentPanelIntoArea(BorderPane pane) throws Exception {
+    public Node getPanelToPresent(double width) throws Exception {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/aboutPage.fxml"));
-        Pane loadedPane = loader.load();
-        pane.setCenter(loadedPane);
+        return loader.<Pane>load();
     }
 
     @Override
@@ -25,7 +24,11 @@ public class AboutPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public boolean closePanelIfPossible() {
+    public boolean canClose() {
         return true;
+    }
+
+    @Override
+    public void closePanel() {
     }
 }

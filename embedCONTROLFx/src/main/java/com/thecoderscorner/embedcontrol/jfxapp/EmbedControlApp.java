@@ -8,27 +8,30 @@ package com.thecoderscorner.embedcontrol.jfxapp;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.FileConnectionStorage;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.MainWindowController;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.NewConnectionController;
-import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.*;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.AboutPanelPresentable;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.NewConnectionPanelPresentable;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.SettingsPanelPresentable;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.Style;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,24 +49,25 @@ import java.util.logging.Logger;
 import static java.lang.System.Logger.Level.*;
 
 public class EmbedControlApp extends Application implements EmbedControlContext {
-    private static final Object metroLock = new Object();
-    private static JMetro jMetro = null;
     private static GlobalSettings settings;
     private final ScheduledExecutorService coreExecutor = Executors.newScheduledThreadPool(4);
     private MainWindowController controller;
     private JsonMenuItemSerializer serializer;
     private Rs232SerialFactory serialFactory;
     private Path tcMenuHome;
+    private Path appDataDir;
     private final System.Logger logger = System.getLogger("PanelSerializer");
-    private FileConnectionStorage<RemoteConnectionPanel> connectionStorage;
-    private ObservableList<PanelPresentable> allPresentableViews;
+    private FileConnectionStorage<RemoteAppScreenLayoutPersistence> connectionStorage;
+    private ObservableList<PanelPresentable<Node>> allPresentableViews;
     private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
+        appDataDir = tcMenuHome.resolve("panels");
         if(!Files.exists(tcMenuHome)) Files.createDirectory(tcMenuHome);
+        if(!Files.exists(appDataDir)) Files.createDirectory(appDataDir);
 
         startUpLogging();
 
@@ -76,7 +80,7 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
         Pane myPane = loader.load();
 
-        settings = new GlobalSettings();
+        settings = new GlobalSettings(EmbedControlApp.class);
         settings.load();
 
         serialFactory = new Rs232SerialFactory(settings, coreExecutor);
@@ -88,7 +92,6 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
         // display the main window.
         Scene myScene = new Scene(myPane);
         primaryStage.setScene(myScene);
-        getJMetro().setScene(myScene);
         primaryStage.show();
 
         primaryStage.setOnCloseRequest((evt)-> {
@@ -104,17 +107,14 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
                 new NewConnectionPanelPresentable(settings, this)
         );
 
-        connectionStorage = new FileConnectionStorage<>(serialFactory, serializer, settings, coreExecutor, tcMenuHome) {
-            @Override
-            protected RemoteConnectionPanel createPanel(ConnectionCreator creator, UUID panelUuid) {
-                return new RemoteConnectionPanel(creator, settings, EmbedControlApp.this, panelUuid);
-            }
-        };
+        connectionStorage = new RemoteAppFileConnectionStorage(serialFactory, serializer, settings, coreExecutor, appDataDir);
 
-        var loadedViews = connectionStorage.loadAllRemoteConnections();
+        var loadedLayouts = connectionStorage.loadAllRemoteConnections();
+        var loadedPanels = loadedLayouts.stream().map(layout ->
+                new RemoteConnectionPanel(settings, this, layout, MenuTree.ROOT)).toList();
         allPresentableViews = FXCollections.observableArrayList();
         allPresentableViews.addAll(defaultViews);
-        allPresentableViews.addAll(loadedViews);
+        allPresentableViews.addAll(loadedPanels);
 
         controller.initialise(settings, allPresentableViews);
     }
@@ -130,20 +130,6 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
         {
             Logger.getAnonymousLogger().severe("Could not load default logger:" + e.getMessage());
         }
-    }
-
-    /**
-     * Get the JMetro object that we use as the theme.
-     * @return the JMetro object.
-     */
-    public static JMetro getJMetro() {
-        synchronized (metroLock) {
-            if (jMetro == null) {
-                Style style = settings.isDarkMode() ? Style.DARK : Style.LIGHT;
-                jMetro = new JMetro(style);
-            }
-        }
-        return jMetro;
     }
 
     //
@@ -167,12 +153,15 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
 
     @Override
     public void createConnection(ConnectionCreator connectionCreator) {
-        var panel = new RemoteConnectionPanel(connectionCreator, settings, this, UUID.randomUUID());
-        controller.createdConnection(panel);
-
-        logger.log(INFO, "Created new panel " + panel.getPanelName());
-
-        coreExecutor.execute(() -> connectionStorage.savePanel(panel));
+        var layoutPersistence = new RemoteAppScreenLayoutPersistence(new MenuTree(), settings, UUID.randomUUID(), appDataDir,
+                16, serialFactory, coreExecutor, connectionCreator);
+        try {
+            var panel = new RemoteConnectionPanel(settings, this, layoutPersistence, MenuTree.ROOT);
+            controller.createdConnection(panel);
+            logger.log(INFO, "Created new panel " + panel.getPanelName());
+        } catch (Exception e) {
+            logger.log(ERROR, "Panel creation failure", e);
+        }
     }
 
     @Override
@@ -194,14 +183,13 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
             editController.initialise(settings, this, Optional.of(connectionPanel.getCreator()));
 
             Scene scene = new Scene(loadedPane);
-            getJMetro().setScene(scene);
             dialogStage.setScene(scene);
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.showAndWait();
             var result = editController.getResult();
             result.ifPresent(connectionCreator -> {
                 connectionPanel.changeConnectionCreator(connectionCreator);
-                connectionStorage.savePanel(connectionPanel);
+                connectionStorage.savePanel(connectionPanel.getLayoutPersistence());
             });
         } catch (IOException e) {
             logger.log(ERROR, "Failure during connection edit for " + identifier);
@@ -223,5 +211,21 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
                 logger.log(WARNING, "Request to delete non existing panel from UI " + identifier);
             }
         }
+    }
+
+    private class RemoteAppFileConnectionStorage extends FileConnectionStorage<RemoteAppScreenLayoutPersistence> {
+        public RemoteAppFileConnectionStorage(Rs232SerialFactory serialFactory, JsonMenuItemSerializer serializer, GlobalSettings settings, ScheduledExecutorService coreExecutor, Path appDataDir) {
+            super(serialFactory, serializer, settings, coreExecutor, appDataDir);
+        }
+
+        @Override
+        protected Optional<RemoteAppScreenLayoutPersistence> createLayoutPersistence(Path file) {
+            var uuid = UUID.fromString(file.getFileName().toString().replace("-layout.xml", ""));
+            var layout = new RemoteAppScreenLayoutPersistence(new MenuTree(), settings, uuid, appDataDir,
+                    16, serialFactory, coreExecutor);
+            layout.loadApplicationData();
+            return Optional.of(layout);
+        }
+
     }
 }

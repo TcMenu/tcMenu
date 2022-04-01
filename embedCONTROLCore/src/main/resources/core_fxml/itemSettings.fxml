@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="290.0" prefWidth="374.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ItemSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="327.0" prefWidth="374.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ItemSettingsController">
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
     </padding>
@@ -30,36 +30,39 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
             <Label text="Item ID" />
             <Label text="Font Size" GridPane.rowIndex="1" />
             <Spinner fx:id="fontSizeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label fx:id="itemLabel" prefHeight="17.0" prefWidth="274.0" text="Label" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-            <Label text="Draw Item As" GridPane.rowIndex="2" />
+            <Label text="Text Mode" GridPane.rowIndex="2" />
             <Label text="Justification" GridPane.rowIndex="3" />
             <ComboBox fx:id="drawAsCombo" prefHeight="26.0" prefWidth="278.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
             <ComboBox fx:id="justificationCombo" prefHeight="26.0" prefWidth="277.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-            <Label text="Row" GridPane.rowIndex="5" />
-            <Label text="Column" GridPane.rowIndex="6" />
-            <Label text="Position" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label text="Span" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-            <Label text="Grid Settings" GridPane.rowIndex="4" />
-            <Spinner fx:id="rowPositionSpinner" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label text="Row" GridPane.rowIndex="6" />
+            <Label text="Column" GridPane.rowIndex="7" />
+            <Label text="Position" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Span" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+            <Label text="Grid Settings" GridPane.rowIndex="5" />
+            <Spinner fx:id="rowPositionSpinner" GridPane.columnIndex="1" GridPane.rowIndex="6">
                <GridPane.margin>
                   <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                </GridPane.margin>
             </Spinner>
-            <Spinner fx:id="columnPositionSpinner" GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <Spinner fx:id="columnPositionSpinner" GridPane.columnIndex="1" GridPane.rowIndex="7">
                <GridPane.margin>
                   <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                </GridPane.margin>
             </Spinner>
-            <Spinner fx:id="columnSpanSpinner" GridPane.columnIndex="2" GridPane.rowIndex="6">
+            <Spinner fx:id="columnSpanSpinner" GridPane.columnIndex="2" GridPane.rowIndex="7">
                <GridPane.margin>
                   <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                </GridPane.margin>
             </Spinner>
+            <Label text="Control" GridPane.rowIndex="4" />
+            <ComboBox fx:id="controlTypeCombo" prefHeight="25.0" prefWidth="276.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
             </children>
         </GridPane>
     </center>

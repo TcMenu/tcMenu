@@ -10,6 +10,7 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
@@ -41,12 +42,12 @@ public class MainWindowController {
     public Label statusLabel;
     public BorderPane mainBorderPane;
     public Label versionField;
-    public ListView<PanelPresentable> connectionList;
+    public ListView<PanelPresentable<Node>> connectionList;
     public BorderPane detailPane;
     private GlobalSettings settings;
     private PanelPresentable currentlyDisplayed;
 
-    public void initialise(GlobalSettings settings, ObservableList<PanelPresentable> initialPanels) {
+    public void initialise(GlobalSettings settings, ObservableList<PanelPresentable<Node>> initialPanels) {
         this.settings = settings;
 
         try {
@@ -65,12 +66,13 @@ public class MainWindowController {
             if(newVal != null) {
                 try {
                     logger.log(INFO, "Change panel to ", newVal.getPanelName());
-                    if(currentlyDisplayed == null || currentlyDisplayed.closePanelIfPossible()) {
-                        clearBorderPanel();
-                        logger.log(INFO, "Present new panel ", newVal.getPanelName());
-                        newVal.presentPanelIntoArea(detailPane);
-                        currentlyDisplayed = newVal;
+                    if(currentlyDisplayed != null) {
+                        currentlyDisplayed.closePanel();
                     }
+                    clearBorderPanel();
+                    logger.log(INFO, "Present new panel ", newVal.getPanelName());
+                    detailPane.setCenter(newVal.getPanelToPresent(detailPane.getWidth()));
+                    currentlyDisplayed = newVal;
                 } catch (Exception e) {
                     logger.log(ERROR, "Failed to open the new panel", e);
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Form did not load", ButtonType.CLOSE);
@@ -97,7 +99,7 @@ public class MainWindowController {
         connectionList.getSelectionModel().select(panelPresentable);
     }
 
-    private static class PanelPresentableListCell extends ListCell<PanelPresentable> {
+    private static class PanelPresentableListCell extends ListCell<PanelPresentable<Node>> {
         @Override
         public void updateItem(PanelPresentable item, boolean empty) {
             super.updateItem(item, empty);

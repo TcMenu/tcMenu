@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase.setNodeConditionalColours;
 
@@ -40,6 +41,9 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
         plusButton = new Button(">");
         minusButton.setDisable(item.isReadOnly());
         plusButton.setDisable(item.isReadOnly());
+        plusButton.setFont(Font.font(getDrawingSettings().getFontSize()));
+        minusButton.setFont(Font.font(getDrawingSettings().getFontSize()));
+        itemLabel.setFont(Font.font(getDrawingSettings().getFontSize()));
 
         minusButton.setOnAction(e -> bumpCount(REDUCE));
 

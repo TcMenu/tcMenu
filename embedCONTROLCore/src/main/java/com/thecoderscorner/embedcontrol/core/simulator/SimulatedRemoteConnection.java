@@ -30,7 +30,7 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     private final System.Logger logger = System.getLogger(SimulatedRemoteConnection.class.getSimpleName());
     private final ScheduledExecutorService executor;
     private final MenuTree tree;
-    private final String uuid = UUID.randomUUID().toString();
+    private final UUID uuid;
     private final String simName;
     private final int latencyMillis;
     private final Map<Integer, Object> valuesById;
@@ -41,14 +41,15 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     private RemoteConnectorListener connectorListener;
     private ConnectionChangeListener connectionChangeListener;
 
-    public SimulatedRemoteConnection(MenuTree tree, String simName, int latencyMillis,
+    public SimulatedRemoteConnection(MenuTree tree, String simName, UUID uuid, int latencyMillis,
                                      Map<Integer, Object> valuesById, ScheduledExecutorService executor) {
         this.tree = tree;
         this.executor = executor;
         this.simName = simName;
         this.latencyMillis = latencyMillis;
         this.valuesById = valuesById;
-        this.remoteInfo = new RemoteInformation(simName, 1, 1, ApiPlatform.JAVA_API);
+        this.uuid = uuid;
+        this.remoteInfo = new RemoteInformation(simName, uuid,1, 1, ApiPlatform.JAVA_API);
         var simulatorMenu = new SubMenuItemBuilder()
                 .withId(60001)
                 .withName("Simulator Options")

@@ -7,7 +7,6 @@ import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 public interface EditorComponent<T> {
     enum PortableAlignment { LEFT, RIGHT, CENTER }
     enum RenderingStatus { NORMAL, RECENT_UPDATE, EDIT_IN_PROGRESS, CORRELATION_ERROR }
-    enum RedrawingMode { SHOW_NAME, SHOW_VALUE, SHOW_NAME_IN_LABEL, SHOW_NAME_VALUE, SHOW_LABEL_NAME_VALUE }
 
     void onItemUpdated(MenuState<?> newValue);
     void onCorrelation(CorrelationId correlationId, AckStatus status);

@@ -1,12 +1,11 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.MenuControlGrid;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.mgr.DialogViewer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
@@ -23,11 +22,11 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
     private final RemoteControllerListener remoteListener;
     private final RemoteMenuController remoteController;
 
-    public RemoteTreeComponentManager(MenuControlGrid<Node> screenManager, RemoteMenuController controller,
+    public RemoteTreeComponentManager(RemoteMenuController controller,
                                       GlobalSettings appSettings, DialogViewer dialogViewer,
                                       ScheduledExecutorService executor, ThreadMarshaller marshaller,
-                                      MenuComponentControl componentControl) {
-        super(appSettings, executor, marshaller, componentControl, layoutPeristence);
+                                      MenuComponentControl componentControl, ScreenLayoutPersistence layoutPersistence) {
+        super(appSettings, executor, marshaller, componentControl, layoutPersistence);
         remoteController = controller;
         remoteListener = new RemoteControllerListener() {
             @Override
@@ -39,11 +38,6 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
 
             @Override
             public void treeFullyPopulated() {
-                marshaller.runOnUiThread(() -> {
-                    screenManager.clear();
-                    editorComponents.clear();
-                    renderMenuRecursive(screenManager, MenuTree.ROOT, true);
-                });
             }
 
             @Override
@@ -54,8 +48,9 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
 
             @Override
             public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
-                for (var uiItem : editorComponents.values()) {
-                    uiItem.onCorrelation(key, status);
+                var comp = editorComponents.get(item.getId());
+                if(comp != null) {
+                    comp.onCorrelation(key, status);
                 }
             }
 

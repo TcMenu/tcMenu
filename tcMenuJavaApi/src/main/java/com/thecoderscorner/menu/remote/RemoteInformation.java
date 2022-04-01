@@ -8,26 +8,37 @@ package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 
+import java.util.UUID;
+
 /**
  * Represents the remote connection details, such as name and version.
  */
 public class RemoteInformation {
-    public static final RemoteInformation NOT_CONNECTED = new RemoteInformation("", -1, -1, ApiPlatform.JAVA_API);
+    public static final RemoteInformation NOT_CONNECTED = new RemoteInformation("", UUID.randomUUID(),  -1, -1, ApiPlatform.JAVA_API);
     private final String name;
+    private final UUID uuid;
     private final ApiPlatform platform;
     private final int major;
     private final int minor;
 
-    public RemoteInformation(String name, int major, int minor, ApiPlatform platform) {
+    public RemoteInformation(String name, UUID uuid, int major, int minor, ApiPlatform platform) {
         this.name = name;
         this.major = major;
         this.minor = minor;
         this.platform = platform;
+        this.uuid = uuid;
     }
 
     /** the name of the remote */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @return the uuid of the remote party
+     */
+    public UUID getUuid() {
+        return uuid;
     }
 
     /** the platform type of the remote host */

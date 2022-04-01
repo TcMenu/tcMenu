@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
-import static javafx.scene.control.Alert.*;
+import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -39,6 +40,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     private HBox widgetPane;
     private MenuComponentControl controller;
     private DialogManager dialogManager;
+    private JfxPanelLayoutEditorPresenter itemEditorPresenter;
 
     public JfxNavigationHeader(ScreenLayoutPersistence persistence) {
         this.layoutPersistence = persistence;
@@ -65,7 +67,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         );
         leftButton = new Button();
         leftButton.setOnAction(e -> {
-            if(navigationStack.size() > 1 && navigationStack.peek().canClose()) {
+            if (navigationStack.size() > 1 && navigationStack.peek().canClose()) {
                 popNavigation();
             }
         });
@@ -102,7 +104,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     }
 
     private void fireWidgetClicked(ActionEvent evt, TitleWidget<Image> widget) {
-        for(var l : widgetClickListeners) {
+        for (var l : widgetClickListeners) {
             l.accept(evt, widget);
         }
     }
@@ -110,11 +112,6 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     @Override
     public void addWidgetClickedListener(BiConsumer<ActionEvent, TitleWidget<Image>> listener) {
         widgetClickListeners.add(listener);
-    }
-
-    @Override
-    public void pushMenuNavigation(SubMenuItem subMenuItem) {
-        pushNavigation(new JfxMenuControlGrid(controller, Platform::runLater, getTreeComponentManager(), layoutPersistence, subMenuItem));
     }
 
     @Override
@@ -126,16 +123,16 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     public void titleWidgetHasChanged(TitleWidget<Image> widget) {
         Platform.runLater(() -> {
             var widGfx = widgetButtonMap.get(widget);
-            var imgView = (ImageView)widGfx.getGraphic();
+            var imgView = (ImageView) widGfx.getGraphic();
             imgView.setImage(widget.getCurrentImage());
         });
     }
 
-    public static TitleWidget<Image> widgetFromImages(URL... imageName) {
-        var images = Arrays.stream(imageName)
-                .map(i -> new Image(i.toString()))
-                .toList();
-        return new TitleWidget<>(images, images.size(), 0);
+    @Override
+    public void pushMenuNavigation(SubMenuItem subMenuItem) {
+        var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, layoutPersistence, subMenuItem);
+        if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
+        pushNavigation(controlGrid);
     }
 
     public void pushNavigation(PanelPresentable<Node> navigation) {
@@ -160,11 +157,6 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         }
     }
 
-    @Override
-    public TreeComponentManager<Node> getTreeComponentManager() {
-        return treeComponentManager;
-    }
-
     public void popNavigation() {
         Platform.runLater(() -> {
             var navigation = navigationStack.pop();
@@ -179,4 +171,58 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
             pushNavigation(navigation);
         });
     }
+
+    @Override
+    public void setItemEditorPresenter(JfxPanelLayoutEditorPresenter panelPresenter) {
+        this.itemEditorPresenter = panelPresenter;
+        navigationStack.clear();
+        pushMenuNavigation(MenuTree.ROOT);
+    }
+
+    public void destroy() {
+        for(var nav : navigationStack) {
+            nav.closePanel();
+        }
+        navigationStack.clear();
+        widgetButtonMap.clear();
+        widgetClickListeners.clear();
+    }
+
+    /**
+     * Creates a 5 level WiFi widget that represents, no connection, poor connection, low strength, fair strength
+     * and a good connection. The first icon is no connection, the last is good connection.
+     * @return the widget
+     */
+    public static TitleWidget<Image> standardWifiWidget() {
+        return JfxNavigationHeader.widgetFromImages(
+                JfxNavigationHeader.class.getResource("/img/con-fail.png"),
+                JfxNavigationHeader.class.getResource("/img/wifi-poor.png"),
+                JfxNavigationHeader.class.getResource("/img/wifi-low.png"),
+                JfxNavigationHeader.class.getResource("/img/wifi-fair.png"),
+                JfxNavigationHeader.class.getResource("/img/wifi-full.png"));
+    }
+
+    /**
+     * Creates a single icon that looks like a cog, suitable to represent a configuration widget.
+     * @return the widget
+     */
+    public static TitleWidget<Image> standardSettingsWidget() {
+        return JfxNavigationHeader.widgetFromImages(
+                JfxNavigationHeader.class.getResource("/img/settings-cog.png")
+        );
+    }
+
+    public static TitleWidget<Image> standardSaveWidget() {
+        return JfxNavigationHeader.widgetFromImages(
+                JfxNavigationHeader.class.getResource("/img/save-icon.png")
+        );
+    }
+
+    public static TitleWidget<Image> widgetFromImages(URL... imageName) {
+        var images = Arrays.stream(imageName)
+                .map(i -> new Image(i.toString()))
+                .toList();
+        return new TitleWidget<>(images, images.size(), 0);
+    }
+
 }

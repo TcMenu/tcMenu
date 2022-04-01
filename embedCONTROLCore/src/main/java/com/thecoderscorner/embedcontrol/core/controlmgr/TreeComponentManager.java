@@ -2,12 +2,15 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.AuthStatus;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -64,10 +67,7 @@ public class TreeComponentManager<T> {
                     layoutControlGrid.addStaticLabel(item.getName(), layoutPersistence.getSettingsForStaticItem(sub, 2, true), false);
                 }
 
-                var editorComponent = getComponentEditorItem(layoutControlGrid, item);
-                if(editorComponent!=null) {
-                    editorComponents.put(item.getId(), editorComponent);
-                }
+                getComponentEditorItem(layoutControlGrid, item).ifPresent(comp -> editorComponents.put(item.getId(), comp));
             }
 
             if (editorComponents.containsKey(item.getId()) && tree.getMenuState(item) != null) {
@@ -78,42 +78,28 @@ public class TreeComponentManager<T> {
         layoutControlGrid.endNesting();
     }
 
-    public EditorComponent<T> getComponentEditorItem(MenuControlGrid<T> layoutControlGrid, MenuItem item) {
+    public Optional<EditorComponent<T>> getComponentEditorItem(MenuControlGrid<T> layoutControlGrid, MenuItem item) {
+        var componentSettings = layoutPersistence.getSettingsForMenuItem(item, true);
+
+        if(componentSettings.getDrawMode() == RedrawingMode.HIDDEN) return Optional.empty();
+
         if(item instanceof SubMenuItem sub) {
-            var componentSettings = layoutPersistence.getSettingsForMenuItem(sub, true);
-            return layoutControlGrid.addButtonWithAction(sub, sub.getName(), componentSettings,
-                    subMenuItem -> controller.getNavigationManager().pushMenuNavigation(subMenuItem));
+            return Optional.of(layoutControlGrid.addButtonWithAction(sub, sub.getName(), componentSettings,
+                    subMenuItem -> controller.getNavigationManager().pushMenuNavigation(subMenuItem)));
         }
-        else if (item instanceof BooleanMenuItem boolItem) {
-            return layoutControlGrid.addBooleanButton(boolItem, layoutPersistence.getSettingsForMenuItem(boolItem, false));
-        } else if (item instanceof ActionMenuItem actionItem) {
-            return layoutControlGrid.addBooleanButton(actionItem, layoutPersistence.getSettingsForMenuItem(actionItem, false));
-        } else if (item instanceof AnalogMenuItem analogItem) {
-            return layoutControlGrid.addHorizontalSlider(analogItem, layoutPersistence.getSettingsForMenuItem(analogItem, false));
-        } else if (item instanceof Rgb32MenuItem rgb) {
-            return layoutControlGrid.addRgbColorControl(rgb,  layoutPersistence.getSettingsForMenuItem(rgb, false));
-        } else if (item instanceof EnumMenuItem enumItem) {
-            return layoutControlGrid.addUpDownInteger(enumItem,  layoutPersistence.getSettingsForMenuItem(enumItem, true));
-        } else if (item instanceof ScrollChoiceMenuItem scrollItem) {
-            return layoutControlGrid.addUpDownScroll(scrollItem, layoutPersistence.getSettingsForMenuItem(scrollItem, true));
-        } else if (item instanceof FloatMenuItem floatItem) {
-            return layoutControlGrid.addTextEditor(floatItem, layoutPersistence.getSettingsForMenuItem(floatItem, true), 0.0F);
-        } else if (item instanceof RuntimeListMenuItem listItem) {
-            return layoutControlGrid.addListEditor(listItem, layoutPersistence.getSettingsForMenuItem(listItem, true));
-        } else if (item instanceof EditableTextMenuItem textItem) {
-            if (textItem.getItemType() == EditItemType.GREGORIAN_DATE) {
-                return layoutControlGrid.addDateEditorComponent(textItem, layoutPersistence.getSettingsForMenuItem(textItem, true));
-            } else if (textItem.getItemType() == EditItemType.TIME_24_HUNDREDS ||
-                    textItem.getItemType() == EditItemType.TIME_12H ||
-                    textItem.getItemType() == EditItemType.TIME_24H) {
-                return layoutControlGrid.addTimeEditorComponent(textItem, layoutPersistence.getSettingsForMenuItem(textItem, true));
-            } else {
-                return layoutControlGrid.addTextEditor(textItem, layoutPersistence.getSettingsForMenuItem(textItem, true), "");
-            }
-        } else if (item instanceof EditableLargeNumberMenuItem largeNum) {
-            return layoutControlGrid.addTextEditor(largeNum, layoutPersistence.getSettingsForMenuItem(largeNum, true), BigDecimal.ZERO);
-        }
-        return null;
+
+        return Optional.ofNullable(switch(componentSettings.getControlType()) {
+            case HORIZONTAL_SLIDER -> layoutControlGrid.addHorizontalSlider(item, componentSettings);
+            case UP_DOWN_CONTROL -> layoutControlGrid.addUpDownControl(item, componentSettings);
+            case TEXT_CONTROL -> layoutControlGrid.addTextEditor(item, componentSettings, MenuItemHelper.getDefaultFor(item));
+            case BUTTON_CONTROL -> layoutControlGrid.addBooleanButton(item, componentSettings);
+            case VU_METER -> throw new UnsupportedOperationException("VU TODO");
+            case DATE_CONTROL -> layoutControlGrid.addDateEditorComponent(item, componentSettings);
+            case TIME_CONTROL -> layoutControlGrid.addTimeEditorComponent(item, componentSettings);
+            case RGB_CONTROL -> layoutControlGrid.addRgbColorControl(item, componentSettings);
+            case LIST_CONTROL -> layoutControlGrid.addListEditor(item, componentSettings);
+            case CANT_RENDER -> null;
+        });
     }
 
     public void timerTick() {

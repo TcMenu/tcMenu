@@ -3,20 +3,21 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.NullConditionalColoring;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 
 public class ComponentSettings {
-    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), 0, PortableAlignment.LEFT, null, RedrawingMode.SHOW_LABEL_NAME_VALUE, false);
+    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), 0, PortableAlignment.LEFT, new ComponentPositioning(0, 0), RedrawingMode.SHOW_NAME_VALUE, ControlType.TEXT_CONTROL, false);
 
     private final int fontSize;
     private final ConditionalColoring colors;
     private final PortableAlignment justification;
     private final ComponentPositioning position;
+    private final ControlType controlType;
     private final RedrawingMode drawMode;
     private final boolean customised;
 
     public ComponentSettings(ConditionalColoring colors, int fontSize, PortableAlignment justification,
-        ComponentPositioning position, RedrawingMode mode, boolean custom)
+        ComponentPositioning position, RedrawingMode mode, ControlType controlType, boolean custom)
     {
         this.fontSize = fontSize;
         this.colors = colors;
@@ -24,6 +25,7 @@ public class ComponentSettings {
         this.position = position;
         this.drawMode = mode;
         this.customised = custom;
+        this.controlType = controlType;
     }
 
     public int getFontSize() {
@@ -44,6 +46,10 @@ public class ComponentSettings {
 
     public RedrawingMode getDrawMode() {
         return drawMode;
+    }
+
+    public ControlType getControlType() {
+        return controlType;
     }
 
     public boolean isCustomised() {

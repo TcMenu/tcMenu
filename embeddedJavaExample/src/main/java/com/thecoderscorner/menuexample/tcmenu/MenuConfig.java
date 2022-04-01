@@ -1,8 +1,5 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.NavigationManager;
-import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
@@ -21,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 import java.time.Clock;
@@ -49,7 +45,7 @@ public class MenuConfig {
     }
 
     @Bean GlobalSettings globalSettings() {
-        return new GlobalSettings();
+        return new GlobalSettings(EmbeddedJavaDemoMenu.class);
     }
 
     @Bean
@@ -59,8 +55,9 @@ public class MenuConfig {
             MenuManagerServer manager,
             @Value("${file.menu.storage}") String filePath,
             @Value("${default.font.size}") int fontSize) {
-        Consumer<Element> noAdditionalSerialisation = (ele) -> {};
-        return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);
+        var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
+        layout.loadApplicationData();
+        return layout;
     }
 
     @Bean
@@ -74,8 +71,8 @@ public class MenuConfig {
     }
 
     @Bean
-    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationMgr, ScheduledExecutorService executor, GlobalSettings settings) {
-        return new EmbeddedJavaDemoController(menuDef, navigationMgr, executor, settings);
+    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationMgr, ScheduledExecutorService executor, GlobalSettings settings, ScreenLayoutPersistence layoutPersistence) {
+        return new EmbeddedJavaDemoController(menuDef, navigationMgr, executor, settings, layoutPersistence);
     }
 
     @Bean

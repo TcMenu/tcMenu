@@ -5,12 +5,10 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
-import java.io.IOException;
-
-public class SettingsPanelPresentable implements PanelPresentable {
+public class SettingsPanelPresentable implements PanelPresentable<Node> {
     private final GlobalSettings settings;
 
     public SettingsPanelPresentable(GlobalSettings settings) {
@@ -18,17 +16,17 @@ public class SettingsPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public void presentPanelIntoArea(BorderPane pane) throws IOException {
+    public Node getPanelToPresent(double width) throws Exception {
         var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/generalSettings.fxml"));
         Pane loadedPane = loader.load();
-        pane.setCenter(loadedPane);
         GeneralSettingsController controller = loader.getController();
         controller.initialise(settings);
+        return loadedPane;
     }
 
     @Override
     public String getPanelName() {
-        return "Settings";
+        return "App Settings";
     }
 
     @Override
@@ -37,7 +35,12 @@ public class SettingsPanelPresentable implements PanelPresentable {
     }
 
     @Override
-    public boolean closePanelIfPossible() {
-        return true;
+    public boolean canClose() {
+        return false;
+    }
+
+    @Override
+    public void closePanel() {
+
     }
 }

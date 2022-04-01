@@ -137,7 +137,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withStatement("return new " + clazzBaseName + "Controller(menuDef);").withAnnotation("Bean")
                         .withParameter(clazzBaseName + "Menu menuDef"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "GlobalSettings", "globalSettings")
-                        .withAnnotation("Bean").withStatement("return new GlobalSettings();"))
+                        .withAnnotation("Bean").withStatement("return new GlobalSettings(" + clazzBaseName + "Menu.class);"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScreenLayoutPersistence", "menuLayoutPersistence")
                         .withAnnotation("Bean").withParameter("EmbeddedJavaDemoMenu menuDef").withParameter("GlobalSettings settings")
                         .withParameter("MenuManagerServer manager").withParameter("@Value(\"${file.menu.storage}\") String filePath")

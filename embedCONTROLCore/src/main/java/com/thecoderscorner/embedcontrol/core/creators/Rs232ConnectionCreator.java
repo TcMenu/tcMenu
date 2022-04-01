@@ -14,9 +14,9 @@ import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 public class Rs232ConnectionCreator implements ConnectionCreator {
     public static final String MANUAL_RS232_CREATOR_TYPE = "rs232";
     private final PlatformSerialFactory serialFactory;
-    private String name;
-    private String portId;
-    private int baudRate;
+    private final String name;
+    private final String portId;
+    private final int baudRate;
     private RemoteMenuController controller;
 
     public Rs232ConnectionCreator(PlatformSerialFactory serialFactory) {
@@ -60,23 +60,5 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
     @Override
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws IOException {
         return serialFactory.attemptPairing(name, baudRate, statusConsumer);
-    }
-
-    @Override
-    public void load(JsonObject prefs) throws IOException {
-        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
-        name = getJsonStrOrThrow(creatorType, "name");
-        portId = getJsonStrOrThrow(creatorType, "portId");
-        baudRate = getJsonIntOrThrow(creatorType, "baud");
-    }
-
-    @Override
-    public void save(JsonObject prefs) {
-        JsonObject creator = new JsonObject();
-        creator.add("name", new JsonPrimitive(name));
-        creator.add("portId", new JsonPrimitive(portId));
-        creator.add("baud", new JsonPrimitive(baudRate));
-        creator.add("type", new JsonPrimitive(MANUAL_RS232_CREATOR_TYPE));
-        prefs.add("creator", creator);
     }
 }

@@ -1,10 +1,12 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.thecoderscorner.embedcontrol.core.creators.*;
+import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.creators.ManualLanConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.creators.Rs232ConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.creators.SimulatorConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 
 import java.io.IOException;
@@ -21,96 +23,38 @@ import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStr
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
-public abstract class FileConnectionStorage<T extends RemotePanelDisplayable> implements ConnectionStorage<T> {
+public abstract class FileConnectionStorage<T extends ScreenLayoutPersistence> implements ConnectionStorage<T> {
     protected final System.Logger logger = System.getLogger(FileConnectionStorage.class.getSimpleName());
     protected final PlatformSerialFactory serialFactory;
-    protected final JsonMenuItemSerializer serializer;
     protected final GlobalSettings settings;
     protected final ScheduledExecutorService executorService;
     private final Path baseDir;
 
     public FileConnectionStorage(PlatformSerialFactory serialFactory, JsonMenuItemSerializer serializer,
                                  GlobalSettings settings, ScheduledExecutorService executorService,
-                                 Path homeDir) throws IOException {
+                                 Path baseDir) {
         this.serialFactory = serialFactory;
-        this.serializer = serializer;
         this.settings = settings;
         this.executorService = executorService;
-
-        baseDir = homeDir.resolve("ec_connections");
-        if(!Files.exists(baseDir)) {
-            Files.createDirectories(baseDir);
-        }
+        this.baseDir = baseDir;
     }
 
     public List<T> loadAllRemoteConnections() throws IOException {
         return Files.list(baseDir)
-                .filter(p -> p.toString().endsWith("_rc.json"))
-                .map(this::processRemotePanel)
+                .filter(p -> p.toString().endsWith("-layout.xml"))
+                .map(this::createLayoutPersistence)
                 .filter(Optional::isPresent).map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    private Optional<T> processRemotePanel(Path file) {
-        try {
-            logger.log(INFO, "Attempt load for " + file);
+    protected abstract Optional<T> createLayoutPersistence(Path file);
 
-            var content = Files.readString(file);
-            var rootElement = JsonParser.parseString(content).getAsJsonObject();
-            var panelUuid = UUID.fromString(getJsonStrOrThrow(rootElement, "panelUuid"));
-            var creatorNode = getJsonObjOrThrow(rootElement, "creator");
-            var creatorType = getJsonStrOrThrow(creatorNode, "type");
-
-            ConnectionCreator creator;
-
-            switch(creatorType) {
-                case Rs232ConnectionCreator.MANUAL_RS232_CREATOR_TYPE:
-                    creator = new Rs232ConnectionCreator(serialFactory);
-                    break;
-                case ManualLanConnectionCreator.MANUAL_LAN_JSON_TYPE:
-                    creator = new ManualLanConnectionCreator(settings, executorService);
-                    break;
-                case SimulatorConnectionCreator.SIMULATED_CREATOR_TYPE:
-                    creator = new SimulatorConnectionCreator(executorService, serializer);
-                    break;
-                default:
-                    throw new IOException("Unknown type of connection: " + creatorType);
-            }
-
-            creator.load(rootElement);
-
-            logger.log(INFO, "Loaded panel UUID='" + panelUuid + "' type='" + creatorType + "' name='" + creator.getName());
-
-            return Optional.of(createPanel(creator, panelUuid));
-        }
-        catch(Exception ex) {
-            logger.log(ERROR, "Panel load failed for " + file, ex);
-        }
-        return Optional.empty();
-    }
-
-    protected abstract T createPanel(ConnectionCreator creator, UUID panelUuid);
-
-    private Path resolvePanelFile(UUID panelId) {
-        return baseDir.resolve(panelId.toString() + "_rc.json");
-    }
-
-    public void savePanel(T panel) {
-        var panelFileName = resolvePanelFile(panel.getUuid());
-        try {
-            logger.log(INFO, "Saving panel for " + panel.getPanelName() + " uuid " + panel.getUuid());
-            var obj = new JsonObject();
-            panel.getCreator().save(obj);
-            obj.add("panelUuid", new JsonPrimitive(panel.getUuid().toString()));
-            Files.writeString(panelFileName, serializer.getGson().toJson(obj));
-        }
-        catch (Exception ex) {
-            logger.log(ERROR, "Panel save failed for " + panelFileName, ex);
-        }
+    public void savePanel(T screenSettings) {
+        screenSettings.serialiseAll();
     }
 
     public boolean deletePanel(UUID uuid) {
-        var panelFileName = resolvePanelFile(uuid);
+        var panelFileName = ScreenLayoutPersistence.uuidToFileName(baseDir, uuid);
         try {
             logger.log(INFO, "Delete panel request for " + uuid + ", file ", panelFileName);
             return Files.deleteIfExists(panelFileName);

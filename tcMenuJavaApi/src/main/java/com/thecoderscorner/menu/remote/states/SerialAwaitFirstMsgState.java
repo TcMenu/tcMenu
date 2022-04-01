@@ -31,6 +31,7 @@ public class SerialAwaitFirstMsgState extends BaseMessageProcessingState {
             MenuJoinCommand join = (MenuJoinCommand) cmd;
             RemoteInformation remote = new RemoteInformation(
                     join.getMyName(),
+                    join.getAppUuid(),
                     join.getApiVersion() / 100, join.getApiVersion() % 100,
                     join.getPlatform()
             );

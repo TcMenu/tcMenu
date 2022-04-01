@@ -19,4 +19,5 @@ module com.thecoderscorner.embedcontrol.core {
     exports com.thecoderscorner.embedcontrol.core.controlmgr.color;
     exports com.thecoderscorner.embedcontrol.jfx.controlmgr;
     exports com.thecoderscorner.embedcontrol.customization;
+    exports com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 }

@@ -15,10 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class NewConnectionController {
     public static final List<Integer> BAUD_RATES = List.of(1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000);
@@ -124,7 +121,7 @@ public class NewConnectionController {
                     baudCombo.getSelectionModel().getSelectedItem());
         }
         else if(simulatorRadio.isSelected()) {
-            creator = new SimulatorConnectionCreator(jsonDataField.getText(), connectionNameField.getText(),
+            creator = new SimulatorConnectionCreator(jsonDataField.getText(), connectionNameField.getText(), UUID.randomUUID(),
                     context.getExecutorService(), context.getSerializer());
         }
         else {

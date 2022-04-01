@@ -18,10 +18,6 @@ import java.util.function.BiConsumer;
  * @param <I> The UI Image type required by title widgets
  */
 public interface NavigationManager<T, I> {
-    /**
-     * @return The single instance of the tree component manager interface
-     */
-    TreeComponentManager<T> getTreeComponentManager();
 
     /**
      * Go back one level in the navigation. Usually there is a back button that will control going back one level, it

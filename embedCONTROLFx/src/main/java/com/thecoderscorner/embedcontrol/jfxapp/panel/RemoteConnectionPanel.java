@@ -1,51 +1,48 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuControlGrid;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
+import com.thecoderscorner.embedcontrol.jfxapp.RemoteAppScreenLayoutPersistence;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.PairingController;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
-import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 
 import java.util.UUID;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
-public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDisplayable {
+public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePanelDisplayable {
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
+    private RemoteAppScreenLayoutPersistence layoutPersistence;
+    private RemoteMenuComponentControl control;
+    private RemoteTreeComponentManager remoteTreeComponentManager;
+    private GlobalSettings settings;
+    private EmbedControlContext context;
+    private MenuItem rootItem;
     private ConnectionCreator creator;
-    private final GlobalSettings settings;
-    private final EmbedControlContext context;
-    private final UUID uuid;
+    private JfxNavigationHeader navigationManager;
     private RemoteMenuController controller;
-    private RemoteTreeComponentManager treeManager;
-    private JfxMenuControlGrid screenManager;
-    private ScheduledFuture<?> taskRef;
     private GridPane dialogPane;
     private Label headerLabel;
     private Label messageLabel;
@@ -56,55 +53,63 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     private BorderPane rootPanel;
     private RemoteDialogManager dialogManager;
 
-    public RemoteConnectionPanel(ConnectionCreator creator, GlobalSettings settings, EmbedControlContext context,
-                                 UUID panelUuid) {
-        this.creator = creator;
-        this.settings = settings;
-        this.context = context;
-        this.uuid = panelUuid;
+    public RemoteConnectionPanel(GlobalSettings settings, EmbedControlContext context, RemoteAppScreenLayoutPersistence layoutPersistence,
+                                 MenuItem item) {
+        try {
+            this.creator = layoutPersistence.getConnectionCreator();
+            this.navigationManager = new JfxNavigationHeader(layoutPersistence);
+            this.settings = settings;
+            this.context = context;
+            this.layoutPersistence = layoutPersistence;
+            this.rootItem = item;
+            dialogManager = new RemoteDialogManager();
+        } catch (Exception e) {
+            logger.log(ERROR, "Failed to start controller " + layoutPersistence.getPanelName(), e);
+        }
     }
 
     @Override
-    public void presentPanelIntoArea(BorderPane pane) throws Exception {
-        rootPanel = pane;
+    public Node getPanelToPresent(double width) throws Exception {
+        rootPanel = new BorderPane();
         initialiseConnectionComponents();
-        generateDialogComponents(pane);
-        generateButtonBar(pane);
+        VBox topLayout = new VBox();
+        topLayout.getChildren().add(getDialogComponents(rootPanel));
+        topLayout.getChildren().add(navigationManager.initialiseControls());
+        rootPanel.setTop(topLayout);
+        generateButtonBar(rootPanel);
 
+        controller = layoutPersistence.getConnectionCreator().start();
+        this.control = new RemoteMenuComponentControl(controller, navigationManager);
+        this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
+        remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
+                layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
+        navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
+
+        return rootPanel;
     }
 
     private void initialiseConnectionComponents() throws Exception {
-        Label waitingLabel = new Label("Waiting for connection...");
         scrollPane = new ScrollPane();
         rootPanel.setCenter(scrollPane);
-        scrollPane.setContent(waitingLabel);
+        scrollPane.setContent(new Label("Waiting for connection"));
         controller = creator.start();
-        RemoteMenuComponentControl theMenuController = new RemoteMenuComponentControl();
-        screenManager = new JfxMenuControlGrid(theMenuController, scrollPane, Platform::runLater, layoutPersistence);
         dialogManager = new RemoteDialogManager();
-        treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, dialogManager,
-                context.getExecutorService(), Platform::runLater, theMenuController);
-        taskRef = context.getExecutorService().schedule(() -> treeManager.timerTick(), 100, TimeUnit.MILLISECONDS);
     }
 
     private void generateButtonBar(BorderPane pane) {
-        var bar = new ToolBar();
-        var editButton = new Button("Edit");
-        editButton.setOnAction(this::editConnection);
-        var delButton = new Button("Delete");
-        delButton.setOnAction(this::deleteConnection);
-        var restartButton = new Button("Restart");
-        restartButton.setOnAction(this::restartConnection);
-        statusLabel = new Label("No status yet");
-        delButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
-        editButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
-        restartButton.setStyle("-fx-background-color: #b31818;-fx-text-fill: #e8dddd");
-        bar.getItems().add(editButton);
-        bar.getItems().add(delButton);
-        bar.getItems().add(restartButton);
-        bar.getItems().add(statusLabel);
+        var settingsWidget = JfxNavigationHeader.standardSettingsWidget();
+        navigationManager.addTitleWidget(settingsWidget);
+        var saveWidget = JfxNavigationHeader.standardSaveWidget();
+        navigationManager.addTitleWidget(saveWidget);
 
-        pane.setBottom(bar);
+        navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
+            if(widget == settingsWidget) {
+                navigationManager.pushNavigation(new ColorSettingsPresentable(settings, navigationManager,
+                        layoutPersistence, control.getMenuTree()));
+            } else if(widget == saveWidget) {
+                layoutPersistence.serialiseAll();
+            }
+        });
     }
 
     private void editConnection(ActionEvent actionEvent) {
@@ -113,7 +118,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
 
     private void restartConnection(ActionEvent actionEvent) {
         // force a connection restart but only if already connected
-        if(controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
+        if (controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
             controller.getConnector().close();
         }
     }
@@ -127,13 +132,13 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         alert.getButtonTypes().clear();
         alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(btn -> {
-            if(btn == ButtonType.YES) {
-                context.deleteConnection(uuid);
+            if (btn == ButtonType.YES) {
+                context.deleteConnection(getUuid());
             }
         });
     }
 
-    private void generateDialogComponents(BorderPane pane) {
+    private Node getDialogComponents(BorderPane pane) {
         headerLabel = new Label("");
         headerLabel.setAlignment(Pos.TOP_CENTER);
         headerLabel.setTextAlignment(TextAlignment.CENTER);
@@ -151,7 +156,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         dialogPane = new GridPane();
         dialogPane.setVgap(4);
         dialogPane.setHgap(4);
-        for(int i=0;i<2;i++) {
+        for (int i = 0; i < 2; i++) {
             var constraint = new ColumnConstraints();
             constraint.setPercentWidth(50);
             dialogPane.getColumnConstraints().add(constraint);
@@ -165,10 +170,10 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         GridPane.setHalignment(headerLabel, HPos.CENTER);
         GridPane.setHalignment(messageLabel, HPos.CENTER);
         showDialog(false);
-        pane.setTop(dialogPane);
 
         dlgButton1.setOnAction(evt -> dialogManager.buttonWasPressed(dialogManager.getButtonType(1)));
         dlgButton2.setOnAction(evt -> dialogManager.buttonWasPressed(dialogManager.getButtonType(2)));
+        return dialogPane;
     }
 
     private String asHtml(PortableColor col) {
@@ -186,44 +191,45 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     }
 
     @Override
-    public boolean closePanelIfPossible() {
+    public boolean canClose() {
+        return false;
+    }
+
+    @Override
+    public void closePanel() {
         try {
-            taskRef.cancel(false);
             if (controller != null) controller.stop();
-            if(screenManager != null) screenManager.clear();
-            if(treeManager != null) treeManager.dispose();
-            treeManager = null;
-            screenManager = null;
             controller = null;
-        }
-        catch (Exception ex) {
+            navigationManager.destroy();
+        } catch (Exception ex) {
             logger.log(ERROR, "Exception while closing panel", ex);
         }
-        return true;
     }
 
     public void statusHasChanged(AuthStatus status) {
-        if(status == AuthStatus.FAILED_AUTH) {
-            scrollPane.setDisable(false);
-            try {
-                logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
-                controller.stop();
-                controller = null;
-                Platform.runLater(this::doPairing);
-            } catch (Exception e) {
-                var alert = new Alert(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
-                alert.showAndWait();
-            }
-        }
-        else {
-            scrollPane.setDisable(status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED);
-        }
         Platform.runLater(() -> {
+            if (status == AuthStatus.CONNECTION_READY) {
+                layoutPersistence.remoteApplicationDidLoad(controller.getConnector().getRemoteParty().getUuid(), controller.getManagedMenu());
+                navigationManager.pushMenuNavigation(MenuItemHelper.asSubMenu(rootItem));
+            } else if (status == AuthStatus.FAILED_AUTH) {
+                scrollPane.setDisable(false);
+                try {
+                    logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
+                    controller.stop();
+                    controller = null;
+                    Platform.runLater(this::doPairing);
+                } catch (Exception e) {
+                    var alert = new Alert(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
+                    alert.showAndWait();
+                }
+            } else {
+                scrollPane.setDisable(status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED);
+            }
             var name = "No connection";
-            if(controller != null) {
+            if (controller != null) {
                 name = controller.getConnector().getConnectionName();
             }
-            statusLabel.setText(name + " - " + status.getDescription());
+            if(statusLabel != null) statusLabel.setText(name + " - " + status.getDescription());
         });
     }
 
@@ -245,9 +251,6 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         try {
             scrollPane.setContent(new Label("Please wait.."));
             controller = creator.start();
-            screenManager = new JfxMenuControlGrid(new RemoteMenuComponentControl(), scrollPane, Platform::runLater, layoutPersistence);
-            treeManager = new RemoteTreeComponentManager(screenManager, controller, settings, new RemoteDialogManager(),
-                    context.getExecutorService(), Platform::runLater, new RemoteMenuComponentControl());
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             alert.showAndWait();
@@ -256,7 +259,7 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     }
 
     public UUID getUuid() {
-        return uuid;
+        return layoutPersistence.getRemoteUuid();
     }
 
     public ConnectionCreator getCreator() {
@@ -264,18 +267,16 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
     }
 
     public void changeConnectionCreator(ConnectionCreator connectionCreator) {
-        try {
-            closePanelIfPossible();
-            creator = connectionCreator;
-            initialiseConnectionComponents();
-        } catch (Exception e) {
-            logger.log(ERROR, "Failed to re-initialise connection", e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     private void showDialog(boolean visible) {
         dialogPane.setVisible(visible);
         dialogPane.setManaged(visible);
+    }
+
+    public RemoteAppScreenLayoutPersistence getLayoutPersistence() {
+        return layoutPersistence;
     }
 
     class RemoteDialogManager extends DialogManager {
@@ -298,39 +299,4 @@ public class RemoteConnectionPanel implements PanelPresentable, RemotePanelDispl
         }
     }
 
-    class RemoteMenuComponentControl implements MenuComponentControl {
-        @Override
-        public CorrelationId editorUpdatedItem(MenuItem item, Object val) {
-            return controller.sendAbsoluteUpdate(item, val);
-        }
-
-        @Override
-        public CorrelationId editorUpdatedItemDelta(MenuItem item, int delta) {
-            return controller.sendDeltaUpdate(item, delta);
-        }
-
-        @Override
-        public void connectionStatusChanged(AuthStatus authStatus) {
-            statusHasChanged(authStatus);
-        }
-
-        @Override
-        public MenuTree getMenuTree() {
-            return controller.getManagedMenu();
-        }
-
-        @Override
-        public String getConnectionName() {
-            var rp = controller.getConnector().getRemoteParty();
-            if(rp != null) {
-                return rp.getName() + " - " + rp.getPlatform().getDescription() + " V" + rp.getMajorVersion() + "." + rp.getMinorVersion();
-            }
-            else return controller.getConnector().getConnectionName();
-        }
-
-        @Override
-        public void menuWasDisplayed(MenuItem item) {
-
-        }
-    }
 }

@@ -1,7 +1,5 @@
 package com.thecoderscorner.embedcontrol.core.creators;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.thecoderscorner.embedcontrol.core.simulator.SimulatedRemoteConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.menu.domain.SubMenuItem;
@@ -10,393 +8,394 @@ import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
-import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonObjOrThrow;
-import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStrOrThrow;
 
 public class SimulatorConnectionCreator implements ConnectionCreator {
     public static final String SIMULATED_CREATOR_TYPE = "simulator";
-    private final String DEFAULT_DATA = "tcMenuCopy:[\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"analogItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"maxValue\": 255,\n" +
-            "      \"offset\": -128,\n" +
-            "      \"divisor\": 2,\n" +
-            "      \"unitName\": \"V\",\n" +
-            "      \"name\": \"Voltage\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 1,\n" +
-            "      \"eepromAddress\": 2,\n" +
-            "      \"functionName\": \"onVoltageChange\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"analogItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"maxValue\": 255,\n" +
-            "      \"offset\": 0,\n" +
-            "      \"divisor\": 100,\n" +
-            "      \"unitName\": \"A\",\n" +
-            "      \"name\": \"Current\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 2,\n" +
-            "      \"eepromAddress\": 4,\n" +
-            "      \"functionName\": \"onCurrentChange\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"enumItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"enumEntries\": [\n" +
-            "        \"Current\",\n" +
-            "        \"Voltage\"\n" +
-            "      ],\n" +
-            "      \"name\": \"Limit\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 3,\n" +
-            "      \"eepromAddress\": 6,\n" +
-            "      \"functionName\": \"onLimitMode\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"subMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"secured\": false,\n" +
-            "      \"name\": \"Settings\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 4,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 4,\n" +
-            "    \"type\": \"boolItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"naming\": \"YES_NO\",\n" +
-            "      \"name\": \"Pwr Delay\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 5,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 4,\n" +
-            "    \"type\": \"actionMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"name\": \"Save all\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 10,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"functionName\": \"onSaveRom\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 4,\n" +
-            "    \"type\": \"subMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"secured\": false,\n" +
-            "      \"name\": \"Advanced\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 11,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 11,\n" +
-            "    \"type\": \"boolItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"naming\": \"ON_OFF\",\n" +
-            "      \"name\": \"S-Circuit Protect\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 12,\n" +
-            "      \"eepromAddress\": 8,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 11,\n" +
-            "    \"type\": \"actionMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"name\": \"Hidden item\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 16,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": false\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 11,\n" +
-            "    \"type\": \"boolItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"naming\": \"ON_OFF\",\n" +
-            "      \"name\": \"Temp Check\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 13,\n" +
-            "      \"eepromAddress\": 9,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 11,\n" +
-            "    \"type\": \"rgbItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"includeAlphaChannel\": false,\n" +
-            "      \"name\": \"RGB\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 26,\n" +
-            "      \"eepromAddress\": 16,\n" +
-            "      \"functionName\": \"onRgbChanged\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"subMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"secured\": false,\n" +
-            "      \"name\": \"Status\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 7,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 7,\n" +
-            "    \"type\": \"floatItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"numDecimalPlaces\": 2,\n" +
-            "      \"name\": \"Volt A0\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 8,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 7,\n" +
-            "    \"type\": \"floatItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"numDecimalPlaces\": 2,\n" +
-            "      \"name\": \"Volt A1\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 9,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"subMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"secured\": false,\n" +
-            "      \"name\": \"Connectivity\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 14,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 14,\n" +
-            "    \"type\": \"textItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"textLength\": 20,\n" +
-            "      \"itemType\": \"IP_ADDRESS\",\n" +
-            "      \"name\": \"Ip Address\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 15,\n" +
-            "      \"eepromAddress\": 10,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 14,\n" +
-            "    \"type\": \"customBuildItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"name\": \"IoT Monitor\",\n" +
-            "      \"variableName\": \"IoTMonitor\",\n" +
-            "      \"id\": 27,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": true,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 14,\n" +
-            "    \"type\": \"customBuildItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"menuType\": \"AUTHENTICATION\",\n" +
-            "      \"name\": \"Authenticator\",\n" +
-            "      \"variableName\": \"Authenticator\",\n" +
-            "      \"id\": 28,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": true,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"subMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"secured\": false,\n" +
-            "      \"name\": \"Rom Values\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 20,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"functionName\": \"\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 20,\n" +
-            "    \"type\": \"scrollItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"itemWidth\": 10,\n" +
-            "      \"eepromOffset\": 1024,\n" +
-            "      \"numEntries\": 10,\n" +
-            "      \"choiceMode\": \"ARRAY_IN_EEPROM\",\n" +
-            "      \"name\": \"Rom Choice\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 25,\n" +
-            "      \"eepromAddress\": 14,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 20,\n" +
-            "    \"type\": \"scrollItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"itemWidth\": 10,\n" +
-            "      \"eepromOffset\": 0,\n" +
-            "      \"numEntries\": 10,\n" +
-            "      \"choiceMode\": \"CUSTOM_RENDERFN\",\n" +
-            "      \"name\": \"Rom Location\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 24,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"functionName\": \"\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 20,\n" +
-            "    \"type\": \"textItem\",\n" +
-            "    \"item\": {\n" +
-            "      \"textLength\": 10,\n" +
-            "      \"itemType\": \"PLAIN_TEXT\",\n" +
-            "      \"name\": \"Rom Text\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 21,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 20,\n" +
-            "    \"type\": \"actionMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"name\": \"Save item\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 23,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"functionName\": \"onSaveItem\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"parentId\": 0,\n" +
-            "    \"type\": \"actionMenu\",\n" +
-            "    \"item\": {\n" +
-            "      \"name\": \"Take display\",\n" +
-            "      \"variableName\": \"\",\n" +
-            "      \"id\": 17,\n" +
-            "      \"eepromAddress\": -1,\n" +
-            "      \"functionName\": \"onTakeDisplay\",\n" +
-            "      \"readOnly\": false,\n" +
-            "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
-            "    }\n" +
-            "  }\n" +
-            "]";
+    private final String DEFAULT_DATA = """
+            tcMenuCopy:[
+              {
+                "parentId": 0,
+                "type": "analogItem",
+                "item": {
+                  "maxValue": 255,
+                  "offset": -128,
+                  "divisor": 2,
+                  "unitName": "V",
+                  "name": "Voltage",
+                  "variableName": "",
+                  "id": 1,
+                  "eepromAddress": 2,
+                  "functionName": "onVoltageChange",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "analogItem",
+                "item": {
+                  "maxValue": 255,
+                  "offset": 0,
+                  "divisor": 100,
+                  "unitName": "A",
+                  "name": "Current",
+                  "variableName": "",
+                  "id": 2,
+                  "eepromAddress": 4,
+                  "functionName": "onCurrentChange",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "enumItem",
+                "item": {
+                  "enumEntries": [
+                    "Current",
+                    "Voltage"
+                  ],
+                  "name": "Limit",
+                  "variableName": "",
+                  "id": 3,
+                  "eepromAddress": 6,
+                  "functionName": "onLimitMode",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "subMenu",
+                "item": {
+                  "secured": false,
+                  "name": "Settings",
+                  "variableName": "",
+                  "id": 4,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 4,
+                "type": "boolItem",
+                "item": {
+                  "naming": "YES_NO",
+                  "name": "Pwr Delay",
+                  "variableName": "",
+                  "id": 5,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 4,
+                "type": "actionMenu",
+                "item": {
+                  "name": "Save all",
+                  "variableName": "",
+                  "id": 10,
+                  "eepromAddress": -1,
+                  "functionName": "onSaveRom",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 4,
+                "type": "subMenu",
+                "item": {
+                  "secured": false,
+                  "name": "Advanced",
+                  "variableName": "",
+                  "id": 11,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 11,
+                "type": "boolItem",
+                "item": {
+                  "naming": "ON_OFF",
+                  "name": "S-Circuit Protect",
+                  "variableName": "",
+                  "id": 12,
+                  "eepromAddress": 8,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 11,
+                "type": "actionMenu",
+                "item": {
+                  "name": "Hidden item",
+                  "variableName": "",
+                  "id": 16,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": false
+                }
+              },
+              {
+                "parentId": 11,
+                "type": "boolItem",
+                "item": {
+                  "naming": "ON_OFF",
+                  "name": "Temp Check",
+                  "variableName": "",
+                  "id": 13,
+                  "eepromAddress": 9,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 11,
+                "type": "rgbItem",
+                "item": {
+                  "includeAlphaChannel": false,
+                  "name": "RGB",
+                  "variableName": "",
+                  "id": 26,
+                  "eepromAddress": 16,
+                  "functionName": "onRgbChanged",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "subMenu",
+                "item": {
+                  "secured": false,
+                  "name": "Status",
+                  "variableName": "",
+                  "id": 7,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 7,
+                "type": "floatItem",
+                "item": {
+                  "numDecimalPlaces": 2,
+                  "name": "Volt A0",
+                  "variableName": "",
+                  "id": 8,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 7,
+                "type": "floatItem",
+                "item": {
+                  "numDecimalPlaces": 2,
+                  "name": "Volt A1",
+                  "variableName": "",
+                  "id": 9,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "subMenu",
+                "item": {
+                  "secured": false,
+                  "name": "Connectivity",
+                  "variableName": "",
+                  "id": 14,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 14,
+                "type": "textItem",
+                "item": {
+                  "textLength": 20,
+                  "itemType": "IP_ADDRESS",
+                  "name": "Ip Address",
+                  "variableName": "",
+                  "id": 15,
+                  "eepromAddress": 10,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 14,
+                "type": "customBuildItem",
+                "item": {
+                  "name": "IoT Monitor",
+                  "variableName": "IoTMonitor",
+                  "id": 27,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": true,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 14,
+                "type": "customBuildItem",
+                "item": {
+                  "menuType": "AUTHENTICATION",
+                  "name": "Authenticator",
+                  "variableName": "Authenticator",
+                  "id": 28,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": true,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "subMenu",
+                "item": {
+                  "secured": false,
+                  "name": "Rom Values",
+                  "variableName": "",
+                  "id": 20,
+                  "eepromAddress": -1,
+                  "functionName": "",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 20,
+                "type": "scrollItem",
+                "item": {
+                  "itemWidth": 10,
+                  "eepromOffset": 1024,
+                  "numEntries": 10,
+                  "choiceMode": "ARRAY_IN_EEPROM",
+                  "name": "Rom Choice",
+                  "variableName": "",
+                  "id": 25,
+                  "eepromAddress": 14,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 20,
+                "type": "scrollItem",
+                "item": {
+                  "itemWidth": 10,
+                  "eepromOffset": 0,
+                  "numEntries": 10,
+                  "choiceMode": "CUSTOM_RENDERFN",
+                  "name": "Rom Location",
+                  "variableName": "",
+                  "id": 24,
+                  "eepromAddress": -1,
+                  "functionName": "",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 20,
+                "type": "textItem",
+                "item": {
+                  "textLength": 10,
+                  "itemType": "PLAIN_TEXT",
+                  "name": "Rom Text",
+                  "variableName": "",
+                  "id": 21,
+                  "eepromAddress": -1,
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 20,
+                "type": "actionMenu",
+                "item": {
+                  "name": "Save item",
+                  "variableName": "",
+                  "id": 23,
+                  "eepromAddress": -1,
+                  "functionName": "onSaveItem",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              },
+              {
+                "parentId": 0,
+                "type": "actionMenu",
+                "item": {
+                  "name": "Take display",
+                  "variableName": "",
+                  "id": 17,
+                  "eepromAddress": -1,
+                  "functionName": "onTakeDisplay",
+                  "readOnly": false,
+                  "localOnly": false,
+                  "visible": true
+                }
+              }
+            ]""";
 
     private String jsonForTree;
-    private String name;
+    private final String name;
+    private final UUID uuid;
     private final ScheduledExecutorService executorService;
-    private JsonMenuItemSerializer serializer;
-    private SimulatedRemoteConnection remoteConnection;
+    private final JsonMenuItemSerializer serializer;
 
-    public SimulatorConnectionCreator(String jsonForTree, String name, ScheduledExecutorService executorService,
+    public SimulatorConnectionCreator(String jsonForTree, String name, UUID uuid, ScheduledExecutorService executorService,
                                       JsonMenuItemSerializer serializer) {
         this.jsonForTree = jsonForTree;
         this.name = name;
+        this.uuid = uuid;
         this.executorService = executorService;
         this.serializer = serializer;
     }
 
     public SimulatorConnectionCreator(ScheduledExecutorService executorService, JsonMenuItemSerializer serializer) {
         this.name = "";
+        this.uuid = UUID.randomUUID();
         this.executorService = executorService;
         this.serializer = serializer;
     }
@@ -429,7 +428,7 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
             // ignore for now
         }
 
-        remoteConnection = new SimulatedRemoteConnection(menuTree, name, 100, new HashMap<>(), executorService);
+        SimulatedRemoteConnection remoteConnection = new SimulatedRemoteConnection(menuTree, name, uuid, 100, new HashMap<>(), executorService);
         var controller = new RemoteMenuController(remoteConnection, menuTree);
         controller.start();
         return controller;
@@ -438,22 +437,5 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     @Override
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
         return true;
-    }
-
-    @Override
-    public void load(JsonObject prefs) throws IOException {
-        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
-        name = getJsonStrOrThrow(creatorType, "name");
-        jsonForTree = getJsonStrOrThrow(creatorType, "treeData");
-    }
-
-    @Override
-    public void save(JsonObject prefs) {
-        JsonObject creator = new JsonObject();
-        creator.add("name", new JsonPrimitive(name));
-        creator.add("treeData", new JsonPrimitive(jsonForTree));
-        creator.add("type", new JsonPrimitive(SIMULATED_CREATOR_TYPE));
-        prefs.add("creator", creator);
-
     }
 }

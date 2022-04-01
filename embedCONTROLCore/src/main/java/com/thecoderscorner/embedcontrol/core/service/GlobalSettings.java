@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.prefs.Preferences;
 
 public class GlobalSettings {
+    private final Class<?> preferencesNode;
     private ControlColor updateColor;
     private ControlColor pendingColor;
     private ControlColor highlightColor;
@@ -21,11 +22,12 @@ public class GlobalSettings {
     private boolean defaultRecursiveRendering;
     private int defaultFontSize;
 
-    public GlobalSettings() {
+    public GlobalSettings(Class<?> preferencesNode) {
         setColorsForDefault(false);
         appUuid = UUID.randomUUID().toString();
         appName = "untitled";
         defaultFontSize = 16;
+        this.preferencesNode = preferencesNode;
     }
 
     public ControlColor getTextColor() {
@@ -81,7 +83,7 @@ public class GlobalSettings {
     }
 
     public void load() {
-        Preferences prefs = Preferences.userNodeForPackage(GlobalSettings.class);
+        Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
         populateColorIfPresent(prefs,"update", updateColor);
         populateColorIfPresent(prefs,"error", errorColor);
         populateColorIfPresent(prefs,"pending", pendingColor);
@@ -105,7 +107,7 @@ public class GlobalSettings {
     }
 
     public void save() {
-        Preferences prefs = Preferences.userNodeForPackage(GlobalSettings.class);
+        Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
         saveColor(prefs, "update", updateColor);
         saveColor(prefs, "error", errorColor);
         saveColor(prefs, "pending", pendingColor);
@@ -153,5 +155,13 @@ public class GlobalSettings {
 
     public boolean isDefaultRecursiveRendering() {
         return defaultRecursiveRendering;
+    }
+
+    public void setDefaultFontSize(int size) {
+        defaultFontSize = size;
+    }
+
+    public void setDefaultRecursiveRendering(boolean recursiveRender) {
+        defaultRecursiveRendering = recursiveRender;
     }
 }

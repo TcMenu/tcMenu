@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
@@ -87,6 +88,7 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         if(controlTextIncludesName()) toDraw = item.getName();
         if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.formatForDisplay(item, currentVal);
         final Text textObj = new Text(toDraw);
+        textObj.setFont(Font.font(gc.getFont().getFamily(), getDrawingSettings().getFontSize()));
         var bounds = textObj.getLayoutBounds();
         gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (canvas.getHeight() - (bounds.getHeight() / 2.0)));
     }

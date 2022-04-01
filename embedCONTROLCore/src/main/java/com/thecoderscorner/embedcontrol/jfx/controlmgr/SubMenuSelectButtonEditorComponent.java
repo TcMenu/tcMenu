@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.text.Font;
 
 import java.util.function.Consumer;
 
@@ -35,6 +36,7 @@ public class SubMenuSelectButtonEditorComponent extends BaseBoolEditorComponent<
     public Node createComponent() {
         button = new Button(text);
         button.setMaxWidth(9999);
+        button.setFont(Font.font(getDrawingSettings().getFontSize()));
         setNodeConditionalColours(button, getDrawingSettings().getColors(), ColorComponentType.BUTTON);
         button.setOnAction(evt -> itemConsumer.accept((SubMenuItem)item));
 

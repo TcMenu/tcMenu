@@ -52,8 +52,7 @@ public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
 
     public boolean controlTextIncludesValue() {
         return getDrawingSettings().getDrawMode() == RedrawingMode.SHOW_VALUE ||
-                getDrawingSettings().getDrawMode() == RedrawingMode.SHOW_NAME_VALUE ||
-                getDrawingSettings().getDrawMode() == RedrawingMode.SHOW_LABEL_NAME_VALUE;
+                getDrawingSettings().getDrawMode() == RedrawingMode.SHOW_NAME_VALUE;
     }
 
     public void editStarted(CorrelationId correlation) {

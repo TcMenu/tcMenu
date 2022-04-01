@@ -22,11 +22,11 @@ import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 public class ManualLanConnectionCreator implements ConnectionCreator {
     public static final String MANUAL_LAN_JSON_TYPE = "manualLan";
     private final GlobalSettings settings;
-    private String name;
-    private String ipAddr;
-    private int port;
+    private final String name;
+    private final String ipAddr;
+    private final int port;
     private RemoteMenuController controller;
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService;
 
     public ManualLanConnectionCreator(GlobalSettings settings, ScheduledExecutorService executorService) {
         this.settings = settings;
@@ -84,23 +84,5 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
 
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
         return generateBaseControllerBuilder().attemptPairing(Optional.of(statusConsumer));
-    }
-
-    @Override
-    public void load(JsonObject prefs) throws IOException {
-        JsonObject creatorType = getJsonObjOrThrow(prefs, "creator");
-        name = getJsonStrOrThrow(creatorType, "name");
-        ipAddr = getJsonStrOrThrow(creatorType, "ipAddr");
-        port = getJsonIntOrThrow(creatorType, "port");
-    }
-
-    @Override
-    public void save(JsonObject prefs) {
-        JsonObject creator = new JsonObject();
-        creator.add("name", new JsonPrimitive(name));
-        creator.add("ipAddr", new JsonPrimitive(ipAddr));
-        creator.add("port", new JsonPrimitive(port));
-        creator.add("type", new JsonPrimitive(MANUAL_LAN_JSON_TYPE));
-        prefs.add("creator", creator);
     }
 }

@@ -10,4 +10,10 @@ import javafx.scene.image.Image;
  * @see NavigationManager
  */
 public interface JfxNavigationManager extends NavigationManager<Node, Image> {
+    /**
+     * When set puts any menus that are created into editable mode, so that the settings of each item can be overridden.
+     * Caution - calling this will completely reset navigation and reload the ROOT panel.
+     * @param editorPresenter the editor presenter
+     */
+    void setItemEditorPresenter(JfxPanelLayoutEditorPresenter editorPresenter);
 }
