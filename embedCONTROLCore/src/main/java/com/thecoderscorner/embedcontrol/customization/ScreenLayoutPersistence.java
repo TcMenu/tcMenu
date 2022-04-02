@@ -60,6 +60,7 @@ public class ScreenLayoutPersistence {
         this.tree = tree;
         rootPath = path;
         fontSize = defFontSize;
+        gridSize = DEFAULT_GRID_SIZE;
         this.layoutPath = uuidToFileName(rootPath, appUuid);
         this.remoteUuid = appUuid;
     }

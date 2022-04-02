@@ -4,7 +4,9 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.control.TextField;
 
+import java.awt.*;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,12 +16,14 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 public class GeneralSettingsController {
     public TextField appNameField;
     public TextField appUuidField;
+    public CheckBox enableLayoutCustomizationCheck;
     private GlobalSettings settings;
 
     public void initialise(GlobalSettings settings) {
         this.settings = settings;
         appNameField.setText(settings.getAppName());
         appUuidField.setText(settings.getAppUuid());
+        enableLayoutCustomizationCheck.setSelected(settings.isSetupLayoutModeEnabled());
     }
 
 
@@ -35,5 +39,9 @@ public class GeneralSettingsController {
         settings.setAppName(appNameField.getText());
         settings.setAppUuid(appUuidField.getText());
         settings.save();
+    }
+
+    public void onLayoutCustomizableChange(ActionEvent actionEvent) {
+        settings.setSetupLayoutModeEnabled(enableLayoutCustomizationCheck.isSelected());
     }
 }

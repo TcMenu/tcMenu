@@ -46,7 +46,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         this.layoutPersistence = persistence;
     }
 
-    public void initialiseUI(TreeComponentManager treeComponentManager, DialogManager dialogManager, MenuComponentControl control, ScrollPane managedNavArea) {
+    public void initialiseUI(TreeComponentManager<Node> treeComponentManager, DialogManager dialogManager, MenuComponentControl control, ScrollPane managedNavArea) {
         this.dialogManager = dialogManager;
         this.managedNavArea = managedNavArea;
         this.controller = control;
@@ -175,8 +175,10 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     @Override
     public void setItemEditorPresenter(JfxPanelLayoutEditorPresenter panelPresenter) {
         this.itemEditorPresenter = panelPresenter;
-        navigationStack.clear();
-        pushMenuNavigation(MenuTree.ROOT);
+        if(!navigationStack.isEmpty()) {
+            navigationStack.clear();
+            pushMenuNavigation(MenuTree.ROOT);
+        }
     }
 
     public void destroy() {
@@ -225,4 +227,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         return new TitleWidget<>(images, images.size(), 0);
     }
 
+    public Optional<Button> getButtonFor(TitleWidget<Image> widget) {
+        return Optional.ofNullable(widgetButtonMap.get(widget));
+    }
 }

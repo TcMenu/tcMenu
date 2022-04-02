@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -208,18 +209,32 @@ public class XMLDOMHelper {
     }
 
     /**
-     * Writes an XML document to a stream
+     * Writes an XML document without reformatting it, this is good if you are working with a DOM that was previously
+     * loaded from a stream, where it may be already formatted.
      * @param doc the document
-     * @param output the stream
-     * @throws TransformerException if it cannot be written
+     * @param output the output stream to write to
+     * @throws TransformerException
      */
     public static void writeXml(Document doc, OutputStream output) throws TransformerException {
-        var transformerFactory = TransformerFactory.newInstance();
-        var transformer = transformerFactory.newTransformer();
+        writeXml(doc, output, false);
+    }
+
+    /**
+     * Writes an XML document to a stream
+     * @param doc the document
+     * @param output the stream to write to
+     * @param prettyPrint if the document should be formatted
+     * @throws TransformerException if it cannot be written
+     */
+    public static void writeXml(Document doc, OutputStream output, boolean prettyPrint) throws TransformerException {
+        var transformer = TransformerFactory.newInstance().newTransformer();
+        if(prettyPrint) {
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        }
         var source = new DOMSource(doc);
         var result = new StreamResult(output);
         transformer.transform(source, result);
-
     }
 
     public static Document newDocumentRoot(String name) throws ParserConfigurationException {

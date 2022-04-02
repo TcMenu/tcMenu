@@ -20,6 +20,7 @@ public class GlobalSettings {
     private String appUuid;
     private String appName;
     private boolean defaultRecursiveRendering;
+    private boolean setupLayoutModeEnabled;
     private int defaultFontSize;
 
     public GlobalSettings(Class<?> preferencesNode) {
@@ -96,6 +97,7 @@ public class GlobalSettings {
         darkMode = prefs.getBoolean("darkMode", false);
         defaultFontSize = prefs.getInt("defaultFontSize", 16);
         defaultRecursiveRendering = prefs.getBoolean("defaultRecursiveRender", false);
+        setupLayoutModeEnabled = prefs.getBoolean("setupLayoutModeEnabled", false);
     }
 
     private void populateColorIfPresent(Preferences prefs, String colorName, ControlColor colorInfo) {
@@ -120,6 +122,7 @@ public class GlobalSettings {
         prefs.put("appName", appName);
         prefs.putBoolean("defaultRecursiveRender", defaultRecursiveRendering);
         prefs.putInt("defaultFontSize", defaultFontSize);
+        prefs.putBoolean("setupLayoutModeEnabled", setupLayoutModeEnabled);
     }
 
     private void saveColor(Preferences prefs, String name, ControlColor colorData) {
@@ -163,5 +166,13 @@ public class GlobalSettings {
 
     public void setDefaultRecursiveRendering(boolean recursiveRender) {
         defaultRecursiveRendering = recursiveRender;
+    }
+
+    public boolean isSetupLayoutModeEnabled() {
+        return setupLayoutModeEnabled;
+    }
+
+    public void setSetupLayoutModeEnabled(boolean setupLayoutModeEnabled) {
+        this.setupLayoutModeEnabled = setupLayoutModeEnabled;
     }
 }

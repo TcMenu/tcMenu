@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxPanelLayoutEditorPresenter;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.RemoteAppScreenLayoutPersistence;
@@ -81,6 +82,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         controller = layoutPersistence.getConnectionCreator().start();
         this.control = new RemoteMenuComponentControl(controller, navigationManager);
         this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
+        if(settings.isSetupLayoutModeEnabled()) {
+            this.navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, control.getMenuTree(),
+                    navigationManager, settings));
+        }
         remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
                 layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
         navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
@@ -102,11 +107,21 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         var saveWidget = JfxNavigationHeader.standardSaveWidget();
         navigationManager.addTitleWidget(saveWidget);
 
+        var colorConfig = new javafx.scene.control.MenuItem("Color Settings");
+        colorConfig.setOnAction(evt -> navigationManager.pushNavigation(new ColorSettingsPresentable(
+                settings, navigationManager,layoutPersistence, control.getMenuTree())
+        ));
+        var editConfig = new javafx.scene.control.MenuItem("Edit Connection");
+        editConfig.setOnAction(this::editConnection);
+        var deleteConnection = new javafx.scene.control.MenuItem("Delete Connection");
+        deleteConnection.setOnAction(this::deleteConnection);
+        var restartConnection = new javafx.scene.control.MenuItem("Restart Connection");
+        restartConnection.setOnAction(this::restartConnection);
+        ContextMenu settingsMenu = new ContextMenu(colorConfig, editConfig, deleteConnection, restartConnection);
+        navigationManager.getButtonFor(settingsWidget).ifPresent(b -> b.setContextMenu(settingsMenu));
+
         navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
-            if(widget == settingsWidget) {
-                navigationManager.pushNavigation(new ColorSettingsPresentable(settings, navigationManager,
-                        layoutPersistence, control.getMenuTree()));
-            } else if(widget == saveWidget) {
+            if(widget == saveWidget) {
                 layoutPersistence.serialiseAll();
             }
         });
