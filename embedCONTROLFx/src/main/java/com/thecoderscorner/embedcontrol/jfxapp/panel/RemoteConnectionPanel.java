@@ -4,6 +4,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuControlGrid;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxPanelLayoutEditorPresenter;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
@@ -94,6 +95,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
                 layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
         navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
+        navigationManager.pushNavigation(new WaitingForConnectionPanel());
 
         return rootPanel;
     }
@@ -250,7 +252,9 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 navigationManager.pushMenuNavigation(MenuItemHelper.asSubMenu(rootItem), true);
             } else if (status == AuthStatus.FAILED_AUTH) {
                 connectStatusWidget.setCurrentState(StandardLedWidgetStates.RED);
-                scrollPane.setDisable(false);
+                if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
+                    controlGrid.connectionIsUp(false);
+                }
                 try {
                     logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
                     if(!pairingInProgress) {
@@ -266,7 +270,9 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             } else {
                 boolean noConnection = status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED;
                 connectStatusWidget.setCurrentState(noConnection ? StandardLedWidgetStates.RED : StandardLedWidgetStates.ORANGE);
-                scrollPane.setDisable(noConnection);
+                if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
+                    controlGrid.connectionIsUp(false);
+                }
             }
         });
     }

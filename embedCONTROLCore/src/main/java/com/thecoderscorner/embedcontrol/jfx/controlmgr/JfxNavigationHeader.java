@@ -29,8 +29,8 @@ import java.util.function.BiConsumer;
 import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
-    public enum StandardLedWidgetStates { RED, ORANGE, GREEN };
-    public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL };
+    public enum StandardLedWidgetStates { RED, ORANGE, GREEN }
+    public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL }
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Map<TitleWidget<Image>, Button> widgetButtonMap = new HashMap<>();
@@ -143,14 +143,15 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
 
     @Override
     public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation) {
-        var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, layoutPersistence, subMenuItem);
-        if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
-        if(resetNavigation) {
-            resetNavigationTo(controlGrid);
-        }
-        else {
-            pushNavigation(controlGrid);
-        }
+        Platform.runLater(() -> {
+            var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, layoutPersistence, subMenuItem);
+            if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
+            if(resetNavigation) {
+                navigationStack.clear();
+            }
+            runNavigation(controlGrid);
+            navigationStack.push(controlGrid);
+        });
     }
 
     @Override
@@ -191,8 +192,14 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     public void resetNavigationTo(PanelPresentable<Node> navigation) {
         Platform.runLater(() -> {
             navigationStack.clear();
-            pushNavigation(navigation);
+            runNavigation(navigation);
+            navigationStack.push(navigation);
         });
+    }
+
+    @Override
+    public PanelPresentable<Node> currentNavigationPanel() {
+        return navigationStack.peek();
     }
 
     @Override

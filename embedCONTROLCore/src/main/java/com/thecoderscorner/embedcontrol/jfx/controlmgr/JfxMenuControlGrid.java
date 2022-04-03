@@ -237,4 +237,8 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
             default -> TextAlignment.LEFT;
         };
     }
+
+    public void connectionIsUp(boolean up) {
+        currentGrid.setDisable(!up);
+    }
 }

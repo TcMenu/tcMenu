@@ -30,14 +30,14 @@ public interface NavigationManager<T, I> {
      * @param navigation the navigation item to switch to.
      * @see PanelPresentable
      */
-    void resetNavigationTo(PanelPresentable<Node> navigation);
+    void resetNavigationTo(PanelPresentable<T> navigation);
 
     /**
      * Push a new item onto the navigation queue, so that the panel is displayed and at the top of the stack.
      * @param navigation the navigation item to add
      * @see PanelPresentable
      */
-    void pushNavigation(PanelPresentable<Node> navigation);
+    void pushNavigation(PanelPresentable<T> navigation);
 
     /**
      * Push a new menu onto the display with the option to reset the layout at the same time by passing true as the
@@ -45,7 +45,13 @@ public interface NavigationManager<T, I> {
      * @param subMenuItem the submenu to present
      * @param resetNavigation true to completely reset the navigation stack, otherwise false.
      */
-    public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation);
+    void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation);
+
+    /**
+     * Gets the panel that is currently being displayed
+     * @return the panel presentable that is being display
+     */
+    PanelPresentable<Node> currentNavigationPanel();
 
     /**
      * Override the current title with the new title, by default the title is set during push/pop operations
