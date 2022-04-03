@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,11 +21,14 @@ public class PairingController {
     private boolean pairingSuccess = false;
     public Button pairingButton;
     public Label pairingStatus;
+    private JfxNavigationManager navigationManager;
 
-    public void initialise(ConnectionCreator creator, ExecutorService executor, Consumer<Boolean> completionListener) {
+    public void initialise(JfxNavigationManager navigationManager, ConnectionCreator creator, ExecutorService executor,
+                           Consumer<Boolean> completionListener) {
         this.creator = creator;
         this.executor = executor;
         this.completionListener = completionListener;
+        this.navigationManager = navigationManager;
     }
 
     public void onStartPairing(ActionEvent actionEvent) {

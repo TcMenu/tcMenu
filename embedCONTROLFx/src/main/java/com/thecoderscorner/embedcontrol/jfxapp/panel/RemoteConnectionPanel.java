@@ -57,6 +57,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private BorderPane rootPanel;
     private RemoteDialogManager dialogManager;
     private TitleWidget<Image> connectStatusWidget;
+    private boolean pairingInProgress = false;
 
     public RemoteConnectionPanel(GlobalSettings settings, EmbedControlContext context, RemoteAppScreenLayoutPersistence layoutPersistence,
                                  MenuItem item) {
@@ -252,9 +253,12 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 scrollPane.setDisable(false);
                 try {
                     logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
-                    controller.stop();
-                    controller = null;
-                    Platform.runLater(this::doPairing);
+                    if(!pairingInProgress) {
+                        pairingInProgress = true;
+                        if(controller != null) controller.stop();
+                        controller = null;
+                        Platform.runLater(this::doPairing);
+                    }
                 } catch (Exception e) {
                     var alert = new Alert(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
                     alert.showAndWait();
@@ -268,23 +272,16 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     private void doPairing() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pairingDialog.fxml"));
-            Pane myPane = loader.load();
-            PairingController pairingController = loader.getController();
-            pairingController.initialise(creator, context.getExecutorService(), this::pairingHasFinished);
-            scrollPane.setContent(myPane);
-        } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Pairing failed", ButtonType.CLOSE);
-            alert.showAndWait();
-            logger.log(ERROR, "Could not start the remote connector", e);
-        }
+        navigationManager.pushNavigation(new ConnectionPairingPresentable(navigationManager, creator, context, this::pairingHasFinished));
     }
 
     private void pairingHasFinished(Boolean aBoolean) {
         try {
-            scrollPane.setContent(new Label("Please wait.."));
-            controller = creator.start();
+            if(pairingInProgress) {
+                navigationManager.popNavigation(); // removing pairing window and clear state
+                pairingInProgress = false;
+                controller = creator.start();
+            }
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             alert.showAndWait();
