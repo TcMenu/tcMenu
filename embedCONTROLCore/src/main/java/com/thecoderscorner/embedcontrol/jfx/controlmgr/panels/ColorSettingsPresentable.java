@@ -33,9 +33,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         colorRanges = new HashMap<>();
         colorRanges.put(ColorSettingsController.DEFAULT_COLOR_NAME, new GlobalColorCustomizable(settings));
         for (var item : tree.getAllSubMenus()) {
-            if(item.getId() != 0) {
-                colorRanges.put("SubMenu " + item.getName(), layoutPersistence.getColorCustomizerFor(item));
-            }
+            colorRanges.put("SubMenu " + item.getName(), layoutPersistence.getColorCustomizerFor(item));
         }
         this.settings = settings;
         this.manager = manager;

@@ -61,4 +61,13 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws IOException {
         return serialFactory.attemptPairing(name, baudRate, statusConsumer);
     }
+
+    @Override
+    public String toString() {
+        return "Rs232ConnectionCreator{" +
+                "name='" + name + '\'' +
+                ", portId='" + portId + '\'' +
+                ", baudRate=" + baudRate +
+                '}';
+    }
 }

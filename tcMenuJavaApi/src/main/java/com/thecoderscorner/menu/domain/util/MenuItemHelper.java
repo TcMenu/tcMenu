@@ -543,6 +543,6 @@ public class MenuItemHelper {
         } else if(item instanceof  ScrollChoiceMenuItem) {
             return new CurrentScrollPosition(0, "");
         }
-        else throw new IllegalArgumentException("Unknown menu type " + item + "of type " + item.getClass());
+        else return false;
     }
 }

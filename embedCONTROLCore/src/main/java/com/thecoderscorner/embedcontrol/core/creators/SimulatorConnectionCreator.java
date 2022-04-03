@@ -438,4 +438,12 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "SimulatorConnectionCreator{" +
+                "name='" + name + '\'' +
+                ", uuid=" + uuid +
+                '}';
+    }
 }

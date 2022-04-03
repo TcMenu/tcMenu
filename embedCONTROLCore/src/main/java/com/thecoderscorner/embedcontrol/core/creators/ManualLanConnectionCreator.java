@@ -85,4 +85,13 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
         return generateBaseControllerBuilder().attemptPairing(Optional.of(statusConsumer));
     }
+
+    @Override
+    public String toString() {
+        return "ManualLanConnectionCreator{" +
+                "name='" + name + '\'' +
+                ", ipAddr='" + ipAddr + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }

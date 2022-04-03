@@ -2,10 +2,7 @@ package com.thecoderscorner.embedcontrol.core.simulator;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
-import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.state.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import com.thecoderscorner.menu.remote.*;
@@ -14,10 +11,7 @@ import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -190,6 +184,12 @@ public class SimulatedRemoteConnection implements RemoteConnector {
                     connectorListener.onCommand(this, new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, col.toString()));
                     acknowledgeChange(item, col.toString(), ch.getCorrelationId(), AckStatus.SUCCESS);
                 }
+            }
+            else if(ch.getChangeType() == ChangeType.LIST_STATE_CHANGE) {
+                Optional<ListResponse> resp = ListResponse.fromString(ch.getValue());
+                var row = resp.orElseThrow().getRow();
+                var responseType = resp.orElseThrow().getResponseType();
+                sendDialogAction(DialogMode.SHOW, "List Activation", responseType + " on row " + row, MenuButtonType.NONE, MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION);
             }
         }, latencyMillis, TimeUnit.MILLISECONDS);
     }

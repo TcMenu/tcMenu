@@ -40,6 +40,14 @@ public interface NavigationManager<T, I> {
     void pushNavigation(PanelPresentable<Node> navigation);
 
     /**
+     * Push a new menu onto the display with the option to reset the layout at the same time by passing true as the
+     * second parameter.
+     * @param subMenuItem the submenu to present
+     * @param resetNavigation true to completely reset the navigation stack, otherwise false.
+     */
+    public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation);
+
+    /**
      * Override the current title with the new title, by default the title is set during push/pop operations
      * @param newTitle the title text
      */

@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -28,6 +29,9 @@ import java.util.function.BiConsumer;
 import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
+    public enum StandardLedWidgetStates { RED, ORANGE, GREEN };
+    public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL };
+
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final Map<TitleWidget<Image>, Button> widgetButtonMap = new HashMap<>();
     private final List<BiConsumer<ActionEvent, TitleWidget<Image>>> widgetClickListeners = new CopyOnWriteArrayList<>();
@@ -87,25 +91,29 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
 
     @Override
     public void addTitleWidget(TitleWidget<Image> widget) {
-        Platform.runLater(() -> {
-            var widgetBtn = new Button();
-            widgetBtn.setStyle("-fx-background-color: #295c95;");
-            var img = widget.getCurrentImage();
-            double scaleFactor = img.getWidth() / 16;
-            ImageView imgView = new ImageView(img);
-            imgView.setFitWidth(16);
-            imgView.setFitHeight(img.getHeight() / scaleFactor);
-            widgetBtn.setGraphic(imgView);
-            widgetBtn.setOnAction((evt) -> fireWidgetClicked(evt, widget));
-            widgetPane.getChildren().add(widgetBtn);
-            widgetButtonMap.put(widget, widgetBtn);
-            widget.addWidgetChangeListener(this);
-        });
+        if(!Platform.isFxApplicationThread()) throw new IllegalStateException("Always call on JavaFX thread see - Platform.runLater(..)");
+        var widgetBtn = new Button();
+        widgetBtn.setStyle("-fx-background-color: #295c95;");
+        var img = widget.getCurrentImage();
+        double scaleFactor = img.getWidth() / 16;
+        ImageView imgView = new ImageView(img);
+        imgView.setFitWidth(16);
+        imgView.setFitHeight(img.getHeight() / scaleFactor);
+        widgetBtn.setGraphic(imgView);
+        widgetBtn.setOnAction((evt) -> fireWidgetClicked(evt, widget));
+        widgetPane.getChildren().add(widgetBtn);
+        widgetButtonMap.put(widget, widgetBtn);
+        widget.addWidgetChangeListener(this);
     }
 
     private void fireWidgetClicked(ActionEvent evt, TitleWidget<Image> widget) {
-        for (var l : widgetClickListeners) {
-            l.accept(evt, widget);
+        if(evt.getSource() instanceof Button btn && btn.getContextMenu() != null) {
+            var ctxMenu = btn.getContextMenu();
+            ctxMenu.show(btn, Side.BOTTOM, PopupControl.USE_COMPUTED_SIZE, PopupControl.USE_COMPUTED_SIZE);
+        } else {
+            for (var l : widgetClickListeners) {
+                l.accept(evt, widget);
+            }
         }
     }
 
@@ -123,16 +131,31 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     public void titleWidgetHasChanged(TitleWidget<Image> widget) {
         Platform.runLater(() -> {
             var widGfx = widgetButtonMap.get(widget);
+            if(widGfx == null) return;
             var imgView = (ImageView) widGfx.getGraphic();
             imgView.setImage(widget.getCurrentImage());
         });
     }
 
+    public Optional<Button> getButtonFor(TitleWidget<Image> widget) {
+        return Optional.ofNullable(widgetButtonMap.get(widget));
+    }
+
     @Override
-    public void pushMenuNavigation(SubMenuItem subMenuItem) {
+    public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation) {
         var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, layoutPersistence, subMenuItem);
         if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
-        pushNavigation(controlGrid);
+        if(resetNavigation) {
+            resetNavigationTo(controlGrid);
+        }
+        else {
+            pushNavigation(controlGrid);
+        }
+    }
+
+    @Override
+    public void pushMenuNavigation(SubMenuItem asSubMenu) {
+        pushMenuNavigation(asSubMenu, false);
     }
 
     public void pushNavigation(PanelPresentable<Node> navigation) {
@@ -214,9 +237,25 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         );
     }
 
+    /**
+     * Provides a single save icon that can be used in touch systems to perform a save operation.
+     * @return a standard save widget
+     */
     public static TitleWidget<Image> standardSaveWidget() {
         return JfxNavigationHeader.widgetFromImages(
                 JfxNavigationHeader.class.getResource("/img/save-icon.png")
+        );
+    }
+
+    /**
+     * Provides a standard tri-state LED arrangement with Red, Orange and Green in that order.
+     * @return a tri-state LED widget
+     */
+    public static TitleWidget<Image> standardStatusLed() {
+        return JfxNavigationHeader.widgetFromImages(
+                JfxNavigationHeader.class.getResource("/img/red-led-icon.png"),
+                JfxNavigationHeader.class.getResource("/img/orange-led-icon.png"),
+                JfxNavigationHeader.class.getResource("/img/green-led-icon.png")
         );
     }
 
@@ -225,9 +264,5 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
                 .map(i -> new Image(i.toString()))
                 .toList();
         return new TitleWidget<>(images, images.size(), 0);
-    }
-
-    public Optional<Button> getButtonFor(TitleWidget<Image> widget) {
-        return Optional.ofNullable(widgetButtonMap.get(widget));
     }
 }

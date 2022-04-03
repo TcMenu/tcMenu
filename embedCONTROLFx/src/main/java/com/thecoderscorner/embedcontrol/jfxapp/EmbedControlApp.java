@@ -104,7 +104,7 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
         var defaultViews = List.of(
                 new AboutPanelPresentable(),
                 new SettingsPanelPresentable(settings),
-                new NewConnectionPanelPresentable(settings, this)
+                new NewConnectionPanelPresentable(settings, this, Optional.empty())
         );
 
         connectionStorage = new RemoteAppFileConnectionStorage(serialFactory, serializer, settings, coreExecutor, appDataDir);
@@ -161,38 +161,6 @@ public class EmbedControlApp extends Application implements EmbedControlContext 
             logger.log(INFO, "Created new panel " + panel.getPanelName());
         } catch (Exception e) {
             logger.log(ERROR, "Panel creation failure", e);
-        }
-    }
-
-    @Override
-    public void editConnection(UUID identifier) {
-        var panel = allPresentableViews.stream()
-                .filter(pp -> pp instanceof RemoteConnectionPanel rcp && rcp.getUuid().equals(identifier))
-                .findFirst();
-        if(panel.isEmpty()) return;
-        var connectionPanel = (RemoteConnectionPanel) panel.get();
-
-        try {
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit connection " + connectionPanel.getPanelName());
-            dialogStage.initOwner(primaryStage);
-
-            var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/newConnection.fxml"));
-            Pane loadedPane = loader.load();
-            NewConnectionController editController = loader.getController();
-            editController.initialise(settings, this, Optional.of(connectionPanel.getCreator()));
-
-            Scene scene = new Scene(loadedPane);
-            dialogStage.setScene(scene);
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.showAndWait();
-            var result = editController.getResult();
-            result.ifPresent(connectionCreator -> {
-                connectionPanel.changeConnectionCreator(connectionCreator);
-                connectionStorage.savePanel(connectionPanel.getLayoutPersistence());
-            });
-        } catch (IOException e) {
-            logger.log(ERROR, "Failure during connection edit for " + identifier);
         }
     }
 
