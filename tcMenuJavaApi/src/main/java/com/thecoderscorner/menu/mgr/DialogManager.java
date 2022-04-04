@@ -12,6 +12,7 @@ public abstract class DialogManager implements DialogViewer {
     protected MenuButtonType button1 = MenuButtonType.NONE;
     protected MenuButtonType button2 = MenuButtonType.NONE;
     protected Function<MenuButtonType, Boolean> delegate;
+    private DialogShowMode dialogShowMode;
 
     @Override
     public boolean isDialogVisible() {
@@ -58,8 +59,9 @@ public abstract class DialogManager implements DialogViewer {
         return this;
     }
 
-    public DialogManager withDelegate(Function<MenuButtonType, Boolean> delegate) {
+    public DialogManager withDelegate(DialogShowMode mode, Function<MenuButtonType, Boolean> delegate) {
         synchronized (lock) {
+            this.dialogShowMode = mode;
             this.delegate = delegate;
         }
         return this;

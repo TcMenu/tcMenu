@@ -61,7 +61,13 @@ public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustom
 
     @Override
     public void setColorFor(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
-
+        switch(componentType) {
+            case TEXT_FIELD -> textColor = Optional.of(controlColor);
+            case BUTTON -> buttonColor = Optional.of(controlColor);
+            case HIGHLIGHT -> highlighColor = Optional.of(controlColor);
+            case CUSTOM -> updateColor = Optional.of(controlColor);
+            default ->  throw new IllegalArgumentException("Invalid field for set color" + componentType);
+        }
     }
 
     @Override

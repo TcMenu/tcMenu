@@ -11,7 +11,6 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.RemoteAppScreenLayoutPersistence;
-import com.thecoderscorner.embedcontrol.jfxapp.dialog.PairingController;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -22,7 +21,6 @@ import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -113,7 +111,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         navigationManager.addTitleWidget(settingsWidget);
         var saveWidget = standardSaveWidget();
         navigationManager.addTitleWidget(saveWidget);
-        connectStatusWidget = standardStatusLed();
+        connectStatusWidget = standardStatusLedWidget();
         navigationManager.addTitleWidget(connectStatusWidget);
 
         ContextMenu settingsMenu = generateSettingsContextMenu();

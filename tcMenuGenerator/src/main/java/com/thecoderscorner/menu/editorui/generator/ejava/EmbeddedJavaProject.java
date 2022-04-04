@@ -36,7 +36,10 @@ public class EmbeddedJavaProject {
             ## here we put the location of the data files needed by the application
             file.menu.storage=%DATADIR%
             file.auth.storage=%DATADIR%/auth.properties
-                        
+            
+            # the default font size to be used when no other provided
+            default.font.size = 16
+
             # you can add any other properties needed by your application here.
             """;
 

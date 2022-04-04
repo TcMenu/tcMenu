@@ -258,11 +258,23 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      * Provides a standard tri-state LED arrangement with Red, Orange and Green in that order.
      * @return a tri-state LED widget
      */
-    public static TitleWidget<Image> standardStatusLed() {
+    public static TitleWidget<Image> standardStatusLedWidget() {
         return JfxNavigationHeader.widgetFromImages(
                 JfxNavigationHeader.class.getResource("/img/red-led-icon.png"),
                 JfxNavigationHeader.class.getResource("/img/orange-led-icon.png"),
                 JfxNavigationHeader.class.getResource("/img/green-led-icon.png")
+        );
+    }
+
+    /**
+     * The standard widget for toggling between layout mode on and layout mode off, it has two images, image 1 is off
+     * and image 2 is on.
+     * @return a widget that can represent layout mode being on and off.
+     */
+    public static TitleWidget<Image> standardLayoutWidget() {
+        return JfxNavigationHeader.widgetFromImages(
+                JfxNavigationHeader.class.getResource("/img/layout-off.png"),
+                JfxNavigationHeader.class.getResource("/img/layout-on.png")
         );
     }
 

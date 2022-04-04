@@ -57,18 +57,32 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
     @Override
     public void managerWillStart() {
         Platform.runLater(() -> {
+            if(globalSettings.isSetupLayoutModeEnabled()) {
+                navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, menuDef.getMenuTree(), navigationManager, globalSettings));
+            }
+
             TitleWidget<Image> wifiWidget = JfxNavigationHeader.standardWifiWidget();
-            navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, menuDef.getMenuTree(), navigationManager, globalSettings));
             navigationManager.addTitleWidget(wifiWidget);
             executorService.scheduleAtFixedRate(() -> wifiWidget.setCurrentState((int) (Math.random() * 5)), 1000, 100, TimeUnit.MILLISECONDS);
 
+            TitleWidget<Image> layoutWidget = JfxNavigationHeader.standardLayoutWidget();
+            layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
+            navigationManager.addTitleWidget(layoutWidget);
+
             TitleWidget<Image> settingsWidget = JfxNavigationHeader.standardSettingsWidget();
             navigationManager.addTitleWidget(settingsWidget);
+
             navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
                     if(widget == settingsWidget) {
                         navigationManager.pushNavigation(new ColorSettingsPresentable(globalSettings, navigationManager, layoutPersistence, menuDef.getMenuTree()));
                     }
+                    else if(widget == layoutWidget) {
+                        globalSettings.setSetupLayoutModeEnabled(!globalSettings.isSetupLayoutModeEnabled());
+                        layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
+                        globalSettings.save();
+                    }
             });
+
         });
     }
 

@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ColorSettingsPresentable implements PanelPresentable<Node> {
     private final Map<String, ColorCustomizable> colorRanges;
@@ -33,7 +34,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         colorRanges = new HashMap<>();
         colorRanges.put(ColorSettingsController.DEFAULT_COLOR_NAME, new GlobalColorCustomizable(settings));
         for (var item : tree.getAllSubMenus()) {
-            colorRanges.put("SubMenu " + item.getName(), layoutPersistence.getColorCustomizerFor(item));
+            colorRanges.put("SubMenu " + item.getName(), layoutPersistence.getColorCustomizerFor(item, Optional.empty(), false));
         }
         this.settings = settings;
         this.manager = manager;

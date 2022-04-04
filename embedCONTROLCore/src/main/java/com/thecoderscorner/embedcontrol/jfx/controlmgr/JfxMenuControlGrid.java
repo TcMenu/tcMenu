@@ -2,14 +2,12 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.LayoutEditorSettingsPresenter;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -22,7 +20,6 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
@@ -148,7 +145,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     @Override
     public EditorComponent<Node> addButtonWithAction(SubMenuItem subItem, String text, ComponentSettings componentSettings, Consumer<SubMenuItem> actionConsumer) {
         var btnEd = new SubMenuSelectButtonEditorComponent(subItem, text, controller, componentSettings, threadMarshaller, actionConsumer);
-        addToGridInPosition(Optional.empty(), componentSettings, btnEd.createComponent());
+        addToGridInPosition(Optional.of(subItem), componentSettings, btnEd.createComponent());
         return btnEd;
     }
 
@@ -210,7 +207,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
             borderPane.setCenter(sp);
             var openLayoutButton = new Button("*");
             openLayoutButton.setOnAction(evt -> {
-                if(layoutEditingPresenter!=null) layoutEditingPresenter.layoutEditorRequired(item.get());
+                if(layoutEditingPresenter!=null) layoutEditingPresenter.layoutEditorRequired(item.get(), settings);
             });
             borderPane.setRight(openLayoutButton);
             sp = borderPane;

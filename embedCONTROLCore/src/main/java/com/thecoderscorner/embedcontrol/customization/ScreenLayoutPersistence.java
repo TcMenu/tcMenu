@@ -335,8 +335,8 @@ public class ScreenLayoutPersistence {
 
     }
 
-    public ColorCustomizable getColorCustomizerFor(MenuItem item) {
-        if(item instanceof SubMenuItem sub) {
+    public ColorCustomizable getColorCustomizerFor(MenuItem item, Optional<ComponentSettings> existingSettings, boolean forceItemLevel) {
+        if(item instanceof SubMenuItem sub && !forceItemLevel) {
             mustContainKeyForSub(sub);
             return new LayoutBasedSubColorCustomizable("SubMenu - " + sub.getName(), this, settingsMap.get(sub.getId()));
         } else {
@@ -345,9 +345,10 @@ public class ScreenLayoutPersistence {
 
             // at this point the parent must have an entry, even if just the default, to store the overrides
             var itemLevelLayouts = settingsMap.get(par.getId()).menuIdLevelOverrides();
+            var comp = existingSettings.orElse(ComponentSettings.NO_COMPONENT);
             var override = itemLevelLayouts.stream()
                     .filter(compAndId -> compAndId.menuId() == item.getId())
-                    .findFirst().orElseGet(() -> new ComponentSettingsWithMenuId(item.getId(), ComponentSettings.NO_COMPONENT,
+                    .findFirst().orElseGet(() -> new ComponentSettingsWithMenuId(item.getId(), comp,
                             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty() ));
             String itemName = "Item - " + item.getName() + " in " + par.getName();
             return new LayoutBasedItemColorCustomizable(itemName, par, override, this);

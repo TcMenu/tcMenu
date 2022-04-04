@@ -45,7 +45,9 @@ public class MenuConfig {
     }
 
     @Bean GlobalSettings globalSettings() {
-        return new GlobalSettings(EmbeddedJavaDemoMenu.class);
+        var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
+        settings.load();
+        return settings;
     }
 
     @Bean

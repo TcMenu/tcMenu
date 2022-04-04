@@ -37,6 +37,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setColorFor(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
         getColorFor(componentType).copyColorsFrom(controlColor);
+        globalSettings.save();
     }
 
     @Override
@@ -52,6 +53,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setFontSize(int size) {
         globalSettings.setDefaultFontSize(size);
+        globalSettings.save();
     }
 
     @Override
@@ -62,6 +64,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setRecursiveRender(boolean recursiveRender) {
         globalSettings.setDefaultRecursiveRendering(recursiveRender);
+        globalSettings.save();
     }
 
     @Override

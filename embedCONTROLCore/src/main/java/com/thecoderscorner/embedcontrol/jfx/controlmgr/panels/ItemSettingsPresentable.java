@@ -8,7 +8,6 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 
 public class ItemSettingsPresentable implements PanelPresentable<Node> {
     private final String name;
@@ -17,6 +16,7 @@ public class ItemSettingsPresentable implements PanelPresentable<Node> {
     private final GlobalSettings globalSettings;
     private final ComponentSettingsCustomizer customizerConsumer;
     private ItemSettingsController controller;
+    private Node storedPanel = null;
 
     public ItemSettingsPresentable(MenuItem item, JfxNavigationManager navigator, GlobalSettings globalSettings,
                                    ComponentSettingsCustomizer colorSettings) {
@@ -35,11 +35,13 @@ public class ItemSettingsPresentable implements PanelPresentable<Node> {
 
     @Override
     public Node getPanelToPresent(double width) throws Exception {
-        var loader = new FXMLLoader(ColorSettingsPresentable.class.getResource("/core_fxml/itemSettings.fxml"));
-        Pane loadedPane = loader.load();
-        controller = loader.getController();
-        controller.initialise(navigator, globalSettings, name, id, customizerConsumer);
-        return loadedPane;
+        if(storedPanel == null) {
+            var loader = new FXMLLoader(ColorSettingsPresentable.class.getResource("/core_fxml/itemSettings.fxml"));
+            storedPanel = loader.load();
+            controller = loader.getController();
+            controller.initialise(navigator, globalSettings, name, id, customizerConsumer);
+        }
+        return storedPanel;
     }
 
     @Override

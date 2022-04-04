@@ -36,6 +36,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private ScheduledFuture<?> hbScheduleThread;
     private final Map<Integer, MethodWithObject> mapOfCallbacksById = new ConcurrentHashMap<>();
     private final Map<Integer, MethodWithObject> mapOfChoicePopulatorsById = new ConcurrentHashMap<>();
+    private final List<MenuTreeStructureChangeListener> structureChangeListeners = new CopyOnWriteArrayList<>();
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, String serverName, UUID uuid,
                              MenuAuthenticator authenticator, Clock clock) {
@@ -67,6 +68,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
         if(alreadyStarted.get()) {
             listener.managerWillStart();
         }
+    }
+
+    public void addTreeStructureChangeListener(MenuTreeStructureChangeListener structureListener) {
+        structureChangeListeners.add(structureListener);
     }
 
     public void start() {
@@ -245,6 +250,18 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
 
         updateRemotesWithLatestState(cmd);
+    }
+
+    public void remoteUpdateHasOccurred(MenuItem item, Object value) {
+        MenuItemHelper.setMenuState(item, value, getManagedMenu());
+        fireEventToListeners(item, value, true);
+    }
+
+    public void treeStructurallyChanged(MenuItem hint) {
+        logger.log(Level.INFO, "Tree structure has changed around " + hint);
+        for(var listener : structureChangeListeners) {
+            listener.treeStructureChanged(hint);
+        }
     }
 
     private void updateRemotesWithLatestState(MenuCommand cmd) {
