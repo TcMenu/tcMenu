@@ -40,13 +40,11 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
     private RemoteAppScreenLayoutPersistence layoutPersistence;
     private RemoteMenuComponentControl control;
-    private RemoteTreeComponentManager remoteTreeComponentManager;
     private GlobalSettings settings;
     private EmbedControlContext context;
     private MenuItem rootItem;
     private ConnectionCreator creator;
     private JfxNavigationHeader navigationManager;
-    private RemoteMenuController controller;
     private GridPane dialogPane;
     private Label headerLabel;
     private Label messageLabel;
@@ -57,6 +55,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private RemoteDialogManager dialogManager;
     private TitleWidget<Image> connectStatusWidget;
     private boolean pairingInProgress = false;
+    private RemoteMenuController controller;
 
     public RemoteConnectionPanel(GlobalSettings settings, EmbedControlContext context, RemoteAppScreenLayoutPersistence layoutPersistence,
                                  MenuItem item) {
@@ -83,26 +82,20 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         rootPanel.setTop(topLayout);
         generateWidgets();
 
-        controller = layoutPersistence.getConnectionCreator().start();
-        this.control = new RemoteMenuComponentControl(controller, navigationManager);
-        this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
+        createNewController();
+
         if(settings.isSetupLayoutModeEnabled()) {
             this.navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, control.getMenuTree(),
                     navigationManager, settings));
         }
-        remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
-                layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
-        navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
-        navigationManager.pushNavigation(new WaitingForConnectionPanel());
 
         return rootPanel;
     }
 
-    private void initialiseConnectionComponents() throws Exception {
+    private void initialiseConnectionComponents() {
         scrollPane = new ScrollPane();
         rootPanel.setCenter(scrollPane);
         scrollPane.setContent(new Label("Waiting for connection"));
-        controller = creator.start();
         dialogManager = new RemoteDialogManager();
     }
 
@@ -149,10 +142,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         // force a connection restart but only if already connected
         if (controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
             try {
-                logger.log(INFO, "Trying to restart the connection " + creator);
-                controller.stop();
-                controller = creator.start();
-                logger.log(INFO, "Restarted the connection " + creator);
+
             } catch (Exception e) {
                 logger.log(ERROR, "Could not restart connection" + creator, e);
             }
@@ -248,11 +238,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 connectStatusWidget.setCurrentState(StandardLedWidgetStates.GREEN);
                 layoutPersistence.remoteApplicationDidLoad(controller.getConnector().getRemoteParty().getUuid(), controller.getManagedMenu());
                 navigationManager.pushMenuNavigation(MenuItemHelper.asSubMenu(rootItem), true);
+                notifyControlGrid(true);
             } else if (status == AuthStatus.FAILED_AUTH) {
                 connectStatusWidget.setCurrentState(StandardLedWidgetStates.RED);
-                if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
-                    controlGrid.connectionIsUp(false);
-                }
+                notifyControlGrid(false);
                 try {
                     logger.log(INFO, "Pairing needed, stopping controller and showing pairing window");
                     if(!pairingInProgress) {
@@ -268,11 +257,15 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             } else {
                 boolean noConnection = status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED;
                 connectStatusWidget.setCurrentState(noConnection ? StandardLedWidgetStates.RED : StandardLedWidgetStates.ORANGE);
-                if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
-                    controlGrid.connectionIsUp(false);
-                }
+                notifyControlGrid(false);
             }
         });
+    }
+
+    private void notifyControlGrid(boolean up) {
+        if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
+            controlGrid.connectionIsUp(up);
+        }
     }
 
     private void doPairing() {
@@ -284,12 +277,31 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             if(pairingInProgress) {
                 navigationManager.popNavigation(); // removing pairing window and clear state
                 pairingInProgress = false;
-                controller = creator.start();
+                createNewController();
             }
         } catch (Exception e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             alert.showAndWait();
             logger.log(ERROR, "Unable to restart connection after pairing", e);
+        }
+    }
+
+    private void createNewController() {
+        try {
+            logger.log(INFO, "Trying to start the connection " + creator);
+
+            controller = layoutPersistence.getConnectionCreator().start();
+
+            this.control = new RemoteMenuComponentControl(controller, navigationManager);
+            this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
+
+            var remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
+                    layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
+            navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
+            navigationManager.pushNavigation(new WaitingForConnectionPanel());
+            logger.log(INFO, "Started the connection " + creator);
+        } catch (Exception e) {
+            logger.log(ERROR, "Unable to start connection " + creator.getName(), e);
         }
     }
 
@@ -304,10 +316,6 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private void showDialog(boolean visible) {
         dialogPane.setVisible(visible);
         dialogPane.setManaged(visible);
-    }
-
-    public RemoteAppScreenLayoutPersistence getLayoutPersistence() {
-        return layoutPersistence;
     }
 
     class RemoteDialogManager extends DialogManager {

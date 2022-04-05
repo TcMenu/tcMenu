@@ -59,7 +59,7 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
                 marshaller.runOnUiThread(() -> dialogViewer.updateStateFromCommand(cmd));
             }
         };
-        controller.addListener(remoteListener);
+        remoteController.addListener(remoteListener);
 
         // handle the case where it's already connected really quick!
         if (controller.getConnector().getAuthenticationStatus() == AuthStatus.CONNECTION_READY) {
