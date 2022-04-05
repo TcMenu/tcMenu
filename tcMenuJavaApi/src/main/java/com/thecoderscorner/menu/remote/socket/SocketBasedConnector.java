@@ -57,6 +57,7 @@ public class SocketBasedConnector extends StreamRemoteConnector {
 
     @Override
     public void stop() {
+        close();
         stopThreadProc();
         changeState(AuthStatus.NOT_STARTED);
     }
