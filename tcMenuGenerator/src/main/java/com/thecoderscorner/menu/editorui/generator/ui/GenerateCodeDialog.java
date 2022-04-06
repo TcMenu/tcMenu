@@ -224,7 +224,7 @@ public class GenerateCodeDialog {
 
     private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid, Optional<String> maybeDefault) {
         if(items.size() == 0) throw new IllegalStateException("No plugins have been loaded");
-        return items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElseGet(() -> {
+        var toReturn = items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElseGet(() -> {
             CodePluginItem ret;
             if(maybeDefault.isPresent()) {
                 ret = items.stream().filter(item -> item.getId().equals(maybeDefault.get())).findFirst().orElse(items.get(0));
@@ -232,6 +232,7 @@ public class GenerateCodeDialog {
             else ret = items.get(0);
             return ret;
         });
+        return toReturn.deepCopy();
     }
 
     private void placeDirectoryAndEmbeddedPanels(BorderPane pane) {
@@ -533,7 +534,7 @@ public class GenerateCodeDialog {
         logger.log(INFO, "Action fired on remote");
         selectPlugin(remotesSupported, "Remote", (uiPluginLocal, pluginItem)-> {
             if (uiPluginLocal.getItemIndex() < currentRemotes.size()) {
-                currentRemotes.get(uiPlugin.getItemIndex()).setItem(pluginItem);
+                currentRemotes.get(uiPlugin.getItemIndex()).setItem(pluginItem.deepCopy());
                 changeProperties();
             }
         });

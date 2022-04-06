@@ -172,4 +172,26 @@ public class CodePluginItem {
                 ", imageFileName='" + imageFileName + '\'' +
                 '}';
     }
+
+    public CodePluginItem deepCopy() {
+        var pluginCopy = new CodePluginItem();
+        pluginCopy.setId(id);
+        pluginCopy.setDescription(description);
+        pluginCopy.setConfig(config);
+        pluginCopy.setFunctions(functions);
+        pluginCopy.setDocsLink(docsLink);
+        pluginCopy.setExtendedDescription(extendedDescription);
+        pluginCopy.setImageFileName(imageFileName);
+        pluginCopy.setIncludeFiles(includeFiles);
+        pluginCopy.setRequiredLibraries(requiredLibraries);
+        pluginCopy.setRequiredSourceFiles(requiredSourceFiles);
+        pluginCopy.setSubsystem(subsystem);
+        pluginCopy.setSupportedPlatforms(supportedPlatforms);
+        pluginCopy.setThemeNeeded(themeNeeded);
+        pluginCopy.setManager(manager);
+        pluginCopy.setProperties(properties.stream().map(prop -> new CreatorProperty(
+                prop.getName(), prop.getDescription(), prop.getExtendedDescription(), prop.getLatestValue(), prop.getSubsystem(),
+                prop.getPropType(), prop.getValidationRules(), prop.getApplicability())).toList());
+        return pluginCopy;
+    }
 }
