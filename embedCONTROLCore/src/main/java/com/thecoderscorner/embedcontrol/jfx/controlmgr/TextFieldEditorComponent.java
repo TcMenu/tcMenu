@@ -8,7 +8,9 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.texted.*;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.mgr.DialogViewer;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,9 +25,11 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private BorderPane borderPane;
     private Button actionButton;
     private Optional<FieldEditHandler> editorComponent;
+    private final DialogManager dlgManager;
 
-    public TextFieldEditorComponent(MenuComponentControl remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
+    public TextFieldEditorComponent(MenuComponentControl remote, ComponentSettings settings, MenuItem item, DialogManager dlgManager, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
+        this.dlgManager = dlgManager;
     }
 
     @Override
@@ -47,6 +51,11 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private void onButtonPressed(ActionEvent evt) {
         if(editorComponent.isPresent()) {
             if(!editorComponent.get().isCurrentlyValid()) {
+                dlgManager.withTitle(item.getName() + " did not validate", false)
+                        .withMessage("Please ensure the value is valid for the type of field", false)
+                        .withDelegate(DialogViewer.DialogShowMode.LOCAL_TO_DELEGATE, menuButtonType -> true)
+                        .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
+
                 editorComponent.get().markInvalid();
             }
             validateAndSend(editorComponent.get().getValueAsString());
@@ -60,12 +69,11 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
 
     private void prepareEditing() {
         if(item instanceof EditableTextMenuItem txtItem) {
-            switch (txtItem.getItemType()) {
-                case PLAIN_TEXT -> editorComponent = Optional.of(new TextFieldEditHandler(item, currentVal.toString()));
-                case IP_ADDRESS -> throw new UnsupportedOperationException("IP");
-                case TIME_12H_HHMM, TIME_24H_HHMM, TIME_DURATION_HUNDREDS, TIME_DURATION_SECONDS, TIME_24_HUNDREDS, TIME_24H, TIME_12H -> editorComponent = Optional.of(new TimeFieldEditHandler(item, currentVal));
-                case GREGORIAN_DATE -> editorComponent = Optional.of(new DateFieldEditHandler(item, currentVal));
-            }
+            editorComponent = switch (txtItem.getItemType()) {
+                case PLAIN_TEXT, IP_ADDRESS -> Optional.of(new TextFieldEditHandler(item, currentVal.toString()));
+                case TIME_12H_HHMM, TIME_24H_HHMM, TIME_DURATION_HUNDREDS, TIME_DURATION_SECONDS, TIME_24_HUNDREDS, TIME_24H, TIME_12H -> Optional.of(new TimeFieldEditHandler(item, currentVal));
+                case GREGORIAN_DATE -> Optional.of(new DateFieldEditHandler(item, currentVal));
+            };
         }
         else if(item instanceof Rgb32MenuItem rgbItem) {
             editorComponent = Optional.of(new RgbFieldEditHandler(rgbItem, currentVal));

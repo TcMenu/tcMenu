@@ -56,6 +56,9 @@ public class TextFieldEditHandler implements FieldEditHandler {
             else if(item instanceof EditableTextMenuItem editable && editable.getItemType() == EditItemType.PLAIN_TEXT) {
                 return text.length() < ((EditableTextMenuItem) item).getTextLength();
             }
+            else if(item instanceof EditableTextMenuItem editable && editable.getItemType() == EditItemType.IP_ADDRESS) {
+                return text.matches("\\d+\\.\\d+\\.\\d+\\.\\d+");
+            }
         }
         catch (Exception e) {
         }
@@ -71,6 +74,5 @@ public class TextFieldEditHandler implements FieldEditHandler {
     public void markInvalid() {
         var errorPaint = asFxColor(ControlColor.CORAL);
         textField.setBackground(new Background(new BackgroundFill(errorPaint, new CornerRadii(0), new Insets(0))));
-
     }
 }

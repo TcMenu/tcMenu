@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.DialogManager;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -33,6 +34,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     private final TreeComponentManager<Node> treeComponentManager;
     private final ThreadMarshaller threadMarshaller;
     private final int levelIndentation;
+    private final DialogManager dlgManager;
     private final MenuItem presentedItem;
     private final boolean recursive;
     private GridPane currentGrid;
@@ -42,9 +44,10 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     private LayoutEditorSettingsPresenter layoutEditingPresenter;
 
     public JfxMenuControlGrid(MenuComponentControl controller, ThreadMarshaller marshaller, TreeComponentManager<Node> componentManager,
-                              ScreenLayoutPersistence layoutPersistence, MenuItem presentedItem) {
+                              DialogManager dlgManager, ScreenLayoutPersistence layoutPersistence, MenuItem presentedItem) {
         this.threadMarshaller = marshaller;
         this.treeComponentManager = componentManager;
+        this.dlgManager = dlgManager;
         this.presentedItem = presentedItem;
         this.recursive = layoutPersistence.isRecursive(presentedItem);
         this.controller = controller;
@@ -137,7 +140,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
 
     @Override
     public EditorComponent<Node> addRgbColorControl(MenuItem item, ComponentSettings settings) {
-        var colorRgb = new TextFieldEditorComponent<PortableColor>(controller, settings, item, threadMarshaller);
+        var colorRgb = new TextFieldEditorComponent<PortableColor>(controller, settings, item, dlgManager, threadMarshaller);
         addToGridInPosition(Optional.of(item), settings, colorRgb.createComponent());
         return colorRgb;
     }
@@ -151,7 +154,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
 
     @Override
     public <P> EditorComponent<Node> addTextEditor(MenuItem item, ComponentSettings settings, P prototype) {
-        var textEd = new TextFieldEditorComponent<P>(controller, settings, item, threadMarshaller);
+        var textEd = new TextFieldEditorComponent<P>(controller, settings, item, dlgManager, threadMarshaller);
         addToGridInPosition(Optional.of(item), settings, textEd.createComponent());
         return textEd;
     }
@@ -159,7 +162,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     @Override
     public EditorComponent<Node> addDateEditorComponent(MenuItem item, ComponentSettings settings) {
         if (item instanceof EditableTextMenuItem textFld && textFld.getItemType() == EditItemType.GREGORIAN_DATE) {
-            var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, threadMarshaller);
+            var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, dlgManager, threadMarshaller);
             addToGridInPosition(Optional.of(item), settings, dateEditor.createComponent());
             return dateEditor;
         } else {
@@ -175,7 +178,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     @Override
     public EditorComponent<Node> addTimeEditorComponent(MenuItem item, ComponentSettings settings) {
         if (item instanceof EditableTextMenuItem textFld && ALLOWED_TIME_TYPES.contains(textFld.getItemType())) {
-            var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, threadMarshaller);
+            var dateEditor = new TextFieldEditorComponent<String>(controller, settings, item, dlgManager, threadMarshaller);
             addToGridInPosition(Optional.of(item), settings, dateEditor.createComponent());
             return dateEditor;
         } else {

@@ -144,7 +144,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     @Override
     public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation) {
         Platform.runLater(() -> {
-            var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, layoutPersistence, subMenuItem);
+            var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, dialogManager, layoutPersistence, subMenuItem);
             if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
             if(resetNavigation) {
                 navigationStack.clear();
