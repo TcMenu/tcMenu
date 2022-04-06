@@ -73,7 +73,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     @Override
-    public Node getPanelToPresent(double width) throws Exception {
+    public Node getPanelToPresent(double width) {
         rootPanel = new BorderPane();
         initialiseConnectionComponents();
         VBox topLayout = new VBox();
@@ -142,7 +142,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         // force a connection restart but only if already connected
         if (controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
             try {
-
+                createNewController();
             } catch (Exception e) {
                 logger.log(ERROR, "Could not restart connection" + creator, e);
             }
@@ -334,7 +334,11 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         @Override
         protected void buttonWasPressed(MenuButtonType btn) {
-            controller.sendDialogAction(btn);
+            if(getDialogShowMode() == DialogShowMode.REGULAR) {
+                controller.sendDialogAction(btn);
+            } else {
+                super.buttonWasPressed(btn);
+            }
         }
     }
 

@@ -66,7 +66,7 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
      * been sought.
      * @param user the user to add
      * @param uuid the uuid associated with the user
-     * @return
+     * @return a future that can be tracked to indicate if the authentication was accepted
      */
     @Override
     public CompletableFuture<Boolean> addAuthentication(String user, UUID uuid) {
@@ -78,7 +78,7 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
                 var dialogLatch = new CountDownLatch(1);
                 dialogManager.withTitle("Pair with " + user, true)
                         .withMessage("Be sure you know where this connection originated", true)
-                        .withDelegate(DialogViewer.DialogShowMode.REGULAR, menuButtonType -> {
+                        .withDelegate(DialogViewer.DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
                             shouldProceed.set(menuButtonType == MenuButtonType.ACCEPT);
                             dialogLatch.countDown();
                             return true;

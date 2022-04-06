@@ -50,7 +50,7 @@ public class JfxLocalAutoUI extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         var ctx = GLOBAL_CONTEXT.get();
         mgr = ctx.getBean(MenuManagerServer.class);
         var executor = ctx.getBean(ScheduledExecutorService.class);
@@ -192,14 +192,6 @@ public class JfxLocalAutoUI extends Application {
 
             if(remoteAllowed) {
                 mgr.sendCommand(new MenuDialogCommand(mode, title, message, button1, button2, CorrelationId.EMPTY_CORRELATION));
-            }
-        }
-
-        @Override
-        protected void buttonWasPressed(MenuButtonType btn) {
-            var proceed = (delegate != null) ? delegate.apply(btn) : true;
-            if(proceed) {
-                hideDialog();
             }
         }
     }

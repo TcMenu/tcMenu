@@ -33,6 +33,9 @@ class MenuInMenuTest {
     private MenuManagerServer managerServer;
     private SubMenuItem subRoot;
     private MenuTreeStructureChangeListener structureListener;
+    private boolean didChange;
+    private MenuButtonType regularButtonPress = MenuButtonType.NONE;
+    private MenuInMenuTestDlgManager dlgManager;
 
     @BeforeEach
     void setUp() {
@@ -48,6 +51,7 @@ class MenuInMenuTest {
                 UUID.randomUUID(), new PreDefinedAuthenticator(true), Clock.systemUTC());
         managerServer.addTreeStructureChangeListener(structureListener);
         otherRemote = new UnitTestRemoteConnector();
+        dlgManager = new MenuInMenuTestDlgManager();
     }
 
     @AfterEach
@@ -56,8 +60,8 @@ class MenuInMenuTest {
     }
 
     @Test
-    void testMenuInMenuInFullReplicateMode() throws IOException {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_ADD_STATUS_ITEM,
+    void testMenuInMenuInFullReplicateMode() {
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_ADD_STATUS_ITEM,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -97,7 +101,7 @@ class MenuInMenuTest {
 
     @Test
     void testMenuInMenuInDontReplicateMode() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_SILENTLY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_SILENTLY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -109,8 +113,35 @@ class MenuInMenuTest {
     }
 
     @Test
-    void testMenuInMenuInNotifyOnlyMode() throws IOException {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+    void testDialogInDialog() {
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+                10000, 150000);
+        otherMenu.start();
+        managerServer.start();
+
+        sendStandardBootMessages();
+
+        otherRemote.simulateSendCommand(new MenuDialogCommand(DialogMode.SHOW, "hello", "world", MenuButtonType.OK, MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
+
+        assertTrue(dlgManager.isDialogVisible());
+        assertEquals("hello", dlgManager.getTitle());
+        assertEquals("world", dlgManager.getMessage());
+        assertEquals(MenuButtonType.OK, dlgManager.getButtonType(1));
+        assertEquals(MenuButtonType.CLOSE, dlgManager.getButtonType(2));
+
+        dlgManager.buttonWasPressed(MenuButtonType.OK);
+
+        assertFalse(otherRemote.commandsSent.isEmpty());
+        var dlgCmd = (MenuDialogCommand) otherRemote.commandsSent.get(otherRemote.commandsSent.size()-1);
+        assertEquals(MenuButtonType.OK, dlgCmd.getButton1());
+        assertEquals(DialogMode.ACTION, dlgCmd.getDialogMode());
+        assertEquals(MenuButtonType.NONE, regularButtonPress);
+        assertTrue(didChange);
+    }
+
+    @Test
+    void testMenuInMenuInNotifyOnlyMode() {
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -123,7 +154,7 @@ class MenuInMenuTest {
 
     @Test
     void testAddingAnItemAfterBootstrap() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -142,7 +173,7 @@ class MenuInMenuTest {
     
     @Test
     void testLocalUpdateIsSentRemotely() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -187,7 +218,7 @@ class MenuInMenuTest {
         }
 
         @Override
-        public void sendMenuCommand(MenuCommand msg) throws IOException {
+        public void sendMenuCommand(MenuCommand msg) {
             commandsSent.add(msg);
         }
 
@@ -228,6 +259,30 @@ class MenuInMenuTest {
         @Override
         public AuthStatus getAuthenticationStatus() {
             return started ? AuthStatus.CONNECTION_READY : AuthStatus.NOT_STARTED;
+        }
+    }
+
+    class MenuInMenuTestDlgManager extends DialogManager {
+
+        @Override
+        protected void dialogDidChange() {
+            didChange = true;
+        }
+
+        @Override
+        protected void buttonWasPressed(MenuButtonType btn) {
+            if(getDialogShowMode() == DialogShowMode.REGULAR) {
+                regularButtonPress = btn;
+            }
+            super.buttonWasPressed(btn);
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getTitle() {
+            return title;
         }
     }
 }

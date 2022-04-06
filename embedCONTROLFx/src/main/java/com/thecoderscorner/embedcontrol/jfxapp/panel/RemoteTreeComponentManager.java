@@ -48,6 +48,7 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
 
             @Override
             public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
+                if(item == null) return; // we ignore dialog acks at the moment.
                 var comp = editorComponents.get(item.getId());
                 if(comp != null) {
                     comp.onCorrelation(key, status);

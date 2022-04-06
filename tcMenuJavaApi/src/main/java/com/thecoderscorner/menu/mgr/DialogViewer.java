@@ -10,7 +10,7 @@ import java.util.function.Function;
  *
  */
 public interface DialogViewer {
-    enum DialogShowMode { REGULAR, LOCAL_TO_DELEGATE }
+    enum DialogShowMode { REGULAR, LOCAL_TO_DELEGATE, LOCAL_DELEGATE_LOCKED }
     boolean isDialogVisible();
     DialogViewer withTitle(String title, boolean silent);
     DialogManager withMessage(String message, boolean silent);

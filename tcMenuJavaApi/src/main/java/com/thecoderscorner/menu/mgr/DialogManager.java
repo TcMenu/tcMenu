@@ -23,7 +23,9 @@ public abstract class DialogManager implements DialogViewer {
 
     @Override
     public void updateStateFromCommand(MenuCommand cmd) {
-        if(cmd.getCommandType() != MenuCommandType.DIALOG_UPDATE) return;
+        // if it is not a dialog update or the dialog is currently locally locked do not update.
+        if(cmd.getCommandType() != MenuCommandType.DIALOG_UPDATE || dialogShowMode == DialogShowMode.LOCAL_DELEGATE_LOCKED) return;
+
         var dlgCmd = (MenuDialogCommand) cmd;
         synchronized (lock) {
             if(dlgCmd.getDialogMode() == DialogMode.ACTION ) {
@@ -36,6 +38,8 @@ public abstract class DialogManager implements DialogViewer {
                 message = dlgCmd.getBuffer();
                 button1 = dlgCmd.getButton1();
                 button2 = dlgCmd.getButton2();
+                dialogShowMode = DialogShowMode.REGULAR;
+                delegate = null;
             }
         }
         dialogDidChange();
@@ -81,6 +85,7 @@ public abstract class DialogManager implements DialogViewer {
     public void hideDialog() {
         synchronized (lock) {
             this.mode = DialogMode.HIDE;
+            this.dialogShowMode = DialogShowMode.REGULAR;
         }
         dialogDidChange();
     }
@@ -102,10 +107,21 @@ public abstract class DialogManager implements DialogViewer {
         }
     }
 
+    public DialogShowMode getDialogShowMode() {
+        synchronized (lock) {
+            return this.dialogShowMode;
+        }
+    }
+
     public MenuButtonType getButtonType(int btnNum) {
         return btnNum == 1 ? button1 : button2;
     }
 
     protected abstract void dialogDidChange();
-    protected abstract void buttonWasPressed(MenuButtonType btn);
+    protected void buttonWasPressed(MenuButtonType btn) {
+        var proceed = (delegate != null) ? delegate.apply(btn) : true;
+        if(proceed) {
+            hideDialog();
+        }
+    }
 }
