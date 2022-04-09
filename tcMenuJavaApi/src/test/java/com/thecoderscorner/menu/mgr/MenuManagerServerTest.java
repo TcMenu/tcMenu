@@ -257,7 +257,7 @@ class MenuManagerServerTest {
         private final List<MenuCommand> commandsSent = new ArrayList<>();
         private BiConsumer<ServerConnection, MenuCommand> messageHandler;
         private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
-        private AtomicInteger hbFrequency = new AtomicInteger(1500);
+        private final AtomicInteger hbFrequency = new AtomicInteger(1500);
 
         void simulateMessageToMessageHandler(MenuCommand cmd) {
             messageHandler.accept(this, cmd);
@@ -318,9 +318,14 @@ class MenuManagerServerTest {
         public ServerConnectionMode getConnectionMode() {
             return connectionMode.get();
         }
+
+        @Override
+        public String getUserName() {
+            return "User";
+        }
     }
 
-    public abstract class MockedScheduledExecutor implements ScheduledExecutorService {
+    public abstract static class MockedScheduledExecutor implements ScheduledExecutorService {
         @Override
         public void execute(Runnable command) {
             command.run();

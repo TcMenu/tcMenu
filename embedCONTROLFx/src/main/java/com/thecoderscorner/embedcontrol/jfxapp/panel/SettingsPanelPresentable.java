@@ -2,7 +2,7 @@ package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfxapp.dialog.BaseDialogSupport;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

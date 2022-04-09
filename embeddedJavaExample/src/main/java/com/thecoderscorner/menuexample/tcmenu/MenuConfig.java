@@ -24,6 +24,8 @@ import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import com.thecoderscorner.menuexample.tcmenu.plugins.*;
+import javafx.application.Application;
 import java.util.function.Consumer;
 
 /**
@@ -44,7 +46,8 @@ public class MenuConfig {
         return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve("menuStorage.properties"));
     }
 
-    @Bean GlobalSettings globalSettings() {
+    @Bean
+    GlobalSettings globalSettings() {
         var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
         settings.load();
         return settings;

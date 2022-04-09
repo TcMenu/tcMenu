@@ -10,15 +10,23 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPrese
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
+import com.thecoderscorner.menu.domain.state.ListResponse;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.MenuCallback;
 import com.thecoderscorner.menu.mgr.MenuManagerListener;
+import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.System.Logger.Level.INFO;
+
 public class EmbeddedJavaDemoController implements MenuManagerListener {
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final EmbeddedJavaDemoMenu  menuDef;
     private final JfxNavigationManager navigationManager;
     private final ScheduledExecutorService executorService;
@@ -50,6 +58,14 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
         // TODO - implement your menu behaviour here for Input Control
     }
 
+    @MenuCallback(id=15, listResult=true)
+    public void listHasChanged(RuntimeListMenuItem item, boolean remoteAction, ListResponse listResponse) {
+        logger.log(INFO, String.format("List %s has changed: %s", item, listResponse));
+        navigationManager.getDialogManager().withTitle("List Change on " + item.getName(), false)
+                .withMessage(String.format("Action was %s on row %d", listResponse.getResponseType(), listResponse.getRow()), false)
+                .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
+    }
+
     public void menuItemHasChanged(MenuItem item, boolean remoteAction) {
         // Called every time any menu item changes
     }
@@ -78,11 +94,12 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
                     }
                     else if(widget == layoutWidget) {
                         globalSettings.setSetupLayoutModeEnabled(!globalSettings.isSetupLayoutModeEnabled());
-                        layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
                         globalSettings.save();
+                        layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
                     }
             });
 
+            MenuItemHelper.setMenuState(menuDef.getStatusMyListItem(), List.of("Item 1", "Item 2", "Item 3"), menuDef.getMenuTree());
         });
     }
 

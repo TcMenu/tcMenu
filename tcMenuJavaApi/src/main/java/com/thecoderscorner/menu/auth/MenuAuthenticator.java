@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.auth;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -8,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
  * the provided name and UUID pair. Optionally, the interface can support adding additional authentication pairs.
  */
 public interface MenuAuthenticator {
+    enum ManagementCapabilities { NOT_EDITABLE, CAN_REMOVE, CAN_REMOVE_ADD }
     /**
      * Check if the user and UUID pair can connect to this board.
      * @param user the user to check for
@@ -25,9 +27,28 @@ public interface MenuAuthenticator {
     CompletableFuture<Boolean> addAuthentication(String user, UUID uuid);
 
     /**
+     * Remove the authentication for the given user
+     * @param user the user to remove
+     */
+    void removeAuthentication(String user);
+
+    /**
      * Checks if the provided passcode matches with the security passcode and returns false if it does not match.
      * @param passcode the passcode to check
      * @return true if matching, otherwise false
      */
     boolean doesPasscodeMatch(String passcode);
+
+    /**
+     * Indicates how this authenticator can be edited, some don't support any, some remove only.
+     * @return how the authenticator can be managed
+     */
+    ManagementCapabilities managementCapabilities();
+
+    /**
+     * Gets a list of all apps/users stored in the system
+     * @return the list of users
+     */
+    List<String> getAllNames();
+
 }

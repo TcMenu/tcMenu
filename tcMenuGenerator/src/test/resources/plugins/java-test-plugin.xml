@@ -40,6 +40,6 @@
         <Function name="addConnectionManager" object="manager">
             <Param value="socketClient"/>
         </Function>
-        <Function name="unitTestMe" object="tagVal"/>
+        <Function name="unitTestMe" object="tagVal" neverReturns="true"/>
     </SetupFunctions>
 </TcMenuPlugin>

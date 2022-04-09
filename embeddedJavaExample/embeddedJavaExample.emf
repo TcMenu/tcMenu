@@ -156,6 +156,20 @@
       }
     },
     {
+      "parentId": 5,
+      "type": "runtimeList",
+      "item": {
+        "initialRows": 0,
+        "name": "My List Item",
+        "variableName": "StatusMyListItem",
+        "id": 15,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
       "parentId": 0,
       "type": "subMenu",
       "item": {

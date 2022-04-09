@@ -9,6 +9,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
@@ -95,8 +96,12 @@ public class JfxLocalAutoUI extends Application {
 
         @Override
         public CorrelationId editorUpdatedItem(MenuItem menuItem, Object val) {
-            MenuItemHelper.setMenuState(menuItem, val, mgr.getManagedMenu());
-            mgr.menuItemDidUpdate(menuItem);
+            if(!(val instanceof ListResponse)) {
+                MenuItemHelper.setMenuState(menuItem, val, mgr.getManagedMenu());
+            }
+            else {
+                mgr.updateMenuItem(menuItem, val);
+            }
             return CorrelationId.EMPTY_CORRELATION;
         }
 

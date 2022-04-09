@@ -7,7 +7,7 @@ import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 /**
  * Stores authentication to a properties file and then validates against the stored values. By default, there are no
@@ -108,7 +109,22 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
     }
 
     @Override
+    public void removeAuthentication(String user) {
+        properties.remove(user);
+    }
+
+    @Override
     public boolean doesPasscodeMatch(String passcode) {
         return properties.getProperty("securityPasscode", "1234").equals(passcode);
+    }
+
+    @Override
+    public ManagementCapabilities managementCapabilities() {
+        return ManagementCapabilities.CAN_REMOVE_ADD;
+    }
+
+    @Override
+    public List<String> getAllNames() {
+        return List.copyOf(this.properties.stringPropertyNames());
     }
 }

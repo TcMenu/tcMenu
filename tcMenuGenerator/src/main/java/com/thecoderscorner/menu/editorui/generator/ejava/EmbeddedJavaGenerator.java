@@ -137,13 +137,15 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withStatement("return new " + clazzBaseName + "Controller(menuDef);").withAnnotation("Bean")
                         .withParameter(clazzBaseName + "Menu menuDef"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "GlobalSettings", "globalSettings")
-                        .withAnnotation("Bean").withStatement("return new GlobalSettings(" + clazzBaseName + "Menu.class);"))
+                        .withAnnotation("Bean").withStatement("var settings = new GlobalSettings(" + clazzBaseName + "Menu.class);")
+                        .withStatement("settings.load();").withStatement("return settings;"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScreenLayoutPersistence", "menuLayoutPersistence")
                         .withAnnotation("Bean").withParameter("EmbeddedJavaDemoMenu menuDef").withParameter("GlobalSettings settings")
                         .withParameter("MenuManagerServer manager").withParameter("@Value(\"${file.menu.storage}\") String filePath")
                         .withParameter("@Value(\"${default.font.size}\") int fontSize")
-                        .withStatement("Consumer<Element> noAdditionalSerialisation = (ele) -> {};")
-                        .withStatement("return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);"))
+                        .withStatement("var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);")
+                        .withStatement("layout.loadApplicationData();")
+                        .withStatement("return layout;"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScheduledExecutorService", "executor")
                         .withParameter("@Value(\"${threading.pool.size}\") int poolSize").withAnnotation("Bean")
                         .withStatement("return Executors.newScheduledThreadPool(poolSize);"))
@@ -253,7 +255,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "managerWillStop")
                         .withAnnotation("Override")
                         .withStatement("// This is called just before the menu manager stops, you can do any shutdown tasks here."))
-                .persistClass();
+                .persistClassByPatching();
     }
 
     private void generateMenuDefinitionsClass(MenuTree menuTree, CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {

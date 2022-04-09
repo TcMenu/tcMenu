@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.remote.SharedStreamConnection;
 import com.thecoderscorner.menu.remote.StreamRemoteConnector;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
+import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -27,6 +28,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     private final AtomicLong lastHeartbeatRx = new AtomicLong();
     private final Socket socket;
     private final Clock clock;
+    private final AtomicReference<String> remoteUser = new AtomicReference<>("Unknown");
     private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
     private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
     private final Thread readThread;
@@ -50,6 +52,9 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
                 if (cmd != null && messageHandler.get() != null) {
                     if(cmd instanceof MenuHeartbeatCommand) {
                         heartbeatFrequency.set(((MenuHeartbeatCommand)cmd).getHearbeatInterval());
+                    }
+                    else if(cmd instanceof MenuJoinCommand) {
+                        remoteUser.set(((MenuJoinCommand) cmd).getMyName());
                     }
                     lastHeartbeatRx.set(clock.millis());
                     messageHandler.get().accept(this, cmd);
@@ -122,6 +127,11 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     }
 
     @Override
+    public String getUserName() {
+        return remoteUser.get();
+    }
+
+    @Override
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, StreamRemoteConnector.ReadMode mode) throws IOException {
         if(mode == StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY && inputBuffer.remaining() >= len) return;
 
@@ -159,5 +169,10 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     @Override
     public boolean canSendMessageNow(MenuCommand cmd) {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Socket %s - %s", socket.getRemoteSocketAddress(), getUserName());
     }
 }

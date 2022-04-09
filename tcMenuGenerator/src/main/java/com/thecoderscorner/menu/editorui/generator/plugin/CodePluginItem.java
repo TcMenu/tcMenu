@@ -179,6 +179,7 @@ public class CodePluginItem {
         pluginCopy.setDescription(description);
         pluginCopy.setConfig(config);
         pluginCopy.setFunctions(functions);
+        pluginCopy.setVariables(variables);
         pluginCopy.setDocsLink(docsLink);
         pluginCopy.setExtendedDescription(extendedDescription);
         pluginCopy.setImageFileName(imageFileName);

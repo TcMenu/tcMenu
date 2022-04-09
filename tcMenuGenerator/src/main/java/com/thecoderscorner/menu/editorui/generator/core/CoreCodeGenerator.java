@@ -359,6 +359,19 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                                 logger.log(ERROR, "Exception during write of remote server block", e);
                             }
                         });
+
+                menuTree.getAllMenuItems().stream()
+                        .filter(menuItem -> menuItem instanceof CustomBuilderMenuItem custom && custom.getMenuType() == AUTHENTICATION)
+                        .findFirst()
+                        .ifPresent(item -> {
+                            try {
+                                writer.write(TWO_LINES + "    // We have an EEPROM authenticator, it needs initialising" + LINE_BREAK);
+                                writer.write("    menu" + namingGenerator.makeNameToVar(item) + ".init();");
+                            } catch (IOException e) {
+                                logLine(ERROR, "Exception writing cpp file: remote server on EEPROM Authenticator init");
+                                logger.log(ERROR, "Exception during write of authenticator init block", e);
+                            }
+                        });
             }
 
 

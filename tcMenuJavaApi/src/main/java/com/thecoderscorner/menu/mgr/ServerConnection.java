@@ -14,4 +14,5 @@ public interface ServerConnection {
     void registerMessageHandler(BiConsumer<ServerConnection, MenuCommand> messageHandler);
     void setConnectionMode(ServerConnectionMode mode);
     ServerConnectionMode getConnectionMode();
+    String getUserName();
 }

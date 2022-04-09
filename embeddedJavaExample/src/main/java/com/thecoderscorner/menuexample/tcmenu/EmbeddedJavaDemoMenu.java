@@ -160,6 +160,20 @@ tcMenuCopy:[
     }
   },
   {
+    "parentId": 5,
+    "type": "runtimeList",
+    "item": {
+      "initialRows": 0,
+      "name": "My List Item",
+      "variableName": "StatusMyListItem",
+      "id": 15,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true
+    }
+  },
+  {
     "parentId": 0,
     "type": "subMenu",
     "item": {
@@ -274,6 +288,10 @@ tcMenuCopy:[
 
     public EditableLargeNumberMenuItem getSettingsLargeNum() {
         return (EditableLargeNumberMenuItem) menuTree.getMenuById(14).orElseThrow();
+    }
+
+    public RuntimeListMenuItem getStatusMyListItem() {
+        return (RuntimeListMenuItem) menuTree.getMenuById(15).orElseThrow();
     }
 
 }

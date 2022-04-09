@@ -1,17 +1,17 @@
 package com.thecoderscorner.menu.examples.websocket;
 
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.mgr.ServerConnection;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
-import com.thecoderscorner.menu.mgr.MenuManagerServer;
-import com.thecoderscorner.menu.mgr.ServerConnection;
+import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
 import org.java_websocket.WebSocket;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,10 +30,10 @@ public class WebSocketServerConnection implements ServerConnection {
     private final AtomicLong lastHeartbeatTx = new AtomicLong();
     private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
     private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
+    private final AtomicReference<String> remoteUser = new AtomicReference<>("Unknown");
     private final AtomicInteger heartbeatFrequency = new AtomicInteger(1500);
     private final Object socketLock = new Object();
     private final Object handlerLock = new Object();
-    private final AtomicBoolean pairingMode = new AtomicBoolean(false);
     private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
 
     public WebSocketServerConnection(WebSocket socket, MenuCommandProtocol protocol, Clock clock) {
@@ -110,6 +110,11 @@ public class WebSocketServerConnection implements ServerConnection {
         return connectionMode.get();
     }
 
+    @Override
+    public String getUserName() {
+        return remoteUser.get();
+    }
+
     public void informClosed() {
         synchronized (handlerLock) {
             var l = this.connectionListener.get();
@@ -143,6 +148,8 @@ public class WebSocketServerConnection implements ServerConnection {
             logger.log(System.Logger.Level.DEBUG, "Command received " + socket.getRemoteSocketAddress() + " - " + cmd);
             if (cmd instanceof MenuHeartbeatCommand) {
                 heartbeatFrequency.set(((MenuHeartbeatCommand) cmd).getHearbeatInterval());
+            } else if(cmd instanceof MenuJoinCommand) {
+                remoteUser.set(((MenuJoinCommand) cmd).getMyName());
             }
             lastHeartbeatRx.set(clock.millis());
             synchronized (socketLock) {
@@ -152,5 +159,10 @@ public class WebSocketServerConnection implements ServerConnection {
             logger.log(System.Logger.Level.ERROR, "Error during message handling " + socket.getRemoteSocketAddress(), ex);
             socket.close();
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("WebSocket %s - %s", socket.getRemoteSocketAddress(), remoteUser);
     }
 }

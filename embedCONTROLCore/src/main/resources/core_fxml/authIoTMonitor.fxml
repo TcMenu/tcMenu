@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorController">
+   <top>
+      <Label text="Authentication and IoT monitor" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+   </top>
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="10.0" prefWidth="399.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="247.0" minWidth="10.0" prefWidth="105.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="44.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="189.0" minHeight="10.0" prefHeight="96.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="80.0" minHeight="2.0" prefHeight="25.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="186.0" minHeight="10.0" prefHeight="116.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Current connections" GridPane.valignment="BOTTOM" />
+            <ListView fx:id="connectionList" prefHeight="134.0" prefWidth="399.0" GridPane.rowIndex="1" />
+            <ListView fx:id="authenticatedUsersList" prefHeight="150.0" prefWidth="394.0" GridPane.rowIndex="3" />
+            <Label text="Allowed authentications" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" />
+            <VBox prefHeight="119.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#addAuthPressed" prefHeight="25.0" prefWidth="100.0" text="Add" />
+                <Button fx:id="removeAuthButton" mnemonicParsing="false" onAction="#removeAuthPressed" prefHeight="25.0" prefWidth="100.0" text="Remove" />
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" />
+               </padding>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <Button fx:id="closeConnectionButton" mnemonicParsing="false" onAction="#closeConnectionPressed" prefHeight="25.0" prefWidth="104.0" text="Close" />
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" />
+               </padding>
+            </VBox>
+         </children>
+      </GridPane>
+   </center>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</BorderPane>

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Implements the authentication interface using a pre-defined upfront set of name and UUID pairs that must be provided
@@ -32,6 +33,12 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
     }
 
     @Override
+    public void removeAuthentication(String user) {
+        var maybeAuth = authenticationItems.stream().filter(auth -> auth.name.equals(user)).findFirst();
+        maybeAuth.ifPresent(authenticationItems::remove);
+    }
+
+    @Override
     public boolean authenticate(String user, UUID uuid) {
         if(authenticationItems.isEmpty()) return alwaysAllow;
 
@@ -45,6 +52,16 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
     public boolean doesPasscodeMatch(String passcode) {
         if(securePasscode == null) return alwaysAllow;
         return securePasscode.equals(passcode);
+    }
+
+    @Override
+    public ManagementCapabilities managementCapabilities() {
+        return alwaysAllow ? ManagementCapabilities.NOT_EDITABLE : ManagementCapabilities.CAN_REMOVE_ADD;
+    }
+
+    @Override
+    public List<String> getAllNames() {
+        return authenticationItems.stream().map(auth -> auth.name).collect(Collectors.toList());
     }
 
     public static class AuthenticationToken {

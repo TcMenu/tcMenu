@@ -140,13 +140,16 @@ public class EmbeddedJavaGeneratorFileData {
                 
                 @Bean
                 public GlobalSettings globalSettings() {
-                    return new GlobalSettings();
+                    var settings = new GlobalSettings(UnitTestMenu.class);
+                    settings.load();
+                    return settings;
                 }
             
                 @Bean
                 public ScreenLayoutPersistence menuLayoutPersistence(EmbeddedJavaDemoMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
-                    Consumer<Element> noAdditionalSerialisation = (ele) -> {};
-                    return new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize, noAdditionalSerialisation);
+                    var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
+                    layout.loadApplicationData();
+                    return layout;
                 }
                         
                 @Bean
