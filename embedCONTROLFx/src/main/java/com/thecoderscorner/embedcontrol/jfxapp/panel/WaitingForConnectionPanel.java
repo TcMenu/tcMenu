@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 public class WaitingForConnectionPanel implements PanelPresentable<Node> {
     @Override
     public Node getPanelToPresent(double width) throws Exception {
-        var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/waitingForConnection.fxml"));
+        var loader = new FXMLLoader(WaitingForConnectionPanel.class.getResource("/waitingForConnection.fxml"));
         return loader.<Pane>load();
     }
 

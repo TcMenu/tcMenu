@@ -14,6 +14,7 @@ public enum ControlType {
     TIME_CONTROL(EditableTextMenuItem.class),
     RGB_CONTROL(Rgb32MenuItem.class),
     LIST_CONTROL(RuntimeListMenuItem.class),
+    AUTH_IOT_CONTROL(CustomBuilderMenuItem.class),
     CANT_RENDER(MenuItem.class);
 
     private final List<Class<? extends MenuItem>> supportedTypes;

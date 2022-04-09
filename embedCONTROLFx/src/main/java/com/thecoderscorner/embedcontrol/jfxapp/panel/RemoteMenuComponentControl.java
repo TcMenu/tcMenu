@@ -59,4 +59,9 @@ public class RemoteMenuComponentControl implements MenuComponentControl {
         public NavigationManager getNavigationManager() {
             return navigationManager;
         }
+
+    @Override
+    public void presentIoTAuthPanel() {
+        // presently does nothing on remote.
     }
+}

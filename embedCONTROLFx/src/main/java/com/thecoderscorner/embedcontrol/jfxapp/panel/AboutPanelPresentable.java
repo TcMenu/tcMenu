@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 public class AboutPanelPresentable implements PanelPresentable<Node> {
     @Override
     public Node getPanelToPresent(double width) throws Exception {
-        var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/aboutPage.fxml"));
+        var loader = new FXMLLoader(AboutPanelPresentable.class.getResource("/aboutPage.fxml"));
         return loader.<Pane>load();
     }
 

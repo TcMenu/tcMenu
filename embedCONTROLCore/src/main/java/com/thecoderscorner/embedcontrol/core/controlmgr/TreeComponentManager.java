@@ -15,6 +15,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
+
 /**
  * Tree component manager takes menu structures and turns them into an auto UI using the `ScreenManager` object which
  * creates components of type `EditorComponent`. Each editor component has a UI element associated with it and can be
@@ -85,7 +87,7 @@ public class TreeComponentManager<T> {
 
         if(item instanceof SubMenuItem sub) {
             return Optional.of(layoutControlGrid.addButtonWithAction(sub, sub.getName(), componentSettings,
-                    subMenuItem -> controller.getNavigationManager().pushMenuNavigation(subMenuItem)));
+                    subMenuItem -> controller.getNavigationManager().pushMenuNavigation(asSubMenu(subMenuItem))));
         }
 
         return Optional.ofNullable(switch(componentSettings.getControlType()) {
@@ -98,6 +100,7 @@ public class TreeComponentManager<T> {
             case TIME_CONTROL -> layoutControlGrid.addTimeEditorComponent(item, componentSettings);
             case RGB_CONTROL -> layoutControlGrid.addRgbColorControl(item, componentSettings);
             case LIST_CONTROL -> layoutControlGrid.addListEditor(item, componentSettings);
+            case AUTH_IOT_CONTROL -> layoutControlGrid.addIoTMonitor(item, componentSettings);
             case CANT_RENDER -> null;
         });
     }

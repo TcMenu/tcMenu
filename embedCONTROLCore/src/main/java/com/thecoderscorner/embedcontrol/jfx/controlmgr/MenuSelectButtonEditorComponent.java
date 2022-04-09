@@ -5,7 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
-import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -20,13 +20,13 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.Conditional
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase.setNodeConditionalColours;
 
-public class SubMenuSelectButtonEditorComponent extends BaseBoolEditorComponent<Node> {
+public class MenuSelectButtonEditorComponent extends BaseBoolEditorComponent<Node> {
     private final String text;
-    private final Consumer<SubMenuItem> itemConsumer;
+    private final Consumer<MenuItem> itemConsumer;
     private Button button;
 
-    public SubMenuSelectButtonEditorComponent(SubMenuItem item, String text, MenuComponentControl remote, ComponentSettings settings,
-                                              ThreadMarshaller threadMarshaller, Consumer<SubMenuItem> itemConsumer) {
+    public MenuSelectButtonEditorComponent(MenuItem item, String text, MenuComponentControl remote, ComponentSettings settings,
+                                           ThreadMarshaller threadMarshaller, Consumer<MenuItem> itemConsumer) {
         super(remote, settings, item, threadMarshaller);
         this.text = text;
         this.itemConsumer = itemConsumer;
@@ -38,7 +38,7 @@ public class SubMenuSelectButtonEditorComponent extends BaseBoolEditorComponent<
         button.setMaxWidth(9999);
         button.setFont(Font.font(getDrawingSettings().getFontSize()));
         setNodeConditionalColours(button, getDrawingSettings().getColors(), ColorComponentType.BUTTON);
-        button.setOnAction(evt -> itemConsumer.accept((SubMenuItem)item));
+        button.setOnAction(evt -> itemConsumer.accept(item));
 
         return button;
     }

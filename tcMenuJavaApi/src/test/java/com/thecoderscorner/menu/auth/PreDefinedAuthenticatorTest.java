@@ -42,7 +42,7 @@ class PreDefinedAuthenticatorTest {
                 new PreDefinedAuthenticator.AuthenticationToken("marianna", mariannasUuid.toString()),
                 new PreDefinedAuthenticator.AuthenticationToken("daniel", danielsUuid.toString()))
         );
-        assertFalse(auth.addAuthentication("pete", UUID.fromString(petesUuid.toString())).get());
+        assertFalse(auth.addAuthentication("pete", UUID.fromString(petesUuid.toString()), true).get());
 
         assertTrue(auth.authenticate("dave", davesUuid));
         assertFalse(auth.authenticate("dave", petesUuid));
@@ -67,13 +67,13 @@ class PreDefinedAuthenticatorTest {
             assertFalse(auth.doesPasscodeMatch("4321"));
 
             dialogManager.setPressedButton(MenuButtonType.ACCEPT);
-            var future = auth.addAuthentication("daniel", danielsUuid);
+            var future = auth.addAuthentication("daniel", danielsUuid, true);
             assertTrue(future.get());
             assertTrue(auth.authenticate("daniel", danielsUuid));
 
             dialogManager.setPressedButton(MenuButtonType.CANCEL);
             UUID another = UUID.randomUUID();
-            future = auth.addAuthentication("jjsdlf", another);
+            future = auth.addAuthentication("jjsdlf", another, true);
             assertFalse(future.get());
             assertFalse(auth.authenticate("jjsdlf", another));
 

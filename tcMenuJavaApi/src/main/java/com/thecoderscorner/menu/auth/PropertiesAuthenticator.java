@@ -70,29 +70,30 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
      * @return a future that can be tracked to indicate if the authentication was accepted
      */
     @Override
-    public CompletableFuture<Boolean> addAuthentication(String user, UUID uuid) {
+    public CompletableFuture<Boolean> addAuthentication(String user, UUID uuid, boolean needsApproval) {
         if(dialogManager == null) return CompletableFuture.completedFuture(false);
         return CompletableFuture.supplyAsync(() -> {
             try {
                 logger.log(INFO, "Request for authentication with " + user);
-                var shouldProceed = new AtomicBoolean(false);
-                var dialogLatch = new CountDownLatch(1);
-                dialogManager.withTitle("Pair with " + user, true)
-                        .withMessage("Be sure you know where this connection originated", true)
-                        .withDelegate(DialogViewer.DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
-                            shouldProceed.set(menuButtonType == MenuButtonType.ACCEPT);
-                            dialogLatch.countDown();
-                            return true;
-                        })
-                        .showDialogWithButtons(MenuButtonType.ACCEPT, MenuButtonType.CANCEL);
-                if(!dialogLatch.await(30, TimeUnit.SECONDS)) {
-                    logger.log(INFO, "Dialog Latch timed out without user operation");
+                var shouldProceed = new AtomicBoolean(!needsApproval);
+                if(needsApproval) {
+                    var dialogLatch = new CountDownLatch(1);
+                    dialogManager.withTitle("Pair with " + user, true)
+                            .withMessage("Be sure you know where this connection originated", true)
+                            .withDelegate(DialogViewer.DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
+                                shouldProceed.set(menuButtonType == MenuButtonType.ACCEPT);
+                                dialogLatch.countDown();
+                                return true;
+                            })
+                            .showDialogWithButtons(MenuButtonType.ACCEPT, MenuButtonType.CANCEL);
+                    if (!dialogLatch.await(30, TimeUnit.SECONDS)) {
+                        logger.log(INFO, "Dialog Latch timed out without user operation");
+                    }
                 }
                 if(shouldProceed.get()) {
                     synchronized (properties) {
-                        Path pathLocation = Path.of(location);
                         properties.setProperty(user, uuid.toString());
-                        properties.store(Files.newBufferedWriter(pathLocation, CREATE, TRUNCATE_EXISTING), "TcMenu Auth properties");
+                        savePropertiesFile();
                     }
                     logger.log(INFO, "Wrote auth properties to ", location);
                     return true;
@@ -108,9 +109,19 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
         });
     }
 
+    private void savePropertiesFile() throws IOException {
+        Path pathLocation = Path.of(location);
+        properties.store(Files.newBufferedWriter(pathLocation, CREATE, TRUNCATE_EXISTING), "TcMenu Auth properties");
+    }
+
     @Override
     public void removeAuthentication(String user) {
         properties.remove(user);
+        try {
+            savePropertiesFile();
+        } catch (IOException e) {
+            logger.log(ERROR, "Failed to save properties on remove", e);
+        }
     }
 
     @Override

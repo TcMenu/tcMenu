@@ -24,8 +24,9 @@ public interface MenuControlGrid<T>
     EditorComponent<T> addTimeEditorComponent(MenuItem item, ComponentSettings settings);
     EditorComponent<T> addHorizontalSlider(MenuItem item, ComponentSettings settings);
     EditorComponent<T> addRgbColorControl(MenuItem item, ComponentSettings settings);
-    EditorComponent<T> addButtonWithAction(SubMenuItem subItem, String text, ComponentSettings componentSettings,
-                                           Consumer<SubMenuItem> actionConsumer);
+    EditorComponent<T> addButtonWithAction(MenuItem subItem, String text, ComponentSettings componentSettings,
+                                           Consumer<MenuItem> actionConsumer);
+    EditorComponent<T> addIoTMonitor(MenuItem item, ComponentSettings componentSettings);
 
     /**
      * When a layout editor exists, an extra button is added to each item that can bring up an editor panel to edit

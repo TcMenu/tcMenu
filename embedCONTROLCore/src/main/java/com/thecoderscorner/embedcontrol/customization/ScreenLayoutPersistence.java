@@ -392,9 +392,9 @@ public class ScreenLayoutPersistence {
     }
 
     public ControlType getDefaultControlType(Optional<MenuItem> maybeItem) {
-        if(maybeItem.isEmpty()) return ControlType.TEXT_CONTROL;
+        if (maybeItem.isEmpty()) return ControlType.TEXT_CONTROL;
         var item = maybeItem.get();
-        if(item instanceof SubMenuItem || item instanceof BooleanMenuItem || item instanceof ActionMenuItem) {
+        if (item instanceof SubMenuItem || item instanceof BooleanMenuItem || item instanceof ActionMenuItem) {
             return ControlType.BUTTON_CONTROL;
         } else if (item instanceof AnalogMenuItem) {
             return ControlType.HORIZONTAL_SLIDER;
@@ -404,7 +404,9 @@ public class ScreenLayoutPersistence {
             return ControlType.UP_DOWN_CONTROL;
         } else if (item instanceof RuntimeListMenuItem) {
             return ControlType.LIST_CONTROL;
-        } else if (item instanceof EditableTextMenuItem textItem) {
+        } else if(item instanceof CustomBuilderMenuItem) {
+            return ControlType.AUTH_IOT_CONTROL;
+        }else if (item instanceof EditableTextMenuItem textItem) {
             if (textItem.getItemType() == EditItemType.GREGORIAN_DATE) {
                 return ControlType.DATE_CONTROL;
             } else if (textItem.getItemType() == EditItemType.TIME_24_HUNDREDS ||

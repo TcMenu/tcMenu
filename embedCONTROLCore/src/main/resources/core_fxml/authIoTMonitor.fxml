@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorController">
    <top>
       <Label text="Authentication and IoT monitor" BorderPane.alignment="CENTER">
          <font>
@@ -46,9 +45,10 @@
                   <Insets bottom="4.0" left="4.0" right="4.0" />
                </padding>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <children>
                   <Button fx:id="closeConnectionButton" mnemonicParsing="false" onAction="#closeConnectionPressed" prefHeight="25.0" prefWidth="104.0" text="Close" />
+                  <Button mnemonicParsing="false" onAction="#refreshWasPressed" prefHeight="26.0" prefWidth="93.0" text="Refresh" />
                </children>
                <padding>
                   <Insets bottom="4.0" left="4.0" right="4.0" />

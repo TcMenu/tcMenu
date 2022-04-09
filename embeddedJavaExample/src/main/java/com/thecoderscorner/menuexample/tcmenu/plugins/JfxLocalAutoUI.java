@@ -6,6 +6,8 @@ import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorController;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorPresentable;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -130,6 +132,11 @@ public class JfxLocalAutoUI extends Application {
         @Override
         public JfxNavigationManager getNavigationManager() {
             return navigationHeader;
+        }
+
+        @Override
+        public void presentIoTAuthPanel() {
+            navigationHeader.pushNavigation(new AuthIoTMonitorPresentable(mgr));
         }
     }
 

@@ -36,7 +36,7 @@ public class ItemSettingsPresentable implements PanelPresentable<Node> {
     @Override
     public Node getPanelToPresent(double width) throws Exception {
         if(storedPanel == null) {
-            var loader = new FXMLLoader(ColorSettingsPresentable.class.getResource("/core_fxml/itemSettings.fxml"));
+            var loader = new FXMLLoader(ItemSettingsPresentable.class.getResource("/core_fxml/itemSettings.fxml"));
             storedPanel = loader.load();
             controller = loader.getController();
             controller.initialise(navigator, globalSettings, name, id, customizerConsumer);

@@ -22,9 +22,10 @@ public interface MenuAuthenticator {
      * Attempt to add authentication for user and UUID, if it fails to be added false will be returned.
      * @param user the user to add
      * @param uuid the uuid associated with the user
+     * @param needsApproval true if this is being added from a remote connection and needs approval, otherwise false.
      * @return true if added, otherwise false.
      */
-    CompletableFuture<Boolean> addAuthentication(String user, UUID uuid);
+    CompletableFuture<Boolean> addAuthentication(String user, UUID uuid, boolean needsApproval);
 
     /**
      * Remove the authentication for the given user

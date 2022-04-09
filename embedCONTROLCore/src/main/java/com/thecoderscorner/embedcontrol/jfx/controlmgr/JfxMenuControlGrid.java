@@ -146,10 +146,15 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     }
 
     @Override
-    public EditorComponent<Node> addButtonWithAction(SubMenuItem subItem, String text, ComponentSettings componentSettings, Consumer<SubMenuItem> actionConsumer) {
-        var btnEd = new SubMenuSelectButtonEditorComponent(subItem, text, controller, componentSettings, threadMarshaller, actionConsumer);
+    public EditorComponent<Node> addButtonWithAction(MenuItem subItem, String text, ComponentSettings componentSettings, Consumer<MenuItem> actionConsumer) {
+        var btnEd = new MenuSelectButtonEditorComponent(subItem, text, controller, componentSettings, threadMarshaller, actionConsumer);
         addToGridInPosition(Optional.of(subItem), componentSettings, btnEd.createComponent());
         return btnEd;
+    }
+
+    @Override
+    public EditorComponent<Node> addIoTMonitor(MenuItem item, ComponentSettings componentSettings) {
+        return addButtonWithAction(item, item.getName(), componentSettings, menuItem -> controller.presentIoTAuthPanel());
     }
 
     @Override

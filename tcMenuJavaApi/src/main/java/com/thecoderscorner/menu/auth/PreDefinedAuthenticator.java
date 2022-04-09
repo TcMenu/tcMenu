@@ -27,7 +27,7 @@ public class PreDefinedAuthenticator implements MenuAuthenticator {
     }
 
     @Override
-    public CompletableFuture<Boolean> addAuthentication(String name, UUID uuid) {
+    public CompletableFuture<Boolean> addAuthentication(String name, UUID uuid, boolean needsApproval) {
         // pre defined authenticator cannot add items at runtime.
         return CompletableFuture.completedFuture(false);
     }

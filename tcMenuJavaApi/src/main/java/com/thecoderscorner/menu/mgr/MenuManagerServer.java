@@ -209,7 +209,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     private void startPairingMode(ServerConnection conn, MenuPairingCommand cmd) {
         conn.setConnectionMode(ServerConnectionMode.PAIRING);
-        authenticator.addAuthentication(cmd.getName(), cmd.getUuid())
+        authenticator.addAuthentication(cmd.getName(), cmd.getUuid(), true)
                 .thenApply(success -> {
                     var determinedStatus = success ? AckStatus.SUCCESS : AckStatus.INVALID_CREDENTIALS;
                     conn.sendCommand(new MenuAcknowledgementCommand(CorrelationId.EMPTY_CORRELATION, determinedStatus));
@@ -346,6 +346,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     public void sendCommand(MenuCommand command) {
         updateRemotesWithLatestState(command);
+    }
+
+    public MenuAuthenticator getAuthenticator() {
+        return authenticator;
     }
 
     private static class MethodWithObject {

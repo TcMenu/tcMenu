@@ -29,7 +29,7 @@ public class NewConnectionPanelPresentable implements PanelPresentable<Node> {
 
     @Override
     public Node getPanelToPresent(double width) throws Exception {
-        var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/newConnection.fxml"));
+        var loader = new FXMLLoader(NewConnectionPanelPresentable.class.getResource("/newConnection.fxml"));
         Pane loadedPane = loader.load();
         controller = loader.getController();
         controller.initialise(settings, context, maybeCreator);

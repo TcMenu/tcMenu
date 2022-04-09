@@ -17,7 +17,7 @@ public class SettingsPanelPresentable implements PanelPresentable<Node> {
 
     @Override
     public Node getPanelToPresent(double width) throws Exception {
-        var loader = new FXMLLoader(BaseDialogSupport.class.getResource("/generalSettings.fxml"));
+        var loader = new FXMLLoader(SettingsPanelPresentable.class.getResource("/generalSettings.fxml"));
         Pane loadedPane = loader.load();
         GeneralSettingsController controller = loader.getController();
         controller.initialise(settings);

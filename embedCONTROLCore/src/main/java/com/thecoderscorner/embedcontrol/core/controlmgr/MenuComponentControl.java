@@ -12,4 +12,5 @@ public interface MenuComponentControl {
     MenuTree getMenuTree();
     String getConnectionName();
     NavigationManager getNavigationManager();
+    void presentIoTAuthPanel();
 }
