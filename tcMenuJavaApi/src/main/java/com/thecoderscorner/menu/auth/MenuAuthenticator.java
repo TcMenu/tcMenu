@@ -9,7 +9,18 @@ import java.util.concurrent.CompletableFuture;
  * the provided name and UUID pair. Optionally, the interface can support adding additional authentication pairs.
  */
 public interface MenuAuthenticator {
-    enum ManagementCapabilities { NOT_EDITABLE, CAN_REMOVE, CAN_REMOVE_ADD }
+    /**
+     * Indicates the management operations that can be performed by a particular implementation of authenticator
+     */
+    enum ManagementCapabilities {
+        /** No editing or management is possible */
+        NOT_EDITABLE,
+        /** Only removal is possible */
+        CAN_REMOVE,
+        /** Both removal and addition is allowed */
+        CAN_REMOVE_ADD
+    }
+
     /**
      * Check if the user and UUID pair can connect to this board.
      * @param user the user to check for
