@@ -24,20 +24,17 @@ import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.Hear
 
 /**
  * The menu manager server component manages a menu tree locally, handling updates to both state and items, and also
- * dealing with any remote connections. To listen to updates you generally register a MenuManagerListener that will
- * receive updates as items change. These listeners can also register themselves to handle list selection changes and
- * also to provide values for ScrollChoiceMenuItems.
+ * dealing with any remote connections. To listen to updates you generally register a {@link MenuManagerListener} that
+ * will receive updates as items change. These listeners can also register themselves to handle list selection changes
+ * and also to provide values for ScrollChoiceMenuItems.
  *
  * In terms of remotes, many types of remote connections can be added, each type of remote is registered as a
- * ServerConnectionManager that handles one or more remote connection. This manager object provides much of the
+ * {@link ServerConnectionManager} that handles one or more remote connection. This manager object provides much of the
  * functionality around managing connections, including joining, pairing, bootstrapping, handling the messages and
  * dealing with heartbeats.
  *
- * Any authentication that is required is dealt with by an instance of MenuAuthentication.
+ * Any authentication that is required is dealt with by an instance of {@link MenuAuthenticator}.
  *
- * @see MenuManagerListener
- * @see ServerConnectionManager
- * @see MenuAuthenticator
  */
 public class MenuManagerServer implements NewServerConnectionListener {
     private final System.Logger logger = System.getLogger(MenuManagerServer.class.getSimpleName());
