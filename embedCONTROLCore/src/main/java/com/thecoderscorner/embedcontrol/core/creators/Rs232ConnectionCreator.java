@@ -11,6 +11,10 @@ import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
+/**
+ * This class provides the ability to create a manual RS232 connection providing the port and baud. It is mainly
+ * used by embedCONTROL remote to both present and deal with new connections.
+ */
 public class Rs232ConnectionCreator implements ConnectionCreator {
     public static final String MANUAL_RS232_CREATOR_TYPE = "rs232";
     private final PlatformSerialFactory serialFactory;

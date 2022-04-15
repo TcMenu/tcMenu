@@ -12,7 +12,7 @@ import java.util.Optional;
 
 /**
  * Abstract version of the interface MenuItemVisitor, it implements all the methods by defaulting the behaviour to
- * the anyItem() method.
+ * the anyItem() method. You must implement at least the anyItem method as by default it throws an exception.
  *
  * @see MenuItemVisitor
  * @param <T>

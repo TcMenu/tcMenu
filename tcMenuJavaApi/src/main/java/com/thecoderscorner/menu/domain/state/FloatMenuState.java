@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 
 /**
  * An implementation of menu state for Strings. This stores the current value in the MenuTree for an item
+ * Generally it's best to work with state via {@link com.thecoderscorner.menu.domain.util.MenuItemHelper}
  */
 public class FloatMenuState extends MenuState<Float> {
     public FloatMenuState(MenuItem item, boolean changed, boolean active, Float value) {

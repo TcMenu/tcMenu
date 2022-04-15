@@ -4,7 +4,14 @@ import com.thecoderscorner.menu.remote.commands.*;
 
 import java.util.function.Function;
 
-public abstract class DialogManager implements DialogViewer {
+/**
+ * Dialog Manager provides the capability to work with dialogs, to present them, change the values of them and also
+ * to update them from a remote command arriving. This includes being able to deal with activation from a remote.
+ *
+ * Usually, for local or remote activities this class is extended and the dialogDidChange method is implemented to update
+ * the UI accordingly and optionally, the buttonWasPressed method may need to be overridden.
+ */
+public abstract class DialogManager {
     protected final Object lock = new Object();
     protected DialogMode mode = DialogMode.HIDE;
     protected String title = "";
@@ -14,14 +21,20 @@ public abstract class DialogManager implements DialogViewer {
     protected Function<MenuButtonType, Boolean> delegate;
     private DialogShowMode dialogShowMode;
 
-    @Override
+    /**
+     * @return true if the dialog is on display, otherwise false
+     */
     public boolean isDialogVisible() {
         synchronized (lock) {
             return mode == DialogMode.SHOW;
         }
     }
 
-    @Override
+    /**
+     * Update the dialog from an incoming remote command, checking first if the command is a dialog event, and then
+     * updating all the fields and calling dialogDidChange.
+     * @param cmd the command
+     */
     public void updateStateFromCommand(MenuCommand cmd) {
         // if it is not a dialog update or the dialog is currently locally locked do not update.
         if(cmd.getCommandType() != MenuCommandType.DIALOG_UPDATE || dialogShowMode == DialogShowMode.LOCAL_DELEGATE_LOCKED) return;
@@ -45,7 +58,12 @@ public abstract class DialogManager implements DialogViewer {
         dialogDidChange();
     }
 
-    @Override
+    /**
+     * Using builder syntax you can show dialog using the with commands, this sets the title
+     * @param title the new title
+     * @param silent if an update should be triggered
+     * @return itself for chaining
+     */
     public DialogManager withTitle(String title, boolean silent) {
         synchronized (lock) {
             this.title = title;
@@ -54,7 +72,12 @@ public abstract class DialogManager implements DialogViewer {
         return this;
     }
 
-    @Override
+    /**
+     * Using builder syntax you can show dialog using the with commands this sets the message
+     * @param message the message field
+     * @param silent if an update should be triggered
+     * @return itself for chaining
+     */
     public DialogManager withMessage(String message, boolean silent) {
         synchronized (lock) {
             this.message = message;
@@ -63,6 +86,12 @@ public abstract class DialogManager implements DialogViewer {
         return this;
     }
 
+    /**
+     * Using builder syntax you can show dialog using the with commands this sets the delegate and mode
+     * @param mode the mode in which the dialog should show, regular, or locally
+     * @param delegate the delegate to call on a button being pressed
+     * @return itself for chaining
+     */
     public DialogManager withDelegate(DialogShowMode mode, Function<MenuButtonType, Boolean> delegate) {
         synchronized (lock) {
             this.dialogShowMode = mode;
@@ -71,7 +100,11 @@ public abstract class DialogManager implements DialogViewer {
         return this;
     }
 
-    @Override
+    /**
+     * Actually shows the dialog with the buttons provided
+     * @param b1 one of the button types
+     * @param b2 one of the button types
+     */
     public void showDialogWithButtons(MenuButtonType b1, MenuButtonType b2) {
         synchronized (lock) {
             this.button1 = b1;
@@ -81,7 +114,9 @@ public abstract class DialogManager implements DialogViewer {
         dialogDidChange();
     }
 
-    @Override
+    /**
+     * Remove the dialog from display
+     */
     public void hideDialog() {
         synchronized (lock) {
             this.mode = DialogMode.HIDE;
@@ -107,17 +142,33 @@ public abstract class DialogManager implements DialogViewer {
         }
     }
 
+    /**
+     * @return the mode in which the dialog is being shown
+     */
     public DialogShowMode getDialogShowMode() {
         synchronized (lock) {
             return this.dialogShowMode;
         }
     }
 
+    /**
+     * the button type for a given button number - 0 or 1
+     * @param btnNum the button number
+     * @return the button type
+     */
     public MenuButtonType getButtonType(int btnNum) {
         return btnNum == 1 ? button1 : button2;
     }
 
+    /**
+     * this should be overridden to update the UI, it signifies that the dialog has changed
+     */
     protected abstract void dialogDidChange();
+
+    /**
+     * This can be overridden if needed, it will be called whenever a button is pressed.
+     * @param btn the button type
+     */
     protected void buttonWasPressed(MenuButtonType btn) {
         var proceed = (delegate != null) ? delegate.apply(btn) : true;
         if(proceed) {

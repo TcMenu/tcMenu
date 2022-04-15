@@ -22,6 +22,23 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
 
+/**
+ * The menu manager server component manages a menu tree locally, handling updates to both state and items, and also
+ * dealing with any remote connections. To listen to updates you generally register a MenuManagerListener that will
+ * receive updates as items change. These listeners can also register themselves to handle list selection changes and
+ * also to provide values for ScrollChoiceMenuItems.
+ *
+ * In terms of remotes, many types of remote connections can be added, each type of remote is registered as a
+ * ServerConnectionManager that handles one or more remote connection. This manager object provides much of the
+ * functionality around managing connections, including joining, pairing, bootstrapping, handling the messages and
+ * dealing with heartbeats.
+ *
+ * Any authentication that is required is dealt with by an instance of MenuAuthentication.
+ *
+ * @see MenuManagerListener
+ * @see ServerConnectionManager
+ * @see MenuAuthenticator
+ */
 public class MenuManagerServer implements NewServerConnectionListener {
     private final System.Logger logger = System.getLogger(MenuManagerServer.class.getSimpleName());
     private final ScheduledExecutorService executorService;
@@ -48,11 +65,26 @@ public class MenuManagerServer implements NewServerConnectionListener {
         this.clock = clock;
     }
 
+    /**
+     * Add a connection manager to the list of connection managers. This will be started during start and any
+     * connections that are created will be serviced by this manager
+     * @param manager a new connection manager
+     */
     public void addConnectionManager(ServerConnectionManager manager) {
         if(alreadyStarted.get()) throw new IllegalStateException("You must add connection managers before starting");
         connectionManagers.add(manager);
     }
 
+    /**
+     * Add a listener that will receive menu item events, such as when items change, and also when scroll choice
+     * values are needed. In addition to the menuHasChanged() method you can register additional methods marking them
+     * with the MenuCallback annotation, and for every scroll choice item, you should register a value retrieval method
+     * using ScrollChoiceValueRetriever
+     * @see ScrollChoiceValueRetriever
+     * @see MenuCallback
+     * @see MenuManagerListener
+     * @param listener the new listener
+     */
     public void addMenuManagerListener(MenuManagerListener listener) {
         eventListeners.add(listener);
         for(var method : listener.getClass().getMethods()) {
@@ -70,10 +102,17 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
     }
 
+    /**
+     * Add a callback that will run when the tree has structurally changed. IE when items are added or removed from sub menus
+     * @param structureListener the listener
+     */
     public void addTreeStructureChangeListener(MenuTreeStructureChangeListener structureListener) {
         structureChangeListeners.add(structureListener);
     }
 
+    /**
+     * Start the manager and all associated server connection managers
+     */
     public void start() {
         if(alreadyStarted.get()) return; // don't start again.
         alreadyStarted.set(true);
@@ -97,6 +136,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
         hbScheduleThread = executorService.scheduleAtFixedRate(this::checkHeartbeats, 200, 200, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Stop the manager all associated resources
+     */
     public void stop() {
         try {
             for (var listener : eventListeners) listener.managerWillStop();
@@ -134,6 +176,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
     }
 
+    /**
+     * Indicates if there is a remote connection on any of the server connection managers
+     * @return true if there is a connection, otherwise false
+     */
     public boolean isAnyRemoteConnection() {
         for(var sm : connectionManagers) {
             if(!sm.getServerConnections().isEmpty()) return true;
@@ -141,12 +187,20 @@ public class MenuManagerServer implements NewServerConnectionListener {
         return false;
     }
 
+    /**
+     * @return a list of all connections across all connection managers
+     */
     public List<ServerConnection> getAllServerConnections() {
         return connectionManagers.stream()
                 .flatMap(cm -> cm.getServerConnections().stream())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Indicates that a connection has been created, implementing the {@link NewServerConnectionListener}.
+     * For this we register ourselves as the message handler and send initial commands
+     * @param connection the new connection
+     */
     @Override
     public void connectionCreated(ServerConnection connection) {
         connection.registerMessageHandler(this::messageReceived);
@@ -217,10 +271,19 @@ public class MenuManagerServer implements NewServerConnectionListener {
                 });
     }
 
+    /**
+     * @return the menu tree belonging to this manager
+     */
     public MenuTree getManagedMenu() {
         return tree;
     }
 
+    /**
+     * Update the value for the given menu item. This updates the state in the underlying tree and sends notifications
+     * locally and remote
+     * @param item the item that has changed
+     * @param newValue the new value
+     */
     public void updateMenuItem(MenuItem item, Object newValue) {
         if(newValue instanceof ListResponse) {
             // for list responses, we don't store them, we just trigger and forget.
@@ -232,6 +295,11 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
     }
 
+    /**
+     * Tell the manager that an update has already occurred, IE the menu tree state is already adjusted. This just
+     * notifies locally and remotely.
+     * @param item the item that has adjusted
+     */
     public void menuItemDidUpdate(MenuItem item) {
         logger.log(Level.INFO, "Sending item update for " + item);
         var state = tree.getMenuState(item);
@@ -252,11 +320,21 @@ public class MenuManagerServer implements NewServerConnectionListener {
         updateRemotesWithLatestState(cmd);
     }
 
+    /**
+     * Tell the manager that a remote MenuInMenu style update has occurred, this must not be sent remotely to avoid
+     * a loop.
+     * @param item the item
+     * @param value the value
+     */
     public void remoteUpdateHasOccurred(MenuItem item, Object value) {
         MenuItemHelper.setMenuState(item, value, getManagedMenu());
         fireEventToListeners(item, value, true);
     }
 
+    /**
+     * Tell the manager that the tree has structurally changed and that any interested parties need notification.
+     * @param hint either MenuTree.ROOT or another item in the tree
+     */
     public void treeStructurallyChanged(MenuItem hint) {
         logger.log(Level.INFO, "Tree structure has changed around " + hint);
         for(var listener : structureChangeListeners) {
@@ -336,18 +414,31 @@ public class MenuManagerServer implements NewServerConnectionListener {
         socket.sendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE, val.toString()));
     }
 
+    /**
+     * @return the app name
+     */
     public String getServerName() {
         return serverName;
     }
 
+    /**
+     * @return UUID of the app, the local UUID
+     */
     public UUID getServerUuid() {
         return serverUuid;
     }
 
+    /**
+     * Send a command to all remotes that are connected.
+     * @param command the command to send
+     */
     public void sendCommand(MenuCommand command) {
         updateRemotesWithLatestState(command);
     }
 
+    /**
+     * @return the authenticator that is being used.
+     */
     public MenuAuthenticator getAuthenticator() {
         return authenticator;
     }

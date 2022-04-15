@@ -14,7 +14,7 @@
     <version>2.2.8-SNAPSHOT</version>
 
     <properties>
-        <jdk.version>17</jdk.version>
+        <jdk.version>18</jdk.version>
         <jfx.version>17.0.0.1</jfx.version>
         <jmetro.version>11.6.15</jmetro.version>
     </properties>
@@ -32,34 +32,19 @@
             <artifactId>embedCONTROLCore</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- If you're not running with bell-soft full JDK then remove the compile scope for org.openjfx scope -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${jfx.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${jfx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jfxtras</groupId>
-            <artifactId>jmetro</artifactId>
-            <version>${jmetro.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-controls</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-base</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

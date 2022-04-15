@@ -7,6 +7,11 @@ import com.thecoderscorner.menu.domain.state.PortableColor;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 
+/**
+ * This class stores all the global settings for both local and remote versions of embedCONTROL. This includes default
+ * font sizes, control colors, and other setup values. When creating an instance provide a class that you'd like to use
+ * as the root node for the preferences API.
+ */
 public class GlobalSettings {
     private final Class<?> preferencesNode;
     private ControlColor updateColor;
@@ -16,13 +21,16 @@ public class GlobalSettings {
     private ControlColor buttonColor;
     private ControlColor dialogColor;
     private ControlColor textColor;
-    private boolean darkMode;
     private String appUuid;
     private String appName;
     private boolean defaultRecursiveRendering;
     private boolean setupLayoutModeEnabled;
     private int defaultFontSize;
 
+    /**
+     * Create an instance of global settings that reads and stores values to preferences under the node provided
+     * @param preferencesNode this is used as the root element in the preferences API
+     */
     public GlobalSettings(Class<?> preferencesNode) {
         setColorsForDefault(false);
         appUuid = UUID.randomUUID().toString();
@@ -31,58 +39,88 @@ public class GlobalSettings {
         this.preferencesNode = preferencesNode;
     }
 
+    /**
+     * @return the default control color for textual items
+     */
     public ControlColor getTextColor() {
         return textColor;
     }
 
+    /**
+     * @return the default control color for button items
+     */
     public ControlColor getUpdateColor() {
         return updateColor;
     }
 
+    /**
+     * @return the default control color for pending items
+     */
     public ControlColor getPendingColor() {
         return pendingColor;
     }
 
+    /**
+     * @return the default control color for highlight items
+     */
     public ControlColor getHighlightColor() {
         return highlightColor;
     }
 
+    /**
+     * @return the default control color for error items
+     */
     public ControlColor getErrorColor() {
         return errorColor;
     }
 
+    /**
+     * @return the default control color for button items
+     */
     public ControlColor getButtonColor() {
         return buttonColor;
     }
 
+    /**
+     * @return the default control color for dialogs
+     */
     public ControlColor getDialogColor() {
         return dialogColor;
     }
 
-    public boolean isDarkMode() {
-        return darkMode;
-    }
-
-    public void setDarkMode(boolean darkMode) {
-        this.darkMode = darkMode;
-    }
-
+    /**
+     * @return the applications UUID
+     */
     public String getAppUuid() {
         return appUuid;
     }
 
+    /**
+     * Sets the applications UUID
+     * @param appUuid the new UUID
+     */
     public void setAppUuid(String appUuid) {
         this.appUuid = appUuid;
     }
 
+    /**
+     * @return the applications name
+     */
     public String getAppName() {
         return appName;
     }
 
+    /**
+     * Sets the applications name
+     * @param appName the new name
+     */
     public void setAppName(String appName) {
         this.appName = appName;
     }
 
+    /**
+     * Loads the previous preferences back from storage at start up
+     */
     public void load() {
         Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
         populateColorIfPresent(prefs,"update", updateColor);
@@ -94,7 +132,6 @@ public class GlobalSettings {
 
         appName = prefs.get("appName", "unknown");
         appUuid = prefs.get("appUUID", UUID.randomUUID().toString());
-        darkMode = prefs.getBoolean("darkMode", false);
         defaultFontSize = prefs.getInt("defaultFontSize", 16);
         defaultRecursiveRendering = prefs.getBoolean("defaultRecursiveRender", false);
         setupLayoutModeEnabled = prefs.getBoolean("setupLayoutModeEnabled", false);
@@ -108,6 +145,9 @@ public class GlobalSettings {
         colorInfo.setBg(new PortableColor(bg));
     }
 
+    /**
+     * Saves all preferences back to storage
+     */
     public void save() {
         Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
         saveColor(prefs, "update", updateColor);
@@ -117,7 +157,6 @@ public class GlobalSettings {
         saveColor(prefs, "highlight", highlightColor);
         saveColor(prefs, "text", textColor);
 
-        prefs.putBoolean("darkMode", darkMode);
         prefs.put("appUUID", appUuid);
         prefs.put("appName", appName);
         prefs.putBoolean("defaultRecursiveRender", defaultRecursiveRendering);
@@ -130,6 +169,10 @@ public class GlobalSettings {
         prefs.put(name + "BgColor", colorData.getBg().toString());
     }
 
+    /**
+     * This is used to reset colorschemes back to the default settings.
+     * @param darkMode if dark background colors should be used
+     */
     public void setColorsForDefault(boolean darkMode) {
         if(darkMode) {
             updateColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
@@ -152,26 +195,47 @@ public class GlobalSettings {
         }
     }
 
+    /**
+     * @return the default font size
+     */
     public int getDefaultFontSize() {
         return defaultFontSize;
     }
 
+    /**
+     * @return if the system should default to recursive rendering.
+     */
     public boolean isDefaultRecursiveRendering() {
         return defaultRecursiveRendering;
     }
 
+    /**
+     * Set the font size to a new value
+     * @param size the font size
+     */
     public void setDefaultFontSize(int size) {
         defaultFontSize = size;
     }
 
+    /**
+     * Set recursive rendering on or off by default
+     * @param recursiveRender the new state
+     */
     public void setDefaultRecursiveRendering(boolean recursiveRender) {
         defaultRecursiveRendering = recursiveRender;
     }
 
+    /**
+     * @return indicates if setup layout mode is enabled for editing screen layouts
+     */
     public boolean isSetupLayoutModeEnabled() {
         return setupLayoutModeEnabled;
     }
 
+    /**
+     * Set screen layout editing on or off
+     * @param setupLayoutModeEnabled the new state
+     */
     public void setSetupLayoutModeEnabled(boolean setupLayoutModeEnabled) {
         this.setupLayoutModeEnabled = setupLayoutModeEnabled;
     }

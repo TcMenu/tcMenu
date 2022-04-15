@@ -1,7 +1,7 @@
 package com.thecoderscorner.menu.auth;
 
 import com.thecoderscorner.menu.mgr.DialogManager;
-import com.thecoderscorner.menu.mgr.DialogViewer;
+import com.thecoderscorner.menu.mgr.DialogShowMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
                     var dialogLatch = new CountDownLatch(1);
                     dialogManager.withTitle("Pair with " + user, true)
                             .withMessage("Be sure you know where this connection originated", true)
-                            .withDelegate(DialogViewer.DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
+                            .withDelegate(DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
                                 shouldProceed.set(menuButtonType == MenuButtonType.ACCEPT);
                                 dialogLatch.countDown();
                                 return true;

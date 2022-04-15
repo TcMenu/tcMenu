@@ -2,6 +2,9 @@ package com.thecoderscorner.embedcontrol.core.serial;
 
 import java.util.Objects;
 
+/**
+ * Describes a serial port in a device independent way, that can be used to recreate the port later by deviceID.
+ */
 public class SerialPortInfo {
     private final String printableName;
     private final String id;
@@ -21,6 +24,11 @@ public class SerialPortInfo {
         return nicePortType(portType) + " - " + printableName + radioStrength;
     }
 
+    /**
+     * Get the printable port name from portType
+     * @param portType the type of port
+     * @return the printable name
+     */
     private String nicePortType(SerialPortType portType) {
         switch (portType) {
             case REGULAR_USB_SERIAL: return "Serial";
@@ -42,18 +50,30 @@ public class SerialPortInfo {
         return Objects.hash(printableName, id, portType);
     }
 
+    /**
+     * @return friendly name for the device
+     */
     public String getPrintableName() {
         return printableName;
     }
 
+    /**
+     * @return the device ID
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @return the type of port
+     */
     public SerialPortType getPortType() {
         return portType;
     }
 
+    /**
+     * @return the signal strength if it is available
+     */
     public double getRssi() {
         return rssi;
     }

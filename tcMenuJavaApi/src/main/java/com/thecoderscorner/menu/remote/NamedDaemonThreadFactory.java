@@ -8,6 +8,9 @@ package com.thecoderscorner.menu.remote;
 
 import java.util.concurrent.ThreadFactory;
 
+/**
+ * this thread factory provides better naming for threads
+ */
 public class NamedDaemonThreadFactory implements ThreadFactory {
     private final String name;
 

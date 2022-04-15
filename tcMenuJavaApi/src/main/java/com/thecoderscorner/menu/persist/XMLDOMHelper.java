@@ -213,7 +213,7 @@ public class XMLDOMHelper {
      * loaded from a stream, where it may be already formatted.
      * @param doc the document
      * @param output the output stream to write to
-     * @throws TransformerException
+     * @throws TransformerException if the XML cannot be transformed
      */
     public static void writeXml(Document doc, OutputStream output) throws TransformerException {
         writeXml(doc, output, false);
@@ -237,6 +237,12 @@ public class XMLDOMHelper {
         transformer.transform(source, result);
     }
 
+    /**
+     * Creates a new document that has a root element with the name given
+     * @param name the root element name
+     * @return a document with root node attached
+     * @throws ParserConfigurationException if the document cannot be created
+     */
     public static Document newDocumentRoot(String name) throws ParserConfigurationException {
         var factory = DocumentBuilderFactory.newInstance();
         var builder = factory.newDocumentBuilder();
@@ -245,6 +251,13 @@ public class XMLDOMHelper {
         return doc;
     }
 
+    /**
+     * Append a new element into the parent provided with the name given.
+     * @param parent the parent where the new element is to be placed
+     * @param name the name of the new element
+     * @param value the value to set as text (can be null)
+     * @return the newly created element
+     */
     public static Element appendElementWithNameValue(Element parent, String name, Object value) {
         var childEle = parent.getOwnerDocument().createElement(name);
         if(value != null) {

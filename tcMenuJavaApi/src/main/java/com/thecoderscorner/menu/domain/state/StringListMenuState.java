@@ -11,7 +11,8 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import java.util.List;
 
 /**
- * An implementation of menu state for lists of string. This stores the current value in the MenuTree for an item
+ * An implementation of menu state for lists of string. This stores the current value in the MenuTree for an item.
+ * Generally it's best to work with state via {@link com.thecoderscorner.menu.domain.util.MenuItemHelper}
  */
 public class StringListMenuState extends MenuState<List<String>> {
     public StringListMenuState(MenuItem item, boolean changed, boolean active, List<String> value) {

@@ -6,6 +6,14 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+/**
+ * The modes that a dialog can be in, and the transmission type for action too
+ */
 public enum DialogMode {
-    SHOW, HIDE, ACTION
+    /** the dialog is to be shown */
+    SHOW,
+    /** the dialog is to be hidden */
+    HIDE,
+    /** perform the following action on the dialog */
+    ACTION
 }

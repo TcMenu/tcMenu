@@ -5,7 +5,9 @@ import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import java.util.Objects;
 
 /**
- * A menu item that represents a colour in the RGB domain with optional Alpha channel.
+ * A menu item that represents a colour in the RGB domain with optional Alpha channel. It is represented using a
+ * PortableColor
+ * @see com.thecoderscorner.menu.domain.state.PortableColor
  */
 public class Rgb32MenuItem extends MenuItem {
     private final boolean includeAlphaChannel;

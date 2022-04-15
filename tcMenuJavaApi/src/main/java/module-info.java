@@ -1,5 +1,6 @@
 module com.thecoderscorner.tcmenu.javaapi {
     requires com.google.gson;
+    requires java.xml;
     exports com.thecoderscorner.menu.domain.state;
     exports com.thecoderscorner.menu.domain.util;
     exports com.thecoderscorner.menu.domain;

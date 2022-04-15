@@ -7,6 +7,9 @@ import javax.sound.sampled.Control;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*;
 
+/**
+ * Any empty implementation of conditional coloring that returns WHITE background, BLACK text always.
+ */
 public class NullConditionalColoring implements ConditionalColoring {
     public PortableColor backgroundFor(RenderingStatus status, ColorComponentType ty) {
         return ControlColor.WHITE;

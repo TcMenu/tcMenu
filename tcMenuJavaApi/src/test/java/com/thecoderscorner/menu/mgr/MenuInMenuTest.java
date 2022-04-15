@@ -95,7 +95,7 @@ class MenuInMenuTest {
         otherRemote.simulateSendCommand(new MenuSubBootCommand(0, DomainFixtures.aSubMenu("Test3", 3), false));
         otherRemote.simulateSendCommand(new MenuActionBootCommand(3, DomainFixtures.anActionMenu("Test4", 4), false));
         otherRemote.simulateSendCommand(new MenuAnalogBootCommand(3, DomainFixtures.anAnalogItem("Test5", 5), 14));
-        verifyZeroInteractions(structureListener);
+        verifyNoInteractions(structureListener);
         otherRemote.simulateSendCommand(new MenuBootstrapCommand(MenuBootstrapCommand.BootType.END));
     }
 
@@ -107,7 +107,7 @@ class MenuInMenuTest {
         managerServer.start();
 
         sendStandardBootMessages();
-        verifyZeroInteractions(structureListener);
+        verifyNoInteractions(structureListener);
 
         assertTrue(managerServer.getManagedMenu().getMenuById(149999).isEmpty());
     }

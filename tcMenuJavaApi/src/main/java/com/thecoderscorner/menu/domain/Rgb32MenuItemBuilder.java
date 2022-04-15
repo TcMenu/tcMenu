@@ -1,5 +1,9 @@
 package com.thecoderscorner.menu.domain;
 
+/**
+ * Constructs an Rgb32MenuItem using the builder pattern, it is a menu item that represents a PortableColor object.
+ * @see com.thecoderscorner.menu.domain.state.PortableColor
+ */
 public class Rgb32MenuItemBuilder extends MenuItemBuilder<Rgb32MenuItemBuilder, Rgb32MenuItem> {
     private boolean alpha = false;
 

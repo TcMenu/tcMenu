@@ -3,6 +3,10 @@ package com.thecoderscorner.embedcontrol.core.controlmgr.color;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import javafx.scene.paint.Color;
 
+/**
+ * This represents a color for a control, it has a background and a foreground in portable color format. Portable color
+ * is an API level construct that is not tied to any implementation.
+ */
 public class ControlColor {
     public static final PortableColor BLACK = new PortableColor(0, 0, 0);
     public static final PortableColor WHITE = new PortableColor(255, 255, 255);
@@ -23,32 +27,60 @@ public class ControlColor {
     private PortableColor fg;
     private PortableColor bg;
 
+    /**
+     * Create a new color given the foreground and background as portable colors
+     * @param fg the foreground
+     * @param bg the background
+     */
     public ControlColor(PortableColor fg, PortableColor bg) {
         this.fg = fg;
         this.bg = bg;
     }
 
+    /**
+     * @return the foreground color
+     */
     public PortableColor getFg() {
         return fg;
     }
 
+    /**
+     * @return the background color
+     */
     public PortableColor getBg() {
         return bg;
     }
 
+    /**
+     * Change the foreground to a new color
+     * @param fg the new color
+     */
     public void setFg(PortableColor fg) {
         this.fg = fg;
     }
 
+    /**
+     * Change the background to a new color
+     * @param bg the new color
+     */
     public void setBg(PortableColor bg) {
         this.bg = bg;
     }
 
+    /**
+     * Copy the colors into this object from another control color instance
+     * @param controlColor the instance to copy from
+     */
     public void copyColorsFrom(ControlColor controlColor) {
         this.fg = controlColor.getFg();
         this.bg = controlColor.getBg();
     }
 
+    /**
+     * Turn the portable color into a JavaFX color.
+     * @param bg the color to convert
+     * @return the JavaFX representation
+     */
     public static Color asFxColor(PortableColor bg) {
         return new Color(
                 bg.getRed() / 255.0, bg.getGreen() / 255.0,
@@ -56,6 +88,11 @@ public class ControlColor {
         );
     }
 
+    /**
+     * Convert a JavaFX color back into a portable color
+     * @param color the JavaFX color
+     * @return the portable representation
+     */
     public static PortableColor fromFxColor(Color color) {
         return new PortableColor(
                 (short)(color.getRed() * 255.0), (short)(color.getGreen() * 255.0),

@@ -19,6 +19,11 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
+/**
+ * This factory has two main usages, firstly it is used to scan for available ports for use in UIs and other places
+ * where a list of ports is needed. Secondly it is used to create a port based on a previously obtained ID. This
+ * implementation is based on jSerialComm and provides all serial ports supported by that library.
+ */
 public class Rs232SerialFactory implements PlatformSerialFactory {
     private final GlobalSettings settings;
     private final ScheduledExecutorService coreExecutor;

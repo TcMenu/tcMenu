@@ -121,7 +121,7 @@ public class MenuInMenu {
             var dlg = (MenuDialogCommand)menuCommand;
             dialogManager.updateStateFromCommand(menuCommand);
             if(dlg.getDialogMode() == DialogMode.SHOW){
-                dialogManager.withDelegate(DialogViewer.DialogShowMode.LOCAL_TO_DELEGATE, (btn) -> {
+                dialogManager.withDelegate(DialogShowMode.LOCAL_TO_DELEGATE, (btn) -> {
                     try {
                         remoteConnector.sendMenuCommand(new MenuDialogCommand(DialogMode.ACTION, "", "", btn,
                                 MenuButtonType.NONE, CorrelationId.EMPTY_CORRELATION));

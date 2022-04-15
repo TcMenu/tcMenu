@@ -18,7 +18,7 @@ import static com.thecoderscorner.menu.domain.state.AnyMenuState.StateStorageTyp
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
- * A helper class for dealing with MenuItem objects. This class provides the helper for visiting
+ * A helper class for dealing with MenuItem objects. This class provides helpers for visiting
  * menu items and returning a result. It also provides other helpers for dealing with items.
  */
 public class MenuItemHelper {
@@ -271,6 +271,13 @@ public class MenuItemHelper {
         }).orElse(0);
     }
 
+    /**
+     * Get a new state object based on an existing state with a new value keeping all exising other values
+     * @param existingState the existing state object
+     * @param item the item
+     * @param val the value
+     * @return a new menu state object based on the parameters
+     */
     public static AnyMenuState stateForMenuItem(AnyMenuState existingState, MenuItem item, Object val) {
         boolean changed = false;
         boolean active = false;
@@ -281,6 +288,14 @@ public class MenuItemHelper {
         return stateForMenuItem(item, val, changed, active);
     }
 
+    /**
+     * Get the state for an existing state with a new value, changing the changed state
+     * @param existingState the existing state object
+     * @param item the item
+     * @param val the changed value
+     * @param changed the new change status
+     * @return a new state object based on the parameters
+     */
     public static AnyMenuState stateForMenuItem(AnyMenuState existingState, MenuItem item, Object val, boolean changed) {
         boolean active = false;
         if(existingState != null) {
@@ -289,6 +304,14 @@ public class MenuItemHelper {
         return stateForMenuItem(item, val, changed, active);
     }
 
+    /**
+     * Try and apply an incremental delta value update to a menu tree. This works for integer, enum and scroll items, it
+     * loads the existing value and tries to apply the delta offset, if the min/max would not be exceeded.
+     * @param item the item to change
+     * @param delta the delta amount
+     * @param tree the tree the item belongs to
+     * @return a new item if the operation was possible, otherwise empty
+     */
     public static Optional<AnyMenuState> applyIncrementalValueChange(MenuItem item, int delta, MenuTree tree) {
         var state = tree.getMenuState(item);
         if(state == null) state = MenuItemHelper.stateForMenuItem(item, 0, false, false);
@@ -320,6 +343,16 @@ public class MenuItemHelper {
         return Optional.empty();
     }
 
+    /**
+     * Create a menu state for a given item with a value update. We try pretty hard to convert whatever comes in for the
+     * value into a new state.
+     *
+     * @param item the item to create the state for
+     * @param v the value
+     * @param changed the changed status
+     * @param active the active status
+     * @return the new menu state
+     */
     public static AnyMenuState stateForMenuItem(MenuItem item, Object v, boolean changed, boolean active) {
         if(item == null) return new BooleanMenuState(item, false, false, false);
          var val = (v!=null) ? v : defaultValueForItem(item);
@@ -426,6 +459,11 @@ public class MenuItemHelper {
         }).orElseThrow();
     }
 
+    /**
+     * Get the default value for a menu item that could be stored into the state object.
+     * @param item the item
+     * @return the default value
+     */
     private static Object defaultValueForItem(MenuItem item) {
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<>() {
             @Override
@@ -475,6 +513,12 @@ public class MenuItemHelper {
         }).orElse(false);
     }
 
+    /**
+     * Set the state in the tree for an item with a new value, setting it changed if it genuinely has.
+     * @param item the item
+     * @param value the replacement value
+     * @param tree the tree to change
+     */
     public static void setMenuState(MenuItem item, Object value, MenuTree tree) {
         var oldState = tree.getMenuState(item);
         if(oldState != null) {
@@ -484,6 +528,14 @@ public class MenuItemHelper {
         }
     }
 
+    /**
+     * Gets the value from the tree or the default provided
+     * @param item the item
+     * @param tree the tree to lookup in
+     * @param def the default item (getDefaultFor can get the default automatically)
+     * @param <T> the type is inferred from the default parameter
+     * @return the item looked up, or the default.
+     */
     @SuppressWarnings("unchecked")
     public static <T> T getValueFor(MenuItem item, MenuTree tree, T def) {
         if(tree.getMenuState(item) != null) {
@@ -498,6 +550,13 @@ public class MenuItemHelper {
         return def;
     }
 
+    /**
+     * Can be used during boot sequences to get a suitable boot item for a menu item
+     * @param item the item
+     * @param parent the parent
+     * @param tree the tree it belongs to
+     * @return either a boot item or empty
+     */
     public static Optional<BootItemMenuCommand<?, ?>> getBootMsgForItem(MenuItem item, SubMenuItem parent, MenuTree tree) {
         if(item instanceof AnalogMenuItem) {
             return Optional.of(new MenuAnalogBootCommand(parent.getId(), (AnalogMenuItem) item, getValueFor(item, tree, 0)));
@@ -525,6 +584,11 @@ public class MenuItemHelper {
         return Optional.empty();
     }
 
+    /**
+     * Gets the default item value for a menu item, such that the value could be used in call to set state.
+     * @param item the item
+     * @return the default value
+     */
     public static Object getDefaultFor(MenuItem item) {
         if(item instanceof AnalogMenuItem || item instanceof EnumMenuItem) {
             return 0;

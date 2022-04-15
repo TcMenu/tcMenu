@@ -19,6 +19,10 @@ import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
+/**
+ * This class provides the ability to create a manual LAN connection providing the hostname and port. It is mainly
+ * used by embedCONTROL remote to both present and deal with new connections.
+ */
 public class ManualLanConnectionCreator implements ConnectionCreator {
     public static final String MANUAL_LAN_JSON_TYPE = "manualLan";
     private final GlobalSettings settings;
@@ -82,7 +86,7 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
                 .withExecutor(executorService);
     }
 
-    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
+    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) {
         return generateBaseControllerBuilder().attemptPairing(Optional.of(statusConsumer));
     }
 

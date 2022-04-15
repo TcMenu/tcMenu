@@ -2,6 +2,9 @@ package com.thecoderscorner.embedcontrol.core.util;
 
 import com.thecoderscorner.menu.persist.VersionInfo;
 
+/**
+ * Represents the build and version information of the application.
+ */
 public class MenuAppVersion {
     private final VersionInfo versionInfo;
     private final String buildStamp;

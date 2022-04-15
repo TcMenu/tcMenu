@@ -9,6 +9,12 @@ package com.thecoderscorner.menu.persist;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 
+/**
+ * Represents a persisted menu item, it has additional information needed to reconstitute the item at the right point
+ * in the tree, namely the parentId, and also the type of menu item. This class is used by the JsonMenuItemSerializer
+ * to store menu items.
+ * @see JsonMenuItemSerializer
+ */
 public class PersistedMenu {
     public static final String ANALOG_PERSIST_TYPE = "analogItem";
     public static final String ENUM_PERSIST_TYPE = "enumItem";

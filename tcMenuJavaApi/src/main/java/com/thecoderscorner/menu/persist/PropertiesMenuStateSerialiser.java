@@ -13,6 +13,17 @@ import java.util.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * An implementation of menu state serialization that stores data in a properties file at a given location.
+ *
+ * <pre>
+ *     var tree = new MenuTree();
+ *     var propStore = new PropertiesMenuStateSerialiser(tree, Path.of("./props.properties"));
+ *     propStore.loadMenuStatesAndApply();
+ *     // Some time later...
+ *     propStore.saveMenuStates();
+ * </pre>
+ */
 public class PropertiesMenuStateSerialiser implements MenuStateSerialiser{
     System.Logger logger = System.getLogger(PropertiesMenuStateSerialiser.class.getSimpleName());
     private final MenuTree tree;

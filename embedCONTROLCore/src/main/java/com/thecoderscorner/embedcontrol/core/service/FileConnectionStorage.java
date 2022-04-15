@@ -23,6 +23,11 @@ import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStr
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * This is the file implementation of connection storage, it saves each item to file using the ScreenLayoutPersistence
+ * class. It is mainly a delegate to the layout persistence class that handles all files within a directory.
+ * @param <T>
+ */
 public abstract class FileConnectionStorage<T extends ScreenLayoutPersistence> implements ConnectionStorage<T> {
     protected final System.Logger logger = System.getLogger(FileConnectionStorage.class.getSimpleName());
     protected final PlatformSerialFactory serialFactory;

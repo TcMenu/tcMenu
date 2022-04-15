@@ -15,6 +15,10 @@ import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
 
+/**
+ * This class provides the ability to create simulator connections. It is mainly
+ * used by embedCONTROL remote to both present and deal with new connections.
+ */
 public class SimulatorConnectionCreator implements ConnectionCreator {
     public static final String SIMULATED_CREATOR_TYPE = "simulator";
     private final String DEFAULT_DATA = """
@@ -435,7 +439,7 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     }
 
     @Override
-    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws Exception {
+    public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) {
         return true;
     }
 

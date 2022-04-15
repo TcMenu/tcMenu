@@ -8,7 +8,6 @@ module com.thecoderscorner.tcmenu.embedcontrolfx {
     requires com.google.gson;
     requires java.prefs;
     requires java.desktop;
-    requires org.jfxtras.styles.jmetro;
     requires com.thecoderscorner.embedcontrol.core;
     requires com.thecoderscorner.tcmenu.javaapi;
 

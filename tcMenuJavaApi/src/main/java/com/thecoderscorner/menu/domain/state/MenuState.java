@@ -12,6 +12,7 @@ import java.util.Objects;
 
 /**
  * The base class of menu state, stores the value, if it's active and changed.
+ * Generally it's best to work with state via {@link com.thecoderscorner.menu.domain.util.MenuItemHelper}
  * @param <T> the type of current value.
  */
 public abstract class MenuState<T> implements AnyMenuState {

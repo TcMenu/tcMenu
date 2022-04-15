@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
 /**
- * Tree component manager takes menu structures and turns them into an auto UI using the `ScreenManager` object which
+ * Tree component manager takes menu structures and turns them into an auto UI using the `MenuControlGrid` object which
  * creates components of type `EditorComponent`. Each editor component has a UI element associated with it and can be
  * presented onto a UI. For an automatic UI, we normally create a suitable ScreenManager object, then create an
  * extension of TreeComponentManager to render it.
@@ -44,14 +44,26 @@ public class TreeComponentManager<T> {
         remoteTickTask = executor.scheduleAtFixedRate(this::timerTick, 100, 100, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Called whenever the connection has changed
+     * @param status the new status
+     */
     protected void connectionChanged(AuthStatus status) {
     }
 
+    /**
+     * This method starts rendering the menu from the current submenu, potentially recursively depending on the recurse
+     * flag. It creates controls using the layoutControlGrid and stores them within this component to handle later
+     * updates and is also responsible for calling tick() on all editors on display.
+     * @param layoutControlGrid the grid where the components are drawn
+     * @param sub the submenu to start at
+     * @param recurse if rendering is recursive (ie go into sub menus)
+     */
     public void renderMenuRecursive(MenuControlGrid<T> layoutControlGrid, SubMenuItem sub, boolean recurse) {
         renderMenuRecursive(layoutControlGrid, sub, recurse, 0);
     }
 
-    public void renderMenuRecursive(MenuControlGrid<T> layoutControlGrid, SubMenuItem sub, boolean recurse, int level) {
+    private void renderMenuRecursive(MenuControlGrid<T> layoutControlGrid, SubMenuItem sub, boolean recurse, int level) {
         var tree = controller.getMenuTree();
 
         if(level != 0) {
@@ -80,6 +92,12 @@ public class TreeComponentManager<T> {
         layoutControlGrid.endNesting();
     }
 
+    /**
+     * Gets a component for a particular menu item, asking the layoutPersistence for the component settings.
+     * @param layoutControlGrid responsible for creating the item
+     * @param item the item to get a component for
+     * @return either an EditorComponent or empty.
+     */
     public Optional<EditorComponent<T>> getComponentEditorItem(MenuControlGrid<T> layoutControlGrid, MenuItem item) {
         var componentSettings = layoutPersistence.getSettingsForMenuItem(item, true);
 
@@ -105,6 +123,9 @@ public class TreeComponentManager<T> {
         });
     }
 
+    /**
+     * Called frequently by the executor to update the UI components.
+     */
     public void timerTick() {
         marshaller.runOnUiThread(() -> {
             for (var component : editorComponents.values()) {
@@ -113,6 +134,7 @@ public class TreeComponentManager<T> {
         });
     }
 
+    /** Call this to stop the associated tasks. */
     public void dispose() {
         remoteTickTask.cancel(false);
     }

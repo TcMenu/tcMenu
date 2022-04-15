@@ -15,6 +15,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.mgr.DialogShowMode;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.DialogMode;

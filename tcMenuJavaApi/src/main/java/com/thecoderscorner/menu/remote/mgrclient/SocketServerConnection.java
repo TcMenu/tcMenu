@@ -21,6 +21,9 @@ import java.util.function.BiConsumer;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ *
+ */
 public class SocketServerConnection extends SharedStreamConnection implements ServerConnection {
     private final System.Logger logger = System.getLogger(SocketServerConnection.class.getSimpleName());
     private final AtomicInteger heartbeatFrequency = new AtomicInteger(1500);

@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 /**
  * Provides the core navigational capabilities within the app, it handles the stack of panels that have been presented
  * and the ability to go backwards out of them using pop. It is also possible to reset the navigation back to a single
- * panel. Title widgets are also managed by the navigation maanger, where you can add widgets and also register for
+ * panel. Title widgets are also managed by the navigation manager, where you can add widgets and also register for
  * clicks on the widget's underlying button.
  * @param <T> The UI display type
  * @param <I> The UI Image type required by title widgets

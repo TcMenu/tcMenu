@@ -6,11 +6,20 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+/**
+ * The button type for a dialog, dialogs generally have up to two buttons by default, each button can be one of the
+ * following types.
+ */
 public enum MenuButtonType {
+    /** The OK button */
     OK(0, "OK"),
+    /** The accept button */
     ACCEPT(1, "Accept"),
+    /** The cancel button */
     CANCEL(2, "Cancel"),
+    /** The close button */
     CLOSE(3, "Close"),
+    /** No button */
     NONE(4, "");
 
     private final int typeVal;

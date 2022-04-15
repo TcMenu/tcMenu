@@ -44,6 +44,7 @@ public class EmbeddedJavaProject {
             """;
 
     private final Pattern dependencyMatcher = Pattern.compile("mvn:(.*)/(.*)@(.*)");
+    private final Pattern moduleDefintionMatcher = Pattern.compile("mod:(.+)");
     private final Path mainResources;
     private final Path mainJava;
     private final Path testJava;

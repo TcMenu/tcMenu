@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 
 /**
  * An implementation of menu state for booleans. This stores the current value in the MenuTree for an item
+ * Generally it's best to work with state via {@link com.thecoderscorner.menu.domain.util.MenuItemHelper}
  */
 public class BooleanMenuState extends MenuState<Boolean> {
     public BooleanMenuState(MenuItem item, boolean changed, boolean active, boolean value) {

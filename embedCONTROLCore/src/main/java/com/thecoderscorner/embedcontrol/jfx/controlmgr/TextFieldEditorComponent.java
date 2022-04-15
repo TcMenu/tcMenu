@@ -9,7 +9,7 @@ import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.mgr.DialogManager;
-import com.thecoderscorner.menu.mgr.DialogViewer;
+import com.thecoderscorner.menu.mgr.DialogShowMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -53,7 +53,7 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
             if(!editorComponent.get().isCurrentlyValid()) {
                 dlgManager.withTitle(item.getName() + " did not validate", false)
                         .withMessage("Please ensure the value is valid for the type of field", false)
-                        .withDelegate(DialogViewer.DialogShowMode.LOCAL_TO_DELEGATE, menuButtonType -> true)
+                        .withDelegate(DialogShowMode.LOCAL_TO_DELEGATE, menuButtonType -> true)
                         .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
 
                 editorComponent.get().markInvalid();

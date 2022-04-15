@@ -22,7 +22,7 @@ class DialogManagerTest {
         didChange = false;
         dlgManager.withMessage("hello", false)
                 .withTitle("world", false)
-                .withDelegate(DialogViewer.DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
+                .withDelegate(DialogShowMode.LOCAL_DELEGATE_LOCKED, menuButtonType -> {
                     buttonPressed = menuButtonType;
                     return shouldClose;
                 })

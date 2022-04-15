@@ -6,7 +6,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.mgr.DialogViewer;
+import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
@@ -23,7 +23,7 @@ public class RemoteTreeComponentManager extends TreeComponentManager<Node> {
     private final RemoteMenuController remoteController;
 
     public RemoteTreeComponentManager(RemoteMenuController controller,
-                                      GlobalSettings appSettings, DialogViewer dialogViewer,
+                                      GlobalSettings appSettings, DialogManager dialogViewer,
                                       ScheduledExecutorService executor, ThreadMarshaller marshaller,
                                       MenuComponentControl componentControl, ScreenLayoutPersistence layoutPersistence) {
         super(appSettings, executor, marshaller, componentControl, layoutPersistence);

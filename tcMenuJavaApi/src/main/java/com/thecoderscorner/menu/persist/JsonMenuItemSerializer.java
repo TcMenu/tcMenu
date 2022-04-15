@@ -14,6 +14,16 @@ import java.util.function.Consumer;
 import static com.thecoderscorner.menu.persist.PersistedMenu.*;
 import static java.lang.System.Logger.Level.ERROR;
 
+/**
+ * Creates a menu serializer instance that can convert menu structures to and from JSON format. In the simplest case
+ * just create a new instance of the class and you can use it to convert between formats.
+ *
+ * <pre>
+ *     var jsonSerializer = new JsonMenuItemSerializer();
+ *     var tree = jsonSerializer.newMenuTreeWithItems(textCopiedFromTcMenuDesigner);
+ *     var json = jsonSerializer.itemsToCopyText(MenuTree.ROOT, tree);
+ * </pre>
+ */
 public class JsonMenuItemSerializer {
     private final static System.Logger logger = System.getLogger(JsonMenuItemSerializer.class.getSimpleName());
     private static final String PARENT_ID = "parentId";

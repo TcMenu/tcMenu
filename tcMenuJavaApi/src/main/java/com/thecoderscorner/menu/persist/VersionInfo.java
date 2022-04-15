@@ -9,7 +9,8 @@ package com.thecoderscorner.menu.persist;
 import java.util.Objects;
 
 /**
- * This class parses the version from an arduino properties file and does simple comparisons on it.
+ * This class represents a version number in standard form, such as 1.2.3, it can parse from text and determine which
+ * is the newer of two versions.
  */
 public class VersionInfo {
     public static final VersionInfo ERROR_VERSION = new VersionInfo("0.0.0");
@@ -17,7 +18,7 @@ public class VersionInfo {
     private final int minor;
     private final int patch;
     public VersionInfo(String ver) {
-        String[] verSplit = ver.split("[-\\.]");
+        String[] verSplit = ver.split("[-.]");
         if(verSplit.length < 2) {
             major = minor = patch = 0;
         }

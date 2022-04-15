@@ -1,5 +1,9 @@
 package com.thecoderscorner.menu.domain;
 
+/**
+ * Builds an extensible version of enum that should be used when the number of choices is larger, the choices are in
+ * eeprom, or you need more control at runtime of the choices using the builder pattern.
+ */
 public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMenuItemBuilder, ScrollChoiceMenuItem> {
     private int itemWidth;
     private int eepromOffset;

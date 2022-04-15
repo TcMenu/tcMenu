@@ -15,6 +15,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * This is the controller for `authIoTMonitor.fxml`. It provides a simple panel to manage the core IoT settings, including
+ * adding and removing authentication pairs and checking active connections, and closing a connection if required.
+ * You can read more about connections in the tcMenu documentation -
+ */
 public class AuthIoTMonitorController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public ListView<ServerConnection> connectionList;

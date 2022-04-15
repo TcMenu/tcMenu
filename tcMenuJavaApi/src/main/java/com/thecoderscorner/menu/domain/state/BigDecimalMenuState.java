@@ -10,6 +10,10 @@ import com.thecoderscorner.menu.domain.MenuItem;
 
 import java.math.BigDecimal;
 
+/**
+ * Used to store the decimal state of large number menu item in the menu tree.
+ * Generally it's best to work with state via {@link com.thecoderscorner.menu.domain.util.MenuItemHelper}
+ */
 public class BigDecimalMenuState extends MenuState<BigDecimal> {
     /**
      * Creates a state that can store a big decimal

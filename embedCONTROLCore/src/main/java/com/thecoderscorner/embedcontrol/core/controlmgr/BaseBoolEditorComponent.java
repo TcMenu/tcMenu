@@ -4,6 +4,11 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 
+/**
+ * This is the core representation of a boolean editor component, it needs to be implemented by an actual UI layer.
+ * It handles items updating and the textual content that is to be displayed, but leaves the drawing to the sub class.
+ * @param <W> the window component type.
+ */
 public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> {
     protected boolean currentVal = false;
 

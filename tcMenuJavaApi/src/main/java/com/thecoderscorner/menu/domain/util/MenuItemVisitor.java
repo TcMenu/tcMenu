@@ -10,8 +10,8 @@ import com.thecoderscorner.menu.domain.*;
 
 /**
  * An implementation of the visitor pattern for TcMenu. Each menu item has a visit method, that takes an
- * implementation of this class as it's parameter. It will call the appropriate method on this class for
- * it's type. This is useful to avoid if and switch statements when dealing with menus.
+ * implementation of this class as its parameter. It will call the appropriate method on this class for
+ * its type. This is useful to avoid if and switch statements when dealing with menus.
  * @see AbstractMenuItemVisitor
  */
 public interface MenuItemVisitor {

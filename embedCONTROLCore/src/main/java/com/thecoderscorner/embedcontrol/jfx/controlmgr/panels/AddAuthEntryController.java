@@ -9,6 +9,11 @@ import javafx.stage.Stage;
 
 import java.util.UUID;
 
+/**
+ * This is the controller for `addAuthEntry.fxml`. It allows the user to enter an app name and UUID pair and will
+ * validate the data entered. If successful the chosenName and chosenUuid will be populated on close. The can be
+ * accessed using `getUserName()` and `getUuid()`.
+ */
 public class AddAuthEntryController {
     public TextField appNameField;
     public TextField uuidField;

@@ -27,6 +27,13 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * The menu control grid is the JavaFX component that renders menu items into a GridPanel. It creates instances of
+ * the editor components and places them into the panel. To place them into the panel, each item that is added  takes
+ * a ComponentSettings object that has the positioning and rendering data.
+ *
+ * @see ComponentSettings
+ */
 public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentable<Node> {
     private static final int DEFAULT_INDENTATION = 8;
     private final MenuComponentControl controller;
@@ -222,7 +229,8 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
         }
         ComponentPositioning pos = settings.getPosition();
         currentGrid.add(sp, pos.getCol(), pos.getRow(), pos.getColSpan(), pos.getRowSpan());
-        GridPane.setMargin(sp, new Insets(0, 0, 0, level * levelIndentation));
+        int leftMargin = Math.max(level - 1, 0) * levelIndentation;
+        GridPane.setMargin(sp, new Insets(0, 0, 0, leftMargin));
     }
 
     @Override

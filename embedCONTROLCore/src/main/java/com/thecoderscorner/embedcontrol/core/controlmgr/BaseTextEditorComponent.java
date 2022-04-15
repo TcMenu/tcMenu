@@ -5,6 +5,11 @@ import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
+/**
+ * Provide the base capabilities that are needed for text editing, regardless of the UI technology used.
+ * @param <T> the type of the underlying data
+ * @param <W> the UI Node type.
+ */
 public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<W> {
     public T currentVal;
 

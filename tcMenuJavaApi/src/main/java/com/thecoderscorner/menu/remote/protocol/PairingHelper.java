@@ -19,6 +19,10 @@ import java.util.function.Consumer;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * This class provides a helper method to pair with a device. It is used by the connection builder classes to provide
+ * the pairing support. Not normally used directly by application code.
+ */
 public class PairingHelper {
     private final System.Logger logger = System.getLogger("Pairing");
     private final RemoteConnector connector;

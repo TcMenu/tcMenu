@@ -1,14 +1,11 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
-import com.thecoderscorner.menu.mgr.*;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
+import com.thecoderscorner.menuexample.tcmenu.plugins.JfxLocalAutoUI;
+import javafx.application.Application;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import com.thecoderscorner.menuexample.tcmenu.plugins.*;
-import javafx.application.Application;
-import com.thecoderscorner.menu.remote.protocol.*;
-import com.thecoderscorner.menu.remote.mgrclient.*;
-import java.util.concurrent.*;
-import java.time.*;
 
 /**
  * This class is the application class and should not be edited, it will be recreated on each code generation
