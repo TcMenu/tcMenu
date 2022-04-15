@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * and row number are provided. It is then your responsibility to provide the value at that location.
  *
  * <pre>
- *      &at;ScrollChoice(id=3)
+ *      &#064;ScrollChoiceValueRetriever(id=3)
  *      public String myScrollChoiceNeedsValue(ScrollChoiceMenuItem item, CurrentScrollPosition position) {
  *          return "position" + position.getPosition();
  *      }
