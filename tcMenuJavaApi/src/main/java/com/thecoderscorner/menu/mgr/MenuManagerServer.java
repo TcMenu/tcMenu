@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
@@ -44,6 +45,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final String serverName;
     private final UUID serverUuid;
     private final MenuAuthenticator authenticator;
+    private AtomicReference<DialogManager> dialogManager = new AtomicReference<>(new EmptyDialogManager());
     private final Clock clock;
     private final AtomicBoolean alreadyStarted = new AtomicBoolean(false);
     private final  List<MenuManagerListener> eventListeners = new CopyOnWriteArrayList<>();
@@ -60,6 +62,22 @@ public class MenuManagerServer implements NewServerConnectionListener {
         this.serverUuid = uuid;
         this.authenticator = authenticator;
         this.clock = clock;
+    }
+
+    /**
+     * replace the dialog manager with another implementation. By default this class starts with an empty dialog manager
+     * that can be replaced with a more suitable implementation
+     * @param manager the replacement dialog manager
+     */
+    public void setDialogManager(DialogManager manager) {
+        dialogManager.set(manager);
+    }
+
+    /**
+     * @return the dialog manager for this menu
+     */
+    public DialogManager getDialogManager() {
+        return dialogManager.get();
     }
 
     /**

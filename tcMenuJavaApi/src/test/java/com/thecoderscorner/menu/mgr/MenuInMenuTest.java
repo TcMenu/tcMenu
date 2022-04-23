@@ -35,7 +35,6 @@ class MenuInMenuTest {
     private MenuTreeStructureChangeListener structureListener;
     private boolean didChange;
     private MenuButtonType regularButtonPress = MenuButtonType.NONE;
-    private MenuInMenuTestDlgManager dlgManager;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +50,7 @@ class MenuInMenuTest {
                 UUID.randomUUID(), new PreDefinedAuthenticator(true), Clock.systemUTC());
         managerServer.addTreeStructureChangeListener(structureListener);
         otherRemote = new UnitTestRemoteConnector();
-        dlgManager = new MenuInMenuTestDlgManager();
+        managerServer.setDialogManager(new MenuInMenuTestDlgManager());
     }
 
     @AfterEach
@@ -61,7 +60,7 @@ class MenuInMenuTest {
 
     @Test
     void testMenuInMenuInFullReplicateMode() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_ADD_STATUS_ITEM,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_ADD_STATUS_ITEM,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -101,7 +100,7 @@ class MenuInMenuTest {
 
     @Test
     void testMenuInMenuInDontReplicateMode() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_SILENTLY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_SILENTLY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -114,7 +113,7 @@ class MenuInMenuTest {
 
     @Test
     void testDialogInDialog() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -123,13 +122,14 @@ class MenuInMenuTest {
 
         otherRemote.simulateSendCommand(new MenuDialogCommand(DialogMode.SHOW, "hello", "world", MenuButtonType.OK, MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
 
-        assertTrue(dlgManager.isDialogVisible());
-        assertEquals("hello", dlgManager.getTitle());
-        assertEquals("world", dlgManager.getMessage());
-        assertEquals(MenuButtonType.OK, dlgManager.getButtonType(1));
-        assertEquals(MenuButtonType.CLOSE, dlgManager.getButtonType(2));
+        assertTrue(managerServer.getDialogManager().isDialogVisible());
+        MenuInMenuTestDlgManager testDlgManager = (MenuInMenuTestDlgManager) managerServer.getDialogManager();
+        assertEquals("hello", testDlgManager.getTitle());
+        assertEquals("world", testDlgManager.getMessage());
+        assertEquals(MenuButtonType.OK, testDlgManager.getButtonType(1));
+        assertEquals(MenuButtonType.CLOSE, testDlgManager.getButtonType(2));
 
-        dlgManager.buttonWasPressed(MenuButtonType.OK);
+        managerServer.getDialogManager().buttonWasPressed(MenuButtonType.OK);
 
         assertFalse(otherRemote.commandsSent.isEmpty());
         var dlgCmd = (MenuDialogCommand) otherRemote.commandsSent.get(otherRemote.commandsSent.size()-1);
@@ -141,7 +141,7 @@ class MenuInMenuTest {
 
     @Test
     void testMenuInMenuInNotifyOnlyMode() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -154,7 +154,7 @@ class MenuInMenuTest {
 
     @Test
     void testAddingAnItemAfterBootstrap() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();
@@ -173,7 +173,7 @@ class MenuInMenuTest {
     
     @Test
     void testLocalUpdateIsSentRemotely() {
-        otherMenu = new MenuInMenu(otherRemote, managerServer, dlgManager, subRoot, ReplicationMode.REPLICATE_NOTIFY,
+        otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
                 10000, 150000);
         otherMenu.start();
         managerServer.start();

@@ -8,7 +8,7 @@
     <Description>EXPERIMENTAL developer testing - Provides a webserver that can serve up the browser version of embedCONTROL. This works by serving up the react.JS version of embedCONTROL from an onboard webserver, and then this connects to a WebSocket on the device to receive updates and control items.</Description>
     <Documentation link=""/>
     <RequiredLibraries/>
-    <ImageFile>esp8266.jpg</ImageFile>
+    <ImageFile>embedCONTROLJS.png</ImageFile>
 
     <Properties>
         <Property id="ASWEB_USE_PREPACKAGED" name="Use the prepackaged app (strongly recommended)" initial="true" type="boolean"

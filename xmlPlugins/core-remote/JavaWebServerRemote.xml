@@ -4,10 +4,10 @@
     <SupportedPlatforms>
         <Platform>RASPBERRY_PIJ</Platform>
     </SupportedPlatforms>
-    <Description>Control your embedded device remotely using embedCONTROL JS served up using a lightweight webserver.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/embedded_java_raspberru_pi/"/>
+    <Description>Control your embedded device remotely using embedCONTROL JS served up using a Jetty webserver. A lightweight React.JS app is served that needs no installation.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/embedcontroljs-webserver-plugin/"/>
     <RequiredLibraries/>
-    <ImageFile>embedCONTROL.png</ImageFile>
+    <ImageFile>embedCONTROLJS.png</ImageFile>
 
     <Properties>
         <Property id="EJ_WEB_SERVER_PORT" name="HTTP port to listen on" initial="8080" type="int"

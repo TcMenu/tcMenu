@@ -24,10 +24,13 @@ public class MenuItemValidationRules extends ChoicesPropertyValidationRules {
         var selectedItems = allItems.stream()
                 .filter(filter).collect(Collectors.toList());
         enumValues.clear();
+        enumNaturalOrder.clear();
+        enumNaturalOrder.add(new ChoiceDescription("-1", "None"));
         enumValues.put("-1", new ChoiceDescription("-1", "None"));
         for(var item : selectedItems) {
             var idStr = Integer.toString(item.getId());
             enumValues.put(idStr, new ChoiceDescription(idStr, item.getName()));
+            enumNaturalOrder.add(new ChoiceDescription(idStr, item.getName()));
         }
     }
 

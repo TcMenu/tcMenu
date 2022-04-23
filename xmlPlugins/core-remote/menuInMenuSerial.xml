@@ -1,18 +1,13 @@
-<TcMenuPlugin name="Ethernet control of your menu using popular libraries" id="9BF2314D-ADCD-43D8-81A6-111F8C3AC5B8" subsystem="REMOTE"
+<TcMenuPlugin name="Menu In Menu connection over Serial Connection" id="9BF2314D-ADCD-43D8-81A6-111F8C3AC5B8" subsystem="REMOTE"
               requiresDesigner="2.2.0" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
-        <Platform>ARDUINO_UNO</Platform>
-        <Platform>ARDUINO_AVR</Platform>
-        <Platform>ARDUINO_32</Platform>
-        <Platform>ARDUINO_ESP8266</Platform>
-        <Platform>ARDUINO_ESP32</Platform>
-        <Platform>STM32DUINO</Platform>
+        <Platform>RASPBERRY_PIJ</Platform>
     </SupportedPlatforms>
-    <Description>Use this option to be able to control the menu over many kinds of ethernet shields and devices. The full menu structure will be available to the remote using either the protocol or the API.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
+    <Description>Use this option to create a serial connection from another device to your embedded Java application on Raspberry PI/embedded Linux. The menu is nested under an existing submenu.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/"/>
     <RequiredLibraries/>
-    <ImageFile>ethernet-shield.jpg</ImageFile>
+    <ImageFile>menu-in-menu.png</ImageFile>
 
     <Properties>
         <Property id="ETH_CONCURRENT_CONNECTIONS" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">

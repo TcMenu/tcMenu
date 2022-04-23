@@ -32,7 +32,6 @@ public class MenuInMenu {
 
     public enum ReplicationMode {REPLICATE_SILENTLY, REPLICATE_NOTIFY, REPLICATE_ADD_STATUS_ITEM }
     private final ReplicationMode replicationMode;
-    private final DialogManager dialogManager;
     private final int offsetRange;
     private final int maxRange;
     private final RemoteConnector remoteConnector;
@@ -46,15 +45,13 @@ public class MenuInMenu {
      * Creates a MenuInMenu instance that tracks changes in a remote menu and replicates it locally in real time.
      * @param remoteConnector the connection to the remote device.
      * @param manager the manager object that will store the menu structures
-     * @param dialogManager the dialog manager this will handle dialog requests
      * @param root the "root" submenu for the remote items
      * @param mode how the items should be integrated into the tree
      * @param offsetRange the starting ID for these items
      * @param maxRange the maximum ID for these items (status menu item will use the last possible value)
      */
-    public MenuInMenu(RemoteConnector remoteConnector, MenuManagerServer manager, DialogManager dialogManager,
+    public MenuInMenu(RemoteConnector remoteConnector, MenuManagerServer manager,
                       SubMenuItem root, ReplicationMode mode, int offsetRange, int maxRange) {
-        this.dialogManager = dialogManager;
         this.offsetRange = offsetRange;
         this.maxRange = maxRange;
         this.remoteConnector = remoteConnector;
@@ -119,9 +116,9 @@ public class MenuInMenu {
         }
         else if(menuCommand instanceof MenuDialogCommand) {
             var dlg = (MenuDialogCommand)menuCommand;
-            dialogManager.updateStateFromCommand(menuCommand);
+            manager.getDialogManager().updateStateFromCommand(menuCommand);
             if(dlg.getDialogMode() == DialogMode.SHOW){
-                dialogManager.withDelegate(DialogShowMode.LOCAL_TO_DELEGATE, (btn) -> {
+                manager.getDialogManager().withDelegate(DialogShowMode.LOCAL_TO_DELEGATE, (btn) -> {
                     try {
                         remoteConnector.sendMenuCommand(new MenuDialogCommand(DialogMode.ACTION, "", "", btn,
                                 MenuButtonType.NONE, CorrelationId.EMPTY_CORRELATION));

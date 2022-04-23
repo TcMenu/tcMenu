@@ -7,98 +7,68 @@
     <Description>Use this option to create a network socket connection from another device to your embedded Java application on Raspberry PI/embedded Linux. The menu is nested under an existing submenu.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/"/>
     <RequiredLibraries/>
-    <ImageFile>ethernet-shield.jpg</ImageFile>
+    <ImageFile>menu-in-menu.png</ImageFile>
 
     <Properties>
-        <Property id="ETH_CONCURRENT_CONNECTIONS" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+        <Property id="MIM_REPLICATION_MODE" name="Structural and connectivity changes" desc="How structural and connectivity changes are shown" initial="REPLICATE_ADD_STATUS_ITEM" type="choice">
             <Choices>
-                <Choice desc="One remote at a time">1</Choice>
-                <Choice desc="Up to two remotes at once">2</Choice>
-                <Choice desc="Up to three remotes at once">3</Choice>
+                <Choice desc="Notify changes and add a status item">REPLICATE_ADD_STATUS_ITEM</Choice>
+                <Choice desc="Notify changes">REPLICATE_NOTIFY</Choice>
+                <Choice desc="Do not notify at all">REPLICATE_SILENTLY</Choice>
             </Choices>
         </Property>
-        <Property id="ETH_LIBRARY_TYPE" name="Ethernet library type" desc="Choose the library that supports your hardware" initial="ETHERNET_2" type="choice">
-            <Choices>
-                <Choice desc="Ethernet 2">ETHERNET_2</Choice>
-                <Choice desc="UIP Ethernet">UIP_ENC28J60</Choice>
-                <Choice desc="STM32Ethernet">STM32ETHERNET</Choice>
-            </Choices>
-        </Property>
-        <Property id="ETH_LISTEN_PORT1" name="First port on which to listen " initial="3333" desc="The first port on which to listen for connections"
-                  type="int" min="0" max="65535"/>
-        <Property id="ETH_LISTEN_PORT2" name="Second port on which to listen" initial="3334" desc="The second port on which to listen for connections"
-                  type="int" min="0" max="65535" whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]"/>
-        <Property id="ETH_LISTEN_PORT3" name="Third port on which to listen" initial="3335" desc="The third port on which to listen for connections"
-                  type="int" min="0" max="65535"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3"/>
+        <Property id="MIM_SUB_ROOT" name="Submenu where these items appear" initial="-1" desc="Choose a submenu for items to be stored underneath" type="SubMenuItem"  />
+        <Property id="MIM_VARIABLE_NAME" name="The name of the variable" initial="menuInMenu" desc="The name of the variable to create for this menu" type="variable" />
+        <Property id="MIM_HOSTNAME" name="The host/IP of the device" initial="127.0.0.1" desc="The host or IP address of the device" type="text"/>
+        <Property id="MIM_PORTNUM" name="Port number the device listens on" initial="3333" desc="Port on which device listens for connections"
+                  type="int" min="0" max="65535"  />
+        <Property id="MIM_START_OFFSET" name="ID offset start" initial="100000" desc="The offset is applied to all IDs from the remote menu"
+                  type="int" min="100000" max="10000000"  />
+        <Property id="MIM_MAX_RANGE" name="The maximum range of IDs in this menu" initial="70000" desc="The maximum range of IDs in the remote menu"
+                  type="int" min="32000" max="99000"  />
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="Ethernet.h" replace="STM32Ethernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="STM32ETHERNET"/>
-        <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="EthernetClient" replace="UIPClient" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="EthernetServer" replace="UIPServer" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 64" whenProperty="ETH_LIBRARY_TYPE" isValue="ETHERNET_2"/>
-
-        <SourceFile name="ethernetSrc/EthernetTransport.cpp"/>
-        <SourceFile name="ethernetSrc/EthernetTransport.h"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="EthernetTransport.h" inSource="true"/>
-        <Header name="RemoteConnector.h" inSource="false"/>
+        <Header name="java.time.Clock" inSource="true"/>
+        <Header name="java.util.UUID" inSource="true"/>
+        <Header name="java.util.concurrent.ScheduledExecutorService" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.auth.MenuAuthenticator" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.domain.state.MenuTree" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.mgr.*" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.remote.*" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.remote.socket.SocketBasedConnector" inSource="true"/>
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="server" type="EthernetServer" export="true">
-            <Param value="${ETH_LISTEN_PORT1}" default="3333" />
-        </Variable>
-        <Variable name="ethernetInitialisation" type="EthernetInitialisation" export="true">
-            <Param ref="server"/>
-        </Variable>
-        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
-        <Variable name="ethernetConnection" type="TagValueRemoteServerConnection" export="false">
-            <Param value="ethernetTransport"/>
-            <Param value="ethernetInitialisation"/>
+        <Variable export="true" inContext="true" name="tagVal" type="TagValMenuCommandProtocol" />
+
+        <Variable export="true" inContext="true" name="${MIM_VARIABLE_NAME}Connector" type="SocketBasedConnector">
+            <Param value="new LocalIdentifier(UUID.fromString(&quot;${APP_UUID}&quot;), &quot;${APP_NAME}&quot;)" />
+            <Param ref="ScheduledExecutorService" name="executor" />
+            <Param value="Clock.systemUTC()" />
+            <Param ref="MenuCommandProtocol" name="tagVal" />
+            <Param value="&quot;${MIM_HOSTNAME}&quot;"/>
+            <Param value="${MIM_PORTNUM}"/>
+            <Param value="ConnectMode.FULLY_AUTHENTICATED"/>
         </Variable>
 
-        <Variable name="server2" type="EthernetServer" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
-            <Param value="${ETH_LISTEN_PORT2}" default="3334" />
-        </Variable>
-        <Variable name="ethernetInitialisation2" type="EthernetInitialisation" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
-            <Param ref="server2"/>
-        </Variable>
-        <Variable name="ethernetTransport2" type="EthernetTagValTransport" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]"/>
-        <Variable name="ethernetConnection2" type="TagValueRemoteServerConnection" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
-            <Param value="ethernetTransport2"/>
-            <Param value="ethernetInitialisation2"/>
-        </Variable>
-
-        <Variable name="server3" type="EthernetServer" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
-            <Param value="${ETH_LISTEN_PORT3}" default="3335" />
-        </Variable>
-        <Variable name="ethernetInitialisation3" type="EthernetInitialisation" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
-            <Param ref="server3"/>
-        </Variable>
-        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3"/>
-        <Variable name="ethernetConnection3" type="TagValueRemoteServerConnection" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
-            <Param value="ethernetTransport3"/>
-            <Param value="ethernetInitialisation3"/>
+        <Variable export="true" inContext="true" name="${MIM_VARIABLE_NAME}" type="MenuInMenu">
+            <Param value="${MIM_VARIABLE_NAME}Connector" />
+            <Param ref="MenuManagerServer" name="managerServer" />
+            <Param value="${MIM_SUB_ROOT}" />
+            <Param value="MenuInMenu.ReplicationMode.${MIM_REPLICATION_MODE}"/>
+            <Param value="${MIM_START_OFFSET}"/>
+            <Param value="${MIM_MAX_RANGE}"/>
         </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="addConnection" object="remoteServer">
-            <Param ref="ethernetConnection"/>
-        </Function>
-
-        <Function name="addConnection" object="remoteServer" whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
-            <Param ref="ethernetConnection2"/>
-        </Function>
-
-        <Function name="addConnection" object="remoteServer" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
-            <Param ref="ethernetConnection3"/>
-        </Function>
+        <Function name="start" object="&quot;${MIM_VARIABLE_NAME}&quot;" pointer="true" />
     </SetupFunctions>
 </TcMenuPlugin>
