@@ -1,19 +1,12 @@
 package com.thecoderscorner.menu.persist;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.print.Doc;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class XMLDOMHelperTest {
     private final String xmlToLoad = "<Animals><IntEle>4</IntEle><Dogs><Dog type=\"Beagle\"/><Dog type=\"Poodle\"/></Dogs><Elephant>Huge animal</Elephant></Animals>";

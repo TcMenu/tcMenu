@@ -4,6 +4,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.mgr.DialogManager;
@@ -29,6 +30,8 @@ import java.util.function.BiConsumer;
 import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
+    private final Map<MenuItem, PanelPresentable<Node>> customPanelsByMenu = new HashMap<>();
+
     public enum StandardLedWidgetStates { RED, ORANGE, GREEN }
     public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL }
 
@@ -144,13 +147,19 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     @Override
     public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation) {
         Platform.runLater(() -> {
-            var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, dialogManager, layoutPersistence, subMenuItem);
-            if(itemEditorPresenter != null)  controlGrid.setLayoutEditor(itemEditorPresenter);
-            if(resetNavigation) {
-                navigationStack.clear();
+            PanelPresentable<Node> presentable;
+            if(customPanelsByMenu.containsKey(subMenuItem)) {
+                presentable = customPanelsByMenu.get(subMenuItem);
+            } else {
+                var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, dialogManager, layoutPersistence, subMenuItem);
+                if (itemEditorPresenter != null) controlGrid.setLayoutEditor(itemEditorPresenter);
+                if (resetNavigation) {
+                    navigationStack.clear();
+                }
+                presentable = controlGrid;
             }
-            runNavigation(controlGrid);
-            navigationStack.push(controlGrid);
+            runNavigation(presentable);
+            navigationStack.push(presentable);
         });
     }
 
@@ -209,6 +218,11 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
             navigationStack.clear();
             pushMenuNavigation(MenuTree.ROOT);
         }
+    }
+
+    @Override
+    public void addCustomMenuPanel(MenuItem theItem, PanelPresentable<Node> toPresent) {
+        customPanelsByMenu.put(theItem, toPresent);
     }
 
     public void destroy() {

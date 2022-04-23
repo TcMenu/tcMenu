@@ -1,0 +1,104 @@
+<TcMenuPlugin name="Menu In Menu connection over Ethernet/WiFi" id="5DA97BEA-2CA5-44EE-96C2-28E652A18D3A" subsystem="REMOTE"
+              requiresDesigner="2.2.0" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>RASPBERRY_PIJ</Platform>
+    </SupportedPlatforms>
+    <Description>Use this option to create a network socket connection from another device to your embedded Java application on Raspberry PI/embedded Linux. The menu is nested under an existing submenu.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/"/>
+    <RequiredLibraries/>
+    <ImageFile>ethernet-shield.jpg</ImageFile>
+
+    <Properties>
+        <Property id="ETH_CONCURRENT_CONNECTIONS" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+            <Choices>
+                <Choice desc="One remote at a time">1</Choice>
+                <Choice desc="Up to two remotes at once">2</Choice>
+                <Choice desc="Up to three remotes at once">3</Choice>
+            </Choices>
+        </Property>
+        <Property id="ETH_LIBRARY_TYPE" name="Ethernet library type" desc="Choose the library that supports your hardware" initial="ETHERNET_2" type="choice">
+            <Choices>
+                <Choice desc="Ethernet 2">ETHERNET_2</Choice>
+                <Choice desc="UIP Ethernet">UIP_ENC28J60</Choice>
+                <Choice desc="STM32Ethernet">STM32ETHERNET</Choice>
+            </Choices>
+        </Property>
+        <Property id="ETH_LISTEN_PORT1" name="First port on which to listen " initial="3333" desc="The first port on which to listen for connections"
+                  type="int" min="0" max="65535"/>
+        <Property id="ETH_LISTEN_PORT2" name="Second port on which to listen" initial="3334" desc="The second port on which to listen for connections"
+                  type="int" min="0" max="65535" whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]"/>
+        <Property id="ETH_LISTEN_PORT3" name="Third port on which to listen" initial="3335" desc="The third port on which to listen for connections"
+                  type="int" min="0" max="65535"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="Ethernet.h" replace="STM32Ethernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="STM32ETHERNET"/>
+        <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="EthernetClient" replace="UIPClient" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="EthernetServer" replace="UIPServer" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 64" whenProperty="ETH_LIBRARY_TYPE" isValue="ETHERNET_2"/>
+
+        <SourceFile name="ethernetSrc/EthernetTransport.cpp"/>
+        <SourceFile name="ethernetSrc/EthernetTransport.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="EthernetTransport.h" inSource="true"/>
+        <Header name="RemoteConnector.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="server" type="EthernetServer" export="true">
+            <Param value="${ETH_LISTEN_PORT1}" default="3333" />
+        </Variable>
+        <Variable name="ethernetInitialisation" type="EthernetInitialisation" export="true">
+            <Param ref="server"/>
+        </Variable>
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
+        <Variable name="ethernetConnection" type="TagValueRemoteServerConnection" export="false">
+            <Param value="ethernetTransport"/>
+            <Param value="ethernetInitialisation"/>
+        </Variable>
+
+        <Variable name="server2" type="EthernetServer" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param value="${ETH_LISTEN_PORT2}" default="3334" />
+        </Variable>
+        <Variable name="ethernetInitialisation2" type="EthernetInitialisation" export="true"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param ref="server2"/>
+        </Variable>
+        <Variable name="ethernetTransport2" type="EthernetTagValTransport" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]"/>
+        <Variable name="ethernetConnection2" type="TagValueRemoteServerConnection" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param value="ethernetTransport2"/>
+            <Param value="ethernetInitialisation2"/>
+        </Variable>
+
+        <Variable name="server3" type="EthernetServer" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param value="${ETH_LISTEN_PORT3}" default="3335" />
+        </Variable>
+        <Variable name="ethernetInitialisation3" type="EthernetInitialisation" export="true" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param ref="server3"/>
+        </Variable>
+        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3"/>
+        <Variable name="ethernetConnection3" type="TagValueRemoteServerConnection" export="false"  whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param value="ethernetTransport3"/>
+            <Param value="ethernetInitialisation3"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="ethernetConnection"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="ETH_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param ref="ethernetConnection2"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="ETH_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param ref="ethernetConnection3"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

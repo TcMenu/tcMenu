@@ -342,7 +342,14 @@ public class GenerateCodeDialog {
     private void filterChoicesByPlatform(EmbeddedPlatform newVal) {
         boolean embeddedJava = newVal.equals(EmbeddedPlatform.RASPBERRY_PIJ);
         eepromTypeButton.setDisable(embeddedJava);
-        if(embeddedJava) eepromTypeLabel.setText("Embedded Java uses inbuilt storage instead of EEPROM");
+        if(!embeddedJava) {
+            namespaceField.setText("");
+            namespaceField.setDisable(true);
+        }
+        else {
+            eepromTypeLabel.setText("Embedded Java uses inbuilt storage instead of EEPROM");
+            namespaceField.setDisable(false);
+        }
         reloadAllPlugins(newVal);
         refreshPluginContents(newVal, currentDisplay, displaysSupported);
         refreshPluginContents(newVal, currentInput, inputsSupported);
@@ -447,6 +454,17 @@ public class GenerateCodeDialog {
             alert.showAndWait();
             return;
         }
+
+        if(platformCombo.getSelectionModel().getSelectedItem() == EmbeddedPlatform.RASPBERRY_PIJ && namespaceField.getText().isEmpty()) {
+            var alert = new Alert(Alert.AlertType.ERROR, "You must provide a package name", ButtonType.CLOSE);
+            alert.setTitle("Package name needed for Embedded Java");
+            alert.setHeaderText("Package name needed for Embedded Java creation");
+            alert.setContentText("Please enter a package name in the namespace field, usually in lower case and following " +
+                                "reverse domain format, for example: 'com.thecoderscorner.example'");
+            alert.showAndWait();
+            return;
+        }
+
         saveCodeGeneratorChanges();
         runner.startCodeGeneration(mainStage, platformCombo.getSelectionModel().getSelectedItem(),
                                    Paths.get(project.getFileName()).getParent().toString(),
