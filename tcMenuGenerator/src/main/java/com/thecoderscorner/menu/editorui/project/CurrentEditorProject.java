@@ -11,9 +11,6 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 
@@ -21,8 +18,6 @@ import java.io.IOException;
 import java.lang.System.Logger.Level;
 import java.nio.file.Paths;
 import java.util.*;
-
-import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller

@@ -98,6 +98,7 @@
               <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
               <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="Show ID &amp; ROM Layout" />
               <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="Show IO Expanders" />
+              <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu" text="Edit Menu In Menu" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

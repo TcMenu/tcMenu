@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <jdk.version>18</jdk.version>
+        <jdk.version>17</jdk.version>
         <jserialcomm.version>2.9.1</jserialcomm.version>
         <!--jfx.version>17.0.0.1</jfx.version-->
         <tcmenu.api.version>2.2.8-SNAPSHOT</tcmenu.api.version>

@@ -31,7 +31,5 @@
         <!-- embedded java connectors -->
         <Plugin>JavaNetworkRemote.xml</Plugin>
         <Plugin>JavaWebServerRemote.xml</Plugin>
-        <Plugin>menuInMenuSocket.xml</Plugin>
-        <Plugin>menuInMenuSerial.xml</Plugin>
     </Plugins>
 </TcMenuPluginDefinition>

@@ -8,10 +8,7 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 
@@ -34,6 +31,8 @@ public class CodeGeneratorOptions {
     private EepromDefinition eepromDefinition;
     private AuthenticatorDefinition authenticatorDefinition;
     private IoExpanderDefinitionCollection projectIoExpanders;
+
+    private MenuInMenuCollection menuInMenuCollection;
     private String packageNamespace;
 
     public CodeGeneratorOptions() {
@@ -127,5 +126,10 @@ public class CodeGeneratorOptions {
     public IoExpanderDefinitionCollection getExpanderDefinitions() {
         if(projectIoExpanders == null) return new IoExpanderDefinitionCollection();
         return projectIoExpanders;
+    }
+
+    public MenuInMenuCollection getMenuInMenuCollection() {
+        if(menuInMenuCollection == null)  menuInMenuCollection = new MenuInMenuCollection();
+        return menuInMenuCollection;
     }
 }

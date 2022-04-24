@@ -19,7 +19,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <!-- production deps -->
-        <jdk.version>18</jdk.version>
+        <jdk.version>17</jdk.version>
         <jfx.version>17.0.0.1</jfx.version>
         <jmetro.version>11.6.15</jmetro.version>
         <google.gson.version>2.9.0</google.gson.version>
@@ -52,28 +52,32 @@
             <version>${picocli.version}</version>
         </dependency>
 
-        <!-- javafx - only include the below when not using a JDK that already includes it - ie not using bellsoft or azul -->
+        <!-- javafx - when not using bellsoft or manually including JFX, remove the scope element -->
 
-        <!--dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
             <version>${jfx.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${jfx.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${jfx.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${jfx.version}</version>
-        </dependency-->
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jfxtras</groupId>

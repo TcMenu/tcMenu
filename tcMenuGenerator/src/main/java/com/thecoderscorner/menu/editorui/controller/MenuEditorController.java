@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
+import com.thecoderscorner.menu.editorui.dialog.EditMenuInMenuDialog;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -630,6 +631,13 @@ public class MenuEditorController {
         } catch (IOException e) {
             logger.log(ERROR, "Diagnostics failed to generate", e);
         }
+    }
+
+    public void onMenuInMenu(ActionEvent actionEvent) {
+        var menuInMenuDialog = new EditMenuInMenuDialog(getStage(),
+                editorProject.getGeneratorOptions().getMenuInMenuCollection(),
+                editorProject.getMenuTree()
+        );
     }
 
     private record RecentlyUsedItem(String name, String path) {
