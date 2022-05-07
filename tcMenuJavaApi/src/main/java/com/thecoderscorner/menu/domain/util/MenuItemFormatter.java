@@ -176,7 +176,7 @@ public class MenuItemFormatter {
         int divisor = an.getDivisor();
 
         if (divisor < 2) {
-            return Integer.toString(calcVal);
+            return Integer.toString(calcVal) + an.getUnitName();
         } else {
             int whole = calcVal / divisor;
             int fractMax = GetActualDecimalDivisor(an.getDivisor());

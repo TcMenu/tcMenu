@@ -5,22 +5,28 @@ import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.*;
+import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.remote.ConnectMode;
+import com.thecoderscorner.menu.remote.LocalIdentifier;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -61,7 +67,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             generateMenuDefinitionsClass(menuTree, options, javaProject);
 
             logLine(INFO, "Generating the application level class");
-            generateMenuApplicationClass(javaProject);
+            generateMenuApplicationClass(javaProject, options);
 
             logLine(INFO, "Generating the menu controller class");
             generateMenuControllerClass(javaProject, menuTree);
@@ -176,7 +182,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         builder.persistClassByPatching();
     }
 
-    private void generateMenuApplicationClass(EmbeddedJavaProject javaProject) throws IOException {
+    private void generateMenuApplicationClass(EmbeddedJavaProject javaProject, CodeGeneratorOptions options) throws IOException {
         logLine(INFO, "Building the menu application class based on the plugins and options");
         var builder = javaProject.classBuilder("App")
                 .setStatementBeforeClass("""
@@ -203,6 +209,15 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         builder.blankLine().addStatement(constructor);
         var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
                 .withStatement("manager.addMenuManagerListener(context.getBean(" + javaProject.getAppClassName("Controller") + ".class));");
+        boolean hasMenuInMenuDefinitions = !options.getMenuInMenuCollection().getAllDefinitions().isEmpty();
+        if(hasMenuInMenuDefinitions) {
+            startMethod.withStatement("buildMenuInMenuComponents();");
+            builder.addPackageImport("com.thecoderscorner.menu.remote.*");
+            builder.addPackageImport("com.thecoderscorner.menu.remote.socket.*");
+            if(options.getMenuInMenuCollection().getAllDefinitions().stream().anyMatch(def -> def.getConnectionType() == ConnectionType.SERIAL)) {
+                builder.addPackageImport("com.thecoderscorner.embedcontrol.core.rs232");
+            }
+        }
         pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod, List.of());
 
         builder.addStatement(startMethod);
@@ -211,6 +226,30 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addAppMethods(cap, builder);
+        }
+
+        if(hasMenuInMenuDefinitions) {
+            var method = new GeneratedJavaMethod(METHOD_REPLACE, "void", "buildMenuInMenuComponents")
+                    .withStatement("MenuManagerServer menuManager = context.getBean(MenuManagerServer.class);")
+                    .withStatement("MenuCommandProtocol protocol = context.getBean(MenuCommandProtocol.class);")
+                    .withStatement("ScheduledExecutorService executor = context.getBean(ScheduledExecutorService.class);")
+                    .withStatement("LocalIdentifier localId = new LocalIdentifier(menuManager.getServerUuid(), menuManager.getServerName());");
+            for(var definition : options.getMenuInMenuCollection().getAllDefinitions().stream()
+                    .sorted(Comparator.comparingInt(MenuInMenuDefinition::getIdOffset)).toList()) {
+                var variableName = "remMenu"  + StringHelper.capitaliseWords(definition.getVariableName()).replaceAll("\\s", "");
+                switch (definition.getConnectionType()) {
+                    case SOCKET -> method.withStatement(String.format("var %sConnector = new SocketBasedConnector(localId, executor, Clock.systemUTC(), protocol, \"%s\", %d, ConnectMode.FULLY_AUTHENTICATED);",
+                            variableName, definition.getPortOrIpAddress(), definition.getPortOrBaud()));
+                    case SERIAL -> method.withStatement(String.format("var %sConnector = new Rs232RemoteConnector(localId, %s, %d, protocol, executor, Clock.systemUTC(), ConnectMode.FULLY_AUTHENTICATED);",
+                            variableName, definition.getPortOrIpAddress(), definition.getPortOrBaud()));
+                }
+                method.withStatement(String.format("var %s = new MenuInMenu(%s, menuManager, menuManager.getManagedMenu().getMenuById(%d).orElseThrow(), MenuInMenu.ReplicationMode.%s, %d, %d);",
+                        variableName, variableName + "Connector",  definition.getSubMenuId(),
+                        definition.getReplicationMode(), definition.getIdOffset(), definition.getMaximumRange()
+                ));
+                method.withStatement(variableName + ".start();");
+            }
+            builder.addStatement(method);
         }
 
         builder.persistClass();

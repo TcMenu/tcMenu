@@ -10,8 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="689.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EditMenuInMenuController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="756.0" styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EditMenuInMenuController">
    <top>
       <Label text="Edit Menu In Menu" BorderPane.alignment="CENTER">
          <font>
@@ -31,19 +30,19 @@
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <center>
-      <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="menuInMenuTable">
+      <TableView fx:id="menuInMenuTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
           <TableColumn fx:id="nameCol" prefWidth="116.0" text="Name" />
-          <TableColumn fx:id="typeCol" prefWidth="84.0" text="Type" />
-          <TableColumn fx:id="submenuCol" prefWidth="110.0" text="Submenu" />
-          <TableColumn fx:id="connectionCol" minWidth="3.0" prefWidth="246.0" text="Connection" />
+          <TableColumn fx:id="typeCol" prefWidth="115.0" text="Type" />
+          <TableColumn fx:id="submenuCol" prefWidth="145.0" text="Submenu" />
+          <TableColumn fx:id="connectionCol" minWidth="3.0" prefWidth="255.0" text="Details" />
         </columns>
       </TableView>
    </center>
    <right>
       <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#addWasPressed" prefHeight="25.0" prefWidth="100.0" text="Add" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#addWasPressed" prefHeight="25.0" prefWidth="100.0" text="Add" />
             <Button fx:id="removeButton" mnemonicParsing="false" onAction="#removeWasPressed" prefHeight="25.0" prefWidth="105.0" text="Remove" />
             <Button fx:id="editButton" mnemonicParsing="false" onAction="#editWasPressed" prefHeight="25.0" prefWidth="98.0" text="Edit" />
          </children>

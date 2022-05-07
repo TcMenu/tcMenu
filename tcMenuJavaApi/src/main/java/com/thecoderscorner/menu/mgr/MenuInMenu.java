@@ -51,13 +51,13 @@ public class MenuInMenu {
      * @param maxRange the maximum ID for these items (status menu item will use the last possible value)
      */
     public MenuInMenu(RemoteConnector remoteConnector, MenuManagerServer manager,
-                      SubMenuItem root, ReplicationMode mode, int offsetRange, int maxRange) {
+                      MenuItem root, ReplicationMode mode, int offsetRange, int maxRange) {
         this.offsetRange = offsetRange;
         this.maxRange = maxRange;
         this.remoteConnector = remoteConnector;
         this.manager = manager;
         this.replicationMode = mode;
-        this.root = root;
+        this.root = (root instanceof SubMenuItem) ? (SubMenuItem)root : MenuTree.ROOT;
     }
 
     /**

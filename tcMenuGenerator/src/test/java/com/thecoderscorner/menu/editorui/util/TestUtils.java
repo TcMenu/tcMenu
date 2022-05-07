@@ -21,6 +21,8 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.text.Text;
 import org.testfx.api.FxRobot;
 import org.testfx.matcher.base.NodeMatchers;
+import org.testfx.matcher.control.TableViewMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,17 +120,24 @@ public class TestUtils {
     }
 
     public static <T> boolean selectItemInTable(FxRobot robot, String query, Predicate<T> matcher) throws InterruptedException {
-        AtomicBoolean found = new AtomicBoolean(false);
-        runOnFxThreadAndWait(()-> {
-            TableView<T> table = robot.lookup(query).queryTableView();
-            for(var item : table.getItems()) {
-                if(matcher.test(item)) {
-                    table.getSelectionModel().select(item);
-                    found.set(true);
+        for(int i=0; i<5; i++) {
+            AtomicBoolean found = new AtomicBoolean(false);
+            WaitForAsyncUtils.waitForFxEvents();
+            runOnFxThreadAndWait(() -> {
+                TableView<T> table = robot.lookup(query).queryTableView();
+                int idx = 0;
+                for (var item : table.getItems()) {
+                    if (matcher.test(item)) {
+                        table.getSelectionModel().select(idx);
+                        found.set(table.getSelectionModel().getSelectedItem().equals(item));
+                    }
+                    idx++;
                 }
-            }
-        });
-        return found.get();
+            });
+            WaitForAsyncUtils.waitForFxEvents();
+            if(found.get()) return true;
+        }
+        return false;
     }
 
     public static void verifyAlertWithText(FxRobot robot, String message, String btnText) {

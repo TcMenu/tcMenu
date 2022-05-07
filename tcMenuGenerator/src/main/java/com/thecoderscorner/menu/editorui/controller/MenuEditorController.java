@@ -634,10 +634,7 @@ public class MenuEditorController {
     }
 
     public void onMenuInMenu(ActionEvent actionEvent) {
-        var menuInMenuDialog = new EditMenuInMenuDialog(getStage(),
-                editorProject.getGeneratorOptions().getMenuInMenuCollection(),
-                editorProject.getMenuTree()
-        );
+        var menuInMenuDialog = new EditMenuInMenuDialog(getStage(), editorProject.getGeneratorOptions(), editorProject.getMenuTree(), true);
     }
 
     private record RecentlyUsedItem(String name, String path) {

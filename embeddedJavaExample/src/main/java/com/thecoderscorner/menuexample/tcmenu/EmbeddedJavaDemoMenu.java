@@ -168,6 +168,7 @@ tcMenuCopy:[
       "variableName": "StatusMyListItem",
       "id": 15,
       "eepromAddress": -1,
+      "functionName": "",
       "readOnly": false,
       "localOnly": false,
       "visible": true
@@ -213,6 +214,20 @@ tcMenuCopy:[
       "variableName": "SettingsLargeNum",
       "id": 14,
       "eepromAddress": 13,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "subMenu",
+    "item": {
+      "secured": false,
+      "name": "AVR Board",
+      "variableName": "AVRBoard",
+      "id": 16,
+      "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
       "visible": true
@@ -292,6 +307,10 @@ tcMenuCopy:[
 
     public RuntimeListMenuItem getStatusMyListItem() {
         return (RuntimeListMenuItem) menuTree.getMenuById(15).orElseThrow();
+    }
+
+    public SubMenuItem getAVRBoard() {
+        return (SubMenuItem) menuTree.getMenuById(16).orElseThrow();
     }
 
 }

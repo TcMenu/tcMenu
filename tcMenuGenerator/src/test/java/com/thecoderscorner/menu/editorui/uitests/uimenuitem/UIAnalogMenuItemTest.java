@@ -9,6 +9,8 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.uimodel.UIAnalogMenuItem;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -18,11 +20,14 @@ import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.LabeledMatchers;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
+import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
@@ -69,6 +74,21 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     }
 
     @Test
+    void testSelectingPreMadeValue(FxRobot robot) throws InterruptedException {
+        MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
+        createMainPanel(uiSubItem);
+
+        TestUtils.selectItemInCombo(robot, "#cannedChoicesCombo", (UIAnalogMenuItem.AnalogCannedChoice ch) -> ch.unit().equals("dB"));
+        verifyThat("#offsetField", TextInputControlMatchers.hasText("-180"));
+        verifyThat("#maxValueField", TextInputControlMatchers.hasText("255"));
+        verifyThat("#unitNameField", TextInputControlMatchers.hasText("dB"));
+        verifyThat("#divisorField", TextInputControlMatchers.hasText("2"));
+        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value 37.5dB."));
+    }
+
+    @Test
     void testEnteringValidValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
@@ -92,9 +112,13 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         robot.eraseText(5);
         robot.write("2");
 
+        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value -40.0dB."));
+
         robot.clickOn("#maxValueField");
         robot.eraseText(5);
         robot.write("255");
+
+        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value 37.5dB."));
 
         verifyThatThereAreNoErrorsReported();
 

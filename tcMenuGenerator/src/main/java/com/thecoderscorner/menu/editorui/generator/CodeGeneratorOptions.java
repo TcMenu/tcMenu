@@ -44,6 +44,7 @@ public class CodeGeneratorOptions {
                                 UUID applicationUUID, String applicationName, String packageNamespace,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
+                                MenuInMenuCollection menuInMenuCollection,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
@@ -64,6 +65,7 @@ public class CodeGeneratorOptions {
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
         this.eepromDefinition = eepromDef;
         this.authenticatorDefinition = authDef;
+        this.menuInMenuCollection = menuInMenuCollection;
     }
 
     public EepromDefinition getEepromDefinition() {

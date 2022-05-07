@@ -52,7 +52,7 @@
             <version>${picocli.version}</version>
         </dependency>
 
-        <!-- javafx - when not using bellsoft or manually including JFX, remove the scope element -->
+        <!-- javafx - when not using bellsoft or manually including Open JFX include the below -->
 
         <dependency>
             <groupId>org.openjfx</groupId>

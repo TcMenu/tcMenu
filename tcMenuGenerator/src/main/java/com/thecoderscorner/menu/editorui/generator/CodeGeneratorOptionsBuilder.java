@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
@@ -34,6 +35,7 @@ public class CodeGeneratorOptionsBuilder {
     private boolean useCppMain = false;
     private EepromDefinition eepromDef = new NoEepromDefinition();
     private AuthenticatorDefinition authDef = new NoAuthenticatorDefinition();
+    private MenuInMenuCollection menuInMenuDefinitions;
 
     public CodeGeneratorOptionsBuilder withExisting(CodeGeneratorOptions other) {
         embeddedPlatform = other.getEmbeddedPlatform();
@@ -51,13 +53,14 @@ public class CodeGeneratorOptionsBuilder {
         authDef = other.getAuthenticatorDefinition();
         expanderDefinitions = other.getExpanderDefinitions();
         packageNamespace = other.getPackageNamespace();
+        menuInMenuDefinitions = other.getMenuInMenuCollection();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
-                namingRecursive, saveToSrc, useCppMain);
+                menuInMenuDefinitions, namingRecursive, saveToSrc, useCppMain);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -131,6 +134,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withExpanderDefinitions(IoExpanderDefinitionCollection expanders) {
         this.expanderDefinitions = expanders;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withMenuInMenu(MenuInMenuCollection collection) {
+        this.menuInMenuDefinitions = collection;
         return this;
     }
 }

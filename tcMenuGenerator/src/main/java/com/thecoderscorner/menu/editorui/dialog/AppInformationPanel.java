@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.util.EnumWithStringValue;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.getJMetro;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
@@ -57,7 +59,7 @@ public class AppInformationPanel {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ConfigurationStorage storage;
     private VBox libraryInfoVBox;
-    private Label appUuidLabel;
+    private TextField appUuidLabel;
     private CheckBox recursiveNamingCheck;
     private CheckBox saveToSrcCheck;
     private CheckBox useCppMainCheck;
@@ -75,20 +77,19 @@ public class AppInformationPanel {
     }
 
     public Node showEmptyInfoPanel() {
+        var options = controller.getProject().getGeneratorOptions();
+
         VBox vbox = new VBox();
         vbox.setSpacing(5);
 
-        String title = "TcMenu designer";
         if (storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
-            title += " This is a BETA version - don't use in production";
+            Label docsLbl = new Label(" This is a BETA version - don't use in production");
+            docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
+            vbox.getChildren().add(docsLbl);
         }
-        Label docsLbl = new Label(title);
-        docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
-        vbox.getChildren().add(docsLbl);
-
-        var options = controller.getProject().getGeneratorOptions();
 
         GridPane gridPane = new GridPane();
+        int row = 0;
         gridPane.setHgap(2);
         gridPane.setVgap(3);
         ColumnConstraints col1 = new ColumnConstraints(120);
@@ -97,17 +98,33 @@ public class AppInformationPanel {
         ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
-        gridPane.add(new Label("File name"), 0, 0);
-        Label filenameField = new Label(controller.getProject().getFileName());
-        filenameField.setId("filenameField");
-        filenameField.setMaxWidth(350);
-        filenameField.setWrapText(true);
-        gridPane.add(filenameField, 1, 0, 2, 1);
+        gridPane.add(new Label("Platform"), 0, row);
+        var platformCombo = new ComboBox<>(observableArrayList(editorUI.getEmbeddedPlatforms()));
+        platformCombo.setId("platformCombo");
+        platformCombo.setMaxWidth(999);
+        gridPane.add(platformCombo, 1, row, 2, 1);
+        editorUI.getEmbeddedPlatforms().stream().filter(p -> p.getBoardId().equals(options.getEmbeddedPlatform()))
+                .findFirst().ifPresent(env -> platformCombo.getSelectionModel().select(env));
+        platformCombo.setOnAction(event -> {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(options)
+                    .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                    .codeOptions());
+        });
+        ++row;
 
-        gridPane.add(new Label("Project unique ID"), 0, 1);
-        appUuidLabel = new Label(options.getApplicationUUID().toString());
+        gridPane.add(new Label("File name"), 0, row);
+        TextField filenameField = new TextField(controller.getProject().getFileName());
+        filenameField.setId("filenameField");
+        filenameField.setEditable(false);
+        gridPane.add(filenameField, 1, row, 2, 1);
+        ++row;
+
+        gridPane.add(new Label("Project unique ID"), 0, row);
+        appUuidLabel = new TextField(options.getApplicationUUID().toString());
         appUuidLabel.setId("appUuidLabel");
-        gridPane.add(appUuidLabel, 1, 1);
+        appUuidLabel.setEditable(false);
+        gridPane.add(appUuidLabel, 1, row);
         Button changeId = new Button("Change ID");
         changeId.setId("changeIdBtn");
         changeId.setPrefWidth(99);
@@ -120,27 +137,27 @@ public class AppInformationPanel {
                 appUuidLabel.setText(controller.getProject().getGeneratorOptions().getApplicationUUID().toString());
             }
         });
-        gridPane.add(changeId, 2, 1);
+        gridPane.add(changeId, 2, row);
+        ++row;
 
-        gridPane.add(new Label("Project name"), 0, 2);
+        gridPane.add(new Label("Project name"), 0, row);
         appNameTextField = new TextField(options.getApplicationName());
         appNameTextField.setId("appNameTextField");
         appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                 .withExisting(options)
                 .withAppName(newValue)
                 .codeOptions()));
-
-        gridPane.add(appNameTextField, 1, 2, 2, 1);
+        gridPane.add(appNameTextField, 1, row, 2, 1);
         VBox.setMargin(gridPane, new Insets(10, 0, 10, 0));
-
-
-        gridPane.add(new Label("Project description"), 0, 3);
+        row++;
+        gridPane.add(new Label("Project description"), 0, row);
         TextArea appDescTextArea = new TextArea(controller.getProject().getDescription());
         appDescTextArea.setId("appDescTextArea");
         appDescTextArea.setWrapText(true);
         appDescTextArea.setPrefRowCount(2);
         appDescTextArea.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setDescription(newValue));
-        gridPane.add(appDescTextArea, 1, 3, 2, 1);
+        gridPane.add(appDescTextArea, 1, row, 2, 1);
+        ++row;
 
         recursiveNamingCheck = new CheckBox("Use fully qualified variable names for menu items");
         recursiveNamingCheck.setId("recursiveNamingCheck");
@@ -149,7 +166,7 @@ public class AppInformationPanel {
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withRecursiveNaming(recursiveNamingCheck.isSelected())
                 .codeOptions()));
-        gridPane.add(recursiveNamingCheck, 1, 4, 2, 1);
+        gridPane.add(recursiveNamingCheck, 1, row++, 2, 1);
 
         saveToSrcCheck = new CheckBox("Save CPP and H files to src directory");
         saveToSrcCheck.setId("saveToSrcCheck");
@@ -158,7 +175,7 @@ public class AppInformationPanel {
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withSaveToSrc(saveToSrcCheck.isSelected())
                 .codeOptions()));
-        gridPane.add(saveToSrcCheck, 1, 5, 2, 1);
+        gridPane.add(saveToSrcCheck, 1, row++, 2, 1);
 
         useCppMainCheck = new CheckBox("Use CPP main instead of INO file");
         useCppMainCheck.setId("useCppMainCheck");
@@ -168,7 +185,7 @@ public class AppInformationPanel {
                 .withCppMain(useCppMainCheck.isSelected())
                 .codeOptions()));
         useCppMainCheck.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.MBED_RTOS.getBoardId()));
-        gridPane.add(useCppMainCheck, 1, 6, 2, 1);
+        gridPane.add(useCppMainCheck, 1, row, 2, 1);
 
         vbox.getChildren().add(gridPane);
 

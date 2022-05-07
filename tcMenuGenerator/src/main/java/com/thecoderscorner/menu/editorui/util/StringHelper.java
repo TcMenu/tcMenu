@@ -6,6 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.util;
 
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 public class StringHelper {
 
     public static boolean isStringEmptyOrNull(String str) {
@@ -38,6 +42,15 @@ public class StringHelper {
     public static String capitaliseFirst(String s) {
         if (s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    public static String capitaliseWords(Object o) {
+        if (o == null || o.toString().isEmpty()) return "";
+        String[] parts = o.toString().split("[_\s-]");
+        return Arrays.stream(parts)
+                .filter(s -> !s.isBlank())
+                .map(p -> Character.toUpperCase(p.charAt(0)) + p.substring(1).toLowerCase(Locale.ROOT))
+                .collect(Collectors.joining(" "));
     }
 
     public static String repeat(String a, int max) {

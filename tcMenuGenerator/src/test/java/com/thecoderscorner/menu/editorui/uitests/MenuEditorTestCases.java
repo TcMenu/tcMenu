@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
@@ -16,8 +17,6 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
-import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
@@ -90,6 +89,7 @@ public class MenuEditorTestCases {
         // we need to mock a few things around the edges to make testing easier.
         editorProjectUI = mock(CurrentProjectEditorUI.class);
         when(editorProjectUI.createPanelForMenuItem(any(), any(), any(), any())).thenReturn(Optional.empty());
+        when(editorProjectUI.getEmbeddedPlatforms()).thenReturn(new PluginEmbeddedPlatformsImpl().getEmbeddedPlatforms());
 
         persistor = mock(ProjectPersistor.class);
         installer = mock(ArduinoLibraryInstaller.class);
@@ -498,10 +498,11 @@ public class MenuEditorTestCases {
         testMainCheckboxState(robot, "#useCppMainCheck", () -> project.getGeneratorOptions().isUseCppMain());
         testMainCheckboxState(robot, "#saveToSrcCheck", () -> project.getGeneratorOptions().isSaveToSrc());
 
-        FxAssert.verifyThat("#filenameField", LabeledMatchers.hasText(project.getFileName()));
-        FxAssert.verifyThat("#appUuidLabel", LabeledMatchers.hasText(opts.getApplicationUUID().toString()));
+        FxAssert.verifyThat("#filenameField", TextInputControlMatchers.hasText(project.getFileName()));
+        FxAssert.verifyThat("#appUuidLabel", TextInputControlMatchers.hasText(opts.getApplicationUUID().toString()));
         FxAssert.verifyThat("#appNameTextField", TextInputControlMatchers.hasText(opts.getApplicationName()));
         FxAssert.verifyThat("#appDescTextArea", TextInputControlMatchers.hasText(project.getDescription()));
+        FxAssert.verifyThat("#platformCombo", (ComboBox<EmbeddedPlatform> cbx) -> cbx.getValue().equals(EmbeddedPlatform.ARDUINO32));
 
         TestUtils.writeIntoField(robot, "#appNameTextField", "newProjName", 10);
         assertTrue(project.isDirty());

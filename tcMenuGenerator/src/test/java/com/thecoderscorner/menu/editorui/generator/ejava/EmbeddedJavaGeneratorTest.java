@@ -3,15 +3,19 @@ package com.thecoderscorner.menu.editorui.generator.ejava;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.mgr.MenuInMenu;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,6 +82,35 @@ class EmbeddedJavaGeneratorTest {
 
         assertEqualsIgnoringCRLF(EJAVA_CONTROLLER_CODE, Files.readString(tcMenuDir.resolve("UnitTestController.java")));
         assertEqualsIgnoringCRLF(EJAVA_APP_CODE, Files.readString(tcMenuDir.resolve("UnitTestApp.java")));
+        assertEqualsIgnoringCRLF(EJAVA_MENU_CODE, Files.readString(tcMenuDir.resolve("UnitTestMenu.java")));
+        assertEqualsIgnoringCRLF(EJAVA_POM_WITH_DEP, Files.readString(project.getProjectRoot().resolve("pom.xml")));
+        assertEqualsIgnoringCRLF(EJAVA_APP_CONTEXT, Files.readString(tcMenuDir.resolve("MenuConfig.java")));
+    }
+
+    @Test
+    public void testConversionWithMenuInMenu() throws IOException {
+        var menuInMenu = new MenuInMenuCollection();
+        menuInMenu.addDefinition(new MenuInMenuDefinition("menuIp", "localhost", 3333, MenuInMenuDefinition.ConnectionType.SOCKET, MenuInMenu.ReplicationMode.REPLICATE_ADD_STATUS_ITEM, 404, 100000, 65000));
+        menuInMenu.addDefinition(new MenuInMenuDefinition("menuSer", "COM1", 9600, MenuInMenuDefinition.ConnectionType.SERIAL, MenuInMenu.ReplicationMode.REPLICATE_NOTIFY, 1001, 200000, 75000));
+        var options = new CodeGeneratorOptionsBuilder()
+                .withAppName("unit test").withPackageNamespace("com.tester")
+                .withMenuInMenu(menuInMenu)
+                .withProperties(plugin.getProperties())
+                .codeOptions();
+        List<CodePluginItem> plugins = List.of(plugin);
+        generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
+        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options);
+
+        var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
+
+        var pom = project.getProjectRoot().resolve("pom.xml");
+        assertTrue(Files.exists(pom));
+
+        var tcMenuDir = project.getMainJava().resolve("com").resolve("tester").resolve("tcmenu");
+        assertTrue(Files.exists(tcMenuDir));
+
+        assertEqualsIgnoringCRLF(EJAVA_CONTROLLER_CODE, Files.readString(tcMenuDir.resolve("UnitTestController.java")));
+        assertEqualsIgnoringCRLF(EJAVA_APP_CODE_MENU_IN_MENU, Files.readString(tcMenuDir.resolve("UnitTestApp.java")));
         assertEqualsIgnoringCRLF(EJAVA_MENU_CODE, Files.readString(tcMenuDir.resolve("UnitTestMenu.java")));
         assertEqualsIgnoringCRLF(EJAVA_POM_WITH_DEP, Files.readString(project.getProjectRoot().resolve("pom.xml")));
         assertEqualsIgnoringCRLF(EJAVA_APP_CONTEXT, Files.readString(tcMenuDir.resolve("MenuConfig.java")));

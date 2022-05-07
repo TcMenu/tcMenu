@@ -512,6 +512,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         boolean noEeprom = options.getEepromDefinition() instanceof NoEepromDefinition;
         boolean errorFound = false;
 
+        if(!options.getMenuInMenuCollection().getAllDefinitions().isEmpty() &&
+                !options.getEmbeddedPlatform().equals(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId())) {
+            logLine(ERROR, "Menu In Menu is only supported with embedded Java (Raspberry PI / Linux)");
+            errorFound = true;
+        }
+
         if(noEeprom && eepromAuthenticator) {
             logLine(ERROR, "You have selected No EEPROM but then used an EEPROM based authenticator.");
             errorFound = true;
@@ -520,7 +526,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         Collection<MenuItem> allItems = menuTree.getAllMenuItems();
 
         if(allItems.isEmpty()) {
-            logLine(ERROR, "The menu tree is empty, this is not a supported, please add at least one item.");
+            logLine(ERROR, "The menu tree is empty, this is not supported, please add at least one item.");
             errorFound = true;
         }
 

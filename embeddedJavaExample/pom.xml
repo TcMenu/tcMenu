@@ -11,7 +11,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <jserialcomm.version>2.9.1</jserialcomm.version>
-        <!--jfx.version>17.0.0.1</jfx.version-->
+        <jfx.version>17.0.0.1</jfx.version>
         <tcmenu.api.version>2.2.8-SNAPSHOT</tcmenu.api.version>
         <springframework.version>5.3.18</springframework.version>
     </properties>
@@ -36,6 +36,16 @@
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>embedCONTROLCore</artifactId>
             <version>${tcmenu.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${jfx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${jfx.version}</version>
         </dependency>
     </dependencies>
 

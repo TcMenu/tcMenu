@@ -164,6 +164,7 @@
         "variableName": "StatusMyListItem",
         "id": 15,
         "eepromAddress": -1,
+        "functionName": "",
         "readOnly": false,
         "localOnly": false,
         "visible": true
@@ -213,6 +214,20 @@
         "localOnly": false,
         "visible": true
       }
+    },
+    {
+      "parentId": 0,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "AVR Board",
+        "variableName": "AVRBoard",
+        "id": 16,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
     }
   ],
   "codeOptions": {
@@ -241,6 +256,20 @@
     "projectIoExpanders": [
       "deviceIO:"
     ],
+    "menuInMenuCollection": {
+      "menuDefinitions": [
+        {
+          "variableName": "AVR Board",
+          "portOrIpAddress": "192.168.0.96",
+          "portOrBaud": 3333,
+          "connectionType": "SOCKET",
+          "replicationMode": "REPLICATE_ADD_STATUS_ITEM",
+          "subMenuId": 16,
+          "idOffset": 100000,
+          "maximumRange": 65000
+        }
+      ]
+    },
     "packageNamespace": "com.thecoderscorner.menuexample"
   }
 }

@@ -144,4 +144,5 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             return new IoExpanderDefinitionCollection(list);
         }
     }
+
 }

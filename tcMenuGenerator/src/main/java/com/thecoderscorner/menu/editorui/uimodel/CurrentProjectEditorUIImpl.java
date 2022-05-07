@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.*;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
@@ -31,6 +32,8 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -268,5 +271,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
                 setResult(new UISubMenuItem(item, menuIdChooser, nameGenerator, changeConsumer));
             }
         }
+    }
+
+    public List<EmbeddedPlatform> getEmbeddedPlatforms() {
+        return platforms.getEmbeddedPlatforms();
     }
 }

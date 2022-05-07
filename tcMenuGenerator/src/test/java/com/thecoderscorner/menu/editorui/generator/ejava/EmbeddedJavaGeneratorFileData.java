@@ -94,6 +94,60 @@ public class EmbeddedJavaGeneratorFileData {
             }
             """;
 
+    public static final String EJAVA_APP_CODE_MENU_IN_MENU = """
+            package com.tester.tcmenu;
+                        
+            import com.thecoderscorner.menu.mgr.*;
+            import org.springframework.context.ApplicationContext;
+            import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+            import com.thecoderscorner.menu.remote.protocol.*;
+            import com.thecoderscorner.menu.remote.mgrclient.*;
+            import java.util.concurrent.*;
+            import com.thecoderscorner.menu.remote.*;
+            import com.thecoderscorner.menu.remote.socket.*;
+            import com.thecoderscorner.embedcontrol.core.rs232;
+                        
+            /**
+             * This class is the application class and should not be edited, it will be recreated on each code generation
+             */
+            public class UnitTestApp {
+                private final MenuManagerServer manager;
+                private final ApplicationContext context;
+                private final TagValMenuCommandProtocol tagVal;
+               \s
+                public UnitTestApp() {
+                    context = new AnnotationConfigApplicationContext(MenuConfig.class);
+                    manager = context.getBean(MenuManagerServer.class);
+                    tagVal = context.getBean(TagValMenuCommandProtocol.class);
+                }
+                        
+                public void start() {
+                    manager.addMenuManagerListener(context.getBean(UnitTestController.class));
+                    buildMenuInMenuComponents();
+                    manager.addConnectionManager(socketClient);
+                    tagVal.unitTestMe();
+                }
+                        
+                public static void main(String[] args) {
+                    new UnitTestApp().start();
+                }
+                        
+                public void buildMenuInMenuComponents() {
+                    MenuManagerServer menuManager = context.getBean(MenuManagerServer.class);
+                    MenuCommandProtocol protocol = context.getBean(MenuCommandProtocol.class);
+                    ScheduledExecutorService executor = context.getBean(ScheduledExecutorService.class);
+                    LocalIdentifier localId = new LocalIdentifier(menuManager.getServerUuid(), menuManager.getServerName());
+                    var remMenuMenuipConnector = new SocketBasedConnector(localId, executor, Clock.systemUTC(), protocol, "localhost", 3333, ConnectMode.FULLY_AUTHENTICATED);
+                    var remMenuMenuip = new MenuInMenu(remMenuMenuipConnector, menuManager, menuManager.getManagedMenu().getMenuById(404).orElseThrow(), MenuInMenu.ReplicationMode.REPLICATE_ADD_STATUS_ITEM, 100000, 65000);
+                    remMenuMenuip.start();
+                    var remMenuMenuserConnector = new Rs232RemoteConnector(localId, COM1, 9600, protocol, executor, Clock.systemUTC(), ConnectMode.FULLY_AUTHENTICATED);
+                    var remMenuMenuser = new MenuInMenu(remMenuMenuserConnector, menuManager, menuManager.getManagedMenu().getMenuById(1001).orElseThrow(), MenuInMenu.ReplicationMode.REPLICATE_NOTIFY, 200000, 75000);
+                    remMenuMenuser.start();
+                }
+                        
+            }
+            """;
+
     public static final String EJAVA_APP_CONTEXT = """
             package com.tester.tcmenu;
                         

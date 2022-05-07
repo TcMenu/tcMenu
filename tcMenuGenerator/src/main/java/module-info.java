@@ -33,6 +33,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.generator.parameters.eeprom;
     exports com.thecoderscorner.menu.editorui.generator.parameters.auth;
 
+    opens com.thecoderscorner.menu.editorui.generator.parameters to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator.parameters.eeprom to com.google.gson;
     opens com.thecoderscorner.menu.editorui.generator.parameters.auth to com.google.gson;
     opens com.thecoderscorner.menu.editorui.project to com.google.gson;

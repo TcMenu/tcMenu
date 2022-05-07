@@ -47,13 +47,6 @@ public class MenuConfig {
     }
 
     @Bean
-    GlobalSettings globalSettings() {
-        var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
-        settings.load();
-        return settings;
-    }
-
-    @Bean
     public ScreenLayoutPersistence menuLayoutPersistence(
             EmbeddedJavaDemoMenu menuDef,
             GlobalSettings settings,
@@ -109,6 +102,13 @@ public class MenuConfig {
     public MenuAppVersion versionInfo(@Value("${build.version}") String version, @Value("${build.timestamp}") String timestamp,
                                       @Value("${build.groupId}") String groupId, @Value("${build.artifactId}") String artifact) {
         return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
+    }
+
+    @Bean
+    public GlobalSettings globalSettings() {
+        var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
+        settings.load();
+        return settings;
     }
 
     // Auto generated menu callbacks end here. Please do not remove this line or change code after it.

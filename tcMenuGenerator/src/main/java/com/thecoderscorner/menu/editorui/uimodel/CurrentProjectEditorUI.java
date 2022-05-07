@@ -10,9 +10,11 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -121,4 +123,10 @@ public interface CurrentProjectEditorUI {
      * Shows the general settings dialog for setting up paths, and library / plugin management.
      */
     void showGeneralSettings();
+
+    /**
+     * Gets all the platforms available
+     * @return a list of platforms
+     */
+    List<EmbeddedPlatform> getEmbeddedPlatforms();
 }
