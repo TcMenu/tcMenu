@@ -13,7 +13,13 @@
 
     <Properties>
         <Property id="SWITCH_THRESHOLD" name="Switch activation threshold" initial="800" desc="Point below which the switch is considered pressed" type="int" min="0" max="32768"/>
-        <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable this to use interrupts instead of polling for switches" type="boolean"/>
+        <Property id="SW_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice">
+            <Choices>
+                <Choice desc="Polling for keys and encoders">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="Everything interrupt driven">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="Keys polling, encoder A pin interrupt">SWITCHES_POLL_KEYS_ONLY</Choice>
+            </Choices>
+        </Property>
         <Property id="TP_HIGH_VOLTAGE" name="High voltage setting" initial="TOUCH_HVOLT_2V7" desc="The high voltage setting to use for the touch pad" type="choice">
             <Choices>
                 <Choice>TOUCH_HVOLT_KEEP</Choice>
@@ -72,13 +78,9 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param ref="esp32Touch"/>
-            <Param value="false"/>
-        </Function>
-
-        <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
-            <Param ref="esp32Touch"/>
+        <Function name="init" object="switches">
+            <Param ioDevice="esp32Touch" />
+            <Param value="${SW_POLLING_MODE}" />
             <Param value="false"/>
         </Function>
 

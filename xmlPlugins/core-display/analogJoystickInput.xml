@@ -18,11 +18,17 @@
     <ImageFile>joystick.jpg</ImageFile>
 
     <Properties>
-        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
-        <Property id="INTERRUPT_SWITCHES" name="Interrupt Switches" initial="false" desc="Enable this to use interrupts instead of polling for switches" type="boolean"/>
+        <Property id="SW_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice">
+            <Choices>
+                <Choice desc="Polling for keys and encoders">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="Everything interrupt driven">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="Keys polling, encoder A pin interrupt">SWITCHES_POLL_KEYS_ONLY</Choice>
+            </Choices>
+        </Property>
         <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="Advanced: IoAbstractionRef (default is Arduino pins)" type="io-device"/>
         <Property id="JOYSTICK_PIN" name="Analog Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
         <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
+        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -39,12 +45,9 @@
     </GlobalVariables>
 
     <SetupFunctions>
-            <Function name="initialiseInterrupt" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="true">
+        <Function name="init" object="switches">
             <Param ioDevice="${SWITCH_IODEVICE}" />
-            <Param value="${PULLUP_LOGIC}"/>
-        </Function>
-        <Function name="initialise" object="switches" whenProperty="INTERRUPT_SWITCHES" isValue="false">
-            <Param ioDevice="${SWITCH_IODEVICE}" />
+            <Param value="${SW_POLLING_MODE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 
