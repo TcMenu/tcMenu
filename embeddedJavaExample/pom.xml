@@ -12,7 +12,7 @@
         <jdk.version>17</jdk.version>
         <jserialcomm.version>2.9.1</jserialcomm.version>
         <jfx.version>17.0.0.1</jfx.version>
-        <tcmenu.api.version>2.3.0</tcmenu.api.version>
+        <tcmenu.api.version>2.3.1-SNAPSHOT</tcmenu.api.version>
         <springframework.version>5.3.18</springframework.version>
     </properties>
 
