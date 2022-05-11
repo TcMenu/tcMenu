@@ -1,8 +1,8 @@
-# How to build tcMenu Designer into a native package using OpenJDK 16 onwards.
+# How to build tcMenu Designer into a native package using OpenJDK 17 onwards.
 
 **For most users, we recommend using our pre-packaged software.** However, should you wish to build it yourself, follow these instructions, you'll end up with a native installer for Windows, a disk image for macOS, or a debian install archive for Linux. Please only use these steps to build a UI for you own purposes.
 
-Firstly, ensure that you have OpenJDK 17 and a recent maven 3 on your system, without these it will not be possible to build.
+Firstly, ensure that you have OpenJDK 18 and a recent maven 3 on your system, without these it will not be possible to build.
 
 * All OpenJDK's that we've tested work for this, we've tried: Adoptium and Amazon Corretto   
 * For Apache maven we recommend using [https://maven.apache.org/]
@@ -38,19 +38,19 @@ Ensure you are in the tcMenuGenerator/target directory.
 
     cp classes/img/tcMenuDesigner.ico .
 
-    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.2.7 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.3.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - build for Debian / Ubuntu using package command
 
 Ensure you are in the tcMenuGenerator/target directory.
 
-    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "-Dprism.lcdtext=false" --app-version 2.2.7  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "-Dprism.lcdtext=false" --app-version 2.3.0  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 ## Packaging - macOS build all versions
 
 Ensure you are in the tcMenuGenerator/target directory.
 
-    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.2.7  --add-modules "jdk.crypto.cryptoki" --java-options "-Dprism.lcdtext=false" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/AppIcon.icns --verbose --license-file ../../LICENSE --vendor TheCodersCorner --app-version 2.3.0  --add-modules "jdk.crypto.cryptoki" --java-options "-Dprism.lcdtext=false" --verbose -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 To allow for CLI on macOS: alias tcmenu=/Applications/tcMenuDesigner.app/Contents/MacOS/tcMenuDesigner
 
@@ -72,22 +72,26 @@ Drop to a command-line, in the tcMenu/embedCONTROLCore directory, run a local ma
 
     mvn clean install
 
+Testing before deployment
+
+    java --module-path ../deps "-Dprism.lcdtext=false" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
+
 ### Building the embedCONTROLFx desktop UI for Windows
 
 Ensure you are in the embedCONTROLFx/target directory.
 
     cp classes/img/embedCONTROL.ico .
 
-    jpackage --type app-image -n embedCONTROL -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon embedCONTROL.ico --app-version 2.2.3 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfx.EmbedControlApp
+    jpackage --type app-image -n embedCONTROL -p jfx/deps --input jfx/app --resource-dir .\classes\fximg\ --icon embedCONTROL.ico --app-version 2.3.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
 
 ### Building the embedCONTROLFx desktop for macOS
 
 Ensure you are in the embedCONTROLFx/target directory.
 
-    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/img/MyIcon.icns --vendor TheCodersCorner --app-version 2.2.3 --verbose --license-file ../../LICENSE --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfx.EmbedControlApp
+    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/fximg/MyIcon.icns --vendor TheCodersCorner --app-version 2.3.0 --verbose --license-file ../../LICENSE --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
 
 ### Building the embedCONTROLFx desktop for Linux
 
 Ensure you are in the embedCONTROLFx/target directory.
 
-    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/img/large_icon.png --verbose --license-file ../../LICENSE --linux-app-category Utility --linux-menu-group "Utility;" --java-options "-Dprism.lcdtext=false" --app-version 2.2.3  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfx.EmbedControlApp
+    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/fximg/large_icon.png --verbose --license-file ../../LICENSE --linux-app-category Utility --linux-menu-group "Utility;" --java-options "-Dprism.lcdtext=false" --app-version 2.3.0  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
