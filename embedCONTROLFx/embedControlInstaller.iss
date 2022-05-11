@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "embedCONTROL"
-#define MyAppVersion "2.2.3RC"
+#define MyAppVersion "2.3.0"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "embedCONTROL.exe"
@@ -28,7 +28,7 @@ Compression=lzma
 SolidCompression=yes
 SignTool=ecSign
 SignedUninstaller=yes
-SetupIconFile={#MyEmbedControlDir}\classes\img\embedCONTROL.ico
+SetupIconFile={#MyEmbedControlDir}\classes\fximg\embedCONTROL.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

@@ -80,7 +80,7 @@ Testing before deployment
 
 Ensure you are in the embedCONTROLFx/target directory.
 
-    cp classes/img/embedCONTROL.ico .
+    cp classes/fximg/embedCONTROL.ico .
 
     jpackage --type app-image -n embedCONTROL -p jfx/deps --input jfx/app --resource-dir .\classes\fximg\ --icon embedCONTROL.ico --app-version 2.3.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
 
