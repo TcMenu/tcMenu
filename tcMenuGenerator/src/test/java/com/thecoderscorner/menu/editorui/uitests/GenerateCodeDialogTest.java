@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -120,7 +121,7 @@ public class GenerateCodeDialogTest {
         verifyThat("#appNameLabel", LabeledMatchers.hasText("Generator integration test - 52c779d0-0fb9-49d4-94fe-61b2bc6f9164"));
         verifyThat("#platformCombo", (ComboBox<EmbeddedPlatform> cbx) -> cbx.getSelectionModel().getSelectedItem() == EmbeddedPlatform.ARDUINO_AVR);
 
-        var inputPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_INPUT_UUID).orElseThrow();
+        var inputPlugin = getPlugin(UNITTEST_DEFAULT_INPUT_UUID, SubSystem.INPUT);
         var displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
         var remotePlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_REMOTE_UUID).orElseThrow();
 
@@ -132,7 +133,7 @@ public class GenerateCodeDialogTest {
         // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
         // on the line below.
         //
-        var dir = VerticalDirection.UP;
+        var dir = VerticalDirection.DOWN;
 
         robot.scroll(100, dir);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
@@ -154,6 +155,12 @@ public class GenerateCodeDialogTest {
         verify(generatorRunner).startCodeGeneration(
                 eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
                 eq(expectedPlugins), eq(previousPluinFiles), eq(true));
+    }
+
+    private CodePluginItem getPlugin(String id, SubSystem ty) {
+        return genDialog.getAllPluginsForConversion().stream()
+                .filter(pl -> pl.getId().equals(id) && pl.getSubsystem().equals(ty))
+                .findFirst().orElseThrow();
     }
 
     @Test

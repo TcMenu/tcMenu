@@ -501,7 +501,7 @@ public class GenerateCodeDialog {
         );
     }
 
-    private List<CodePluginItem> getAllPluginsForConversion() {
+    public List<CodePluginItem> getAllPluginsForConversion() {
         var allPlugins = new ArrayList<CodePluginItem>();
         allPlugins.add(currentDisplay.getItem());
         allPlugins.add(currentInput.getItem());

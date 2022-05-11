@@ -1,5 +1,6 @@
 #include <PlatformDetermination.h>
 #include "ESP32TouchKeysAbstraction.h"
+#include <driver/touch_sensor.h>
 
 volatile int intCount = 0;
 
