@@ -1,4 +1,4 @@
-# Embedded Java Demo menu application
+# EmbeddedJavaDemo menu application
 
 This application was installed by the tcMenu Designer embedded Java support. Bear in mind that this support is presently in BETA testing and should be used only for evaluation at the moment, it's just not ready for production use yet.
 
@@ -15,13 +15,20 @@ The application is split up into several files:
 
 ## Building the app
 
-By default, the app uses maven to build, ensure you have both OpenJDK 17 and a recent version of Maven installed. Maven is a very complete build tool and [you can read more about it here](https://maven.apache.org/guides/getting-started/), but here's a very quick summary:
+By default, the app uses maven to build, you'll need a couple of things installed to continue:
 
-* If you are using IntelliJ as your editor, it has complete maven support, just "open" the maven pom and it will create a project from it. Eclipse similarly has full support.
-* To build from the command line ensure you are in the project root directory and type `mvn clean install`, which will build the application and bring down any dependencies.
-* Running the application from the CLI - if the application is OpenJFX based, then the image will be in `target/jfx/app`.
+* Java - At least OpenJDK 17 (we recommend you use [Liberica Open JDK](https://bell-sw.com/pages/downloads/) as it has a build for Raspberry PI with JavaFX built in) 
+* A recent maven 3 installation. Maven is a very complete build tool and [you can read more about it here](https://maven.apache.org/guides/getting-started/).
+* A Java IDE - we mainly use IntelliJ, but have tried the project in Visual-Studio-Code too. Eclipse similarly should work very well with this project.
+* To build from the command line ensure you are in the same directory as this README file and type `mvn clean install`, which will build the application and bring down any dependencies.
+
+## Running the application from the CLI 
+ 
+If you use the standard maven setup, after running the above build steps, you should see the following directory has been created: `target/jfx/` containing an `app` directory and a `deps` directory.
+
+If you used a modular build (IE you have a `module-info.java` file in the `src/main/java` directory) then to run the application ensure that the right version of Java using `java -version` is on your path and then the run command should be `java --module-path ../deps "-Dprism.lcdtext=false" --add-modules com.thecoderscorner.menuexample.embeddedjavademo com.thecoderscorner.menuexample.tcmenu.EmbeddedJavaDemoApp`
 
 ## Plugins
 
-Depending on which plugins you chose to install, there will be other files that are associated with those. We've provided a few documentation links below to get you started:
+Depending on which plugins you chose to install, there will be other files that are associated with those in the source tree, these are separated out into a `plugins` directory. We've provided a few documentation links below to get you started:
 

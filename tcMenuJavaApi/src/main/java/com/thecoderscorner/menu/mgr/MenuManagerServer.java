@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.mgr;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
@@ -45,7 +46,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final String serverName;
     private final UUID serverUuid;
     private final MenuAuthenticator authenticator;
-    private AtomicReference<DialogManager> dialogManager = new AtomicReference<>(new EmptyDialogManager());
+    private final AtomicReference<DialogManager> dialogManager = new AtomicReference<>(new EmptyDialogManager());
     private final Clock clock;
     private final AtomicBoolean alreadyStarted = new AtomicBoolean(false);
     private final  List<MenuManagerListener> eventListeners = new CopyOnWriteArrayList<>();
@@ -65,7 +66,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     }
 
     /**
-     * replace the dialog manager with another implementation. By default this class starts with an empty dialog manager
+     * replace the dialog manager with another implementation. By default, this class starts with an empty dialog manager
      * that can be replaced with a more suitable implementation
      * @param manager the replacement dialog manager
      */
@@ -348,7 +349,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
 
     /**
      * Tell the manager that the tree has structurally changed and that any interested parties need notification.
-     * @param hint either MenuTree.ROOT or another item in the tree
+     * @param hint either `MenuTree.ROOT` or another item in the tree
      */
     public void treeStructurallyChanged(MenuItem hint) {
         logger.log(Level.INFO, "Tree structure has changed around " + hint);

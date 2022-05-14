@@ -97,6 +97,71 @@ public class MenuItemHelper {
         }).orElse(false);
     }
 
+    public static MenuItemBuilder builderWithExisting(MenuItem item) {
+        return visitWithResult(item, new AbstractMenuItemVisitor<MenuItemBuilder>() {
+            @Override
+            public void visit(AnalogMenuItem item) {
+                setResult(AnalogMenuItemBuilder.anAnalogMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(BooleanMenuItem item) {
+                setResult(BooleanMenuItemBuilder.aBooleanMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(EnumMenuItem item) {
+                setResult(EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(SubMenuItem item) {
+                setResult(SubMenuItemBuilder.aSubMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                setResult(EditableTextMenuItemBuilder.aTextMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                setResult(EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(FloatMenuItem item) {
+                setResult(FloatMenuItemBuilder.aFloatMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem item) {
+                setResult(new Rgb32MenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(CustomBuilderMenuItem item) {
+                setResult(new CustomBuilderMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(ScrollChoiceMenuItem item) {
+                setResult(new ScrollChoiceMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(ActionMenuItem item) {
+                setResult(ActionMenuItemBuilder.anActionMenuItemBuilder().withExisting(item));
+            }
+
+            @Override
+            public void visit(RuntimeListMenuItem item) {
+                setResult(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder().withExisting(item));
+            }
+        }).orElseThrow(IllegalStateException::new);
+
+    }
+
     /**
      * creates a copy of the menu item chosen, with the ID changed to newId
      * @param selected the item to copy
@@ -104,115 +169,9 @@ public class MenuItemHelper {
      * @return the newly created item
      */
     public static MenuItem createFromExistingWithId(MenuItem selected, int newId) {
-        return visitWithResult(selected, new AbstractMenuItemVisitor<MenuItem>() {
-            @Override
-            public void visit(AnalogMenuItem item) {
-                setResult(AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(BooleanMenuItem item) {
-                setResult(BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(EnumMenuItem item) {
-                setResult(EnumMenuItemBuilder.anEnumMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(SubMenuItem item) {
-                setResult(SubMenuItemBuilder.aSubMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(EditableTextMenuItem item) {
-                setResult(EditableTextMenuItemBuilder.aTextMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(EditableLargeNumberMenuItem item) {
-                setResult(EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(FloatMenuItem item) {
-                setResult(FloatMenuItemBuilder.aFloatMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(Rgb32MenuItem item) {
-                setResult(new Rgb32MenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(CustomBuilderMenuItem item) {
-                setResult(new CustomBuilderMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(ScrollChoiceMenuItem item) {
-                setResult(new ScrollChoiceMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(ActionMenuItem item) {
-                setResult(ActionMenuItemBuilder.anActionMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-
-            @Override
-            public void visit(RuntimeListMenuItem item) {
-                setResult(RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
-                        .withExisting(item)
-                        .withId(newId)
-                        .menuItem()
-                );
-            }
-        }).orElse(null);
+        var builder = builderWithExisting(selected);
+        builder.withId(newId);
+        return builder.menuItem();
     }
 
     /**
@@ -354,8 +313,10 @@ public class MenuItemHelper {
      * @return the new menu state
      */
     public static AnyMenuState stateForMenuItem(MenuItem item, Object v, boolean changed, boolean active) {
-        if(item == null) return new BooleanMenuState(item, false, false, false);
-         var val = (v!=null) ? v : defaultValueForItem(item);
+        if(item == null) {
+            return new BooleanMenuState(item, false, false, false);
+        }
+        var val = (v!=null) ? v : defaultValueForItem(item);
 
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<AnyMenuState>() {
             @Override

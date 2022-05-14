@@ -8,18 +8,14 @@ package com.thecoderscorner.menu.domain.state;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class MenuTreeTest {
@@ -46,7 +42,7 @@ public class MenuTreeTest {
         menuTree.removeMenuItem(ROOT, item1);
 
         List<MenuItem> menuItems = menuTree.getMenuItems(ROOT);
-        assertThat(menuItems, is(Collections.singletonList(item2)));
+        assertThat(menuItems).containsExactly(item2);
     }
 
     @Test
@@ -68,10 +64,10 @@ public class MenuTreeTest {
 
         menuTree.addMenuItem(subMenu, item1);
         menuTree.addMenuItem(subMenu, item2);
-        assertThat(menuTree.getMenuItems(subMenu), is(Arrays.asList(item1, item2)));
+        assertThat(menuTree.getMenuItems(subMenu)).containsExactly(item1, item2);
 
         menuTree.removeMenuItem(subMenu, item1);
-        assertThat(menuTree.getMenuItems(subMenu), is(Collections.singletonList(item2)));
+        assertThat(menuTree.getMenuItems(subMenu)).containsExactly(item2);
 
         menuTree.removeMenuItem(ROOT, subMenu);
         assertNull(menuTree.getMenuItems(subMenu));
@@ -111,7 +107,7 @@ public class MenuTreeTest {
         EnumMenuItem item1Change = DomainFixtures.anEnumItem("Changed item1", 1);
         menuTree.replaceMenuById(item1Change);
 
-        assertThat(menuTree.getMenuItems(subMenu), is(Collections.singletonList(item1Change)));
+        assertThat(menuTree.getMenuItems(subMenu)).containsExactly(item1Change);
     }
 
     @Test
@@ -121,9 +117,9 @@ public class MenuTreeTest {
         menuTree.addMenuItem(subMenu, item1);
         menuTree.addMenuItem(subMenu, item2);
 
-        assertThat(menuTree.getMenuItems(subMenu), is(Arrays.asList(item1, item2)));
+        assertThat(menuTree.getMenuItems(subMenu)).containsExactly(item1, item2);
         menuTree.removeMenuItem(item2);
-        assertThat(menuTree.getMenuItems(subMenu), is(Collections.singletonList(item1)));
+        assertThat(menuTree.getMenuItems(subMenu)).containsExactly(item1);
     }
 
     @Test
@@ -133,19 +129,35 @@ public class MenuTreeTest {
         menuTree.addMenuItem(ROOT, item2);
 
         menuTree.moveItem(ROOT, item2, MenuTree.MoveType.MOVE_UP);
-        assertThat(menuTree.getMenuItems(ROOT), is(Arrays.asList(item3, item2, item1)));
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item3, item2, item1);
 
         menuTree.moveItem(ROOT, item3, MenuTree.MoveType.MOVE_DOWN);
-        assertThat(menuTree.getMenuItems(ROOT), is(Arrays.asList(item2, item3, item1)));
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
 
         menuTree.moveItem(ROOT, item1, MenuTree.MoveType.MOVE_DOWN);
-        assertThat(menuTree.getMenuItems(ROOT), is(Arrays.asList(item2, item3, item1)));
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
 
         menuTree.moveItem(ROOT, item2, MenuTree.MoveType.MOVE_UP);
-        assertThat(menuTree.getMenuItems(ROOT), is(Arrays.asList(item2, item3, item1)));
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
 
         menuTree.moveItem(ROOT, item1, MenuTree.MoveType.MOVE_UP);
-        assertThat(menuTree.getMenuItems(ROOT), is(Arrays.asList(item2, item1, item3)));
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item1, item3);
+    }
+
+    @Test
+    public void testGetItemsFromPoint() {
+        var subSubItem = DomainFixtures.aSubMenu("extra", 400);
+        var analogSubSubItem = DomainFixtures.anAnalogItem("analogExtra", 401);
+        var enumSubSubItem = DomainFixtures.anAnalogItem("enumExtra", 402);
+        menuTree.addMenuItem(ROOT, subMenu);
+        menuTree.addMenuItem(subMenu, item3);
+        menuTree.addMenuItem(subMenu, subSubItem);
+        menuTree.addMenuItem(subMenu, item2);
+        menuTree.addMenuItem(ROOT, item1);
+        menuTree.addMenuItem(subSubItem, analogSubSubItem);
+        menuTree.addMenuItem(subSubItem, enumSubSubItem);
+
+        assertThat(menuTree.getAllMenuItemsFrom(subMenu)).containsExactly(subMenu, item3, subSubItem, analogSubSubItem, enumSubSubItem, item2);
     }
 
     @Test
@@ -154,7 +166,7 @@ public class MenuTreeTest {
         menuTree.addMenuItem(subMenu, item3);
         menuTree.addMenuItem(ROOT, item1);
         menuTree.addMenuItem(ROOT, item2);
-        assertThat(menuTree.getAllMenuItems(), containsInAnyOrder(ROOT, subMenu, item1, item2, item3));
+        assertThat(menuTree.getAllMenuItems()).containsExactlyInAnyOrder(ROOT, subMenu, item1, item2, item3);
     }
 
     @Test
@@ -191,7 +203,7 @@ public class MenuTreeTest {
             }
         });
 
-        Assertions.assertThat(items).containsExactly(subMenu, item3, item1, item2);
+        assertThat(items).containsExactly(subMenu, item3, item1, item2);
     }
 
     @Test

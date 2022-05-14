@@ -68,6 +68,18 @@ public class EmbeddedJavaProject {
         data = root.resolve("data");
     }
 
+    private String doVariableExpansionInString(String input) {
+        return input.replaceAll("%SERVERNAME%", codeOptions.getApplicationName())
+                .replaceAll("%SERVERUUID%", codeOptions.getApplicationUUID().toString())
+                .replaceAll("%DATADIR%", data.toString())
+                .replaceAll("%APPNAME%", getAppClassName(""))
+                .replaceAll("%APP_DESCRIPTION%", "An application built with TcMenu Designer")
+                .replaceAll("%PACKAGE_NAME%", codeOptions.getPackageNamespace())
+                .replaceAll("%TCMENU_VERSION%", configStorage.getVersion())
+                .replaceAll("%MODULE_NAME%", getAppClassName("").toLowerCase());
+
+    }
+
     public void setupProjectIfNeeded() throws IOException {
         uiLogger.accept(INFO, "Checking the the core directories and files exist, create when needed");
         Files.createDirectories(mainJava);
@@ -77,25 +89,18 @@ public class EmbeddedJavaProject {
 
         Path versionPropertiesPath = getMainResources().resolve("application.properties");
         if(!Files.exists(versionPropertiesPath)) Files.writeString(versionPropertiesPath,
-                VERSION_PROPERTIES_CONTENTS.replaceAll("%SERVERNAME%", codeOptions.getApplicationName())
-                        .replaceAll("%SERVERUUID%", codeOptions.getApplicationUUID().toString())
-                        .replaceAll("%DATADIR%", data.toString()));
+                doVariableExpansionInString(VERSION_PROPERTIES_CONTENTS));
 
         Path readmeFile = getProjectRoot().resolve("README.md");
         var readmeTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/packaged-plugins/packaged-readme.md")).readAllBytes());
-        readmeTemplate = readmeTemplate.replaceAll("%APPNAME%", codeOptions.getApplicationName())
-                .replaceAll("%APPCLASSNAME%", getAppClassName(""));
+        readmeTemplate = doVariableExpansionInString(readmeTemplate);
         if(!Files.exists(readmeFile)) Files.writeString(readmeFile, readmeTemplate);
 
         Path pomXml = root.resolve("pom.xml");
         if(!Files.exists(root.resolve("build.gradle")) && !Files.exists(pomXml)) {
             uiLogger.accept(INFO, "No build file, creating a pom.xml for maven builds, you can also use gradle");
             var pom = new String(Objects.requireNonNull(getClass().getResourceAsStream("/packaged-plugins/packaged-mvn-pom.xml")).readAllBytes());
-            pom = pom.replaceAll("%APP_NAME%", getAppClassName(""));
-            pom = pom.replaceAll("%APP_DESCRIPTION%", "An application built with TcMenu Designer");
-            pom = pom.replaceAll("%PACKAGE_NAME%", codeOptions.getPackageNamespace());
-            pom = pom.replaceAll("%TCMENU_VERSION%", configStorage.getVersion());
-
+            pom = doVariableExpansionInString(pom);
             Files.writeString(pomXml, pom);
         }
     }

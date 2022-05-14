@@ -6,6 +6,7 @@ import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
@@ -15,8 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
@@ -43,8 +43,11 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
         this.dialogManager = dialogManager;
         try {
             this.properties.load(Files.newBufferedReader(Path.of(location)));
+        } catch(NoSuchFileException e) {
+            logger.log(WARNING, "The properties file doesn't exist, creating it.");
+            savePropertiesFile();
         } catch (IOException e) {
-            logger.log(ERROR, "Unable to read authentication properties");
+            logger.log(ERROR, "Unable to read authentication properties", e);
         }
     }
 
@@ -109,19 +112,20 @@ public class PropertiesAuthenticator implements MenuAuthenticator {
         });
     }
 
-    private void savePropertiesFile() throws IOException {
+    private void savePropertiesFile() {
         Path pathLocation = Path.of(location);
-        properties.store(Files.newBufferedWriter(pathLocation, CREATE, TRUNCATE_EXISTING), "TcMenu Auth properties");
+        try {
+            properties.store(Files.newBufferedWriter(pathLocation, CREATE, TRUNCATE_EXISTING), "TcMenu Auth properties");
+        }
+        catch (IOException ex) {
+            logger.log(ERROR, "Could not save properties file to " + pathLocation);
+        }
     }
 
     @Override
     public void removeAuthentication(String user) {
         properties.remove(user);
-        try {
-            savePropertiesFile();
-        } catch (IOException e) {
-            logger.log(ERROR, "Failed to save properties on remove", e);
-        }
+        savePropertiesFile();
     }
 
     @Override

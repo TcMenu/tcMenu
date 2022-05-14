@@ -287,6 +287,30 @@ public class MenuTree {
     }
 
     /**
+     * Gets every menu item held in this menu tree from a given starting point, the starting point is a sub menu,
+     * from that submenu, this method will recurse through the rest of the menu structure and provide a complete list.
+     * The menu item provided itself will be the first item in the list, the rest will be in exact order as added.
+     * Use this method over getAllMenuItems when the order is important, just call with `MenuTree.ROOT` to get all
+     * items in the tree.
+     * @param item the starting point for traversal.
+     * @return every menu item in the tree from the given starting point.
+     */
+    public Collection<MenuItem> getAllMenuItemsFrom(SubMenuItem item) {
+        var toReturn = new ArrayList<MenuItem>(128);
+        var subItems = subMenuItems.get(item);
+        toReturn.add(item);
+        for(var it : subItems) {
+            if(it.hasChildren()) {
+                toReturn.addAll(getAllMenuItemsFrom(MenuItemHelper.asSubMenu(it)));
+            } else {
+                toReturn.add(it);
+            }
+        }
+        return toReturn;
+    }
+
+
+    /**
      * Change the value that's associated with a menu item. if you are changing
      * a value, just send a command to the device, it will automatically update
      * the tree.

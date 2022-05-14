@@ -61,6 +61,7 @@ public class EmbeddedJavaGeneratorFileData {
             package com.tester.tcmenu;
                         
             import com.thecoderscorner.menu.mgr.*;
+            import com.thecoderscorner.menu.persist.MenuStateSerialiser;
             import org.springframework.context.ApplicationContext;
             import org.springframework.context.annotation.AnnotationConfigApplicationContext;
             import com.thecoderscorner.menu.remote.protocol.*;
@@ -82,6 +83,9 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 public void start() {
+                    var serializer = context.getBean(MenuStateSerialiser.class);
+                    serializer.loadMenuStatesAndApply();
+                    Runtime.getRuntime().addShutdownHook(new Thread(serializer::saveMenuStates));
                     manager.addMenuManagerListener(context.getBean(UnitTestController.class));
                     manager.addConnectionManager(socketClient);
                     tagVal.unitTestMe();
@@ -98,6 +102,7 @@ public class EmbeddedJavaGeneratorFileData {
             package com.tester.tcmenu;
                         
             import com.thecoderscorner.menu.mgr.*;
+            import com.thecoderscorner.menu.persist.MenuStateSerialiser;
             import org.springframework.context.ApplicationContext;
             import org.springframework.context.annotation.AnnotationConfigApplicationContext;
             import com.thecoderscorner.menu.remote.protocol.*;
@@ -122,6 +127,9 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 public void start() {
+                    var serializer = context.getBean(MenuStateSerialiser.class);
+                    serializer.loadMenuStatesAndApply();
+                    Runtime.getRuntime().addShutdownHook(new Thread(serializer::saveMenuStates));
                     manager.addMenuManagerListener(context.getBean(UnitTestController.class));
                     buildMenuInMenuComponents();
                     manager.addConnectionManager(socketClient);

@@ -191,6 +191,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                          */
                          """)
                 .addPackageImport("com.thecoderscorner.menu.mgr.*")
+                .addPackageImport("com.thecoderscorner.menu.persist.MenuStateSerialiser")
                 .addPackageImport("org.springframework.context.ApplicationContext")
                 .addPackageImport("org.springframework.context.annotation.AnnotationConfigApplicationContext")
                 .addStatement(new GeneratedJavaField("MenuManagerServer", "manager"))
@@ -208,6 +209,9 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
         builder.blankLine().addStatement(constructor);
         var startMethod = new GeneratedJavaMethod(METHOD_REPLACE, "void", "start")
+                .withStatement("var serializer = context.getBean(MenuStateSerialiser.class);")
+                .withStatement("serializer.loadMenuStatesAndApply();")
+                .withStatement("Runtime.getRuntime().addShutdownHook(new Thread(serializer::saveMenuStates));")
                 .withStatement("manager.addMenuManagerListener(context.getBean(" + javaProject.getAppClassName("Controller") + ".class));");
         boolean hasMenuInMenuDefinitions = !options.getMenuInMenuCollection().getAllDefinitions().isEmpty();
         if(hasMenuInMenuDefinitions) {

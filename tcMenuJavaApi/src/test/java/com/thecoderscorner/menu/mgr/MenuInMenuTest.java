@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class MenuInMenuTest {
+    public static final int STARTING_OFFSET = 100000;
+    public static final int MAX_RANGE = 50000;
     private MenuInMenu otherMenu;
     private UnitTestRemoteConnector otherRemote;
 
@@ -61,25 +63,26 @@ class MenuInMenuTest {
     @Test
     void testMenuInMenuInFullReplicateMode() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_ADD_STATUS_ITEM,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
+        verify(structureListener).treeStructureChanged(subRoot);
 
         sendStandardBootMessages();
-        verify(structureListener).treeStructureChanged(MenuTree.ROOT);
+        verify(structureListener, atLeastOnce()).treeStructureChanged(subRoot);
 
-        var remoteSub = asSubMenu(managerServer.getManagedMenu().getMenuById(10003).orElseThrow());
-        assertEquals(10003, remoteSub.getId());
+        var remoteSub = asSubMenu(managerServer.getManagedMenu().getMenuById(STARTING_OFFSET + 3).orElseThrow());
+        assertEquals(STARTING_OFFSET + 3, remoteSub.getId());
         assertEquals("Test3", remoteSub.getName());
 
-        ensureMenuInRightPlace(subRoot, 1 + 10000, "Test1", 102);
-        ensureMenuInRightPlace(subRoot, 2 + 10000, "Test2", 1);
-        ensureMenuInRightPlace(remoteSub, 4 + 10000, "Test4", false);
-        ensureMenuInRightPlace(remoteSub, 5 + 10000, "Test5", 14);
+        ensureMenuInRightPlace(subRoot, 1 + STARTING_OFFSET, "Test1", 102);
+        ensureMenuInRightPlace(subRoot, 2 + STARTING_OFFSET, "Test2", 1);
+        ensureMenuInRightPlace(remoteSub, 4 + STARTING_OFFSET, "Test4", false);
+        ensureMenuInRightPlace(remoteSub, 5 + STARTING_OFFSET, "Test5", 14);
         ensureMenuInRightPlace(subRoot, 149999, "AmpMenu connected", true);
 
         otherRemote.simulateSendCommand(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, MenuChangeCommand.ChangeType.ABSOLUTE, "22"));
-        MenuItem analogItem = managerServer.getManagedMenu().getMenuById(10001).orElseThrow();
+        MenuItem analogItem = managerServer.getManagedMenu().getMenuById(STARTING_OFFSET + 1).orElseThrow();
         assertEquals(22, getValueFor(analogItem, managerServer.getManagedMenu(), getDefaultFor(analogItem)));
 
         managerServer.stop();
@@ -94,14 +97,13 @@ class MenuInMenuTest {
         otherRemote.simulateSendCommand(new MenuSubBootCommand(0, DomainFixtures.aSubMenu("Test3", 3), false));
         otherRemote.simulateSendCommand(new MenuActionBootCommand(3, DomainFixtures.anActionMenu("Test4", 4), false));
         otherRemote.simulateSendCommand(new MenuAnalogBootCommand(3, DomainFixtures.anAnalogItem("Test5", 5), 14));
-        verifyNoInteractions(structureListener);
         otherRemote.simulateSendCommand(new MenuBootstrapCommand(MenuBootstrapCommand.BootType.END));
     }
 
     @Test
     void testMenuInMenuInDontReplicateMode() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_SILENTLY,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
 
@@ -114,7 +116,7 @@ class MenuInMenuTest {
     @Test
     void testDialogInDialog() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
 
@@ -142,12 +144,12 @@ class MenuInMenuTest {
     @Test
     void testMenuInMenuInNotifyOnlyMode() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
 
         sendStandardBootMessages();
-        verify(structureListener).treeStructureChanged(MenuTree.ROOT);
+        verify(structureListener, atLeastOnce()).treeStructureChanged(subRoot);
 
         assertTrue(managerServer.getManagedMenu().getMenuById(149999).isEmpty());
     }
@@ -155,32 +157,32 @@ class MenuInMenuTest {
     @Test
     void testAddingAnItemAfterBootstrap() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
 
         sendStandardBootMessages();
-        verify(structureListener).treeStructureChanged(MenuTree.ROOT);
+        verify(structureListener, atLeastOnce()).treeStructureChanged(subRoot);
         clearInvocations(structureListener);
 
         otherRemote.simulateSendCommand(new MenuAnalogBootCommand(0, DomainFixtures.anAnalogItem("Later", 34), 22));
         verify(structureListener).treeStructureChanged(subRoot);
 
-        ensureMenuInRightPlace(subRoot, 34 + 10000, "Later", 22);
+        ensureMenuInRightPlace(subRoot, 34 + STARTING_OFFSET, "Later", 22);
 
-        ensureMenuInRightPlace(subRoot, 1 + 10000, "Test1", 102);
+        ensureMenuInRightPlace(subRoot, 1 + STARTING_OFFSET, "Test1", 102);
     }
     
     @Test
     void testLocalUpdateIsSentRemotely() {
         otherMenu = new MenuInMenu(otherRemote, managerServer, subRoot, ReplicationMode.REPLICATE_NOTIFY,
-                10000, 150000);
+                STARTING_OFFSET, MAX_RANGE);
         otherMenu.start();
         managerServer.start();
 
         sendStandardBootMessages();
 
-        var analog = managerServer.getManagedMenu().getMenuById(10001).orElseThrow();
+        var analog = managerServer.getManagedMenu().getMenuById(STARTING_OFFSET + 1).orElseThrow();
         managerServer.updateMenuItem(analog, 203);
 
         assertEquals(1, otherRemote.commandsSent.size());
@@ -196,6 +198,7 @@ class MenuInMenuTest {
         var item = managerServer.getManagedMenu().getMenuById(expectedId).orElseThrow();
         assertEquals(subRoot, managerServer.getManagedMenu().findParent(item));
         assertEquals(expectedName, item.getName());
+        assertEquals(-1, item.getEepromAddress());
         assertEquals(expectedState, getValueFor(item, managerServer.getManagedMenu(), getDefaultFor(item)));
     }
 

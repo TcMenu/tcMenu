@@ -5,8 +5,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>%PACKAGE_NAME%</groupId>
-    <artifactId>%APP_NAME%</artifactId>
-    <name>%APP_NAME%</name>
+    <artifactId>%APPNAME%</artifactId>
+    <name>%APPNAME%</name>
     <description>%APP_DESCRIPTION%</description>
     <version>0.0.1-SNAPSHOT</version>
 
@@ -38,7 +38,7 @@
     </dependencies>
 
     <build>
-        <finalName>%APP_NAME%</finalName>
+        <finalName>%APPNAME%</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

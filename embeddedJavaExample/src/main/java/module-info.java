@@ -1,4 +1,4 @@
-module com.thecoderscorner.embedcontrol.localjavaexample {
+module com.thecoderscorner.menuexample.embeddedjavademo {
     requires java.logging;
     requires java.prefs;
     requires java.desktop;

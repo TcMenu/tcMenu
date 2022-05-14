@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
+import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.*;
 
 /**
  * MenuInMenu embeds a menu within another menu by shifting the range of IDs within the remote items into another
@@ -28,6 +29,7 @@ import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
  * ID range, EG local device items may go from 0..100000, then device 1 offset could be 100000 for example and so on.
  */
 public class MenuInMenu {
+    private static final int STATUS_ITEM_RANGE = 10;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     public enum ReplicationMode {REPLICATE_SILENTLY, REPLICATE_NOTIFY, REPLICATE_ADD_STATUS_ITEM }
@@ -38,7 +40,7 @@ public class MenuInMenu {
     private final MenuManagerServer manager;
     private final SubMenuItem root;
     private final AtomicReference<AuthStatus> latestAuthStatus = new AtomicReference<>(AuthStatus.NOT_STARTED);
-    private final AtomicReference<BooleanMenuItem> statusItem = new AtomicReference<>(null);
+    private final BooleanMenuItem statusItem;
     private final AtomicBoolean bootInProgress = new AtomicBoolean(false);
 
     /**
@@ -58,6 +60,18 @@ public class MenuInMenu {
         this.manager = manager;
         this.replicationMode = mode;
         this.root = (root instanceof SubMenuItem) ? (SubMenuItem)root : MenuTree.ROOT;
+
+        if(replicationMode == ReplicationMode.REPLICATE_ADD_STATUS_ITEM) {
+            statusItem = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
+                    .withId(offsetRange + maxRange - 1).withName(root.getName() + " connected")
+                    .withEepromAddr(-1).withReadOnly(true).menuItem();
+            manager.getManagedMenu().addMenuItem(asSubMenu(root), statusItem);
+            MenuItemHelper.setMenuState(statusItem, false, manager.getManagedMenu());
+            manager.treeStructurallyChanged(root);
+        } else {
+            statusItem = null;
+        }
+
     }
 
     /**
@@ -68,11 +82,15 @@ public class MenuInMenu {
         remoteConnector.registerConnectorListener(this::processIncomingCommand);
         remoteConnector.registerConnectionChangeListener((connector, authStatus) -> {
             latestAuthStatus.set(authStatus);
-            if(statusItem.get() != null) {
-                manager.updateMenuItem(statusItem.get(), authStatus == AuthStatus.CONNECTION_READY);
-            }
+            updateStatusItemIfPresent(false);
         });
         remoteConnector.start();
+    }
+
+    private void updateStatusItemIfPresent(boolean state) {
+        if(statusItem != null) {
+            manager.updateMenuItem(statusItem, state);
+        }
     }
 
     /**
@@ -86,13 +104,14 @@ public class MenuInMenu {
             var boot = (BootItemMenuCommand<MenuItem, ?>) menuCommand;
             var item = boot.getMenuItem();
             if(item.getId() != MenuTree.ROOT.getId()) {
-                var changedItem = createFromExistingWithId(item, item.getId() + offsetRange);
+                var itemBuilder = builderWithExisting(item);
+                var changedItem = itemBuilder.withId(item.getId() + offsetRange).withEepromAddr(-1).menuItem();
                 var modifiedParentId = boot.getSubMenuId() != 0 ? (boot.getSubMenuId() + offsetRange) : root.getId();
                 var parent = manager.getManagedMenu().getMenuById(modifiedParentId).orElseThrow();
                 manager.getManagedMenu().addMenuItem(asSubMenu(parent), changedItem);
                 manager.remoteUpdateHasOccurred(changedItem, boot.getCurrentValue());
-                if(!bootInProgress.get() && replicationMode != ReplicationMode.REPLICATE_SILENTLY) {
-                    manager.treeStructurallyChanged(parent);
+                if(replicationMode != ReplicationMode.REPLICATE_SILENTLY) {
+                    manager.treeStructurallyChanged(root);
                 }
             }
         } else if(menuCommand instanceof MenuChangeCommand) {
@@ -102,16 +121,10 @@ public class MenuInMenu {
             manager.remoteUpdateHasOccurred(item, isListChange ? change.getValues() : change.getValue());
         } else if(menuCommand instanceof MenuBootstrapCommand) {
             var bootstrap = (MenuBootstrapCommand) menuCommand;
-            bootInProgress.set(bootstrap.getBootType() == MenuBootstrapCommand.BootType.START);
-            if(bootstrap.getBootType() == MenuBootstrapCommand.BootType.END && replicationMode != ReplicationMode.REPLICATE_SILENTLY) {
-                if(replicationMode == ReplicationMode.REPLICATE_ADD_STATUS_ITEM) {
-                    statusItem.set(BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
-                                    .withId(maxRange -1).withName(root.getName() + " connected")
-                                    .withEepromAddr(-1).withReadOnly(true).menuItem());
-                    manager.getManagedMenu().addMenuItem(root, statusItem.get());
-                    MenuItemHelper.setMenuState(statusItem.get(), true, manager.getManagedMenu());
-                }
-                manager.treeStructurallyChanged(MenuTree.ROOT);
+            bootInProgress.set(bootstrap.getBootType() == BootType.START);
+            updateStatusItemIfPresent(bootstrap.getBootType() == BootType.END);
+            if(bootstrap.getBootType() == BootType.END && replicationMode != ReplicationMode.REPLICATE_SILENTLY) {
+                manager.treeStructurallyChanged(root);
             }
         }
         else if(menuCommand instanceof MenuDialogCommand) {
@@ -140,7 +153,7 @@ public class MenuInMenu {
     }
 
     private boolean isWithinRange(MenuItem item) {
-        return item.getId() >= offsetRange && item.getId() < maxRange;
+        return item.getId() >= offsetRange && item.getId() < ((offsetRange + maxRange) - STATUS_ITEM_RANGE);
     }
 
     private class MenuInMenuManagerListener implements MenuManagerListener {
