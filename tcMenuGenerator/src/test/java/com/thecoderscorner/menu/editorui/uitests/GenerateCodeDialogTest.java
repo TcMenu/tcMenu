@@ -133,7 +133,7 @@ public class GenerateCodeDialogTest {
         // the generator doesn't scroll to the remote during testing, change the direction between DOWN to UP
         // on the line below.
         //
-        var dir = VerticalDirection.DOWN;
+        var dir = VerticalDirection.UP;
 
         robot.scroll(100, dir);
         assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");

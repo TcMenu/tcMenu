@@ -155,7 +155,6 @@ public class EmbeddedJavaGeneratorFileData {
                         
             }
             """;
-
     public static final String EJAVA_APP_CONTEXT = """
             package com.tester.tcmenu;
                         
@@ -450,10 +449,10 @@ public class EmbeddedJavaGeneratorFileData {
                         
                 <properties>
                     <jdk.version>17</jdk.version>
-                    <jserialcomm.version>2.4.0</jserialcomm.version>
+                    <jserialcomm.version>2.9.1</jserialcomm.version>
                     <jfx.version>17.0.0.1</jfx.version>
                     <tcmenu.api.version>1.2.3</tcmenu.api.version>
-                    <springframework.version>5.3.16</springframework.version>
+                    <springframework.version>5.3.19</springframework.version>
                     <timestamp>${maven.build.timestamp}</timestamp>
                 </properties>
                         
@@ -472,6 +471,11 @@ public class EmbeddedJavaGeneratorFileData {
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-context</artifactId>
                         <version>${springframework.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.thecoderscorner.tcmenu</groupId>
+                        <artifactId>embedCONTROLCore</artifactId>
+                        <version>${tcmenu.api.version}</version>
                     </dependency>
                 <dependency><groupId>com.thecoderscorner.tcmenu</groupId><artifactId>TestDep</artifactId><version>1.2.3</version></dependency></dependencies>
                         
@@ -504,6 +508,7 @@ public class EmbeddedJavaGeneratorFileData {
                             </configuration>
                         </plugin>
                         <plugin>
+                            <!-- copy all the JARs for the dependencies into the jfx/deps folder -->
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-dependency-plugin</artifactId>
                             <version>3.0.2</version>
@@ -538,6 +543,34 @@ public class EmbeddedJavaGeneratorFileData {
                             </executions>
                         </plugin>
                         <plugin>
+                            <!-- copy the application JAR file from target dir into jfx/deps -->
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-resources-plugin</artifactId>
+                            <version>3.0.2</version>
+                            <executions>
+                                <execution>
+                                    <id>copy-resources-jar</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>copy-resources</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${basedir}/target/jfx/deps</outputDirectory>
+                                        <resources>
+                                            <resource>
+                                                <directory>${project.basedir}/target</directory>
+                                                <filtering>false</filtering>
+                                                <includes>
+                                                    <include>${project.build.finalName}.jar</include>
+                                                </includes>
+                                            </resource>
+                                        </resources>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <!-- copy the data folder into the jfx/app folder -->
                             <artifactId>maven-resources-plugin</artifactId>
                             <version>3.0.2</version>
                             <executions>
@@ -551,7 +584,7 @@ public class EmbeddedJavaGeneratorFileData {
                                         <outputDirectory>${project.basedir}/target/jfx/app/</outputDirectory>
                                         <resources>
                                             <resource>
-                                                <directory>${project.basedir}/src/main/deploy</directory>
+                                                <directory>${project.basedir}/data</directory>
                                                 <filtering>false</filtering>
                                             </resource>
                                         </resources>
@@ -562,4 +595,21 @@ public class EmbeddedJavaGeneratorFileData {
                     </plugins>
                 </build>
             </project>""";
+
+    public static final String MODULE_FILE_CONTENTS = """
+            module com.tester.unittest {
+                requires java.logging;
+                requires java.prefs;
+                requires java.desktop;
+                requires spring.beans;
+                requires com.google.gson;
+                requires com.fazecast.jSerialComm;
+                requires com.thecoderscorner.tcmenu.javaapi;
+                requires com.thecoderscorner.embedcontrol.core;
+                requires spring.core;
+                requires spring.context;
+                exports com.thecoderscorner.menuexample.tcmenu.plugins;
+                opens com.thecoderscorner.menuexample.tcmenu;
+            }
+            """;
 }

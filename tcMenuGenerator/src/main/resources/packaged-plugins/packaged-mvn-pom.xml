@@ -15,7 +15,7 @@
         <jserialcomm.version>2.9.1</jserialcomm.version>
         <jfx.version>17.0.0.1</jfx.version>
         <tcmenu.api.version>%TCMENU_VERSION%</tcmenu.api.version>
-        <springframework.version>5.3.16</springframework.version>
+        <springframework.version>5.3.19</springframework.version>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
@@ -43,7 +43,7 @@
     </dependencies>
 
     <build>
-        <finalName>EmbeddedJavaDemo</finalName>
+        <finalName>%APPNAME%</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

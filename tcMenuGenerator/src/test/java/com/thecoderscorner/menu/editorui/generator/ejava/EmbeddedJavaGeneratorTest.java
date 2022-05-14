@@ -88,7 +88,7 @@ class EmbeddedJavaGeneratorTest {
     }
 
     @Test
-    public void testConversionWithMenuInMenu() throws IOException {
+    public void testConversionWithMenuInMenuAndModules() throws IOException {
         var menuInMenu = new MenuInMenuCollection();
         menuInMenu.addDefinition(new MenuInMenuDefinition("menuIp", "localhost", 3333, MenuInMenuDefinition.ConnectionType.SOCKET, MenuInMenu.ReplicationMode.REPLICATE_ADD_STATUS_ITEM, 404, 100000, 65000));
         menuInMenu.addDefinition(new MenuInMenuDefinition("menuSer", "COM1", 9600, MenuInMenuDefinition.ConnectionType.SERIAL, MenuInMenu.ReplicationMode.REPLICATE_NOTIFY, 1001, 200000, 75000));
@@ -96,6 +96,7 @@ class EmbeddedJavaGeneratorTest {
                 .withAppName("unit test").withPackageNamespace("com.tester")
                 .withMenuInMenu(menuInMenu)
                 .withProperties(plugin.getProperties())
+                .withModularApp(true)
                 .codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
@@ -114,5 +115,6 @@ class EmbeddedJavaGeneratorTest {
         assertEqualsIgnoringCRLF(EJAVA_MENU_CODE, Files.readString(tcMenuDir.resolve("UnitTestMenu.java")));
         assertEqualsIgnoringCRLF(EJAVA_POM_WITH_DEP, Files.readString(project.getProjectRoot().resolve("pom.xml")));
         assertEqualsIgnoringCRLF(EJAVA_APP_CONTEXT, Files.readString(tcMenuDir.resolve("MenuConfig.java")));
+        assertEqualsIgnoringCRLF(MODULE_FILE_CONTENTS, Files.readString(project.getMainJava().resolve(ModuleFilePatcher.MODULE_FILE_NAME)));
     }
 }
