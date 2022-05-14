@@ -72,6 +72,7 @@ public class JfxLocalAutoUI extends Application {
             layoutPersistence.serialiseAll();
             executor.shutdown();
             Platform.exit();
+            System.exit(0);
         });
 
         var localController = new LocalMenuController();
@@ -101,9 +102,8 @@ public class JfxLocalAutoUI extends Application {
             if(!(val instanceof ListResponse)) {
                 MenuItemHelper.setMenuState(menuItem, val, mgr.getManagedMenu());
             }
-            else {
-                mgr.updateMenuItem(menuItem, val);
-            }
+            mgr.updateMenuItem(menuItem, val);
+
             return CorrelationId.EMPTY_CORRELATION;
         }
 

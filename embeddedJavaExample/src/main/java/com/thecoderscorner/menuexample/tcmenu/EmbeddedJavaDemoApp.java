@@ -1,6 +1,7 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
 import com.thecoderscorner.menu.mgr.*;
+import com.thecoderscorner.menu.persist.MenuStateSerialiser;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import com.thecoderscorner.menuexample.tcmenu.plugins.*;
@@ -27,6 +28,9 @@ public class EmbeddedJavaDemoApp {
     }
 
     public void start() {
+        var serializer = context.getBean(MenuStateSerialiser.class);
+        serializer.loadMenuStatesAndApply();
+        Runtime.getRuntime().addShutdownHook(new Thread(serializer::saveMenuStates));
         manager.addMenuManagerListener(context.getBean(EmbeddedJavaDemoController.class));
         buildMenuInMenuComponents();
         JfxLocalAutoUI.setAppContext(context);
