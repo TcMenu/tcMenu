@@ -23,14 +23,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
 import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.*;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
 public class EmbeddedJavaGenerator implements CodeGenerator {
+    public static final Pattern MODULE_MATCHER = Pattern.compile("mod:([^:]*):(.+)");
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ConfigurationStorage configStorage;
     private final EmbeddedPlatform platform;
@@ -75,13 +78,17 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             logLine(INFO, "Generating the menu application context class");
             generateMenuAppContext(javaProject, javaProject.getAppClassName(""));
 
+            if(options.isModularApp()) {
+                createJavaModuleFile(options, javaProject);
+            }
+
             var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
             fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), previousPluginFiles);
 
             logLine(INFO, "Checking if all dependencies are in the maven POM");
             allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
                     .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
-                    .filter(inc -> inc.getHeaderType() == HeaderDefinition.HeaderType.GLOBAL)
+                    .filter(inc -> inc.getHeaderType() == GLOBAL)
                     .forEach(inc -> javaProject.addDependencyToPomIfNeeded(inc.getHeaderName()));
             logLine(INFO, "Completed code generation for java project");
         }
@@ -90,6 +97,43 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             logger.log(ERROR, "Exception during java project conversion", ex);
         }
         return false;
+    }
+
+    private void createJavaModuleFile(CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {
+        logLine(INFO, "Generating the Java module-info file");
+        var patcher = new ModuleFilePatcher(javaProject.getMainJava());
+        patcher.addOpens("com.thecoderscorner.menuexample.tcmenu");
+        patcher.addExports("com.thecoderscorner.menuexample.tcmenu.plugins");
+        patcher.addRequires("java.logging");
+        patcher.addRequires("java.prefs");
+        patcher.addRequires("java.desktop");
+        patcher.addRequires("spring.beans");
+        patcher.addRequires("com.google.gson");
+        patcher.addRequires("com.fazecast.jSerialComm");
+        patcher.addRequires("com.thecoderscorner.tcmenu.javaapi");
+        patcher.addRequires("com.thecoderscorner.embedcontrol.core");
+        patcher.addRequires("spring.core");
+        patcher.addRequires("spring.context");
+
+        allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
+                .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
+                .filter(inc -> inc.getHeaderType() == GLOBAL)
+                .forEach(inc -> {
+                    var matcher = MODULE_MATCHER.matcher(inc.getHeaderName());
+                    if(matcher.matches() && inc.getHeaderType() == GLOBAL) {
+                        logLine(INFO, "Module dependency from plugin " + inc.getHeaderName());
+                        switch(matcher.group(1)) {
+                            case "opens" -> patcher.addOpens(matcher.group(2));
+                            case "exports" -> patcher.addExports(matcher.group(2));
+                            default -> patcher.addRequires(matcher.group(2));
+                        }
+                    }
+                });
+        if(patcher.startConversion(options, javaProject)) {
+            logLine(INFO, "Module file was updated");
+        } else {
+            logLine(INFO, "No changes needed in module file");
+        }
     }
 
     private Path makePluginPath(EmbeddedJavaProject javaProject) throws IOException {

@@ -31,6 +31,7 @@ public class CodeGeneratorOptionsBuilder {
     private List<CreatorProperty> lastProperties = List.of();
     private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
     private boolean namingRecursive = false;
+    private boolean appIsModular = false;
     private boolean saveToSrc = false;
     private boolean useCppMain = false;
     private EepromDefinition eepromDef = new NoEepromDefinition();
@@ -53,6 +54,7 @@ public class CodeGeneratorOptionsBuilder {
         authDef = other.getAuthenticatorDefinition();
         expanderDefinitions = other.getExpanderDefinitions();
         packageNamespace = other.getPackageNamespace();
+        appIsModular = other.isModularApp();
         menuInMenuDefinitions = other.getMenuInMenuCollection();
         return this;
     }
@@ -60,7 +62,7 @@ public class CodeGeneratorOptionsBuilder {
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
-                menuInMenuDefinitions, namingRecursive, saveToSrc, useCppMain);
+                menuInMenuDefinitions, appIsModular, namingRecursive, saveToSrc, useCppMain);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -85,6 +87,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withAppName(String newValue) {
         applicationName = newValue;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withModularApp(boolean modularApp) {
+        this.appIsModular = modularApp;
         return this;
     }
 

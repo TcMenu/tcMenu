@@ -80,6 +80,7 @@ public class GenerateCodeDialog {
     private Button eepromTypeButton;
     private Label authModeLabel;
     private TextField namespaceField;
+    private ToggleButton useModuleButton;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -284,7 +285,11 @@ public class GenerateCodeDialog {
         Label namespaceLabel = new Label("Namespace");
         embeddedPane.add(namespaceLabel, 0, 5);
         namespaceField = new TextField(appNamespace);
-        embeddedPane.add(namespaceField, 1, 5, 2, 1);
+        embeddedPane.add(namespaceField, 1, 5);
+        useModuleButton = new ToggleButton("Modular App");
+        useModuleButton.setSelected(project.getGeneratorOptions().isModularApp());
+        useModuleButton.setPrefWidth(120);
+        embeddedPane.add(useModuleButton, 2, 5);
 
         ColumnConstraints column1 = new ColumnConstraints(120);
         ColumnConstraints column2 = new ColumnConstraints(400, 500, 999, Priority.ALWAYS, HPos.LEFT, true);
@@ -345,10 +350,12 @@ public class GenerateCodeDialog {
         if(!embeddedJava) {
             namespaceField.setText("");
             namespaceField.setDisable(true);
+            useModuleButton.setDisable(true);
         }
         else {
             eepromTypeLabel.setText("Embedded Java uses inbuilt storage instead of EEPROM");
             namespaceField.setDisable(false);
+            useModuleButton.setDisable(false);
         }
         reloadAllPlugins(newVal);
         refreshPluginContents(newVal, currentDisplay, displaysSupported);
@@ -495,6 +502,7 @@ public class GenerateCodeDialog {
                 .withInput(currentInput.getItem().getId())
                 .withRemotes(currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()))
                 .withPackageNamespace(namespaceField.getText())
+                .withModularApp(useModuleButton.isSelected())
                 .withTheme(themeId)
                 .withProperties(allProps)
                 .codeOptions()

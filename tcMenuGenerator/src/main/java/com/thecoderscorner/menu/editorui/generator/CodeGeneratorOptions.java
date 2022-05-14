@@ -34,6 +34,7 @@ public class CodeGeneratorOptions {
 
     private MenuInMenuCollection menuInMenuCollection;
     private String packageNamespace;
+    private boolean appIsModular;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -44,7 +45,7 @@ public class CodeGeneratorOptions {
                                 UUID applicationUUID, String applicationName, String packageNamespace,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
-                                MenuInMenuCollection menuInMenuCollection,
+                                MenuInMenuCollection menuInMenuCollection, boolean appIsModular,
                                 boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
@@ -61,6 +62,7 @@ public class CodeGeneratorOptions {
         this.applicationName = applicationName;
         this.packageNamespace = packageNamespace;
         this.namingRecursive = namingRecursive;
+        this.appIsModular = appIsModular;
         this.saveToSrc = saveToSrc;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
         this.eepromDefinition = eepromDef;
@@ -133,5 +135,9 @@ public class CodeGeneratorOptions {
     public MenuInMenuCollection getMenuInMenuCollection() {
         if(menuInMenuCollection == null)  menuInMenuCollection = new MenuInMenuCollection();
         return menuInMenuCollection;
+    }
+
+    public boolean isModularApp() {
+        return appIsModular;
     }
 }

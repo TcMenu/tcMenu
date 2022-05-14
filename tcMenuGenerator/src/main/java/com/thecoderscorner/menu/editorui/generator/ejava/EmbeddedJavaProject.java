@@ -168,7 +168,8 @@ public class EmbeddedJavaProject {
         try {
             var matcher = dependencyMatcher.matcher(dependency);
             if(!matcher.matches()) {
-                uiLogger.accept(WARNING, "Not a maven dependency " + dependency);
+                uiLogger.accept(DEBUG, "Not a maven dependency " + dependency);
+                return;
             }
             var org = matcher.group(1);
             var artifact = matcher.group(2);
