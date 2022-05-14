@@ -243,6 +243,11 @@
     "applicationName": "Embedded Java Demo",
     "lastProperties": [
       {
+        "name": "JDK_INCLUDES_JAVAFX",
+        "latestValue": "false",
+        "subsystem": "DISPLAY"
+      },
+      {
         "name": "EJ_NET_PORT_NUMBER",
         "latestValue": "3333",
         "subsystem": "REMOTE"
@@ -270,6 +275,7 @@
         }
       ]
     },
-    "packageNamespace": "com.thecoderscorner.menuexample"
+    "packageNamespace": "com.thecoderscorner.menuexample",
+    "appIsModular": true
   }
 }

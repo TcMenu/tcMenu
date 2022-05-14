@@ -9,7 +9,10 @@
     <RequiredLibraries/>
     <ImageFile>embedded-java.png</ImageFile>
 
-    <Properties/>
+    <Properties>
+        <Property id="JDK_INCLUDES_JAVAFX" name="JDK includes OpenJFX" initial="false"  type="boolean"
+                  desc="If your JDK already has the OpenJFX libraries included, EG Liberica"/>
+    </Properties>
 
     <ApplicabilityDefs/>
 
@@ -24,8 +27,12 @@
         <Header name="${NAMESPACE}.tcmenu.plugins.*" inSource="true"/>
         <Header name="javafx.application.Application" inSource="true"/>
         <Header name="mvn:com.thecoderscorner.tcmenu/embedCONTROLCore@${tcmenu.api.version}" inSource="false"/>
-        <Header name="mvn:org.openjfx/javafx-controls@${jfx.version}" inSource="false"/>
-        <Header name="mvn:org.openjfx/javafx-fxml@${jfx.version}" inSource="false"/>
+        <Header name="mvn:org.openjfx/javafx-controls@${jfx.version}" inSource="false" whenProperty="JDK_INCLUDES_JAVAFX" isValue="false" />
+        <Header name="mvn:org.openjfx/javafx-fxml@${jfx.version}" inSource="false" whenProperty="JDK_INCLUDES_JAVAFX" isValue="false"/>
+        <Header name="mod:requires:javafx.graphics" inSource="false"/>
+        <Header name="mod:requires:javafx.base" inSource="false"/>
+        <Header name="mod:requires:javafx.controls" inSource="false"/>
+        <Header name="mod:requires:javafx.fxml" inSource="false"/>
     </IncludeFiles>
 
     <GlobalVariables>
