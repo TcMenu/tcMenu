@@ -19,5 +19,5 @@ module com.thecoderscorner.menuexample.embeddedjavademo {
     requires org.eclipse.jetty.server;
     requires org.eclipse.jetty.servlet;
     requires jetty.websocket.api;
-    requires org.eclipse.jetty.websocket.jakarta.server;
+    requires org.eclipse.jetty.websocket.javax.server;
 }

@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.util.Objects;
 
@@ -17,7 +18,7 @@ public class MenuDialogCommand implements MenuCommand {
     private final String buffer;
     private final MenuButtonType b1;
     private final MenuButtonType b2;
-    private CorrelationId correlationId;
+    private final CorrelationId correlationId;
 
     public MenuDialogCommand(DialogMode dialogMode, String header, String buffer, MenuButtonType b1, MenuButtonType b2,
                              CorrelationId correlationId) {
@@ -49,7 +50,7 @@ public class MenuDialogCommand implements MenuCommand {
         return b2;
     }
 
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.DIALOG_UPDATE;
     }
 

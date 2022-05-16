@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -48,7 +49,7 @@ public class MenuJoinCommand implements MenuCommand {
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.JOIN;
     }
 

@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, Integer> {
 
@@ -17,7 +18,7 @@ public class MenuAnalogBootCommand extends BootItemMenuCommand<AnalogMenuItem, I
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.ANALOG_BOOT_ITEM;
     }
 

@@ -7,15 +7,22 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.commands.MenuCommandType;
+import com.thecoderscorner.menu.remote.protocol.CommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
  * This is a low level part of the API that most people don't need to deal, implementations will translate
- * commands to and from a given protocol.
+ * commands to and from a given protocol. If you want to add custom messages then see the configurable protocol
+ * converter {@link com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter} implementation.
  */
 public interface MenuCommandProtocol {
+    byte PROTO_START_OF_MSG = 0x01;
+    byte PROTO_END_OF_MSG = 0x02;
+
     /**
      * Retrieves a message from the channel, or throws an exception if the message is not fully formed.
      * It is assumed that the buffer has been suitably flipped ready for reading
@@ -28,11 +35,14 @@ public interface MenuCommandProtocol {
      * @param buffer to write the data to
      * @param cmd the command to write
      */
-    void toChannel(ByteBuffer buffer, MenuCommand cmd);
+    void toChannel(ByteBuffer buffer, MenuCommand cmd) throws TcProtocolException;
 
     /**
-     * returns the identifier for this protocol, when used in messages
-     * @return the ID for this protocol
+     * Checks the message and sees which protocol it will be processed with. For example the JOIN message would be
+     * processed using TagVal.
+     *
+     * @param command the command to check the protocol of
+     * @return the protocol that will be used.
      */
-    byte getKeyIdentifier();
+    CommandProtocol getProtocolForCmd(MenuCommand command);
 }

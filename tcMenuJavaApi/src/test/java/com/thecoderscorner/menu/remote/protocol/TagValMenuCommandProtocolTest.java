@@ -12,33 +12,50 @@ import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
 import static com.thecoderscorner.menu.remote.commands.MenuCommandType.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class TagValMenuCommandProtocolTest {
-    private final TagValMenuCommandProtocol protocol = new TagValMenuCommandProtocol();
+    private ConfigurableProtocolConverter protocol;
     private byte[] msgData;
     private ByteBuffer bb;
 
     @Before
     public void setUp() {
+        protocol = new ConfigurableProtocolConverter(true);
+        protocol.addTagValInProcessor(SpannerCommand.SPANNER_MSG_TYPE, parser ->
+                new SpannerCommand(parser.getValueAsInt("ZA"), parser.getValue("ZB")));
+        protocol.addTagValOutProcessor(SpannerCommand.SPANNER_MSG_TYPE, (buffer, cmd) -> {
+                TagValMenuCommandProcessors.appendField(buffer, "ZA", cmd.getMetricSize());
+                TagValMenuCommandProcessors.appendField(buffer, "ZB", cmd.getMake());
+        }, SpannerCommand.class);
+
+        protocol.addRawInProcessor(BinaryDataCommand.BIN_DATA_COMMAND, (buffer, len) -> {
+            byte[] data = new byte[len];
+            buffer.get(data, 0, len);
+            return new BinaryDataCommand(data);
+        });
+        protocol.addRawOutProcessor(BinaryDataCommand.BIN_DATA_COMMAND, (buffer, cmd) -> {
+            buffer.putInt(cmd.getBinData().length);
+            buffer.put(cmd.getBinData());
+        }, BinaryDataCommand.class);
+
         msgData = new byte[2048];
         bb = ByteBuffer.wrap(msgData);
     }
@@ -170,7 +187,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(21, enumItem.getMenuItem().getId());
         assertEquals("Choices", enumItem.getMenuItem().getName());
         assertEquals(42, enumItem.getSubMenuId());
-        assertThat(enumItem.getMenuItem().getEnumEntries(), is(Arrays.asList("Choice1", "Choice2", "Choice3")));
+        Assertions.assertThat(enumItem.getMenuItem().getEnumEntries()).containsExactly("Choice1", "Choice2", "Choice3");
         assertTrue(enumItem.getMenuItem().isReadOnly());
     }
 
@@ -345,7 +362,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("ca039424", chg.getCorrelationId().toString());
         assertEquals(22, chg.getMenuItemId());
         assertEquals(ChangeType.ABSOLUTE_LIST, chg.getChangeType());
-        assertThat(chg.getValues(), containsInAnyOrder("R1\t123", "R2\t456"));
+        Assertions.assertThat(chg.getValues()).containsExactlyInAnyOrder("R1\t123", "R2\t456");
     }
 
     private void verifyChangeFields(MenuCommand cmd, ChangeType chType, int value) {
@@ -360,7 +377,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
 
-    @Test(expected = IOException.class)
+    @Test(expected = IllegalStateException.class)
     public void testReceivingUnknownMessageThrowsException() throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(10);
         bb.put((byte) '?').put((byte) '?').put((byte) '~').flip();
@@ -370,32 +387,32 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingHeartbeat() {
+    public void testWritingHeartbeat() throws TcProtocolException {
         protocol.toChannel(bb, newHeartbeatCommand(10000, HeartbeatMode.NORMAL));
         testBufferAgainstExpected(HEARTBEAT, "HI=10000|HR=0|\u0002");
     }
 
     @Test
-    public void testWritingJoin() {
+    public void testWritingJoin() throws TcProtocolException {
         var uuid = UUID.fromString("07cd8bc6-734d-43da-84e7-6084990becfc");
         protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101));
         testBufferAgainstExpected(JOIN, "NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|\u0002");
     }
 
     @Test
-    public void testWritingLargeIntegerBoot() {
+    public void testWritingLargeIntegerBoot() throws TcProtocolException {
         protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111, 4, true), BigDecimal.ONE));
         testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|NA=1|ML=12|VC=1.0000|\u0002");
     }
 
     @Test
-    public void testWritingBootstrap() {
+    public void testWritingBootstrap() throws TcProtocolException {
         protocol.toChannel(bb, new MenuBootstrapCommand(MenuBootstrapCommand.BootType.START));
         testBufferAgainstExpected(BOOTSTRAP, "BT=START|\u0002");
     }
 
     @Test
-    public void testWritingAnalogItem() {
+    public void testWritingAnalogItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuAnalogBootCommand(321,
                 DomainFixtures.anAnalogItem("Test", 123),
                 25));
@@ -403,7 +420,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingEnumItem() {
+    public void testWritingEnumItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuEnumBootCommand(22,
                 DomainFixtures.anEnumItem("Test", 2),
                 1));
@@ -411,7 +428,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingSubMenu() {
+    public void testWritingSubMenu() throws TcProtocolException {
         protocol.toChannel(bb, new MenuSubBootCommand(22,
                 DomainFixtures.aSubMenu("Sub", 1),
                 false));
@@ -419,7 +436,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingBooleanItem() {
+    public void testWritingBooleanItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.TRUE_FALSE),
                 false));
@@ -427,7 +444,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingFloatItem() {
+    public void testWritingFloatItem() throws TcProtocolException {
         FloatMenuItem floatItem = DomainFixtures.aFloatMenu("FloatMenu", 1);
         floatItem = new FloatMenuItemBuilder().withExisting(floatItem).withVisible(false).menuItem();
         protocol.toChannel(bb, new MenuFloatBootCommand(22,
@@ -436,7 +453,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingRuntimeListItem() {
+    public void testWritingRuntimeListItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuRuntimeListBootCommand(22,
                 DomainFixtures.aRuntimeListMenu("List", 1, 2),
                 List.of("ABC", "DEF")));
@@ -444,21 +461,21 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingActionItem() {
+    public void testWritingActionItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuActionBootCommand(22,
                 DomainFixtures.anActionMenu("Action", 1), false));
         testBufferAgainstExpected(ACTION_BOOT_ITEM, "PI=22|ID=1|IE=20|NM=Action|RO=0|VI=1|VC=|\u0002");
     }
 
     @Test
-    public void testWritingTextItem() {
+    public void testWritingTextItem() throws TcProtocolException {
         protocol.toChannel(bb, new MenuTextBootCommand(22,
                 DomainFixtures.aTextMenu("TextItem", 1), "ABC"));
         testBufferAgainstExpected(TEXT_BOOT_ITEM, "PI=22|ID=1|IE=101|NM=TextItem|RO=0|VI=1|ML=10|EM=0|VC=ABC|\u0002");
     }
 
     @Test
-    public void testWritingBooleanItemOnOff() {
+    public void testWritingBooleanItemOnOff() throws TcProtocolException {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.ON_OFF),
                 true));
@@ -466,7 +483,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingBooleanItemYesNo() {
+    public void testWritingBooleanItemYesNo() throws TcProtocolException {
         protocol.toChannel(bb, new MenuBooleanBootCommand(22,
                 DomainFixtures.aBooleanMenu("Bool", 1, BooleanNaming.YES_NO),
                 true));
@@ -474,45 +491,45 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testWritingAnAbsoluteChange() {
+    public void testWritingAnAbsoluteChange() throws TcProtocolException {
         protocol.toChannel(bb, newAbsoluteMenuChangeCommand(new CorrelationId("00134654"), 2, 1));
         testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00134654|ID=2|TC=1|VC=1|\u0002");
     }
 
     @Test
-    public void testWritingADeltaChange() {
+    public void testWritingADeltaChange() throws TcProtocolException {
         protocol.toChannel(bb, newDeltaChangeCommand(new CorrelationId("C04239"), 2, 1));
         testBufferAgainstExpected(CHANGE_INT_FIELD,"IC=00c04239|ID=2|TC=0|VC=1|\u0002");
     }
 
     @Test
-    public void testWritingListChange() {
+    public void testWritingListChange() throws TcProtocolException {
         protocol.toChannel(bb, newAbsoluteListChangeCommand(new CorrelationId("C04239"), 2,
                 List.of("123", "456")));
         testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=2|NC=2|CA=123|CB=456|\u0002");
     }
 
     @Test
-    public void testWritingListStatusChange() {
+    public void testWritingListStatusChange() throws TcProtocolException {
         protocol.toChannel(bb, newListResponseChangeCommand(new CorrelationId("C04239"), 2,
                 ListResponse.fromString("12343:1").orElseThrow()));
         testBufferAgainstExpected(CHANGE_INT_FIELD, "IC=00c04239|ID=2|TC=3|VC=12343:1|\u0002");
     }
 
     @Test
-    public void testWritingAck() {
+    public void testWritingAck() throws TcProtocolException {
         protocol.toChannel(bb, newAcknowledgementCommand(new CorrelationId("1234567a"), AckStatus.ID_NOT_FOUND));
         testBufferAgainstExpected(ACKNOWLEDGEMENT, "IC=1234567a|ST=1|\u0002");
     }
 
     @Test
-    public void testWritingPairing() {
+    public void testWritingPairing() throws TcProtocolException {
         protocol.toChannel(bb, newPairingCommand("pairingtest", UUID.fromString("575d327e-fe76-4e68-b0b8-45eea154a126")));
         testBufferAgainstExpected(PAIRING_REQUEST,"NM=pairingtest|UU=575d327e-fe76-4e68-b0b8-45eea154a126|\u0002");
     }
 
     @Test
-    public void testWritingDialogUpdate() {
+    public void testWritingDialogUpdate() throws TcProtocolException {
 
         protocol.toChannel(bb, newDialogCommand(DialogMode.SHOW, "Hello", "Buffer", MenuButtonType.NONE,
                 MenuButtonType.CLOSE, CorrelationId.EMPTY_CORRELATION));
@@ -520,7 +537,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
 
-    private void testBufferAgainstExpected(MenuCommandType expectedMsg, String expectedData) {
+    private void testBufferAgainstExpected(MessageField expectedMsg, String expectedData) {
         bb.flip();
 
         expectedData = "\u0001\u0001" + expectedMsg.getHigh() + expectedMsg.getLow() + expectedData;
@@ -530,12 +547,34 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(expectedData, s);
     }
 
-
-    private ByteBuffer toBuffer(MenuCommandType type, String s) {
+    private ByteBuffer toBuffer(MessageField type, String s) {
         ByteBuffer bb = ByteBuffer.allocate(s.length() + 10);
-        return bb.put((byte) type.getHigh())
+        return bb.put(CommandProtocol.TAG_VAL_PROTOCOL.getProtoNum()).put((byte) type.getHigh())
                 .put((byte) type.getLow())
                 .put(s.getBytes())
                 .flip();
+    }
+
+    @Test
+    public void testSendingAndReceivingCustomTagVal() throws Exception {
+        var spannerCmd = new SpannerCommand(15, "Super Duper");
+        protocol.toChannel(bb, spannerCmd);
+        bb.flip();
+        assertEquals(MenuCommandProtocol.PROTO_START_OF_MSG, bb.get());
+        var msg = (SpannerCommand) protocol.fromChannel(bb);
+        assertEquals(SpannerCommand.SPANNER_MSG_TYPE, msg.getCommandType());
+        assertEquals(15, spannerCmd.getMetricSize());
+        assertEquals("Super Duper", spannerCmd.getMake());
+    }
+
+    @Test
+    public void testSendingAndReceivingCustomBinData() throws IOException {
+        var binData = new BinaryDataCommand(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        protocol.toChannel(bb, binData);
+        bb.flip();
+        assertEquals(MenuCommandProtocol.PROTO_START_OF_MSG, bb.get());
+        var msg = (BinaryDataCommand) protocol.fromChannel(bb);
+        assertEquals(BinaryDataCommand.BIN_DATA_COMMAND, msg.getCommandType());
+        Assertions.assertThat(msg.getBinData()).containsExactly(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     }
 }

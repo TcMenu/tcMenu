@@ -10,17 +10,22 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.remote.AuthStatus.*;
 import static com.thecoderscorner.menu.remote.commands.CommandFactory.*;
+import static com.thecoderscorner.menu.remote.commands.MenuCommandType.*;
 import static java.lang.System.Logger.Level.*;
 
 /**
@@ -37,10 +42,28 @@ public class RemoteMenuController {
     private final MenuTree managedMenu;
     private final ConcurrentMap<CorrelationId, MenuItem> itemsInProgress = new ConcurrentHashMap<>();
     private final List<RemoteControllerListener> listeners = new CopyOnWriteArrayList<>();
+    private final Map<MessageField, BiConsumer<RemoteMenuController, MenuCommand>> customMessageHandlers = new ConcurrentHashMap<>();
+
 
     public RemoteMenuController(RemoteConnector connector, MenuTree managedMenu) {
         this.connector = connector;
         this.managedMenu = managedMenu;
+    }
+
+    /**
+     * Allows user level additional message processors for custom messages. Using this you can provide your own message
+     * type at the API protocol level, and then use this to apply the additional functionality to the manager. The
+     * provided consumer will be called each time this custom message is applied. Note that you cannot override the
+     * core security based message types, any attempt to do so results in an exception.
+     *
+     * @param msgType the message type for your custom message
+     * @param processor the processor to handle the message.
+     */
+    public void addCustomMessageProcessor(MessageField msgType, BiConsumer<RemoteMenuController, MenuCommand> processor) {
+        if(MenuManagerServer.MSGTYPES_CANNOT_OVERRIDE.contains(msgType)) {
+            throw new IllegalArgumentException("You cannot override core type" + msgType);
+        }
+        customMessageHandlers.put(msgType, processor);
     }
 
     /**
@@ -164,32 +187,22 @@ public class RemoteMenuController {
     }
 
     private void onCommandReceived(RemoteConnector remoteConnector, MenuCommand menuCommand) {
-        switch(menuCommand.getCommandType()) {
-            case ACKNOWLEDGEMENT:
-                onAcknowledgementCommand((MenuAcknowledgementCommand)menuCommand);
-                break;
-            case ANALOG_BOOT_ITEM:
-            case ENUM_BOOT_ITEM:
-            case BOOLEAN_BOOT_ITEM:
-            case SUBMENU_BOOT_ITEM:
-            case TEXT_BOOT_ITEM:
-            case LARGE_NUM_BOOT_ITEM:
-            case REMOTE_BOOT_ITEM:
-            case FLOAT_BOOT_ITEM:
-            case ACTION_BOOT_ITEM:
-            case RUNTIME_LIST_BOOT:
-            case BOOT_RGB_COLOR:
-            case BOOT_SCROLL_CHOICE:
-                onMenuItemBoot((BootItemMenuCommand<?, ?>) menuCommand);
-                break;
-            case BOOTSTRAP:
-                onBootstrap((MenuBootstrapCommand) menuCommand);
-                break;
-            case CHANGE_INT_FIELD:
-                onChangeField((MenuChangeCommand) menuCommand);
-                break;
-            case DIALOG_UPDATE:
-                onDialogChange((MenuDialogCommand) menuCommand);
+        if(menuCommand.getCommandType().equals(ACKNOWLEDGEMENT)) {
+            onAcknowledgementCommand((MenuAcknowledgementCommand) menuCommand);
+        } else if(menuCommand instanceof BootItemMenuCommand) {
+            onMenuItemBoot((BootItemMenuCommand<?, ?>) menuCommand);
+        }
+        else if(menuCommand.getCommandType() == BOOTSTRAP) {
+            onBootstrap((MenuBootstrapCommand) menuCommand);
+        }
+        else if(menuCommand.getCommandType() == CHANGE_INT_FIELD) {
+            onChangeField((MenuChangeCommand) menuCommand);
+        }
+        else if(menuCommand.getCommandType() == DIALOG_UPDATE) {
+            onDialogChange((MenuDialogCommand) menuCommand);
+        }
+        else if(customMessageHandlers.containsKey(menuCommand.getCommandType()) && getConnector().getAuthenticationStatus() == CONNECTION_READY) {
+            customMessageHandlers.get(menuCommand.getCommandType()).accept(this, menuCommand);
         }
     }
 

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuCommandType;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 public class BootstrapInProgressState extends BaseMessageProcessingState {
 
-    private static final Set<MenuCommandType> BOOT_TYPES = Set.of(
+    private static final Set<MessageField> BOOT_TYPES = Set.of(
             ANALOG_BOOT_ITEM,
             ACTION_BOOT_ITEM,
             SUBMENU_BOOT_ITEM,

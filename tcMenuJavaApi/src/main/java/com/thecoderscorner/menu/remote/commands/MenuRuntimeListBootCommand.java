@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class MenuRuntimeListBootCommand extends BootItemMenuCommand<RuntimeListM
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.RUNTIME_LIST_BOOT;
     }
 

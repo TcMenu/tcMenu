@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
+import com.thecoderscorner.menu.remote.protocol.MessageField;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,7 +30,7 @@ public class MenuPairingCommand implements MenuCommand {
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.PAIRING_REQUEST;
     }
 

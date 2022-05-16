@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -16,7 +18,8 @@ import java.util.Map;
  * a series of tags and values suitable for the protocol to decode messages.
  */
 public class TagValTextParser {
-    private Map<String, String> keyToValue = new HashMap<>(32);
+    public static final char FIELD_TERMINATOR = '|';
+    private final Map<String, String> keyToValue = new HashMap<>(32);
 
     /**
      * Creates an instance that contains all the tags and values in a map, that can
@@ -31,12 +34,12 @@ public class TagValTextParser {
             if(key.isEmpty()) {
                 throw new TcProtocolException("Key is empty in protocol");
             }
-            else if(key.charAt(0) == TagValMenuCommandProtocol.END_OF_MSG) {
+            else if(key.charAt(0) == MenuCommandProtocol.PROTO_END_OF_MSG) {
                 foundEnd = true;
             }
             else {
                 String value = readString(buffer);
-                if (!value.isEmpty() && value.charAt(0) == TagValMenuCommandProtocol.END_OF_MSG) {
+                if (!value.isEmpty() && value.charAt(0) == MenuCommandProtocol.PROTO_END_OF_MSG) {
                     foundEnd = true;
                 }
                 keyToValue.put(key, value);
@@ -48,7 +51,7 @@ public class TagValTextParser {
         StringBuilder sb = new StringBuilder(32);
         while(buffer.hasRemaining()) {
             char ch = (char) buffer.get();
-            if(ch == TagValMenuCommandProtocol.END_OF_MSG) {
+            if(ch == MenuCommandProtocol.PROTO_END_OF_MSG) {
                 return "\u0002";
             }
             else if(ch == '\\') {
@@ -56,7 +59,7 @@ public class TagValTextParser {
                 ch = (char) buffer.get();
                 sb.append(ch);
             }
-            else if(ch == '=' || ch == TagValMenuCommandProtocol.FIELD_TERMINATOR) {
+            else if(ch == '=' || ch == TagValTextParser.FIELD_TERMINATOR) {
                 // end of current token
                 return sb.toString();
             }
@@ -74,12 +77,12 @@ public class TagValTextParser {
      * @param keyMsgType the key to obtain
      * @return the associated value
      */
-    public String getValue(String keyMsgType) throws IOException {
+    public String getValue(String keyMsgType) throws TcProtocolException {
         if(keyToValue.containsKey(keyMsgType)) {
             return keyToValue.get(keyMsgType);
         }
         else {
-            throw new IOException("Key " + keyMsgType + " doesn't exist in " + keyToValue);
+            throw new TcProtocolException("Key " + keyMsgType + " doesn't exist in " + keyToValue);
         }
     }
 
@@ -98,7 +101,7 @@ public class TagValTextParser {
      * @param keyIdField the key to obtain
      * @return the integer value associated
      */
-    public int getValueAsInt(String keyIdField) throws IOException {
+    public int getValueAsInt(String keyIdField) throws TcProtocolException {
         return Integer.parseInt(getValue(keyIdField));
     }
 
@@ -107,7 +110,7 @@ public class TagValTextParser {
      * @param keyIdField the key to obtain
      * @return the integer value associated
      */
-    public int getValueAsIntWithDefault(String keyIdField, int defaultVal) throws IOException {
+    public int getValueAsIntWithDefault(String keyIdField, int defaultVal) throws TcProtocolException {
         if(keyToValue.containsKey(keyIdField)) {
             return Integer.parseInt(getValue(keyIdField));
         }

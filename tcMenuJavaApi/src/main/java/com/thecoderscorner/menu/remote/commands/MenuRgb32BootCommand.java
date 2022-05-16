@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.remote.commands;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.state.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuRgb32BootCommand extends BootItemMenuCommand<Rgb32MenuItem, PortableColor> {
 
@@ -17,7 +18,7 @@ public class MenuRgb32BootCommand extends BootItemMenuCommand<Rgb32MenuItem, Por
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.BOOT_RGB_COLOR;
     }
 

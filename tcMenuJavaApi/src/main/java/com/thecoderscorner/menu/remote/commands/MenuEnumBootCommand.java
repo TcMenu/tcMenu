@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integer> {
 
@@ -18,7 +18,7 @@ public class MenuEnumBootCommand extends BootItemMenuCommand<EnumMenuItem, Integ
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.ENUM_BOOT_ITEM;
     }
 

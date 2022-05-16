@@ -10,14 +10,14 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
@@ -26,86 +26,56 @@ import static com.thecoderscorner.menu.remote.commands.MenuBootstrapCommand.Boot
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.*;
 import static com.thecoderscorner.menu.remote.protocol.TagValMenuFields.*;
-import static java.lang.System.Logger.Level.DEBUG;
 
 /**
- * A protocol implementation that uses tag value pair notation with a few special text items
- * in order to create messages that can be transmitted. It is currently the default protocol.
+ * A series of protocol handlers for most of the common tag value messages. This is currently the default protocol.
  * Example of this format: "0=123|1=234~" where key 0 is 123 and key 1 is 234, tilde indicates
  * the end of the message.
+ * @see ConfigurableProtocolConverter
  */
-public class TagValMenuCommandProtocol implements MenuCommandProtocol {
-    public static final byte PROTOCOL_TAG_VAL = 1;
-    public static final byte START_OF_MSG = 0x01;
-    public static final byte END_OF_MSG = 0x02;
-    public static final byte FIELD_TERMINATOR = '|';
-    private static final boolean DEBUG_ALL_MESSAGES = false;
+public class TagValMenuCommandProcessors {
+    public void addHandlersToProtocol(ConfigurableProtocolConverter proto) {
 
-    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private final Map<String, MenuCommandType> codeToCmdType;
+        proto.addTagValInProcessor(MenuCommandType.JOIN, this::processJoin);
+        proto.addTagValInProcessor(MenuCommandType.HEARTBEAT, this::processHeartbeat);
+        proto.addTagValInProcessor(MenuCommandType.BOOTSTRAP, this::processBootstrap);
+        proto.addTagValInProcessor(MenuCommandType.ANALOG_BOOT_ITEM, this::processAnalogBootItem);
+        proto.addTagValInProcessor(MenuCommandType.SUBMENU_BOOT_ITEM, this::processSubMenuBootItem);
+        proto.addTagValInProcessor(MenuCommandType.ENUM_BOOT_ITEM, this::processEnumBootItem);
+        proto.addTagValInProcessor(MenuCommandType.BOOLEAN_BOOT_ITEM, this::processBoolBootItem);
+        proto.addTagValInProcessor(MenuCommandType.LARGE_NUM_BOOT_ITEM, this::processLargeNumBootItem);
+        proto.addTagValInProcessor(MenuCommandType.CHANGE_INT_FIELD, this::processItemChange);
+        proto.addTagValInProcessor(MenuCommandType.TEXT_BOOT_ITEM, this::processTextItem);
+        proto.addTagValInProcessor(MenuCommandType.FLOAT_BOOT_ITEM, this::processFloatItem);
+        proto.addTagValInProcessor(MenuCommandType.ACTION_BOOT_ITEM, this::processActionItem);
+        proto.addTagValInProcessor(MenuCommandType.RUNTIME_LIST_BOOT, this::processRuntimeListBoot);
+        proto.addTagValInProcessor(MenuCommandType.BOOT_RGB_COLOR, this::processRuntimeRgbColor);
+        proto.addTagValInProcessor(MenuCommandType.BOOT_SCROLL_CHOICE, this::processRuntimeScrollChoice);
+        proto.addTagValInProcessor(MenuCommandType.ACKNOWLEDGEMENT, this::processAcknowledgement);
+        proto.addTagValInProcessor(MenuCommandType.PAIRING_REQUEST, this::processPairingRequest);
+        proto.addTagValInProcessor(MenuCommandType.DIALOG_UPDATE, this::processDialogUpdate);
 
-    public TagValMenuCommandProtocol() {
-        codeToCmdType = new HashMap<>();
-        for (MenuCommandType ty : MenuCommandType.values()) {
-            codeToCmdType.put(ty.getCode(), ty);
-        }
+        proto.addTagValOutProcessor(MenuCommandType.HEARTBEAT, this::writeHeartbeat, MenuHeartbeatCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.JOIN, this::writeJoin, MenuJoinCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.ACKNOWLEDGEMENT, this::writeAcknowledgement, MenuAcknowledgementCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.BOOTSTRAP, this::writeBootstrap, MenuBootstrapCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.ANALOG_BOOT_ITEM, this::writeAnalogItem, MenuAnalogBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.SUBMENU_BOOT_ITEM, this::writeSubMenuItem, MenuSubBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.ENUM_BOOT_ITEM, this::writeEnumMenuItem, MenuEnumBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.ACTION_BOOT_ITEM, this::writeActionBootItem, MenuActionBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.FLOAT_BOOT_ITEM, this::writeFloatBootItem, MenuFloatBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.BOOLEAN_BOOT_ITEM, this::writeBoolMenuItem, MenuBooleanBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.RUNTIME_LIST_BOOT, this::writeRuntimeListBootItem, MenuRuntimeListBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.LARGE_NUM_BOOT_ITEM, this::writeLargeNumberBootItem, MenuLargeNumBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.CHANGE_INT_FIELD, this::writeChangeInt, MenuChangeCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.TEXT_BOOT_ITEM, this::writeTextMenuItem, MenuTextBootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.PAIRING_REQUEST, this::writePairingRequest, MenuPairingCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.DIALOG_UPDATE, this::writeDialogUpdate, MenuDialogCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.BOOT_RGB_COLOR, this::writeRgbBoot, MenuRgb32BootCommand.class);
+        proto.addTagValOutProcessor(MenuCommandType.BOOT_SCROLL_CHOICE, this::writeScrollBoot, MenuScrollChoiceBootCommand.class);
     }
 
-    @Override
-    public MenuCommand fromChannel(ByteBuffer buffer) throws IOException {
-        String ty = getMsgTypeFromBuffer(buffer);
-        TagValTextParser parser = new TagValTextParser(buffer);
-        if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert in: {0}", parser);
-        MenuCommandType cmdType = codeToCmdType.get(ty);
-        if(cmdType == null) throw new TcProtocolException("Protocol received unexpected message: " + ty);
-
-        switch (cmdType) {
-            case JOIN:
-                return processJoin(parser);
-            case HEARTBEAT:
-                return processHeartbeat(parser);
-            case BOOTSTRAP:
-                return processBootstrap(parser);
-            case ANALOG_BOOT_ITEM:
-                return processAnalogBootItem(parser);
-            case SUBMENU_BOOT_ITEM:
-                return processSubMenuBootItem(parser);
-            case ENUM_BOOT_ITEM:
-                return processEnumBootItem(parser);
-            case BOOLEAN_BOOT_ITEM:
-                return processBoolBootItem(parser);
-            case LARGE_NUM_BOOT_ITEM:
-                return processLargeNumBootItem(parser);
-            case CHANGE_INT_FIELD:
-                return processItemChange(parser);
-            case TEXT_BOOT_ITEM:
-                return processTextItem(parser);
-            case FLOAT_BOOT_ITEM:
-                return processFloatItem(parser);
-            case ACTION_BOOT_ITEM:
-                return processActionItem(parser);
-            case RUNTIME_LIST_BOOT:
-                return processRuntimeListBoot(parser);
-            case BOOT_RGB_COLOR:
-                return processRuntimeRgbColor(parser);
-            case BOOT_SCROLL_CHOICE:
-                return processRuntimeScrollChoice(parser);
-            case ACKNOWLEDGEMENT:
-                return processAcknowledgement(parser);
-            case PAIRING_REQUEST:
-                return processPairingRequest(parser);
-            case DIALOG_UPDATE:
-                return processDialogUpdate(parser);
-            default:
-                throw new TcProtocolException("Unknown message type " + cmdType);
-        }
-    }
-
-    private String getMsgTypeFromBuffer(ByteBuffer buffer) {
-        return String.valueOf((char) buffer.get()) + (char) buffer.get();
-    }
-
-    private MenuCommand processDialogUpdate(TagValTextParser parser) throws IOException {
+    private MenuCommand processDialogUpdate(TagValTextParser parser) throws TcProtocolException {
         var cor = parser.getValueWithDefault(KEY_CORRELATION_FIELD, "");
         var correlationId = (cor.isEmpty()) ? CorrelationId.EMPTY_CORRELATION : new CorrelationId(cor);
 
@@ -135,14 +105,14 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .findFirst().orElse(MenuButtonType.NONE);
     }
 
-    private MenuCommand processPairingRequest(TagValTextParser parser) throws IOException {
+    private MenuCommand processPairingRequest(TagValTextParser parser) throws TcProtocolException {
         return newPairingCommand(
                 parser.getValue(KEY_NAME_FIELD),
                 UUID.fromString(parser.getValue(KEY_UUID_FIELD))
         );
     }
 
-    private MenuCommand processAcknowledgement(TagValTextParser parser) throws IOException {
+    private MenuCommand processAcknowledgement(TagValTextParser parser) throws TcProtocolException {
         CorrelationId id = new CorrelationId(parser.getValueWithDefault(KEY_CORRELATION_FIELD, "0"));
         return newAcknowledgementCommand(id, fromCode(parser.getValueAsInt(KEY_ACK_STATUS)));
     }
@@ -153,7 +123,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 .findFirst().orElse(AckStatus.UNKNOWN_ERROR);
     }
 
-    private MenuCommand processItemChange(TagValTextParser parser) throws IOException {
+    private MenuCommand processItemChange(TagValTextParser parser) throws TcProtocolException {
         ChangeType type = MenuChangeCommand.changeTypeFromInt(parser.getValueAsInt(KEY_CHANGE_TYPE));
 
         var corStr = parser.getValueWithDefault( KEY_CORRELATION_FIELD, "");
@@ -189,7 +159,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         }
     }
 
-    private MenuCommand processRuntimeListBoot(TagValTextParser parser) throws IOException {
+    private MenuCommand processRuntimeListBoot(TagValTextParser parser) throws TcProtocolException {
         RuntimeListMenuItem item = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -208,7 +178,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         );
     }
 
-    private MenuCommand processBoolBootItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processBoolBootItem(TagValTextParser parser) throws TcProtocolException {
         BooleanMenuItem item = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -223,7 +193,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuBooleanBootCommand(parentId, item, currentVal != 0);
     }
 
-    private MenuCommand processRuntimeRgbColor(TagValTextParser parser) throws IOException {
+    private MenuCommand processRuntimeRgbColor(TagValTextParser parser) throws TcProtocolException {
         Rgb32MenuItem item = new Rgb32MenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -238,7 +208,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return new MenuRgb32BootCommand(parentId, item, new PortableColor(currentVal));
     }
 
-    private MenuCommand processRuntimeScrollChoice(TagValTextParser parser) throws IOException {
+    private MenuCommand processRuntimeScrollChoice(TagValTextParser parser) throws TcProtocolException {
         ScrollChoiceMenuItem item = new ScrollChoiceMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -253,7 +223,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         var currentVal = parser.getValue(KEY_CURRENT_VAL);
         return new MenuScrollChoiceBootCommand(parentId, item, new CurrentScrollPosition(currentVal));
     }
-    private MenuCommand processLargeNumBootItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processLargeNumBootItem(TagValTextParser parser) throws TcProtocolException {
         EditableLargeNumberMenuItem item = EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -278,7 +248,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         }
     }
 
-    private MenuCommand processTextItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processTextItem(TagValTextParser parser) throws TcProtocolException {
         EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -294,7 +264,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuTextBootCommand(parentId, item, currentVal);
     }
 
-    private MenuCommand processFloatItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processFloatItem(TagValTextParser parser) throws TcProtocolException {
         FloatMenuItem item = FloatMenuItemBuilder.aFloatMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -321,7 +291,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         }
     }
 
-    private MenuCommand processEnumBootItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processEnumBootItem(TagValTextParser parser) throws TcProtocolException {
 
         List<String> choices = choicesFromMsg(parser);
 
@@ -339,7 +309,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuEnumBootCommand(parentId, item, currentVal);
     }
 
-    private List<String> choicesFromMsg(TagValTextParser parser) throws IOException {
+    private List<String> choicesFromMsg(TagValTextParser parser) throws TcProtocolException {
         List<String> choices = new ArrayList<>();
         int noOfItems = parser.getValueAsInt(KEY_NO_OF_CHOICES);
         for(int i=0;i<noOfItems;i++) {
@@ -357,7 +327,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return choices;
     }
 
-    private MenuCommand processSubMenuBootItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processSubMenuBootItem(TagValTextParser parser) throws TcProtocolException {
         SubMenuItem item = aSubMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -367,7 +337,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newMenuSubBootCommand(parentId, item);
     }
 
-    private MenuCommand processActionItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processActionItem(TagValTextParser parser) throws TcProtocolException {
         ActionMenuItem item = ActionMenuItemBuilder.anActionMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
@@ -377,7 +347,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return new MenuActionBootCommand(parentId, item, Boolean.FALSE);
     }
 
-    private MenuCommand processAnalogBootItem(TagValTextParser parser) throws IOException {
+    private MenuCommand processAnalogBootItem(TagValTextParser parser) throws TcProtocolException {
         AnalogMenuItem item = anAnalogMenuItemBuilder()
                 .withId(parser.getValueAsInt(KEY_ID_FIELD))
                 .withDivisor(parser.getValueAsInt(KEY_ANALOG_DIVISOR_FIELD))
@@ -394,12 +364,12 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         return newAnalogBootCommand(parentId, item, currentVal);
     }
 
-    private MenuCommand processBootstrap(TagValTextParser parser) throws IOException {
+    private MenuCommand processBootstrap(TagValTextParser parser) throws TcProtocolException {
         BootType bt= BootType.valueOf(parser.getValue(KEY_BOOT_TYPE_FIELD));
         return new MenuBootstrapCommand(bt);
     }
 
-    private MenuCommand processJoin(TagValTextParser parser) throws IOException {
+    private MenuCommand processJoin(TagValTextParser parser) throws TcProtocolException {
         var uuidStr = parser.getValueWithDefault(KEY_UUID_FIELD, "");
         var uuid = uuidStr.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuidStr);
         return new MenuJoinCommand(
@@ -409,7 +379,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
                 parser.getValueAsInt(KEY_VER_FIELD));
     }
 
-    private MenuCommand processHeartbeat(TagValTextParser parser) throws IOException {
+    private MenuCommand processHeartbeat(TagValTextParser parser) throws TcProtocolException {
         return newHeartbeatCommand(
                 parser.getValueAsIntWithDefault(HB_FREQUENCY_FIELD, 10000),
                 toHbMode(parser.getValueAsIntWithDefault(HB_MODE_FIELD, 0))
@@ -426,78 +396,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
             default:
                 return NORMAL;
         }
-    }
-
-    @Override
-    public void toChannel(ByteBuffer buffer, MenuCommand cmd) {
-        StringBuilder sb = new StringBuilder(128);
-
-        buffer.put(START_OF_MSG);
-        buffer.put(PROTOCOL_TAG_VAL);
-        buffer.put((byte) cmd.getCommandType().getHigh());
-        buffer.put((byte) cmd.getCommandType().getLow());
-
-        switch(cmd.getCommandType()) {
-            case HEARTBEAT:
-                writeHeartbeat(sb, (MenuHeartbeatCommand)cmd);
-                break;
-            case JOIN:
-                writeJoin(sb, (MenuJoinCommand)cmd);
-                break;
-            case BOOTSTRAP:
-                writeBootstrap(sb, (MenuBootstrapCommand)cmd);
-                break;
-            case ANALOG_BOOT_ITEM:
-                writeAnalogItem(sb, (MenuAnalogBootCommand)cmd);
-                break;
-            case SUBMENU_BOOT_ITEM:
-                writeSubMenuItem(sb, (MenuSubBootCommand)cmd);
-                break;
-            case ENUM_BOOT_ITEM:
-                writeEnumMenuItem(sb, (MenuEnumBootCommand) cmd);
-                break;
-            case ACTION_BOOT_ITEM:
-                writeActionBootItem(sb, (MenuActionBootCommand) cmd);
-                break;
-            case FLOAT_BOOT_ITEM:
-                writeFloatBootItem(sb, (MenuFloatBootCommand) cmd);
-                break;
-            case BOOLEAN_BOOT_ITEM:
-                writeBoolMenuItem(sb, (MenuBooleanBootCommand) cmd);
-                break;
-            case RUNTIME_LIST_BOOT:
-                writeRuntimeListBootItem(sb, (MenuRuntimeListBootCommand) cmd);
-                break;
-            case LARGE_NUM_BOOT_ITEM:
-                writeLargeNumberBootItem(sb, (MenuLargeNumBootCommand) cmd);
-                break;
-            case CHANGE_INT_FIELD:
-                writeChangeInt(sb, (MenuChangeCommand)cmd);
-                break;
-            case TEXT_BOOT_ITEM:
-                writeTextMenuItem(sb, (MenuTextBootCommand) cmd);
-                break;
-            case ACKNOWLEDGEMENT:
-                writeAcknowledgement(sb, (MenuAcknowledgementCommand)cmd);
-                break;
-            case PAIRING_REQUEST:
-                writePairingRequest(sb, (MenuPairingCommand)cmd);
-                break;
-            case DIALOG_UPDATE:
-                writeDialogUpdate(sb, (MenuDialogCommand)cmd);
-                break;
-            case BOOT_RGB_COLOR:
-                writeRgbBoot(sb, (MenuRgb32BootCommand)cmd);
-                break;
-            case BOOT_SCROLL_CHOICE:
-                writeScrollBoot(sb, (MenuScrollChoiceBootCommand)cmd);
-                break;
-        }
-        sb.append((char)0x02);
-
-        String msgStr = sb.toString();
-        if(DEBUG_ALL_MESSAGES) logger.log(DEBUG, "Protocol convert out: {0}", msgStr);
-        buffer.put(msgStr.getBytes());
     }
 
     private void writeDialogUpdate(StringBuilder sb, MenuDialogCommand cmd) {
@@ -541,11 +439,6 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         }
         appendField(sb, HB_FREQUENCY_FIELD, cmd.getHearbeatInterval());
         appendField(sb, HB_MODE_FIELD, hbMode);
-    }
-
-    @Override
-    public byte getKeyIdentifier() {
-        return PROTOCOL_TAG_VAL;
     }
 
     private void writeChangeInt(StringBuilder sb, MenuChangeCommand cmd) {
@@ -681,7 +574,7 @@ public class TagValMenuCommandProtocol implements MenuCommandProtocol {
         appendField(sb, KEY_PLATFORM_ID, cmd.getPlatform().getKey());
     }
 
-    private void appendField(StringBuilder sb, String key, Object value) {
+    public static void appendField(StringBuilder sb, String key, Object value) {
         if(value instanceof String) {
             String val = (String) value;
             if(val.indexOf('|') != -1) {

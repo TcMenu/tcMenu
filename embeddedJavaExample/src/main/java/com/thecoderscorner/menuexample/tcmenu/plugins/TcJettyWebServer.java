@@ -6,13 +6,8 @@ import com.thecoderscorner.menu.mgr.ServerConnectionManager;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
-import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
-import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.ServerContainer;
+import com.thecoderscorner.menu.remote.protocol.CommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.ProtocolHelper;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -21,20 +16,17 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
 
+import javax.websocket.Session;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-
-import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.END_OF_MSG;
-import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.START_OF_MSG;
 
 public class TcJettyWebServer implements ServerConnectionManager {
     private static TcJettyWebServer INSTANCE = null;
@@ -78,10 +70,20 @@ public class TcJettyWebServer implements ServerConnectionManager {
             webSockEndpoint = new TcJettyWebSocketEndpoint();
 
             // Create a ServletContextHandler with the given context path.
-            var serverHandler = new ServletContextHandler(server, "/ws");
-            JakartaWebSocketServletContainerInitializer.configure(serverHandler, null);
+            var serverHandler = new ServletContextHandler(server, "/");
+            // Initialize javax.websocket layer
+            JavaxWebSocketServletContainerInitializer.configure(serverHandler, (servletContext, wsContainer) ->
+            {
+                // This lambda will be called at the appropriate place in the
+                // ServletContext initialization phase where you can initialize
+                // and configure  your websocket container.
 
-            serverHandler.addServlet(TcWebSocketPromoteServlet.class, "/*");
+                // Configure defaults for container
+                wsContainer.setDefaultMaxTextMessageBufferSize(65535);
+
+                // Add WebSocket endpoint to javax.websocket layer
+                wsContainer.addEndpoint(TcJettyWebSocketEndpoint.class);
+            });
 
             var handlers = new HandlerList();
             handlers.setHandlers(new Handler[]{contextHandler, serverHandler});
@@ -97,7 +99,6 @@ public class TcJettyWebServer implements ServerConnectionManager {
     public List<ServerConnection> getServerConnections() {
         return webSockEndpoint.getAllConnections();
     }
-
 
     @Override
     public void stop() throws Exception {
@@ -118,8 +119,6 @@ public class TcJettyWebServer implements ServerConnectionManager {
 
     public static class TcJettyWebSocketConnection implements ServerConnection {
         public final System.Logger logger = System.getLogger(getClass().getSimpleName());
-
-        private static TcJettyWebSocketConnection INSTANCE = null;
         private final Session session;
         private final Clock clock;
         private final AtomicInteger hbFrequency = new AtomicInteger(1500);
@@ -128,15 +127,16 @@ public class TcJettyWebServer implements ServerConnectionManager {
         private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.DISCONNECTED);
         private final AtomicReference<String> userName = new AtomicReference<>("Not set");
         private final AtomicReference<BiConsumer<ServerConnection, Boolean>> connectionListener = new AtomicReference<>();
-        private final AtomicReference<BiConsumer<ServerConnection, MenuCommand>> messageHandler = new AtomicReference<>();
         private final Object socketLock = new Object();
+        ByteBuffer outputBuffer = ByteBuffer.allocate(8192);
         private final MenuCommandProtocol protocol;
-        private String currentData = "";
+        private final ProtocolHelper protocolHelper;
 
         public TcJettyWebSocketConnection(Session session, Clock clock, MenuCommandProtocol protocol) {
             this.session = session;
             this.clock = clock;
             this.protocol = protocol;
+            protocolHelper = new ProtocolHelper(protocol);
         }
 
         @Override
@@ -148,7 +148,7 @@ public class TcJettyWebServer implements ServerConnectionManager {
         public void closeConnection() {
             try {
                 session.close();
-                if(connectionListener.get() != null) connectionListener.get().accept(this, false);
+                if (connectionListener.get() != null) connectionListener.get().accept(this, false);
             } catch (IOException e) {
                 logger.log(System.Logger.Level.ERROR, "Close on session failed ", session.getId());
             }
@@ -168,20 +168,20 @@ public class TcJettyWebServer implements ServerConnectionManager {
         public void sendCommand(MenuCommand command) {
             lastMsgOut.set(clock.millis());
             logger.log(System.Logger.Level.DEBUG, session.getId() + " - " + command);
-            ByteBuffer bb = ByteBuffer.allocate(1000);
-            protocol.toChannel(bb, command);
-            bb.flip();
-            StringBuilder sb = new StringBuilder(100);
-            while (bb.hasRemaining()) {
-                sb.append((char) bb.get());
-            }
-            synchronized (socketLock) {
-                try {
-                    session.getBasicRemote().sendText(sb.toString());
-                } catch (IOException e) {
-                    logger.log(System.Logger.Level.ERROR, "Socket failed to write - " + session.getId(), e);
-                    closeConnection();
+            try {
+                synchronized (socketLock) {
+                    if(protocol.getProtocolForCmd(command) == CommandProtocol.TAG_VAL_PROTOCOL) {
+                        String text = protocolHelper.protoBufferToText(command);
+                        session.getBasicRemote().sendText(text);
+                    } else {
+                        protocol.toChannel(outputBuffer, command);
+                        outputBuffer.flip();
+                        session.getBasicRemote().sendBinary(outputBuffer);
+                    }
                 }
+            } catch (Exception e) {
+                logger.log(System.Logger.Level.ERROR, "Socket failed to write - " + session.getId(), e);
+                closeConnection();
             }
         }
 
@@ -192,7 +192,7 @@ public class TcJettyWebServer implements ServerConnectionManager {
 
         @Override
         public void registerMessageHandler(BiConsumer<ServerConnection, MenuCommand> messageHandler) {
-            this.messageHandler.set(messageHandler);
+            this.protocolHelper.setMessageHandler(messageHandler);
         }
 
         @Override
@@ -212,70 +212,15 @@ public class TcJettyWebServer implements ServerConnectionManager {
 
         public void stringDataRx(String data) {
             try {
-                if (currentData.length() > 10000) return;
-                currentData += data;
-                if (messageHandler.get() == null) return;
-
-                int position = 0;
-                while (position < this.currentData.length() && this.currentData.charAt(position) != START_OF_MSG)
-                    position++;
-                position++; // skip message start
-                if (position >= this.currentData.length() || this.currentData.charAt(position) != protocol.getKeyIdentifier())
-                    return;
-                var msgStart = position + 1;
-                while (position < this.currentData.length() && this.currentData.charAt(position) != END_OF_MSG) position++;
-                if (this.currentData.charAt(position) != END_OF_MSG) return;
-                var s = this.currentData.substring(msgStart, position);
-                this.currentData = this.currentData.substring(position + 1);
-
-                if (s.length() < 3) return;
-                ByteBuffer bb = ByteBuffer.allocate(1000);
-                bb.put(s.getBytes(StandardCharsets.UTF_8));
-                bb.flip();
-                MenuCommand cmd = protocol.fromChannel(bb);
-                logger.log(System.Logger.Level.DEBUG, "Command received " + session.getId() + " - " + cmd);
-                if (cmd instanceof MenuHeartbeatCommand) {
-                    hbFrequency.set(((MenuHeartbeatCommand) cmd).getHearbeatInterval());
-                } else if(cmd instanceof MenuJoinCommand) {
-                    userName.set(((MenuJoinCommand) cmd).getMyName());
-                }
-                lastMsgIn.set(clock.millis());
-                synchronized (socketLock) {
-                    messageHandler.get().accept(this, cmd);
-                }
-            } catch (Exception ex) {
-                logger.log(System.Logger.Level.ERROR, "Error during message handling " + session.getId(), ex);
+                protocolHelper.dataReceived(this, data);
+            } catch (Exception e) {
                 closeConnection();
+                logger.log(System.Logger.Level.ERROR, "Problem while reading data from " + session.getId(), e);
             }
         }
 
         public void socketDidClose() {
-            if(connectionListener.get() != null) connectionListener.get().accept(this, false);
-        }
-    }
-
-
-
-    public static class TcWebSocketPromoteServlet extends HttpServlet
-    {
-        @Override
-        public void init() throws ServletException
-        {
-            try
-            {
-                // Retrieve the ServerContainer from the ServletContext attributes.
-                ServerContainer container = (ServerContainer)getServletContext().getAttribute(ServerContainer.class.getName());
-
-                // Configure the ServerContainer.
-                container.setDefaultMaxTextMessageBufferSize(128 * 1024);
-
-                // Simple registration of your WebSocket endpoints.
-                container.addEndpoint(TcJettyWebSocketEndpoint.class);
-            }
-            catch (DeploymentException x)
-            {
-                throw new ServletException(x);
-            }
+            if (connectionListener.get() != null) connectionListener.get().accept(this, false);
         }
     }
 }

@@ -1,23 +1,18 @@
 package com.thecoderscorner.embedcontrol.core.creators;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
-import com.thecoderscorner.menu.remote.protocol.PairingHelper;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
+import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProcessors;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
-
-import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.*;
 
 /**
  * This class provides the ability to create a manual LAN connection providing the hostname and port. It is mainly
@@ -81,7 +76,7 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
                 .withLocalName(settings.getAppName())
                 .withUUID(UUID.fromString(settings.getAppUuid()))
                 .withMenuTree(new MenuTree())
-                .withProtocol(new TagValMenuCommandProtocol())
+                .withProtocol(new ConfigurableProtocolConverter(true))
                 .withClock(Clock.systemDefaultZone())
                 .withExecutor(executorService);
     }

@@ -11,12 +11,10 @@ import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
-import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 import com.thecoderscorner.menu.remote.states.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
-import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.*;
 import static java.lang.System.Logger.Level.*;
 
 /**

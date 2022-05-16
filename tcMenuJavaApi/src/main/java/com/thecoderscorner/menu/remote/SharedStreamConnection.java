@@ -1,13 +1,14 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.protocol.CommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.TagValTextParser;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol.*;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;
 
@@ -27,7 +28,7 @@ public abstract class SharedStreamConnection {
         try {
             // Find the start of message
             byte byStart = 0;
-            while(byStart != START_OF_MSG) {
+            while(byStart != MenuCommandProtocol.PROTO_START_OF_MSG) {
                 if(Thread.currentThread().isInterrupted()) throw new IOException("Connection thread interrupted");
                 if(!isDeviceConnected()) throw new IOException("Connection thread not connected");
                 byStart = nextByte(inputBuffer);
@@ -38,10 +39,7 @@ public abstract class SharedStreamConnection {
 
             logByteBuffer("Line read from stream", inputBuffer);
 
-            byte protoId = inputBuffer.get();
-            if(protoId != protocol.getKeyIdentifier()) {
-                throw new TcProtocolException("Bad protocol " + protoId);
-            }
+
 
             // now we take a shallow buffer copy and process the message
             MenuCommand mc = protocol.fromChannel(inputBuffer);
@@ -56,12 +54,22 @@ public abstract class SharedStreamConnection {
     }
 
     public static boolean doesBufferHaveEOM(ByteBuffer inputBuffer) {
+        if(inputBuffer.remaining() < 4) return false;
         ByteBuffer bbCopy = inputBuffer.slice();
-        boolean foundMsg = false;
-        while(!foundMsg && bbCopy.hasRemaining()) {
-            foundMsg = (bbCopy.get() == FIELD_TERMINATOR && bbCopy.hasRemaining() && bbCopy.get() == END_OF_MSG);
+        CommandProtocol proto = CommandProtocol.fromProtocolId(bbCopy.get());
+        if(proto == CommandProtocol.TAG_VAL_PROTOCOL) {
+            // START_OF_MSG - Protocol(1) - MSGTypeHi - MsgTypeLo - Tagval - END_OF_MSG
+            boolean foundMsg = false;
+            while (!foundMsg && bbCopy.hasRemaining()) {
+                foundMsg = (bbCopy.get() == TagValTextParser.FIELD_TERMINATOR && bbCopy.hasRemaining() && bbCopy.get() == MenuCommandProtocol.PROTO_END_OF_MSG);
+            }
+            return foundMsg;
+        } else {
+            // START_OF_MSG - Protocol(2) - MSGTypeHi - MsgTypeLo - len(4) - BinData
+            bbCopy.getShort();
+            int len = bbCopy.getInt();
+            return bbCopy.remaining() >= len;
         }
-        return foundMsg;
     }
 
     protected void readCompleteMessage(ByteBuffer inputBuffer) throws IOException {

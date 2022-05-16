@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class MenuChangeCommand implements MenuCommand {
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.CHANGE_INT_FIELD;
     }
 

@@ -11,22 +11,19 @@ import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.persist.MenuStateSerialiser;
 import com.thecoderscorner.menu.persist.PropertiesMenuStateSerialiser;
 import com.thecoderscorner.menu.persist.VersionInfo;
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.w3c.dom.Element;
 
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import com.thecoderscorner.menuexample.tcmenu.plugins.*;
-import javafx.application.Application;
-import java.util.function.Consumer;
 
 /**
  * Spring creates an application context out of all these components, you can wire together your own objects in either
@@ -89,12 +86,12 @@ public class MenuConfig {
     }
 
     @Bean
-    public TagValMenuCommandProtocol tagVal() {
-        return new TagValMenuCommandProtocol();
+    public MenuCommandProtocol tagVal() {
+        return new ConfigurableProtocolConverter(true);
     }
 
     @Bean
-    public SocketServerConnectionManager socketClient(TagValMenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
+    public SocketServerConnectionManager socketClient(MenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
         return new SocketServerConnectionManager(protocol, executor, 3333, clock);
     }
 

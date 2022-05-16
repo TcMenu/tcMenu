@@ -8,8 +8,9 @@ package com.thecoderscorner.embedcontrol.core.rs232;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProcessors;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -137,7 +138,7 @@ public class Rs232ControllerBuilder implements ConnectorFactory {
         }
 
         if(protocol == null) {
-            protocol = new TagValMenuCommandProtocol();
+            protocol = new ConfigurableProtocolConverter(true);
         }
 
         if(executorService == null) {

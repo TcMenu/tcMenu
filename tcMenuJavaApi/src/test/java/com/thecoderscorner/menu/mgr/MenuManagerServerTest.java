@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menu.remote.protocol.SpannerCommand;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,9 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -121,7 +124,7 @@ class MenuManagerServerTest {
     }
 
     @Test
-    public void testRemoteConnectionWithCallbacks() {
+    public void testRemoteConnectionWithCallbacks() throws InterruptedException {
         MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(true);
         mgr.addMenuManagerListener(listener);
 
@@ -155,6 +158,11 @@ class MenuManagerServerTest {
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
         assertEquals(33, listener.getListRowSentAsInvoke());
+
+        var latch = new CountDownLatch(1);
+        mgr.addCustomMessageProcessor(SpannerCommand.SPANNER_MSG_TYPE, (menuManagerServer, menuCommand) -> latch.countDown());
+        simConnection.simulateMessageToMessageHandler(new SpannerCommand(15, "SuperSpanner"));
+        assertTrue(latch.await(2000, TimeUnit.MILLISECONDS));
 
         simConnection.setHeartbeatFrequency(2000);
         when(clock.millis()).thenReturn(simConnection.getHeartbeatFrequency() * 2L);

@@ -7,13 +7,14 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
+import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.SpannerCommand;
+import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProcessors;
 import com.thecoderscorner.menu.remote.socket.SocketBasedConnector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ public class MenuServerSocketIntegrationTest {
     SocketBasedConnector clientConnector;
     private final UUID serverUuid = UUID.randomUUID();
     private final UUID localUuid = UUID.randomUUID();
-    private final MenuCommandProtocol protocol = new TagValMenuCommandProtocol();
+    private ConfigurableProtocolConverter protocol;
     private CountDownLatch treePopulatedLatch;
     private volatile CountDownLatch correlationLatch;
     private volatile CountDownLatch itemUpdatedLatch;
@@ -49,7 +50,15 @@ public class MenuServerSocketIntegrationTest {
     private final AtomicInteger updateIdToWaitFor = new AtomicInteger();
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
+        protocol = new ConfigurableProtocolConverter(true);
+        protocol.addTagValInProcessor(SpannerCommand.SPANNER_MSG_TYPE, parser ->
+                new SpannerCommand(parser.getValueAsInt("ZA"), parser.getValue("ZB")));
+        protocol.addTagValOutProcessor(SpannerCommand.SPANNER_MSG_TYPE, (buffer, cmd) -> {
+            TagValMenuCommandProcessors.appendField(buffer, "ZA", cmd.getMetricSize());
+            TagValMenuCommandProcessors.appendField(buffer, "ZB", cmd.getMake());
+        }, SpannerCommand.class);
+
         var executor = Executors.newScheduledThreadPool(4);
         var tree = DomainFixtures.fullEspAmplifierTestTree();
         var authenticator = new PreDefinedAuthenticator("4321", List.of(new AuthenticationToken("integration-client", localUuid.toString())));
@@ -78,6 +87,12 @@ public class MenuServerSocketIntegrationTest {
         clientController.start();
 
         clientController.addListener(new IntegrationRemoteControllerListener());
+        AtomicReference<MenuCommand> customMsg = new AtomicReference<>();
+        CountDownLatch customReceivedLatch = new CountDownLatch(1);
+        clientController.addCustomMessageProcessor(SpannerCommand.SPANNER_MSG_TYPE, (remoteMenuController, menuCommand) -> {
+            customMsg.set(menuCommand);
+            customReceivedLatch.countDown();
+        });
 
         waitForClientConnectionToBeEstablished();
 
@@ -114,6 +129,11 @@ public class MenuServerSocketIntegrationTest {
         correlationToWaitFor.set(clientController.sendAbsoluteUpdate(menuSsidText, "world"));
         assertTrue(correlationLatch.await(2, TimeUnit.SECONDS));
         assertEquals("world", MenuItemHelper.getValueFor(menuSsidText, menuServer.getManagedMenu(), ""));
+
+        menuServer.sendCommand(new SpannerCommand(15, "hello there"));
+        assertTrue(customReceivedLatch.await(2, TimeUnit.SECONDS));
+        assertNotNull(customMsg.get());
+        assertEquals(SpannerCommand.SPANNER_MSG_TYPE, customMsg.get().getCommandType());
     }
 
     private void updateItemOnServerAndWaitForClient(MenuItem item, Object value) throws InterruptedException {

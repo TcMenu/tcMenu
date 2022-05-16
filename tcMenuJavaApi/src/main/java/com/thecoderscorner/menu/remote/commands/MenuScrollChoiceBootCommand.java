@@ -6,10 +6,11 @@
 
 package com.thecoderscorner.menu.remote.commands;
 
-import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
-import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.domain.state.AnyMenuState;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuScrollChoiceBootCommand extends BootItemMenuCommand<ScrollChoiceMenuItem, CurrentScrollPosition> {
 
@@ -18,7 +19,7 @@ public class MenuScrollChoiceBootCommand extends BootItemMenuCommand<ScrollChoic
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.BOOT_SCROLL_CHOICE;
     }
 

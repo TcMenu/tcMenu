@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 import java.math.BigDecimal;
 
@@ -20,7 +21,7 @@ public class MenuLargeNumBootCommand extends BootItemMenuCommand<EditableLargeNu
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.LARGE_NUM_BOOT_ITEM;
     }
 

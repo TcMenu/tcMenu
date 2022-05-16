@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuTextBootCommand extends BootItemMenuCommand<EditableTextMenuItem, String> {
 
@@ -18,7 +18,7 @@ public class MenuTextBootCommand extends BootItemMenuCommand<EditableTextMenuIte
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.TEXT_BOOT_ITEM;
     }
 

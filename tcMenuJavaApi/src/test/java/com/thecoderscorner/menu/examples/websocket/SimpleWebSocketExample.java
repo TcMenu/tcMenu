@@ -7,10 +7,8 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.mgr.NoDialogFacilities;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProtocol;
+import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 
 import java.time.Clock;
 import java.util.List;
@@ -24,7 +22,7 @@ import java.util.logging.SimpleFormatter;
 
 public class SimpleWebSocketExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         ConsoleHandler handler = new ConsoleHandler();
         handler.setFormatter(new SimpleFormatter());
         handler.setLevel(Level.FINEST);
@@ -34,7 +32,7 @@ public class SimpleWebSocketExample {
         var tree = DomainFixtures.fullEspAmplifierTestTree();
         var executor = Executors.newSingleThreadScheduledExecutor();
         var clock = Clock.systemDefaultZone();
-        MenuCommandProtocol tagValProtocol = new TagValMenuCommandProtocol();
+        MenuCommandProtocol tagValProtocol = new ConfigurableProtocolConverter(true);
         var menuManager = new MenuManagerServer(executor, tree,
                 "WS Test", UUID.randomUUID(),
                 new PropertiesAuthenticator("./auth.properties", new NoDialogFacilities()),
@@ -48,9 +46,7 @@ public class SimpleWebSocketExample {
 
         if(Boolean.getBoolean("sendSimulatedUpdates")) {
 
-            executor.scheduleAtFixedRate(() -> {
-                menuManager.updateMenuItem(menuList, randomListData());
-            }, 5000, 5000, TimeUnit.MILLISECONDS);
+            executor.scheduleAtFixedRate(() -> menuManager.updateMenuItem(menuList, randomListData()), 5000, 5000, TimeUnit.MILLISECONDS);
 
             executor.scheduleAtFixedRate(() -> {
                 if (menuManager.isAnyRemoteConnection()) return;

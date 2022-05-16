@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuActionBootCommand extends BootItemMenuCommand<ActionMenuItem, Boolean> {
 
@@ -18,7 +19,7 @@ public class MenuActionBootCommand extends BootItemMenuCommand<ActionMenuItem, B
     }
 
     @Override
-    public MenuCommandType getCommandType() {
+    public MessageField getCommandType() {
         return MenuCommandType.ACTION_BOOT_ITEM;
     }
 
