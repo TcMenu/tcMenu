@@ -15,4 +15,9 @@ module com.thecoderscorner.menuexample.embeddedjavademo {
     requires javafx.fxml;
     exports com.thecoderscorner.menuexample.tcmenu.plugins;
     opens com.thecoderscorner.menuexample.tcmenu;
+
+    requires org.eclipse.jetty.server;
+    requires org.eclipse.jetty.servlet;
+    requires jetty.websocket.api;
+    requires org.eclipse.jetty.websocket.jakarta.server;
 }

@@ -1,17 +1,21 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
-import com.thecoderscorner.menu.mgr.*;
+import com.thecoderscorner.menu.mgr.MenuInMenu;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.persist.MenuStateSerialiser;
+import com.thecoderscorner.menu.remote.ConnectMode;
+import com.thecoderscorner.menu.remote.LocalIdentifier;
+import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
+import com.thecoderscorner.menu.remote.socket.SocketBasedConnector;
+import com.thecoderscorner.menuexample.tcmenu.plugins.JfxLocalAutoUI;
+import com.thecoderscorner.menuexample.tcmenu.plugins.TcJettyWebServer;
+import javafx.application.Application;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import com.thecoderscorner.menuexample.tcmenu.plugins.*;
-import javafx.application.Application;
-import com.thecoderscorner.menu.remote.protocol.*;
-import com.thecoderscorner.menu.remote.mgrclient.*;
-import java.util.concurrent.*;
-import java.time.*;
-import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.socket.*;
+
+import java.time.Clock;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * This class is the application class and should not be edited, it will be recreated on each code generation
@@ -35,6 +39,12 @@ public class EmbeddedJavaDemoApp {
         buildMenuInMenuComponents();
         JfxLocalAutoUI.setAppContext(context);
         manager.addConnectionManager(socketClient);
+
+        var protocol = context.getBean(MenuCommandProtocol.class);
+        var clock = context.getBean(Clock.class);
+        var jetty = new TcJettyWebServer(protocol, clock, "/Users/dave/IdeaProjects/tcMenu/embeddedJavaExample/data/www", 8080, true);
+        manager.addConnectionManager(jetty);
+
         Application.launch(JfxLocalAutoUI.class);
     }
 
