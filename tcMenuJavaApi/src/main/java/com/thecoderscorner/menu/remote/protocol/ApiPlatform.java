@@ -14,7 +14,8 @@ public enum ApiPlatform {
     ARDUINO(0, "Arduino 8-bit"),
     ARDUINO32(2, "Arduino 32-bit"),
     JAVA_API(1, "Java API"),
-    DNET_API(3, "Arduino 32-bit");
+    DNET_API(3, "Arduino 32-bit"),
+    JAVASCRIPT_CLIENT(4, "JS API");
 
     private final int key;
     private final String description;

@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
@@ -349,7 +350,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ((StringListMenuState) state).getValue());
         } else {
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE,
-                    state.getValue().toString());
+                    MenuItemFormatter.formatToWire(item, state.getValue().toString()));
         }
 
         updateRemotesWithLatestState(cmd);

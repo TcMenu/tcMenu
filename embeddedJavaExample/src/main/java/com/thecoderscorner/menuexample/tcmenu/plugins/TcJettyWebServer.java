@@ -122,7 +122,7 @@ public class TcJettyWebServer implements ServerConnectionManager {
         private final Session session;
         private final Clock clock;
         private final AtomicInteger hbFrequency = new AtomicInteger(1500);
-        private final AtomicLong lastMsgIn = new AtomicLong(0);
+        private final AtomicLong lastMsgIn = new AtomicLong();
         private final AtomicLong lastMsgOut = new AtomicLong(0);
         private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.DISCONNECTED);
         private final AtomicReference<String> userName = new AtomicReference<>("Not set");
@@ -137,6 +137,8 @@ public class TcJettyWebServer implements ServerConnectionManager {
             this.clock = clock;
             this.protocol = protocol;
             protocolHelper = new ProtocolHelper(protocol);
+            lastMsgIn.set(clock.millis());
+            lastMsgOut.set(clock.millis());
         }
 
         @Override
@@ -212,6 +214,7 @@ public class TcJettyWebServer implements ServerConnectionManager {
 
         public void stringDataRx(String data) {
             try {
+                lastMsgIn.set(clock.millis());
                 protocolHelper.dataReceived(this, data);
             } catch (Exception e) {
                 closeConnection();

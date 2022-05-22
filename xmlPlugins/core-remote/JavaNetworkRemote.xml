@@ -26,10 +26,10 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="tagVal" type="TagValMenuCommandProtocol" inContext="true" export="false"/>
+        <Variable name="tagVal" type="ConfigurableProtocolConverter" inContext="true" export="false"/>
 
         <Variable name="socketClient" type="SocketServerConnectionManager" inContext="true" export="true">
-            <Param ref="TagValMenuCommandProtocol.class" name="protocol" type="TagValMenuCommandProtocol"/>
+            <Param ref="ConfigurableProtocolConverter.class" name="protocol" type="ConfigurableProtocolConverter"/>
             <Param ref="ScheduledExecutorService.class" name="executor" type="ScheduledExecutorService"/>
             <Param value="${EJ_NET_PORT_NUMBER}" name="portNum" type="int" />
             <Param ref="Clock.class" name="clock" type="Clock" />

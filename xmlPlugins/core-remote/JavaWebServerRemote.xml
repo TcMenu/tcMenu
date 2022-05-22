@@ -10,30 +10,45 @@
     <ImageFile>embedCONTROLJS.png</ImageFile>
 
     <Properties>
+        <Property id="EJ_WWW_STATIC_DIR" name="Webserver static files directory" initial="./data/www" type="text"
+                  desc="The filesystem location of the static files, usually relative to the app start directory"/>
         <Property id="EJ_WEB_SERVER_PORT" name="HTTP port to listen on" initial="8080" type="int"
                   desc="Port on which to listen for HTTP requests, to listen on port 80 we recommend a proxy"/>
-        <Property id="EJ_WEB_SOCKET_PORT" name="HTTP web socket port" initial="8083" type="int"
-                  desc="Port on which to listen for web socket data"/>
+        <Property id="EJ_DIRECTORY_LISTING" name="List directories in webserver" initial="false" type="boolean"
+                  desc="Turn on or off directory listing when no index file exists"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <ZipDataFile name="embedCONTROL.zip" dest="${EJ_WWW_STATIC_DIR}"/>
     </SourceFiles>
 
-    <IncludeFiles/>
+    <IncludeFiles>
+        <Header name="mvn:org.eclipse.jetty/jetty-server@10.0.9" inSource="false"/>
+        <Header name="mvn:org.eclipse.jetty.websocket/websocket-javax-server@10.0.9" inSource="false"/>
+        <Header name="mvn:org.slf4j/slf4j-jdk14@1.7.36" inSource="false"/>
+
+        <Header name="mod:requires:org.eclipse.jetty.server" inSource="false"/>
+        <Header name="mod:requires:org.eclipse.jetty.servlet" inSource="false"/>
+        <Header name="mod:requires:jetty.websocket.api" inSource="false"/>
+        <Header name="mod:requires:org.eclipse.jetty.websocket.javax.server" inSource="false"/>
+    </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="tagVal" type="TagValMenuCommandProtocol" inContext="true"/>
+        <Variable name="tagVal" type="ConfigurableProtocolConverter" inContext="true" export="false"/>
 
-        <Variable name="webSockets" type="WebSocketServerConnectionManager" export="true">
-            <Param ref="TagValMenuCommandProtocol" name="protocol"/>
+        <Variable name="webServer" type="TcJettyWebServer" export="true" inContext="true" >
+            <Param ref="ConfigurableProtocolConverter.class" name="protocol" type="ConfigurableProtocolConverter"/>
+            <Param ref="Clock.class" name="clock" type="Clock"/>
+            <Param value="${EJ_WWW_STATIC_DIRECTORY}" name="dataDir"/>
             <Param value="${EJ_WEB_SOCKET_PORT}" name="wsPort"/>
-            <Param ref="Clock" name="clock"/>
         </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
-
+        <Function name="addConnectionManager" object="manager">
+            <Param value="webServer"/>
+        </Function>
     </SetupFunctions>
 </TcMenuPlugin>

@@ -42,7 +42,7 @@ public class EmbeddedJavaDemoApp {
 
         var protocol = context.getBean(MenuCommandProtocol.class);
         var clock = context.getBean(Clock.class);
-        var jetty = new TcJettyWebServer(protocol, clock, "/Users/dave/IdeaProjects/tcMenu/embeddedJavaExample/data/www", 8080, true);
+        var jetty = new TcJettyWebServer(protocol, clock, "./data/www", 8080, true);
         manager.addConnectionManager(jetty);
 
         Application.launch(JfxLocalAutoUI.class);
