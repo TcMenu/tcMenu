@@ -141,12 +141,17 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
                     .collect(Collectors.joining(", ")) + ")";
         }
 
-        if(var.isProgMem())
-            return "const " + expando.expandExpression(context, var.getObjectName()) + " " + progMem()
-                    + expando.expandExpression(context, var.getVariableName()) + paramList + ";";
-        else
-            return expando.expandExpression(context, var.getObjectName()) + " " + expando.expandExpression(context, var.getVariableName())
-                    + paramList + ";";
+        String objectName = expando.expandExpression(context, var.getObjectName());
+        String varName = expando.expandExpression(context, var.getVariableName());
+        if(var.isProgMem() && var.getObjectName().equals("char") && var.getVariableName().endsWith("[]")) {
+            // progmem strings need special handling and can only have one param.
+            var firstParam = params.stream().findFirst().map(this::paramOrDefaultValue).orElseThrow();
+            return "const " + objectName + " " + varName + " " + progMem() + " = " + firstParam + ";";
+        } else if(var.isProgMem()) {
+            return "const " + objectName + " " + progMem() + varName + paramList + ";";
+        } else {
+                return objectName + " " + varName + paramList + ";";
+        }
     }
 
     private String paramOrDefaultValue(CodeParameter p) {

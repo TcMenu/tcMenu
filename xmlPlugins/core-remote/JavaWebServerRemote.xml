@@ -10,7 +10,7 @@
     <ImageFile>embedCONTROLJS.png</ImageFile>
 
     <Properties>
-        <Property id="EJ_WWW_STATIC_DIR" name="Webserver static files directory" initial="./data/www" type="text"
+        <Property id="EJ_WWW_STATIC_DIR" name="Webserver static files directory" initial="data/www" type="text"
                   desc="The filesystem location of the static files, usually relative to the app start directory"/>
         <Property id="EJ_WEB_SERVER_PORT" name="HTTP port to listen on" initial="8080" type="int"
                   desc="Port on which to listen for HTTP requests, to listen on port 80 we recommend a proxy"/>
@@ -21,7 +21,7 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <ZipDataFile name="embedCONTROL.zip" dest="${EJ_WWW_STATIC_DIR}"/>
+        <SourceFile name="embedJSArchive/embed-control-js-designer-latest.zip" unzip="clean" dest="${EJ_WWW_STATIC_DIR}"/>
     </SourceFiles>
 
     <IncludeFiles>
@@ -36,13 +36,16 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="tagVal" type="ConfigurableProtocolConverter" inContext="true" export="false"/>
+        <Variable name="tagVal" type="ConfigurableProtocolConverter" inContext="true" export="false">
+            <Param value="true"/>
+        </Variable>
 
         <Variable name="webServer" type="TcJettyWebServer" export="true" inContext="true" >
             <Param ref="ConfigurableProtocolConverter.class" name="protocol" type="ConfigurableProtocolConverter"/>
             <Param ref="Clock.class" name="clock" type="Clock"/>
-            <Param value="${EJ_WWW_STATIC_DIRECTORY}" name="dataDir"/>
-            <Param value="${EJ_WEB_SOCKET_PORT}" name="wsPort"/>
+            <Param value="&quot;${EJ_WWW_STATIC_DIR}&quot;"/>
+            <Param value="${EJ_WEB_SERVER_PORT}"/>
+            <Param value="${EJ_DIRECTORY_LISTING}"/>
         </Variable>
     </GlobalVariables>
 

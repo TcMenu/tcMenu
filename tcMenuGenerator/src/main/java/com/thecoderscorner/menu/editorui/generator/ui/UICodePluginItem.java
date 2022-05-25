@@ -30,6 +30,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -179,10 +180,14 @@ public class UICodePluginItem extends BorderPane {
 
         Node uiNodeToAdd;
         for(var property : item.getProperties()) {
-            if (property.getValidationRules() instanceof BooleanPropertyValidationRules) {
+            if (property.getValidationRules().equals(CannedPropertyValidators.SEPARATOR_VALIDATION_RULES)) {
+                var lbl = new Label(property.getDescription());
+                lbl.setFont(Font.font(18));
+                lbl.setPadding(new Insets(12, 0, 5,0));
+                uiNodeToAdd = lbl;
+            } else if (property.getValidationRules() instanceof BooleanPropertyValidationRules) {
                 uiNodeToAdd = generateBooleanCheckBoxField(property);
-            }
-            else {
+            } else {
                 propertiesPanel.getChildren().add(new Label(property.getDescription()));
                 if (property.getValidationRules().hasChoices()) {
                     uiNodeToAdd = generateRegularComboField(property);

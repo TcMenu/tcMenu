@@ -32,6 +32,7 @@
         <Plugin>analogResistiveTouchScreen.xml</Plugin>
         <Plugin>ArduinoTouchLibraryIntegration.xml</Plugin>
         <Plugin>esp32TouchSensor.xml</Plugin>
+        <Plugin>matrixKeyboard.xml</Plugin>
 
         <!-- embedded java plugins -->
         <Plugin>EmbeddedJFX.xml</Plugin>

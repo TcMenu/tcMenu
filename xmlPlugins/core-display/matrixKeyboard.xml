@@ -1,0 +1,161 @@
+<TcMenuPlugin name="Maxtrix Keyboard (w/optional encoder) input" id="71DAF854-DF8D-4F0B-9039-23C5583C85B1" subsystem="INPUT"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>STM32DUINO</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>Use this option to fully control a menu using a matrix keyboard and optionally also a rotary encoder.</Description>
+    <Documentation link="http://thecoderscorner.com/products/arduino-libraries/tc-menu/menu-control-using-matrix-keyboard/"/>
+    <RequiredLibraries/>
+    <ImageFile>matrix-keyboard.jpg</ImageFile>
+
+    <Properties>
+        <Property id="MK_KEYBOARD_NEXT" name="Next character on keyboard" initial="B" type="text" desc="A single character code for next item"/>
+        <Property id="MK_KEYBOARD_BACK" name="Back character on keyboard" initial="A" type="text" desc="A single character code for back an item"/>
+        <Property id="MK_KEYBOARD_ENTER" name="Enter character on keyboard" initial="*" type="text" desc="The character that represents ENTER"/>
+        <Property id="MK_KEYBOARD_DEL" name="Del character on keyboard" initial="#" type="text" desc="The character that represents DEL"/>
+        <Property id="MK_KEYBOARD_LAYOUT" name="Keyboard layout" initial="LAYOUT_3X4" type="choice" desc="The arrangement of keys on the matrix keyboard">
+            <Choices>
+                <Choice desc="Standard 3x4 numeric">LAYOUT_3X4</Choice>
+                <Choice desc="Standard 4x4 alpha-num">LAYOUT_4X4</Choice>
+            </Choices>
+        </Property>
+        <Property id="MK_ROW_PIN_0" name="Matrix Row 0 pin" initial="-1" type="pin" desc="Pin connected to row 0"/>
+        <Property id="MK_ROW_PIN_1" name="Matrix Row 1 pin" initial="-1" type="pin" desc="Pin connected to row 1"/>
+        <Property id="MK_ROW_PIN_2" name="Matrix Row 2 pin" initial="-1" type="pin" desc="Pin connected to row 2"/>
+        <Property id="MK_ROW_PIN_3" name="Matrix Row 3 pin" initial="-1" type="pin" desc="Pin connected to row 3"/>
+        <Property id="MK_COL_PIN_0" name="Matrix Column 0 pin" initial="-1" type="pin" desc="Pin connected to column 0"/>
+        <Property id="MK_COL_PIN_1" name="Matrix Column 1 pin" initial="-1" type="pin" desc="Pin connected to column 1"/>
+        <Property id="MK_COL_PIN_2" name="Matrix Column 2 pin" initial="-1" type="pin" desc="Pin connected to column 2"/>
+        <Property id="MK_COL_PIN_3" name="Matrix Column 3 pin" initial="-1" type="pin" desc="Pin connected to column 3" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4"/>
+        <Property id="MK_KEYBOARD_DEVICE" name="IoAbstractionRef for Matrix Keyboard" initial="devicePins" type="io-device"
+                  desc="This allows you to provide an IoAbstractionRef if your keyboard is on an IO expander"/>
+        <Property id="MK_REPEAT_START" name="Time before repeat key start - millis" initial="850" type="int" desc="How long before the first repeat after pressing a key in millis"/>
+        <Property id="MK_REPEAT_INTERVAL" name="Interval between key repeating - millis" initial="350" type="int" desc="How long between each interval of repeat in millis"/>
+        <Property id="MK_KEYBOARD_INTERRUPTS" name="Keyboard uses interrupts" initial="false" type="boolean"
+                  desc="Keyboard uses interrupt based pins - useful for IO expanders"/>
+
+        <Property id="SEPARATOR" name="Optional Rotary Encoder Settings" initial="" desc="Optional encoder" type="separator"/>
+
+        <Property id="MK_NEED_ENCODER" name="Rotary encoder needed" initial="false"  type="boolean"
+                  desc="Select this option if there is also a rotary encoder along with the keyboard"/>
+        <Property id="MK_USE_PULL_UP" name="Use pull up logic for encoder button" initial="true" desc="Set to true for pull-up encoder button (default) or false for pull-down" type="boolean" whenProperty="MK_NEED_ENCODER" isValue="true"/>
+        <Property id="MK_ENCODER_A" name="Encoder A Pin" initial="-1" type="pin" desc="The device pin that the A pin is on" whenProperty="MK_NEED_ENCODER" isValue="true"/>
+        <Property id="MK_ENCODER_B" name="Encoder B Pin" initial="-1" type="pin" desc="The device pin that the B pin is on" whenProperty="MK_NEED_ENCODER" isValue="true"/>
+        <Property id="MK_ENCODER_SEL" name="Encoder Select Pin" initial="-1" type="pin" desc="The device pin that the encoder select pin is on" whenProperty="MK_NEED_ENCODER" isValue="true"/>
+        <Property id="MK_ENCODER_DEVICE" name="IoAbstractionRef for Switches/Encoder" initial="devicePins" type="io-device" whenProperty="MK_NEED_ENCODER" isValue="true"
+                  desc="This allows you to provide an IoAbstractionRef if your input is on an IO expander"/>
+        <Property id="MK_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice" whenProperty="MK_NEED_ENCODER" isValue="true">
+            <Choices>
+                <Choice desc="Polling for keys and encoders - 1/100sec">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="Everything interrupt driven, no polling">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="Keys polling, encoder A pin interrupt - 1/50sec">SWITCHES_POLL_KEYS_ONLY</Choice>
+            </Choices>
+        </Property>
+        <Property id="MK_ENCODER_TYPE" name="Type of encoder provided" initial="FULL_CYCLE" desc="Most encoders are full/half cycle but a few are quarter" type="choice"
+                  whenProperty="MK_NEED_ENCODER" isValue="true">
+            <Choices>
+                <Choice desc="Full cycle (default)">FULL_CYCLE</Choice>
+                <Choice desc="Half cycle">HALF_CYCLE</Choice>
+                <Choice desc="Quarter cycle">QUARTER_CYCLE</Choice>
+            </Choices>
+        </Property>
+    </Properties>
+
+    <ApplicabilityDefs/>
+    <SourceFiles/>
+
+    <IncludeFiles>
+        <Header name="tcMenuKeyboard.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="keyboard" type="MatrixKeyboardManager" export="true"/>
+        <Variable name="keyboardKeys[]" type="char" progmem="true" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_3X4">
+            <Param value="&quot;123456789*0#&quot;"/>
+        </Variable>
+        <Variable name="keyboardLayout" type="KeyboardLayout" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_3X4">
+            <Param value="4"/>
+            <Param value="3"/>
+            <Param value="keyboardKeys"/>
+        </Variable>
+
+        <Variable name="keyboardKeys[]" type="const char" progmem="true" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
+            <Param value="= &quot;123A456B789C*0#D&quot;"/>
+        </Variable>
+        <Variable name="keyboardLayout" type="KeyboardLayout" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
+            <Param value="4"/>
+            <Param value="4"/>
+            <Param value="keyboardKeys"/>
+        </Variable>
+
+        <Variable name="tcMenuKeyListener" type="MenuEditingKeyListener" export="true">
+            <Param value="&apos;${MK_KEYBOARD_ENTER}&apos;"/>
+            <Param value="&apos;${MK_KEYBOARD_DEL}&apos;"/>
+            <Param value="&apos;${MK_KEYBOARD_BACK}&apos;"/>
+            <Param value="&apos;${MK_KEYBOARD_NEXT}&apos;"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="init" object="switches" whenProperty="MK_NEED_ENCODER" isValue="true">
+            <Param ioDevice="${MK_ENCODER_DEVICE}" />
+            <Param value="${MK_POLLING_MODE}" />
+            <Param value="${MK_USE_PULL_UP}"/>
+        </Function>
+
+        <Function name="initForEncoder" object="menuMgr" whenProperty="MK_NEED_ENCODER" isValue="true">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${MK_ENCODER_A}"/>
+            <Param value="${MK_ENCODER_B}"/>
+            <Param value="${MK_ENCODER_SEL}"/>
+            <Param value="${MK_ENCODER_TYPE}"/>
+        </Function>
+
+        <Function name="setRowPin" object="keyboardLayout">
+            <Param value="0"/><Param value="${MK_ROW_PIN_0}"/>
+        </Function>
+        <Function name="setRowPin" object="keyboardLayout">
+            <Param value="1"/><Param value="${MK_ROW_PIN_1}"/>
+        </Function>
+        <Function name="setRowPin" object="keyboardLayout">
+            <Param value="2"/><Param value="${MK_ROW_PIN_2}"/>
+        </Function>
+        <Function name="setRowPin" object="keyboardLayout">
+            <Param value="3"/><Param value="${MK_ROW_PIN_3}"/>
+        </Function>
+
+        <Function name="setColPin" object="keyboardLayout">
+            <Param value="0"/><Param value="${MK_COL_PIN_0}"/>
+        </Function>
+        <Function name="setColPin" object="keyboardLayout">
+            <Param value="1"/><Param value="${MK_COL_PIN_1}"/>
+        </Function>
+        <Function name="setColPin" object="keyboardLayout">
+            <Param value="2"/><Param value="${MK_COL_PIN_2}"/>
+        </Function>
+        <Function name="setColPin" object="keyboardLayout" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
+            <Param value="3"/><Param value="${MK_COL_PIN_3}"/>
+        </Function>
+
+        <Function name="initialise" object="keyboard">
+            <Param ioDevice="MK_KEYBOARD_DEVICE"/>
+            <Param ref="keyboardLayout"/>
+            <Param ref="tcMenuKeyListener"/>
+            <Param value="${MK_KEYBOARD_INTERRUPTS}"/>
+        </Function>
+
+        <Function name="setRepeatKeyMillis" object="keyboard">
+            <Param value="${MK_REPEAT_START}"/>
+            <Param value="${MK_REPEAT_INTERVAL}"/>
+        </Function>
+    </SetupFunctions>
+    
+</TcMenuPlugin>

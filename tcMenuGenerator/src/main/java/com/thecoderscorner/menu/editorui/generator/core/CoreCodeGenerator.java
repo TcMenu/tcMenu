@@ -117,7 +117,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             generateHeaders(codeGenerators, headerFile, menuStructure, extractor, callbackFunctions);
             generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
-            fileProcessor.dealWithRequiredPlugins(codeGenerators, srcDir, previousPluginFiles);
+            fileProcessor.dealWithRequiredPlugins(codeGenerators, srcDir, directory, previousPluginFiles);
 
             internalConversion(directory, srcDir, callbackFunctions, projectName);
 
@@ -143,26 +143,23 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isReadOnly)
                 .map(item -> {
-                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null,true, "true"));
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
                     return new FunctionDefinition("setReadOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
-                })
-                .collect(Collectors.toList())
+                }).toList()
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(MenuItem::isLocalOnly)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
                     return new FunctionDefinition("setLocalOnly", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
-                })
-                .collect(Collectors.toList())
+                }).toList()
         );
 
         allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(this::isSecureSubMenu)
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "true"));
                     return new FunctionDefinition("setSecured", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
-                })
-                .collect(Collectors.toList())
+                }).toList()
         );
 
         // lastly we deal with any INVISIBLE items, visible is the default.
@@ -170,8 +167,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "false"));
                     return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
-                })
-                .collect(Collectors.toList())
+                }).toList()
         );
 
         return allFunctions;
@@ -488,14 +484,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
         // now add any extra headers needed for the menu structure items.
         includeList.addAll(menuStructure.stream()
-                .flatMap(s -> s.getHeaderRequirements().stream())
-                .collect(Collectors.toList()));
+                .flatMap(s -> s.getHeaderRequirements().stream()).toList());
 
         includeList.addAll(extraCodeDefinitions().stream()
                 .map(CodeGeneratorCapable::generateHeader)
                 .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList()));
+                .map(Optional::get).toList());
 
         return includeList;
     }

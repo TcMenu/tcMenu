@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.Executors;
+import com.thecoderscorner.menuexample.tcmenu.plugins.*;
+import javafx.application.Application;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -86,11 +88,6 @@ public class MenuConfig {
     }
 
     @Bean
-    public MenuCommandProtocol tagVal() {
-        return new ConfigurableProtocolConverter(true);
-    }
-
-    @Bean
     public SocketServerConnectionManager socketClient(MenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
         return new SocketServerConnectionManager(protocol, executor, 3333, clock);
     }
@@ -106,6 +103,16 @@ public class MenuConfig {
         var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
         settings.load();
         return settings;
+    }
+
+    @Bean
+    public ConfigurableProtocolConverter tagVal() {
+        return new ConfigurableProtocolConverter(true);
+    }
+
+    @Bean
+    public TcJettyWebServer webServer(ConfigurableProtocolConverter protocol, Clock clock) {
+        return new TcJettyWebServer(protocol, clock, "./data/www", 8080, false);
     }
 
     // Auto generated menu callbacks end here. Please do not remove this line or change code after it.

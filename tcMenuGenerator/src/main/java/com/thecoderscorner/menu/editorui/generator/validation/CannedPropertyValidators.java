@@ -9,11 +9,13 @@ package com.thecoderscorner.menu.editorui.generator.validation;
 import com.thecoderscorner.menu.domain.MenuItem;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A helper class with static methods that provides short cuts for commonly used property validators.
  */
 public class CannedPropertyValidators {
+    public static final PropertyValidationRules SEPARATOR_VALIDATION_RULES = new EmptyValidationRule();
     /**
      * @return a standard boolean validator with choices for true and false.
      */
@@ -90,5 +92,27 @@ public class CannedPropertyValidators {
 
     public static IoExpanderPropertyValidationRules ioExpanderValidator() {
         return new IoExpanderPropertyValidationRules();
+    }
+
+    private static class EmptyValidationRule implements PropertyValidationRules {
+        @Override
+        public boolean isValueValid(String value) {
+            return false;
+        }
+
+        @Override
+        public boolean hasChoices() {
+            return false;
+        }
+
+        @Override
+        public List<ChoiceDescription> choices() {
+            return List.of();
+        }
+
+        @Override
+        public ChoiceDescription getChoiceFor(String latestValue) {
+            return new ChoiceDescription("");
+        }
     }
 }

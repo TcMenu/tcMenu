@@ -1,21 +1,15 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
-import com.thecoderscorner.menu.mgr.MenuInMenu;
-import com.thecoderscorner.menu.mgr.MenuManagerServer;
+import com.thecoderscorner.menu.mgr.*;
 import com.thecoderscorner.menu.persist.MenuStateSerialiser;
-import com.thecoderscorner.menu.remote.ConnectMode;
-import com.thecoderscorner.menu.remote.LocalIdentifier;
-import com.thecoderscorner.menu.remote.MenuCommandProtocol;
-import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
-import com.thecoderscorner.menu.remote.socket.SocketBasedConnector;
-import com.thecoderscorner.menuexample.tcmenu.plugins.JfxLocalAutoUI;
-import com.thecoderscorner.menuexample.tcmenu.plugins.TcJettyWebServer;
-import javafx.application.Application;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.time.Clock;
-import java.util.concurrent.ScheduledExecutorService;
+import com.thecoderscorner.menuexample.tcmenu.plugins.*;
+import javafx.application.Application;
+import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.socket.*;
+import java.util.concurrent.*;
+import java.time.*;
 
 /**
  * This class is the application class and should not be edited, it will be recreated on each code generation
@@ -23,12 +17,12 @@ import java.util.concurrent.ScheduledExecutorService;
 public class EmbeddedJavaDemoApp {
     private final MenuManagerServer manager;
     private final ApplicationContext context;
-    private final SocketServerConnectionManager socketClient;
+    private final TcJettyWebServer webServer;
     
     public EmbeddedJavaDemoApp() {
         context = new AnnotationConfigApplicationContext(MenuConfig.class);
         manager = context.getBean(MenuManagerServer.class);
-        socketClient = context.getBean(SocketServerConnectionManager.class);
+        webServer = context.getBean(TcJettyWebServer.class);
     }
 
     public void start() {
@@ -38,13 +32,7 @@ public class EmbeddedJavaDemoApp {
         manager.addMenuManagerListener(context.getBean(EmbeddedJavaDemoController.class));
         buildMenuInMenuComponents();
         JfxLocalAutoUI.setAppContext(context);
-        manager.addConnectionManager(socketClient);
-
-        var protocol = context.getBean(MenuCommandProtocol.class);
-        var clock = context.getBean(Clock.class);
-        var jetty = new TcJettyWebServer(protocol, clock, "./data/www", 8080, true);
-        manager.addConnectionManager(jetty);
-
+        manager.addConnectionManager(webServer);
         Application.launch(JfxLocalAutoUI.class);
     }
 

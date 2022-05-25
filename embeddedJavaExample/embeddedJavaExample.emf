@@ -234,9 +234,9 @@
     "embeddedPlatform": "RASPBERRY_PIJ",
     "lastDisplayUuid": "59f05a22-8873-4bfe-86d4-73ef874a0283",
     "lastInputUuid": "89cd7f70-0457-4884-97c2-0db904ccb0ba",
-    "lastRemoteUuid": "814334f5-fa50-43b1-9fcb-f34c6c5c4e40",
+    "lastRemoteUuid": "36f98a10-7ffc-468c-8b6b-3961b5c87cbe",
     "lastRemoteUuids": [
-      "814334f5-fa50-43b1-9fcb-f34c6c5c4e40"
+      "36f98a10-7ffc-468c-8b6b-3961b5c87cbe"
     ],
     "lastThemeUuid": "2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e",
     "applicationUUID": "1a9d30d8-b7cb-4ca6-85e4-4df5eb1f4fbe",
@@ -248,8 +248,18 @@
         "subsystem": "DISPLAY"
       },
       {
-        "name": "EJ_NET_PORT_NUMBER",
-        "latestValue": "3333",
+        "name": "EJ_WWW_STATIC_DIR",
+        "latestValue": "./data/www",
+        "subsystem": "REMOTE"
+      },
+      {
+        "name": "EJ_WEB_SERVER_PORT",
+        "latestValue": "8080",
+        "subsystem": "REMOTE"
+      },
+      {
+        "name": "EJ_DIRECTORY_LISTING",
+        "latestValue": "false",
         "subsystem": "REMOTE"
       }
     ],

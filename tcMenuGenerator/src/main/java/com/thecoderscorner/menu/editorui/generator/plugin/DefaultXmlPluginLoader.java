@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -75,13 +76,13 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var storageAllPluginPaths = configStorage.getAdditionalPluginPaths();
             if(storageAllPluginPaths != null && !storageAllPluginPaths.isEmpty()) {
                 logger.log(INFO, "Adding extra plugin search directories: ", storageAllPluginPaths);
-                var itemsToAdd = storageAllPluginPaths.stream().map(Paths::get).collect(Collectors.toList());
+                var itemsToAdd = storageAllPluginPaths.stream().map(Paths::get).toList();
                 allPluginsPathsToLoad.addAll(itemsToAdd);
             }
 
             for (var path : allPluginsPathsToLoad) {
                 logger.log(INFO, "Traversing " + path + " for plugins");
-                for (var dir : Files.list(path).filter(Files::isDirectory).collect(Collectors.toList())) {
+                for (var dir : Files.list(path).filter(Files::isDirectory).toList()) {
                     if (Files.exists((dir.resolve("tcmenu-plugin.xml")))) {
                         logger.log(System.Logger.Level.INFO, "Plugin xml found in " + dir);
                         var loadedPlugin = loadPluginLib(dir);
@@ -268,12 +269,19 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             List<CodeReplacement> replacements = transformElements(root, "SourceFiles", "Replacement", ele ->
                     new CodeReplacement(ele.getAttribute("find"), ele.getAttribute("replace"), toApplicability(ele, applicabilityByKey))
             );
-            item.setRequiredSourceFiles(transformElements(root, "SourceFiles", "SourceFile", (ele) ->
-                    new RequiredSourceFile(getAttributeOrDefault(ele, "name", ""), replacements,
-                            toApplicability(ele, applicabilityByKey),
-                            Boolean.parseBoolean(getAttributeOrDefault(ele,"overwrite", "true"))
-                    )
-            ));
+            item.setRequiredSourceFiles(transformElements(root, "SourceFiles", "SourceFile", (ele) -> {
+                String name = getAttributeOrDefault(ele, "name", "");
+                String unzip = ele.getAttribute("unzip");
+                if(!StringHelper.isStringEmptyOrNull(unzip)) {
+                    boolean cleanFirst = unzip.equals("clean");
+                    String dest = getAttributeOrDefault(ele, "dest", ".");
+                    return new RequiredZipFile(name, replacements, toApplicability(ele, applicabilityByKey), dest, cleanFirst);
+                } else {
+                    return new RequiredSourceFile(name, replacements, toApplicability(ele, applicabilityByKey),
+                            Boolean.parseBoolean(getAttributeOrDefault(ele, "overwrite", "true"))
+                    );
+                }
+            }));
 
             return item;
         } catch (Exception ex) {
@@ -404,6 +412,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                 return CannedPropertyValidators.optPinValidator();
             case "io-device":
                 return CannedPropertyValidators.ioExpanderValidator();
+            case "separator":
+                return CannedPropertyValidators.SEPARATOR_VALIDATION_RULES;
 
             case "MenuItem": return CannedPropertyValidators.menuItemValidatorForAllItems();
             case "BooleanMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(BooleanMenuItem.class);

@@ -83,7 +83,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             }
 
             var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
-            fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), previousPluginFiles);
+            fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), javaProject.getProjectRoot(), previousPluginFiles);
 
             logLine(INFO, "Checking if all dependencies are in the maven POM");
             allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
@@ -260,8 +260,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         boolean hasMenuInMenuDefinitions = !options.getMenuInMenuCollection().getAllDefinitions().isEmpty();
         if(hasMenuInMenuDefinitions) {
             startMethod.withStatement("buildMenuInMenuComponents();");
-            builder.addPackageImport("com.thecoderscorner.menu.remote.*");
-            builder.addPackageImport("com.thecoderscorner.menu.remote.socket.*");
+            builder.addPackageImport("com.thecoderscorner.menu.remote.*")
+                    .addPackageImport("com.thecoderscorner.menu.remote.socket.*")
+                    .addPackageImport("java.util.concurrent.*")
+                    .addPackageImport("java.time.*");
             if(options.getMenuInMenuCollection().getAllDefinitions().stream().anyMatch(def -> def.getConnectionType() == ConnectionType.SERIAL)) {
                 builder.addPackageImport("com.thecoderscorner.embedcontrol.core.rs232");
             }
