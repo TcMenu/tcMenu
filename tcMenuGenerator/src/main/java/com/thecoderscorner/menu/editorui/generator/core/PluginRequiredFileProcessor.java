@@ -107,7 +107,7 @@ public class PluginRequiredFileProcessor {
                     }
                 } else {
                     uiLogger.accept(INFO, "Copy plugin file: " + srcFile.getFileName());
-                    String fileData = "";
+                    String fileData = new String(fileDataBytes);
                     for (var cr : srcFile.getReplacementList()) {
                         if (cr.getApplicability().isApplicable(context.getProperties())) {
                             uiLogger.accept(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());

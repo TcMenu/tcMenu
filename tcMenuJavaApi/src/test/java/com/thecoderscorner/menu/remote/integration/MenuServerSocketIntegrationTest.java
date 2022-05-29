@@ -139,7 +139,7 @@ public class MenuServerSocketIntegrationTest {
     private void updateItemOnServerAndWaitForClient(MenuItem item, Object value) throws InterruptedException {
         itemUpdatedLatch = new CountDownLatch(1);
         updateIdToWaitFor.set(item.getId());
-        menuServer.updateMenuItem(item, value);
+        menuServer.updateMenuItem(this, item, value);
         assertTrue(itemUpdatedLatch.await(2, TimeUnit.SECONDS));
     }
 

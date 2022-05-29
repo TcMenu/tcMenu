@@ -212,6 +212,11 @@ public class TcJettyWebServer implements ServerConnectionManager {
             return userName.get();
         }
 
+        @Override
+        public String getConnectionName() {
+            return String.format("JettyWS %s as %s", session.getId(), getUserName());
+        }
+
         public void stringDataRx(String data) {
             try {
                 lastMsgIn.set(clock.millis());

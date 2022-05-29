@@ -67,10 +67,10 @@ class MenuManagerServerTest {
     public void testLocalUpdatingAndCallbacks() {
         MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(false);
         mgr.addMenuManagerListener(listener);
-        mgr.updateMenuItem(tree.getMenuById(1).orElseThrow(), 22);
-        mgr.updateMenuItem(tree.getMenuById(3).orElseThrow(), true);
-        mgr.updateMenuItem(tree.getMenuById(1).orElseThrow(), 24);
-        mgr.updateMenuItem(tree.getMenuById(21).orElseThrow(), ListResponse.fromString("29:1").orElseThrow());
+        mgr.updateMenuItem(this, tree.getMenuById(1).orElseThrow(), 22);
+        mgr.updateMenuItem(this, tree.getMenuById(3).orElseThrow(), true);
+        mgr.updateMenuItem(this, tree.getMenuById(1).orElseThrow(), 24);
+        mgr.updateMenuItem(this, tree.getMenuById(21).orElseThrow(), ListResponse.fromString("29:1").orElseThrow());
 
         assertEquals(2, listener.getCountOfVolumeChanges());
         assertEquals(1, listener.getCountOfDirectChanges());
@@ -83,7 +83,7 @@ class MenuManagerServerTest {
         MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(false);
         mgr.addMenuManagerListener(listener);
         ScrollChoiceMenuItem scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
-        mgr.updateMenuItem(scroll, "9999-");
+        mgr.updateMenuItem(this, scroll, "9999-");
         assertEquals("0-Item 0 type ARRAY_IN_EEPROM", getValueFor(scroll, tree, new CurrentScrollPosition("0-")).toString());
 
         tree.addOrUpdateItem(
@@ -92,7 +92,7 @@ class MenuManagerServerTest {
         );
         scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
 
-        mgr.updateMenuItem(scroll, "9-");
+        mgr.updateMenuItem(this, scroll, "9-");
         assertEquals("9-Item 9 type ARRAY_IN_EEPROM", getValueFor(scroll, tree, new CurrentScrollPosition("0-")).toString());
     }
 
@@ -246,7 +246,7 @@ class MenuManagerServerTest {
         }
 
         @Override
-        public void menuItemHasChanged(MenuItem item, boolean remoteChange) {
+        public void menuItemHasChanged(Object sender, MenuItem item) {
             itemLevelChanges++;
         }
 
@@ -330,6 +330,11 @@ class MenuManagerServerTest {
         @Override
         public String getUserName() {
             return "User";
+        }
+
+        @Override
+        public String getConnectionName() {
+            return "Sim";
         }
     }
 

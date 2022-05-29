@@ -15,13 +15,13 @@ import java.lang.annotation.Target;
  * <pre>
  * // register this method to receive an item change notification
  * &#064;MenuCallback(id=1)
- * public void myItemAction(BooleanMenuItem item) {
+ * public void myItemAction(Object sender, BooleanMenuItem item) {
  *     // item changed
  * }
  *
  * // register this method to receive list selection changes
  * &#064;MenuCallback(id=10, listResult=true)
- * public void listWasSelected(RuntimeListMenuItem item, ListResponse response) {
+ * public void listWasSelected(Object sender, RuntimeListMenuItem item, ListResponse response) {
  *     // list item changed
  *
  * }

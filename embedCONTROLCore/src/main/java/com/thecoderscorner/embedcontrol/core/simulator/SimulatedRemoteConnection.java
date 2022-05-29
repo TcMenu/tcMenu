@@ -62,6 +62,11 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     }
 
     @Override
+    public String getUserName() {
+        return simName;
+    }
+
+    @Override
     public String getConnectionName() {
         return simName;
     }

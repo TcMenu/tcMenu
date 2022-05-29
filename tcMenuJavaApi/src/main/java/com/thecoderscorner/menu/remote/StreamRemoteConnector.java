@@ -241,4 +241,8 @@ public abstract class StreamRemoteConnector extends SharedStreamConnection imple
         logger.log(l, getConnectionName() + " - " + s, e);
     }
 
+    @Override
+    public String getUserName() {
+        return remoteParty.get().getName();
+    }
 }

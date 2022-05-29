@@ -323,7 +323,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .forEach(item -> {
                     String methodName = item.getFunctionName().replace('@', '_');
                     var javaMethod = new GeneratedJavaMethod(METHOD_IF_MISSING, "void", methodName)
-                            .withParameter(item.getClass().getSimpleName() +  " item").withParameter("boolean remoteAction")
+                            .withParameter("Object sender").withParameter(item.getClass().getSimpleName() +  " item")
                             .withStatement("// TODO - implement your menu behaviour here for " + item.getName());
                     if(item instanceof RuntimeListMenuItem) {
                         javaMethod.withAnnotation("MenuCallback(id=" + item.getId() + ", listResult=true)");
@@ -336,7 +336,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 });
 
         builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "menuItemHasChanged")
-                        .withParameter("MenuItem item").withParameter("boolean remoteAction")
+                        .withParameter("Object sender").withParameter("MenuItem item")
                         .withStatement("// Called every time any menu item changes"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "managerWillStart")
                         .withAnnotation("Override")

@@ -1,9 +1,6 @@
 package com.thecoderscorner.menu.mgr;
 
-import com.thecoderscorner.menu.domain.BooleanMenuItem;
-import com.thecoderscorner.menu.domain.BooleanMenuItemBuilder;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.AuthStatus;
@@ -89,7 +86,7 @@ public class MenuInMenu {
 
     private void updateStatusItemIfPresent(boolean state) {
         if(statusItem != null) {
-            manager.updateMenuItem(statusItem, state);
+            manager.updateMenuItem(this, statusItem, state);
         }
     }
 
@@ -109,7 +106,9 @@ public class MenuInMenu {
                 var modifiedParentId = boot.getSubMenuId() != 0 ? (boot.getSubMenuId() + offsetRange) : root.getId();
                 var parent = manager.getManagedMenu().getMenuById(modifiedParentId).orElseThrow();
                 manager.getManagedMenu().addMenuItem(asSubMenu(parent), changedItem);
-                manager.remoteUpdateHasOccurred(changedItem, boot.getCurrentValue());
+                if(isItemAdjustable(changedItem)) {
+                    manager.updateMenuItem(remoteConnector, changedItem, boot.getCurrentValue());
+                }
                 if(replicationMode != ReplicationMode.REPLICATE_SILENTLY) {
                     manager.treeStructurallyChanged(root);
                 }
@@ -118,7 +117,7 @@ public class MenuInMenu {
             var change = (MenuChangeCommand)menuCommand;
             var item = manager.getManagedMenu().getMenuById(change.getMenuItemId() + offsetRange).orElseThrow();
             var isListChange = (change.getChangeType() == MenuChangeCommand.ChangeType.ABSOLUTE_LIST);
-            manager.remoteUpdateHasOccurred(item, isListChange ? change.getValues() : change.getValue());
+            manager.updateMenuItem(remoteConnector, item, isListChange ? change.getValues() : change.getValue());
         } else if(menuCommand instanceof MenuBootstrapCommand) {
             var bootstrap = (MenuBootstrapCommand) menuCommand;
             bootInProgress.set(bootstrap.getBootType() == BootType.START);
@@ -144,6 +143,10 @@ public class MenuInMenu {
         }
     }
 
+    private boolean isItemAdjustable(MenuItem item) {
+        return !(item instanceof SubMenuItem || item instanceof ActionMenuItem);
+    }
+
     /**
      * Check the current status of the underlying connection
      * @return the auth status of the connection
@@ -158,8 +161,8 @@ public class MenuInMenu {
 
     private class MenuInMenuManagerListener implements MenuManagerListener {
         @Override
-        public void menuItemHasChanged(MenuItem item, boolean remoteChange) {
-            if(isWithinRange(item) && !remoteChange && remoteConnector.isDeviceConnected()) {
+        public void menuItemHasChanged(Object sender, MenuItem item) {
+            if(isWithinRange(item) && sender != MenuInMenu.this && sender != remoteConnector && remoteConnector.isDeviceConnected()) {
                 try {
                     var state = getValueFor(item, manager.getManagedMenu(), getDefaultFor(item));
                     remoteConnector.sendMenuCommand(CommandFactory.newAbsoluteMenuChangeCommand(

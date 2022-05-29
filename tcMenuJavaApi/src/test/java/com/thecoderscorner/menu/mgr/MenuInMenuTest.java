@@ -183,7 +183,7 @@ class MenuInMenuTest {
         sendStandardBootMessages();
 
         var analog = managerServer.getManagedMenu().getMenuById(STARTING_OFFSET + 1).orElseThrow();
-        managerServer.updateMenuItem(analog, 203);
+        managerServer.updateMenuItem(this, analog, 203);
 
         assertEquals(1, otherRemote.commandsSent.size());
         var update = (MenuChangeCommand) otherRemote.commandsSent.get(0);
@@ -227,6 +227,11 @@ class MenuInMenuTest {
 
         public void simulateSendCommand(MenuCommand msg) {
             messageListener.onCommand(this, msg);
+        }
+
+        @Override
+        public String getUserName() {
+            return "unitTest";
         }
 
         @Override

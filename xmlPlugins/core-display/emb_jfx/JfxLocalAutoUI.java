@@ -102,7 +102,7 @@ public class JfxLocalAutoUI extends Application {
             if(!(val instanceof ListResponse)) {
                 MenuItemHelper.setMenuState(menuItem, val, mgr.getManagedMenu());
             }
-            mgr.updateMenuItem(menuItem, val);
+            mgr.updateMenuItem(this, menuItem, val);
 
             return CorrelationId.EMPTY_CORRELATION;
         }
@@ -110,7 +110,7 @@ public class JfxLocalAutoUI extends Application {
         @Override
         public CorrelationId editorUpdatedItemDelta(MenuItem menuItem, int delta) {
             MenuItemHelper.applyIncrementalValueChange(menuItem, delta, mgr.getManagedMenu());
-            mgr.menuItemDidUpdate(menuItem);
+            mgr.menuItemDidUpdate(this, menuItem);
             return CorrelationId.EMPTY_CORRELATION;
         }
 

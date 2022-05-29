@@ -20,10 +20,10 @@ import com.thecoderscorner.menu.domain.MenuItem;
 public interface MenuManagerListener {
     /**
      * Called whenever there is a change in any menu item, it will indicate if the change is local or remote.
+     * @param sender the sender of the event
      * @param item the item ID
-     * @param remoteChange if the change is local or remote.
      */
-    void menuItemHasChanged(MenuItem item, boolean remoteChange);
+    void menuItemHasChanged(Object sender, MenuItem item);
 
     /**
      * Indicates that the manager (and therefore the application) is about to start. You can do any tasks that are

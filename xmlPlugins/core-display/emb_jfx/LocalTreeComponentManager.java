@@ -38,7 +38,7 @@ public class LocalTreeComponentManager extends TreeComponentManager<Node> implem
     }
 
     @Override
-    public void menuItemHasChanged(MenuItem item, boolean remoteChange) {
+    public void menuItemHasChanged(Object sender, MenuItem item) {
         if(editorComponents.containsKey(item.getId())) {
             editorComponents.get(item.getId()).onItemUpdated(controller.getMenuTree().getMenuState(item));
         }

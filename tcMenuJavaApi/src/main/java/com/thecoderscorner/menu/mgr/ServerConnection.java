@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.mgr;
 
+import com.thecoderscorner.menu.remote.RemoteDevice;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 import java.util.function.BiConsumer;
@@ -13,7 +14,7 @@ import java.util.function.BiConsumer;
  * @see MenuManagerServer
  * @see ServerConnectionManager
  */
-public interface ServerConnection {
+public interface ServerConnection extends RemoteDevice {
     /**
      * @return the heartbeat frequency for this connection
      */

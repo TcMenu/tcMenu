@@ -321,13 +321,13 @@ public class MenuManagerServer implements NewServerConnectionListener {
      * @param item     the item that has changed
      * @param newValue the new value
      */
-    public void updateMenuItem(MenuItem item, Object newValue) {
+    public void updateMenuItem(Object sender, MenuItem item, Object newValue) {
         if (newValue instanceof ListResponse) {
             // for list responses, we don't store them, we just trigger and forget.
-            fireEventToListeners(item, newValue, false);
+            fireEventToListeners(this, item, newValue);
         } else {
             MenuItemHelper.setMenuState(item, newValue, tree);
-            menuItemDidUpdate(item);
+            menuItemDidUpdate(sender, item);
         }
     }
 
@@ -337,13 +337,13 @@ public class MenuManagerServer implements NewServerConnectionListener {
      *
      * @param item the item that has adjusted
      */
-    public void menuItemDidUpdate(MenuItem item) {
+    public void menuItemDidUpdate(Object sender, MenuItem item) {
         logger.log(Level.INFO, "Sending item update for " + item);
         var state = tree.getMenuState(item);
         if (state == null) return;
 
         applyScrollChoiceValueIfNeeded(item, state);
-        fireEventToListeners(item, state.getValue(), false);
+        fireEventToListeners(sender, item, state.getValue());
 
         MenuCommand cmd;
         if (state instanceof StringListMenuState) {
@@ -354,18 +354,6 @@ public class MenuManagerServer implements NewServerConnectionListener {
         }
 
         updateRemotesWithLatestState(cmd);
-    }
-
-    /**
-     * Tell the manager that a remote MenuInMenu style update has occurred, this must not be sent remotely to avoid
-     * a loop.
-     *
-     * @param item  the item
-     * @param value the value
-     */
-    public void remoteUpdateHasOccurred(MenuItem item, Object value) {
-        MenuItemHelper.setMenuState(item, value, getManagedMenu());
-        fireEventToListeners(item, value, true);
     }
 
     /**
@@ -388,16 +376,16 @@ public class MenuManagerServer implements NewServerConnectionListener {
         });
     }
 
-    private void fireEventToListeners(MenuItem item, Object data, boolean remoteAction) {
-        for (var l : eventListeners) l.menuItemHasChanged(item, remoteAction);
+    private void fireEventToListeners(Object sender, MenuItem item, Object data) {
+        for (var l : eventListeners) l.menuItemHasChanged(sender, item);
 
         var m = mapOfCallbacksById.get(item.getId());
         if (m != null) {
             try {
                 if (m.isListResult() && data instanceof ListResponse) {
-                    m.getMethod().invoke(m.getListener(), item, remoteAction, data);
+                    m.getMethod().invoke(m.getListener(), sender, item, data);
                 } else {
-                    m.getMethod().invoke(m.getListener(), item, remoteAction);
+                    m.getMethod().invoke(m.getListener(), sender, item);
                 }
             } catch (Exception e) {
                 logger.log(Level.ERROR, "Callback method threw an exception ", e);
@@ -417,7 +405,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
             var newVal = MenuItemHelper.applyIncrementalValueChange(item, Integer.parseInt(cmd.getValue()), tree);
             if (newVal.isPresent()) {
                 applyScrollChoiceValueIfNeeded(item, newVal.get());
-                fireEventToListeners(item, newVal.get().getValue(), true);
+                fireEventToListeners(socket, item, newVal.get().getValue());
                 sendChangeAndAck(socket, item, newVal.get().getValue(), cmd.getCorrelationId());
             } else {
                 socket.sendCommand(new MenuAcknowledgementCommand(cmd.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING));
@@ -426,10 +414,10 @@ public class MenuManagerServer implements NewServerConnectionListener {
             var newState = MenuItemHelper.stateForMenuItem(tree.getMenuState(item), item, cmd.getValue());
             tree.changeItem(item, newState);
             applyScrollChoiceValueIfNeeded(item, newState);
-            fireEventToListeners(item, newState.getValue(), true);
+            fireEventToListeners(socket, item, newState.getValue());
             sendChangeAndAck(socket, item, cmd.getValue(), cmd.getCorrelationId());
         } else if (cmd.getChangeType() == ChangeType.LIST_STATE_CHANGE) {
-            ListResponse.fromString(cmd.getValue()).ifPresent(resp -> fireEventToListeners(item, resp, true));
+            ListResponse.fromString(cmd.getValue()).ifPresent(resp -> fireEventToListeners(socket, item, resp));
         }
     }
 

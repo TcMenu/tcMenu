@@ -42,11 +42,11 @@ public class SimpleWebSocketExample {
         menuManager.start();
 
         var menuList = menuManager.getManagedMenu().getMenuById(21).orElseThrow();
-        menuManager.updateMenuItem(menuList, List.of("salad", "pasta", "pizza"));
+        menuManager.updateMenuItem(menuManager, menuList, List.of("salad", "pasta", "pizza"));
 
         if(Boolean.getBoolean("sendSimulatedUpdates")) {
 
-            executor.scheduleAtFixedRate(() -> menuManager.updateMenuItem(menuList, randomListData()), 5000, 5000, TimeUnit.MILLISECONDS);
+            executor.scheduleAtFixedRate(() -> menuManager.updateMenuItem(menuManager, menuList, randomListData()), 5000, 5000, TimeUnit.MILLISECONDS);
 
             executor.scheduleAtFixedRate(() -> {
                 if (menuManager.isAnyRemoteConnection()) return;
@@ -56,15 +56,15 @@ public class SimpleWebSocketExample {
 
                 int amt = (int) (Math.random() * 2000);
                 if (Math.random() > 0.5) {
-                    menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) + amt);
-                    menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) - amt);
+                    menuManager.updateMenuItem(menuManager, menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) + amt);
+                    menuManager.updateMenuItem(menuManager, menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) - amt);
                 } else {
-                    menuManager.updateMenuItem(menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) - amt);
-                    menuManager.updateMenuItem(menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) + amt);
+                    menuManager.updateMenuItem(menuManager, menuLeftVU, MenuItemHelper.getValueFor(menuLeftVU, tree, 0) - amt);
+                    menuManager.updateMenuItem(menuManager, menuRightVU, MenuItemHelper.getValueFor(menuRightVU, tree, 0) + amt);
 
                 }
 
-                menuManager.updateMenuItem(menuVolume, Math.random() * menuVolume.getMaxValue());
+                menuManager.updateMenuItem(menuManager, menuVolume, Math.random() * menuVolume.getMaxValue());
             }, 150, 150, TimeUnit.MILLISECONDS);
         }
     }

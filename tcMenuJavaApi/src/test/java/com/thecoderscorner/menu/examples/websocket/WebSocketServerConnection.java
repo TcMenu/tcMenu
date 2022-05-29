@@ -101,6 +101,11 @@ public class WebSocketServerConnection implements ServerConnection {
         return remoteUser.get();
     }
 
+    @Override
+    public String getConnectionName() {
+        return String.format("WebSocket %s as %s", socket.getRemoteSocketAddress(), getUserName());
+    }
+
     public void informClosed() {
         synchronized (handlerLock) {
             var l = this.connectionListener.get();

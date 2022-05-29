@@ -15,7 +15,7 @@ import java.io.IOException;
  * menu commands. Most people just wanting to use a menu remotely won't need to understand the connector layer beyond
  * creating a connector.
  */
-public interface RemoteConnector {
+public interface RemoteConnector extends RemoteDevice {
 
     /**
      * Starts the communication channel, so it will attempt to connect with the configured device

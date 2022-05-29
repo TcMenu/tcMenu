@@ -16,31 +16,31 @@ public class EmbeddedJavaGeneratorFileData {
                 }
                         
                 @MenuCallback(id=2)
-                public void callback1(AnalogMenuItem item, boolean remoteAction) {
+                public void callback1(Object sender, AnalogMenuItem item) {
                     // TODO - implement your menu behaviour here for test2
                 }
                         
                 @MenuCallback(id=20)
-                public void callback1(EnumMenuItem item, boolean remoteAction) {
+                public void callback1(Object sender, EnumMenuItem item) {
                     // TODO - implement your menu behaviour here for Extra
                 }
                         
                 @MenuCallback(id=79)
-                public void _headerOnly(EditableTextMenuItem item, boolean remoteAction) {
+                public void _headerOnly(Object sender, EditableTextMenuItem item) {
                     // TODO - implement your menu behaviour here for Ip Item
                 }
                         
                 @MenuCallback(id=99)
-                public void callback2(EditableTextMenuItem item, boolean remoteAction) {
+                public void callback2(Object sender, EditableTextMenuItem item) {
                     // TODO - implement your menu behaviour here for Text Item
                 }
                 
                 @MenuCallback(id=2039, listResult=true)
-                public void listHasChanged(RuntimeListMenuItem item, boolean remoteAction, ListResponse selInfo) {
+                public void listHasChanged(Object sender, RuntimeListMenuItem item, ListResponse selInfo) {
                     // TODO - implement your menu behaviour here for My List
                 }
         
-                public void menuItemHasChanged(MenuItem item, boolean remoteAction) {
+                public void menuItemHasChanged(Object sender, MenuItem item) {
                     // Called every time any menu item changes
                 }
                 
@@ -110,6 +110,7 @@ public class EmbeddedJavaGeneratorFileData {
             import java.util.concurrent.*;
             import com.thecoderscorner.menu.remote.*;
             import com.thecoderscorner.menu.remote.socket.*;
+            import java.time.*;
             import com.thecoderscorner.embedcontrol.core.rs232;
                         
             /**

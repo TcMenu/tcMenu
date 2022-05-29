@@ -43,30 +43,15 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
         this.layoutPersistence = layoutPersistence;
     }
 
-    @MenuCallback(id=1)
-    public void led1BrightnessHasChanged(AnalogMenuItem item, boolean remoteAction) {
-        // TODO - implement your menu behaviour here for LED1  brightness
-    }
-
-    @MenuCallback(id=2)
-    public void led2BrightnessHasChanged(AnalogMenuItem item, boolean remoteAction) {
-        // TODO - implement your menu behaviour here for LED2 brightness
-    }
-
-    @MenuCallback(id=3)
-    public void inputControlHasChanged(EnumMenuItem item, boolean remoteAction) {
-        // TODO - implement your menu behaviour here for Input Control
-    }
-
     @MenuCallback(id=15, listResult=true)
-    public void listHasChanged(RuntimeListMenuItem item, boolean remoteAction, ListResponse listResponse) {
+    public void listHasChanged(Object sender, RuntimeListMenuItem item, ListResponse listResponse) {
         logger.log(INFO, String.format("List %s has changed: %s", item, listResponse));
         navigationManager.getDialogManager().withTitle("List Change on " + item.getName(), false)
                 .withMessage(String.format("Action was %s on row %d", listResponse.getResponseType(), listResponse.getRow()), false)
                 .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
     }
 
-    public void menuItemHasChanged(MenuItem item, boolean remoteAction) {
+    public void menuItemHasChanged(Object sender, MenuItem item) {
         // Called every time any menu item changes
     }
 

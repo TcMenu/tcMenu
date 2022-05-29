@@ -135,6 +135,16 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     }
 
     @Override
+    public String getConnectionName() {
+        if(socket.isConnected()) {
+            return String.format("SocketServer %s as %s" + socket.getRemoteSocketAddress(), remoteUser.get());
+        }
+        else {
+            return "SocketServer disconnected";
+        }
+    }
+
+    @Override
     protected void getAtLeastBytes(ByteBuffer inputBuffer, int len, StreamRemoteConnector.ReadMode mode) throws IOException {
         if(mode == StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY && inputBuffer.remaining() >= len) return;
 
@@ -162,11 +172,6 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     @Override
     public boolean isDeviceConnected() {
         return socket.isConnected();
-    }
-
-    @Override
-    public String getConnectionName() {
-        return socket.getRemoteSocketAddress().toString();
     }
 
     @Override
