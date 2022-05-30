@@ -161,6 +161,9 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("com.thecoderscorner.menu.mgr.MenuManagerServer")
                 .addPackageImport("com.thecoderscorner.menu.persist.*")
                 .addPackageImport("com.thecoderscorner.embedcontrol.core.util.*")
+                .addPackageImport("com.thecoderscorner.embedcontrol.core.service.*")
+                .addPackageImport("com.thecoderscorner.embedcontrol.customization.*")
+                .addPackageImport("com.thecoderscorner.embedcontrol.jfx.controlmgr.*")
                 .addPackageImport("org.springframework.beans.factory.annotation.Value")
                 .addPackageImport("org.springframework.context.annotation.*")
                 .addPackageImport("java.time.Clock")
@@ -190,7 +193,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withAnnotation("Bean").withStatement("var settings = new GlobalSettings(" + clazzBaseName + "Menu.class);")
                         .withStatement("settings.load();").withStatement("return settings;"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScreenLayoutPersistence", "menuLayoutPersistence")
-                        .withAnnotation("Bean").withParameter("EmbeddedJavaDemoMenu menuDef").withParameter("GlobalSettings settings")
+                        .withAnnotation("Bean").withParameter(javaProject.getAppClassName("Menu") + " menuDef")
+                        .withParameter("GlobalSettings settings")
                         .withParameter("MenuManagerServer manager").withParameter("@Value(\"${file.menu.storage}\") String filePath")
                         .withParameter("@Value(\"${default.font.size}\") int fontSize")
                         .withStatement("var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);")
@@ -218,8 +222,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             wrapper.addToContext(cap, builder);
         }
 
-        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).toList(), builder);
-        pluginCreator.mapContext(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), builder);
+        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).distinct().toList(), builder);
+        pluginCreator.mapContext(allPlugins.stream().flatMap(p -> p.getVariables().stream()).distinct().toList(), builder);
 
         builder.addStatement(GeneratedJavaMethod.END_OF_METHODS_TEXT);
 
@@ -243,8 +247,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addAppFields(cap, builder);
         }
-        pluginCreator.mapVariables(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), builder);
-        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).toList(), builder);
+        pluginCreator.mapVariables(allPlugins.stream().flatMap(p -> p.getVariables().stream()).distinct().toList(), builder);
+        pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).distinct().toList(), builder);
 
         var constructor = new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
                 .withStatement("context = new AnnotationConfigApplicationContext(MenuConfig.class);")
@@ -268,7 +272,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 builder.addPackageImport("com.thecoderscorner.embedcontrol.core.rs232");
             }
         }
-        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).toList(), startMethod, List.of());
+        pluginCreator.mapMethodCalls(allPlugins.stream().flatMap(p -> p.getFunctions().stream()).distinct().toList(), startMethod, List.of());
 
         builder.addStatement(startMethod);
         builder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "static void", "main").withParameter("String[] args")

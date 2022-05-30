@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicabili
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FunctionDefinition {
     private final String functionName;
@@ -38,6 +39,20 @@ public class FunctionDefinition {
                 ", parameters=" + parameters +
                 ", applicability=" + applicability +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FunctionDefinition that = (FunctionDefinition) o;
+        return objectPointer == that.objectPointer && infiniteLoop == that.infiniteLoop &&
+                Objects.equals(functionName, that.functionName) && Objects.equals(objectName, that.objectName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(functionName, objectName, objectPointer, infiniteLoop);
     }
 
     public String getFunctionName() {

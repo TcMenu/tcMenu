@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicabili
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CodeVariable {
     private final String variableName;
@@ -30,6 +31,20 @@ public class CodeVariable {
         this.inContext = inContext;
         this.parameterList = parameterList;
         this.applicability = applicability;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CodeVariable that = (CodeVariable) o;
+        return progMem == that.progMem && inContext == that.inContext && Objects.equals(variableName, that.variableName) &&
+                Objects.equals(objectName, that.objectName) && definitionMode == that.definitionMode;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(variableName, objectName, definitionMode, progMem, inContext);
     }
 
     public String getVariableName() {

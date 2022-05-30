@@ -21,7 +21,10 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <Replacement find="PACKAGE_NAME_REPLACEMENT" replace="${NAMESPACE}"/>
         <SourceFile name="embedJSArchive/embed-control-js-designer-latest.zip" unzip="clean" dest="${EJ_WWW_STATIC_DIR}"/>
+        <SourceFile name="embeddedJetty/TcJettyWebServer.java" />
+        <SourceFile name="embeddedJetty/TcJettyWebSocketEndpoint.java" />
     </SourceFiles>
 
     <IncludeFiles>

@@ -71,7 +71,7 @@ public class EmbeddedJavaProject {
     private String doVariableExpansionInString(String input) {
         return input.replaceAll("%SERVERNAME%", codeOptions.getApplicationName())
                 .replaceAll("%SERVERUUID%", codeOptions.getApplicationUUID().toString())
-                .replaceAll("%DATADIR%", data.toString())
+                .replaceAll("%DATADIR%", data.toString().replace('\\','/'))
                 .replaceAll("%APPNAME%", getAppClassName(""))
                 .replaceAll("%APP_DESCRIPTION%", "An application built with TcMenu Designer")
                 .replaceAll("%PACKAGE_NAME%", codeOptions.getPackageNamespace())

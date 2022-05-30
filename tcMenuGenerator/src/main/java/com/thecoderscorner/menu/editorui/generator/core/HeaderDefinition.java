@@ -38,6 +38,12 @@ public class HeaderDefinition {
         return Objects.equals(headerName, that.headerName) && headerType == that.headerType;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(headerName, headerType);
+    }
+
+
     public int getPriority() {
         return priority;
     }
@@ -52,11 +58,6 @@ public class HeaderDefinition {
 
     public CodeApplicability getApplicability() {
         return applicability;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(headerName, headerType);
     }
 
     @Override

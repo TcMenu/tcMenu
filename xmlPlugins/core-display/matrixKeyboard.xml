@@ -86,8 +86,8 @@
             <Param value="keyboardKeys"/>
         </Variable>
 
-        <Variable name="keyboardKeys[]" type="const char" progmem="true" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
-            <Param value="= &quot;123A456B789C*0#D&quot;"/>
+        <Variable name="keyboardKeys[]" type="char" progmem="true" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
+            <Param value="&quot;123A456B789C*0#D&quot;"/>
         </Variable>
         <Variable name="keyboardLayout" type="KeyboardLayout" whenProperty="MK_KEYBOARD_LAYOUT" isValue="LAYOUT_4X4">
             <Param value="4"/>
@@ -146,7 +146,7 @@
         </Function>
 
         <Function name="initialise" object="keyboard">
-            <Param ioDevice="MK_KEYBOARD_DEVICE"/>
+            <Param ioDevice="${MK_KEYBOARD_DEVICE}"/>
             <Param ref="keyboardLayout"/>
             <Param ref="tcMenuKeyListener"/>
             <Param value="${MK_KEYBOARD_INTERRUPTS}"/>
