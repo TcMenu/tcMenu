@@ -65,7 +65,7 @@ class MenuManagerServerTest {
 
     @Test
     public void testLocalUpdatingAndCallbacks() {
-        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(false);
+        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation();
         mgr.addMenuManagerListener(listener);
         mgr.updateMenuItem(this, tree.getMenuById(1).orElseThrow(), 22);
         mgr.updateMenuItem(this, tree.getMenuById(3).orElseThrow(), true);
@@ -80,7 +80,7 @@ class MenuManagerServerTest {
 
     @Test
     public void testChangingScrollPositionUsesPopulator() {
-        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(false);
+        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation();
         mgr.addMenuManagerListener(listener);
         ScrollChoiceMenuItem scroll = (ScrollChoiceMenuItem) tree.getMenuById(2).orElseThrow();
         mgr.updateMenuItem(this, scroll, "9999-");
@@ -98,7 +98,7 @@ class MenuManagerServerTest {
 
     @Test
     public void testRemoteConnectionAuthWrong() {
-        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(true);
+        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation();
         mgr.addMenuManagerListener(listener);
 
         var serverConnectionMgr = mock(ServerConnectionManager.class);
@@ -125,7 +125,7 @@ class MenuManagerServerTest {
 
     @Test
     public void testRemoteConnectionWithCallbacks() throws InterruptedException {
-        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation(true);
+        MyMenuListenerWithAnnotation listener = new MyMenuListenerWithAnnotation();
         mgr.addMenuManagerListener(listener);
 
         var serverConnectionMgr = mock(ServerConnectionManager.class);
@@ -188,12 +188,7 @@ class MenuManagerServerTest {
         private int itemLevelChanges = 0;
         private int started = 0;
         private int stopped = 0;
-        private final boolean remoteExpected;
         private int listRowSent;
-
-        public MyMenuListenerWithAnnotation(boolean remoteExpected) {
-            this.remoteExpected = remoteExpected;
-        }
 
         public int getListRowSentAsInvoke() {
             return listRowSent;
@@ -220,22 +215,22 @@ class MenuManagerServerTest {
         }
 
         @MenuCallback(id=1)
-        public void volumeHasChanged(AnalogMenuItem item, boolean remoteChange) {
-            if(remoteExpected == remoteChange &&  volumeChanges[countOfVolumeChanges] == getValueFor(item, tree, -1)) {
+        public void volumeHasChanged(Object sender, AnalogMenuItem item) {
+            if(volumeChanges[countOfVolumeChanges] == getValueFor(item, tree, -1)) {
                 countOfVolumeChanges++;
             }
         }
 
         @MenuCallback(id=3)
-        public void directHasChanged(BooleanMenuItem item, boolean remoteChange) {
-            if(remoteExpected == remoteChange && getValueFor(item, tree, false)) {
+        public void directHasChanged(Object sender, BooleanMenuItem item) {
+            if(getValueFor(item, tree, false)) {
                 countOfDirectChanges++;
             }
         }
 
         @MenuCallback(id=21, listResult = true)
-        public void listEntryAction(RuntimeListMenuItem list, boolean remoteChange, ListResponse response) {
-            if (remoteExpected == remoteChange && response.getResponseType() == ListResponse.ResponseType.INVOKE_ITEM) {
+        public void listEntryAction(Object sender, RuntimeListMenuItem list, ListResponse response) {
+            if (response.getResponseType() == ListResponse.ResponseType.INVOKE_ITEM) {
                 listRowSent = response.getRow();
             }
         }

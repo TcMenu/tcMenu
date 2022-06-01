@@ -137,7 +137,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     @Override
     public String getConnectionName() {
         if(socket.isConnected()) {
-            return String.format("SocketServer %s as %s" + socket.getRemoteSocketAddress(), remoteUser.get());
+            return String.format("SocketServer %s as %s", socket.getRemoteSocketAddress(), remoteUser.get());
         }
         else {
             return "SocketServer disconnected";
