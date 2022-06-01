@@ -43,6 +43,8 @@ Plugin directories should always have an `/Images` directory. The image is relat
 
         <ImageFile>adagfx-color.jpg</ImageFile>
 
+## Properties
+
 Properties are available during code generation, they can be used like variables, and can hold various types of information. We'll look at how they can be used later, but now consider these like variables or properties.
 
 There are several types of property: 
@@ -81,6 +83,8 @@ There are a few additional property variables that you can use within your xml, 
 * APP_NAME - the name of the application
 * APP_UUID - the UUID of the application
 
+## Complex applicability
+
 Complex applicability conditions can be added by nesting ApplicabilityDef entries. See the separate [page on applicability definitions](applicability-definitions.md). You can apply applicability on nearly all definitions within this file, either as a reference to one declared here, or locally. When defined in the applicability defs section the applicabilities can be nested with `and` / `or` operations. 
 
     <ApplicabilityDefs>
@@ -96,6 +100,8 @@ Complex applicability conditions can be added by nesting ApplicabilityDef entrie
         </ApplicabilityDef>
     </ApplicabilityDefs>
 
+## Source files
+
 Source files refer to files that are packaged with the plugin. These need to be included within the project in order to make the code compile. You can provide replacements using regular expression find matches, but you must replace the whole string. You can use any property as a variable by defining as `${PROPERTY_ID}`. Variable expansion can also be used here. 
 
 The optional overwrite flag on source files all you to generate a one off file that will be edited by the user and never replaced.
@@ -105,9 +111,12 @@ The optional overwrite flag on source files all you to generate a one off file t
             <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
             <SourceFile name="adaGfxDriver/someFile.cpp" overwrite="false"/>
             <SourceFile name="adaGfxDriver/someFile.h"/>
+            <SourceFile name="adaGfxDriver/someFile.zip" unzip="clean" dest="relativePath" />
         </SourceFiles>
-    
-Any files that need to be included are added here as include files, again you can use variable expansion and applicability here, there are three options for inSource: 
+
+## Including or importing files
+   
+Any files that need to be included are added here as include files, again you can use variable expansion and applicability here, there are several options for inSource: 
 
 * true - a standard header included in the menu project header with quoted include
 * false - a standard header included in the menu project header with global include
@@ -121,6 +130,15 @@ The priority can also be defined on include files, high moves the include file t
             <Header name="tcMenuAdaFruitGfx.h" inSource="true" priority="high"/>
             <Header name="tcMenuAdaFruitGfx.h" inSource="true" priority="low"/>
         </IncludeFiles>
+
+### Special cases for Java code generator
+
+When the inSource flag is true, then an import statement will be added with exactly the same spec as the name parameter. However, when inSource is false, the definition either represents a maven dependency or java module system definition. For example:
+
+* `name="mvn:org.openjfx/javafx-fxml@18" inSource="false"` indicates that group `org.openjfx` package `javafx-fxml` version `18` should be added to the pom.xml if not already present.
+* `name="mod:requires:javafx.base" inSource="false"` indicates that `requires javafx.base;` should be added to the module-info.java file if not already there.
+
+## Global variables
 
 You can define global variables that will appear at the top level of the project menu file, again you can use both applicability and property expansion here.
     
@@ -139,6 +157,8 @@ Or we can fully create the variable, with any parameters needed. You can provide
                 <Param font="${FONT_VARIABLE}"/>
             </Variable>
         </GlobalVariables>
+
+## Function definitions
 
 Now we define any functions that need to be called in setup, in most cases it's best to keep these as simple as possible, but you can even provide lambda syntax if needed. Again the applicability definitions and property expansion work here too:    
 
@@ -167,3 +187,9 @@ Then in a function we refer to the lambda.
 
         </SetupFunctions>
     </TcMenuPlugin>
+
+### Special notes for Java variables and functions
+
+In the Java domain, variables by default are created in the application context using the new operator. To make these variables available in the App file so you can access during setup set `export="true"` on the variable, it will then be available by its name during setup.
+
+If you access a parameter using ref, then you are treating this parameter as a call to get something out of the context, IE by calling `context.getBean`.

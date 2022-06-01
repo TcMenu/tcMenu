@@ -9,6 +9,7 @@ package com.thecoderscorner.embedcontrol.core.rs232;
 import com.fazecast.jSerialComm.SerialPort;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
+import com.thecoderscorner.menu.remote.states.PairingAuthFailedState;
 import com.thecoderscorner.menu.remote.states.SerialAwaitFirstMsgState;
 import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
 
@@ -50,7 +51,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
         stateMachineMappings.put(AuthStatus.NOT_STARTED, NoOperationInitialState.class);
         stateMachineMappings.put(AuthStatus.AWAITING_CONNECTION, StreamNotConnectedState.class);
         stateMachineMappings.put(AuthStatus.ESTABLISHED_CONNECTION, SerialAwaitFirstMsgState.class);
-        stateMachineMappings.put(AuthStatus.FAILED_AUTH, SerialAwaitFirstMsgState.class);
+        stateMachineMappings.put(AuthStatus.FAILED_AUTH, PairingAuthFailedState.class);
         handleCoreConnectionStates(connectMode);
     }
 
@@ -61,6 +62,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
     }
 
     public void stop() {
+        serialPort.closePort();
         stopThreadProc();
         changeState(AuthStatus.NOT_STARTED);
     }

@@ -63,7 +63,11 @@ public class Rs232ConnectionCreator implements ConnectionCreator {
 
     @Override
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) throws IOException {
-        return serialFactory.attemptPairing(name, baudRate, statusConsumer);
+        if(controller != null) {
+            controller.stop();
+            controller = null;
+        }
+        return serialFactory.attemptPairing(portId, baudRate, statusConsumer);
     }
 
     @Override

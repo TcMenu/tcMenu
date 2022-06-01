@@ -82,6 +82,10 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
     }
 
     public boolean attemptPairing(Consumer<AuthStatus> statusConsumer) {
+        if(controller != null) {
+            controller.stop();
+            controller = null;
+        }
         return generateBaseControllerBuilder().attemptPairing(Optional.of(statusConsumer));
     }
 
