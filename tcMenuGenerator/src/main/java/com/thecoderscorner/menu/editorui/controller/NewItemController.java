@@ -210,12 +210,20 @@ public class NewItemController {
         else if(iotListSelect.isSelected()) {
             lastRadioId = Optional.of(iotListSelect.getId());
             result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
-                    .withName("IoT Monitor").withId(id).withEepromAddr(-1).withMenuType(REMOTE_IOT_MONITOR).menuItem());
+                    .withName("IoT Monitor")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .withLocalOnly(true)
+                    .withMenuType(REMOTE_IOT_MONITOR).menuItem());
         }
         else if(authenticatorSelect.isSelected()) {
             lastRadioId = Optional.of(authenticatorSelect.getId());
             result = Optional.of(CustomBuilderMenuItemBuilder.aCustomBuilderItemBuilder()
-                    .withName("Authenticator").withId(id).withEepromAddr(-1).withMenuType(AUTHENTICATION).menuItem());
+                    .withLocalOnly(true)
+                    .withName("Authenticator")
+                    .withId(id)
+                    .withEepromAddr(-1)
+                    .withMenuType(AUTHENTICATION).menuItem());
         }
         else {
             logger.log(ERROR, "Don't know which item was selected!");

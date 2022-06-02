@@ -33,7 +33,7 @@
          <children>
             <Label text="In order to proceed with the connection you need to pair with the device, before proceeding ensure you have the device you wish to pair with close by." wrapText="true" />
             <Label text="Once you press the start pairing button you'll be presented with a dialog that looks very similar to the one on the right (depending on your screen). Choose accept to add this UI to the list of allowed UIs on the device." wrapText="true" />
-            <Label text="NOTE: only every choose to accept connections if you send the request." wrapText="true" />
+            <Label text="NOTE: only ever choose to accept connections if you send the request." wrapText="true" />
          </children>
       </VBox>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="3">

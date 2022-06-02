@@ -98,7 +98,7 @@ bool EspAsyncWebserver::attemptNewConnection(BaseRemoteServerConnection *remoteC
 EspWebSocketRemoteConnection::EspWebSocketRemoteConnection(EspAsyncWebserver& webServer)
         : BaseRemoteServerConnection(webServer, TAG_VAL_WEB_SOCKET),
           remoteTransport(webServer.getWebSocketHandler()),
-          messageProcessor(msgHandlers, MSG_HANDLERS_SIZE) { }
+          messageProcessor() { }
 
 void EspWebSocketRemoteConnection::init(int remoteNumber, const ConnectorLocalInfo &info) {
     // first we setup the remote number and initialise the connector
