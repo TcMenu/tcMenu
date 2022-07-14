@@ -9,7 +9,7 @@
         <Platform>ARDUINO_ESP32</Platform>
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
-    <Description>Use this option to be able to control the menu over many kinds of ethernet shields and devices. The full menu structure will be available to the remote using either the protocol or the API.</Description>
+    <Description>Control your menu via embedCONTROL desktop or the API using Ethernet/WiFi shields and devices. The full menu structure will be available to the remote using either the protocol or the API.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>ethernet-shield.jpg</ImageFile>

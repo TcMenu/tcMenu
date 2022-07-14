@@ -105,12 +105,10 @@ public class AppInformationPanel {
         gridPane.add(platformCombo, 1, row, 2, 1);
         editorUI.getEmbeddedPlatforms().stream().filter(p -> p.getBoardId().equals(options.getEmbeddedPlatform()))
                 .findFirst().ifPresent(env -> platformCombo.getSelectionModel().select(env));
-        platformCombo.setOnAction(event -> {
-            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                    .withExisting(options)
-                    .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
-                    .codeOptions());
-        });
+        platformCombo.setOnAction(event -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                .withExisting(options)
+                .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                .codeOptions()));
         ++row;
 
         gridPane.add(new Label("File name"), 0, row);
@@ -216,7 +214,7 @@ public class AppInformationPanel {
 
         try {
             var currentUI = installer.getVersionOfLibrary("java-app", CURRENT_APP);
-            if (!installer.getVersionOfLibrary("java-app", AVAILABLE_APP).equals(currentUI)) {
+            if (!currentUI.isSameOrNewerThan(installer.getVersionOfLibrary("java-app", AVAILABLE_APP))) {
                 var uiNeedsUpdate = new Button("There is a UI update available, you can check versions from General Settings");
                 uiNeedsUpdate.setId("tcMenuStatusArea");
                 uiNeedsUpdate.getStyleClass().add("libsNotOK");

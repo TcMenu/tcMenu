@@ -163,6 +163,9 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.menu.mgr.MenuManagerServer;
             import com.thecoderscorner.menu.persist.*;
             import com.thecoderscorner.embedcontrol.core.util.*;
+            import com.thecoderscorner.embedcontrol.core.service.*;
+            import com.thecoderscorner.embedcontrol.customization.*;
+            import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
             import org.springframework.beans.factory.annotation.Value;
             import org.springframework.context.annotation.*;
             import java.time.Clock;
@@ -208,7 +211,7 @@ public class EmbeddedJavaGeneratorFileData {
                 }
             
                 @Bean
-                public ScreenLayoutPersistence menuLayoutPersistence(EmbeddedJavaDemoMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
+                public ScreenLayoutPersistence menuLayoutPersistence(UnitTestMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
                     var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
                     layout.loadApplicationData();
                     return layout;

@@ -2,10 +2,7 @@ package com.thecoderscorner.menu.editorui.generator.parameters;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Mcp23017DeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Pcf8574DeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
@@ -74,6 +71,24 @@ class IoExpanderDefinitionTest {
         assertEquals("IoAbstractionWire.h", custom.generateHeader().orElseThrow().getHeaderName());
         assertEquals(GLOBAL, custom.generateHeader().orElseThrow().getHeaderType());
         assertEquals("pcf8574:io8574:32:-1", custom.toString());
+    }
+
+
+    @Test
+    public void testPcf8575Expander() {
+        var device = IoExpanderDefinition.fromString("pcf8575:io8575:32:-1").orElseThrow();
+        assertThat(device).isInstanceOf(Pcf8575DeviceExpander.class);
+        var custom = (Pcf8575DeviceExpander)device;
+        assertEquals("ioexp_io8575", custom.getVariableName());
+        assertEquals("io8575", custom.getId());
+        assertEquals("PCF8575(0x20, -1)", custom.getNicePrintableName());
+        assertThat(custom.generateCode()).isEmpty();
+        assertEquals("IoAbstractionRef ioexp_io8575 = ioFrom8575(0x20, -1);", custom.generateGlobal().orElseThrow());
+        assertEquals("extern IoAbstractionRef ioexp_io8575;", custom.generateExport().orElseThrow());
+
+        assertEquals("IoAbstractionWire.h", custom.generateHeader().orElseThrow().getHeaderName());
+        assertEquals(GLOBAL, custom.generateHeader().orElseThrow().getHeaderType());
+        assertEquals("pcf8575:io8575:32:-1", custom.toString());
     }
 
     @Test

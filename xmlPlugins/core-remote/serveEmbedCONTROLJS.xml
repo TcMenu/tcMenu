@@ -1,11 +1,15 @@
-<TcMenuPlugin name="ESP Webserver browser based app" id="da552323-157d-4914-8410-d5b4ff2293a4" subsystem="REMOTE"
+<TcMenuPlugin name="Serve EmbedCONTROL.JS using a WebServer" id="da552323-157d-4914-8410-d5b4ff2293a4" subsystem="REMOTE"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+        <Platform>ARDUINO_32</Platform>
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
-    <Description>EXPERIMENTAL developer testing - Provides a webserver that can serve up the browser version of embedCONTROL. This works by serving up the react.JS version of embedCONTROL from an onboard webserver, and then this connects to a WebSocket on the device to receive updates and control items.</Description>
+    <Description>BETA - serves up embedCONTROL.JS to a browser using the chosen webserver. The app is served directly, with updates and control over a WebSocket.</Description>
     <Documentation link=""/>
     <RequiredLibraries/>
     <ImageFile>embedCONTROLJS.png</ImageFile>
@@ -19,25 +23,41 @@
                 <Choice desc="Only one client">1</Choice>
                 <Choice desc="Up to two clients">2</Choice>
                 <Choice desc="Up to three clients">3</Choice>
-                <Choice desc="Up to four clients">4</Choice>
+            </Choices>
+        </Property>
+        <Property id="ASWEB_SERVER_TO_USE" name="Web Server library to use" initial="ESP_WEB_SERVER" type="choice"
+                  desc="Choose a webserver library that is compatible with your board">
+            <Choices>
+                <Choice desc="Ethernet WebServer Arduino">ARDUINO_ETHERNET_WEBSERVER</Choice>
+                <Choice desc="Ethernet WebServer STM32Eth">STM32_ETHERNET_WEBSERVER</Choice>
+                <Choice desc="ESP Regular Webserver">ESP_WEB_SERVER</Choice>
+                <Choice desc="ESP Async WebServer - DevBETA!!">ESP_ASYNC_WEB_SERVER</Choice>
+                <Choice desc="STM32 Async WebServer - DevBETA!!">STM32_ASYNC_WEB_SERVER</Choice>
             </Choices>
         </Property>
         <Property id="WEBSOCKET_ENDPOINT" name="Websocket endpoint (advanced)" initial="/ws" type="text"
                   desc="Websocket endpoint relative address for advanced cases"/>
         <Property id="WEBSERVER_PORT" name="Webserver port (advanced)" initial="80" type="int" min="1" max="32768"
                   desc="The port on which the webserver will listen for advanced cases"/>
+        <Property id="WEBSOCK_PORT1" name="Websocket port 1" initial="3333" type="int"
+                  desc="First websocket port number"/>
+        <Property id="WEBSOCK_PORT1" name="Websocket port 2" initial="3334" type="int"
+                  desc="First websocket port number" whenProperty="ASWEB_CONCURRENT" matches="2|3"/>
+        <Property id="WEBSOCK_PORT1" name="Websocket port 3" initial="3335" type="int"
+                  desc="First websocket port number" whenProperty="ASWEB_CONCURRENT" isValue="3"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <SourceFile name="espAsyncWeb/tcMenuEmbedControlJS.cpp" whenProperty="ASWEB_USE_PREPACKAGED" isValue="true" />
-        <SourceFile name="espAsyncWeb/tcMenuEspAsyncWebServer.cpp" />
-        <SourceFile name="espAsyncWeb/tcMenuEspAsyncWebServer.h" />
+        <Replacement find="define WEBSERVER_LIB .*" replace="define WEBSERVER_LIB ${ASWEB_SERVER_TO_USE}"/>
+        <SourceFile name="deviceWebServer/tcMenuEmbedControlJS.cpp"/>
+        <SourceFile name="deviceWebServer/tcMenuECWebServer.cpp" />
+        <SourceFile name="deviceWebServer/tcMenuECWebServer.h" />
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="tcMenuEspAsyncWebServer.h" inSource="true"/>
+        <Header name="tcMenuECWebServer.h" inSource="true"/>
     </IncludeFiles>
 
     <GlobalVariables>
@@ -49,6 +69,8 @@
         <Variable name="webClient1" type="EspWebSocketRemoteConnection">
             <Param value="webServer"/>
         </Variable>
+
+
         <Variable name="webClient2" type="EspWebSocketRemoteConnection" whenProperty="ASWEB_CONCURRENT" matches="[23]">
             <Param value="webServer"/>
         </Variable>

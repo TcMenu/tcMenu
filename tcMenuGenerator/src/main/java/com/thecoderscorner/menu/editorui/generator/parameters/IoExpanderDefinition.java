@@ -1,9 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Mcp23017DeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Pcf8574DeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.IOException;
@@ -31,6 +28,9 @@ public abstract class IoExpanderDefinition implements CodeGeneratorCapable {
             } else if (currentSel.startsWith("pcf8574:")) {
                 var parts = currentSel.split(":");
                 return Optional.of(new Pcf8574DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
+            } else if(currentSel.startsWith("pcf8575:")) {
+                var parts = currentSel.split(":");
+                return Optional.of(new Pcf8575DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
             } else if (currentSel.startsWith("mcp23017:")) {
                 var parts = currentSel.split(":");
                 return Optional.of(new Mcp23017DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
