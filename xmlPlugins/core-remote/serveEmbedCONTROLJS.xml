@@ -25,14 +25,13 @@
                 <Choice desc="Up to three clients">3</Choice>
             </Choices>
         </Property>
-        <Property id="ASWEB_SERVER_TO_USE" name="Web Server library to use" initial="ESP_WEB_SERVER" type="choice"
+        <Property id="ASWEB_NETWORK_LIB" name="Network library type" initial="ARDUINO_ETHERNET" type="choice"
                   desc="Choose a webserver library that is compatible with your board">
             <Choices>
-                <Choice desc="Ethernet WebServer Arduino">ARDUINO_ETHERNET_WEBSERVER</Choice>
-                <Choice desc="Ethernet WebServer STM32Eth">STM32_ETHERNET_WEBSERVER</Choice>
-                <Choice desc="ESP Regular Webserver">ESP_WEB_SERVER</Choice>
-                <Choice desc="ESP Async WebServer - DevBETA!!">ESP_ASYNC_WEB_SERVER</Choice>
-                <Choice desc="STM32 Async WebServer - DevBETA!!">STM32_ASYNC_WEB_SERVER</Choice>
+                <Choice desc="Arduino Ethernet">ARDUINO_ETHERNET</Choice>
+                <Choice desc="STM32 Ethernet STM32Eth">STM32_ETHERNET</Choice>
+                <Choice desc="ESP8266 WiFi">ESP8266_WIFI</Choice>
+                <Choice desc="ESP32 WiFi">ESP32_WIFI</Choice>
             </Choices>
         </Property>
         <Property id="WEBSOCKET_ENDPOINT" name="Websocket endpoint (advanced)" initial="/ws" type="text"
@@ -41,16 +40,15 @@
                   desc="The port on which the webserver will listen for advanced cases"/>
         <Property id="WEBSOCK_PORT1" name="Websocket port 1" initial="3333" type="int"
                   desc="First websocket port number"/>
-        <Property id="WEBSOCK_PORT1" name="Websocket port 2" initial="3334" type="int"
+        <Property id="WEBSOCK_PORT2" name="Websocket port 2" initial="3334" type="int"
                   desc="First websocket port number" whenProperty="ASWEB_CONCURRENT" matches="2|3"/>
-        <Property id="WEBSOCK_PORT1" name="Websocket port 3" initial="3335" type="int"
+        <Property id="WEBSOCK_PORT3" name="Websocket port 3" initial="3335" type="int"
                   desc="First websocket port number" whenProperty="ASWEB_CONCURRENT" isValue="3"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="define WEBSERVER_LIB .*" replace="define WEBSERVER_LIB ${ASWEB_SERVER_TO_USE}"/>
         <SourceFile name="deviceWebServer/tcMenuEmbedControlJS.cpp"/>
         <SourceFile name="deviceWebServer/tcMenuECWebServer.cpp" />
         <SourceFile name="deviceWebServer/tcMenuECWebServer.h" />

@@ -115,6 +115,7 @@ public class WebSocketServerConnection implements ServerConnection {
 
     public void stringDataRx(String data) {
         try {
+            lastHeartbeatRx.set(clock.millis());
             protocolHelper.dataReceived(this, data);
         } catch (Exception ex) {
             logger.log(System.Logger.Level.ERROR, "Error during message handling " + socket.getRemoteSocketAddress(), ex);

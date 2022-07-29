@@ -174,6 +174,7 @@ public class WrapWebServerFilesCommand implements Callable<Integer> {
 
         if(strPath.endsWith(".png")) return "PNG_IMAGE";
         else if(strPath.endsWith(".jpg")) return "JPG_IMAGE";
+        else if(strPath.endsWith(".webp")) return "WEBP_IMAGE";
         else if(strPath.endsWith(".ico")) return "IMG_ICON";
         else if(strPath.endsWith(".js")) return "JAVASCRIPT";
         else if(strPath.endsWith(".json")) return "JSON_TEXT";
