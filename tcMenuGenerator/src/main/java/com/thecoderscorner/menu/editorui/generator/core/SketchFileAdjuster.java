@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 
 import java.io.IOException;
@@ -15,5 +16,5 @@ import java.util.function.Consumer;
 
 public interface SketchFileAdjuster {
     void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
-                         Collection<CallbackRequirement> callbacks) throws IOException;
+                         Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException;
 }

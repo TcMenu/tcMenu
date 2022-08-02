@@ -141,6 +141,6 @@ public class ArduinoGeneratorTest {
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
                 eq(projectDir.resolve(projectDir.resolve(projectDir.getFileName() + ".ino")).toString()),
-                eq(projectDir.getFileName().toString()), anyCollection());
+                eq(projectDir.getFileName().toString()), anyCollection(), any(MenuTree.class));
     }
 }

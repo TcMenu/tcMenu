@@ -140,6 +140,6 @@ public class MbedGeneratorTest {
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
                 eq(projectDir.resolve(sourceDir.resolve("project_main.cpp")).toString()),
-                eq(projectDir.getFileName().toString()), anyCollection());
+                eq(projectDir.getFileName().toString()), anyCollection(), any(MenuTree.class));
     }
 }

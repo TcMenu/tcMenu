@@ -7,6 +7,8 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -34,6 +36,7 @@ public class ArduinoSketchFileAdjusterTest {
     private MenuTree tree;
     private ArduinoSketchFileAdjuster adjuster;
     private List<CallbackRequirement> callbacks;
+    private ScrollChoiceMenuItem scrollChoice;
     private Path inoFile;
     private BiConsumer<System.Logger.Level, String> emptyLogger;
 
@@ -45,6 +48,24 @@ public class ArduinoSketchFileAdjusterTest {
         inoFile = dir.resolve("superProject.ino");
         emptyLogger = Mockito.mock(BiConsumer.class);
         adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
+
+        scrollChoice = new ScrollChoiceMenuItemBuilder()
+                .withId(1111)
+                .withName("HelloScroll")
+                .withVariable("helloWorldScrollVar")
+                .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                .withNumEntries(10).withItemWidth(10)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, scrollChoice);
+
+        scrollChoice = new ScrollChoiceMenuItemBuilder()
+                .withId(1111)
+                .withName("HelloScrollII")
+                .withVariable("@scrollVarNotThere")
+                .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                .withNumEntries(9).withItemWidth(22)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, scrollChoice);
 
         MenuItem itemId6 = tree.getMenuById(6).orElseThrow();
         MenuItem itemId8 = tree.getMenuById(8).orElseThrow();
@@ -73,20 +94,22 @@ public class ArduinoSketchFileAdjusterTest {
 
     @Test
     public void testCreatingFileFromScratch() throws IOException {
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks);
+        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
 
         List<String> lines = Files.readAllLines(inoFile);
 
         // we should have an include, only once.
-        ensureLinesContaining(lines,"#include \"superProject_menu.h\"");
+        ensureLinesContaining(lines, "#include \"superProject_menu.h\"");
 
         // we should have a basic set up and loop method ready prepared
-        ensureLinesContaining(lines,"void setup() {",
+        ensureLinesContaining(lines, "void setup() {",
                 "setupMenu();",
                 "}");
-        ensureLinesContaining(lines,"void loop() {",
+        ensureLinesContaining(lines, "void loop() {",
                 "taskManager.runLoop();",
                 "}");
+
+        ensureLinesContaining(lines, "char* helloWorldScrollVar = \"1\\0        2\\0        3\\0        4\\0        5\\0        6\\0        7\\0        8\\0        9\\0        10\\0       ~\";");
 
         // we should have both callbacks created.
         ensureLinesContaining(lines,
@@ -113,22 +136,22 @@ public class ArduinoSketchFileAdjusterTest {
                 + "}\n\n";
         Files.write(inoFile, inoContent.getBytes());
 
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks);
+        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
 
         List<String> lines = Files.readAllLines(inoFile);
 
         // we should have an include, only once.
-        ensureLinesContaining(lines,"#include \"superProject_menu.h\"");
+        ensureLinesContaining(lines, "#include \"superProject_menu.h\"");
 
         // we should have a basic set up and loop method ready prepared
-        ensureLinesContaining(lines,"void setup() {", "setupMenu();", "superObj.init();", "}");
-        ensureLinesContaining(lines,"void loop() {", "taskManager.runLoop();", "}");
+        ensureLinesContaining(lines, "void setup() {", "setupMenu();", "superObj.init();", "}");
+        ensureLinesContaining(lines, "void loop() {", "taskManager.runLoop();", "}");
 
         // we should have both callbacks created.
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION callback(int id) {",
+        ensureLinesContaining(lines, "void CALLBACK_FUNCTION callback(int id) {",
                 "superObj.doIt();",
                 "}");
-        ensureLinesContaining(lines,"void CALLBACK_FUNCTION onIpChange(int id) {",
+        ensureLinesContaining(lines, "void CALLBACK_FUNCTION onIpChange(int id) {",
                 "// TODO - your menu change code",
                 "}");
         ensureDoesNotContainLine(lines, "void CALLBACK_FUNCTION includeOnly(int id)");
@@ -166,7 +189,7 @@ public class ArduinoSketchFileAdjusterTest {
                 + "}\n";
         Files.write(inoFile, inoContent.getBytes());
 
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks);
+        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
 
         // Shouldn't do anything this time around.
         Path backup = inoFile.resolveSibling("superProject.ino.backup");
@@ -181,15 +204,13 @@ public class ArduinoSketchFileAdjusterTest {
         boolean foundSearch = false;
         int currentNext = 0;
         for (String line : lines) {
-            if(!foundSearch) {
+            if (!foundSearch) {
                 foundSearch = line.trim().equals(search);
-            }
-            else if(!line.trim().isEmpty() && currentNext < next.length) {
+            } else if (!line.trim().isEmpty() && currentNext < next.length) {
                 // we must find the next string
                 assertEquals(next[currentNext], line.trim(), "Expected items not in order");
                 currentNext++;
-            }
-            else {
+            } else {
                 // we must not find the search string more than once.
                 assertFalse(line.contains(search), "Item to search duplicated");
             }

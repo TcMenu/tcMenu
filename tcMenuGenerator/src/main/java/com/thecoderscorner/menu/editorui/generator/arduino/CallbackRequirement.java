@@ -113,7 +113,8 @@ public class CallbackRequirement {
 
                 if(item instanceof ScrollChoiceMenuItem sc) {
                     if(sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
-                        setResult(List.of("extern const char* " + sc.getVariable() + ';', renderingMacroDef));
+                        var varName = sc.getVariable().startsWith("@") ? sc.getVariable().substring(1) : sc.getVariable();
+                        setResult(List.of("extern char* " + sc.getVariable() + ';', renderingMacroDef));
                         return;
                     }
                 }

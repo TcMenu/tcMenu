@@ -6,7 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -20,10 +23,11 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
@@ -43,7 +47,16 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     }
 
     protected String emptyFileContents() {
-        return "\nvoid setup() {\n\n}\n\n" + "void loop() {\n\n}\n";
+        return """
+
+                void setup() {
+
+                }
+
+                void loop() {
+
+                }
+                """;
     }
 
     /**
@@ -57,7 +70,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
      * @throws IOException in the event of an error
      */
     public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
-                                Collection<CallbackRequirement> callbacks) throws IOException {
+                                Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {
 
         this.logger = logger;
         changed = false;
@@ -75,7 +88,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         List<String> callbacksDefined = new ArrayList<>();
 
         try(var fileLines = Files.lines(source)) {
-            for (String line : fileLines.collect(Collectors.toList())) {
+            for (String line : fileLines.toList()) {
                 if (line.contains("#include") && line.contains(projectName + "_menu.h")) {
                     logger.accept(INFO, "found include in INO");
                     needsInclude = false;
@@ -101,10 +114,11 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         if(needsTaskMgr) taskManagerIsMissing(lines);
         List<CallbackRequirement> callbacksToMake = new ArrayList<>(callbacks);
         makeNewCallbacks(lines, callbacksToMake, callbacksDefined);
+        addScrollVariablesIfNeeded(lines, tree);
 
         if(changed) {
             logger.accept(INFO, "INO Previously existed, backup existing file");
-            Files.copy(source, Paths.get(source.toString() + ".backup"), REPLACE_EXISTING);
+            Files.copy(source, Paths.get(source + ".backup"), REPLACE_EXISTING);
 
             logger.accept(INFO, "Writing out changes to INO sketch file");
             chompBlankLines(lines);
@@ -112,6 +126,42 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         }
         else {
             logger.accept(INFO, "No changes to the INO file, not writing out");
+        }
+    }
+
+    private void addScrollVariablesIfNeeded(ArrayList<String> lines, MenuTree tree) {
+        var scrollItems = tree.getAllMenuItems().stream()
+                .filter(it -> it instanceof ScrollChoiceMenuItem scr && scr.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM)
+                .map(mi -> (ScrollChoiceMenuItem)mi)
+                .filter(sc -> !sc.getVariable().startsWith("@"))
+                .toList();
+
+        for(var sc : scrollItems) {
+            if(lines.stream().anyMatch(line -> line.contains(sc.getVariable()))) {
+                logger.accept(INFO, "Scroll choice variable exists - " + sc.getVariable());
+            } else {
+                logger.accept(INFO, "Adding variable for scroll choice - " + sc.getVariable());
+
+                int l;
+                for(l=0; l<lines.size(); l++) {
+                    if(lines.get(l).contains("setup()")) {
+                        break;
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder(100);
+                for(int i=0; i<sc.getNumEntries(); i++) {
+                    var strNum = Integer.toString(i + 1);
+                    sb.append(strNum).append("\\0");
+                    sb.append(StringHelper.repeat(" ", (sc.getItemWidth() - (strNum.length() + 1))));
+                }
+                sb.append('~');
+
+                lines.add(l++, "// This variable is the RAM data for scroll choice item " + sc.getName());
+                lines.add(l++, "char* " + sc.getVariable() + " = \"" + sb + "\";");
+                lines.add(l, CoreCodeGenerator.LINE_BREAK);
+                changed = true;
+            }
         }
     }
 
@@ -131,8 +181,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         var filteredCb = callbacksToMake.stream()
                 .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) ||
-                                isRuntimeStructureNeeded(cb.getCallbackItem()))
-                .collect(Collectors.toList());
+                        isRuntimeStructureNeeded(cb.getCallbackItem())).toList();
 
         var definedList = new ArrayList<>(alreadyDefined);
 

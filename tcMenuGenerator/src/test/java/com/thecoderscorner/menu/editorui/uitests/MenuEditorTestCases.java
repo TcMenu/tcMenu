@@ -64,6 +64,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 @ExtendWith(ApplicationExtension.class)
 public class MenuEditorTestCases {
 
+    public static final String FILE_NAME_SIMULATED = "/var/tmp/fileName.emf";
     private CurrentProjectEditorUI editorProjectUI;
     private ProjectPersistor persistor;
     private ArduinoLibraryInstaller installer;
@@ -181,10 +182,10 @@ public class MenuEditorTestCases {
         assertOnItemInTree(itemToAdd, true);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
-        when(editorProjectUI.findFileNameFromUser(false)).thenReturn(Optional.of("fileName"));
+        when(editorProjectUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         assertTrue(project.isDirty());
         pushCtrlAndKey(robot, KeyCode.A);
-        verify(persistor, atLeastOnce()).save("fileName", "", project.getMenuTree(), project.getGeneratorOptions());
+        verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
 
         pushCtrlAndKey(robot, KeyCode.L);
         verify(editorProjectUI, atLeastOnce()).showRomLayoutDialog(project.getMenuTree());
@@ -254,7 +255,7 @@ public class MenuEditorTestCases {
 
         // save the project
         pushCtrlAndKey(robot, KeyCode.S);
-        Mockito.verify(persistor, atLeastOnce()).save("fileName", "project desc", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "project desc", project.getMenuTree(), project.getGeneratorOptions());
 
         // now project should be clean
         assertFalse(project.isDirty());
@@ -496,6 +497,7 @@ public class MenuEditorTestCases {
 
         testMainCheckboxState(robot, "#recursiveNamingCheck", () -> project.getGeneratorOptions().isNamingRecursive());
         testMainCheckboxState(robot, "#useCppMainCheck", () -> project.getGeneratorOptions().isUseCppMain());
+        when(editorProjectUI.questionYesNo(eq("Change source directory?"), any(String.class))).thenReturn(true);
         testMainCheckboxState(robot, "#saveToSrcCheck", () -> project.getGeneratorOptions().isSaveToSrc());
 
         FxAssert.verifyThat("#filenameField", TextInputControlMatchers.hasText(project.getFileName()));
@@ -613,15 +615,15 @@ public class MenuEditorTestCases {
     private void openTheCompleteMenuTree(FxRobot robot) throws Exception {
 
         // we are simulating the persistence so just mock out the calls to open the file.
-        when(editorProjectUI.findFileNameFromUser(true)).thenReturn(Optional.of("fileName"));
-        when(persistor.open("fileName")).thenReturn(new MenuTreeWithCodeOptions(
+        when(editorProjectUI.findFileNameFromUser(true)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
+        when(persistor.open(FILE_NAME_SIMULATED)).thenReturn(new MenuTreeWithCodeOptions(
                 TestUtils.buildCompleteTree(), project.getGeneratorOptions(), "project desc"
         ));
 
         // Perform file open then make sure the file opened.
         pushCtrlAndKey(robot, KeyCode.O);
         assertTrue(project.isFileNameSet());
-        assertEquals("fileName", project.getFileName());
+        assertEquals(FILE_NAME_SIMULATED, project.getFileName());
     }
 
     /**

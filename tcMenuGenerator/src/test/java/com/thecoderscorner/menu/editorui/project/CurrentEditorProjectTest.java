@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
+import static com.thecoderscorner.menu.editorui.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -141,15 +142,15 @@ public class CurrentEditorProjectTest {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
 
         assertEquals("New", project.getFileName());
-        Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of("filename"));
+        Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save("filename", "", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
 
-        Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of("filename2"));
+        Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED + "1"));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE_AS);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save("filename2", "", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save(FILE_NAME_SIMULATED + "1", "", project.getMenuTree(), project.getGeneratorOptions());
 
     }
 
@@ -173,9 +174,9 @@ public class CurrentEditorProjectTest {
     public void testOpening() throws IOException {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
         Mockito.when(editorUI.questionYesNo(any(), any())).thenReturn(true);
-        Mockito.when(editorUI.findFileNameFromUser(true)).thenReturn(Optional.of("filename"));
+        Mockito.when(editorUI.findFileNameFromUser(true)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         MenuTree replacementMenu = TestUtils.buildSimpleTree();
-        Mockito.when(persistor.open("filename")).thenReturn(new MenuTreeWithCodeOptions(
+        Mockito.when(persistor.open(FILE_NAME_SIMULATED)).thenReturn(new MenuTreeWithCodeOptions(
                 replacementMenu, new CodeGeneratorOptionsBuilder().codeOptions(), "my project description"
         ));
         project.openProject();

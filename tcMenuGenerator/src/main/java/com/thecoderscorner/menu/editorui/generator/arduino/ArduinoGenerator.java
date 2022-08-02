@@ -72,7 +72,7 @@ public class ArduinoGenerator extends CoreCodeGenerator {
         logLine(INFO, "Making adjustments to " + inoFile);
 
         try {
-            sketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callbackFunctions);
+            sketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callbackFunctions, menuTree);
         } catch (IOException e) {
             logger.log(ERROR, "Sketch modification failed", e);
             throw new TcMenuConversionException("Could not modify sketch", e);

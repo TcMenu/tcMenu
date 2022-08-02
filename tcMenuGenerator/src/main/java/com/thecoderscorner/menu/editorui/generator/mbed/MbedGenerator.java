@@ -56,7 +56,7 @@ public class MbedGenerator extends CoreCodeGenerator {
         logLine(INFO, "Making adjustments to " + mainFile);
 
         try {
-            sketchAdjuster.makeAdjustments(this::logLine, mainFile, projectName, callbackFunctions);
+            sketchAdjuster.makeAdjustments(this::logLine, mainFile, projectName, callbackFunctions, menuTree);
         } catch (IOException e) {
             logger.log(ERROR, "Sketch modification failed", e);
             throw new TcMenuConversionException("Could not modify sketch", e);

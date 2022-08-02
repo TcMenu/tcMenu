@@ -135,9 +135,6 @@ public class GenerateCodeDialogTest {
         //
         var dir = VerticalDirection.UP;
 
-        robot.scroll(100, dir);
-        assertExpectedPlugin(robot, remotePlugin, "remotePlugin0");
-
         assertTrue(robot.lookup("#themePlugin").tryQuery().isEmpty());
 
         robot.clickOn("#generateButton");
