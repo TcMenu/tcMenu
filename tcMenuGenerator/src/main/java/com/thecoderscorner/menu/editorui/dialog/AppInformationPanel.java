@@ -14,10 +14,9 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.util.EnumWithStringValue;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -28,10 +27,12 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.getJMetro;
@@ -64,6 +65,7 @@ public class AppInformationPanel {
     private CheckBox saveToSrcCheck;
     private CheckBox useCppMainCheck;
     private TextField appNameTextField;
+    private final AtomicBoolean saveToSrcRecurseProtect = new AtomicBoolean(false);
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -169,10 +171,7 @@ public class AppInformationPanel {
         saveToSrcCheck = new CheckBox("Save CPP and H files to src directory");
         saveToSrcCheck.setId("saveToSrcCheck");
         saveToSrcCheck.setSelected(options.isSaveToSrc());
-        saveToSrcCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                .withExisting(controller.getProject().getGeneratorOptions())
-                .withSaveToSrc(saveToSrcCheck.isSelected())
-                .codeOptions()));
+        saveToSrcCheck.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
         gridPane.add(saveToSrcCheck, 1, row++, 2, 1);
 
         useCppMainCheck = new CheckBox("Use CPP main instead of INO file");
@@ -314,5 +313,24 @@ public class AppInformationPanel {
 
     public void focusFirst() {
         Platform.runLater(() -> appNameTextField.requestFocus());
+    }
+
+    private void saveToSrcPressed() {
+        if(saveToSrcRecurseProtect.get()) return;
+
+        var location = Paths.get(controller.getProject().getFileName()).toFile().getParentFile().toPath();
+        if(saveToSrcCheck.isSelected()) location = location.resolve("src");
+
+        if(editorUI.questionYesNo("Change source directory?",
+                "Change source location? Selecting yes requires you to move the source to the new location " + location)) {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(controller.getProject().getGeneratorOptions())
+                    .withSaveToSrc(saveToSrcCheck.isSelected())
+                    .codeOptions());
+        } else {
+            saveToSrcRecurseProtect.set(true);
+            saveToSrcCheck.setSelected(controller.getProject().getGeneratorOptions().isSaveToSrc());
+            saveToSrcRecurseProtect.set(false);
+        }
     }
 }
