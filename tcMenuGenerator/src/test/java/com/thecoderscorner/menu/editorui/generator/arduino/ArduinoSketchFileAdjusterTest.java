@@ -165,28 +165,35 @@ public class ArduinoSketchFileAdjusterTest {
 
     @Test
     public void testWhereNoChangesNeeded() throws IOException {
-        String inoContent = "#include \"superProject_menu.h\"\n\n"
-                + "void setup() {\n"
-                + "  superObj.init();\n"
-                + "  setupMenu();"
-                + "}\n\n"
-                + "void loop() {\n"
-                + "  taskManager.runLoop();"
-                + "}\n\n"
-                + "void CALLBACK_FUNCTION callback(int id) {\n"
-                + "  superObj.doIt();\n"
-                + "}\n\n"
-                + "void CALLBACK_FUNCTION onIpChange(int id) {\n"
-                + "  superObj.doIt();\n"
-                + "}\n\n"
-                + "int CALLBACK_FUNCTION fnListRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* , int ) {\n"
-                + "   switch(mode) {\n"
-                + "    case RENDERFN_INVOKE:\n"
-                + "        return true;\n"
-                + "    case RENDERFN_NAME:\n"
-                + "        return true;\n"
-                + "    }\n"
-                + "}\n";
+        String inoContent = """
+                #include "superProject_menu.h"
+
+                char helloWorldScrollVar[] = "sdfkjdsfkjsdfj";
+                
+                void setup() {
+                  superObj.init();
+                  setupMenu();}
+
+                void loop() {
+                  taskManager.runLoop();}
+
+                void CALLBACK_FUNCTION callback(int id) {
+                  superObj.doIt();
+                }
+
+                void CALLBACK_FUNCTION onIpChange(int id) {
+                  superObj.doIt();
+                }
+
+                int CALLBACK_FUNCTION fnListRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* , int ) {
+                   switch(mode) {
+                    case RENDERFN_INVOKE:
+                        return true;
+                    case RENDERFN_NAME:
+                        return true;
+                    }
+                }
+                """;
         Files.write(inoFile, inoContent.getBytes());
 
         adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);

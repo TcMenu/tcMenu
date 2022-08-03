@@ -32,7 +32,7 @@ RemoteMenuItem menuIoTMonitor(pgmStrIoTMonitorText, 10002, NULL);
 const char pgmStrAuthenticatorText[] = { "Authenticator" };
 EepromAuthenticationInfoMenuItem menuAuthenticator(pgmStrAuthenticatorText, NO_CALLBACK, 10001, &menuIoTMonitor);
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
-extern char* myChoiceRam;
+extern char myChoiceRam[];
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RamChoiceRtCall, enumItemRenderFn, "Ram Choice", 31, onRamChoice)
 ScrollChoiceMenuItem menuMySubSub1RamChoice(17, fnMySubSub1RamChoiceRtCall, 0, myChoiceRam, 5, 6, &menuMySubSub1CustomChoice);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1EepromChoiceRtCall, enumItemRenderFn, "EepromChoice", 29, onRomChoice)

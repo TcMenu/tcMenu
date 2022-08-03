@@ -114,7 +114,7 @@ public class CallbackRequirement {
                 if(item instanceof ScrollChoiceMenuItem sc) {
                     if(sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
                         var varName = sc.getVariable().startsWith("@") ? sc.getVariable().substring(1) : sc.getVariable();
-                        setResult(List.of("extern char* " + sc.getVariable() + ';', renderingMacroDef));
+                        setResult(List.of("extern char " + sc.getVariable() + "[];", renderingMacroDef));
                         return;
                     }
                 }
