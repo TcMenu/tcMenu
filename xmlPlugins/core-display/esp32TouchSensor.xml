@@ -79,7 +79,7 @@
 
     <SetupFunctions>
         <Function name="init" object="switches">
-            <Param ioDevice="esp32Touch" />
+            <Param ref="esp32Touch" />
             <Param value="${SW_POLLING_MODE}" />
             <Param value="false"/>
         </Function>
