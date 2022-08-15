@@ -2,10 +2,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Mcp23017DeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.Pcf8574DeviceExpander;
+import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -80,6 +77,26 @@ public class IoExpanderDialogTestCases {
             if(maybeItem.isPresent()) {
                 var io = (Pcf8574DeviceExpander) maybeItem.get();
                 return io.getI2cAddress() == 33 && io.getIntPin() == 22;
+            }
+            return false;
+        });
+    }
+
+    @Test
+    public void testAdding8575IoExpander(FxRobot robot) throws InterruptedException {
+        robot.clickOn("#addButton");
+        TestUtils.selectItemInCombo(robot, "#expanderTypeCombo", (String s) -> s.contains("8575"));
+        TestUtils.writeIntoField(robot, "#variableNameField", "expII", 10);
+        TestUtils.writeIntoField(robot, "#i2cAddrField", "0x23", 10);
+        TestUtils.writeIntoField(robot, "#interruptPinField", "2", 10);
+        robot.clickOn("#invertedField");
+        robot.clickOn("#setExpanderButton");
+
+        TestUtils.withRetryOnFxThread(() -> {
+            Optional<IoExpanderDefinition> maybeItem = searchTableForItem(robot, "expII");
+            if(maybeItem.isPresent()) {
+                var io = (Pcf8575DeviceExpander) maybeItem.get();
+                return io.getI2cAddress() == 33 && io.getIntPin() == 22 && io.isInvertedLogic();
             }
             return false;
         });

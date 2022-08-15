@@ -201,12 +201,14 @@ public class GenerateCodeDialogTest {
         verifyThat("#at24Radio", RadioButton::isSelected);
         verifyThat("#i2cAddrField", Predicate.not(Node::isDisabled));
         verifyThat("#i2cAddrField", TextInputControlMatchers.hasText("0x50"));
-        verifyThat("#romPageCombo", (ComboBox<?> n) -> n.getSelectionModel().getSelectedIndex() == 2);
+        verifyThat("#romPageCombo", (ComboBox<?> n) -> n.getSelectionModel().getSelectedIndex() == 7);
         verifyThat("#memOffsetField", Node::isDisabled);
         selectItemInCombo(robot, "#romPageCombo", o -> o.equals(ROM_PAGE_SIZES.get(1)));
+        Thread.sleep(2500);
+
         robot.clickOn("#okButton");
         Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C64"));
+        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C02"));
 
         robot.clickOn("#eepromTypeButton");
         Thread.sleep(250);

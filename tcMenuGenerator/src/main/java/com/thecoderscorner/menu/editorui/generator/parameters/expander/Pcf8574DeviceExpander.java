@@ -13,16 +13,19 @@ public class Pcf8574DeviceExpander extends IoExpanderDefinition {
     private final int i2cAddress;
     private final int intPin;
     private final String name;
+    private final boolean inverted;
 
-    public Pcf8574DeviceExpander(String name, int i2cAddress, int intPin) {
+    public Pcf8574DeviceExpander(String name, int i2cAddress, int intPin, boolean inverted) {
         this.i2cAddress = i2cAddress;
         this.intPin = intPin;
         this.name = name;
+        this.inverted = inverted;
     }
 
     @Override
     public String getNicePrintableName() {
-        return String.format("PCF8574(0x%02x, %d)",  i2cAddress, intPin);
+        var possibleInvert = inverted ? "!" : "";
+        return String.format("%sPCF8574(0x%02x, %d)",  possibleInvert, i2cAddress, intPin);
     }
 
     @Override
@@ -43,9 +46,13 @@ public class Pcf8574DeviceExpander extends IoExpanderDefinition {
         return intPin;
     }
 
+    public boolean isInverted() {
+        return inverted;
+    }
+
     @Override
     public String toString() {
-        return "pcf8574:" + name + ":" + i2cAddress + ":" + intPin;
+        return "pcf8574:" + name + ":" + i2cAddress + ":" + intPin + ":" + inverted;
     }
 
     @Override
@@ -55,7 +62,8 @@ public class Pcf8574DeviceExpander extends IoExpanderDefinition {
 
     @Override
     public Optional<String> generateGlobal() {
-        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom8574(0x%02x, %d);", name, i2cAddress, intPin));
+        var invertedCode = inverted ? ", true" : "";
+        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom8574(0x%02x, %d%s);", name, i2cAddress, intPin, invertedCode));
     }
 
     @Override

@@ -7,8 +7,6 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.ChooseIoExpanderController;
-import com.thecoderscorner.menu.editorui.controller.ConfigureExpanderController;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import javafx.stage.Stage;

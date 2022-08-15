@@ -19,11 +19,16 @@ import static java.lang.System.Logger.Level.ERROR;
 public class EepromTypeSelectionController {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     public final static ObservableList<RomPageSize> ROM_PAGE_SIZES = FXCollections.observableList(List.of(
-            new RomPageSize("32Kbit (AT24C32)", "PAGESIZE_AT24C32"),
-            new RomPageSize("64Kbit (AT24C64)", "PAGESIZE_AT24C64"),
-            new RomPageSize("128Kbit (AT24C128)", "PAGESIZE_AT24C128"),
-            new RomPageSize("256Kbit (AT24C256)", "PAGESIZE_AT24C256"),
-            new RomPageSize("512Kbit (AT24C512)", "PAGESIZE_AT24C512")
+            new RomPageSize("128B (AT24C01)", "PAGESIZE_AT24C01"),
+            new RomPageSize("256B (AT24C02)", "PAGESIZE_AT24C02"),
+            new RomPageSize("512B (AT24C04)", "PAGESIZE_AT24C04"),
+            new RomPageSize("1KB (AT24C08)", "PAGESIZE_AT24C08"),
+            new RomPageSize("2KB (AT24C16)", "PAGESIZE_AT24C16"),
+            new RomPageSize("4KB (AT24C32)", "PAGESIZE_AT24C32"),
+            new RomPageSize("8KB (AT24C64)", "PAGESIZE_AT24C64"),
+            new RomPageSize("16KB (AT24C128)", "PAGESIZE_AT24C128"),
+            new RomPageSize("32KB (AT24C256)", "PAGESIZE_AT24C256"),
+            new RomPageSize("64KB (AT24C512)", "PAGESIZE_AT24C512")
     ));
     private Optional<EepromDefinition> result = Optional.empty();
 

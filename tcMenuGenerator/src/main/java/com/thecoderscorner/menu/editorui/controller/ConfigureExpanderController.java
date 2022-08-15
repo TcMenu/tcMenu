@@ -23,6 +23,7 @@ public class ConfigureExpanderController {
     public TextField interruptPinField;
     public Button setExpanderButton;
     public Label helpTextField;
+    public CheckBox invertedField;
 
     private boolean newDialog;
     private Collection<String> namesInUse;
@@ -64,7 +65,8 @@ public class ConfigureExpanderController {
     }
 
     private void reEvaluateForm() {
-        if (expanderTypeCombo.getSelectionModel().getSelectedIndex() == 0) {// custom IO
+        int idx = expanderTypeCombo.getSelectionModel().getSelectedIndex();
+        if (idx == 0) {// custom IO
             i2cAddrField.setDisable(true);
             interruptPinField.setDisable(true);
             variableNameField.setDisable(!newDialog);
@@ -76,6 +78,7 @@ public class ConfigureExpanderController {
             variableNameField.setDisable(!newDialog);
             setExpanderButton.setDisable(!anyEmptyText(variableNameField, i2cAddrField, interruptPinField));
         }
+        invertedField.setDisable(idx != 1 && idx != 3); // only supported on PCF devices.
         helpTextField.setText(getDescriptiveTextForType());
     }
 
@@ -104,9 +107,9 @@ public class ConfigureExpanderController {
         try {
             result = switch (expanderTypeCombo.getSelectionModel().getSelectedIndex()) {
                 case 0 -> Optional.of(new CustomDeviceExpander(variableNameField.getText()));
-                case 1 -> Optional.of(new Pcf8574DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
+                case 1 -> Optional.of(new Pcf8574DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
                 case 2 -> Optional.of(new Mcp23017DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
-                case 3 -> Optional.of(new Pcf8575DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
+                case 3 -> Optional.of(new Pcf8575DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
                 default -> Optional.empty();
             };
             ((Stage) interruptPinField.getScene().getWindow()).close();
