@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
@@ -31,9 +30,9 @@ public class ChooseFontController {
         var maybeFont = FontDefinition.fromString(currentSelection);
         if(maybeFont.isPresent()) {
             var font = maybeFont.get();
-            fontVarField.setText(font.getFontName());
-            fontNumField.setText(Integer.toString(font.getFontNumber()));
-            switch (font.getFontMode()) {
+            fontVarField.setText(font.fontName());
+            fontNumField.setText(Integer.toString(font.fontNumber()));
+            switch (font.fontMode()) {
                 case DEFAULT_FONT -> defaultFontSelect.setSelected(true);
                 case ADAFRUIT -> adafruitFontSel.setSelected(true);
                 case NUMBERED -> largeNumSelect.setSelected(true);

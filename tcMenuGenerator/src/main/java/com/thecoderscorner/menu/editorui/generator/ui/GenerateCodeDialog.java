@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
-import com.thecoderscorner.menu.editorui.dialog.SelectEepromTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
@@ -314,8 +313,8 @@ public class GenerateCodeDialog {
         // raspberry PI always has "load" and "save" operations without the need for EEPROM
         if(EmbeddedPlatform.RASPBERRY_PIJ.equals(platformCombo.getSelectionModel().getSelectedItem())) return;
 
-        var dlg = new SelectEepromTypeDialog(mainStage, project.getGeneratorOptions().getEepromDefinition(),true);
-        dlg.getResultOrEmpty().ifPresent(newRom -> {
+        var maybeRom = editorUI.showEditEEPROMDialog(Optional.ofNullable(project.getGeneratorOptions().getEepromDefinition()));
+        maybeRom.ifPresent(newRom -> {
             eepromTypeLabel.setText(newRom.toString());
             project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(project.getGeneratorOptions())
                     .withEepromDefinition(newRom)

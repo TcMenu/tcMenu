@@ -6,24 +6,25 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.*;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -32,7 +33,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -189,8 +189,20 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, homeDirectory);
     }
 
+    @Override
+    public Optional<EepromDefinition> showEditEEPROMDialog(Optional<EepromDefinition> current) {
+        var dlg = new SelectEepromTypeDialog(mainStage, current.orElse(new NoEepromDefinition()), true);
+        return dlg.getResultOrEmpty();
+    }
+
+    @Override
+    public Optional<String> showFontEditorDialog(String currentChoice) {
+        var dlg = new ChooseFontDialog(mainStage, currentChoice, true);
+        return dlg.getResultOrEmpty();
+    }
+
     public Optional<UIMenuItem<?>> createPanelForMenuItem(MenuItem menuItem, MenuTree tree, VariableNameGenerator generator,
-                                                       BiConsumer<MenuItem, MenuItem> changeConsumer) {
+                                                          BiConsumer<MenuItem, MenuItem> changeConsumer) {
         logger.log(INFO, "creating new panel for menu item editing " + menuItem.getId());
         RenderingChooserVisitor renderingChooserVisitor = new RenderingChooserVisitor(changeConsumer, tree, generator);
         var ret = MenuItemHelper.visitWithResult(menuItem, renderingChooserVisitor);

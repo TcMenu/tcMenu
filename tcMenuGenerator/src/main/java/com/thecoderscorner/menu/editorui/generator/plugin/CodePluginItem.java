@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CodePluginItem {
     private String id;
@@ -194,5 +195,18 @@ public class CodePluginItem {
                 prop.getName(), prop.getDescription(), prop.getExtendedDescription(), prop.getLatestValue(), prop.getSubsystem(),
                 prop.getPropType(), prop.getValidationRules(), prop.getApplicability())).toList());
         return pluginCopy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CodePluginItem that = (CodePluginItem) o;
+        return themeNeeded == that.themeNeeded && Objects.equals(id, that.id) && Objects.equals(description, that.description) && Objects.equals(extendedDescription, that.extendedDescription) && Objects.equals(supportedPlatforms, that.supportedPlatforms) && Objects.equals(requiredLibraries, that.requiredLibraries) && subsystem == that.subsystem && Objects.equals(imageFileName, that.imageFileName) && Objects.equals(docsLink, that.docsLink) && Objects.equals(config, that.config);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description, extendedDescription, supportedPlatforms, requiredLibraries, subsystem, imageFileName, docsLink, themeNeeded, config);
     }
 }

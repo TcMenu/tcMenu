@@ -5,30 +5,8 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class FontDefinition {
-    public enum FontMode { DEFAULT_FONT, ADAFRUIT_LOCAL, ADAFRUIT, NUMBERED, AVAILABLE }
-
-    private final FontMode fontMode;
-    private final String fontName;
-    private final int fontNumber;
-
-    public FontDefinition(FontMode fontMode, String fontName, int fontNumber) {
-        this.fontMode = fontMode;
-        this.fontName = fontName;
-        this.fontNumber = fontNumber;
-    }
-
-    public FontMode getFontMode() {
-        return fontMode;
-    }
-
-    public String getFontName() {
-        return fontName;
-    }
-
-    public int getFontNumber() {
-        return fontNumber;
-    }
+public record FontDefinition(FontMode fontMode, String fontName, int fontNumber) {
+    public enum FontMode {DEFAULT_FONT, ADAFRUIT_LOCAL, ADAFRUIT, NUMBERED, AVAILABLE}
 
     public String getFontDef() {
         return switch (fontMode) {
@@ -43,12 +21,12 @@ public class FontDefinition {
     }
 
     public static Optional<FontDefinition> fromString(String data) {
-        if(StringHelper.isStringEmptyOrNull(data)) return Optional.empty();
+        if (StringHelper.isStringEmptyOrNull(data)) return Optional.empty();
 
         var fontDefPattern = Pattern.compile("(\\w+):([\\w_]*),(\\d+)");
         try {
             var matcher = fontDefPattern.matcher(data);
-            if(matcher.matches() && matcher.groupCount() == 3) {
+            if (matcher.matches() && matcher.groupCount() == 3) {
                 return Optional.of(new FontDefinition(
                         fromShortMode(matcher.group(1)),
                         matcher.group(2),
@@ -83,10 +61,9 @@ public class FontDefinition {
     }
 
     public String getIncludeDef() {
-        if(fontMode == FontMode.ADAFRUIT) {
+        if (fontMode == FontMode.ADAFRUIT) {
             return "#include <Fonts/" + fontName + ".h>";
-        }
-        else if(fontMode == FontMode.ADAFRUIT_LOCAL) {
+        } else if (fontMode == FontMode.ADAFRUIT_LOCAL) {
             return "#include \"Fonts/" + fontName + ".h\"";
         }
         return "";

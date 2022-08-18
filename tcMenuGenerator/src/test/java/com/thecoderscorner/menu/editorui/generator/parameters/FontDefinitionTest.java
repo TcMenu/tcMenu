@@ -10,9 +10,9 @@ class FontDefinitionTest {
     public void TestAdaDefinition()
     {
         var fd = new FontDefinition(ADAFRUIT, "font", 1);
-        assertEquals(ADAFRUIT, fd.getFontMode());
-        assertEquals("font", fd.getFontName());
-        assertEquals(1, fd.getFontNumber());
+        assertEquals(ADAFRUIT, fd.fontMode());
+        assertEquals("font", fd.fontName());
+        assertEquals(1, fd.fontNumber());
         assertEquals("ada:font,1", fd.toString());
         assertEquals("MenuFontDef(&font, 1)", fd.getFontDef());
         assertEquals("AdaFruit Fonts/font X1", fd.getNicePrintableName());
@@ -25,9 +25,9 @@ class FontDefinitionTest {
     public void TestAdaLocalDefinition()
     {
         var fd = new FontDefinition(ADAFRUIT_LOCAL, "font", 2);
-        assertEquals(ADAFRUIT_LOCAL, fd.getFontMode());
-        assertEquals("font", fd.getFontName());
-        assertEquals(2, fd.getFontNumber());
+        assertEquals(ADAFRUIT_LOCAL, fd.fontMode());
+        assertEquals("font", fd.fontName());
+        assertEquals(2, fd.fontNumber());
         assertEquals("adl:font,2", fd.toString());
         assertEquals("MenuFontDef(&font, 2)", fd.getFontDef());
         assertEquals("AdaLocal Fonts/font X2", fd.getNicePrintableName());

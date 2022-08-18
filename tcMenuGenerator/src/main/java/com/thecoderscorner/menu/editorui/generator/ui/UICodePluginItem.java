@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
-import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
@@ -264,9 +263,8 @@ public class UICodePluginItem extends BorderPane {
         fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontButton.setId(makeAnId(property.getName() + "_btn"));
         fontButton.setOnAction(actionEvent -> {
-            Stage scene = (Stage) propertiesPanel.getScene().getWindow();
-            ChooseFontDialog dialog = new ChooseFontDialog(scene, property.getLatestValue(), true);
-            dialog.getResultOrEmpty().ifPresent(fontAsString -> {
+            var res = editorUI.showFontEditorDialog(property.getLatestValue());
+            res.ifPresent(fontAsString -> {
                 commitEdit(property, fontAsString);
                 fontLabel.setText(nicePrintableFontName(fontAsString));
             });

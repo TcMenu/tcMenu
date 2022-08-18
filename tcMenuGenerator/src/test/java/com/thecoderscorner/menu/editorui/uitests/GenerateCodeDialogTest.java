@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -12,7 +13,6 @@ import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
-import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
@@ -25,24 +25,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController.ROM_PAGE_SIZES;
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
 import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
@@ -125,8 +121,8 @@ public class GenerateCodeDialogTest {
         var displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
         var remotePlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_REMOTE_UUID).orElseThrow();
 
+        // for now we just smoke test the input plugin
         assertExpectedPlugin(robot, inputPlugin, "inputPlugin");
-        assertExpectedPlugin(robot, displayPlugin, "displayPlugin");
 
         //
         // Different input devices being selected (such as trackpad) changes the direction meaning. If
@@ -151,7 +147,8 @@ public class GenerateCodeDialogTest {
 
         verify(generatorRunner).startCodeGeneration(
                 eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
-                eq(expectedPlugins), eq(previousPluinFiles), eq(true));
+                argThat(pl -> pl.containsAll(expectedPlugins)),
+                argThat(strings -> strings.containsAll(previousPluinFiles)), eq(true));
     }
 
     private CodePluginItem getPlugin(String id, SubSystem ty) {
@@ -162,6 +159,9 @@ public class GenerateCodeDialogTest {
 
     @Test
     public void checkAuthenticationEditing(FxRobot robot)  throws Exception {
+        robot.clickOn("#eepromTypeButton");
+        verify(editorUI).showEditEEPROMDialog(any());
+
         verifyThat("#authModeLabel", LabeledMatchers.hasText("EEPROM Authenticator, offset=100"));
         robot.clickOn("#authModeButton");
 
@@ -192,62 +192,6 @@ public class GenerateCodeDialogTest {
         withRetryOnFxThread(new TextFieldPredicate(robot, "#authModeLabel", "FLASH Authenticator, remotes=1"));
     }
 
-    @Test
-    public void checkEepromEditing(FxRobot robot) throws InterruptedException {
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C128"));
-        robot.clickOn("#eepromTypeButton");
-        Thread.sleep(250);
-
-        verifyThat("#at24Radio", RadioButton::isSelected);
-        verifyThat("#i2cAddrField", Predicate.not(Node::isDisabled));
-        verifyThat("#i2cAddrField", TextInputControlMatchers.hasText("0x50"));
-        verifyThat("#romPageCombo", (ComboBox<?> n) -> n.getSelectionModel().getSelectedIndex() == 7);
-        verifyThat("#memOffsetField", Node::isDisabled);
-        selectItemInCombo(robot, "#romPageCombo", o -> o.equals(ROM_PAGE_SIZES.get(1)));
-        Thread.sleep(2500);
-
-        robot.clickOn("#okButton");
-        Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("I2C AT24 addr=0x50, PAGESIZE_AT24C02"));
-
-        robot.clickOn("#eepromTypeButton");
-        Thread.sleep(250);
-
-        robot.clickOn("#avrRomRadio");
-        verifyThat("#i2cAddrField", Node::isDisabled);
-        verifyThat("#memOffsetField", Node::isDisabled);
-        robot.clickOn("#okButton");
-        Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("Direct AVR EEPROM functions"));
-
-        robot.clickOn("#eepromTypeButton");
-        Thread.sleep(250);
-
-        verifyThat("#avrRomRadio", RadioButton::isSelected);
-        robot.clickOn("#eepromRadio");
-        robot.clickOn("#okButton");
-        Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("Arduino EEPROM class"));
-
-        robot.clickOn("#eepromTypeButton");
-        Thread.sleep(250);
-
-        verifyThat("#eepromRadio", RadioButton::isSelected);
-        robot.clickOn("#noRomRadio");
-        robot.clickOn("#okButton");
-        Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("No / Custom EEPROM"));
-
-        robot.clickOn("#eepromTypeButton");
-        Thread.sleep(250);
-
-        verifyThat("#noRomRadio", RadioButton::isSelected);
-        robot.clickOn("#bspStRadio");
-        writeIntoField(robot, "#memOffsetField", 100, 5);
-        robot.clickOn("#okButton");
-        Thread.sleep(250);
-        verifyThat("#eepromTypeLabel", LabeledMatchers.hasText("STM32 BSP offset=100"));
-    }
 
     void assertExpectedPlugin(FxRobot robot, CodePluginItem item, String id) throws Exception {
         FxAssert.verifyThat("#" + id + "Title", LabeledMatchers.hasText(item.getDescription()));
@@ -276,11 +220,27 @@ public class GenerateCodeDialogTest {
         }
     }
 
+    private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
+        String latestValue = fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
+        withRetryOnFxThread(new TextFieldPredicate(robot, nodeName, latestValue), "nodeName check for " + latestValue);
+
+        var oldValue = prop.getLatestValue();
+        FontDefinition numberedFont = new FontDefinition(FontDefinition.FontMode.NUMBERED, "", 22);
+        when(editorUI.showFontEditorDialog(oldValue)).thenReturn(Optional.of(numberedFont.toString()));
+
+        robot.clickOn(nodeName + "_btn");
+        var def = fromString(prop.getLatestValue()).orElseThrow();
+        assertEquals(numberedFont, def);
+
+        // set it back.
+        prop.setLatestValue(oldValue);
+    }
+
     private void checkIoExpanderEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
         Thread.sleep(250);
         IoExpanderDefinitionCollection expanders = project.getGeneratorOptions().getExpanderDefinitions();
         String latestValue = expanders.getDefinitionById(prop.getLatestValue()).orElseThrow().getNicePrintableName();
-        Thread.sleep(4000);
+        Thread.sleep(400);
         FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
 
         robot.clickOn(nodeName + "_btn");
@@ -292,60 +252,13 @@ public class GenerateCodeDialogTest {
         FxAssert.verifyThat(nodeName, TextInputControlMatchers.hasText(latestValue));
     }
 
-    private void checkFontPropertyEditing(FxRobot robot, CreatorProperty prop, String nodeName) throws InterruptedException {
-        // try the default font x2
-        var dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
-        robot.clickOn("#defaultFontSelect");
-        writeIntoField(robot, "#fontVarField", "", 10);
-        writeIntoField(robot, "#fontNumField", 2, 4);
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
-
-        // try the numbered x2
-        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
-        robot.clickOn("#largeNumSelect");
-        writeIntoField(robot, "#fontNumField", 9, 4);
-        writeIntoField(robot, "#fontVarField", "", 10);
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
-
-        // try ada font x1
-        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
-        robot.clickOn("#adafruitFontSel");
-        writeIntoField(robot, "#fontNumField", 2, 4);
-        writeIntoField(robot, "#fontVarField", "myFont", 10);
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
-
-        robot.clickOn(nodeName + "_btn");
-        dialogPane = compareFontDialogToProperty(robot, nodeName, prop);
-        clickOnButtonInDialog(robot, dialogPane, "Cancel");
-    }
-
-    private Node compareFontDialogToProperty(FxRobot robot, String nodeName, CreatorProperty prop) throws InterruptedException {
-        String latestValue = fromString(prop.getLatestValue()).orElseThrow().getNicePrintableName();
-        withRetryOnFxThread(new TextFieldPredicate(robot, nodeName, latestValue), "nodeName check for " + latestValue);
-
-        robot.clickOn(nodeName + "_btn");
-        var def = fromString(prop.getLatestValue()).orElseThrow();
-        var radioToCheck = switch (def.getFontMode()) {
-            case DEFAULT_FONT -> "#defaultFontSelect";
-            case ADAFRUIT -> "#adafruitFontSel";
-            case ADAFRUIT_LOCAL -> "#adafruitLocalFontSel";
-            case AVAILABLE -> "#staticFontSel";
-            case NUMBERED -> "#largeNumSelect";
-        };
-        FxAssert.verifyThat("#fontNumField", TextInputControlMatchers.hasText(String.valueOf(def.getFontNumber())));
-        FxAssert.verifyThat("#fontVarField", TextInputControlMatchers.hasText(def.getFontName()));
-        FxAssert.verifyThat(radioToCheck, RadioButton::isSelected);
-
-        return robot.lookup(".fontDialog").query();
-
-    }
-
     private void checkChoicePropertyEditing(FxRobot robot, CreatorProperty prop, String
             nodeName, ChoicesPropertyValidationRules choiceVal) throws InterruptedException {
         for (var choice : choiceVal.choices()) {
             assertTrue(selectItemInCombo(robot, nodeName, (ChoiceDescription cd) ->
                     cd.getChoiceValue().equals(choice.getChoiceValue())
             ));
+            WaitForAsyncUtils.waitForFxEvents();
             assertEquals(choice.getChoiceValue(), prop.getLatestValue());
         }
     }
@@ -392,7 +305,7 @@ public class GenerateCodeDialogTest {
         assertEquals(value.toString(), property.getLatestValue());
     }
 
-    private class TextFieldPredicate implements Supplier<Boolean> {
+    protected static class TextFieldPredicate implements Supplier<Boolean> {
         private final FxRobot robot;
         private final String nodeName;
         private final String latestValue;

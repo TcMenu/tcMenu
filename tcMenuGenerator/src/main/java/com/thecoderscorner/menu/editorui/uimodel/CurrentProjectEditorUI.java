@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 
@@ -106,6 +107,15 @@ public interface CurrentProjectEditorUI {
      * @param installer the arduino installer object.
      */
     void showCodeGeneratorDialog(ArduinoLibraryInstaller installer);
+
+    /**
+     * Shows the eeprom editing UI that can be used to select an EEPROM type and shows the existing one
+     * @param current the existing choice
+     * @return either empty when cancelled, or otherwise a definition
+     */
+    Optional<EepromDefinition> showEditEEPROMDialog(Optional<EepromDefinition> current);
+
+    Optional<String> showFontEditorDialog(String currentChoice);
 
     /**
      * Get the currently open project

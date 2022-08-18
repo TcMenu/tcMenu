@@ -96,7 +96,7 @@ public class IoExpanderDialogTestCases {
             Optional<IoExpanderDefinition> maybeItem = searchTableForItem(robot, "expII");
             if(maybeItem.isPresent()) {
                 var io = (Pcf8575DeviceExpander) maybeItem.get();
-                return io.getI2cAddress() == 33 && io.getIntPin() == 22 && io.isInvertedLogic();
+                return io.getI2cAddress() == 35 && io.getIntPin() == 2 && io.isInvertedLogic();
             }
             return false;
         });
