@@ -50,7 +50,7 @@ public class AppInformationPanel {
     public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/secure-menuitem-pins-and-remotes/";
     public static final String SPONSOR_TCMENU_PAGE = "https://github.com/sponsors/davetcc";
     public static final String IO_EXPANDER_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/setting-up-io-expanders-in-menu-designer/";
-    public static final String MENU_IN_MENU_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/java-menu-in-menu/";
+    public static final String MENU_IN_MENU_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/";
 
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
