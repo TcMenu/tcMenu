@@ -226,7 +226,10 @@ public class DefaultXmlPluginLoaderTest {
         Files.createDirectory(srcDir);
         Files.writeString(srcDir.resolve("source.cpp"), "CPP_FILE_CONTENT someKey otherKey");
         Files.writeString(srcDir.resolve("source.h"), "H_FILE_CONTENT someKey otherKey");
-        Files.writeString(srcDir.resolve("MySpecialTransport.h"), "My Transport file");
+        Files.writeString(srcDir.resolve("MySpecialTransport.h"), """
+                My Transport file
+                #define THE_SERIAL COM1
+                """);
         var imgDir = pluginDir.resolve("Images");
         Files.createDirectory(imgDir);
         Files.write(

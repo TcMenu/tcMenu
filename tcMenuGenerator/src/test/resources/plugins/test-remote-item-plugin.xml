@@ -13,11 +13,14 @@
 
     <Properties>
         <Property id="SERIAL_PORT" name="Serial port" desc="Enter the variable name of the serial port, E.G: Serial" initial="Serial" type="variable"/>
+        <Property id="BOOL_FLAG" name="Bool Flag" desc="Bool flag used by applicability" initial="true" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <Replacement find="define THE_SERIAL COM1" replace="define THE_SERIAL ${SERIAL_PORT}" whenProperty="BOOL_FLAG" isValue="true"/>
+        <Replacement find="define THE_SERIAL COM1" replace="false was chosen" whenProperty="BOOL_FLAG" isValue="false"/>
         <SourceFile name="src/MySpecialTransport.h"/>
     </SourceFiles>
 

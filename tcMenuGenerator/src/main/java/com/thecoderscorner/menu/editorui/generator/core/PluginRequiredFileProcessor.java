@@ -112,7 +112,7 @@ public class PluginRequiredFileProcessor {
                         if (cr.getApplicability().isApplicable(context.getProperties())) {
                             uiLogger.accept(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());
                             var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                            fileData = new String(fileDataBytes, StandardCharsets.UTF_8).replaceAll(cr.getFind(), replacement);
+                            fileData = fileData.replaceAll(cr.getFind(), replacement);
                         }
                     }
 

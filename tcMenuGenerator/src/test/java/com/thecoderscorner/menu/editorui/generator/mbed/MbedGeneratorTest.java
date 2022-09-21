@@ -136,7 +136,10 @@ public class MbedGeneratorTest {
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
         assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
         assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
-        assertEqualsIgnoringCRLF("My Transport file", pluginGeneratedTransport);
+        assertEqualsIgnoringCRLF("""
+                My Transport file
+                #define THE_SERIAL Serial
+                """, pluginGeneratedTransport);
 
         Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
                 eq(projectDir.resolve(sourceDir.resolve("project_main.cpp")).toString()),
