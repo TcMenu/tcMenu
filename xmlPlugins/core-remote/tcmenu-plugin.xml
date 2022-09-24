@@ -16,7 +16,6 @@
         <!-- arduino remote plugins -->
         <Plugin>remoteSerial.xml</Plugin>
         <Plugin>remoteEthernet.xml</Plugin>
-        <Plugin>serveEmbedCONTROLJS.xml</Plugin>
 
         <!-- esp specific -->
         <Plugin>remoteSerialESP.xml</Plugin>

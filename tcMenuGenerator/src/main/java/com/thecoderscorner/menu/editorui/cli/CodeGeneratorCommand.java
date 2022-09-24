@@ -58,11 +58,10 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             var platforms = new PluginEmbeddedPlatformsImpl();
             DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
             loader.loadPlugins();
-            platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(new OfflineDetector(), loader, prefsStore), prefsStore);
+            var versionDetector = MenuEditorApp.createLibraryVersionDetector();
+            platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(versionDetector, loader, prefsStore), prefsStore);
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(project.getOptions().getEmbeddedPlatform());
             var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
-
-            System.out.println("Preparing to execute generator");
 
             List<CodePluginItem> allPlugins = loader.getLoadedPlugins().stream()
                     .flatMap(pluginLib -> pluginLib.getPlugins().stream())
@@ -78,8 +77,6 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             if (project.getOptions().getLastThemeUuid() != null) {
                 plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN));
             }
-
-            System.out.format("Executing code generator");
 
             var location = Paths.get(loadedProjectFile.getParent());
             codeGen.setLoggerFunction((level, s) -> {
@@ -143,27 +140,4 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         }
     }
 
-    /**
-     * An unimplemented version of the library upgrade system, as we would never upgrade a plugin from this command
-     * line facility, that would be done through the designer, or manually.
-     */
-    private static class OfflineDetector implements LibraryVersionDetector {
-        @Override
-        public void changeReleaseType(OnlineLibraryVersionDetector.ReleaseType releaseType) { }
-
-        @Override
-        public OnlineLibraryVersionDetector.ReleaseType getReleaseType() {
-            return OnlineLibraryVersionDetector.ReleaseType.STABLE;
-        }
-
-        @Override
-        public Map<String, VersionInfo> acquireVersions() {
-            return Map.of();
-        }
-
-        @Override
-        public boolean availableVersionsAreValid(boolean refresh) {
-            return true;
-        }
-    }
 }

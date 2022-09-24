@@ -26,6 +26,7 @@ public class TcMenuDesignerCmd {
             Application.launch(MenuEditorApp.class, args);
         }
         else {
+            System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$s %5$s%6$s%n");
             CommandLine commandLine = new CommandLine(new TcMenuDesignerCmd());
             String[] cliArgs;
             if(args[0].equals("help")) {

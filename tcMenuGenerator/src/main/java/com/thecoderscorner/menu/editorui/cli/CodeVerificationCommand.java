@@ -44,15 +44,16 @@ public class CodeVerificationCommand implements Callable<Integer> {
             int currentEepromPosition = 0;
             int currentSize = 2;
             int retCode = 0;
+            log(true, "MAGICNO: Item '           Magic Key'           EEPROM(0000) ==");
             for (var item : allItems) {
                 int currentMin = currentEepromPosition + currentSize;
                 if (item.getEepromAddress() < currentMin) {
-                    log(true, String.format("OVERLAP: Item '%20s' ID(%5d) EEPROM(%5d)", item.getName(),
+                    log(true, String.format("OVERLAP: Item '%20s' ID(%05d) EEPROM(%04d)", item.getName(),
                             item.getId(), item.getEepromAddress()
                     ));
                     retCode = -1;
                 } else {
-                    log(true, String.format("ITEM OK: Item '%20s' ID(%5d) EEPROM(%5d) %s", item.getName(),
+                    log(true, String.format("ITEM OK: Item '%20s' ID(%05d) EEPROM(%04d) %s", item.getName(),
                             item.getId(), item.getEepromAddress(), "=".repeat(Math.max(0, MenuItemHelper.eepromSizeForItem(item)))
                     ));
                 }
@@ -60,7 +61,7 @@ public class CodeVerificationCommand implements Callable<Integer> {
                 currentSize = MenuItemHelper.eepromSizeForItem(item);
             }
 
-            log(true, "Returning with code " + retCode);
+            log(false, "EEPROM structure " + (retCode == 0 ? "is OK" : "has overlapping items"));
             return 0;
         }
         catch (Exception ex) {

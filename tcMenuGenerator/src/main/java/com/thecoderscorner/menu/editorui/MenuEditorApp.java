@@ -76,17 +76,7 @@ public class MenuEditorApp extends Application {
 
         controller = loader.getController();
 
-        var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
-        var httpClient = new SimpleHttpClient();
-
-        var urlBase = "https://www.thecoderscorner.com";
-
-        if(System.getProperty("localTccService") != null) {
-            urlBase = System.getProperty("localTccService");
-            System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
-        }
-
-        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
+        LibraryVersionDetector libraryVersionDetector = createLibraryVersionDetector();
 
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
 
@@ -141,6 +131,21 @@ public class MenuEditorApp extends Application {
             Platform.exit();
             System.exit(0);
         });
+    }
+
+    public static LibraryVersionDetector createLibraryVersionDetector() {
+        var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
+        var httpClient = new SimpleHttpClient();
+
+        var urlBase = "https://www.thecoderscorner.com";
+
+        if(System.getProperty("localTccService") != null) {
+            urlBase = System.getProperty("localTccService");
+            System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
+        }
+
+        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
+        return libraryVersionDetector;
     }
 
     public static void createOrUpdateDirectoriesAsNeeded(ConfigurationStorage storage) {
