@@ -10,5 +10,5 @@ The designer itself needs plugins that tell it how to generate code for all the 
 
 For 1.7, you can find them here [https://github.com/davetcc/tcMenuXmlPlugins]
 
-These plugins are always packaged with the designer and the designer will no longer update them as that causes more problems that it solves. If you prefer to build from source [using the packaging instructions](packager-all-platforms.md), in the case put the above plugins into "~/.tcmenu/plugins
+These plugins are always packaged with the designer and the designer will no longer update them as that causes more problems that it solves. If you prefer to build from source [using the packaging instructions](scripts/packager-all-platforms.md), in the case put the above plugins into "~/.tcmenu/plugins
 
