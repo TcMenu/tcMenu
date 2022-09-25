@@ -16,6 +16,7 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
     private int maxValue;
     private int divisor;
     private int offset;
+    private int step;
 
     @Override
     AnalogMenuItemBuilder getThis() {
@@ -42,18 +43,24 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
         return getThis();
     }
 
+    public AnalogMenuItemBuilder withStep(int step) {
+        this.step = step;
+        return getThis();
+    }
+
     public AnalogMenuItemBuilder withExisting(AnalogMenuItem other) {
         baseFromExisting(other);
         this.unit = other.getUnitName();
         this.maxValue = other.getMaxValue();
         this.divisor = other.getDivisor();
         this.offset = other.getOffset();
+        this.step = other.getStep();
         return getThis();
     }
 
     public AnalogMenuItem menuItem() {
         return new AnalogMenuItem(this.name, this.variableName, this.id, this.eepromAddr, this.functionName, this.maxValue,
-                                  this.offset, this.divisor, this.unit, readOnly, localOnly, visible);
+                                  this.offset, this.divisor, this.step, this.unit, readOnly, localOnly, visible);
     }
 
     public static AnalogMenuItemBuilder anAnalogMenuItemBuilder() {

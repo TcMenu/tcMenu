@@ -6,10 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -167,6 +164,14 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 .map(item -> {
                     var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, "false"));
                     return new FunctionDefinition("setVisible", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
+                }).toList()
+        );
+
+        allFunctions.addAll(menuTree.getAllMenuItems().stream().filter(item -> item instanceof AnalogMenuItem an && an.getStep() > 1)
+                .map(item -> {
+                    var analogMenuItem = (AnalogMenuItem) item;
+                    var params = List.of(new CodeParameter(CodeParameter.NO_TYPE, null, true, Integer.toString(analogMenuItem.getStep())));
+                    return new FunctionDefinition("setStep", "menu" + menuNameFor(item), false, false, params, new AlwaysApplicable());
                 }).toList()
         );
 

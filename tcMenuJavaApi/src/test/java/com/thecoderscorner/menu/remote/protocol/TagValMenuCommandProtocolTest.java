@@ -6,10 +6,7 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.thecoderscorner.menu.domain.DomainFixtures;
-import com.thecoderscorner.menu.domain.EditItemType;
-import com.thecoderscorner.menu.domain.FloatMenuItem;
-import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
@@ -109,7 +106,7 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testReceiveAnalogItem() throws IOException {
+    public void testReceiveAnalogItemNoStep() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer(ANALOG_BOOT_ITEM,"PI=321|ID=1|RO=1|VI=1|AM=255|AO=-180|AD=2|AU=dB|NM=Volume|VC=22|\u0002"));
         assertTrue(cmd instanceof MenuAnalogBootCommand);
         MenuAnalogBootCommand analog = (MenuAnalogBootCommand) cmd;
@@ -118,6 +115,24 @@ public class TagValMenuCommandProtocolTest {
         assertEquals(2, analog.getMenuItem().getDivisor());
         assertEquals("dB", analog.getMenuItem().getUnitName());
         assertEquals(1, analog.getMenuItem().getId());
+        assertEquals(1, analog.getMenuItem().getStep());
+        assertEquals("Volume", analog.getMenuItem().getName());
+        assertEquals(321, analog.getSubMenuId());
+        assertTrue(analog.getMenuItem().isReadOnly());
+        assertTrue(analog.getMenuItem().isVisible());
+    }
+
+    @Test
+    public void testReceiveAnalogItemWithStep() throws IOException {
+        MenuCommand cmd = protocol.fromChannel(toBuffer(ANALOG_BOOT_ITEM,"PI=321|ID=1|RO=1|VI=1|AM=255|AO=-180|AD=2|AU=dB|AS=2|NM=Volume|VC=22|\u0002"));
+        assertTrue(cmd instanceof MenuAnalogBootCommand);
+        MenuAnalogBootCommand analog = (MenuAnalogBootCommand) cmd;
+        assertEquals(-180, analog.getMenuItem().getOffset());
+        assertEquals(255, analog.getMenuItem().getMaxValue());
+        assertEquals(2, analog.getMenuItem().getDivisor());
+        assertEquals("dB", analog.getMenuItem().getUnitName());
+        assertEquals(1, analog.getMenuItem().getId());
+        assertEquals(2, analog.getMenuItem().getStep());
         assertEquals("Volume", analog.getMenuItem().getName());
         assertEquals(321, analog.getSubMenuId());
         assertTrue(analog.getMenuItem().isReadOnly());
@@ -416,7 +431,13 @@ public class TagValMenuCommandProtocolTest {
         protocol.toChannel(bb, new MenuAnalogBootCommand(321,
                 DomainFixtures.anAnalogItem("Test", 123),
                 25));
-        testBufferAgainstExpected(ANALOG_BOOT_ITEM, "PI=321|ID=123|IE=104|NM=Test|RO=0|VI=1|AO=102|AD=2|AM=255|AU=dB|VC=25|\u0002");
+        testBufferAgainstExpected(ANALOG_BOOT_ITEM, "PI=321|ID=123|IE=104|NM=Test|RO=0|VI=1|AO=102|AD=2|AM=255|AS=1|AU=dB|VC=25|\u0002");
+        bb.clear();
+        var analogItemWithStep = new AnalogMenuItemBuilder().withExisting(DomainFixtures.anAnalogItem("Test", 123))
+                .withStep(2)
+                .menuItem();
+        protocol.toChannel(bb, new MenuAnalogBootCommand(321, analogItemWithStep, -22222));
+        testBufferAgainstExpected(ANALOG_BOOT_ITEM, "PI=321|ID=123|IE=104|NM=Test|RO=0|VI=1|AO=102|AD=2|AM=255|AS=2|AU=dB|VC=-22222|\u0002");
     }
 
     @Test

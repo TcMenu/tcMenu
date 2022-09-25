@@ -13,6 +13,7 @@ import static picocli.CommandLine.*;
         CreateItemCommand.class,
         DeleteItemCommand.class,
         VersionCommand.class,
+        OnlineHelpCommand.class,
         StartUICommand.class,
         GetConfigCommand.class,
         SetConfigCommand.class,

@@ -29,6 +29,7 @@ public interface TagValMenuFields {
     String KEY_PARENT_ID_FIELD = "PI";
     String KEY_ANALOG_MAX_FIELD = "AM";
     String KEY_ANALOG_OFFSET_FIELD = "AO";
+    String KEY_ANALOG_STEP_FIELD = "AS";
     String KEY_ANALOG_DIVISOR_FIELD = "AD";
     String KEY_ANALOG_UNIT_FIELD = "AU";
     String KEY_FLOAT_DECIMAL_PLACES = "FD";

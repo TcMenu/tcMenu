@@ -36,10 +36,12 @@ public class MenuItemTest {
                 .withUnit("dB")
                 .withReadOnly(true)
                 .withLocalOnly(true)
+                .withStep(2)
                 .withMaxValue(10000).menuItem();
 
         assertBaseMenuFields(item, "Test Menu", 10, 100);
         assertEquals(2, item.getDivisor());
+        assertEquals(2, item.getStep());
         assertEquals(-20, item.getOffset());
         assertEquals("dB", item.getUnitName());
         assertEquals(10000, item.getMaxValue());

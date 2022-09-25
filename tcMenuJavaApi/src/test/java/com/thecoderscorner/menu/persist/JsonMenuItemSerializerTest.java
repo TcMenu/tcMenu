@@ -79,6 +79,7 @@ class JsonMenuItemSerializerTest {
             "      \"offset\": 102,\n" +
             "      \"divisor\": 2,\n" +
             "      \"unitName\": \"dB\",\n" +
+            "      \"step\": 0,\n" +
             "      \"name\": \"fhs\",\n" +
             "      \"id\": 5,\n" +
             "      \"eepromAddress\": 104,\n" +
@@ -169,6 +170,7 @@ class JsonMenuItemSerializerTest {
             "      \"offset\": 102,\n" +
             "      \"divisor\": 2,\n" +
             "      \"unitName\": \"dB\",\n" +
+            "      \"step\": 0,\n" +
             "      \"name\": \"fhs\",\n" +
             "      \"id\": 5,\n" +
             "      \"eepromAddress\": 104,\n" +

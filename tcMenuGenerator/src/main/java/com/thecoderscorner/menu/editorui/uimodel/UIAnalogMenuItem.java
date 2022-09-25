@@ -40,6 +40,8 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
     private TextField offsetField;
     private TextField maxValueField;
+
+    private TextField stepField;
     private TextField divisorField;
     private TextField unitNameField;
     private Label minMaxLabel;
@@ -55,13 +57,18 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         String unitName = safeStringFromProperty(unitNameField.textProperty(), "Unit Name", errors, 4, StringFieldType.OPTIONAL);
         int divisor = safeIntFromProperty(divisorField.textProperty(), "Divisor", errors, 0, 10000);
         int offset = safeIntFromProperty(offsetField.textProperty(), "Offset", errors, Short.MIN_VALUE, Short.MAX_VALUE);
+        int step = safeIntFromProperty(stepField.textProperty(), "Step", errors, 1, 128);
         int maxValue = safeIntFromProperty(maxValueField.textProperty(), "Maximum Value", errors, 1, 65535);
+        if((maxValue % step) != 0) {
+            errors.add(new FieldError("'Step' must be exactly divisible by 'Maximum Value'", "Step"));
+        }
 
         AnalogMenuItemBuilder builder = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
                 .withExisting(getMenuItem())
                 .withOffset(offset)
                 .withMaxValue(maxValue)
                 .withDivisor(divisor)
+                .withStep(step)
                 .withUnit(unitName);
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
@@ -116,6 +123,14 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         divisorField.textProperty().addListener(this::analogValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(divisorField);
         grid.add(divisorField, 1, idx);
+
+        idx++;
+        grid.add(new Label("Step"), 0, idx);
+        stepField = new TextField(String.valueOf(getMenuItem().getStep()));
+        stepField.setId("stepField");
+        stepField.textProperty().addListener(this::analogValueChanged);
+        TextFormatterUtils.applyIntegerFormatToField(stepField);
+        grid.add(stepField, 1, idx);
 
         idx++;
         grid.add(new Label("Unit name"), 0, idx);

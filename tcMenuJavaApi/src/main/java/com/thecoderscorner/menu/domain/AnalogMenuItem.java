@@ -12,7 +12,8 @@ import java.util.Objects;
 
 /**
  * Represents an analog (numeric) menu item, it is always a zero based integer when retrieved from storage, but it can
- * have an offset and divisor, so therefore is able to represent decimal values. The offset can also be negative.
+ * have an offset and divisor, so therefore is able to represent decimal values. The offset can also be negative. Step
+ * allows the rate of change to be greater than 1 unit, but must be an exact divisor of the maximum value.
  * Rather than directly constructing an item of this type, you can use the AnalogMenuItemBuilder.
  */
 public class AnalogMenuItem extends MenuItem {
@@ -20,6 +21,7 @@ public class AnalogMenuItem extends MenuItem {
     private final int offset;
     private final int divisor;
     private final String unitName;
+    private final int step;
 
     public AnalogMenuItem() {
         super("", null, -1, -1, null, false, false, true);
@@ -27,15 +29,17 @@ public class AnalogMenuItem extends MenuItem {
         this.maxValue = -1;
         this.offset = -1;
         this.divisor = -1;
+        this.step = 1;
         this.unitName = "";
     }
 
     public AnalogMenuItem(String name, String variableName, int id, int eepromAddress, String functionName, int maxValue,
-                          int offset, int divisor, String unitName, boolean readOnly, boolean localOnly, boolean visible) {
+                          int offset, int divisor, int step, String unitName, boolean readOnly, boolean localOnly, boolean visible) {
         super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible);
         this.maxValue = maxValue;
         this.offset = offset;
         this.divisor = divisor;
+        this.step = step;
         this.unitName = unitName != null ? unitName : "";
     }
 
@@ -64,6 +68,15 @@ public class AnalogMenuItem extends MenuItem {
     }
 
     /**
+     * The step is the amount by which each increment should increase the value, it must be exactly divisible by
+     * the maximum value. Default is 1 and the value can never be lower than 1.
+     * @return the current step
+     */
+    public int getStep() {
+        return Math.max(1, step);
+    }
+
+    /**
      * The unit name to appear directly after the value, for example a temperature item may be "oC"
      * where as a volume control could be "dB"
      * @return the name of the unit (if any)
@@ -89,6 +102,7 @@ public class AnalogMenuItem extends MenuItem {
         return getMaxValue() == that.getMaxValue() &&
                 getOffset() == that.getOffset() &&
                 getDivisor() == that.getDivisor() &&
+                getStep() == that.getStep() &&
                 Objects.equals(getName(), that.getName()) &&
                 getId() == that.getId() &&
                 getEepromAddress() == that.getEepromAddress() &&
@@ -102,7 +116,7 @@ public class AnalogMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getVariableName(), getUnitName(), getId(),
-                            getEepromAddress(), getFunctionName(), isReadOnly());
+        return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getStep(), getVariableName(), getUnitName(),
+                            getId(), getEepromAddress(), getFunctionName(), isReadOnly());
     }
 }

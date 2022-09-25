@@ -354,6 +354,7 @@ public class TagValMenuCommandProcessors {
                 .withMaxValue(parser.getValueAsInt(KEY_ANALOG_MAX_FIELD))
                 .withEepromAddr(parser.getValueAsIntWithDefault(KEY_EEPROM_FIELD, 0))
                 .withOffset(parser.getValueAsInt(KEY_ANALOG_OFFSET_FIELD))
+                .withStep(parser.getValueAsIntWithDefault(KEY_ANALOG_STEP_FIELD, 1))
                 .withUnit(parser.getValue(KEY_ANALOG_UNIT_FIELD))
                 .withName(parser.getValue(KEY_NAME_FIELD))
                 .withReadOnly(parser.getValueAsInt(KEY_READONLY_FIELD) != 0)
@@ -483,6 +484,7 @@ public class TagValMenuCommandProcessors {
         appendField(sb, KEY_ANALOG_OFFSET_FIELD, cmd.getMenuItem().getOffset());
         appendField(sb, KEY_ANALOG_DIVISOR_FIELD, cmd.getMenuItem().getDivisor());
         appendField(sb, KEY_ANALOG_MAX_FIELD, cmd.getMenuItem().getMaxValue());
+        appendField(sb, KEY_ANALOG_STEP_FIELD, cmd.getMenuItem().getStep());
         appendField(sb, KEY_ANALOG_UNIT_FIELD, cmd.getMenuItem().getUnitName());
         appendField(sb, KEY_CURRENT_VAL, cmd.getCurrentValue());
     }
