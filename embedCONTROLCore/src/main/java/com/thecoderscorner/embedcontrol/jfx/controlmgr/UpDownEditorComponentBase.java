@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
+import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -45,8 +46,6 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
         minusButton.setFont(Font.font(getDrawingSettings().getFontSize()));
         itemLabel.setFont(Font.font(getDrawingSettings().getFontSize()));
 
-        minusButton.setOnAction(e -> bumpCount(REDUCE));
-
         minusButton.setOnMousePressed(e -> {
             repeating = RepeatTypes.REPEAT_DOWN_WAIT;
             lastRepeatStart = System.currentTimeMillis();
@@ -57,7 +56,14 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
             lastRepeatStart = System.currentTimeMillis();
         });
         plusButton.setOnMouseReleased(e -> repeating = RepeatTypes.REPEAT_NONE);
-        plusButton.setOnAction(e -> bumpCount(INCREASE));
+
+        if(item instanceof AnalogMenuItem analogItem) {
+            minusButton.setOnAction(e -> bumpCount(REDUCE * analogItem.getStep()));
+            plusButton.setOnAction(e -> bumpCount(INCREASE * analogItem.getStep()));
+        } else {
+            minusButton.setOnAction(e -> bumpCount(REDUCE));
+            plusButton.setOnAction(e -> bumpCount(INCREASE));
+        }
 
         var border = new BorderPane();
         border.setLeft(minusButton);
