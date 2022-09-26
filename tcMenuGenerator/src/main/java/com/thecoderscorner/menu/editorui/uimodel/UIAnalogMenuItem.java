@@ -59,7 +59,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         int offset = safeIntFromProperty(offsetField.textProperty(), "Offset", errors, Short.MIN_VALUE, Short.MAX_VALUE);
         int step = safeIntFromProperty(stepField.textProperty(), "Step", errors, 1, 128);
         int maxValue = safeIntFromProperty(maxValueField.textProperty(), "Maximum Value", errors, 1, 65535);
-        if((maxValue % step) != 0) {
+        if(step == 0 || ((maxValue % step) != 0)) {
             errors.add(new FieldError("'Step' must be exactly divisible by 'Maximum Value'", "Step"));
         }
 

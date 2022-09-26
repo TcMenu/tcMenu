@@ -74,7 +74,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     }
 
     @Test
-    void testSelectingPreMadeValue(FxRobot robot) throws InterruptedException {
+    void testSelectingPreMadeValueAndThenStep(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
         var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
@@ -86,6 +86,17 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         verifyThat("#unitNameField", TextInputControlMatchers.hasText("dB"));
         verifyThat("#divisorField", TextInputControlMatchers.hasText("2"));
         verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value 37.5dB."));
+
+        tryToEnterBadValueIntoField(robot, "stepField", "idField", "4",
+                "'Step' must be exactly divisible by 'Maximum Value'");
+
+        TestUtils.writeIntoField(robot, "#maxValueField", 100, 4);
+        verifyThatThereAreNoErrorsReported();
+        ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
+        verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
+        AnalogMenuItem item = (AnalogMenuItem) captor.getValue();
+        assertEquals(100, item.getMaxValue());
+        assertEquals(4, item.getStep());
     }
 
     @Test
