@@ -30,9 +30,9 @@ void LiquidCrystalRenderer::initialise() {
     TitleWidget* wid = firstWidget;
     int charNo = 0;
     while(wid != nullptr) {
-        serdebugF2("Title widget present max=", wid->getMaxValue());
+        serlogF2(SER_TCMENU_INFO, "Title widget present max=", wid->getMaxValue());
         for(int i = 0; i < wid->getMaxValue(); i++) {
-            serdebugF2("Creating char ", charNo);
+            serlogF2(SER_TCMENU_DEBUG, "Creating char ", charNo);
             lcd->createCharPgm((uint8_t)charNo, wid->getIcon(i));
             charNo++;
         }
@@ -56,7 +56,7 @@ void LiquidCrystalRenderer::setEditorChars(char back, char forward, char edit) {
 
 void LiquidCrystalRenderer::drawWidget(Coord where, TitleWidget *widget, color_t, color_t) {
     char ch = char(widget->getHeight() + widget->getCurrentState());
-    serdebugF4("draw widget", where.x, where.y, (int)ch);
+    serlogF4(SER_TCMENU_DEBUG, "draw widget", where.x, where.y, (int)ch);
     lcd->setCursor(where.x, where.y);
     widget->setChanged(false);
     lcd->write(ch);
@@ -112,7 +112,7 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
             sz[valueStart] = 32;
             valueStart++;
             copyMenuItemValue(entry->getMenuItem(), sz + valueStart, sizeof(sz) - valueStart);
-            serdebugF2("Value ", sz);
+            serlogF2(SER_TCMENU_DEBUG, "Value ", sz);
         }
         int position = calculateOffset(entry->getPosition().getJustification(), areaSize.x + 1, sz);
         copyIntoBuffer(&buffer[1], sz, position, bufferSize);
@@ -120,7 +120,7 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
         buffer[min(uint8_t(areaSize.x + 1), bufferSize)] = 0;
         lcd->setCursor(where.x, where.y);
     }
-    serdebugF4("Buffer: ", where.x,where.y, buffer);
+    serlogF4(SER_TCMENU_DEBUG, "Buffer: ", where.x,where.y, buffer);
     lcd->print(buffer);
 }
 

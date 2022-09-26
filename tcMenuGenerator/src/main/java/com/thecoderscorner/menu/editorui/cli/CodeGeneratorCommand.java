@@ -3,17 +3,16 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -21,7 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -69,13 +71,19 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
             List<CodePluginItem> plugins = new ArrayList<>();
 
-            plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastInputUuid(), DEFAULT_INPUT_PLUGIN));
-            plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastDisplayUuid(), DEFAULT_DISPLAY_PLUGIN));
+            Map<String, CreatorProperty> propMap = project.getOptions().getLastProperties().stream()
+                    .collect(Collectors.toMap(CreatorProperty::getName, v -> v));
+
+            var displayPlugin = getPluginOrDefault(allPlugins, project.getOptions().getLastDisplayUuid(), DEFAULT_DISPLAY_PLUGIN, propMap);
+            plugins.add(displayPlugin);
+            plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastInputUuid(), DEFAULT_INPUT_PLUGIN, propMap));
+
             for(var plugin : project.getOptions().getLastRemoteCapabilitiesUuids()) {
-                plugins.add(getPluginOrDefault(allPlugins, plugin, DEFAULT_REMOTE_PLUGIN));
+                plugins.add(getPluginOrDefault(allPlugins, plugin, DEFAULT_REMOTE_PLUGIN, propMap));
             }
-            if (project.getOptions().getLastThemeUuid() != null) {
-                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN));
+
+            if (displayPlugin.isThemeNeeded() && project.getOptions().getLastThemeUuid() != null) {
+                plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN, propMap));
             }
 
             var location = Paths.get(loadedProjectFile.getParent());
@@ -94,17 +102,26 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         }
     }
 
-    private CodePluginItem getPluginOrDefault(List<CodePluginItem> plugins, String lastPlugin, String defaultPlugin) {
+    private CodePluginItem getPluginOrDefault(List<CodePluginItem> plugins, String lastPlugin, String defaultPlugin, Map<String, CreatorProperty> propertiesMap) {
 
         var selected = plugins.stream().filter(pl -> pl.getId().equals(lastPlugin)).findFirst();
+        CodePluginItem toReturn;
         if(selected.isPresent()) {
-            return selected.get();
+             toReturn = selected.get();
         }
         else {
             var def = plugins.stream().filter(pl -> pl.getId().equals(defaultPlugin)).findFirst();
             if(def.isEmpty()) throw new IllegalStateException("Plugin load failure");
-            return def.get();
+            toReturn = def.get();
         }
+
+        // replace all properties in plugin with latest values
+        for(var prop : toReturn.getProperties()) {
+            if(propertiesMap.containsKey(prop.getName())) {
+                prop.setLatestValue(propertiesMap.get(prop.getName()).getLatestValue());
+            }
+        }
+        return toReturn;
     }
 
     public static MenuTreeWithCodeOptions projectFileOrNull(File projectFile) throws IOException {
