@@ -77,8 +77,8 @@ int calculateOffset(GridPosition::GridJustification just, int totalLen, const ch
 }
 
 void copyIntoBuffer(char* buffer, const char* source, int offset, int bufferLen) {
-    int len = strlen(source);
-    for(int i=0; i<len; i++) {
+    auto len = strlen(source);
+    for(size_t i=0; i<len; i++) {
         auto pos = offset+i;
         if(pos >= bufferLen) return;
         buffer[pos] = source[i];
@@ -88,20 +88,25 @@ void copyIntoBuffer(char* buffer, const char* source, int offset, int bufferLen)
 void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, bool /*ignored*/) {
     auto* theItem = entry->getMenuItem();
     theItem->setChanged(false);
-
+    char sz[21];
 
     if(entry->getPosition().getJustification() == GridPosition::JUSTIFY_TITLE_LEFT_VALUE_RIGHT) {
         buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
         lcd->setCursor(where.x, where.y);
         int offs = 1;
         uint8_t finalPos = theItem->copyNameToBuffer(buffer, offs, bufferSize);
-        for(uint8_t i = finalPos; i < areaSize.x; ++i)  buffer[i] = 32;
+        for(uint8_t i = finalPos; i < uint8_t(areaSize.x); ++i)  buffer[i] = 32;
         buffer[bufferSize] = 0;
-        menuValueToText(theItem, JUSTIFY_TEXT_RIGHT);
+        copyMenuItemValue(theItem, sz, sizeof sz);
+        uint8_t count = strlen(sz);
+        int cpy = bufferSize - count;
+        strcpy(buffer + cpy, sz);
+        if(theItem == menuMgr.getCurrentEditor() && menuMgr.getEditorHints().getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR) {
+            setupEditorPlacement(where.x + cpy + menuMgr.getEditorHints().getStartIndex(), where.y);
+        }
     }
     else {
-        char sz[21];
-        for(uint8_t i = 1; i < (sizeof(sz) - 1); ++i)  buffer[i] = 32;
+        for(size_t i = 1; i < (sizeof(sz) - 1); ++i)  buffer[i] = 32;
         buffer[sizeof(sz)-1] = 0;
         uint8_t valueStart = 0;
         if(itemNeedsName(entry->getPosition().getJustification())) {
@@ -114,20 +119,43 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
             copyMenuItemValue(entry->getMenuItem(), sz + valueStart, sizeof(sz) - valueStart);
             serlogF2(SER_TCMENU_DEBUG, "Value ", sz);
         }
-        int position = calculateOffset(entry->getPosition().getJustification(), areaSize.x + 1, sz);
+        int position = calculateOffset(entry->getPosition().getJustification(), int(areaSize.x) + 1, sz);
         copyIntoBuffer(&buffer[1], sz, position, bufferSize);
         buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
         buffer[min(uint8_t(areaSize.x + 1), bufferSize)] = 0;
         lcd->setCursor(where.x, where.y);
+        if(theItem == menuMgr.getCurrentEditor() && menuMgr.getEditorHints().getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR) {
+            setupEditorPlacement(where.x + valueStart + menuMgr.getEditorHints().getStartIndex(), where.y);
+        }
     }
     serlogF4(SER_TCMENU_DEBUG, "Buffer: ", where.x,where.y, buffer);
     lcd->print(buffer);
+}
+
+void LiquidCrystalRenderer::setupEditorPlacement(int32_t x, int32_t y) {
+    lcdEditorCursorX = min((width - 1), x);
+    lcdEditorCursorY = y;
 }
 
 void LiquidCrystalRenderer::drawingCommand(RenderDrawingCommand command) {
     switch (command) {
         case DRAW_COMMAND_CLEAR:
             lcd->clear();
+            break;
+        case DRAW_COMMAND_START:
+            if(lcdEditorCursorX != 0xFF) {
+                if(menuMgr.getCurrentEditor() == nullptr) {
+                    lcdEditorCursorX = 0xFF; // edit has ended, clear our status
+                    lcdEditorCursorY = 0xFF;
+                }
+                lcd->noCursor(); // always turn off the cursor while we draw
+            }
+        case DRAW_COMMAND_ENDED:
+            if(lcdEditorCursorX != 0xFF) {
+                lcd->setCursor(lcdEditorCursorX, lcdEditorCursorY);
+                serlogF3(SER_TCMENU_DEBUG, "Editor cursor: ", lcdEditorCursorX, lcdEditorCursorY);
+                lcd->cursor(); // re-enable the cursor after drawing.
+            }
             break;
         default:
             break;

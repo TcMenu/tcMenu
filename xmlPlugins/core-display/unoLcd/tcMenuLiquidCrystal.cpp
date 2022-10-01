@@ -33,9 +33,7 @@ void LiquidCrystalRenderer::initialise() {
     TitleWidget* wid = firstWidget;
     int charNo = 0;
     while(wid != NULL) {
-        serdebugF2("Title widget present max=", wid->getMaxValue());
         for(int i = 0; i < wid->getMaxValue(); i++) {
-            serdebugF2("Creating char ", charNo);
             lcd->createCharPgm((uint8_t)charNo, wid->getIcon(i));
             charNo++;
         }
@@ -80,7 +78,6 @@ void LiquidCrystalRenderer::renderList() {
 void LiquidCrystalRenderer::renderTitle(bool forceDraw) {
     if(!drewTitleThisTime || forceDraw) {
         strcpy_P(buffer, applicationInfo.name);
-        serdebugF2("print app name", buffer);
         uint8_t bufSz = bufferSize;
         uint8_t last = min(bufSz, (uint8_t)strlen(buffer));
         for(uint8_t i = last; i < bufSz; i++) {
@@ -97,7 +94,6 @@ void LiquidCrystalRenderer::renderTitle(bool forceDraw) {
     while(widget != NULL) {
         if(widget->isChanged() || forceDraw) {
             lcd->setCursor(bufferSize - (widCount + 1), 0);
-            serdebugF3("print widget ", widCount,  bufferSize - (widCount + 1));
             widget->setChanged(false);
             lcd->write(charOffset + widget->getCurrentState());
         }
@@ -124,6 +120,14 @@ void LiquidCrystalRenderer::render() {
     }
     else {
         MenuItem* item = menuMgr.getCurrentMenu();
+
+        if(lcdEditorCursorX != 0xFF) {
+            if(menuMgr.getCurrentEditor() == nullptr) {
+                lcdEditorCursorX = 0xFF; // edit has ended, clear our status
+                lcdEditorCursorY = 0xFF;
+            }
+            lcd->noCursor(); // always turn off the cursor while we draw
+        }
 
         bool titleNeeded = titleRequired && menuMgr.getCurrentMenu() == menuMgr.getRoot();
 
@@ -171,6 +175,11 @@ void LiquidCrystalRenderer::render() {
             }
             item = item->getNext();
         }
+
+        if(lcdEditorCursorX != 0xFF) {
+            lcd->setCursor(lcdEditorCursorX, lcdEditorCursorY);
+            lcd->cursor(); // re-enable the cursor after drawing.
+        }
     }
 }
 
@@ -198,9 +207,15 @@ void LiquidCrystalRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
         buffer[bufferSize - 1] = forwardChar;
     }
     else {
-        menuValueToText(item, JUSTIFY_TEXT_RIGHT);
+        char sz[20];
+        copyMenuItemValue(item, sz, sizeof sz);
+        uint8_t count = strlen(sz);
+        int cpy = bufferSize - count;
+        strcpy(buffer + cpy, sz);
+        if(item == menuMgr.getCurrentEditor() && menuMgr.getEditorHints().getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR) {
+            setupEditorPlacement(cpy + menuMgr.getEditorHints().getStartIndex(), row);
+        }
     }
-    serdebugF3("Buffer: ", row, buffer);
     lcd->print(buffer);
 }
 
@@ -253,4 +268,9 @@ void LiquidCrystalDialog::internalRender(int currentValue) {
         lcd->setCursor(startX, nextY);
         lcd->print(data);
     }
+}
+
+void LiquidCrystalRenderer::setupEditorPlacement(int32_t x, int32_t y) {
+    lcdEditorCursorX = min((bufferSize - 1), x);
+    lcdEditorCursorY = y;
 }

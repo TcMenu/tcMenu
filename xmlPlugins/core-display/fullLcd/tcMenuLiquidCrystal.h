@@ -35,6 +35,8 @@ private:
     char backChar;
     char forwardChar;
     char editChar;
+    uint8_t lcdEditorCursorX = 0xFF;
+    uint8_t lcdEditorCursorY = 0xFF;
 public:
     LiquidCrystalRenderer(LiquidCrystal& lcd, int dimX, int dimY);
     ~LiquidCrystalRenderer() override;
@@ -53,6 +55,8 @@ public:
 
     ItemDisplayPropertiesFactory &getDisplayPropertiesFactory() override { return propertiesFactory; }
     NullItemDisplayPropertiesFactory &getLcdDisplayPropertiesFactory() { return propertiesFactory; }
+
+    void setupEditorPlacement(int32_t x, int32_t y);
 };
 
 #endif // _TCMENU_LIQUID_CRYSTAL_H

@@ -27,15 +27,14 @@ SSD1306AsciiRenderer::SSD1306AsciiRenderer(uint8_t dimX, const uint8_t* titleFon
 	this->backChar = '<';
 	this->forwardChar = '>';
 	this->editChar = '=';
-	this->ssd1306 = NULL;
-    this->drewTitleThisTime = false;
+	this->ssd1306 = nullptr;
     this->fontTitle = titleFont;
     this->fontItem = itemFont;
 }
 
 SSD1306AsciiRenderer::~SSD1306AsciiRenderer() {
     delete this->buffer;
-    if(dialog) delete dialog;
+    delete dialog;
 }
 
 void SSD1306AsciiRenderer::setEditorChars(char back, char forward, char edit) {
@@ -45,7 +44,7 @@ void SSD1306AsciiRenderer::setEditorChars(char back, char forward, char edit) {
 }
 
 void SSD1306AsciiRenderer::renderList(uint8_t titleRows) {
-	ListRuntimeMenuItem* runList = reinterpret_cast<ListRuntimeMenuItem*>(menuMgr.getCurrentMenu());
+	auto runList = reinterpret_cast<ListRuntimeMenuItem*>(menuMgr.getCurrentMenu());
 
 	uint8_t maxY = min((ssd1306->displayRows() - titleRows), runList->getNumberOfParts());
 	uint8_t currentActive = runList->getActiveIndex();
@@ -104,8 +103,7 @@ void SSD1306AsciiRenderer::render() {
 		if (menuMgr.getCurrentMenu()->isChanged() || locRedrawMode != MENUDRAW_NO_CHANGE) {
 			renderList(titleRows);
 		}
-	}
-	else {
+	} else {
         int cnt = titleRows;
 		MenuItem* item = menuMgr.getCurrentMenu();
 
@@ -119,12 +117,11 @@ void SSD1306AsciiRenderer::render() {
 			if (lastOffset != toOffsetBy) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
 			lastOffset = toOffsetBy;
 
-			while (item != NULL && toOffsetBy) {
+			while (item != nullptr && toOffsetBy) {
                 if(item->isVisible()) toOffsetBy = toOffsetBy - 1;
 				item = item->getNext();
 			}
-		}
-		else {
+		} else {
 			if (lastOffset != 0xff) locRedrawMode = MENUDRAW_COMPLETE_REDRAW;
 			lastOffset = 0xff;
 		}
@@ -144,15 +141,15 @@ void SSD1306AsciiRenderer::render() {
 }
 
 void SSD1306AsciiRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
-	if (item == NULL || row > ssd1306->displayRows()) return;
+	if (item == nullptr || row > ssd1306->displayRows()) return;
 
 	item->setChanged(false);
 	ssd1306->setCursor(0, row);
 
 	int offs;
 	if (item->getMenuType() == MENUTYPE_BACK_VALUE) {
-		buffer[0] = item->isActive() ? backChar : ' ';
-		buffer[1] = backChar;
+		buffer[0] = item->isActive() ? (char)backChar : ' ';
+		buffer[1] = (char)backChar;
 		offs = 2;
 	}
 	else {
@@ -163,19 +160,59 @@ void SSD1306AsciiRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
 	for(uint8_t i = finalPos; i < bufferSize; ++i)  buffer[i] = 32;
 	buffer[bufferSize] = 0;
 
+    ssd1306->setFont(fontItem);
+
 	if (isItemActionable(item)) {
-		buffer[bufferSize - 1] = forwardChar;
-	}
+		buffer[bufferSize - 2] = (char)forwardChar;
+        buffer[bufferSize - 1] = 0;
+        ssd1306->print(buffer);
+    }
 	else {
-		menuValueToText(item, JUSTIFY_TEXT_RIGHT);
-	}
-	serdebugF3("Buffer: ", row, buffer);
-	ssd1306->setFont(fontItem);
-	ssd1306->print(buffer);
+        char sz[20];
+        copyMenuItemValue(item, sz, sizeof sz);
+        uint8_t count = strlen(sz);
+        if(count < 0 || count > bufferSize) {
+            return;
+        }
+        int cpy = (bufferSize - count) - 1;
+
+        auto hints = menuMgr.getEditorHints();
+        if(menuMgr.getCurrentEditor() && hints.getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR && item->isEditing()) {
+            int startIndex = min(count, hints.getStartIndex());
+            int endIndex = min(count, hints.getEndIndex());
+            Serial.print("0");
+            strncpy(buffer + cpy, sz, startIndex);
+            Serial.print("00");
+            buffer[cpy + startIndex] = 0;
+            Serial.print("1");
+            ssd1306->print(buffer);
+            Serial.print("2");
+            if(startIndex != endIndex) {
+                ssd1306->setInvertMode(true);
+                Serial.print("3");
+                strncpy(buffer, &sz[startIndex], endIndex - startIndex);
+                Serial.print("4");
+                buffer[endIndex - startIndex] = 0;
+                ssd1306->print(buffer);
+                ssd1306->setInvertMode(false);
+                Serial.print("5");
+            }
+            strncpy(buffer, &sz[endIndex], bufferSize);
+            Serial.print("6");
+            buffer[bufferSize-1]=0;
+            ssd1306->print(buffer);
+            Serial.print("7");
+        } else {
+            strcpy(buffer + cpy, sz);
+            buffer[bufferSize - 1] = 0;
+            serdebugF3("Buffer: ", row, buffer);
+            ssd1306->print(buffer);
+        }
+    }
 }
 
 BaseDialog* SSD1306AsciiRenderer::getDialog() {
-    if(dialog == NULL) {
+    if(dialog == nullptr) {
         dialog = new SSD1306AsciiDialog(this);
     }
     return dialog;
@@ -212,7 +249,7 @@ void SSD1306AsciiDialog::internalRender(int currentValue) {
     if(button2 != BTNTYPE_NONE) {
         copyButtonText(data, 1, currentValue);
         display->setInvertMode(currentValue == 1);
-        int startX = (lcdRender->getBufferSize() - strlen(data)) * display->fontWidth();
+        int startX = int(lcdRender->getBufferSize() - strlen(data)) * display->fontWidth();
         display->setCursor(startX, display->displayRows() - display->fontRows());
         display->print(data);
         display->setInvertMode(false);

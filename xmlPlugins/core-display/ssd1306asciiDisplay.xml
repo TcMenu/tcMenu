@@ -12,13 +12,13 @@
         <Platform>ARDUINO_AVR</Platform>
     </SupportedPlatforms>
     <Description>SSD1306ASCII uses the greiman SSD1306Ascii from github to generate a low memory display renderer for OLED devices using a fixed width font. Commercial use caution: underlying SSD1306Ascii library is GPL</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ssd1306ascii-display-plugin"/>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ssd1306ascii-display-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>ssd1306ascii.jpg</ImageFile>
 
     <Properties>
-        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Display variable name as declared in sketch" type="variable" />
-        <Property id="DISPLAY_TYPE" name="Display variable type" initial="" desc="Type of the variable as declared in sketch" type="variable" />
+        <Property id="DISPLAY_VARIABLE" name="Display variable (you create in sketch)" initial="gfx" desc="Display variable name exactly as you declared it globally in the sketch file" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type (exactly as you created)" initial="" desc="Type of the variable as declared in sketch" type="variable" />
         <Property id="CHAR_WIDTH" name="Number of characters horizontally" initial="20" desc="The number of characters across the display" type="int" min="2" max="99"/>
         <Property id="TITLE_FONT" name="Font to use for title" initial="Arial14" desc="The font that is used to render the title" type="variable" />
         <Property id="ITEM_FONT" name="Monospace font to draw items" initial="System5x7" desc="Monospace font that is used to render item text" type="variable" />

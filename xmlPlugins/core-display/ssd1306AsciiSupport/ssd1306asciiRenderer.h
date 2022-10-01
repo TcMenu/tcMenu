@@ -38,13 +38,12 @@ private:
 	uint8_t backChar;
 	uint8_t forwardChar;
 	uint8_t editChar;
-    bool drewTitleThisTime;
     const uint8_t* fontTitle;
     const uint8_t* fontItem;
 public:
 
 	SSD1306AsciiRenderer(uint8_t dimX, const uint8_t* titleFont, const uint8_t* itemFont);
-	virtual ~SSD1306AsciiRenderer();
+	~SSD1306AsciiRenderer() override;
 	void setGraphicsDevice(SSD1306Ascii* ssd1306) { this->ssd1306 = ssd1306; }
 
 	void render() override;
@@ -58,14 +57,12 @@ public:
 private:
     void renderTitle();
 	void renderMenuItem(uint8_t row, MenuItem* item);
-	void renderActionItem(uint8_t row, MenuItem* item);
-	void renderBackItem(uint8_t row, MenuItem* item);
 	void renderList(uint8_t titleHeight);
 };
 
 class SSD1306AsciiDialog : public BaseDialog {
 public:
-    SSD1306AsciiDialog(SSD1306AsciiRenderer* renderer) {
+    explicit SSD1306AsciiDialog(SSD1306AsciiRenderer* renderer) {
         bitWrite(flags, DLG_FLAG_SMALLDISPLAY, 0);
     }
 protected:
