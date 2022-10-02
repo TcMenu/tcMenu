@@ -55,6 +55,8 @@
         <Property id="BACK_SENSOR" name="Left / Back Sensor Num (-1 off)" initial="-1" desc="Left or back touch sensor connection, or -1 for none" type="pin"/>
         <Property id="NEXT_SENSOR" name="Right / Next Sensor Num (-1 off)" initial="-1" desc="Right or Next touch sensor connection, or -1 for none" type="pin"/>
         <Property id="SELECT_SENSOR" name="Select Sensor Num" initial="3" desc="The sensor for select" type="pin"/>
+        <Property id="TS_KEY_REPEAT" name="Key repeat speed in ticks (default 20)" initial="20" desc="The key repeat speed for the encoder buttons"
+                  type="int" min="5" max="50"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -90,6 +92,7 @@
             <Param value="${DOWN_SENSOR}"/>
             <Param value="${UP_SENSOR}"/>
             <Param value="${SELECT_SENSOR}"/>
+            <Param value="${TS_KEY_REPEAT}"/>
         </Function>
 
         <Function name="setBackButton" object="menuMgr" whenProperty="BACK_SENSOR" isNotValue="-1">

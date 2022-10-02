@@ -31,6 +31,8 @@
         <Property id="ENCODER_BACK_PIN" name="Left / Back Button Pin (-1 off)" initial="-1" desc="Left or back button pin connection, or -1 for none" type="pin"/>
         <Property id="ENCODER_NEXT_PIN" name="Right / Next Button Pin (-1 off)" initial="-1" desc="Right or Next button pin connection, or -1 for none" type="pin"/>
         <Property id="ENCODER_OK_PIN" name="OK Button Pin" initial="8" desc="The pin on which OK is connected" type="pin"/>
+        <Property id="ENC_KEY_REPEAT" name="Key repeat speed in ticks (default 20)" initial="20" desc="The key repeat speed for the encoder buttons"
+                  type="int" min="5" max="50"/>
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
     </Properties>
 
@@ -55,6 +57,7 @@
             <Param value="${ENCODER_DOWN_PIN}"/>
             <Param value="${ENCODER_UP_PIN}"/>
             <Param value="${ENCODER_OK_PIN}"/>
+            <Param value="${ENC_KEY_REPEAT}"/>
         </Function>
 
         <Function name="setBackButton" object="menuMgr" whenProperty="ENCODER_BACK_PIN" isNotValue="-1">

@@ -10,7 +10,10 @@
     <RequiredLibraries/>
     <ImageFile>DfRobotShield.jpg</ImageFile>
 
-    <Properties/>
+    <Properties>
+        <Property id="DF_KEY_REPEAT" name="Key repeat speed in ticks (default 20)" initial="20" desc="The key repeat speed for the encoder buttons"
+                  type="int" min="5" max="50"/>
+    </Properties>
 
     <ApplicabilityDefs/>
 
@@ -39,6 +42,7 @@
             <Param value="DF_KEY_DOWN"/>
             <Param value="DF_KEY_UP"/>
             <Param value="DF_KEY_SELECT"/>
+            <Param value="${DF_KEY_REPEAT}"/>
         </Function>
 
         <Function name="setBackButton" object="menuMgr">
