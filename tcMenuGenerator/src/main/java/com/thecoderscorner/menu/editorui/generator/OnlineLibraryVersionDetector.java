@@ -139,11 +139,15 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
                 Path filePath = outDir.resolve(entry.getName());
                 String fileInfo = String.format("Entry: [%s] len %d to %s", entry.getName(), entry.getSize(), filePath);
                 logger.log(DEBUG, fileInfo);
+
+                if(!Files.exists(filePath.getParent())) {
+                    Files.createDirectories(filePath.getParent());
+                }
+
                 if(entry.isDirectory()) {
                     Files.createDirectories(filePath);
-                }
-                else {
-                    Files.write(filePath, zipStream.readAllBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                } else {
+                    Files.write(filePath, zipStream.readAllBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
                 }
             }
         }

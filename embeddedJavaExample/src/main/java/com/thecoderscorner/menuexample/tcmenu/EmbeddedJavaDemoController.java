@@ -51,6 +51,23 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
                 .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
     }
 
+    @MenuCallback(id=1)
+    public void led1BrightnessHasChanged(Object sender, AnalogMenuItem item) {
+        // TODO - implement your menu behaviour here for LED1  brightness
+    }
+
+    @MenuCallback(id=2)
+    public void led2BrightnessHasChanged(Object sender, AnalogMenuItem item) {
+        // TODO - implement your menu behaviour here for LED2 brightness
+    }
+
+    @MenuCallback(id=3)
+    public void inputControlHasChanged(Object sender, EnumMenuItem item) {
+        // TODO - implement your menu behaviour here for Input Control
+    }
+
+    // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
+
     public void menuItemHasChanged(Object sender, MenuItem item) {
         // Called every time any menu item changes
     }

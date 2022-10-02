@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
+import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.END_OF_METHODS_TEXT;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
 import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.*;
 import static java.lang.System.Logger.Level.ERROR;
@@ -225,7 +226,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).distinct().toList(), builder);
         pluginCreator.mapContext(allPlugins.stream().flatMap(p -> p.getVariables().stream()).distinct().toList(), builder);
 
-        builder.addStatement(GeneratedJavaMethod.END_OF_METHODS_TEXT);
+        builder.addStatement(END_OF_METHODS_TEXT);
 
         builder.persistClassByPatching();
     }
@@ -338,6 +339,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                     }
                     builder.addStatement(javaMethod);
                 });
+
+        builder.blankLine()
+               .addStatement(END_OF_METHODS_TEXT)
+               .blankLine();
 
         builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "menuItemHasChanged")
                         .withParameter("Object sender").withParameter("MenuItem item")

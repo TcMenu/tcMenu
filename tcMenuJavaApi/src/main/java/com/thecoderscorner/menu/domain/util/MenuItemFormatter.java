@@ -89,7 +89,7 @@ public class MenuItemFormatter {
         } catch (Exception ex) {
             // ignored
         }
-        return new CurrentScrollPosition(val, "").toString();
+        return new CurrentScrollPosition(val, text).toString();
     }
 
     private static String formatBoolWire(BooleanMenuItem bi, String text) {
