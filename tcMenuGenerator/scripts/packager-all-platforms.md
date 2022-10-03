@@ -38,7 +38,15 @@ Ensure you are in the tcMenuGenerator/target directory.
 
     cp classes/img/tcMenuDesigner.ico .
 
-    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.4.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage --type app-image -n tcmenu -p jfx/deps --input jfx/app --win-console --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.4.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+
+    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app  --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 2.4.0 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+
+Copy the following files from tcMenuDesigner into tcmenu
+
+* app/tcMenuDesigner.cfg
+* tcMenuDesigner.exe
+* tcMenuDesigner.ico
 
 ## Packaging - build for Debian / Ubuntu using package command
 
