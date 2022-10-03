@@ -166,6 +166,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("com.thecoderscorner.embedcontrol.customization.*")
                 .addPackageImport("com.thecoderscorner.embedcontrol.jfx.controlmgr.*")
                 .addPackageImport("org.springframework.beans.factory.annotation.Value")
+                .addPackageImport("com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter")
                 .addPackageImport("org.springframework.context.annotation.*")
                 .addPackageImport("java.time.Clock")
                 .addPackageImport("java.util.UUID")
