@@ -39,7 +39,10 @@ public class EmbeddedJavaGeneratorFileData {
                 public void listHasChanged(Object sender, RuntimeListMenuItem item, ListResponse selInfo) {
                     // TODO - implement your menu behaviour here for My List
                 }
-        
+                
+               \s
+                // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
+               \s
                 public void menuItemHasChanged(Object sender, MenuItem item) {
                     // Called every time any menu item changes
                 }
@@ -167,6 +170,7 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.embedcontrol.customization.*;
             import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
             import org.springframework.beans.factory.annotation.Value;
+            import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
             import org.springframework.context.annotation.*;
             import java.time.Clock;
             import java.util.UUID;
@@ -209,7 +213,7 @@ public class EmbeddedJavaGeneratorFileData {
                     settings.load();
                     return settings;
                 }
-            
+                        
                 @Bean
                 public ScreenLayoutPersistence menuLayoutPersistence(UnitTestMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
                     var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
