@@ -9,14 +9,18 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,6 +32,7 @@ import java.util.function.BiConsumer;
 
 public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     private ListView<String> listView;
+    private TextField defaultValueField;
 
     public UIEnumMenuItem(EnumMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.ENUM_URL);
@@ -49,6 +54,18 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
                 .withEnumList(items);
 
         getChangedDefaults(builder, errors);
+
+        try {
+            String text = defaultValueField.getText();
+            int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
+            if (value < 0 || value > items.size()) {
+                errors.add(new FieldError("Value must be between 0 and " + items.size(), "DefaultValue"));
+            } else {
+                MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
+            }
+        } catch(Exception ex) {
+            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+        }
 
         return getItemOrReportError(builder.menuItem(), errors);
     }
@@ -98,6 +115,15 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
                 removeButton.setDisable(newValue == null)
         );
         listView.getSelectionModel().selectFirst();
+
+        idx++;
+        grid.add(new Label("Default index (0 based)"), 0, idx);
+        var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
+        defaultValueField = new TextField(Integer.toString(value));
+        defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
+        grid.add(defaultValueField, 1, idx);
+
         return idx;
     }
 }

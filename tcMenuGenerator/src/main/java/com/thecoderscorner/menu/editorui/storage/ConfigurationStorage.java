@@ -16,6 +16,8 @@ public interface ConfigurationStorage {
     String LAST_RUN_VERSION_KEY = "LastRunVersion";
     String EXTRA_PLUGIN_PATHS = "ExtraPluginPaths";
 
+    String MENU_PROJECT_MAX_LEVELS = "MenuProjectMaxLevels";
+
     enum TcMenuReleaseType {
         BETA, REGULAR, SUPPORTED
     }
@@ -46,6 +48,9 @@ public interface ConfigurationStorage {
 
     void setUsingArduinoIDE(boolean libs);
     boolean isUsingArduinoIDE();
+
+    void setMenuProjectMaxLevel(int levels);
+    int getMenuProjectMaxLevel();
 
     List<String> getAdditionalPluginPaths();
     void setAdditionalPluginPaths(List<String> path);

@@ -6,26 +6,12 @@
   ~
   -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
@@ -39,7 +25,11 @@
                   <Menu fx:id="menuSketches" mnemonicParsing="false" text="Open from Sketches" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem accelerator="Shortcut+S" mnemonicParsing="false" onAction="#onFileSave" text="Save Project" />
-                  <MenuItem accelerator="Shortcut+A" mnemonicParsing="false" onAction="#onFileSaveAs" text="Save Project As.." />
+                  <MenuItem mnemonicParsing="false" onAction="#onFileSaveAs" text="Save Project As..">
+                      <accelerator>
+                          <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                      </accelerator>
+                  </MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#onFileNew" text="Close Project" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onFileExit" text="Exit" />

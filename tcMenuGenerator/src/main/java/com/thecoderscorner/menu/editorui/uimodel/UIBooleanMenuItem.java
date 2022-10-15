@@ -9,10 +9,12 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.BooleanMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -29,6 +31,7 @@ import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMen
 public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
     private ComboBox<TidyBooleanNaming> namingBox;
+    private CheckBox defaultValue;
 
     public UIBooleanMenuItem(BooleanMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.BOOLEAN_URL);
@@ -40,6 +43,9 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
         BooleanMenuItemBuilder builder = aBooleanMenuItemBuilder().withExisting(getMenuItem())
                 .withNaming(namingBox.getValue().naming());
+
+        MenuItemHelper.setMenuState(getMenuItem(), defaultValue.isSelected(), menuTree);
+
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
     }
@@ -66,6 +72,13 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         namingBox.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
         namingBox.setId("booleanNamingCombo");
         pane.add(namingBox, 1, idx);
+        idx++;
+
+        defaultValue = new CheckBox("Default value");
+        defaultValue.setSelected(MenuItemHelper.getValueFor(getMenuItem(), menuTree, false));
+        defaultValue.setOnAction(event -> callChangeConsumer());
+        pane.add(defaultValue, 1, idx);
+
         return idx;
     }
 

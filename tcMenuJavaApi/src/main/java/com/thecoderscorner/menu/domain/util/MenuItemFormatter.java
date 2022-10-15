@@ -182,7 +182,7 @@ public class MenuItemFormatter {
             int fractMax = GetActualDecimalDivisor(an.getDivisor());
             int fraction = Math.abs((calcVal % divisor)) * (fractMax / divisor);
 
-            return String.format("%d.%" + calculateRequiredDigits(divisor) + "d%s", whole, fraction, an.getUnitName());
+            return String.format("%d.%0" + calculateRequiredDigits(divisor) + "d%s", whole, fraction, an.getUnitName());
         }
     }
 

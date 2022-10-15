@@ -22,7 +22,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
    <center>
       <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -30,27 +30,28 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="600.0">
                      <children>
-                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="290.0" prefWidth="578.0">
+                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="426.0" prefWidth="578.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="148.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="391.0" minWidth="10.0" prefWidth="342.0" />
                               <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="10.0" prefWidth="87.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints maxHeight="45.0" minHeight="14.0" prefHeight="33.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="45.0" minHeight="14.0" prefHeight="21.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="88.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="130.0" minHeight="10.0" prefHeight="37.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="143.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="106.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
                                  <font>
-                                    <Font size="14.0" />
+                                    <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" GridPane.rowIndex="1" />
@@ -65,21 +66,21 @@
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin></Button>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
                                  <font>
-                                    <Font size="14.0" />
+                                    <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                               <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="7">
+                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
                                  <font>
-                                    <Font size="14.0" />
+                                    <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="496.0" GridPane.columnSpan="2" GridPane.rowIndex="8" />
-                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="8">
+                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="9" />
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="87.0" text="Add">
                                        <padding>
@@ -92,6 +93,8 @@
                                     <Insets left="4.0" />
                                  </GridPane.margin>
                               </VBox>
+                              <Label text="Sketch Search Depth:" GridPane.rowIndex="7" />
+                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                            </children>
                         </GridPane>
                      </children>
@@ -102,9 +105,9 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <BorderPane layoutX="14.0" layoutY="14.0" prefHeight="301.0" prefWidth="578.0">
+                        <BorderPane layoutX="14.0" layoutY="14.0" prefHeight="423.0" prefWidth="578.0">
                            <center>
-                              <TableView fx:id="versionsTable" prefHeight="224.0" prefWidth="578.0" BorderPane.alignment="CENTER">
+                              <TableView fx:id="versionsTable" prefHeight="405.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="Library name" />
                                   <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="92.0" text="Available" />
@@ -112,13 +115,6 @@
                                 </columns>
                               </TableView>
                            </center>
-                           <bottom>
-                              <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                                <buttons>
-                                    <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="Refresh libraries and plugins" />
-                                </buttons>
-                              </ButtonBar>
-                           </bottom>
                            <top>
                               <HBox prefHeight="30.0" prefWidth="578.0" spacing="4.0" BorderPane.alignment="CENTER">
                                  <children>
@@ -142,6 +138,7 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
+            <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="Refresh Version List" />
           <Button defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="Close" />
         </buttons>
          <opaqueInsets>

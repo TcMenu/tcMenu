@@ -10,8 +10,10 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 
@@ -22,17 +24,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     private final String nextMenuName;
     private final String nextChild;
     private final String itemVar;
+    private final Object defaultValue;
 
-    public MenuItemToEmbeddedGenerator(String itemVar, String nextVar) {
-        this.nextMenuName = generateMenuVariable(nextVar);
-        this.itemVar = itemVar;
-        this.nextChild = null;
-    }
-
-    public MenuItemToEmbeddedGenerator(String itemVar, String nextVar, String nextCh) {
+    public MenuItemToEmbeddedGenerator(String itemVar, String nextVar, String nextCh, Object defaultValue) {
         this.nextMenuName = generateMenuVariable(nextVar);
         this.nextChild = generateMenuVariable(nextCh);
         this.itemVar = itemVar;
+        this.defaultValue = defaultValue;
     }
 
     private String generateMenuVariable(String var) {
@@ -54,7 +52,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "AnalogMenuItem")
                 .addElement("&minfo" + itemVar)
-                .addElement(0)
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern();
 
@@ -69,6 +67,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(item.getDigitsAllowed())
                 .addElement(item.getDecimalPlaces())
                 .addElement(item.isNegativeAllowed())
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("RuntimeMenuItem.h", false)
@@ -122,6 +121,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(item.getId())
                 .addElement(makeRtFunctionName())
                 .addElement(item.isIncludeAlphaChannel())
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
@@ -135,7 +135,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
-                    .addElement(0)
+                    .addElement(defaultValue)
                     .addElement(item.getEepromOffset())
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
@@ -145,7 +145,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
-                    .addElement(0)
+                    .addElement(defaultValue)
                     .addElement(item.getVariable())
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
@@ -155,7 +155,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
                     .addElement(item.getId())
                     .addElement(makeRtFunctionName())
-                    .addElement(0)
+                    .addElement(defaultValue)
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
                     .requiresExtern();
@@ -199,6 +199,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "FloatMenuItem")
                 .addElement("&minfo" + itemVar)
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern();
 
@@ -224,7 +225,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "BooleanMenuItem")
                 .addElement("&minfo" + itemVar)
-                .addElement(false)
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern();
 
@@ -248,7 +249,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EnumMenuItem")
                 .addElement("&minfo" + itemVar)
-                .addElement(0)
+                .addElement(defaultValue)
                 .addElement(nextMenuName)
                 .requiresExtern();
 

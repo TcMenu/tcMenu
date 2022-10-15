@@ -10,8 +10,10 @@ import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.AnalogMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
@@ -46,6 +48,8 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     private TextField unitNameField;
     private Label minMaxLabel;
     private ComboBox<AnalogCannedChoice> cannedChoicesCombo;
+    private TextField defaultValueField;
+    private Label realInterpretationField;
 
     public UIAnalogMenuItem(AnalogMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator nameGen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, nameGen, changeConsumer, UrlsForDocumentation.ANALOG_URL);
@@ -71,6 +75,20 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
                 .withStep(step)
                 .withUnit(unitName);
         getChangedDefaults(builder, errors);
+
+        try {
+            String text = defaultValueField.getText();
+            int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
+            if(value < 0 || value > maxValue) {
+                errors.add(new FieldError("Value must be between 0 and " + maxValue, "DefaultValue"));
+            } else {
+                MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
+                realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0)));
+            }
+        } catch (NumberFormatException e) {
+            errors.add(new FieldError("Value could not be parsed " + e.getClass().getSimpleName() + " " + e.getMessage(), "DefaultValue"));
+        }
+
         return getItemOrReportError(builder.menuItem(), errors);
     }
 
@@ -138,6 +156,17 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::analogValueChanged);
         grid.add(unitNameField, 1, idx);
+
+        idx++;
+        grid.add(new Label("Default value (0..maxValue)"), 0, idx);
+        var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
+        realInterpretationField = new Label();
+        realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), value));
+        grid.add(realInterpretationField, 2, idx);
+        defaultValueField = new TextField(Integer.toString(value));
+        defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
+        grid.add(defaultValueField, 1, idx);
 
         return idx;
     }

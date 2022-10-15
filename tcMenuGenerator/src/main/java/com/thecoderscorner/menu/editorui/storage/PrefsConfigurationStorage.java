@@ -21,6 +21,9 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private Optional<String> maybeOverrideDirectory;
     private Optional<String> maybeLibOverrideDirectory;
     private final List<ArduinoDirectoryChangeListener> directoryChangeListeners = new CopyOnWriteArrayList<>();
+    private int maxLevels = 1;
+    private boolean saveToSrc = false;
+    private boolean defaultRecursive = false;
 
     public PrefsConfigurationStorage() {
         try {
@@ -29,12 +32,16 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
 
             Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
             usingIde = prefs.getBoolean(USING_ARDUINO_IDE, true);
+            saveToSrc = prefs.getBoolean(DEFAULT_SAVE_TO_SRC, false);
+            defaultRecursive = prefs.getBoolean(DEFAULT_RECURSIVE_NAMING, false);
 
             var ovr = prefs.get(ARDUINO_OVERRIDE_DIR, "");
             maybeOverrideDirectory = StringHelper.isStringEmptyOrNull(ovr) ? Optional.empty() : Optional.of(ovr);
 
             var ovrLib = prefs.get(ARDUINO_LIBS_OVERRIDE_DIR, "");
             maybeLibOverrideDirectory = StringHelper.isStringEmptyOrNull(ovrLib) ? Optional.empty() : Optional.of(ovrLib);
+
+            maxLevels = prefs.getInt(MENU_PROJECT_MAX_LEVELS, 1);
         }
         catch(Exception e) {
             System.getLogger("BuildVersioning").log(ERROR, "Cannot load version properties", e);
@@ -102,6 +109,18 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     @Override
+    public void setMenuProjectMaxLevel(int levels) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(MENU_PROJECT_MAX_LEVELS, String.valueOf(levels));
+        maxLevels = levels;
+    }
+
+    @Override
+    public int getMenuProjectMaxLevel() {
+        return maxLevels;
+    }
+
+    @Override
     public void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener) {
         directoryChangeListeners.add(directoryChangeListener);
     }
@@ -165,26 +184,26 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
 
     @Override
     public boolean isDefaultRecursiveNamingOn() {
-        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
-        return Boolean.parseBoolean(prefs.get(DEFAULT_RECURSIVE_NAMING, "false"));
+        return defaultRecursive;
     }
 
     @Override
     public boolean isDefaultSaveToSrcOn() {
-        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
-        return Boolean.parseBoolean(prefs.get(DEFAULT_SAVE_TO_SRC, "false"));
+        return saveToSrc;
     }
 
     @Override
     public void setDefaultRecursiveNamingOn(boolean state) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.put(DEFAULT_RECURSIVE_NAMING, Boolean.toString(state));
+        defaultRecursive = state;
     }
 
     @Override
     public void setDefaultSaveToSrcOn(boolean state) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.put(DEFAULT_SAVE_TO_SRC, Boolean.toString(state));
+        saveToSrc = state;
     }
 
     @Override

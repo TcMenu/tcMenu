@@ -352,12 +352,14 @@ public class MenuTree {
 
     /**
      * Initialise the state of each menu item to the default value, should be used during initialisation of a local
-     * menu application.
+     * menu application. Will only take effect when there is no state already stored.
      */
     public void initialiseStateForEachItem() {
         recurseTreeIteratingOnItems(ROOT, (menuItem, subMenuItem) -> {
-            var state = stateForMenuItem(menuItem, null, false, false);
-            changeItem(menuItem, state);
+            if(getMenuState(menuItem) == null) {
+                var state = stateForMenuItem(menuItem, null, false, false);
+                changeItem(menuItem, state);
+            }
         });
     }
 }

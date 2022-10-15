@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.persist;
 import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ class JsonMenuItemSerializerTest {
             "  {\n" +
             "    \"parentId\": 3,\n" +
             "    \"type\": \"enumItem\",\n" +
+            "    \"defaultValue\": \"1\",\n" +
             "    \"item\": {\n" +
             "      \"enumEntries\": [\n" +
             "        \"Item1\",\n" +
@@ -74,6 +76,7 @@ class JsonMenuItemSerializerTest {
             "  {\n" +
             "    \"parentId\": 3,\n" +
             "    \"type\": \"analogItem\",\n" +
+            "    \"defaultValue\": \"100\",\n" +
             "    \"item\": {\n" +
             "      \"maxValue\": 255,\n" +
             "      \"offset\": 102,\n" +
@@ -149,6 +152,7 @@ class JsonMenuItemSerializerTest {
             "  {\n" +
             "    \"parentId\": 3,\n" +
             "    \"type\": \"enumItem\",\n" +
+            "    \"defaultValue\": \"1\",\n" +
             "    \"item\": {\n" +
             "      \"enumEntries\": [\n" +
             "        \"Item1\",\n" +
@@ -165,6 +169,7 @@ class JsonMenuItemSerializerTest {
             "  {\n" +
             "    \"parentId\": 3,\n" +
             "    \"type\": \"analogItem\",\n" +
+            "    \"defaultValue\": \"100\",\n" +
             "    \"item\": {\n" +
             "      \"maxValue\": 255,\n" +
             "      \"offset\": 102,\n" +
@@ -262,8 +267,12 @@ class JsonMenuItemSerializerTest {
         items.add(new PersistedMenu(ROOT, DomainFixtures.aFloatMenu("def", 2)));
         SubMenuItem subMenuItem = aSubMenu("ghi", 3);
         items.add(new PersistedMenu(ROOT, subMenuItem));
-        items.add(new PersistedMenu(subMenuItem, DomainFixtures.anEnumItem("xyz", 4)));
-        items.add(new PersistedMenu(subMenuItem, DomainFixtures.anAnalogItem("fhs", 5)));
+        PersistedMenu enumItem = new PersistedMenu(subMenuItem, DomainFixtures.anEnumItem("xyz", 4));
+        enumItem.setDefaultValue("1");
+        items.add(enumItem);
+        PersistedMenu analogItem = new PersistedMenu(subMenuItem, DomainFixtures.anAnalogItem("fhs", 5));
+        analogItem.setDefaultValue("100");
+        items.add(analogItem);
         items.add(new PersistedMenu(subMenuItem, DomainFixtures.anActionMenu("oewue", 6)));
         items.add(new PersistedMenu(subMenuItem, DomainFixtures.aLargeNumber("lge", 7, 8, true)));
         items.add(new PersistedMenu(subMenuItem, DomainFixtures.anIpAddressMenu("ip", 8)));
@@ -278,6 +287,7 @@ class JsonMenuItemSerializerTest {
         MenuTree tree = new MenuTree();
         for(var m : menus) {
             tree.addMenuItem((SubMenuItem) tree.getMenuById(m.getParentId()).orElseThrow(), m.getItem());
+            if(m.getDefaultValue() != null) MenuItemHelper.setMenuState(m.getItem(), m.getDefaultValue(), tree);
         }
 
         var ser = serializer.itemsToCopyText(tree.getMenuById(3).orElseThrow(), tree);
@@ -291,5 +301,9 @@ class JsonMenuItemSerializerTest {
         assertEquals(tree.getMenuById(7).orElseThrow(), copiedData.get(3).getItem());
         assertEquals(tree.getMenuById(8).orElseThrow(), copiedData.get(4).getItem());
         assertEquals(tree.getMenuById(9).orElseThrow(), copiedData.get(5).getItem());
+        assertEquals(1, MenuItemHelper.getValueFor(tree.getMenuById(4).orElseThrow(), tree, 0));
+        assertEquals(100, MenuItemHelper.getValueFor(tree.getMenuById(5).orElseThrow(), tree, 0));
+        assertEquals("1", copiedData.get(0).getDefaultValue());
+        assertEquals("100", copiedData.get(1).getDefaultValue());
     }
 }

@@ -51,11 +51,15 @@ public class GeneralSettingsController {
     public TableView<NameWithVersion> versionsTable;
     public ListView<String> additionalPathsList;
     public Button removePathBtn;
+    public ComboBox<String> sketchSearchDepthCombo;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
     private CodePluginManager pluginManager;
     private ArduinoLibraryInstaller installer;
+
+    private static final List<String> recurseLevels = List.of("Do not follow sketch sub directories", "Follow sketch sub directories one level",
+            "Follow sketch sub directories two levels", "Follow sketch sub directories three levels");
 
     public void initialise(ConfigurationStorage storage, LibraryVersionDetector versionDetector,
                            ArduinoLibraryInstaller installer, CodePluginManager pluginManager,
@@ -96,6 +100,9 @@ public class GeneralSettingsController {
 
         additionalPathsList.getSelectionModel().selectedItemProperty().addListener((observableValue, s1, s2) ->
                 removePathBtn.setDisable(additionalPathsList.getSelectionModel().getSelectedItem() == null));
+
+        sketchSearchDepthCombo.setItems(FXCollections.observableArrayList(recurseLevels));
+        sketchSearchDepthCombo.getSelectionModel().select(storage.getMenuProjectMaxLevel());
 
         List<String> additionalPaths = storage.getAdditionalPluginPaths();
         additionalPathsList.setItems(FXCollections.observableList(additionalPaths));
@@ -312,6 +319,13 @@ public class GeneralSettingsController {
         paths.remove(sel);
         storage.setAdditionalPluginPaths(paths);
         refreshAdditionalPaths(paths);
+    }
+
+    public void searchDepthHasChanged(ActionEvent actionEvent) {
+        var level = sketchSearchDepthCombo.getSelectionModel().getSelectedIndex();
+        if(level != storage.getMenuProjectMaxLevel()) {
+            storage.setMenuProjectMaxLevel(level);
+        }
     }
 
     public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo available, VersionInfo installed) { }

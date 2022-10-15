@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -12,19 +13,20 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="419.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="635.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
   <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="252.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="348.0" minWidth="10.0" prefWidth="348.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="257.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="370.0" minWidth="10.0" prefWidth="370.0" />
   </columnConstraints>
   <rowConstraints>
-    <RowConstraints maxHeight="98.0" minHeight="4.0" prefHeight="32.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="282.0" minHeight="10.0" prefHeight="233.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="161.0" minHeight="6.0" prefHeight="106.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="161.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="98.0" minHeight="4.0" prefHeight="39.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="282.0" minHeight="10.0" prefHeight="239.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="161.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="200.0" minHeight="6.0" prefHeight="124.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="161.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <ImageView fitHeight="233.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
+      <ImageView fitHeight="235.0" fitWidth="252.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
          <image>
             <Image url="@../img/menu-icon-large.png" />
          </image>
@@ -42,19 +44,20 @@
       </Text>
       <VBox prefHeight="248.0" prefWidth="348.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="A new version of tcMenu has been installed! If you're new to TcMenu then we recommend that you watch the getting started video first." wrappingWidth="346.103515625" />
+            <Label fx:id="tcMenuVersionField" text="You've installed TcMenu Version X.X" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="If you're new to TcMenu here are a few links to get you quickly up and running:" wrappingWidth="367.103515625" />
             <Hyperlink onAction="#onGettingStartedVideo" text="Getting started video on youtube" />
             <Hyperlink onAction="#onTcMenuDocs" text="TcMenu documentation" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Releasing a UI on three platforms costs money, licenses, certificates etc. Please consider sponsoring us at the link below." wrappingWidth="338.9375" />
             <Hyperlink onAction="#onSponsorOptions" text="One off payment or monthly sponsorship options" />
          </children>
       </VBox>
-      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode" prefHeight="100.0" prefWidth="208.0" text="Light mode" GridPane.rowIndex="2">
+      <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode" prefHeight="100.0" prefWidth="208.0" text="Light mode" GridPane.rowIndex="3" GridPane.valignment="TOP">
          <graphic>
             <ImageView fitHeight="83.0" fitWidth="118.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -66,7 +69,7 @@
             <Insets left="4.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode" text="Dark mode" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode" text="Dark mode" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.valignment="TOP">
          <graphic>
             <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -75,6 +78,11 @@
             </ImageView>
          </graphic>
       </Button>
+      <Label text="Select color scheme:" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

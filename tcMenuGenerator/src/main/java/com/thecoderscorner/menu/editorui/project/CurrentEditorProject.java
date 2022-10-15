@@ -125,7 +125,13 @@ public class CurrentEditorProject {
 
     public void saveProject(EditorSaveMode saveMode) {
         if(fileName.isEmpty() || saveMode == EditorSaveMode.SAVE_AS) {
-            fileName = editorUI.findFileNameFromUser(false);
+            var name = editorUI.findFileNameFromUser(false);
+            if(name.isEmpty()) {
+                editorUI.alertOnError("No selected file", "No file was selected so project has not been saved.");
+                return;
+            } else {
+                fileName = name;
+            }
         }
 
         fileName.ifPresent((file)-> {

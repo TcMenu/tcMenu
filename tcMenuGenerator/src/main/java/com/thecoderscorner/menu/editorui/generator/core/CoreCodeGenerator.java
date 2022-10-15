@@ -7,7 +7,9 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
@@ -28,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -216,25 +219,48 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         List<List<BuildStructInitializer>> itemsInOrder = new ArrayList<>(100);
         for (int i = 0; i < items.size(); i++) {
 
-            if (items.get(i).hasChildren()) {
+            MenuItem item = items.get(i);
+            if (item.hasChildren()) {
                 int nextIdx = i + 1;
                 String nextSub = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
 
-                List<MenuItem> childItems = menuTree.getMenuItems(items.get(i));
+                List<MenuItem> childItems = menuTree.getMenuItems(item);
                 String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
-                itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(menuNameFor(items.get(i)), nextSub, nextChild))
+                itemsInOrder.add(MenuItemHelper.visitWithResult(item,
+                        new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild, false))
                         .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
                 int nextIdx = i + 1;
+                Object defVal = MenuItemHelper.getValueFor(item, menuTree, MenuItemHelper.getDefaultFor(item));
                 String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
-                itemsInOrder.add(MenuItemHelper.visitWithResult(items.get(i),
-                        new MenuItemToEmbeddedGenerator(menuNameFor(items.get(i)), next))
+                itemsInOrder.add(MenuItemHelper.visitWithResult(item,
+                        new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null, toEmbeddedCppValue(item, defVal)))
                         .orElse(Collections.emptyList()));
             }
         }
         return itemsInOrder;
+    }
+
+    private String toEmbeddedCppValue(MenuItem item, Object defaultValue) {
+        if(defaultValue instanceof BigDecimal bd && item instanceof EditableLargeNumberMenuItem lge) {
+            boolean neg = bd.doubleValue() < 0.0;
+            long whole = Math.abs(bd.longValue());
+            long fraction = (long)(((Math.abs(bd.doubleValue()) - (double) whole) + 0.0000001) * (Math.pow(10, lge.getDecimalPlaces())));
+            return String.format("LargeFixedNumber(%dU, %dU, %s)", whole, fraction, neg);
+        } else if(defaultValue instanceof String s) {
+            return "\"" + defaultValue + "\"";
+        } else if(defaultValue instanceof PortableColor c && item instanceof Rgb32MenuItem rgbItem) {
+            if(rgbItem.isIncludeAlphaChannel()) {
+                return String.format("RgbColor32(%d, %d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            } else {
+                return String.format("RgbColor32(%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue());
+            }
+        } else if(defaultValue instanceof CurrentScrollPosition sc && item instanceof ScrollChoiceMenuItem scrollItem) {
+            return Integer.toString(sc.getPosition());
+        } else {
+            return Objects.toString(defaultValue);
+        }
     }
 
     protected Map<MenuItem, CallbackRequirement> callBackFunctions(MenuTree menuTree) {

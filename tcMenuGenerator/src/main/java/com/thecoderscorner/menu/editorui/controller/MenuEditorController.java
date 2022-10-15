@@ -100,6 +100,7 @@ public class MenuEditorController {
     private ConfigurationStorage configStore;
     private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
     private LibraryVersionDetector libVerDetector;
+    private int menuToProjectMaxLevels = 1;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
@@ -135,6 +136,8 @@ public class MenuEditorController {
             if(libsChanged) Platform.runLater(this::populateAllMenus);
         });
 
+        menuToProjectMaxLevels = storage.getMenuProjectMaxLevel();
+
         executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
     }
 
@@ -144,8 +147,8 @@ public class MenuEditorController {
 
     private void populateAllMenus() {
         if(configStore.isUsingArduinoIDE()) {
-            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples");
-            populateMenu(menuSketches, installer.getArduinoDirectory(), "");
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples", 0);
+            populateMenu(menuSketches, installer.getArduinoDirectory(), "", 0);
         }
         darkModeMenuFlag.setSelected(BaseDialogSupport.getTheme().equals("darkMode"));
     }
@@ -154,18 +157,24 @@ public class MenuEditorController {
         return editorProject;
     }
 
-    private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir) {
+    private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir, int level) {
         if(maybeDir.isPresent()) {
-            try {
-                toPopulate.getItems().clear();
-                Files.list(maybeDir.get().resolve(subDir))
-                        .filter(Files::isDirectory)
-                        .filter(this::hasEmfFile)
-                        .forEach(path -> {
-                            var item = new javafx.scene.control.MenuItem(path.getFileName().toString());
-                            item.setOnAction(e-> openFirstEMF(path));
+            toPopulate.getItems().clear();
+            Path subResolved = maybeDir.get().resolve(subDir);
+            try(var fileStream = Files.list(subResolved)) {
+                for(var file : fileStream.toList()) {
+                    if (hasEmfFile(file)) {
+                        var item = new javafx.scene.control.MenuItem(file.getFileName().toString());
+                        item.setOnAction(e -> openFirstEMF(file));
+                        toPopulate.getItems().add(item);
+                    } else if (Files.isDirectory(file) && level < menuToProjectMaxLevels) {
+                        var item = new javafx.scene.control.Menu(file.getFileName().toString());
+                        populateMenu(item, Optional.of(subResolved), file.getFileName().toString(), level + 1);
+                        if(!item.getItems().isEmpty()) {
                             toPopulate.getItems().add(item);
-                        });
+                        }
+                    }
+                }
             } catch (IOException e) {
                 logger.log(ERROR, "Unable to populate menus due to exception", e);
             }
@@ -237,7 +246,7 @@ public class MenuEditorController {
 
         editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), gen, this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
-                    ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel());
+                    ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel(editorProject.getMenuTree()));
                     scrollPane.setFitToWidth(true);
                     scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
                     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);

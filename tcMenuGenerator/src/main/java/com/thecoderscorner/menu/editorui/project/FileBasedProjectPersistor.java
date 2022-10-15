@@ -10,6 +10,7 @@ import com.google.gson.*;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
@@ -58,7 +59,10 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         try (Reader reader = new BufferedReader(new FileReader(fileName))) {
             PersistedProject prj = serializer.getGson().fromJson(reader, PersistedProject.class);
             MenuTree tree = new MenuTree();
-            prj.getItems().forEach((item) -> tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem()));
+            prj.getItems().forEach((item) -> {
+                tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem());
+                if(item.getDefaultValue() != null) MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
+            });
             return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName());
         }
     }

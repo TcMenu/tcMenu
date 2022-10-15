@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -52,6 +53,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected VariableNameGenerator variableNameGenerator;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
     private T menuItem;
+    MenuTree menuTree;
     private final String urlDocs;
 
     private TextField idField;
@@ -73,7 +75,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
         this.urlDocs = urlDocs;
     }
 
-    public GridPane initPanel() {
+    public GridPane initPanel(MenuTree tree) {
+        this.menuTree = tree;
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);

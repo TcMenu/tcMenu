@@ -12,7 +12,9 @@ import javafx.scene.control.TextFormatter;
 import java.util.regex.Pattern;
 
 public class TextFormatterUtils {
-    private static final Pattern INTEGER_MATCH = Pattern.compile("[-]?[\\d]*");
+    public static final Pattern INTEGER_MATCH = Pattern.compile("[-]?[\\d]*");
+    public static final Pattern FLOAT_MATCH = Pattern.compile("[-]?[\\de.]*");
+    public static final Pattern PORTABLE_COLOR_MATCH = Pattern.compile("#[0-9A-Fa-f]*");
 
     public static void applyIntegerFormatToField(TextField field) {
         field.setTextFormatter( new TextFormatter<>(c ->
@@ -22,6 +24,17 @@ public class TextFormatterUtils {
             }
 
             return (INTEGER_MATCH.matcher(c.getControlNewText()).matches()) ? c : null;
+        }));
+    }
+
+    public static void applyFormatToField(TextField field, Pattern format) {
+        field.setTextFormatter( new TextFormatter<>(c ->
+        {
+            if (c.getControlNewText().isEmpty()) {
+                return c;
+            }
+
+            return (format.matcher(c.getControlNewText()).matches()) ? c : null;
         }));
     }
 }

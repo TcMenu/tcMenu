@@ -138,7 +138,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showSplashScreen(Consumer<String> themeChangeListener) {
         logger.log(INFO, "Showing splash screen");
-        new SplashScreenDialog(mainStage, this, themeChangeListener, true);
+        new SplashScreenDialog(mainStage, this, themeChangeListener, configStore, true);
     }
 
     @Override

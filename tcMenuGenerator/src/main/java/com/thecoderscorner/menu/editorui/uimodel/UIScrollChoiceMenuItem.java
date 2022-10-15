@@ -9,8 +9,11 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -31,6 +34,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
     private TextField eepromOffsetField;
     private TextField variableField;
     private ComboBox<TidyScrollChoiceValue> modeCombo;
+    private TextField defaultValueField;
 
     public UIScrollChoiceMenuItem(ScrollChoiceMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                   BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -63,6 +67,18 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         }
 
         getChangedDefaults(builder, errors);
+
+        try {
+            String text = defaultValueField.getText();
+            int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
+            if (value < 0 || value > numItems) {
+                errors.add(new FieldError("Value must be between 0 and " + numItems, "DefaultValue"));
+            } else {
+                MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
+            }
+        } catch(Exception ex) {
+            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+        }
         return getItemOrReportError(builder.menuItem(), errors);
     }
 
@@ -121,6 +137,14 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         grid.add(variableField, 1, idx);
 
         enableNeededFieldsBasedOnMode(getMenuItem().getChoiceMode());
+
+        idx++;
+        grid.add(new Label("Default index (0 based)"), 0, idx);
+        var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, new CurrentScrollPosition(0, ""));
+        defaultValueField = new TextField(Integer.toString(value.getPosition()));
+        defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
+        grid.add(defaultValueField, 1, idx);
 
         idx++;
 

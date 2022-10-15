@@ -7,6 +7,7 @@ import java.util.Objects;
  * It can convert to and from web color format strings.
  */
 public class PortableColor {
+    public static final PortableColor BLACK = new PortableColor(0,0, 0);
     private final int red;
     private final int green;
     private final int blue;

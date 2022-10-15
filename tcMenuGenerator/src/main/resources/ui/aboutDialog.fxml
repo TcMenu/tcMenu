@@ -19,9 +19,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="327.0" prefWidth="427.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
+<BorderPane prefHeight="356.0" prefWidth="552.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AboutController">
    <top>
-      <ImageView fitHeight="76.0" fitWidth="418.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+      <ImageView fitHeight="94.0" fitWidth="544.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
             <Image url="@../img/logo.png" />
          </image>
@@ -44,37 +44,37 @@
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <center>
-      <GridPane prefHeight="213.0" prefWidth="425.0" BorderPane.alignment="CENTER">
+      <GridPane prefHeight="222.0" prefWidth="544.0" BorderPane.alignment="CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="10.0" prefWidth="167.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="72.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="198.0" minWidth="10.0" prefWidth="186.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="80.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="24.0" minHeight="10.0" prefHeight="19.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="65.0" minHeight="10.0" prefHeight="61.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="28.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="67.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="65.0" minHeight="7.0" prefHeight="31.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="68.0" minHeight="3.0" prefHeight="7.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="61.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="98.0" minHeight="10.0" prefHeight="47.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ImageView fitHeight="165.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="6">
+            <ImageView fitHeight="190.0" fitWidth="214.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" GridPane.rowSpan="6" GridPane.valignment="TOP">
                <image>
                   <Image url="@../img/menu-icon-large.png" />
                </image>
             </ImageView>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Embedded form designer" GridPane.columnIndex="1" GridPane.columnSpan="2">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Embedded form designer" wrappingWidth="488.986328125" GridPane.columnSpan="2147483647">
                <font>
-                  <Font name="System Bold" size="12.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Text>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Version" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Built on" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2022 by TheCodersCorner.com" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <Label fx:id="apiVersion" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Label fx:id="buildDateLabel" prefHeight="17.0" prefWidth="121.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Label text="Thanks to both OpenJDK, OpenJFX for the runtime and and JMetro for the theme that we use." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2022 by TheCodersCorner.com" wrappingWidth="341.3203125" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
+            <Label fx:id="apiVersion" prefHeight="17.0" prefWidth="246.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label fx:id="buildDateLabel" prefHeight="17.0" prefWidth="245.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label text="Thanks to both OpenJDK, OpenJFX for the runtime and and JMetro for the theme that we use." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.valignment="TOP" />
          </children>
       </GridPane>
    </center>

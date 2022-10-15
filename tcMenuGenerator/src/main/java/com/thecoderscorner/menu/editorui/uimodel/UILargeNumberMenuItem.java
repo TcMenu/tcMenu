@@ -9,13 +9,16 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     private TextField decimalPlaces;
     private TextField totalDigits;
     private CheckBox negativeAllowedCheck;
+    private TextField defaultValueField;
 
     public UILargeNumberMenuItem(EditableLargeNumberMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen,
                                  BiConsumer<MenuItem, MenuItem> changeConsumer) {
@@ -45,12 +49,26 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
             errors.add(new FieldError("Whole part cannot be larger than 9 figures", "Total Digits"));
         }
 
+        boolean negAllowed = negativeAllowedCheck.isSelected();
         var builder = EditableLargeNumberMenuItemBuilder.aLargeNumberItemBuilder()
                 .withExisting(getMenuItem())
-                .withNegativeAllowed(negativeAllowedCheck.isSelected())
+                .withNegativeAllowed(negAllowed)
                 .withDecimalPlaces(dp)
                 .withTotalDigits(tot);
         getChangedDefaults(builder, errors);
+
+        try {
+            String text = defaultValueField.getText();
+            var value = StringHelper.isStringEmptyOrNull(text) ? BigDecimal.ZERO : new BigDecimal(text);
+            if (value.doubleValue() < 0 && !negAllowed) {
+                errors.add(new FieldError("Value can't be negative", "DefaultValue"));
+            } else {
+                MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
+            }
+        } catch(Exception ex) {
+            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+        }
+
         return getItemOrReportError(builder.menuItem(), errors);
     }
 
@@ -73,11 +91,20 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(totalDigits, 1, idx);
 
         idx++;
+        grid.add(new Label("Default value"), 0, idx);
+        var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, BigDecimal.ZERO);
+        defaultValueField = new TextField(value.toString());
+        defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        TextFormatterUtils.applyFormatToField(defaultValueField, TextFormatterUtils.FLOAT_MATCH);
+        grid.add(defaultValueField, 1, idx);
+
+        idx++;
         negativeAllowedCheck = new CheckBox("Allow negative values");
         negativeAllowedCheck.setOnAction(this::checkboxChanged);
         negativeAllowedCheck.setId("NegAllowCheck");
         negativeAllowedCheck.setSelected(getMenuItem().isNegativeAllowed());
         grid.add(negativeAllowedCheck, 1, idx);
+
         return idx;
     }
 }

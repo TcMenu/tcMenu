@@ -28,6 +28,7 @@ public class JsonMenuItemSerializer {
     private final static System.Logger logger = System.getLogger(JsonMenuItemSerializer.class.getSimpleName());
     private static final String PARENT_ID = "parentId";
     private static final String TYPE_ID = "type";
+    private static final String DEF_VALUE_ID = "defaultValue";
     private static final String ITEM_ID = "item";
 
     private final Gson gson;
@@ -47,7 +48,11 @@ public class JsonMenuItemSerializer {
         ArrayList<PersistedMenu> list = new ArrayList<>();
         List<MenuItem> items = menuTree.getMenuItems(node);
         for (MenuItem item : items) {
-            list.add(new PersistedMenu(node, item));
+            PersistedMenu persistedMenu = new PersistedMenu(node, item);
+            if(menuTree.getMenuState(item) != null) {
+                persistedMenu.setDefaultValue(MenuItemHelper.getValueFor(item, menuTree, MenuItemHelper.getDefaultFor(item)).toString());
+            }
+            list.add(persistedMenu);
             if (item.hasChildren()) {
                 list.addAll(populateListInOrder(MenuItemHelper.asSubMenu(item), menuTree));
             }
@@ -79,6 +84,9 @@ public class JsonMenuItemSerializer {
         var items = copyTextToItems(tcMenuCopy);
         for (var item : items) {
             tree.addMenuItem(tree.getSubMenuById(item.getParentId()).orElse(MenuTree.ROOT), item.getItem());
+            if(item.getDefaultValue() != null) {
+                MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
+            }
         }
         return tree;
     }
@@ -108,6 +116,7 @@ public class JsonMenuItemSerializer {
                 JsonObject ele = new JsonObject();
                 ele.addProperty(PARENT_ID, itm.getParentId());
                 ele.addProperty(TYPE_ID, itm.getType());
+                ele.addProperty(DEF_VALUE_ID, itm.getDefaultValue());
                 ele.add(ITEM_ID, ctx.serialize(itm.getItem()));
                 arr.add(ele);
             });
@@ -142,12 +151,17 @@ public class JsonMenuItemSerializer {
             ja.forEach(ele -> {
                 String ty = ele.getAsJsonObject().get(TYPE_ID).getAsString();
                 int parentId = ele.getAsJsonObject().get("parentId").getAsInt();
+                String defVal = null;
+                if(ele.getAsJsonObject().has(DEF_VALUE_ID)) {
+                    defVal = ele.getAsJsonObject().get(DEF_VALUE_ID).getAsString();
+                }
                 Class<? extends MenuItem> c = mapOfTypes.get(ty);
                 if (c != null) {
                     MenuItem item = ctx.deserialize(ele.getAsJsonObject().getAsJsonObject(ITEM_ID), c);
                     PersistedMenu m = new PersistedMenu();
                     m.setItem(item);
                     m.setParentId(parentId);
+                    m.setDefaultValue(defVal);
                     m.setType(ty);
                     list.add(m);
                 } else {

@@ -107,7 +107,7 @@ public abstract class UIMenuItemTestBase {
         Platform.runLater(() -> {
             BorderPane borderLayout = new BorderPane();
             borderLayout.setMinSize(500, 500);
-            borderLayout.centerProperty().set(uiSubItem.get().initPanel());
+            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree));
             dialogPane.getChildren().add(borderLayout);
             stage.show();
             latch.countDown();

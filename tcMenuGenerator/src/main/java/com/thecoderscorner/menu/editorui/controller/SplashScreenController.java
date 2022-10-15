@@ -1,9 +1,11 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.util.function.Consumer;
@@ -14,10 +16,12 @@ public class SplashScreenController {
     private CurrentProjectEditorUI editorUI;
     private Consumer<String> themeListener;
     public Button closeButton;
+    public Label tcMenuVersionField;
 
-    public void initialise(CurrentProjectEditorUI editorUI, Consumer<String> themeListener) {
+    public void initialise(CurrentProjectEditorUI editorUI, Consumer<String> themeListener, ConfigurationStorage storage) {
         this.editorUI = editorUI;
         this.themeListener = themeListener;
+        this.tcMenuVersionField.setText("You've installed TcMenu Designer " + storage.getVersion());
     }
 
     public void onGettingStartedVideo(ActionEvent actionEvent) {

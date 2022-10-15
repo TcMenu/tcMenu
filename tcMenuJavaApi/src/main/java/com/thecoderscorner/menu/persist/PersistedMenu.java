@@ -33,6 +33,7 @@ public class PersistedMenu {
     private int parentId;
     private MenuItem item;
     private String type;
+    private String defaultValue;
 
     public PersistedMenu() {
         // needed for Jackson
@@ -122,5 +123,13 @@ public class PersistedMenu {
 
     public String getType() {
         return type;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String def) {
+        defaultValue = def;
     }
 }
