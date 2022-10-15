@@ -24,7 +24,7 @@
 #include <BaseDialog.h>
 #include <tcUtil.h>
 #include <ResistiveTouchScreen.h>
-#include "Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
+#include "BspUserSettings.h"
 
 //
 // This section is copied from Adafruit_GFX, it provides support for using Adafruit GFX fonts with this library.
@@ -98,6 +98,8 @@ public:
     int drawAdaFruitFontChar(int16_t x, int16_t y, uint8_t c, const GFXfont *gfxFont);
 };
 
+#if TC_BSP_TOUCH_DEVICE_PRESENT == true
+
 class StBspTouchInterrogator : public iotouch::TouchInterrogator {
 private:
     int width, height;
@@ -106,5 +108,7 @@ public:
     iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation,
                                              const iotouch::CalibrationHandler& calib) override;
 };
+
+#endif // TC_BSP_TOUCH_DEVICE_PRESENT
 
 #endif // TCMENU_ST_CHROMA_ART_H

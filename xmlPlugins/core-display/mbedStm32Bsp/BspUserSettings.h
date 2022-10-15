@@ -12,7 +12,8 @@
 #include "Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_ts.h"
 #include "Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
 
-#include "Utilities/Fonts/fonts.h"
+// define as true if your BSP libraries have a touch screen interface that supports the methods shown below.
+#define TC_BSP_TOUCH_DEVICE_PRESENT true
 
 // Here's the functions we expect to be present, if you don't have these in your setup, you will need to provide them.
 

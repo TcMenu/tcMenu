@@ -16,26 +16,14 @@
 #include "tcMenuStChromaArt.h"
 #include "BspUserSettings.h"
 
-sFONT* safeGetFont(const void* fnt) {
-    if(fnt) return (sFONT*)(fnt);
-    return &Font12;
-}
-
 StChromaArtDrawable::StChromaArtDrawable() {
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, SDRAM_DEVICE_ADDR);
 }
 
 void StChromaArtDrawable::drawText(const Coord &where, const void *font, int mag, const char *text) {
-    BSP_LCD_SetFont(safeGetFont(font));
-    if(mag == 0) {
-        // mag == 0 means sFONT structure, monospaced fonts.
-        BSP_LCD_SetFont(safeGetFont(font));
-        BSP_LCD_SetTextColor(drawColor);
-        BSP_LCD_SetBackColor(backgroundColor);
-        BSP_LCD_DisplayStringAt(where.x, where.y, (uint8_t*)text, LEFT_MODE);
-        return;
-    }
+    if(font == nullptr) return; // font must be defined
+
     // otherwise mag==1 is adafruit proportional font
     int16_t xPos = where.x;
     while(*text && xPos < (int16_t)BSP_LCD_GetXSize()) {
@@ -144,46 +132,41 @@ void StChromaArtDrawable::drawPolygon(const Coord *points, int numPoints, bool f
     }
 }
 
-
 void StChromaArtDrawable::transaction(bool isStarting, bool redrawNeeded) {
 }
 
 Coord StChromaArtDrawable::textExtents(const void *maybeFont, int mag, const char *text, int *baseline) {
-    if(mag == 0) {
-        // bcp font
-        auto *safeFont = safeGetFont(maybeFont);
-        return Coord(safeFont->Width * strlen(text), safeFont->Height);
-    }
-    else if(maybeFont){
-        // adafruit font
-        auto* font = reinterpret_cast<const GFXfont*>(maybeFont);
+    if(maybeFont == nullptr) return Coord(0,0);
 
-        // first we iterate the normal text and get the width
-        int height = 0;
-        int width = 0;
-        int bl = 0;
-        const char* current = text;
-        while(*current && (*current < font->last)) {
-            auto glIdx = uint16_t(*current) - font->first;
-            auto &g = font->glyph[glIdx];
-            width += g.xAdvance;
-            current++;
-        }
+    // adafruit font
+    auto* font = reinterpret_cast<const GFXfont*>(maybeFont);
 
-        // the we get the total base line and height.
-        current = "(|jy";
-        while(*current && (*current < font->last)) {
-            auto glIdx = uint16_t(*current) - font->first;
-            auto &g = font->glyph[glIdx];
-            if (g.height > height) height = g.height;
-            bl = g.height + g.yOffset;
-            current++;
-        }
-        if(baseline) *baseline = bl;
-        return Coord(width, height);
+    // first we iterate the normal text and get the width
+    int height = 0;
+    int width = 0;
+    int bl = 0;
+    const char* current = text;
+    while(*current && (*current < font->last)) {
+        auto glIdx = uint16_t(*current) - font->first;
+        auto &g = font->glyph[glIdx];
+        width += g.xAdvance;
+        current++;
     }
-    return Coord(0,0);
+
+    // the we get the total base line and height.
+    current = "(|jy";
+    while(*current && (*current < font->last)) {
+        auto glIdx = uint16_t(*current) - font->first;
+        auto &g = font->glyph[glIdx];
+        if (g.height > height) height = g.height;
+        bl = g.height + g.yOffset;
+        current++;
+    }
+    if(baseline) *baseline = bl;
+    return Coord(width, height);
 }
+
+#if TC_BSP_TOUCH_DEVICE_PRESENT == true
 
 iotouch::TouchState StBspTouchInterrogator::internalProcessTouch(float *ptrX, float *ptrY, iotouch::TouchInterrogator::TouchRotation rotation,
                                                                  const iotouch::CalibrationHandler& calibrationHandler) {
@@ -201,3 +184,5 @@ StBspTouchInterrogator::StBspTouchInterrogator(int w, int h) {
     height = h;
     BSP_TS_Init(w, h);
 }
+
+#endif // TC_BSP_TOUCH_DEVICE_PRESENT
