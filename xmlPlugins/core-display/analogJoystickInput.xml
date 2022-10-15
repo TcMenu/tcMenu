@@ -12,7 +12,7 @@
        <Platform>ARDUINO_ESP32</Platform>
        <Platform>MBED_RTOS</Platform>
 </SupportedPlatforms>
-    <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.</Description>
+    <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin. Has optional back and next capability</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>joystick.jpg</ImageFile>
@@ -25,9 +25,25 @@
                 <Choice desc="Keys polling, encoder A pin interrupt">SWITCHES_POLL_KEYS_ONLY</Choice>
             </Choices>
         </Property>
-        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="Advanced: IoAbstractionRef (default is Arduino pins)" type="io-device"/>
-        <Property id="JOYSTICK_PIN" name="Analog Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
+        <Property id="JOYSTICK_PIN" name="Analog Y Axis Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
+        <Property id="JOYSTICK_PINX" name="Analog X Axis Pin" initial="A1" desc="The analog pin the joystick is connected" type="pin"
+                  whenProperty="JOYSTICK_NEED_X" isValue="true"/>
+        <Property id="JOYSTICK_PINX_LEFT" name="Voltage level for left" initial="200" desc="Choose the voltage level for when LEFT is selected"
+                  type="choice" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Choices>
+                <Choice desc="Select when voltage is LOW">200</Choice>
+                <Choice desc="Select when voltage is HIGH">201</Choice>
+            </Choices>
+        </Property>
+        <Property id="JOYSTICK_PINX_RIGHT" name="Voltage level for right" initial="201" desc="Choose the voltage level for when RIGHT is selected"
+                  type="choice" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Choices>
+                <Choice desc="Selected when voltage is LOW">200</Choice>
+                <Choice desc="Selected when voltage is HIGH">201</Choice>
+            </Choices>
+        </Property>
         <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
+        <Property id="JOYSTICK_NEED_X" name="X Axis is needed" initial="false" desc="Add Back and next using X axis" type="boolean"/>
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
     </Properties>
 
@@ -40,13 +56,29 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="analogDevice" type="ArduinoAnalogDevice" export="true" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
-        <Variable name="analogDevice" type="MBedAnalogDevice" export="true" whenProperty="TARGET" isValue="MBED_RTOS"/>
+        <Variable name="joystickMultiIo" type="MultiIoAbstraction" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param value="200"/>
+        </Variable>
+        <Variable name="joystickTwoButtonExpander">
+            <Param name="internalAnalogIo()"/>
+            <Param name="${JOYSTICK_PINX}"/>
+            <Param value="0.5F"/>
+        </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="init" object="switches">
-            <Param ioDevice="${SWITCH_IODEVICE}" />
+        <Function name="multiIoAddExpander" object="" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param ref="joystickMultiIo" />
+            <Param ref="joystickIoXAxis" />
+        </Function>
+
+        <Function name="init" object="switches" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param ref="joystickMultiIo" />
+            <Param value="${SW_POLLING_MODE}" />
+            <Param value="${PULLUP_LOGIC}"/>
+        </Function>
+        <Function name="init" object="switches" whenProperty="JOYSTICK_NEED_X" isValue="false">
+            <Param value="internalDigitalIo()" />
             <Param value="${SW_POLLING_MODE}" />
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
@@ -67,6 +99,30 @@
             <Param lambda="onReleaseFn"/>
         </Function>
 
+        <Lambda name="onLeftJoystickMoved" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param type="pinid_t" name="/*key*/"/>
+            <Param type="bool" name="held"/>
+            <Function name="performDirectionMove" object="menuMgr">
+                <Param value="true"/>
+            </Function>
+        </Lambda>
+        <Function name="addSwitch" object="switches" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param value="${JOYSTICK_PINX_LEFT}"/>
+            <Param lambda="onLeftJoystickMoved"/>
+        </Function>
+
+        <Lambda name="onRightJoystickMoved" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param type="pinid_t" name="/*key*/"/>
+            <Param type="bool" name="held"/>
+            <Function name="performDirectionMove" object="menuMgr">
+                <Param value="false"/>
+            </Function>
+        </Lambda>
+        <Function name="addSwitch" object="switches" whenProperty="JOYSTICK_NEED_X" isValue="true">
+            <Param value="${JOYSTICK_PINX_RIGHT}"/>
+            <Param lambda="onRightJoystickMoved"/>
+        </Function>
+
         <Lambda name="analogReadFn">
             <Param type="int" name="val"/>
             <Function name="valueChanged" object="menuMgr">
@@ -74,7 +130,7 @@
             </Function>
         </Lambda>
         <Function name="setupAnalogJoystickEncoder">
-            <Param ref="analogDevice"/>
+            <Param ref="internalAnalogIo()"/>
             <Param value="${JOYSTICK_PIN}"/>
             <Param lambda="analogReadFn"/>
         </Function>
