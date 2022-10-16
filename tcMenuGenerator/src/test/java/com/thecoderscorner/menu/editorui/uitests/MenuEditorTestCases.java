@@ -29,6 +29,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -56,6 +57,8 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirecto
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.pushCtrlAndKey;
+import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
+import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -185,6 +188,7 @@ public class MenuEditorTestCases {
         when(editorProjectUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         assertTrue(project.isDirty());
         pushCtrlAndKey(robot, KeyCode.A);
+        robot.push(new KeyCodeCombination(KeyCode.S, DOWN, DOWN, UP, UP, DOWN));
         verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
 
         pushCtrlAndKey(robot, KeyCode.L);

@@ -26,6 +26,14 @@
             </Choices>
         </Property>
         <Property id="JOYSTICK_PIN" name="Analog Y Axis Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
+        <Property id="JOYSTICK_Y_CENTRE_VALUE" name="Analog Y Axis Centre 0..1000" initial="500" type="int" min="0" max="1000"
+                  desc="Value read on the Y analog pin when the joystick is centred"/>
+        <Property id="JOYSTICK_THRESHOLD_Y" name="Analog Y threshold value in 0..1000" initial="20" type="int" min="0" max="1000"
+                  desc="The threshold is the allowable deviation from the centre value before triggering"/>
+        <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
+        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
+        <Property id="SEPARATOR" name="Optional X Axis for back/next" initial="" desc="Optional settings for X axis" type="separator"/>
+        <Property id="JOYSTICK_NEED_X" name="X Axis is needed" initial="false" desc="Add Back and next using X axis" type="boolean"/>
         <Property id="JOYSTICK_PINX" name="Analog X Axis Pin" initial="A1" desc="The analog pin the joystick is connected" type="pin"
                   whenProperty="JOYSTICK_NEED_X" isValue="true"/>
         <Property id="JOYSTICK_PINX_LEFT" name="Voltage level for left" initial="200" desc="Choose the voltage level for when LEFT is selected"
@@ -42,9 +50,8 @@
                 <Choice desc="Selected when voltage is HIGH">201</Choice>
             </Choices>
         </Property>
-        <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
-        <Property id="JOYSTICK_NEED_X" name="X Axis is needed" initial="false" desc="Add Back and next using X axis" type="boolean"/>
-        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
+        <Property id="JOYSTICK_X_CENTRE_VALUE" name="Analog X Axis Centre 0..1000" initial="500" type="int" min="0" max="1000"
+                  desc="Value read on the X analog pin when the joystick is centred"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -56,13 +63,13 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="joystickMultiIo" type="MultiIoAbstraction" whenProperty="JOYSTICK_NEED_X" isValue="true">
+        <Variable name="joystickMultiIo" type="MultiIoAbstraction" whenProperty="JOYSTICK_NEED_X" isValue="true" export="true">
             <Param value="200"/>
         </Variable>
-        <Variable name="joystickTwoButtonExpander">
+        <Variable name="joystickIoXAxis" type="AnalogJoystickToButtons" whenProperty="JOYSTICK_NEED_X" isValue="true" export="true">
             <Param name="internalAnalogIo()"/>
             <Param name="${JOYSTICK_PINX}"/>
-            <Param value="0.5F"/>
+            <Param value="${JOYSTICK_THRESHOLD_X}"/>
         </Variable>
     </GlobalVariables>
 
