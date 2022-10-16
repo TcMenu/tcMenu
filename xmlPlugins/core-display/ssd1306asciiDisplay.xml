@@ -4,7 +4,7 @@
   ~
   -->
 
-<TcMenuPlugin name="SSD1306ASCII Driver for low memory OLED displays" id="1ec1b247-cc51-49d7-aa5c-dd0d4530751d" subsystem="DISPLAY"
+<TcMenuPlugin name="Custom SSD1306ASCII Plugin for manual configuration" id="1ec1b247-cc51-49d7-aa5c-dd0d4530751d" subsystem="DISPLAY"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>

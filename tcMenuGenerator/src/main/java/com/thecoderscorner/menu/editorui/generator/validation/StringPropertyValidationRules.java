@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * A property validator that can validate string fields, prefer using {@link CannedPropertyValidators} when possible
  */
 public class StringPropertyValidationRules implements PropertyValidationRules {
-    public final static Pattern STR_PATTERN = Pattern.compile("^[\\p{L}\\p{N}\\s\\-_*%()]*$");
+    public final static Pattern STR_PATTERN = Pattern.compile("^[\\p{L}\\p{N}\\s\\-_*%().]*$");
     public final static Pattern VAR_PATTERN = Pattern.compile("^[\\p{L}\\p{N}_]*$");
 
     private boolean variable;

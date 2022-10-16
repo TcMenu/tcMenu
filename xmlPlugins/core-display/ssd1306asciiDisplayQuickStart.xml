@@ -1,0 +1,84 @@
+<!--
+  ~ Copyright (c)  2016-2020 https://www.thecoderscorner.com (Dave Cherry).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  ~
+  -->
+
+<TcMenuPlugin name="Quick Start SSD1306ASCII Plugin for low memory OLED displays" id="5EED8D08-CF04-420E-A190-E40743FEA20F" subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+    </SupportedPlatforms>
+    <Description>Quick start option for SSD1306ASCII that generates the display variable for you. Best for more regular cases. Uses the greiman SSD1306Ascii from github to generate a low memory display renderer for OLED devices using a fixed width font.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ssd1306ascii-display-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>ssd1306ascii.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="Display variable created for you" initial="gfx" desc="Display variable name exactly as you declared it globally in the sketch file" type="variable" />
+        <Property id="DISPLAY_TYPE" name="Display variable type" initial="SSD1306AsciiAvrI2c" desc="Type of the variable as declared in sketch" type="choice">
+            <Choices>
+                <Choice desc="AVR I2C (SSD1306AsciiAvrI2c)">SSD1306AsciiAvrI2c</Choice>
+                <Choice desc="AVR SPI (SSD1306AsciiSpi)">SSD1306AsciiSpi</Choice>
+            </Choices>
+        </Property>
+        <Property id="DEVICE_CONFIGURATION" name="Device type, width and height" initial="Adafruit128x64" type="choice"
+                  desc="The configuration for the display, in terms of size and type">
+            <Choices>
+                <Choice desc="Adafruit 128x64">Adafruit128x64</Choice>
+                <Choice desc="Adafruit 128x32">Adafruit128x32</Choice>
+                <Choice desc="SH1106 128x64">SH1106_128x64</Choice>
+                <Choice desc="SSD1306 96x16">SSD1306_96x16</Choice>
+                <Choice desc="Micro OLED 64x48">MicroOLED64x48</Choice>
+            </Choices>
+        </Property>
+        <Property id="DISPLAY_I2C_ADDR" name="Display I2C Address (usually 0x3c/0x3d)" initial="0x3C"
+                  desc="The I2C Address usually 0x3c or 0x3d" type="hex" whenProperty="DISPLAY_TYPE" isValue="SSD1306AsciiAvrI2c"/>
+        <Property id="DISPLAY_SPI_CS" name="Display SPI CS Pin" initial="-1" desc="The SPI chip select pin" type="pin"
+                  whenProperty="DISPLAY_TYPE" isValue="SSD1306AsciiSpi"/>
+        <Property id="DISPLAY_SPI_DC" name="Display SPI DC Pin" initial="-1" desc="The SPI data control pin" type="pin"
+                  whenProperty="DISPLAY_TYPE" isValue="SSD1306AsciiSpi"/>
+        <Property id="CHAR_WIDTH" name="Number of characters horizontally" initial="20" desc="The number of characters across the display" type="int" min="2" max="99"/>
+        <Property id="TITLE_FONT" name="Font to use for title" initial="Arial14" desc="The font that is used to render the title" type="variable" />
+        <Property id="ITEM_FONT" name="Monospace font to draw items" initial="System5x7" desc="Monospace font that is used to render item text" type="variable" />
+    </Properties>
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="ssd1306AsciiSupport/ssd1306asciiRenderer.cpp" />
+        <SourceFile name="ssd1306AsciiSupport/ssd1306asciiRenderer.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="SSD1306Ascii.h" inSource="false" priority="high"/>
+        <Header name="${DISPLAY_TYPE}.h" inSource="false"/>
+        <Header name="ssd1306asciiRenderer.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" />
+        <Variable name="renderer" type="SSD1306AsciiRenderer" export="true" progmem="false">
+            <Param value="${CHAR_WIDTH}"/>
+            <Param value="${TITLE_FONT}"/>
+            <Param value="${ITEM_FONT}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="begin" object="${DISPLAY_VARIABLE}"  whenProperty="DISPLAY_TYPE" isValue="SSD1306AsciiSpi">
+            <Param ref="${DEVICE_CONFIGURATION}"/>
+            <Param value="${DISPLAY_SPI_CS}"/>
+            <Param value="${DISPLAY_SPI_DC}"/>
+        </Function>
+        <Function name="begin" object="${DISPLAY_VARIABLE}" whenProperty="DISPLAY_TYPE" isValue="SSD1306AsciiAvrI2c">
+            <Param ref="${DEVICE_CONFIGURATION}"/>
+            <Param value="${DISPLAY_I2C_ADDR}"/>
+        </Function>
+
+        <Function name="setGraphicsDevice" object="renderer">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

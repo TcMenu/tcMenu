@@ -26,9 +26,9 @@
             </Choices>
         </Property>
         <Property id="JOYSTICK_PIN" name="Analog Y Axis Pin" initial="A0" desc="The analog pin the joystick is connected" type="pin"/>
-        <Property id="JOYSTICK_Y_CENTRE_VALUE" name="Analog Y Axis Centre 0..1000" initial="500" type="int" min="0" max="1000"
+        <Property id="JOYSTICK_Y_CENTRE_VALUE" name="Analog Y Axis Centre 0.0 to 1.0" initial="0.5" type="text"
                   desc="Value read on the Y analog pin when the joystick is centred"/>
-        <Property id="JOYSTICK_THRESHOLD_Y" name="Analog Y threshold value in 0..1000" initial="20" type="int" min="0" max="1000"
+        <Property id="JOYSTICK_THRESHOLD_Y" name="Analog Y threshold value in 0.0 to 1.0" initial="0.05" type="text"
                   desc="The threshold is the allowable deviation from the centre value before triggering"/>
         <Property id="BUTTON_PIN" name="Button Pin" initial="3" desc="The pin on which the button is connected" type="pin"/>
         <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
@@ -50,7 +50,7 @@
                 <Choice desc="Selected when voltage is HIGH">201</Choice>
             </Choices>
         </Property>
-        <Property id="JOYSTICK_X_CENTRE_VALUE" name="Analog X Axis Centre 0..1000" initial="500" type="int" min="0" max="1000"
+        <Property id="JOYSTICK_X_CENTRE_VALUE" name="Analog X Axis Centre 0.0 to 1.0" initial="0.5" type="text"
                   desc="Value read on the X analog pin when the joystick is centred"/>
     </Properties>
 
@@ -69,7 +69,7 @@
         <Variable name="joystickIoXAxis" type="AnalogJoystickToButtons" whenProperty="JOYSTICK_NEED_X" isValue="true" export="true">
             <Param name="internalAnalogIo()"/>
             <Param name="${JOYSTICK_PINX}"/>
-            <Param value="${JOYSTICK_THRESHOLD_X}"/>
+            <Param value="${JOYSTICK_X_CENTRE_VALUE}"/>
         </Variable>
     </GlobalVariables>
 
@@ -77,6 +77,7 @@
         <Function name="multiIoAddExpander" object="" whenProperty="JOYSTICK_NEED_X" isValue="true">
             <Param ref="joystickMultiIo" />
             <Param ref="joystickIoXAxis" />
+            <Param value="5"/>
         </Function>
 
         <Function name="init" object="switches" whenProperty="JOYSTICK_NEED_X" isValue="true">
@@ -137,9 +138,13 @@
             </Function>
         </Lambda>
         <Function name="setupAnalogJoystickEncoder">
-            <Param ref="internalAnalogIo()"/>
+            <Param value="internalAnalogIo()"/>
             <Param value="${JOYSTICK_PIN}"/>
             <Param lambda="analogReadFn"/>
+        </Function>
+        <Function object="reinterpret_cast&lt;JoystickSwitchInput*&gt;(switches.getEncoder())" name="setTolerance" pointer="true">
+            <Param value="${JOYSTICK_Y_CENTRE_VALUE}"/>
+            <Param value="${JOYSTICK_THRESHOLD_Y}"/>
         </Function>
 
         <Function name="initWithoutInput" object="menuMgr">

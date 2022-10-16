@@ -23,6 +23,7 @@
         <Plugin>u8g2SimpleBuilder.xml</Plugin>
         <Plugin>u8g2Display.xml</Plugin>
         <Plugin>tftSpiDisplay.xml</Plugin>
+        <Plugin>ssd1306asciiDisplayQuickStart.xml</Plugin>
         <Plugin>ssd1306asciiDisplay.xml</Plugin>
 
         <!-- input plugins-->
