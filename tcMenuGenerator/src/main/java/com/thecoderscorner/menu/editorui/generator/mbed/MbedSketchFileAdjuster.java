@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.mbed;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
@@ -19,18 +20,20 @@ public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
 
     @Override
     protected String emptyFileContents() {
-        return "#include <mbed.h>\n" +
-                "\n" +
-                "void setup() {\n" +
-                "\n" +
-                "}\n" +
-                "\n" +
-                "int main() {\n" +
-                "    setup();\n" +
-                "    while(1) {\n" +
-                "        taskManager.runLoop();\n" +
-                "    }\n" +
-                "}\n";
+        return """
+                #include <mbed.h>
+
+                void setup() {
+
+                }
+
+                int main() {
+                    setup();
+                    while(1) {
+                        taskManager.runLoop();
+                    }
+                }
+                """;
     }
 
     protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
@@ -42,4 +45,9 @@ public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
         logger.accept(System.Logger.Level.ERROR, "SKETCH ERROR: you are missing taskManager.runLoop(); in your sketch file");
         logger.accept(System.Logger.Level.ERROR, "SKETCH ERROR: this should be added in a loop within the main() method");
     }
+
+    protected Path getCppMainPath(Path path) {
+        return path.resolve("tcmenu_main.cpp");
+    }
+
 }

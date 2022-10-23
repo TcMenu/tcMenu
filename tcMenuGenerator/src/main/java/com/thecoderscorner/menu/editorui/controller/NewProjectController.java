@@ -4,7 +4,6 @@ import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
-import com.thecoderscorner.menu.editorui.generator.ui.LogLine;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -38,9 +37,11 @@ public class NewProjectController {
     private Optional<String> maybeDirectory;
     private CurrentEditorProject project;
     private ConfigurationStorage storage;
+    private EmbeddedPlatforms platforms;
 
     public void initialise(ConfigurationStorage storage, EmbeddedPlatforms platforms, CurrentEditorProject project) {
         this.storage = storage;
+        this.platforms = platforms;
         maybeDirectory = storage.getArduinoOverrideDirectory();
         this.project = project;
         maybeDirectory.ifPresentOrElse(
@@ -108,6 +109,7 @@ public class NewProjectController {
                         Paths.get(maybeDirectory.get()), projName,
                         cppMainCheckbox.isSelected(),
                         platformCombo.getSelectionModel().getSelectedItem(),
+                        platforms,
                         s -> logger.log(INFO, s),
                         namespaceField.getText()
                 );

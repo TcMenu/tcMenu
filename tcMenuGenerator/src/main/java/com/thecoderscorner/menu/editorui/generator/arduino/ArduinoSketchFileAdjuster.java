@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,27 +60,36 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 """;
     }
 
-    /**
-     * Is able to update and round trip an ino file for the items that tcMenu needs.
-     *
-     * Not thread safe, should be created for each run.
-     * @param logger a consumer that handles UI logging
-     * @param inoFile the file to be modified
-     * @param projectName the project name
-     * @param callbacks the list of callbacks.
-     * @throws IOException in the event of an error
-     */
+    @Override
+    public Path createFileIfNeeded(BiConsumer<System.Logger.Level, String> logger, Path dir, CodeGeneratorOptions projectOptions) throws IOException {
+        Path inoFile;
+        this.logger = logger;
+        var path = options.isSaveToSrc() ? dir.resolve("src") : dir;
+        if(options.isUseCppMain()) {
+            inoFile = getCppMainPath(path);
+        }
+        else {
+            inoFile = Paths.get(CoreCodeGenerator.toSourceFile(path, ".ino"));
+        }
+
+        if(Files.exists(inoFile)) return inoFile;
+
+        logger.accept(INFO, "File did not exist, creating " + inoFile);
+        Files.write(inoFile, emptyFileContents().getBytes(), StandardOpenOption.CREATE);
+
+        if(!Files.exists(inoFile)) throw new IOException("Main file not created in " + path);
+        return inoFile;
+    }
+
+    protected Path getCppMainPath(Path path) {
+        return Paths.get(CoreCodeGenerator.toSourceFile(path, "_main.cpp"));
+    }
+
     public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
                                 Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {
 
         this.logger = logger;
         changed = false;
-
-        Path source = Paths.get(inoFile);
-        if (!Files.exists(source)) {
-            logger.accept(INFO, "No existing sketch, generating an empty one");
-            Files.write(source, emptyFileContents().getBytes());
-        }
 
         boolean needsInclude = true;
         boolean needsTaskMgr = true;
@@ -87,6 +97,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         List<String> callbacksDefined = new ArrayList<>();
 
+        Path source = Paths.get(inoFile);
         try(var fileLines = Files.lines(source)) {
             for (String line : fileLines.toList()) {
                 if (line.contains("#include") && line.contains(projectName + "_menu.h")) {
@@ -122,7 +133,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
             logger.accept(INFO, "Writing out changes to INO sketch file");
             chompBlankLines(lines);
-            Files.write(Paths.get(inoFile), lines);
+            Files.write(source, lines);
         }
         else {
             logger.accept(INFO, "No changes to the INO file, not writing out");

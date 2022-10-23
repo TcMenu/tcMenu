@@ -45,7 +45,7 @@ public class ArduinoSketchFileAdjusterTest {
     public void setUp() throws Exception {
         dir = Files.createTempDirectory("tcmenu");
         tree = TestUtils.buildCompleteTree();
-        inoFile = dir.resolve("superProject.ino");
+        inoFile = dir.resolve(dir.getFileName() + ".ino");
         emptyLogger = Mockito.mock(BiConsumer.class);
         adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
 
@@ -94,9 +94,11 @@ public class ArduinoSketchFileAdjusterTest {
 
     @Test
     public void testCreatingFileFromScratch() throws IOException {
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
 
-        List<String> lines = Files.readAllLines(inoFile);
+        var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
+        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
+
+        List<String> lines = Files.readAllLines(file);
 
         // we should have an include, only once.
         ensureLinesContaining(lines, "#include \"superProject_menu.h\"");
@@ -136,9 +138,10 @@ public class ArduinoSketchFileAdjusterTest {
                 + "}\n\n";
         Files.write(inoFile, inoContent.getBytes());
 
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
+        var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
+        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
 
-        List<String> lines = Files.readAllLines(inoFile);
+        List<String> lines = Files.readAllLines(file);
 
         // we should have an include, only once.
         ensureLinesContaining(lines, "#include \"superProject_menu.h\"");
@@ -157,7 +160,7 @@ public class ArduinoSketchFileAdjusterTest {
         ensureDoesNotContainLine(lines, "void CALLBACK_FUNCTION includeOnly(int id)");
 
         // and very importantly, make sure the backup is made
-        Path backup = inoFile.resolveSibling("superProject.ino.backup");
+        Path backup = inoFile.resolveSibling(inoFile + ".backup");
         assertTrue(Files.exists(backup));
         assertEquals(inoContent, new String(Files.readAllBytes(backup)));
     }
@@ -196,10 +199,11 @@ public class ArduinoSketchFileAdjusterTest {
                 """;
         Files.write(inoFile, inoContent.getBytes());
 
-        adjuster.makeAdjustments(emptyLogger, inoFile.toString(), "superProject", callbacks, tree);
+        var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
+        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
 
         // Shouldn't do anything this time around.
-        Path backup = inoFile.resolveSibling("superProject.ino.backup");
+        Path backup = inoFile.resolveSibling(file.toString() + ".backup");
         assertFalse(Files.exists(backup));
     }
 

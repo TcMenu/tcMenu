@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
@@ -135,8 +136,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         return true;
     }
 
-    protected abstract void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions, String projectName) throws TcMenuConversionException;
-
 
     private List<FunctionDefinition> generateReadOnlyLocal() {
         var allFunctions = new ArrayList<FunctionDefinition>();
@@ -182,10 +181,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     private String menuNameFor(MenuItem item) {
-        if(StringHelper.isStringEmptyOrNull(item.getVariableName())) {
+        if (StringHelper.isStringEmptyOrNull(item.getVariableName())) {
             return namingGenerator.makeNameToVar(item);
-        }
-        else return item.getVariableName();
+        } else return item.getVariableName();
     }
 
     private boolean isSecureSubMenu(MenuItem toCheck) {
@@ -199,13 +197,18 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         this.uiLogger = uiLogger;
     }
 
+    @Override
+    public SketchFileAdjuster getSketchFileAdjuster() {
+        return sketchAdjuster;
+    }
+
     protected String getFirstMenuVariable(MenuTree menuTree) {
         return menuTree.getMenuItems(MenuTree.ROOT).stream().findFirst()
                 .map(menuItem -> "menu" + menuNameFor(menuItem))
                 .orElse("");
     }
 
-    protected Collection<BuildStructInitializer> generateMenusInOrder(MenuTree menuTree) {
+    protected Collection<BuildStructInitializer> generateMenusInOrder(MenuTree menuTree) throws TcMenuConversionException {
         List<MenuItem> root = menuTree.getMenuItems(MenuTree.ROOT);
         List<List<BuildStructInitializer>> itemsInOrder = renderMenu(menuTree, root);
         Collections.reverse(itemsInOrder);
@@ -214,7 +217,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 .collect(Collectors.toList());
     }
 
-    protected List<List<BuildStructInitializer>> renderMenu(MenuTree menuTree, Collection<MenuItem> itemsColl) {
+    protected List<List<BuildStructInitializer>> renderMenu(MenuTree menuTree, Collection<MenuItem> itemsColl) throws TcMenuConversionException {
         ArrayList<MenuItem> items = new ArrayList<>(itemsColl);
         List<List<BuildStructInitializer>> itemsInOrder = new ArrayList<>(100);
         for (int i = 0; i < items.size(); i++) {
@@ -227,7 +230,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 List<MenuItem> childItems = menuTree.getMenuItems(item);
                 String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
-                        new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild, false))
+                                new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild, false))
                         .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
@@ -235,32 +238,72 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 Object defVal = MenuItemHelper.getValueFor(item, menuTree, MenuItemHelper.getDefaultFor(item));
                 String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
-                        new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null, toEmbeddedCppValue(item, defVal)))
+                                new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null, toEmbeddedCppValue(item, defVal)))
                         .orElse(Collections.emptyList()));
             }
         }
         return itemsInOrder;
     }
 
-    private String toEmbeddedCppValue(MenuItem item, Object defaultValue) {
-        if(defaultValue instanceof BigDecimal bd && item instanceof EditableLargeNumberMenuItem lge) {
+    private String toEmbeddedCppValue(MenuItem item, Object defaultValue) throws TcMenuConversionException {
+        if (defaultValue instanceof BigDecimal bd && item instanceof EditableLargeNumberMenuItem lge) {
             boolean neg = bd.doubleValue() < 0.0;
             long whole = Math.abs(bd.longValue());
-            long fraction = (long)(((Math.abs(bd.doubleValue()) - (double) whole) + 0.0000001) * (Math.pow(10, lge.getDecimalPlaces())));
+            long fraction = (long) (((Math.abs(bd.doubleValue()) - (double) whole) + 0.0000001) * (Math.pow(10, lge.getDecimalPlaces())));
             return String.format("LargeFixedNumber(%dU, %dU, %s)", whole, fraction, neg);
-        } else if(defaultValue instanceof String s) {
+        } else if (defaultValue instanceof String s && item instanceof EditableTextMenuItem tmi) {
+            return toEmbeddedCppTextValue(tmi, s);
+        } else if (defaultValue instanceof String) {
             return "\"" + defaultValue + "\"";
-        } else if(defaultValue instanceof PortableColor c && item instanceof Rgb32MenuItem rgbItem) {
-            if(rgbItem.isIncludeAlphaChannel()) {
+        } else if (defaultValue instanceof PortableColor c && item instanceof Rgb32MenuItem rgbItem) {
+            if (rgbItem.isIncludeAlphaChannel()) {
                 return String.format("RgbColor32(%d, %d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
             } else {
                 return String.format("RgbColor32(%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue());
             }
-        } else if(defaultValue instanceof CurrentScrollPosition sc && item instanceof ScrollChoiceMenuItem scrollItem) {
+        } else if (defaultValue instanceof CurrentScrollPosition sc && item instanceof ScrollChoiceMenuItem) {
             return Integer.toString(sc.getPosition());
         } else {
             return Objects.toString(defaultValue);
         }
+    }
+
+    private String toEmbeddedCppTextValue(EditableTextMenuItem tmi, String s) throws TcMenuConversionException {
+        switch (tmi.getItemType()) {
+            case PLAIN_TEXT -> {
+                return '\"' + s + '\"';
+            }
+            case IP_ADDRESS -> {
+                var pattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+                var matcher = pattern.matcher(s);
+                if (matcher.matches() && matcher.groupCount() == 4) {
+                    return String.format("IpAddressStorage(%s, %s, %s, %s)", matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4));
+                } else {
+                    return "IpAddressStorage(127, 0, 0, 1)";
+                }
+            }
+            case TIME_24H, TIME_12H, TIME_24_HUNDREDS, TIME_DURATION_SECONDS, TIME_DURATION_HUNDREDS, TIME_24H_HHMM, TIME_12H_HHMM -> {
+                var pattern = Pattern.compile("(\\d+):(\\d+):(\\d+)(:.\\d*)*");
+                var matcher = pattern.matcher(s);
+                if (matcher.matches() && matcher.groupCount() == 4) {
+                    return String.format("TimeStorage(%s, %s, %s, %s)", matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4).substring(1));
+                } else if (matcher.matches() && matcher.groupCount() == 3) {
+                    return String.format("TimeStorage(%s, %s, %s, 0)", matcher.group(1), matcher.group(2), matcher.group(3));
+                } else {
+                    return "TimeStorage(0, 0, 0, 0)";
+                }
+            }
+            case GREGORIAN_DATE -> {
+                var pattern = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
+                var matcher = pattern.matcher(s);
+                if (matcher.matches() && matcher.groupCount() == 3) {
+                    return String.format("DateStorage(%s, %s, %s)", matcher.group(3), matcher.group(2), matcher.group(1));
+                } else {
+                    return "DateStorage(2020, 1, 1)";
+                }
+            }
+        }
+        throw new TcMenuConversionException("Unexpected and unhandled edit type on " + tmi);
     }
 
     protected Map<MenuItem, CallbackRequirement> callBackFunctions(MenuTree menuTree) {
@@ -271,7 +314,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 
-    protected String toSourceFile(Path directory, String ext) {
+    public static String toSourceFile(Path directory, String ext) {
         Path file = directory.getFileName();
         if (file.toString().equals("src")) {
             // special case, go back one more level
@@ -282,7 +325,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     protected void logLine(System.Logger.Level level, String s) {
         var ent = logEntryNum.incrementAndGet();
-        if (uiLogger != null) uiLogger.accept(level,ent + " - " + s);
+        if (uiLogger != null) uiLogger.accept(level, ent + " - " + s);
         logger.log(INFO, s);
     }
 
@@ -311,7 +354,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
                     options.getApplicationName() + "\", \"" + options.getApplicationUUID().toString() + "\" };");
             writer.write(LINE_BREAK);
-            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+            if (hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");
                 writer.write(LINE_BREAK);
             }
@@ -373,7 +416,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     generators.stream().flatMap(ecc -> ecc.getFunctions().stream()).collect(Collectors.toList())
             ));
 
-            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+            if (hasRemotePlugins && requiresGlobalServerDefinition()) {
                 menuTree.getAllMenuItems().stream()
                         .filter(menuItem -> menuItem instanceof CustomBuilderMenuItem custom && custom.getMenuType() == REMOTE_IOT_MONITOR)
                         .findFirst()
@@ -446,7 +489,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write("extern const PROGMEM ConnectorLocalInfo applicationInfo;");
             writer.write(LINE_BREAK);
 
-            if(hasRemotePlugins && requiresGlobalServerDefinition()) {
+            if (hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("extern TcMenuRemoteServer remoteServer;" + LINE_BREAK);
             }
             // and put the exports in the file too
@@ -537,37 +580,52 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         boolean noEeprom = options.getEepromDefinition() instanceof NoEepromDefinition;
         boolean errorFound = false;
 
-        if(!options.getMenuInMenuCollection().getAllDefinitions().isEmpty() &&
+        if (!options.getMenuInMenuCollection().getAllDefinitions().isEmpty() &&
                 !options.getEmbeddedPlatform().equals(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId())) {
             logLine(ERROR, "Menu In Menu is only supported with embedded Java (Raspberry PI / Linux)");
             errorFound = true;
         }
 
-        if(noEeprom && eepromAuthenticator) {
+        if (noEeprom && eepromAuthenticator) {
             logLine(ERROR, "You have selected No EEPROM but then used an EEPROM based authenticator.");
             errorFound = true;
         }
 
         Collection<MenuItem> allItems = menuTree.getAllMenuItems();
 
-        if(allItems.isEmpty()) {
+        if (allItems.isEmpty()) {
             logLine(ERROR, "The menu tree is empty, this is not supported, please add at least one item.");
             errorFound = true;
         }
 
-        if(noEeprom && allItems.stream().anyMatch(mt -> mt instanceof ScrollChoiceMenuItem sc && sc.getChoiceMode() == ARRAY_IN_EEPROM)) {
+        if (noEeprom && allItems.stream().anyMatch(mt -> mt instanceof ScrollChoiceMenuItem sc && sc.getChoiceMode() == ARRAY_IN_EEPROM)) {
             logLine(ERROR, "You have included a scroll choice EEPROM item but have not configured an EEPROM.");
             errorFound = true;
         }
 
-        if(!eepromAuthenticator && allItems.stream().anyMatch(mt -> mt instanceof CustomBuilderMenuItem ci && ci.getMenuType() == AUTHENTICATION)) {
+        if (!eepromAuthenticator && allItems.stream().anyMatch(mt -> mt instanceof CustomBuilderMenuItem ci && ci.getMenuType() == AUTHENTICATION)) {
             logLine(ERROR, "You have included an EEPROM authentication menu item without using EEPROM authentication.");
             errorFound = true;
         }
 
-        if(errorFound) {
+        if (errorFound) {
             logLine(ERROR, "It is highly likely that your menu will not work as expected, please fix any errors before deploying.");
         }
+    }
+
+    public void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions,
+                                   String projectName) throws TcMenuConversionException {
+
+        try {
+            var inoFile = sketchAdjuster.createFileIfNeeded(this::logLine, directory, options);
+            logLine(INFO, "Making adjustments to " + inoFile);
+            sketchAdjuster.makeAdjustments(this::logLine, inoFile.toString(), projectName, callbackFunctions.values(), menuTree);
+        } catch (IOException e) {
+            logger.log(ERROR, "Sketch modification failed", e);
+            throw new TcMenuConversionException("Could not modify sketch", e);
+        }
+
+        // do a couple of final checks and put out warnings if need be
     }
 
     protected abstract String platformIncludes();

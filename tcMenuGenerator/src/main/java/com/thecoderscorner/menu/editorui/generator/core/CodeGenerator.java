@@ -8,13 +8,11 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * An implementation of CodeGenerator interface is used by the code generator UI once all options
@@ -38,4 +36,10 @@ public interface CodeGenerator {
      * @param logLine the logger consumer
      */
     void setLoggerFunction(BiConsumer<System.Logger.Level, String> logLine);
+
+    /**
+     * Gets the sketch file adjuster that can create and maintain sketch files
+     * @return the sketch file adjuster for the build platform.
+     */
+    SketchFileAdjuster getSketchFileAdjuster();
 }

@@ -1,15 +1,11 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.NewProjectDialog;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.base.NodeMatchers;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,17 +22,15 @@ import java.util.Comparator;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.verifyAlertWithText;
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.walk;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class NewProjectDialogTestCases {
     private ConfigurationStorage storage;
     private CurrentEditorProject project;
-    private EmbeddedPlatforms platforms;
+    private PluginEmbeddedPlatformsImpl platforms;
     private NewProjectDialog dialog;
     private Path tempDir;
     private Stage stage;
@@ -48,8 +41,9 @@ public class NewProjectDialogTestCases {
         tempDir = Files.createTempDirectory("test");
 
         platforms = new PluginEmbeddedPlatformsImpl();
+        platforms.setInstallerConfiguration(mock(ArduinoLibraryInstaller.class), mock(ConfigurationStorage.class));
         storage = mock(ConfigurationStorage.class);
-        when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.ofNullable(tempDir.toString()));
+        when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.of(tempDir.toString()));
         project = mock(CurrentEditorProject.class);
         dialog = new NewProjectDialog(stage, storage, platforms, project, false);
     }

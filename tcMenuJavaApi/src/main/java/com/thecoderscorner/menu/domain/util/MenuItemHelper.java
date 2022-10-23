@@ -316,7 +316,7 @@ public class MenuItemHelper {
         if(item == null) {
             return new BooleanMenuState(item, false, false, false);
         }
-        var val = (v!=null) ? v : defaultValueForItem(item);
+        var val = (v!=null) ? v : getDefaultFor(item);
 
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<AnyMenuState>() {
             @Override
@@ -418,60 +418,6 @@ public class MenuItemHelper {
                 setResult(new BooleanMenuState(item, changed, active, false));
             }
         }).orElseThrow();
-    }
-
-    /**
-     * Get the default value for a menu item that could be stored into the state object.
-     * @param item the item
-     * @return the default value
-     */
-    private static Object defaultValueForItem(MenuItem item) {
-        return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<>() {
-            @Override
-            public void visit(AnalogMenuItem item) {
-                setResult(0);
-            }
-
-            @Override
-            public void visit(EnumMenuItem item) {
-                setResult(0);
-            }
-
-            @Override
-            public void visit(EditableTextMenuItem item) {
-                setResult("");
-            }
-
-            @Override
-            public void visit(FloatMenuItem item) {
-                setResult(0.0F);
-            }
-
-            @Override
-            public void visit(ScrollChoiceMenuItem scrollItem) {
-                setResult(new CurrentScrollPosition(0, ""));
-            }
-
-            @Override
-            public void visit(RuntimeListMenuItem listItem) {
-                setResult(List.of());
-            }
-
-            @Override
-            public void visit(EditableLargeNumberMenuItem numItem) {
-                setResult(BigDecimal.ZERO);
-            }
-
-            @Override
-            public void visit(Rgb32MenuItem rgbItem) {
-                setResult(new PortableColor("#000000"));
-            }
-
-            @Override
-            public void anyItem(MenuItem item) {
-                setResult(false);
-            }
-        }).orElse(false);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.core.*;
 import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
@@ -11,25 +12,22 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.remote.ConnectMode;
-import com.thecoderscorner.menu.remote.LocalIdentifier;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Clock;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.END_OF_METHODS_TEXT;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
-import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.ConnectionType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -404,5 +402,19 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     @Override
     public void setLoggerFunction(BiConsumer<System.Logger.Level, String> logLine) {
         loggerDelegate = logLine;
+    }
+
+    @Override
+    public SketchFileAdjuster getSketchFileAdjuster() {
+        return new SketchFileAdjuster() {
+
+            @Override
+            public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName, Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {}
+
+            @Override
+            public Path createFileIfNeeded(BiConsumer<System.Logger.Level, String> logger, Path path, CodeGeneratorOptions projectOptions) throws IOException {
+                throw new IOException("No sketch adjuster on Java");
+            }
+        };
     }
 }

@@ -1,15 +1,15 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.File;
@@ -17,42 +17,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 import static picocli.CommandLine.*;
 
 @Command(name = "create-project")
 public class CreateProjectCommand implements Callable<Integer> {
-
-    private static final String DEFAULT_ARDUINO_SKETCH_STRING = "// default CPP main file for sketch" + LINE_BREAK +
-            "#include <PlatformDetermination.h>" + LINE_BREAK + LINE_BREAK +
-            "#include <TaskManagerIO.h>" + LINE_BREAK + LINE_BREAK +
-            "void setup() {" + LINE_BREAK +
-            "}" + LINE_BREAK + LINE_BREAK +
-            "void loop() {" + LINE_BREAK +
-            "    taskManager.runLoop();" + LINE_BREAK +
-            "}" + LINE_BREAK;
-
-    private static final String DEFAULT_MBED_SKETCH_STRING = "// default CPP main file for sketch" + LINE_BREAK +
-            "#include <PlatformDetermination.h>" + LINE_BREAK + LINE_BREAK +
-            "volatile bool appRunning = true;" + LINE_BREAK + LINE_BREAK +
-            "void setup() {" + LINE_BREAK +
-            "}" + LINE_BREAK + LINE_BREAK +
-            "int main() {" + LINE_BREAK +
-            "    setup();" + LINE_BREAK +
-            "    while(appRunning) {" + LINE_BREAK +
-            "        taskManager.runLoop();" + LINE_BREAK +
-            "    }" + LINE_BREAK +
-            "}" + LINE_BREAK;
-
-    private final PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-
-
     @Option(names = {"-d", "--directory"}, description = "optional directory name (defaults to current)")
     private File projectLocation;
 
@@ -72,8 +46,22 @@ public class CreateProjectCommand implements Callable<Integer> {
     @Option(names = {"-n", "namespace"}, description = "the java package name or C++ namespace")
     private String namespace;
 
+    @Option(names = {"-s", "--src"}, description = "Override save to src default")
+    private boolean[] saveToSrcArr;
+
+    @Option(names = {"-r", "--recursive"}, description = "Override recursive naming default")
+    private boolean[] recursiveNamingArr;
+
+
     @Override
     public Integer call() throws Exception {
+        var platforms = new PluginEmbeddedPlatformsImpl();
+        var prefsStore = new PrefsConfigurationStorage();
+        DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
+        loader.loadPlugins();
+        var versionDetector = MenuEditorApp.createLibraryVersionDetector();
+        platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(versionDetector, loader, prefsStore), prefsStore);
+
         if(projectLocation == null) projectLocation = new File(System.getProperty("user.dir"));
 
         if(!projectLocation.exists()) {
@@ -88,7 +76,7 @@ public class CreateProjectCommand implements Callable<Integer> {
 
         try {
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(platform);
-            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform, System.out::println, namespace);
+            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform, platforms, System.out::println, namespace);
             return 0;
         }
         catch(Exception ex) {
@@ -109,25 +97,21 @@ public class CreateProjectCommand implements Callable<Integer> {
      * @param platform the platform as a SupportedPlatform.
      * @throws IOException when the directory and files are not properly created
      */
-    public void createNewProject(Path location, String newProject, boolean cppMain,
-                                 EmbeddedPlatform platform, Consumer<String> logger,
-                                 String packageOrNamespace) throws IOException {
+    public void createNewProject(Path location, String newProject, boolean cppMain, EmbeddedPlatform platform,
+                                 EmbeddedPlatforms platforms, Consumer<String> logger, String packageOrNamespace) throws IOException {
         var configurationStorage = new PrefsConfigurationStorage();
-
         logger.accept(String.format("Creating directory %s in %s", newProject, location));
         var dir = Paths.get(location.toString(), newProject);
         Files.createDirectory(dir);
 
-        var cppExt = platforms.isMbed(platform) || cppMain;
-        var sketch = dir.resolve(newProject + (cppExt ? ".cpp" : ".ino"));
-        logger.accept(String.format("Creating main project code file: %s", sketch));
-        Files.writeString(sketch, platforms.isMbed(platform) ? DEFAULT_MBED_SKETCH_STRING : DEFAULT_ARDUINO_SKETCH_STRING);
 
-        var projectEmf = dir.resolve(newProject + ".emf");
-        logger.accept(String.format("Creating basic EMF file: %s\n", sketch));
 
-        var recursiveNaming = configurationStorage.isDefaultRecursiveNamingOn();
-        var saveToSrc = configurationStorage.isDefaultSaveToSrcOn();
+        var recursiveNaming = recursiveNamingArr != null && recursiveNamingArr.length > 0 ? recursiveNamingArr[0] : configurationStorage.isDefaultRecursiveNamingOn();
+        var saveToSrc = saveToSrcArr != null && saveToSrcArr.length > 0 ? saveToSrcArr[0] : configurationStorage.isDefaultSaveToSrcOn();
+
+        if(saveToSrc) {
+            Files.createDirectory(dir.resolve("src"));
+        }
 
         if(platforms.isJava(platform) && StringHelper.isStringEmptyOrNull(packageOrNamespace)) {
             throw new IllegalArgumentException("For Java platforms you must provide a package name");
@@ -141,7 +125,19 @@ public class CreateProjectCommand implements Callable<Integer> {
                 .withCppMain(cppMain).withSaveToSrc(saveToSrc).withRecursiveNaming(recursiveNaming)
                 .withPackageNamespace(packageOrNamespace)
                 .codeOptions();
+
+        var projectEmf = dir.resolve(newProject + ".emf");
         persistor.save(projectEmf.toString(), "Project description", tree, generator);
+
+        if(platforms.isJava(platform)) {
+            logger.accept("Java project, all files will be created on first generate");
+        } else{
+            var codeGen = platforms.getCodeGeneratorFor(platform, generator);
+            BiConsumer<System.Logger.Level, String> l = (level, s) -> logger.accept(level + ": " + s);
+            codeGen.setLoggerFunction(l);
+            codeGen.getSketchFileAdjuster().createFileIfNeeded(l, dir, generator);
+        }
+
         logger.accept("Project created!");
     }
 }

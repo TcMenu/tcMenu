@@ -40,13 +40,13 @@ ScrollChoiceMenuItem menuMySubSub1EepromChoice(16, fnMySubSub1EepromChoiceRtCall
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RGBRtCall, rgbAlphaItemRenderFn, "RGB", -1, onRgb)
 Rgb32MenuItem menuMySubSub1RGB(15, fnMySubSub1RGBRtCall, true, RgbColor32(0, 0, 0, 255), &menuMySubSub1EepromChoice);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DateFieldRtCall, dateItemRenderFn, "Date Field", 25, NO_CALLBACK)
-DateFormattedMenuItem menuMySubSub1DateField(fnMySubSub1DateFieldRtCall, 14, &menuMySubSub1RGB);
+DateFormattedMenuItem menuMySubSub1DateField(fnMySubSub1DateFieldRtCall, 14, DateStorage(2020, 1, 1), &menuMySubSub1RGB);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TimeFieldRtCall, timeItemRenderFn, "Time Field", -1, NO_CALLBACK)
-TimeFormattedMenuItem menuMySubSub1TimeField(fnMySubSub1TimeFieldRtCall, 13, (MultiEditWireType)8, &menuMySubSub1DateField);
+TimeFormattedMenuItem menuMySubSub1TimeField(fnMySubSub1TimeFieldRtCall, 13, (MultiEditWireType)8, TimeStorage(0, 0, 0, 0), &menuMySubSub1DateField);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IPAddressRtCall, ipAddressRenderFn, "IP Address", 21, onIpChange)
-IpAddressMenuItem menuMySubSub1IPAddress(fnMySubSub1IPAddressRtCall, 12, &menuMySubSub1TimeField);
+IpAddressMenuItem menuMySubSub1IPAddress(fnMySubSub1IPAddressRtCall, 12, IpAddressStorage(127, 0, 0, 1), &menuMySubSub1TimeField);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TextItemRtCall, textItemRenderFn, "Text Item", 7, NO_CALLBACK)
-TextMenuItem menuMySubSub1TextItem(fnMySubSub1TextItemRtCall, 11, 14, &menuMySubSub1IPAddress);
+TextMenuItem menuMySubSub1TextItem(fnMySubSub1TextItemRtCall, 11, 14, "", &menuMySubSub1IPAddress);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IntLargeRtCall, largeNumItemRenderFn, "Int Large", -1, NO_CALLBACK)
 EditableLargeNumberMenuItem menuMySubSub1IntLarge(fnMySubSub1IntLargeRtCall, 10, 8, 0, false, LargeFixedNumber(0U, 0U, false), &menuMySubSub1TextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DecLargeRtCall, largeNumItemRenderFn, "Dec Large", -1, onDecLarge)

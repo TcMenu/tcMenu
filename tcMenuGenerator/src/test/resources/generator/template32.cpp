@@ -22,9 +22,9 @@ const int allowedPluginVar;
 
 // Global Menu Item declarations
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, headerOnly)
-IpAddressMenuItem menuOverrideSubNameIpItem(fnOverrideSubNameIpItemRtCall, 79, NULL);
+IpAddressMenuItem menuOverrideSubNameIpItem(fnOverrideSubNameIpItemRtCall, 79, IpAddressStorage(127, 0, 0, 1), NULL);
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
-TextMenuItem menuOverrideSubNameTextItem(fnOverrideSubNameTextItemRtCall, 99, 10, &menuOverrideSubNameIpItem);
+TextMenuItem menuOverrideSubNameTextItem(fnOverrideSubNameTextItemRtCall, 99, 10, "", &menuOverrideSubNameIpItem);
 const AnalogMenuInfo minfoOverrideAnalog2Name = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
 AnalogMenuItem menuOverrideAnalog2Name(&minfoOverrideAnalog2Name, 0, &menuOverrideSubNameTextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameRtCall, backSubItemRenderFn, "sub", -1, NO_CALLBACK)

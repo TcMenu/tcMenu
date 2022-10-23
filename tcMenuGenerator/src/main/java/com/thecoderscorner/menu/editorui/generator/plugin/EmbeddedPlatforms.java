@@ -37,11 +37,17 @@ public interface EmbeddedPlatforms {
      * @param platform the platform to check
      * @return true if it is an mbed platform
      */
-    public boolean isMbed(EmbeddedPlatform platform);
+    boolean isMbed(EmbeddedPlatform platform);
 
     /**
      * @param platform the platform to check
      * @return true if it is an arduino platform
      */
-    public boolean isArduino(EmbeddedPlatform platform);
+    boolean isArduino(EmbeddedPlatform platform);
+
+    /**
+     * @param platform the platform to check
+     * @return true if it is a Java platform such as Raspberry PI
+     */
+    boolean isJava(EmbeddedPlatform platform);
 }

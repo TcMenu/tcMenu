@@ -7,17 +7,13 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.TcMenuConversionException;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Map;
 
 import static java.lang.System.Logger.Level.*;
@@ -41,24 +37,6 @@ public class ArduinoGenerator extends CoreCodeGenerator {
         return HEADER_TOP;
     }
 
-    @Override
-    public void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions,
-                                   String projectName) throws TcMenuConversionException {
-
-        String inoFile;
-        var path = options.isSaveToSrc() ? srcDir : directory;
-        if(options.isUseCppMain()) {
-            inoFile = toSourceFile(path, "_main.cpp");
-        }
-        else {
-            inoFile = toSourceFile(path, ".ino");
-        }
-        updateArduinoSketch(inoFile, projectName, callbackFunctions.values());
-
-        // do a couple of final checks and put out warnings if need be
-        checkIfUpToDateWarningNeeded();
-    }
-
     private void checkIfUpToDateWarningNeeded() {
         if (!installer.statusOfAllLibraries().isUpToDate()) {
             logLine(WARNING, "WARNING==================================================================");
@@ -67,16 +45,10 @@ public class ArduinoGenerator extends CoreCodeGenerator {
         }
     }
 
-    private void updateArduinoSketch(String inoFile, String projectName,
-                                     Collection<CallbackRequirement> callbackFunctions) throws TcMenuConversionException {
-        logLine(INFO, "Making adjustments to " + inoFile);
 
-        try {
-            sketchAdjuster.makeAdjustments(this::logLine, inoFile, projectName, callbackFunctions, menuTree);
-        } catch (IOException e) {
-            logger.log(ERROR, "Sketch modification failed", e);
-            throw new TcMenuConversionException("Could not modify sketch", e);
-        }
+    @Override
+    public void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions, String projectName) throws TcMenuConversionException {
+        super.internalConversion(directory, srcDir, callbackFunctions, projectName);
+        checkIfUpToDateWarningNeeded();
     }
-
 }

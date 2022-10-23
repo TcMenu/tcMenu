@@ -20,8 +20,8 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR;
@@ -46,7 +45,6 @@ import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildTreeFromJson;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class MbedGeneratorTest {
@@ -82,7 +80,6 @@ public class MbedGeneratorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testMbedConversion() throws IOException {
-        ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
         tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("Authenticator")
@@ -106,6 +103,8 @@ public class MbedGeneratorTest {
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
                 .withRecursiveNaming(true).withSaveToSrc(true)
                 .codeOptions();
+
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
@@ -140,9 +139,5 @@ public class MbedGeneratorTest {
                 My Transport file
                 #define THE_SERIAL Serial
                 """, pluginGeneratedTransport);
-
-        Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
-                eq(projectDir.resolve(sourceDir.resolve("project_main.cpp")).toString()),
-                eq(projectDir.getFileName().toString()), anyCollection(), any(MenuTree.class));
     }
 }

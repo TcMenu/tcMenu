@@ -10,10 +10,8 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 
@@ -82,6 +80,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
+                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern();
             setResult(List.of(menu));
@@ -90,6 +89,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
                     .addElement(item.getTextLength())
+                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
@@ -98,6 +98,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
+                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
@@ -109,6 +110,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(makeRtFunctionName())
                     .addElement(item.getId())
                     .addElement("(MultiEditWireType)" + item.getItemType().getMsgId())
+                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);

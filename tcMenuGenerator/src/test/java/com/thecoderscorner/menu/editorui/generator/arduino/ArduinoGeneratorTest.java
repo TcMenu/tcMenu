@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.BiConsumer;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
@@ -36,7 +35,6 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnor
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class ArduinoGeneratorTest {
@@ -91,9 +89,7 @@ public class ArduinoGeneratorTest {
         runConversionWith(ARDUINO32, "/generator/template32", true);
     }
 
-    @SuppressWarnings("unchecked")
     private void runConversionWith(EmbeddedPlatform platform, String templateToUse, boolean recursiveName) throws IOException {
-        ArduinoSketchFileAdjuster adjuster = Mockito.mock(ArduinoSketchFileAdjuster.class);
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
@@ -107,6 +103,7 @@ public class ArduinoGeneratorTest {
                 .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
                 .withRecursiveNaming(recursiveName)
                 .codeOptions();
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
@@ -138,9 +135,5 @@ public class ArduinoGeneratorTest {
         assertEqualsIgnoringCRLF(hTemplate, hGenerated);
         assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
         assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
-
-        Mockito.verify(adjuster).makeAdjustments(any(BiConsumer.class),
-                eq(projectDir.resolve(projectDir.resolve(projectDir.getFileName() + ".ino")).toString()),
-                eq(projectDir.getFileName().toString()), anyCollection(), any(MenuTree.class));
     }
 }

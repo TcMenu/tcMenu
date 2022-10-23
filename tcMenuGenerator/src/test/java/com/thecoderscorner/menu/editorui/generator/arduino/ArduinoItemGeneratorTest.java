@@ -109,7 +109,7 @@ public class ArduinoItemGeneratorTest {
         BuildStructInitializer menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
-        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "11", "10", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "11", "10", "1234", "NULL");
 
 
         EditableTextMenuItem ip = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
@@ -128,7 +128,7 @@ public class ArduinoItemGeneratorTest {
         menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
-        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "12", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "12", "1234", "NULL");
 
         EditableTextMenuItem time = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(66)
@@ -146,7 +146,7 @@ public class ArduinoItemGeneratorTest {
         menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
-        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "66", "(MultiEditWireType)3", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "66", "(MultiEditWireType)3", "1234", "NULL");
     }
 
     @Test
