@@ -143,6 +143,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, new CurrentScrollPosition(0, ""));
         defaultValueField = new TextField(Integer.toString(value.getPosition()));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        defaultValueField.setId("defaultValueField");
         TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
         grid.add(defaultValueField, 1, idx);
 

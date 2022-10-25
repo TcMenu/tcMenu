@@ -11,8 +11,8 @@ import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
 import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -22,18 +22,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
-import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
-
-import java.util.Optional;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
+import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
@@ -50,7 +48,8 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
 
     @Test
     void testFloatMenuItemEditing(FxRobot robot) throws InterruptedException {
-        MenuItem floatItem = menuTree.getMenuById(6).get();
+        MenuItem floatItem = menuTree.getMenuById(6).orElseThrow();
+        MenuItemHelper.setMenuState(floatItem, 2.2F, menuTree);
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
         var uiFloatPanel = editorUI.createPanelForMenuItem(floatItem, menuTree, vng, mockedConsumer);
 
@@ -59,18 +58,19 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
 
         // firstly check that all the fields are populated properly
         performAllCommonChecks(floatItem, false);
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2.2"));
 
         tryToEnterBadValueIntoField(robot, "decimalPlacesField", "nameField", "100",
                 "Decimal Places - Value must be between 1 and 6");
 
-        robot.clickOn("#decimalPlacesField");
-        robot.eraseText(4);
-        robot.write("3");
+        writeIntoField(robot, "decimalPlacesField", "3");
+        writeIntoField(robot, "defaultValueField", "200.0");
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(any(), captor.capture());
         FloatMenuItem item = (FloatMenuItem) captor.getValue();
         assertEquals(3, item.getNumDecimalPlaces());
+        assertEquals(200.0F, MenuItemHelper.getValueFor(item, menuTree, -1.0F), 0.001);
 
         FxAssert.verifyThat("#onlineDocsHyperlink", LabeledMatchers.hasText("Online documentation for FloatMenuItem"));
     }

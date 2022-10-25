@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
-import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.EditableTextMenuItem;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UILargeNumberMenuItem;
 import com.thecoderscorner.menu.editorui.uimodel.UITextMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(ApplicationExtension.class)
@@ -56,20 +55,18 @@ public class UITextMenuItemTest extends UIMenuItemTestBase {
         var ui = generateTextItem();
         performAllCommonChecks(ui.getMenuItem(), true);
 
-        var list = new ArrayList<EditItemType>(Arrays.asList(EditItemType.values()));
+        var list = new ArrayList<>(Arrays.asList(EditItemType.values()));
         list.remove(EditItemType.PLAIN_TEXT);
         for(var mode : list) {
             TestUtils.selectItemInCombo(robot, "#textEditType", (EditItemType e) -> e == mode);
             var item = captureTheLatestTextItem();
             assertEquals(mode, item.getItemType());
         }
-
-
     }
 
     private UITextMenuItem generateTextItem() throws Exception {
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
-        var uiText = editorUI.createPanelForMenuItem(menuTree.getMenuById(5).get(), menuTree, vng, mockedConsumer);
+        var uiText = editorUI.createPanelForMenuItem(menuTree.getMenuById(5).orElseThrow(), menuTree, vng, mockedConsumer);
         if(uiText.isEmpty()) throw new IllegalArgumentException("No menu item found");
         createMainPanel(uiText);
         return (UITextMenuItem) uiText.get();

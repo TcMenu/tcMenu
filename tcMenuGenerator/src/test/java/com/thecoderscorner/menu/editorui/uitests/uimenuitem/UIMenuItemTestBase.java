@@ -12,7 +12,6 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
-import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
@@ -21,10 +20,11 @@ import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 import org.testfx.matcher.control.TextInputControlMatchers;
@@ -44,7 +44,7 @@ public abstract class UIMenuItemTestBase {
     protected MenuTree menuTree;
     protected BiConsumer<MenuItem, MenuItem> mockedConsumer;
     protected Stage stage;
-    protected DialogPane dialogPane;
+    protected Pane dialogPane;
     private CodePluginManager manager;
 
     @SuppressWarnings("unchecked")
@@ -59,8 +59,8 @@ public abstract class UIMenuItemTestBase {
         mockedConsumer = mock(BiConsumer.class);
         this.stage = stage;
 
-        dialogPane = new DialogPane();
-        dialogPane.setMinSize(500, 500);
+        dialogPane = new VBox();
+        dialogPane.setMinSize(500, 800);
         stage.setScene(new Scene(dialogPane));
     }
 

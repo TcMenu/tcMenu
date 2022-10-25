@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
@@ -23,11 +24,13 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ListViewMatchers;
+import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.runOnFxThreadAndWait;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -42,7 +45,7 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
     @Start
     public void setup(Stage stage) {
         init(stage);
-        enumItem = menuTree.getMenuById(20).get();
+        enumItem = menuTree.getMenuById(20).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
         uiSubItem = editorUI.createPanelForMenuItem(enumItem, menuTree, vng, mockedConsumer);
     }
@@ -58,6 +61,11 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
         // create an appropriate panel and verify the basics are OK
         createMainPanel(uiSubItem);
         performAllCommonChecks(enumItem, true);
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("0"));
+
+        writeIntoField(robot, "defaultValueField", 1);
+        robot.clickOn("#nameField");
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("1"));
 
         // there's already one element in the enum item we are using called 'test'
         // now add another and verify.
@@ -68,6 +76,10 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
         FxAssert.verifyThat("#enumList", ListViewMatchers.hasListCell("ChangeMe"));
 
         checkThatConsumerCalledWith("test", "ChangeMe");
+
+        writeIntoField(robot, "defaultValueField", 1);
+        robot.clickOn("#nameField");
+        assertEquals(1, MenuItemHelper.getValueFor(enumItem, menuTree, -1));
 
         // at this point the newly created item should be selected, now delete it, should be
         // back to original state.
@@ -80,7 +92,7 @@ public class UIEnumMenuItemTest extends UIMenuItemTestBase {
 
         robot.clickOn("#removeEnumEntry");
         verifyThat("#uiItemErrors", (Label l)-> l.getText().contains("There must be at least one choice") && l.isVisible());
-
+        assertEquals(0, MenuItemHelper.getValueFor(enumItem, menuTree, -1));
     }
 
     @Test

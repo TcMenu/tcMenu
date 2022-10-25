@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.uimodel;
 import com.thecoderscorner.menu.domain.EnumMenuItem;
 import com.thecoderscorner.menu.domain.EnumMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -81,9 +80,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
 
         listView.setCellFactory(TextFieldListCell.forListView());
 
-        listView.setOnEditCommit(t -> {
-            listView.getItems().set(t.getIndex(), t.getNewValue());
-        });
+        listView.setOnEditCommit(t -> listView.getItems().set(t.getIndex(), t.getNewValue()));
 
         listView.setMinHeight(100);
         grid.add(listView, 1, idx, 1, 3);
@@ -121,6 +118,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
         defaultValueField = new TextField(Integer.toString(value));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        defaultValueField.setId("defaultValueField");
         TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
         grid.add(defaultValueField, 1, idx);
 

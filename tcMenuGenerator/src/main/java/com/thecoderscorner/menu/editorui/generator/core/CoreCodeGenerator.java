@@ -283,10 +283,11 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 }
             }
             case TIME_24H, TIME_12H, TIME_24_HUNDREDS, TIME_DURATION_SECONDS, TIME_DURATION_HUNDREDS, TIME_24H_HHMM, TIME_12H_HHMM -> {
-                var pattern = Pattern.compile("(\\d+):(\\d+):(\\d+)(:.\\d*)*");
+                var pattern = Pattern.compile("(\\d+):(\\d+):(\\d+)(:.\\d+)*");
                 var matcher = pattern.matcher(s);
-                if (matcher.matches() && matcher.groupCount() == 4) {
-                    return String.format("TimeStorage(%s, %s, %s, %s)", matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4).substring(1));
+                if (matcher.matches()) {
+                    var hundreds = (matcher.groupCount() == 4 && matcher.group(4) != null) ? matcher.group(4).substring(1) : "0";
+                    return String.format("TimeStorage(%s, %s, %s, %s)", matcher.group(1), matcher.group(2), matcher.group(3), hundreds);
                 } else if (matcher.matches() && matcher.groupCount() == 3) {
                     return String.format("TimeStorage(%s, %s, %s, 0)", matcher.group(1), matcher.group(2), matcher.group(3));
                 } else {

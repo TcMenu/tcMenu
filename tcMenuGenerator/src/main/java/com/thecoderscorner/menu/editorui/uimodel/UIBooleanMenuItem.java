@@ -30,6 +30,10 @@ import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMen
 
 public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
+    public static final TidyBooleanNaming TIDY_NAMING_TRUE_FALSE = new TidyBooleanNaming(TRUE_FALSE, "TRUE / FALSE");
+    public static final TidyBooleanNaming TIDY_NAMING_ON_OFF = new TidyBooleanNaming(ON_OFF, "ON / OFF");
+    public static final TidyBooleanNaming TIDY_NAMING_YES_NO = new TidyBooleanNaming(YES_NO, "YES / NO");
+
     private ComboBox<TidyBooleanNaming> namingBox;
     private CheckBox defaultValue;
 
@@ -63,9 +67,9 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         idx++;
         pane.add(new Label("Responses"), 0, idx);
         ObservableList<TidyBooleanNaming> list = FXCollections.observableList(List.of(
-                new TidyBooleanNaming(TRUE_FALSE, "TRUE / FALSE"),
-                new TidyBooleanNaming(ON_OFF, "ON / OFF"),
-                new TidyBooleanNaming(YES_NO, "YES / NO")
+                TIDY_NAMING_TRUE_FALSE,
+                TIDY_NAMING_ON_OFF,
+                TIDY_NAMING_YES_NO
         ));
         namingBox = new ComboBox<>(list);
         namingBox.getSelectionModel().select(namingToIndex((getMenuItem().getNaming())));
@@ -77,6 +81,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         defaultValue = new CheckBox("Default value");
         defaultValue.setSelected(MenuItemHelper.getValueFor(getMenuItem(), menuTree, false));
         defaultValue.setOnAction(event -> callChangeConsumer());
+        defaultValue.setId("defaultValueCheck");
         pane.add(defaultValue, 1, idx);
 
         return idx;

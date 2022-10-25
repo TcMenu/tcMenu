@@ -116,12 +116,27 @@ public class JsonMenuItemSerializer {
                 JsonObject ele = new JsonObject();
                 ele.addProperty(PARENT_ID, itm.getParentId());
                 ele.addProperty(TYPE_ID, itm.getType());
-                ele.addProperty(DEF_VALUE_ID, itm.getDefaultValue());
+                if(checkItemValueCanPersist(itm)) {
+                    ele.addProperty(DEF_VALUE_ID, itm.getDefaultValue());
+                }
                 ele.add(ITEM_ID, ctx.serialize(itm.getItem()));
                 arr.add(ele);
             });
             return arr;
         }
+    }
+
+
+    /**
+     * There are some menu types that should not have a default value, these generally don't have a value associated with
+     * them that can be easily saved, such as lists, action items, builder items and submenus.
+     * @param persistedMenu the item to check
+     * @return true if the item value can be persisted, otherwise false
+     */
+    public static boolean checkItemValueCanPersist(PersistedMenu persistedMenu) {
+        var item = persistedMenu.getItem();
+        return !(item instanceof SubMenuItem || item instanceof ActionMenuItem || item instanceof RuntimeListMenuItem ||
+                item instanceof CustomBuilderMenuItem);
     }
 
     static class MenuItemDeserialiser implements JsonDeserializer<ArrayList<PersistedMenu>> {

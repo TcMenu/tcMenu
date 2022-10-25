@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UILargeNumberMenuItem;
 import javafx.application.Platform;
@@ -17,6 +18,9 @@ import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.TextInputControlMatchers;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,10 +72,14 @@ public class UILargeNumberItemTest extends UIMenuItemTestBase {
         writeIntoField(robot, "lgeDecimalPlaces", 4);
 
         verifyThat("#NegAllowCheck", CheckBox::isSelected);
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("10"));
+
+        writeIntoField(robot, "defaultValueField", "10.42");
 
         var lgeNum = captureTheLatestNumber();
         assertEquals(4, lgeNum.getDecimalPlaces());
         assertEquals(10, lgeNum.getDigitsAllowed());
+        assertEquals(new BigDecimal("10.42"), MenuItemHelper.getValueFor(lgeNum, menuTree, BigDecimal.ZERO));
         assertTrue(lgeNum.isNegativeAllowed());
     }
 
@@ -84,6 +92,7 @@ public class UILargeNumberItemTest extends UIMenuItemTestBase {
                 .withNegativeAllowed(true)
                 .menuItem();
         menuTree.addMenuItem(MenuTree.ROOT, largeNumItem);
+        MenuItemHelper.setMenuState(largeNumItem, BigDecimal.TEN, menuTree);
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
         var uiBoolItem = editorUI.createPanelForMenuItem(largeNumItem, menuTree, vng, mockedConsumer);
         if(uiBoolItem.isEmpty()) throw new IllegalArgumentException("No menu item found");

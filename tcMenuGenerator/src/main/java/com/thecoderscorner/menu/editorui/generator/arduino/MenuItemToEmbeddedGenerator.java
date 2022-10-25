@@ -79,17 +79,17 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         if (item.getItemType() == EditItemType.IP_ADDRESS) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
                     .addElement(makeRtFunctionName())
-                    .addElement(item.getId())
                     .addElement(defaultValue)
+                    .addElement(item.getId())
                     .addElement(nextMenuName)
                     .requiresExtern();
             setResult(List.of(menu));
         } else if (item.getItemType() == EditItemType.PLAIN_TEXT) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TextMenuItem")
                     .addElement(makeRtFunctionName())
+                    .addElement(defaultValue)
                     .addElement(item.getId())
                     .addElement(item.getTextLength())
-                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
@@ -97,8 +97,8 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         } else if (item.getItemType() == EditItemType.GREGORIAN_DATE) {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
                     .addElement(makeRtFunctionName())
-                    .addElement(item.getId())
                     .addElement(defaultValue)
+                    .addElement(item.getId())
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
@@ -108,9 +108,9 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             // time based
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
                     .addElement(makeRtFunctionName())
+                    .addElement(defaultValue)
                     .addElement(item.getId())
                     .addElement("(MultiEditWireType)" + item.getItemType().getMsgId())
-                    .addElement(defaultValue)
                     .addElement(nextMenuName)
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false);
@@ -120,10 +120,10 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     public void visit(Rgb32MenuItem item) {
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "Rgb32MenuItem")
-                .addElement(item.getId())
                 .addElement(makeRtFunctionName())
-                .addElement(item.isIncludeAlphaChannel())
                 .addElement(defaultValue)
+                .addElement(item.getId())
+                .addElement(item.isIncludeAlphaChannel())
                 .addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);

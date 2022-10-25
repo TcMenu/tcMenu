@@ -80,7 +80,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             String text = defaultValueField.getText();
             int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
             if(value < 0 || value > maxValue) {
-                errors.add(new FieldError("Value must be between 0 and " + maxValue, "DefaultValue"));
+                errors.add(new FieldError("must be between 0 and " + maxValue, "DefaultValue"));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
                 realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0)));
@@ -164,6 +164,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), value));
         grid.add(realInterpretationField, 2, idx);
         defaultValueField = new TextField(Integer.toString(value));
+        defaultValueField.setId("defaultValueField");
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
         TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
         grid.add(defaultValueField, 1, idx);

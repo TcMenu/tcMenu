@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +58,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, PortableColor.BLACK);
         defaultValueField = new TextField(getMenuItem().isIncludeAlphaChannel() ? value.toString() : value.toString().substring(0, 7));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        defaultValueField.setId("defaultValueField");
         TextFormatterUtils.applyFormatToField(defaultValueField, TextFormatterUtils.PORTABLE_COLOR_MATCH);
         grid.add(defaultValueField, 1, idx);
 

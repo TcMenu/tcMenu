@@ -16,20 +16,14 @@ import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefin
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.validation.IoExpanderPropertyValidationRules;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.INFO;
@@ -61,7 +55,9 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> {
                 tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem());
-                if(item.getDefaultValue() != null) MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
+                if(item.getDefaultValue() != null && JsonMenuItemSerializer.checkItemValueCanPersist(item)) {
+                    MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
+                }
             });
             return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName());
         }

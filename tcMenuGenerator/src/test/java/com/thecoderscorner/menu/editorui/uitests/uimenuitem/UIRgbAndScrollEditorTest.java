@@ -7,7 +7,10 @@
 package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
@@ -50,6 +53,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
     void testRgbEditor(FxRobot robot) throws InterruptedException {
         var rgbItem = new Rgb32MenuItemBuilder().withId(223).withName("Rgb For Me").withAlpha(true).menuItem();
         menuTree.addMenuItem(MenuTree.ROOT, rgbItem);
+        MenuItemHelper.setMenuState(rgbItem, new PortableColor("#FF0000"), menuTree);
         var set = new HashSet<Integer>();
         set.add(111);
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, set);
@@ -62,19 +66,20 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         verifyThat("#alphaCheck", (CheckBox cb) -> cb.isSelected() && cb.getText().equals("Enable alpha channel"));
         robot.clickOn("#alphaCheck");
         verifyThat("#alphaCheck", (CheckBox cb) -> !cb.isSelected());
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("#FF0000FF"));
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         Mockito.verify(mockedConsumer).accept(eq(rgbItem), captor.capture());
         assertFalse(((Rgb32MenuItem)captor.getValue()).isIncludeAlphaChannel());
 
         // now lets ensure that changing the name DOES NOT update the menu variable name
-        robot.clickOn("#nameField");
-        robot.eraseText(10);
-        robot.write("hello world");
+        writeIntoField(robot, "nameField", "hello world");
+        writeIntoField(robot, "defaultValueField", "#DD00EE");
         verifyThat("#variableField", TextInputControlMatchers.hasText("RgbForMe"));
 
         robot.clickOn("#varSyncButton");
         verifyThat("#variableField", TextInputControlMatchers.hasText("HelloWorld"));
+        assertEquals("#DD00EEFF", MenuItemHelper.getValueFor(rgbItem, menuTree, PortableColor.BLACK).toString());
     }
 
     @Test
@@ -145,6 +150,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
 
         TestUtils.selectItemInCombo(robot, "#choiceModeCombo", (TidyScrollChoiceValue cbxItem) -> cbxItem.mode() == ARRAY_IN_RAM);
         verifyExpectedFields(ARRAY_IN_RAM);
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2"));
 
         tryToEnterBadValueIntoField(robot, "choiceVarField", "nameField", "123 45",
                 "Variable Name - Field must use only letters, digits, and '_'");
@@ -152,6 +158,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         writeIntoField(robot, "choiceVarField", "ramVarName");
         writeIntoField(robot, "itemWidthFieldField", 10);
         writeIntoField(robot, "numItemsFieldField", 42);
+        writeIntoField(robot, "defaultValueField", 3);
 
         ScrollChoiceMenuItem choiceItem = captureTheLatestScrollChoice();
         assertEquals(ARRAY_IN_RAM, choiceItem.getChoiceMode());
@@ -159,6 +166,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         assertEquals(10, choiceItem.getItemWidth());
         assertEquals(100, choiceItem.getEepromOffset());
         assertEquals("ramVarName", choiceItem.getVariable());
+        assertEquals(3, MenuItemHelper.getValueFor(choiceItem, menuTree, new CurrentScrollPosition(0, "")).getPosition());
     }
 
     @Test
@@ -192,6 +200,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
                 .withVariable("ramVariable").menuItem();
 
         menuTree.addMenuItem(MenuTree.ROOT, choiceItem);
+        MenuItemHelper.setMenuState(choiceItem, 2, menuTree);
         var set = new HashSet<Integer>();
         set.add(choiceItem.getId());
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false, set);

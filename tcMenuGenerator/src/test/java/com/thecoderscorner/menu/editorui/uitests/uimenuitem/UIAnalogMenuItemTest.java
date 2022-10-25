@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIAnalogMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -54,7 +55,8 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         // firstly check that all the fields are populated properly
         performAllCommonChecks(analogItem, true);
 
-        tryToEnterLettersIntoNumericField(robot, "eepromField");
+        tryToEnterBadValueIntoField(robot, "defaultValueField", "nameField", "10000", "DefaultValue - must be between 0 and 100");
+
 
         tryToEnterBadValueIntoField(robot, "offsetField", "nameField", "-1000000",
                 "Offset - Value must be between -32768 and 32767");
@@ -68,9 +70,11 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         tryToEnterBadValueIntoField(robot, "maxValueField", "nameField", "-1",
                 "Maximum Value - Value must be between 1 and 65535");
 
+        tryToEnterLettersIntoNumericField(robot, "eepromField");
         tryToEnterLettersIntoNumericField(robot, "maxValueField");
         tryToEnterLettersIntoNumericField(robot, "offsetField");
         tryToEnterLettersIntoNumericField(robot, "divisorField");
+        tryToEnterLettersIntoNumericField(robot, "defaultValueField");
     }
 
     @Test
@@ -97,11 +101,13 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         AnalogMenuItem item = (AnalogMenuItem) captor.getValue();
         assertEquals(100, item.getMaxValue());
         assertEquals(4, item.getStep());
+        assertEquals(0, MenuItemHelper.getValueFor(item, menuTree, -1));
     }
 
     @Test
     void testEnteringValidValuesIntoAnalogEditor(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
+        MenuItemHelper.setMenuState(analogItem, 2, menuTree);
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
         var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
 
@@ -110,25 +116,19 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
         // firstly check that all the fields are populated properly
         performAllCommonChecks(analogItem, true);
+        verifyThat("#offsetField", TextInputControlMatchers.hasText("0"));
+        verifyThat("#maxValueField", TextInputControlMatchers.hasText("100"));
+        verifyThat("#unitNameField", TextInputControlMatchers.hasText("dB"));
+        verifyThat("#divisorField", TextInputControlMatchers.hasText("1"));
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2"));
 
-        robot.clickOn("#offsetField");
-        robot.eraseText(5);
-        robot.write("-180");
-
-        robot.clickOn("#unitNameField");
-        robot.eraseText(5);
-        robot.write("dB");
-
-        robot.clickOn("#divisorField");
-        robot.eraseText(5);
-        robot.write("2");
+        writeIntoField(robot, "offsetField", "-180");
+        writeIntoField(robot, "unitNameField", "dB");
+        writeIntoField(robot, "divisorField", "2");
 
         verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value -40.0dB."));
 
-        robot.clickOn("#maxValueField");
-        robot.eraseText(5);
-        robot.write("255");
-
+        writeIntoField(robot, "maxValueField", "255");
         verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value 37.5dB."));
 
         verifyThatThereAreNoErrorsReported();
@@ -140,6 +140,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         assertEquals(255, item.getMaxValue());
         assertEquals(2, item.getDivisor());
         assertEquals("dB", item.getUnitName());
+        assertEquals(2, MenuItemHelper.getValueFor(item, menuTree, -1));
     }
 
     @Test
@@ -154,21 +155,14 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         // firstly check that all the fields are populated properly
         performAllCommonChecks(analogItem, true);
 
-        robot.clickOn("#offsetField");
-        robot.eraseText(5);
-        robot.write("-32768");
-
+        writeIntoField(robot, "defaultValueField", 99);
         robot.clickOn("#unitNameField");
-        robot.eraseText(5);
-        robot.write("");
+        verifyThatThereAreNoErrorsReported();
 
-        robot.clickOn("#divisorField");
-        robot.eraseText(5);
-        robot.write("10000");
-
-        robot.clickOn("#maxValueField");
-        robot.eraseText(5);
-        robot.write("65535");
+        writeIntoField(robot, "offsetField", "-32768");
+        writeIntoField(robot, "unitNameField","");
+        writeIntoField(robot, "divisorField", "10000");
+        writeIntoField(robot, "maxValueField", "65535");
 
         // select any other field to commit edit.
         robot.clickOn("#unitNameField");
@@ -182,6 +176,7 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         assertEquals(65535, item.getMaxValue());
         assertEquals(10000, item.getDivisor());
         assertEquals("", item.getUnitName());
+        assertEquals(99, MenuItemHelper.getValueFor(item, menuTree, -1));
     }
 
 }

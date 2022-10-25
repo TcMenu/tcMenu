@@ -71,6 +71,7 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0.0F);
         defaultValueField = new TextField(Float.toString(value));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
+        defaultValueField.setId("defaultValueField");
         TextFormatterUtils.applyFormatToField(defaultValueField, TextFormatterUtils.FLOAT_MATCH);
         grid.add(defaultValueField, 1, idx);
         return idx;

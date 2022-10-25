@@ -2,12 +2,12 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem;
-import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
+import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +17,14 @@ import org.mockito.Mockito;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-
-import java.util.Optional;
+import org.testfx.matcher.control.ComboBoxMatchers;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming.*;
 import static com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
@@ -40,13 +40,20 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     public void testBooleanOnOff(FxRobot robot) throws Exception {
+        MenuItemHelper.setMenuState(menuTree.getMenuById(4).orElseThrow(), true, menuTree);
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
+        verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(TIDY_NAMING_ON_OFF));
+        verifyThat("#defaultValueCheck", CheckBox::isSelected);
 
         writeIntoField(robot, "nameField", "helloBoolean");
 
+        robot.clickOn("#defaultValueCheck");
+
         var capturedItem = captureTheLatestBoolean();
         assertEquals(ON_OFF, capturedItem.getNaming());
+        assertFalse(MenuItemHelper.getValueFor(capturedItem, menuTree, true));
+        assertEquals("helloBoolean", capturedItem.getName());
     }
 
     @Test
@@ -54,7 +61,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
 
-        TestUtils.selectItemInCombo(robot, "#booleanNamingCombo", (TidyBooleanNaming n) -> n.naming() == YES_NO);
+        TestUtils.selectItemInCombo(robot, "#booleanNamingCombo", (TidyBooleanNaming n) -> n.equals(TIDY_NAMING_YES_NO));
 
         var capturedItem = captureTheLatestBoolean();
         assertEquals(YES_NO, capturedItem.getNaming());
@@ -68,8 +75,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
     private BooleanMenuItem captureTheLatestBoolean() {
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         Mockito.verify(mockedConsumer, Mockito.atLeastOnce()).accept(any(), captor.capture());
-        BooleanMenuItem boolItem = (BooleanMenuItem) captor.getValue();
-        return boolItem;
+        return (BooleanMenuItem) captor.getValue();
     }
 
     private UIBooleanMenuItem generateBooleanDialog() throws Exception {
