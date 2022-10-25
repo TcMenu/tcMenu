@@ -459,10 +459,10 @@ public class EmbeddedJavaGeneratorFileData {
                         
                 <properties>
                     <jdk.version>17</jdk.version>
-                    <jserialcomm.version>2.9.1</jserialcomm.version>
+                    <jserialcomm.version>2.9.2</jserialcomm.version>
                     <jfx.version>17.0.0.1</jfx.version>
                     <tcmenu.api.version>1.2.3</tcmenu.api.version>
-                    <springframework.version>5.3.19</springframework.version>
+                    <springframework.version>5.3.23</springframework.version>
                     <timestamp>${maven.build.timestamp}</timestamp>
                 </properties>
                         
