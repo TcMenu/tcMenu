@@ -250,7 +250,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             boolean neg = bd.doubleValue() < 0.0;
             long whole = Math.abs(bd.longValue());
             long fraction = (long) (((Math.abs(bd.doubleValue()) - (double) whole) + 0.0000001) * (Math.pow(10, lge.getDecimalPlaces())));
-            return String.format("LargeFixedNumber(%dU, %dU, %s)", whole, fraction, neg);
+            return String.format("LargeFixedNumber(%d, %d, %dU, %dU, %s)", lge.getDigitsAllowed(), lge.getDecimalPlaces(),
+                    whole, fraction, neg);
         } else if (defaultValue instanceof String s && item instanceof EditableTextMenuItem tmi) {
             return toEmbeddedCppTextValue(tmi, s);
         } else if (defaultValue instanceof String) {
@@ -300,7 +301,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 if (matcher.matches() && matcher.groupCount() == 3) {
                     return String.format("DateStorage(%s, %s, %s)", matcher.group(3), matcher.group(2), matcher.group(1));
                 } else {
-                    return "DateStorage(2020, 1, 1)";
+                    return "DateStorage(1, 1, 2020)";
                 }
             }
         }

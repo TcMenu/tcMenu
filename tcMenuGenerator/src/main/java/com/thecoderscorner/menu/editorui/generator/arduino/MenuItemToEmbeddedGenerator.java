@@ -61,11 +61,9 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(EditableLargeNumberMenuItem item) {
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EditableLargeNumberMenuItem")
                 .addElement(makeRtFunctionName())
-                .addElement(item.getId())
-                .addElement(item.getDigitsAllowed())
-                .addElement(item.getDecimalPlaces())
-                .addElement(item.isNegativeAllowed())
                 .addElement(defaultValue)
+                .addElement(item.getId())
+                .addElement(item.isNegativeAllowed())
                 .addElement(nextMenuName)
                 .requiresExtern()
                 .addHeaderFileRequirement("RuntimeMenuItem.h", false)
