@@ -101,8 +101,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     private void createJavaModuleFile(CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {
         logLine(INFO, "Generating the Java module-info file");
         var patcher = new ModuleFilePatcher(javaProject.getMainJava());
-        patcher.addOpens("com.thecoderscorner.menuexample.tcmenu");
-        patcher.addExports("com.thecoderscorner.menuexample.tcmenu.plugins");
+        patcher.addOpens(options.getPackageNamespace() + ".tcmenu");
+        patcher.addExports(options.getPackageNamespace() + ".tcmenu.plugins");
         patcher.addRequires("java.logging");
         patcher.addRequires("java.prefs");
         patcher.addRequires("java.desktop");
