@@ -14,7 +14,6 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -35,7 +34,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     public static final TidyBooleanNaming TIDY_NAMING_YES_NO = new TidyBooleanNaming(YES_NO, "YES / NO");
 
     private ComboBox<TidyBooleanNaming> namingBox;
-    private CheckBox defaultValue;
+    private ComboBox<BooleanNamingValue> defaultValue;
 
     public UIBooleanMenuItem(BooleanMenuItem menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer) {
         super(menuItem, chooser, gen, changeConsumer, UrlsForDocumentation.BOOLEAN_URL);
@@ -48,7 +47,8 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         BooleanMenuItemBuilder builder = aBooleanMenuItemBuilder().withExisting(getMenuItem())
                 .withNaming(namingBox.getValue().naming());
 
-        MenuItemHelper.setMenuState(getMenuItem(), defaultValue.isSelected(), menuTree);
+        boolean isDefaultValueTrue = defaultValue.getSelectionModel().getSelectedIndex() == 0;
+        MenuItemHelper.setMenuState(getMenuItem(), isDefaultValueTrue, menuTree);
 
         getChangedDefaults(builder, errors);
         return getItemOrReportError(builder.menuItem(), errors);
@@ -65,7 +65,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     @Override
     protected int internalInitPanel(GridPane pane, int idx) {
         idx++;
-        pane.add(new Label("Responses"), 0, idx);
+        pane.add(new Label("Possible responses"), 0, idx);
         ObservableList<TidyBooleanNaming> list = FXCollections.observableList(List.of(
                 TIDY_NAMING_TRUE_FALSE,
                 TIDY_NAMING_ON_OFF,
@@ -73,21 +73,46 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         ));
         namingBox = new ComboBox<>(list);
         namingBox.getSelectionModel().select(namingToIndex((getMenuItem().getNaming())));
-        namingBox.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
+        namingBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            callChangeConsumer();
+            prepareDefaultValueBasedOnNaming();
+        });
         namingBox.setId("booleanNamingCombo");
         pane.add(namingBox, 1, idx);
         idx++;
 
-        defaultValue = new CheckBox("Default value");
-        defaultValue.setSelected(MenuItemHelper.getValueFor(getMenuItem(), menuTree, false));
+        pane.add(new Label("Default Value"), 0, idx);
+        defaultValue = new ComboBox<>();
+        prepareDefaultValueBasedOnNaming();
         defaultValue.setOnAction(event -> callChangeConsumer());
-        defaultValue.setId("defaultValueCheck");
+        defaultValue.setId("defaultValueCombo");
         pane.add(defaultValue, 1, idx);
 
         return idx;
     }
 
+    private void prepareDefaultValueBasedOnNaming() {
+        var before = MenuItemHelper.getValueFor(getMenuItem(), menuTree, false) ? 0 : 1;
+        defaultValue.setItems(findBooleanNamingListFor(getMenuItem().getNaming()));
+        defaultValue.getSelectionModel().select(before);
+    }
+
+    private ObservableList<BooleanNamingValue> findBooleanNamingListFor(BooleanNaming naming) {
+        return switch (naming) {
+            case ON_OFF -> FXCollections.observableArrayList(new BooleanNamingValue("On", true), new BooleanNamingValue("Off", false));
+            case YES_NO -> FXCollections.observableArrayList(new BooleanNamingValue("Yes", true), new BooleanNamingValue("No", false));
+            case TRUE_FALSE -> FXCollections.observableArrayList(new BooleanNamingValue("True", true), new BooleanNamingValue("False", false));
+        };
+    }
+
     public record TidyBooleanNaming(BooleanNaming naming, String name) {
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    public record BooleanNamingValue(String name, boolean value) {
         @Override
         public String toString() {
             return name;

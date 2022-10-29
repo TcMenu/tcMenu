@@ -7,7 +7,6 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
-import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +20,7 @@ import org.testfx.matcher.control.ComboBoxMatchers;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming.*;
 import static com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -44,11 +42,11 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
         verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(TIDY_NAMING_ON_OFF));
-        verifyThat("#defaultValueCheck", CheckBox::isSelected);
+        verifyThat("#defaultValueCombo", ComboBoxMatchers.hasSelectedItem(new BooleanNamingValue("On", true)));
 
         writeIntoField(robot, "nameField", "helloBoolean");
 
-        robot.clickOn("#defaultValueCheck");
+        TestUtils.selectItemInCombo(robot, "#defaultValueCombo", (BooleanNamingValue v) -> !v.value());
 
         var capturedItem = captureTheLatestBoolean();
         assertEquals(ON_OFF, capturedItem.getNaming());
@@ -58,6 +56,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
 
     @Test
     public void testBooleanYesNoAndTrueFalse(FxRobot robot) throws Exception {
+        MenuItemHelper.setMenuState(menuTree.getMenuById(4).orElseThrow(), true, menuTree);
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
 
@@ -70,6 +69,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
 
         capturedItem = captureTheLatestBoolean();
         assertEquals(TRUE_FALSE, capturedItem.getNaming());
+        assertTrue(MenuItemHelper.getValueFor(capturedItem, menuTree, false));
     }
 
     private BooleanMenuItem captureTheLatestBoolean() {
