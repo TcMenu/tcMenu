@@ -52,6 +52,12 @@
         </Property>
         <Property id="JOYSTICK_X_CENTRE_VALUE" name="Analog X Axis Centre 0.0 to 1.0" initial="0.5" type="text"
                   desc="Value read on the X analog pin when the joystick is centred"/>
+
+        <Property id="JOYSTICK_CUSTOM_ACCEL" name="Custom acceleration required" initial="false" desc="Use to enable the custom acceleration parameters" type="boolean"/>
+        <Property id="JOYSTICK_ACCEL_INITIAL" name="Delay before repeat - millis" initial="750" type="int" min="50" max="750"
+                  desc="The initial number of milliseconds to delay before repeating" whenProperty="JOYSTICK_CUSTOM_ACCEL" isValue="true" />
+        <Property id="JOYSTICK_ACCEL_DIVISOR" name="Rate of change in acceleration" initial="3" type="int" min="1" max="10"
+                  desc="Each tick will divide the above delay by this amount" whenProperty="JOYSTICK_CUSTOM_ACCEL" isValue="true" />
     </Properties>
 
     <ApplicabilityDefs/>
@@ -145,6 +151,12 @@
         <Function object="reinterpret_cast&lt;JoystickSwitchInput*&gt;(switches.getEncoder())" name="setTolerance" pointer="true">
             <Param value="${JOYSTICK_Y_CENTRE_VALUE}"/>
             <Param value="${JOYSTICK_THRESHOLD_Y}"/>
+        </Function>
+
+        <Function object="reinterpret_cast&lt;JoystickSwitchInput*&gt;(switches.getEncoder())" whenProperty="JOYSTICK_CUSTOM_ACCEL" isValue="true"
+                  name="setAccelerationParameters" pointer="true">
+            <Param value="${JOYSTICK_ACCEL_INITIAL}.0F"/>
+            <Param value="${JOYSTICK_ACCEL_DIVISOR}.0F"/>
         </Function>
 
         <Function name="initWithoutInput" object="menuMgr">
