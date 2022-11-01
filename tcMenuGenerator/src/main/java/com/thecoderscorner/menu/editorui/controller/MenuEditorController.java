@@ -33,6 +33,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -113,6 +114,18 @@ public class MenuEditorController {
         this.pluginManager = pluginManager;
         this.configStore = storage;
         this.libVerDetector = libraryVersionDetector;
+
+        this.menuTree.setOnKeyPressed(event -> {
+            if(event.isMetaDown() && !event.isShiftDown() && !event.isAltDown()) {
+                if(event.getCode() == KeyCode.C) {
+                    onTreeCopy(new ActionEvent(menuTree, menuTree));
+                } else if(event.getCode() == KeyCode.V) {
+                    onTreePaste(new ActionEvent(menuTree, menuTree));
+                }
+            } else if(event.getCode() == KeyCode.ESCAPE) {
+                onFocusCurrentEditor(new ActionEvent(menuTree, menuTree));
+            }
+        });
 
         if(StartUICommand.didUserSelectProject()) {
             editorProject.openProject(StartUICommand.userSelectedProject());
@@ -254,7 +267,6 @@ public class MenuEditorController {
                     currentEditor = Optional.of(uiMenuItem);
                     appInfoPanel = Optional.empty();
                     currentEditLabel.setText("Edit " + newValue.getClass().getSimpleName() + " ID: " + newValue.getId());
-                    uiMenuItem.focusFirst();
                 }, this::presentInfoPanel
         );
 
@@ -386,6 +398,7 @@ public class MenuEditorController {
             editorProject.applyCommand(Command.NEW, menuItem, subMenu);
             redrawTreeControl();
             selectChildInTreeById(menuTree.getRoot(), menuItem.getId());
+            onFocusCurrentEditor(actionEvent);
         });
 
     }

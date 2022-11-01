@@ -4,11 +4,13 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PastedItemChange extends MenuItemChange {
 
@@ -80,8 +82,28 @@ public class PastedItemChange extends MenuItemChange {
         {
             var par = tree.getMenuById(item.getParentId());
             if(par.isPresent() && par.get() instanceof SubMenuItem) {
-                tree.addMenuItem((SubMenuItem)par.get(), item.getItem());
+                tree.addMenuItem((SubMenuItem)par.get(), cleanUpItem(item.getItem(), tree));
             }
         }
+    }
+
+    private MenuItem cleanUpItem(MenuItem item, MenuTree tree) {
+        var newName = uniqueNameInTree(item.getName(), tree);
+        return MenuItemHelper.builderWithExisting(item)
+                .withVariableName(null)
+                .withEepromAddr(-1)
+                .withName(newName)
+                .menuItem();
+    }
+
+    private String uniqueNameInTree(String name, MenuTree tree) {
+        var allItemNames = tree.getAllMenuItems().stream().map(MenuItem::getName).collect(Collectors.toSet());
+        String retName = name;
+        int i=1;
+        while(allItemNames.contains(retName)) {
+            retName = name + i;
+            i++;
+        }
+        return retName;
     }
 }

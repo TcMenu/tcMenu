@@ -188,7 +188,7 @@ public class MenuEditorTestCases {
         when(editorProjectUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         assertTrue(project.isDirty());
         pushCtrlAndKey(robot, KeyCode.A);
-        robot.push(new KeyCodeCombination(KeyCode.S, DOWN, DOWN, UP, UP, DOWN));
+        robot.push(new KeyCodeCombination(KeyCode.S, DOWN, DOWN, UP, UP, UP));
         verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
 
         pushCtrlAndKey(robot, KeyCode.L);

@@ -57,6 +57,21 @@ public class MenuTreeTest {
     }
 
     @Test
+    public void testThatRemovingWorksByIdOnlyAsPerDocs() {
+        menuTree.addMenuItem(ROOT, item1);
+        var item1SameId = MenuItemHelper.builderWithExisting(item1)
+                .withName("New Name").withFunctionName("HelloThere").withReadOnly(true)
+                .menuItem();
+        MenuItemHelper.setMenuState(item1SameId, 1, menuTree);
+        assertEquals(1, (int)MenuItemHelper.getValueFor(item1SameId, menuTree, -1));
+
+        menuTree.removeMenuItem(ROOT, item1SameId);
+        assertTrue(menuTree.getMenuById(item1.getId()).isEmpty());
+        assertTrue(menuTree.getMenuById(item1SameId.getId()).isEmpty());
+        assertEquals(-1, (int)MenuItemHelper.getValueFor(item1SameId, menuTree, -1));
+    }
+
+    @Test
     public void testSubMenuKeysAreCreatedAndRemoved() {
         menuTree.addMenuItem(ROOT, subMenu);
         assertTrue(menuTree.getAllSubMenus().contains(subMenu));

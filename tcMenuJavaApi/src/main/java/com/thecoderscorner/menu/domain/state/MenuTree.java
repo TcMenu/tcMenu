@@ -242,7 +242,12 @@ public class MenuTree {
                 throw new UnsupportedOperationException("Menu element not found");
             }
 
-            subMenuChildren.remove(item);
+            for(int i=0; i<subMenuChildren.size(); i++) {
+                if(subMenuChildren.get(i).getId() == item.getId()) {
+                    subMenuChildren.remove(i);
+                    break;
+                }
+            }
             if (item.hasChildren()) {
                 subMenuItems.remove(item);
             }

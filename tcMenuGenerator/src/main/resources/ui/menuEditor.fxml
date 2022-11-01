@@ -37,9 +37,9 @@
           </Menu>
             <Menu mnemonicParsing="false" onShowing="#onShowEditMenu" text="Edit">
               <items>
-                <MenuItem fx:id="menuCut" accelerator="Shortcut+X" mnemonicParsing="false" onAction="#onCut" text="Cut" />
-                  <MenuItem fx:id="menuCopy" accelerator="Shortcut+C" mnemonicParsing="false" onAction="#onCopy" text="Copy" />
-                  <MenuItem fx:id="menuPaste" accelerator="Shortcut+V" mnemonicParsing="false" onAction="#onPaste" text="Paste" />
+                <MenuItem fx:id="menuCut" mnemonicParsing="false" onAction="#onCut" text="Cut" />
+                  <MenuItem fx:id="menuCopy" mnemonicParsing="false" onAction="#onCopy" text="Copy" />
+                  <MenuItem fx:id="menuPaste" mnemonicParsing="false" onAction="#onPaste" text="Paste" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="menuUndo" accelerator="Shortcut+Z" mnemonicParsing="false" onAction="#onUndo" text="Undo" />
                   <MenuItem fx:id="menuRedo" accelerator="Shortcut+Y" mnemonicParsing="false" onAction="#onRedo" text="Redo" />
@@ -60,16 +60,8 @@
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#onFocusMenuTree" text="Focus Menu Tree">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="Focus Current Editor">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                      </accelerator>
-                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#onFocusMenuTree" text="Focus Menu Tree" accelerator="F10" />
+                  <MenuItem mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="Focus Editor (Esc)" accelerator="F9" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="Move Item Up">
                      <accelerator>

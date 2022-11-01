@@ -40,7 +40,7 @@ ScrollChoiceMenuItem menuMySubSub1EepromChoice(16, fnMySubSub1EepromChoiceRtCall
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RGBRtCall, rgbAlphaItemRenderFn, "RGB", -1, onRgb)
 Rgb32MenuItem menuMySubSub1RGB(fnMySubSub1RGBRtCall, RgbColor32(0, 0, 0, 255), 15, true, &menuMySubSub1EepromChoice);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DateFieldRtCall, dateItemRenderFn, "Date Field", 25, NO_CALLBACK)
-DateFormattedMenuItem menuMySubSub1DateField(fnMySubSub1DateFieldRtCall, DateStorage(2020, 1, 1), 14, &menuMySubSub1RGB);
+DateFormattedMenuItem menuMySubSub1DateField(fnMySubSub1DateFieldRtCall, DateStorage(1, 1, 2020), 14, &menuMySubSub1RGB);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TimeFieldRtCall, timeItemRenderFn, "Time Field", -1, NO_CALLBACK)
 TimeFormattedMenuItem menuMySubSub1TimeField(fnMySubSub1TimeFieldRtCall, TimeStorage(0, 0, 0, 0), 13, (MultiEditWireType)8, &menuMySubSub1DateField);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IPAddressRtCall, ipAddressRenderFn, "IP Address", 21, onIpChange)
@@ -48,9 +48,9 @@ IpAddressMenuItem menuMySubSub1IPAddress(fnMySubSub1IPAddressRtCall, IpAddressSt
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TextItemRtCall, textItemRenderFn, "Text Item", 7, NO_CALLBACK)
 TextMenuItem menuMySubSub1TextItem(fnMySubSub1TextItemRtCall, "", 11, 14, &menuMySubSub1IPAddress);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IntLargeRtCall, largeNumItemRenderFn, "Int Large", -1, NO_CALLBACK)
-EditableLargeNumberMenuItem menuMySubSub1IntLarge(fnMySubSub1IntLargeRtCall, 10, 8, 0, false, LargeFixedNumber(0U, 0U, false), &menuMySubSub1TextItem);
+EditableLargeNumberMenuItem menuMySubSub1IntLarge(fnMySubSub1IntLargeRtCall, LargeFixedNumber(8, 0, 0U, 0U, false), 10, false, &menuMySubSub1TextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DecLargeRtCall, largeNumItemRenderFn, "Dec Large", -1, onDecLarge)
-EditableLargeNumberMenuItem menuMySubSub1DecLarge(fnMySubSub1DecLargeRtCall, 9, 8, 3, true, LargeFixedNumber(0U, 0U, false), &menuMySubSub1IntLarge);
+EditableLargeNumberMenuItem menuMySubSub1DecLarge(fnMySubSub1DecLargeRtCall, LargeFixedNumber(8, 3, 0U, 0U, false), 9, true, &menuMySubSub1IntLarge);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RtCall, backSubItemRenderFn, "Sub1", -1, NO_CALLBACK)
 const SubMenuInfo minfoMySubSub1 = { "Sub1", 8, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackMySubSub1(fnMySubSub1RtCall, &menuMySubSub1DecLarge);

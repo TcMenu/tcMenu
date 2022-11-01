@@ -618,8 +618,8 @@ public class EmbeddedJavaGeneratorFileData {
                 requires com.thecoderscorner.embedcontrol.core;
                 requires spring.core;
                 requires spring.context;
-                exports com.thecoderscorner.menuexample.tcmenu.plugins;
-                opens com.thecoderscorner.menuexample.tcmenu;
+                exports com.tester.tcmenu.plugins;
+                opens com.tester.tcmenu;
             }
             """;
 }
