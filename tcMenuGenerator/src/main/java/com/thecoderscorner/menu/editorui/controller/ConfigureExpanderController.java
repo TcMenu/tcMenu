@@ -15,7 +15,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 public class ConfigureExpanderController {
     private final System.Logger logger = System.getLogger(ConfigureExpanderController.class.getSimpleName());
-    public final static String[] COMBO_CHOICES = { "Custom IoAbstractionRef", "I2C PCF8574", "I2C MCP23017", "I2C PCF8575" };
+    public final static String[] COMBO_CHOICES = { "Custom IoAbstractionRef", "I2C PCF8574", "I2C MCP23017", "I2C PCF8575", "I2C AW9523" };
 
     public ComboBox<String> expanderTypeCombo;
     public TextField variableNameField;
@@ -48,13 +48,17 @@ public class ConfigureExpanderController {
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
                 interruptPinField.setText(Integer.toString(pcf.getIntPin()));
             } else if (expanderDefinition instanceof Pcf8575DeviceExpander pcf) {
-                expanderTypeCombo.getSelectionModel().select(1);
+                expanderTypeCombo.getSelectionModel().select(3);
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
                 interruptPinField.setText(Integer.toString(pcf.getIntPin()));
             } else if (expanderDefinition instanceof Mcp23017DeviceExpander pcf) {
                 expanderTypeCombo.getSelectionModel().select(2);
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
                 interruptPinField.setText(Integer.toString(pcf.getIntPin()));
+            } else if(expanderDefinition instanceof Aw9523DeviceExpander aw) {
+                expanderTypeCombo.getSelectionModel().select(4);
+                i2cAddrField.setText("0x" + Integer.toString(aw.getI2cAddress(), 16));
+                interruptPinField.setText(Integer.toString(aw.getIntPin()));
             }
         }
         else {
@@ -80,6 +84,7 @@ public class ConfigureExpanderController {
         }
         invertedField.setDisable(idx != 1 && idx != 3); // only supported on PCF devices.
         helpTextField.setText(getDescriptiveTextForType());
+        i2cAddrField.setPromptText((idx == 4) ? "0x58" : "0x20");
     }
 
     private boolean anyEmptyText(TextField... flds) {
@@ -110,6 +115,7 @@ public class ConfigureExpanderController {
                 case 1 -> Optional.of(new Pcf8574DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
                 case 2 -> Optional.of(new Mcp23017DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
                 case 3 -> Optional.of(new Pcf8575DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
+                case 4 -> Optional.of(new Aw9523DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
                 default -> Optional.empty();
             };
             ((Stage) interruptPinField.getScene().getWindow()).close();

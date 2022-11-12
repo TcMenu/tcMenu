@@ -34,7 +34,6 @@ class IoExpanderDefinitionTest {
 
         var device3 = IoExpanderDefinition.fromString("customIO:superDuper").orElseThrow();
         assertEquals(custom, device3);
-
     }
 
     @Test
@@ -54,6 +53,27 @@ class IoExpanderDefinitionTest {
         var device2 = IoExpanderDefinition.fromString("").orElseThrow();
         assertThat(device2).isInstanceOf(InternalDeviceExpander.class);
         assertEquals(custom, device2);
+    }
+
+    @Test
+    public void testAw9523DeviceExpander() {
+        var device = IoExpanderDefinition.fromString("aw9523:ioDevice:88:2").orElseThrow();
+        assertThat(device).isInstanceOf(Aw9523DeviceExpander.class);
+        var awDevice = (Aw9523DeviceExpander)device;
+        assertEquals("ioexp_ioDevice", awDevice.getVariableName());
+        assertEquals("ioDevice", awDevice.getId());
+        assertEquals("AW9523(0x58, 2)", awDevice.getNicePrintableName());
+        assertThat(awDevice.generateCode()).isEmpty();
+        assertEquals("""
+            AW9523IoAbstraction iodev_ioDevice(0x58, 2);
+            IoAbstractionRef ioexp_ioDevice = &iodev_ioDevice;""", awDevice.generateGlobal().orElseThrow());
+        assertEquals("""
+            extern AW9523IoAbstraction iodev_ioDevice;
+            extern IoAbstractionRef ioexp_ioDevice;""", awDevice.generateExport().orElseThrow());
+
+        assertEquals("IoAbstractionWire.h", awDevice.generateHeader().orElseThrow().getHeaderName());
+        assertEquals(GLOBAL, awDevice.generateHeader().orElseThrow().getHeaderType());
+        assertEquals("aw9523:ioDevice:88:2", awDevice.toString());
     }
 
     @Test
