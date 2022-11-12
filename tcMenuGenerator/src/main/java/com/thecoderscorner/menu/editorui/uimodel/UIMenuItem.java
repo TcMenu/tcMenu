@@ -258,7 +258,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .withVariableName(varName)
                 .withReadOnly(readOnlyCheck.isSelected())
                 .withLocalOnly(noRemoteCheck.isSelected())
-                .withVisible(visibleCheck.isVisible());
+                .withVisible(visibleCheck.isSelected());
     }
 
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {

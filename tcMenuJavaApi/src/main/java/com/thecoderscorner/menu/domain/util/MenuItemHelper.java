@@ -492,6 +492,17 @@ public class MenuItemHelper {
     }
 
     /**
+     * This gets the value from the tree state, if it is not available calls getDefaultValue
+     * Same as getValueFor(item, tree, defVal) but this just calls getDefaultFor(..) to get the default.
+     * @param item the item to get the state of
+     * @param tree the tree holding the state
+     * @return the items current value, or the default.
+     */
+    public static Object getValueFor(MenuItem item, MenuTree tree) {
+        return getValueFor(item, tree, getDefaultFor(item));
+    }
+
+    /**
      * Gets the default item value for a menu item, such that the value could be used in call to set state.
      * @param item the item
      * @return the default value

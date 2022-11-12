@@ -67,7 +67,9 @@ public class JsonMenuItemSerializer {
         }
         else {
             items = new ArrayList<>(); // has to be an array list.
-            items.add(new PersistedMenu(tree.findParent(startingPoint), startingPoint));
+            PersistedMenu menu = new PersistedMenu(tree.findParent(startingPoint), startingPoint);
+            menu.setDefaultValue(Objects.toString(MenuItemHelper.getValueFor(startingPoint, tree)));
+            items.add(menu);
         }
         return TCMENU_COPY_PREFIX + gson.toJson(items);
     }

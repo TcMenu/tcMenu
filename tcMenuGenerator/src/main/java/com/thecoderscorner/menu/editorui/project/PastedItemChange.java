@@ -4,7 +4,6 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.util.ArrayList;
@@ -82,7 +81,11 @@ public class PastedItemChange extends MenuItemChange {
         {
             var par = tree.getMenuById(item.getParentId());
             if(par.isPresent() && par.get() instanceof SubMenuItem) {
-                tree.addMenuItem((SubMenuItem)par.get(), cleanUpItem(item.getItem(), tree));
+                MenuItem cleanedItem = cleanUpItem(item.getItem(), tree);
+                tree.addMenuItem((SubMenuItem)par.get(), cleanedItem);
+                if(item.getDefaultValue() != null) {
+                    MenuItemHelper.setMenuState(cleanedItem, item.getDefaultValue(), tree);
+                }
             }
         }
     }
