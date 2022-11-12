@@ -116,7 +116,7 @@ public class MenuEditorController {
         this.libVerDetector = libraryVersionDetector;
 
         this.menuTree.setOnKeyPressed(event -> {
-            if(event.isMetaDown() && !event.isShiftDown() && !event.isAltDown()) {
+            if(event.isShortcutDown() && !event.isShiftDown() && !event.isAltDown()) {
                 if(event.getCode() == KeyCode.C) {
                     onTreeCopy(new ActionEvent(menuTree, menuTree));
                 } else if(event.getCode() == KeyCode.V) {
