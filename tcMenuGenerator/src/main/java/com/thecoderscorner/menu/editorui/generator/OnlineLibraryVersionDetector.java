@@ -80,20 +80,20 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
             var verData = client.postRequestForString(urlBase + LIBRARY_VERSIONING_URL_APPEND, "", IHttpClient.HttpDataType.FORM);
             var inStream = new ByteArrayInputStream(verData.getBytes());
 
-            logger.log(INFO, "Data acquisition from server completed");
+            logger.log(DEBUG, "Data acquisition from server completed");
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = factory.newDocumentBuilder();
             Document doc = dBuilder.parse(inStream);
             var root = doc.getDocumentElement();
 
-            logger.log(INFO, "Document created");
+            logger.log(DEBUG, "Document created");
 
             addVersionsToMap(root.getElementsByTagName("Libraries"), "Library", relType, libDict);
             addVersionsToMap(root.getElementsByTagName("Plugins"), "Plugin", relType, libDict);
             addVersionsToMap(root.getElementsByTagName("Apps"), "App", relType, libDict);
 
-            logger.log(INFO, "All done, saving out new versions.");
+            logger.log(INFO, "Version information fully loaded.");
 
             synchronized (cacheLock) {
                 lastAccess = System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     }
 
     private void addVersionsToMap(NodeList topLevelElem, String type, ReleaseType relType, HashMap<String, VersionInfo> libDict) {
-        logger.log(System.Logger.Level.INFO, "Starting to acquire version list from core site");
+        logger.log(DEBUG, "Starting to acquire version list from core site");
         for(int i=0; i< topLevelElem.getLength(); i++) {
             var item = topLevelElem.item(i);
             if (item.getAttributes().getNamedItem("stream").getNodeValue().equals(relType.toString())) {
@@ -119,7 +119,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
                 }
             }
         }
-        logger.log(System.Logger.Level.INFO, "Successfully got version list from core site for " + cachedReleaseType);
+        logger.log(DEBUG, "Successfully got version list from core site for " + cachedReleaseType);
     }
 
     @Override

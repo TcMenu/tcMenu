@@ -23,6 +23,8 @@ const uint8_t* safeGetFont(const void* fnt) {
     return u8g2_font_6x10_tf;
 }
 
+#define TC_USE_UTF_8_ENCODING false
+
 #if WANT_TASK_MANAGER_FRIENDLY_YIELD == 1
 static uint8_t bytesSent = 0;
 TwoWire* U8g2Drawable::pWire = nullptr;
@@ -68,8 +70,12 @@ void U8g2Drawable::drawText(const Coord &where, const void *font, int mag, const
     u8g2->setFontMode(drawColor == 2);
     auto extraHeight = u8g2->getMaxCharHeight();
     u8g2->setDrawColor(drawColor);
+#ifdef TC_USE_UTF_8_ENCODING
+    u8g2->drawUTF8(where.x, where.y + extraHeight, text);
+#else
     u8g2->setCursor(where.x, where.y + extraHeight);
     u8g2->print(text);
+#endif
 }
 
 void U8g2Drawable::drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) {
@@ -134,5 +140,9 @@ void U8g2Drawable::transaction(bool isStarting, bool redrawNeeded) {
 Coord U8g2Drawable::textExtents(const void *font, int mag, const char *text, int *baseline) {
     u8g2->setFont(safeGetFont(font));
     if(baseline) *baseline = (int)u8g2->getFontDescent();
+#ifdef TC_USE_UTF_8_ENCODING
+    return Coord(u8g2->getUTF8Width(text), u8g2->getMaxCharHeight());
+#else
     return Coord(u8g2->getStrWidth(text), u8g2->getMaxCharHeight());
+#endif
 }

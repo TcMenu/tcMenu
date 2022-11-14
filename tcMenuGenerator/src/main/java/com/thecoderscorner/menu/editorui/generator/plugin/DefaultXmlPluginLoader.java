@@ -7,19 +7,18 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.scene.image.Image;
 import org.w3c.dom.Document;
@@ -173,13 +172,13 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             config.setPlugins(transformElements(root, "Plugins", "Plugin", (ele) -> {
                 try {
                     var pluginName = ele.getTextContent().trim();
-                    logger.log(System.Logger.Level.INFO, "Loading plugin item " + pluginName);
+                    logger.log(System.Logger.Level.DEBUG, "Loading plugin " + pluginName);
                     var path = directoryPath.resolve(pluginName);
                     String strPlugin;
                     strPlugin = new String(Files.readAllBytes(path));
                     var created = loadPlugin(strPlugin);
                     if (created != null) {
-                        logger.log(System.Logger.Level.INFO, "Loaded item " + pluginName);
+                        logger.log(System.Logger.Level.INFO, "Loaded plugin " + pluginName);
                         created.setConfig(config);
                         return created;
                     } else {

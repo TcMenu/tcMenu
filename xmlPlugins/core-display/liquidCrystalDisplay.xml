@@ -20,8 +20,9 @@
     <Properties>
         <Property id="LCD_WIDTH" name="Lcd Width" initial="16" desc="Number of characters across the LCD" type="int" min="1" max="20"/>
         <Property id="LCD_HEIGHT" name="Lcd Height" initial="2" desc="Number of rows on the LCD" type="int" min="1" max="4"/>
-        <Property id="LCD_EN" name="LCD EN Pin" initial="2" desc="EN Pin connection to LCD" type="pin"/>
         <Property id="LCD_RS" name="LCD RS Pin" initial="1" desc="RS Pin connection to LCD" type="pin"/>
+        <Property id="LCD_RW" name="LCD RW Pin" initial="-1" desc="RW Pin connection to LCD" type="pin"/>
+        <Property id="LCD_EN" name="LCD EN Pin" initial="2" desc="EN Pin connection to LCD" type="pin"/>
         <Property id="LCD_D4" name="LCD D4 Pin" initial="4" desc="D4 Pin connection to LCD" type="pin"/>
         <Property id="LCD_D5" name="LCD D5 Pin" initial="5" desc="D5 Pin connection to LCD" type="pin"/>
         <Property id="LCD_D6" name="LCD D6 Pin" initial="6" desc="D6 Pin connection to LCD" type="pin"/>
@@ -53,6 +54,7 @@
     <GlobalVariables>
         <Variable name="lcd" type="LiquidCrystal" export="true" progmem="false">
             <Param value="${LCD_RS}"/>
+            <Param value="${LCD_RW}"/>
             <Param value="${LCD_EN}"/>
             <Param value="${LCD_D4}"/>
             <Param value="${LCD_D5}"/>

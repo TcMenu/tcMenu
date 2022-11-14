@@ -30,6 +30,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -604,6 +605,9 @@ public class GenerateCodeDialog {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scroll.setPrefSize(700, 600);
+        scroll.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, new CornerRadii(2),
+                BorderStroke.THICK)));
+
         popup.getContent().add(scroll);
         popup.setAutoHide(true);
         popup.setOnAutoHide(event -> popup.hide());

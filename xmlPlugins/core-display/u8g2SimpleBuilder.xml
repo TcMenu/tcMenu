@@ -89,11 +89,15 @@
         <Property id="YIELDING_WIRE_CB" name="Advanced: Improve I2C latency by yielding" initial="false" type="boolean"
                   whenProperty="DISPLAY_TYPE" matches=".*HW_I2C"
                   desc="Overrides byte callback calling yieldForMicros frequently to improve latency, you must call Wire.begin() yourself" />
+        <Property id="USE_UTF8_SUPPORT" name="Turn on support for UTF-8" initial="false" type="boolean"
+                  desc="When true we'll call into U8G2 using UTF8 functions, otherwise we'll use regular print"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
+        <Replacement find="define TC_USE_UTF_8_ENCODING (true|false)" replace="define TC_USE_UTF_8_ENCODING true" whenProperty="USE_UTF8_SUPPORT" isValue="true"/>
+        <Replacement find="define TC_USE_UTF_8_ENCODING (true|false)" replace="define TC_USE_UTF_8_ENCODING false" whenProperty="USE_UTF8_SUPPORT" isValue="false"/>
         <Replacement find="define WANT_TASK_MANAGER_FRIENDLY_YIELD [01]" replace="define WANT_TASK_MANAGER_FRIENDLY_YIELD 1" whenProperty="YIELDING_WIRE_CB" isValue="true"/>
         <Replacement find="define WANT_TASK_MANAGER_FRIENDLY_YIELD [01]" replace="define WANT_TASK_MANAGER_FRIENDLY_YIELD 0" whenProperty="YIELDING_WIRE_CB" isValue="false"/>
         <SourceFile name="u8g2Driver/tcMenuU8g2.cpp" />
