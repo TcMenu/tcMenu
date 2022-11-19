@@ -481,6 +481,11 @@ public class MenuEditorController {
 
     public void onGenerateCode(ActionEvent event) {
         try {
+            if(!editorProject.isFileNameSet()) {
+                editorUI.alertOnError("No filename set", "Please set a filename to continue");
+                return;
+            }
+
             editorUI.showCodeGeneratorDialog(installer);
             editorProject.saveProject(EditorSaveMode.SAVE);
             redrawTreeControl();
@@ -657,6 +662,10 @@ public class MenuEditorController {
 
     public void onMenuInMenu(ActionEvent actionEvent) {
         var menuInMenuDialog = new EditMenuInMenuDialog(getStage(), editorProject.getGeneratorOptions(), editorProject.getMenuTree(), true);
+    }
+
+    public void onCreateFontDialog(ActionEvent actionEvent) {
+        editorUI.showCreateFontUtility();
     }
 
     private record RecentlyUsedItem(String name, String path) {

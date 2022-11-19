@@ -69,7 +69,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open) {
+    public Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open, String allowedExtensions) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose a Menu File");
         initialDir.ifPresentOrElse(
@@ -77,7 +77,17 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
                 () -> installer.getArduinoDirectory().ifPresent(path-> fileChooser.setInitialDirectory(path.toFile()))
         );
 
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Embedded menu", "*.emf"));
+        String allowedExtensionsDesc;
+        String allowedExtensionsFmt;
+        if(allowedExtensions.contains("|")) {
+            var extParts = allowedExtensions.split("\\|");
+            allowedExtensionsDesc = extParts[0];
+            allowedExtensionsFmt = extParts[1];
+        } else {
+            allowedExtensionsDesc = allowedExtensionsFmt = allowedExtensions;
+        }
+
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(allowedExtensionsDesc, allowedExtensionsFmt));
         File f;
         if (open) {
             f = fileChooser.showOpenDialog(mainStage);
@@ -93,7 +103,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public Optional<String> findFileNameFromUser(boolean open) {
-        return findFileNameFromUser(Optional.empty(), open);
+        return findFileNameFromUser(Optional.empty(), open, "Menu Definitions|*.emf");
     }
 
     @Override
@@ -287,5 +297,10 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
         return platforms.getEmbeddedPlatforms();
+    }
+
+    @Override
+    public void showCreateFontUtility() {
+        new CreateFontUtilityDialog(mainStage, this, homeDirectory);
     }
 }

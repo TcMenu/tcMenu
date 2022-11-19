@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="731.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.CreateFontUtilityController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="162.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="225.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="196.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="166.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="129.0" minHeight="0.0" prefHeight="16.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="316.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="351.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="129.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="351.0" minHeight="4.0" prefHeight="20.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="451.0" minHeight="10.0" prefHeight="432.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="351.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label prefHeight="20.0" prefWidth="388.0" text="TcUnicode Font Generator" GridPane.columnSpan="2">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Label prefHeight="17.0" prefWidth="164.0" text="Select a font file" GridPane.rowIndex="1" />
+      <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+      <Label text="Choose characters in font:" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
+        <buttons>
+            <Button fx:id="onHelp" mnemonicParsing="false" text="Online Help" />
+            <Button fx:id="chooseUnicodeRangeButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
+            <Button fx:id="onGenerateAdafruit" mnemonicParsing="false" text="Generate Adafruit" />
+          <Button fx:id="onGenerateTcUnicode" mnemonicParsing="false" text="Generate TcUnicode" />
+        </buttons>
+      </ButtonBar>
+      <Label fx:id="approxSizeField" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="214.0" text="Size: 200.1KB" textAlignment="RIGHT" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
+      <Label prefHeight="17.0" prefWidth="184.0" text="Size in pixels" GridPane.rowIndex="3" />
+      <Spinner fx:id="pixelSizeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <Label prefHeight="17.0" prefWidth="175.0" text="Structure/header name" GridPane.rowIndex="2" />
+      <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" />
+      <Label text="Font style to use" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+         <padding>
+            <Insets right="4.0" />
+         </padding>
+      </Label>
+      <ComboBox fx:id="fontStyleCombo" onAction="#onFontStyleChanged" prefHeight="25.0" prefWidth="170.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="5">
+         <content>
+            <GridPane fx:id="fontRenderArea" >
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+         </content>
+      </ScrollPane>
+      <MenuButton mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="Choose Font" GridPane.columnIndex="3" GridPane.rowIndex="1">
+        <items>
+          <MenuItem mnemonicParsing="false" text="Choose From File" onAction="#onChooseFont"/>
+            <Menu mnemonicParsing="false" text="Loaded Fonts" fx:id="loadedFontsMenu">
+              <items>
+              </items>
+            </Menu>
+        </items>
+      </MenuButton>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</GridPane>

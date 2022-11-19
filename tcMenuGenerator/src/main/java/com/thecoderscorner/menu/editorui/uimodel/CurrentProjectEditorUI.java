@@ -39,7 +39,7 @@ public interface CurrentProjectEditorUI {
      * @param open true if open, false if save.
      * @return the filename or empty.
      */
-    Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open);
+    Optional<String> findFileNameFromUser(Optional<Path> initialDir, boolean open, String allowedExtensions);
 
     /**
      * Presents an error dialog to the user.
@@ -139,4 +139,9 @@ public interface CurrentProjectEditorUI {
      * @return a list of platforms
      */
     List<EmbeddedPlatform> getEmbeddedPlatforms();
+
+    /**
+     * Presents the create font utility
+     */
+    void showCreateFontUtility();
 }
