@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.util;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -60,4 +61,21 @@ public class StringHelper {
         }
         return sb.toString();
     }
+
+    public static void printArrayToStream(PrintStream ps, byte[] dataBytes, int numberOfHexPoints) {
+        for(int i = 0; i< dataBytes.length; i++) {
+            ps.append(String.format("0x%02x", dataBytes[i]));
+            if(i != (dataBytes.length -1)) {
+                ps.append(",");
+            }
+            else {
+                ps.append("\n");
+            }
+
+            if((i%20)==19) {
+                ps.append("\n");
+            }
+        }
+    }
+
 }

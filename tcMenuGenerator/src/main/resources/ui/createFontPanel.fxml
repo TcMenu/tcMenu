@@ -40,16 +40,15 @@
       </Label>
       <Label prefHeight="17.0" prefWidth="164.0" text="Select a font file" GridPane.rowIndex="1" />
       <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-      <Label text="Choose characters in font:" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
+      <Label fx:id="fontSizeField" text="Choose characters in font:" GridPane.rowIndex="4" GridPane.columnSpan="3" GridPane.valignment="BOTTOM" />
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
             <Button fx:id="onHelp" mnemonicParsing="false" text="Online Help" />
-            <Button fx:id="chooseUnicodeRangeButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
-            <Button fx:id="onGenerateAdafruit" mnemonicParsing="false" text="Generate Adafruit" />
-          <Button fx:id="onGenerateTcUnicode" mnemonicParsing="false" text="Generate TcUnicode" />
+            <Button mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
+            <Button fx:id="onGenerateAdafruit" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
+          <Button fx:id="onGenerateTcUnicode" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
         </buttons>
       </ButtonBar>
-      <Label fx:id="approxSizeField" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="214.0" text="Size: 200.1KB" textAlignment="RIGHT" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
       <Label prefHeight="17.0" prefWidth="184.0" text="Size in pixels" GridPane.rowIndex="3" />
       <Spinner fx:id="pixelSizeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       <Label prefHeight="17.0" prefWidth="175.0" text="Structure/header name" GridPane.rowIndex="2" />
@@ -62,7 +61,7 @@
       <ComboBox fx:id="fontStyleCombo" onAction="#onFontStyleChanged" prefHeight="25.0" prefWidth="170.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
       <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="5">
          <content>
-            <GridPane fx:id="fontRenderArea" >
+            <GridPane fx:id="fontRenderArea">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="68.0" />
@@ -83,8 +82,8 @@
       </ScrollPane>
       <MenuButton mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="Choose Font" GridPane.columnIndex="3" GridPane.rowIndex="1">
         <items>
-          <MenuItem mnemonicParsing="false" text="Choose From File" onAction="#onChooseFont"/>
-            <Menu mnemonicParsing="false" text="Loaded Fonts" fx:id="loadedFontsMenu">
+          <MenuItem mnemonicParsing="false" onAction="#onChooseFont" text="Choose From File" />
+            <Menu fx:id="loadedFontsMenu" mnemonicParsing="false" text="Loaded Fonts">
               <items>
               </items>
             </Menu>

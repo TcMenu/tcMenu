@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
+<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
    <top>
       <Label prefHeight="27.0" prefWidth="534.0" text="Choose the font to use" BorderPane.alignment="CENTER">
          <font>
@@ -36,12 +36,12 @@
       <VBox prefHeight="343.0" prefWidth="504.0" BorderPane.alignment="CENTER">
          <children>
             <Hyperlink onAction="#onFontDefinitionsDocs" text="Read the documentation on how font definitions work" />
-            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit Library Font (Adafruit and LTDC displays)">
+            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit or TcUnicode Library Font">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="Adafruit font local to project" toggleGroup="$main" />
+            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="Adafruit or TcUnicode font local to project" toggleGroup="$main" />
             <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="Static Font (U8G2 displays)" toggleGroup="$main" />
             <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Numbered Font (TFT_eSPI displays)" toggleGroup="$main" />
              <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="Use the default font if possible" toggleGroup="$main" />

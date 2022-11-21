@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.*;
@@ -34,14 +35,14 @@ class TcUnicodeFontTest {
     }
 
     @Test
-    public void testUnicodeToAdafruit() {
+    public void testUnicodeToAdafruit() throws IOException {
         var os = new ByteArrayOutputStream();
         font.encodeFontToStream(os, FontFormat.ADAFRUIT);
         assertEquals("", os.toString());
     }
 
     @Test
-    public void testUnicodeToTcUnicode() {
+    public void testUnicodeToTcUnicode() throws IOException {
         var os = new ByteArrayOutputStream();
         font.encodeFontToStream(os, FontFormat.TC_UNICODE);
         assertEquals("", os.toString());

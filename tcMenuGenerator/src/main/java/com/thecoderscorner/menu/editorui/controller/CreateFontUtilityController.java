@@ -1,11 +1,10 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont;
-import com.thecoderscorner.menu.editorui.generator.font.LoadedFont;
-import com.thecoderscorner.menu.editorui.generator.font.NoLoadedFont;
-import com.thecoderscorner.menu.editorui.generator.font.UnicodeBlockMapping;
+import com.thecoderscorner.menu.editorui.generator.font.*;
+import com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontBlock;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -25,24 +24,32 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont.*;
+import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.*;
 
 public class CreateFontUtilityController {
+    private static final long APPROX_ADA_SIZE = 8;
+    private static final long APPROX_TCUNICODE_SIZE = 10;
+    private static final long ADA_OVERHEAD = 16;
+    private static final long TC_UNI_OVERHEAD = 16; // for each block
+
+    public final System.Logger logger = System.getLogger(getClass().getSimpleName());
+
     public TextField fontFileField;
     public Button onHelp;
-    public Button onToggleSelected;
     public Button onGenerateAdafruit;
     public Button onGenerateTcUnicode;
-    public Label approxSizeField;
     public Spinner<Integer> pixelSizeSpinner;
     public ComboBox<FontStyle> fontStyleCombo;
     public TextField outputStructNameField;
     public GridPane fontRenderArea;
     public Menu loadedFontsMenu;
+    public Label fontSizeField;
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
@@ -110,6 +117,7 @@ public class CreateFontUtilityController {
                         currentlySelected.put(i, selAllCheck.isSelected());
                     }
                 }
+                recalcSize();
             });
             fontRenderArea.add(selAllCheck, 6, gridRow, 3, 1);
 
@@ -127,7 +135,10 @@ public class CreateFontUtilityController {
                     toggleButton.setContentDisplay(ContentDisplay.TOP);
                     var selected = currentlySelected.get(glyph.code());
                     toggleButton.setSelected(selected != null && selected);
-                    toggleButton.setOnAction(event -> currentlySelected.put(glyph.code(), toggleButton.isSelected()));
+                    toggleButton.setOnAction(event -> {
+                        currentlySelected.put(glyph.code(), toggleButton.isSelected());
+                        recalcSize();
+                    });
                     fontRenderArea.add(toggleButton, gridCol, gridRow);
                     allButtons.add(toggleButton);
                     GridPane.setMargin(toggleButton, new Insets(4));
@@ -141,6 +152,7 @@ public class CreateFontUtilityController {
             gridRow++;
             controlsByBlock.put(blockRange, allButtons);
         }
+        recalcSize();
     }
 
     private Image fromGlyphToImg(ConvertedFontGlyph glyph) {
@@ -189,5 +201,81 @@ public class CreateFontUtilityController {
             });
 
         }
+    }
+
+    public void onGenerateAdafruit(ActionEvent actionEvent) {
+        internalGenerate(FontFormat.ADAFRUIT);
+    }
+
+    public void onGenerateUnicode(ActionEvent actionEvent) {
+        internalGenerate(FontFormat.TC_UNICODE);
+    }
+
+    private void internalGenerate(FontEncoder.FontFormat format) {
+        logger.log(System.Logger.Level.INFO, "Show font conversion save dialog");
+        var fileName = editorUI.getCurrentProject().getFileName();
+        var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
+        var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
+        if(maybeOutFile.isEmpty()) return;
+        logger.log(System.Logger.Level.INFO, "Convert font " + format + ", name " + maybeOutFile.get());
+        try(var outStream = new FileOutputStream(maybeOutFile.get())) {
+            var blocks = new ArrayList<TcUnicodeFontBlock>();
+            int maxY = 0;
+
+            for(var blockMapping : blockMappings) {
+                var glyphsInBlock = new ArrayList<TcUnicodeFontGlyph>();
+                for(int i = blockMapping.getStartingCode(); i <= blockMapping.getEndingCode(); i++) {
+                    if(!currentlySelected.containsKey(i)) continue;
+                    var maybeRawGlyph = loadedFont.getConvertedGlyph(i);
+                    if(maybeRawGlyph.isEmpty()) continue;
+                    var rawGlyph = maybeRawGlyph.get();
+
+                    int totalHeight = rawGlyph.toBaseLine() + rawGlyph.belowBaseline();
+                    glyphsInBlock.add(new TcUnicodeFontGlyph(i, rawGlyph.data(), rawGlyph.fontDims().width(),
+                            totalHeight, rawGlyph.totalWidth(),
+                            rawGlyph.fontDims().startX(), rawGlyph.fontDims().startY()));
+                    if(totalHeight > maxY) {
+                        maxY = totalHeight;
+                    }
+                }
+
+                blocks.add(new TcUnicodeFontBlock(blockMapping, glyphsInBlock));
+            }
+
+            logger.log(System.Logger.Level.INFO, "Writing to file");
+            TcUnicodeFontExporter exporter = new TcUnicodeFontExporter(outputStructNameField.getText(), blocks, maxY);
+            exporter.encodeFontToStream(outStream, format);
+            logger.log(System.Logger.Level.INFO, "Finished write to file");
+        } catch (Exception ex) {
+            editorUI.alertOnError("Font not converted", "The font was not converted due to the following. " + ex.getMessage());
+            logger.log(System.Logger.Level.ERROR, "Unable to convert font to " + format, ex);
+        }
+    }
+
+    private void recalcSize() {
+        long count = currentlySelected.values().stream().filter(e -> e).count();
+
+        long byteSize = currentlySelected.entrySet().stream().filter(Map.Entry::getValue)
+                .map(e-> loadedFont.getConvertedGlyph(e.getKey()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(g -> g.data().length)
+                .reduce(0, Integer::sum);
+
+        long min = currentlySelected.entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .min(Integer::compareTo)
+                .orElse(0);
+        long max = currentlySelected.entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        var txt = String.format("Choose Characters below, selected = %d, approx size Adafruit %d, TcUnicode %d",
+                count, ((max-min) * APPROX_ADA_SIZE) + ADA_OVERHEAD + byteSize,
+                (count * APPROX_TCUNICODE_SIZE) + (blockMappings.size() + TC_UNI_OVERHEAD) + byteSize);
+        fontSizeField.setText(txt);
     }
 }
