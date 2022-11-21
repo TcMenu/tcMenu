@@ -1,6 +1,5 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -27,11 +26,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont.*;
-import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.*;
+import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.FontFormat;
+import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontGlyph;
 
 public class CreateFontUtilityController {
     private static final long APPROX_ADA_SIZE = 8;
@@ -167,7 +167,7 @@ public class CreateFontUtilityController {
                 int byteOffset = bitOffset / 8;
                 if(byteOffset >= glyph.data().length) break;
                 int d = glyph.data()[byteOffset];
-                boolean on = (d & (1<<(bitOffset % 8))) != 0;
+                boolean on = (d & (1<<(7 - (bitOffset % 8)))) != 0;
                 if(on) {
                     writer.setColor(x, y, Color.WHITE);
                 }
