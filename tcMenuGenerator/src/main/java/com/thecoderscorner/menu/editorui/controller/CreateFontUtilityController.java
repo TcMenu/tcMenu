@@ -246,7 +246,7 @@ public class CreateFontUtilityController {
                     int totalHeight = rawGlyph.toBaseLine() + rawGlyph.belowBaseline();
                     glyphsInBlock.add(new TcUnicodeFontGlyph(i, rawGlyph.data(), rawGlyph.fontDims().width(),
                             rawGlyph.fontDims().height(), rawGlyph.totalWidth(),
-                            rawGlyph.fontDims().startX(), rawGlyph.fontDims().startY()));
+                            rawGlyph.fontDims().startX(), -(totalHeight - rawGlyph.fontDims().startY())));
                     if(totalHeight > maxY) {
                         maxY = totalHeight;
                     }

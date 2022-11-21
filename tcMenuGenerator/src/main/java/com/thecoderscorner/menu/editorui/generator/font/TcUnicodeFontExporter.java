@@ -29,7 +29,7 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
     }
 
     private void encodeAdafruit(PrintStream ps) {
-        ps.println("const uint8_t " + fontName + "Bitmaps[] PROGMEM {");
+        ps.println("const uint8_t " + fontName + "Bitmaps[] PROGMEM = {");
         List<TcUnicodeFontGlyph> allGlyphs = itemsFromAllBlocks();
         printByteArray(ps, allGlyphs);
         ps.println("};");
@@ -79,7 +79,7 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
         var blockData = new ArrayList<String>();
         for(var block : blocks) {
             ps.println("// Bitmaps for " + block.mapping());
-            ps.printf("const uint8_t %sBitmaps_%d[] PROGMEM {", fontName, block.mapping().ordinal());
+            ps.printf("const uint8_t %sBitmaps_%d[] PROGMEM = {", fontName, block.mapping().ordinal());
             ps.println();
             printByteArray(ps, block.glyphs());
             ps.println("};");
