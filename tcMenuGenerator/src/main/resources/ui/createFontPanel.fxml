@@ -45,8 +45,8 @@
         <buttons>
             <Button fx:id="onHelp" mnemonicParsing="false" text="Online Help" />
             <Button mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
-            <Button fx:id="onGenerateAdafruit" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
-          <Button fx:id="onGenerateTcUnicode" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
+            <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
+          <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
         </buttons>
       </ButtonBar>
       <Label prefHeight="17.0" prefWidth="184.0" text="Size in pixels" GridPane.rowIndex="3" />

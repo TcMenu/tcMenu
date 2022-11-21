@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.font.*;
@@ -34,22 +35,22 @@ import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExpo
 
 public class CreateFontUtilityController {
     private static final long APPROX_ADA_SIZE = 8;
-    private static final long APPROX_TCUNICODE_SIZE = 10;
     private static final long ADA_OVERHEAD = 16;
+    private static final long APPROX_TCUNICODE_SIZE = 10;
     private static final long TC_UNI_OVERHEAD = 16; // for each block
 
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     public TextField fontFileField;
     public Button onHelp;
-    public Button onGenerateAdafruit;
-    public Button onGenerateTcUnicode;
     public Spinner<Integer> pixelSizeSpinner;
     public ComboBox<FontStyle> fontStyleCombo;
     public TextField outputStructNameField;
     public GridPane fontRenderArea;
     public Menu loadedFontsMenu;
     public Label fontSizeField;
+    public Button generateAdafruitBtn;
+    public Button generateTcUnicodeBtn;
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
@@ -81,6 +82,8 @@ public class CreateFontUtilityController {
                 item.setOnAction(event -> {
                     fontFileField.setText("OS " + f.getName() + " " + f.getFamily());
                     loadedFont = new AwtLoadedFont(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
+                    changeNameField();
+                    recalcFont();
                 });
                 loadedFontsMenu.getItems().add(item);
             }
@@ -91,8 +94,8 @@ public class CreateFontUtilityController {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
         fileChoice.ifPresent(file -> {
             fontFileField.setText(file);
-            changeNameField();
             loadedFont = new AwtLoadedFont(file, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
+            changeNameField();
             recalcFont();
         });
     }
@@ -182,8 +185,17 @@ public class CreateFontUtilityController {
     private void changeNameField() {
         var file = Path.of(fontFileField.getText()).getFileName().toString();
         file = file.replace(".ttf", "");
-        var outputName = file + " " + pixelSizeSpinner.getValue() + "pt " + fontStyleCombo.getValue();
+        var outputName = file + " " + pixelSizeSpinner.getValue() + toSimpleStyle(fontStyleCombo.getValue());
         outputStructNameField.setText(VariableNameGenerator.makeNameFromVariable(outputName));
+    }
+
+    private String toSimpleStyle(FontStyle value) {
+        return switch (value) {
+            case PLAIN -> "";
+            case BOLD -> "b";
+            case ITALICS -> "i";
+            case BOLD_ITALICS -> "bi";
+        };
     }
 
     public void onChooseUnicodeRanges(ActionEvent actionEvent) {
@@ -217,8 +229,9 @@ public class CreateFontUtilityController {
         var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
         var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
         if(maybeOutFile.isEmpty()) return;
-        logger.log(System.Logger.Level.INFO, "Convert font " + format + ", name " + maybeOutFile.get());
-        try(var outStream = new FileOutputStream(maybeOutFile.get())) {
+        String outputFile = maybeOutFile.get();
+        logger.log(System.Logger.Level.INFO, "Convert font " + format + ", name " + outputFile);
+        try(var outStream = new FileOutputStream(outputFile)) {
             var blocks = new ArrayList<TcUnicodeFontBlock>();
             int maxY = 0;
 
@@ -232,7 +245,7 @@ public class CreateFontUtilityController {
 
                     int totalHeight = rawGlyph.toBaseLine() + rawGlyph.belowBaseline();
                     glyphsInBlock.add(new TcUnicodeFontGlyph(i, rawGlyph.data(), rawGlyph.fontDims().width(),
-                            totalHeight, rawGlyph.totalWidth(),
+                            rawGlyph.fontDims().height(), rawGlyph.totalWidth(),
                             rawGlyph.fontDims().startX(), rawGlyph.fontDims().startY()));
                     if(totalHeight > maxY) {
                         maxY = totalHeight;
@@ -246,6 +259,12 @@ public class CreateFontUtilityController {
             TcUnicodeFontExporter exporter = new TcUnicodeFontExporter(outputStructNameField.getText(), blocks, maxY);
             exporter.encodeFontToStream(outStream, format);
             logger.log(System.Logger.Level.INFO, "Finished write to file");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Font Export Utility");
+            alert.setHeaderText("Font Export Successful");
+            alert.setContentText("Font '" +  outputStructNameField.getText() + "'  exported successfully to '" + outputFile + "' in format " + fontStyleCombo.getValue());
+            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+            alert.showAndWait();
         } catch (Exception ex) {
             editorUI.alertOnError("Font not converted", "The font was not converted due to the following. " + ex.getMessage());
             logger.log(System.Logger.Level.ERROR, "Unable to convert font to " + format, ex);
@@ -277,5 +296,8 @@ public class CreateFontUtilityController {
                 count, ((max-min) * APPROX_ADA_SIZE) + ADA_OVERHEAD + byteSize,
                 (count * APPROX_TCUNICODE_SIZE) + (blockMappings.size() + TC_UNI_OVERHEAD) + byteSize);
         fontSizeField.setText(txt);
+
+        generateAdafruitBtn.setDisable(count == 0);
+        generateTcUnicodeBtn.setDisable(count == 0);
     }
 }
