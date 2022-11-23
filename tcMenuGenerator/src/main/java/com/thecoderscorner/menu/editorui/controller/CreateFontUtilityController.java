@@ -1,11 +1,13 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.font.*;
 import com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontBlock;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -51,6 +53,7 @@ public class CreateFontUtilityController {
     public Label fontSizeField;
     public Button generateAdafruitBtn;
     public Button generateTcUnicodeBtn;
+    public Button chooseRangesButton;
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
@@ -88,6 +91,8 @@ public class CreateFontUtilityController {
                 loadedFontsMenu.getItems().add(item);
             }
         });
+
+        checkButtons();
     }
 
     public void onChooseFont(ActionEvent actionEvent) {
@@ -297,7 +302,21 @@ public class CreateFontUtilityController {
                 (count * APPROX_TCUNICODE_SIZE) + (blockMappings.size() + TC_UNI_OVERHEAD) + byteSize);
         fontSizeField.setText(txt);
 
+        checkButtons();
+    }
+
+    private void checkButtons() {
+        long count = currentlySelected.values().stream().filter(e -> e).count();
         generateAdafruitBtn.setDisable(count == 0);
         generateTcUnicodeBtn.setDisable(count == 0);
+        boolean isFontLoaded = loadedFont instanceof NoLoadedFont;
+        pixelSizeSpinner.setDisable(isFontLoaded);
+        fontStyleCombo.setDisable(isFontLoaded);
+        chooseRangesButton.setDisable(isFontLoaded);
+        outputStructNameField.setDisable(isFontLoaded);
+    }
+
+    public void onOnlineHelp(ActionEvent actionEvent) {
+        SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
     }
 }

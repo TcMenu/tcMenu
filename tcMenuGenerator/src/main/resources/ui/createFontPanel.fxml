@@ -43,8 +43,8 @@
       <Label fx:id="fontSizeField" text="Choose characters in font:" GridPane.rowIndex="4" GridPane.columnSpan="3" GridPane.valignment="BOTTOM" />
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
-            <Button fx:id="onHelp" mnemonicParsing="false" text="Online Help" />
-            <Button mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
+            <Button mnemonicParsing="false" text="Online Help" onAction="#onOnlineHelp"/>
+            <Button fx:id="chooseRangesButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
             <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
           <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
         </buttons>

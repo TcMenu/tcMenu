@@ -111,7 +111,8 @@ public class AwtLoadedFont implements LoadedFont {
                 int sizeBmp = font.getSize() * 2;
                 var offScreenImg = new BufferedImage(sizeBmp, sizeBmp, BufferedImage.TYPE_INT_RGB);
                 var strCode = new String(Character.toChars(code));
-                Graphics g = offScreenImg.getGraphics();
+                Graphics2D g = (Graphics2D) offScreenImg.getGraphics();
+                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
                 g.setFont(font);
                 g.setColor(Color.WHITE);
                 FontMetrics fontMetrics = g.getFontMetrics();
