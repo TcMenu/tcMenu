@@ -14,7 +14,7 @@ import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator
 import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
 public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> blocks, int yAdvance) implements FontEncoder {
-    List<TcUnicodeFontGlyph> itemsFromAllBlocks() {
+    List<TcUnicodeFontGlyph> glyphsFromAllBlocks() {
         return blocks.stream().flatMap(b -> b.glyphs().stream()).collect(Collectors.toList());
     }
     @Override
@@ -30,7 +30,7 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
 
     private void encodeAdafruit(PrintStream ps) {
         ps.println("const uint8_t " + fontName + "Bitmaps[] PROGMEM = {");
-        List<TcUnicodeFontGlyph> allGlyphs = itemsFromAllBlocks();
+        List<TcUnicodeFontGlyph> allGlyphs = glyphsFromAllBlocks();
         printByteArray(ps, allGlyphs);
         ps.println("};");
         ps.println();
@@ -73,11 +73,15 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
     }
 
     private void encodeTcUnicode(PrintStream ps) {
-        ps.println("#include <graphics/UnicodeFontHandler.h>");
+        ps.println("#include <UnicodeFontDefs.h>");
         ps.println();
 
         var blockData = new ArrayList<String>();
-        for(var block : blocks) {
+        var sortedBlocks = blocks.stream()
+                .sorted(Comparator.comparingInt(TcUnicodeFontBlock::firstUnicodeCharacter).reversed())
+                .toList();
+
+        for(var block : sortedBlocks) {
             ps.println("// Bitmaps for " + block.mapping());
             ps.printf("const uint8_t %sBitmaps_%d[] PROGMEM = {", fontName, block.mapping().ordinal());
             ps.println();
@@ -100,7 +104,9 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
                     ps.println(",");
                 }
                 first = false;
-                ps.printf("    { %d, %d, %d, %d, %d, %d, %d} /* %s %d*/ ", item.charNum(), bmpOffset, item.width(),
+                ps.printf("    { %d, %d, %d, %d, %d, %d, %d} /* %s %d*/ ",
+                        item.charNum() - block.mapping().getStartingCode(),
+                        bmpOffset, item.width(),
                         item.height(), item.xAdvance(), item.xOffset(), item.yOffset(),
                         Arrays.toString(Character.toChars(item.charNum())), item.charNum());
                 bmpOffset += item.bitmapData().length;
@@ -140,5 +146,8 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
     }
 
     public record TcUnicodeFontBlock(UnicodeBlockMapping mapping, List<TcUnicodeFontGlyph> glyphs) {
+        int firstUnicodeCharacter() {
+            return mapping.getStartingCode();
+        }
     }
 }
