@@ -36,15 +36,14 @@ import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExpo
 import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontGlyph;
 
 public class CreateFontUtilityController {
-    private static final long APPROX_ADA_SIZE = 8;
-    private static final long ADA_OVERHEAD = 16;
-    private static final long APPROX_TCUNICODE_SIZE = 10;
-    private static final long TC_UNI_OVERHEAD = 16; // for each block
+    public static final long APPROX_ADA_SIZE = 8;
+    public static final long ADA_OVERHEAD = 16;
+    public static final long APPROX_TCUNICODE_SIZE = 10;
+    public static final long TC_UNI_OVERHEAD = 16; // for each block
 
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     public TextField fontFileField;
-    public Button onHelp;
     public Spinner<Integer> pixelSizeSpinner;
     public ComboBox<FontStyle> fontStyleCombo;
     public TextField outputStructNameField;
@@ -59,8 +58,8 @@ public class CreateFontUtilityController {
     private Path currentDir;
     private LoadedFont loadedFont = NO_LOADED_FONT;
     private Set<UnicodeBlockMapping> blockMappings = Set.of();
-    private Map<UnicodeBlockMapping,List<ToggleButton>> controlsByBlock = new HashMap<>();
-    private Map<Integer, Boolean> currentlySelected = new HashMap<>();
+    private final Map<UnicodeBlockMapping,List<ToggleButton>> controlsByBlock = new HashMap<>();
+    private final Map<Integer, Boolean> currentlySelected = new HashMap<>();
 
     public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
@@ -95,6 +94,7 @@ public class CreateFontUtilityController {
         checkButtons();
     }
 
+    @SuppressWarnings("unused")
     public void onChooseFont(ActionEvent actionEvent) {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
         fileChoice.ifPresent(file -> {
@@ -182,6 +182,7 @@ public class CreateFontUtilityController {
         return img;
     }
 
+    @SuppressWarnings("unused")
     public void onFontStyleChanged(ActionEvent actionEvent) {
         changeNameField();
         recalcFont();
@@ -203,6 +204,7 @@ public class CreateFontUtilityController {
         };
     }
 
+    @SuppressWarnings("unused")
     public void onChooseUnicodeRanges(ActionEvent actionEvent) {
         if(loadedFont instanceof NoLoadedFont) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a font before choosing unicode ranges");
@@ -220,10 +222,12 @@ public class CreateFontUtilityController {
         }
     }
 
+    @SuppressWarnings("unused")
     public void onGenerateAdafruit(ActionEvent actionEvent) {
         internalGenerate(FontFormat.ADAFRUIT);
     }
 
+    @SuppressWarnings("unused")
     public void onGenerateUnicode(ActionEvent actionEvent) {
         internalGenerate(FontFormat.TC_UNICODE);
     }
@@ -316,6 +320,7 @@ public class CreateFontUtilityController {
         outputStructNameField.setDisable(isFontLoaded);
     }
 
+    @SuppressWarnings("unused")
     public void onOnlineHelp(ActionEvent actionEvent) {
         SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
     }

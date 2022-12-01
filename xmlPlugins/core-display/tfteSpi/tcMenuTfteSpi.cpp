@@ -12,7 +12,6 @@
  * This library requires the AdaGfx library along with a suitable driver.
  */
 
-
 #include "tcMenuTfteSpi.h"
 #include <TFT_eSPI.h>
 
@@ -30,7 +29,7 @@ DeviceDrawable *TfteSpiDrawable::getSubDeviceFor(const Coord &where, const Coord
     else return nullptr;
 }
 
-void TfteSpiDrawable::drawText(const Coord &where, const void *font, int mag, const char *text) {
+void TfteSpiDrawable::internalDrawText(const Coord &where, const void *font, int mag, const char *text) {
     fontPtrToNum(font, mag);
     tft->setTextColor(drawColor, drawColor); // transparent background
     tft->drawString(text, where.x, where.y);
@@ -101,6 +100,10 @@ void TfteSpiDrawable::fontPtrToNum(const void* font, int mag) {
     else {
         tft->setFreeFont(static_cast<const GFXfont *>(font));
     }
+}
+
+UnicodeFontHandler *TfteSpiDrawable::createFontHandler() {
+    return fontHandler = new UnicodeFontHandler(tft, ENCMODE_UTF8);
 }
 
 //

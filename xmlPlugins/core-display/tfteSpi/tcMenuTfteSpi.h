@@ -34,7 +34,7 @@ public:
 
     DeviceDrawable *getSubDeviceFor(const Coord &where, const Coord& size, const color_t *palette, int paletteSize) override;
 
-    void drawText(const Coord &where, const void *font, int mag, const char *text) override;
+    void internalDrawText(const Coord &where, const void *font, int mag, const char *text) override;
 
     void drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) override;
 
@@ -51,6 +51,8 @@ public:
     Coord textExtents(const void *font, int mag, const char *text, int *baseline) override;
     Coord getDisplayDimensions() override { return Coord(tft->width(), tft->height());}
     TFT_eSPI* getTFT() { return tft; }
+protected:
+    UnicodeFontHandler* createFontHandler() override;
 private:
     void fontPtrToNum(const void* font, int mag);
 };
