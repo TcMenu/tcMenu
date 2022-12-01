@@ -46,9 +46,11 @@ public:
 
     void drawPolygon(const Coord *points, int numPoints, bool filled) override;
 
+    void drawPixel(uint16_t x, uint16_t y) override;
+
     void transaction(bool isStarting, bool redrawNeeded) override;
 
-    Coord textExtents(const void *font, int mag, const char *text, int *baseline) override;
+    Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override;
     Coord getDisplayDimensions() override { return Coord(tft->width(), tft->height());}
     TFT_eSPI* getTFT() { return tft; }
 protected:

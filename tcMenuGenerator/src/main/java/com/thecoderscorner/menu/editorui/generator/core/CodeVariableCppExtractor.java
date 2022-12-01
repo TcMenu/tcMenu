@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderT
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.VariableDefinitionMode;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.Comparator;
@@ -19,6 +20,8 @@ import java.util.stream.IntStream;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.PropType;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.USE_TC_UNICODE_PROP_NAME;
 
 public class CodeVariableCppExtractor implements CodeVariableExtractor {
     private final CodeConversionContext context;
@@ -116,8 +119,8 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     private String decodeFontDefinition(String paramVal) {
-        var def = FontDefinition.fromString(paramVal);
-        return (def.isPresent()) ? def.get().getFontDef() : FontDefinition.emptyDef();
+        var def = fromString(paramVal);
+        return (def.isPresent()) ? def.get().getFontDef() : emptyDef();
     }
 
     @Override
@@ -154,6 +157,11 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
     }
 
+    private boolean isTcUnicode() {
+        return context.getProperties().stream()
+                .anyMatch(p -> p.getName().equals(USE_TC_UNICODE_PROP_NAME) && Boolean.parseBoolean(p.getLatestValue()));
+    }
+
     private String paramOrDefaultValue(CodeParameter p) {
         String val = p.getValue();
         if(StringHelper.isStringEmptyOrNull(val) && p.getDefaultValue() != null) {
@@ -177,8 +185,20 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     private String exportToCode(CodeVariable exp) {
-        return "extern " + (exp.isProgMem() ? "const " : "") + expando.expandExpression(context, exp.getObjectName())
-                + " " + expando.expandExpression(context, exp.getVariableName()) + ";";
+        String varName = expando.expandExpression(context, exp.getVariableName());
+        if(exp.getDefinitionMode() == VariableDefinitionMode.FONT_EXPORT) {
+            var font = fromString(varName).orElseThrow(() -> new IllegalStateException("Font not defined for " + exp.getVariableName()));
+            if(font.fontMode() == FontMode.ADAFRUIT || font.fontMode() == FontMode.ADAFRUIT_LOCAL) {
+                if(isTcUnicode() && font.fontNumber() == 0) {
+                    return "extern const UnicodeFont " + font.fontName() + "[];";
+                } else {
+                    return "extern const GFXfont " + font.fontName() + ";";
+                }
+            } else return "";
+        } else {
+            return "extern " + (exp.isProgMem() ? "const " : "") + expando.expandExpression(context, exp.getObjectName())
+                    + " " + varName + ";";
+        }
     }
 
     @Override
@@ -219,7 +239,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             return "#include \"" + expando.expandExpression(context, headerDefinition.getHeaderName()) + "\"";
         }
         else if(headerDefinition.getHeaderType() == HeaderType.FONT) {
-            var def = FontDefinition.fromString(expando.expandExpression(context, headerDefinition.getHeaderName()));
+            var def = fromString(expando.expandExpression(context, headerDefinition.getHeaderName()));
             if(def.isPresent()) {
                 return def.get().getIncludeDef();
             }

@@ -86,7 +86,8 @@ public class CodeVariable {
     }
 
     public boolean isExported() {
-        return definitionMode == VariableDefinitionMode.EXPORT_ONLY || definitionMode == VariableDefinitionMode.VARIABLE_AND_EXPORT;
+        return definitionMode == VariableDefinitionMode.EXPORT_ONLY || definitionMode == VariableDefinitionMode.VARIABLE_AND_EXPORT
+                || definitionMode == VariableDefinitionMode.FONT_EXPORT;
     }
 
     public boolean isVariableDefNeeded() {

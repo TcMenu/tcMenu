@@ -115,7 +115,7 @@ public interface CurrentProjectEditorUI {
      */
     Optional<EepromDefinition> showEditEEPROMDialog(Optional<EepromDefinition> current);
 
-    Optional<String> showFontEditorDialog(String currentChoice);
+    Optional<String> showFontEditorDialog(String currentChoice, boolean tcUnicodeEnabled);
 
     /**
      * Get the currently open project

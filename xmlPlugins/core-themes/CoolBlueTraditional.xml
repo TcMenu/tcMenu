@@ -27,6 +27,8 @@
                 <Choice desc="Always show title">TITLE_ALWAYS</Choice>
             </Choices>
         </Property>
+        <Property id="USE_TC_UNICODE" name="Use TcUnicode instead of library fonts" initial="false" type="boolean"
+                  desc="When enabled render using TcUnicode fonts and drawing utilities instead of using native library calls"/>
         <Property id="USE_SLIDER_ANALOG" name="Use sliders for analog items" initial="true" desc="When an item is analog, default to using a slider" type="boolean"/>
         <Property id="NEED_EDITING_ICONS" name="Use icons for active/edit status" initial="true" desc="Show an icon on the left to represent active / edit status" type="boolean"/>
     </Properties>
@@ -39,13 +41,14 @@
 
     <IncludeFiles>
         <Header name="ThemeCoolBlueTraditional.h" inSource="cppSrc"/>
+        <Header name="tcUnicodeHelper.h" inSource="false" priority="high" whenProperty="USE_TC_UNICODE" isValue="true" />
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="${ITEM_FONT/.*:([\w_]*),.*/}" type="const GFXfont" export="only" whenProperty="ITEM_FONT" matches="ad[al]:.*"/>
-        <Variable name="${TITLE_FONT/.*:([\w_]*),.*/}" type="const GFXfont" export="only" whenProperty="TITLE_FONT" matches="ad[al]:.*"/>
+        <Variable name="${ITEM_FONT}" export="font" whenProperty="ITEM_FONT" matches="ad[al]:.*" />
+        <Variable name="${TITLE_FONT}" export="font" whenProperty="ITEM_FONT" matches="ad[al]:.*" />
     </GlobalVariables>
 
     <SetupFunctions>
@@ -56,6 +59,8 @@
         <Function name="setUseSliderForAnalog" object="renderer">
             <Param name="${USE_SLIDER_ANALOG}"/>
         </Function>
+
+        <Function name="enableTcUnicode" object="renderer" whenProperty="USE_TC_UNICODE" isValue="true"/>
 
         <Function name="installCoolBlueTraditionalTheme">
             <Param value="renderer"/>

@@ -83,4 +83,9 @@ public record FontDefinition(FontMode fontMode, String fontName, int fontNumber)
             default -> "avl";
         };
     }
+
+    @Override
+    public String fontName() {
+        return fontName;
+    }
 }

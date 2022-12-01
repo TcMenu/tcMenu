@@ -41,6 +41,7 @@ import java.util.function.BiConsumer;
 public class UICodePluginItem extends BorderPane {
 
     public static final int IMG_THUMB_WIDTH = 150;
+    public static final String USE_TC_UNICODE_PROP_NAME = "USE_TC_UNICODE";
 
     public enum UICodeAction { CHANGE, SELECT }
 
@@ -263,7 +264,8 @@ public class UICodePluginItem extends BorderPane {
         fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontButton.setId(makeAnId(property.getName() + "_btn"));
         fontButton.setOnAction(actionEvent -> {
-            var res = editorUI.showFontEditorDialog(property.getLatestValue());
+            var tcUniEnabled = Boolean.parseBoolean(propertiesById.get(USE_TC_UNICODE_PROP_NAME).property.getLatestValue());
+            var res = editorUI.showFontEditorDialog(property.getLatestValue(), tcUniEnabled);
             res.ifPresent(fontAsString -> {
                 commitEdit(property, fontAsString);
                 fontLabel.setText(nicePrintableFontName(fontAsString));

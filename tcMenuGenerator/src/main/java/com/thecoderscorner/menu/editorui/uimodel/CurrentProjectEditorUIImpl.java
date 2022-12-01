@@ -206,8 +206,8 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public Optional<String> showFontEditorDialog(String currentChoice) {
-        var dlg = new ChooseFontDialog(mainStage, currentChoice, true);
+    public Optional<String> showFontEditorDialog(String currentChoice, boolean tcUnicodeEnabled) {
+        var dlg = new ChooseFontDialog(mainStage, currentChoice, tcUnicodeEnabled, true);
         return dlg.getResultOrEmpty();
     }
 

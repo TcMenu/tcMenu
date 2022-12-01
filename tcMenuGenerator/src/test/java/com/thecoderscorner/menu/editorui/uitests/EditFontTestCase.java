@@ -19,8 +19,8 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.TextInputControlMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
-import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.clickOnButtonInDialog;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.writeIntoField;
 
 @ExtendWith(ApplicationExtension.class)
 public class EditFontTestCase {
@@ -59,7 +59,7 @@ public class EditFontTestCase {
 
     private Node createFontDialog(FxRobot robot, CreatorProperty prop) throws InterruptedException {
         var def = FontDefinition.fromString(prop.getLatestValue()).orElseThrow();
-        TestUtils.runOnFxThreadAndWait(()->new ChooseFontDialog(stage, def.toString(), false));
+        TestUtils.runOnFxThreadAndWait(()->new ChooseFontDialog(stage, def.toString(), false, false));
         WaitForAsyncUtils.waitForFxEvents();
 
         var radioToCheck = switch (def.fontMode()) {

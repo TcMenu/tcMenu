@@ -2,13 +2,12 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.FONTS_GUIDE_URL;
@@ -21,36 +20,69 @@ public class ChooseFontController {
     public RadioButton largeNumSelect;
     public Button okButton;
     public TextField fontVarField;
-    public TextField fontNumField;
     public RadioButton defaultFontSelect;
     public Label errorField;
+    public Label fontSizeLabel;
+    public ComboBox<String> sizeCombo;
     private Optional<FontDefinition> result = Optional.empty();
 
-    public void initialise(String currentSelection) {
+    public void initialise(String currentSelection, boolean tcUnicodeEnabled) {
         var maybeFont = FontDefinition.fromString(currentSelection);
         if(maybeFont.isPresent()) {
             var font = maybeFont.get();
             fontVarField.setText(font.fontName());
-            fontNumField.setText(Integer.toString(font.fontNumber()));
-            switch (font.fontMode()) {
-                case DEFAULT_FONT -> defaultFontSelect.setSelected(true);
-                case ADAFRUIT -> adafruitFontSel.setSelected(true);
-                case NUMBERED -> largeNumSelect.setSelected(true);
-                case AVAILABLE -> staticFontSel.setSelected(true);
-                case ADAFRUIT_LOCAL -> adafruitLocalFontSel.setSelected(true);
+            if(tcUnicodeEnabled) {
+                fontSizeLabel.setText("Select font type");
+                sizeCombo.setItems(FXCollections.observableArrayList("TcUnicode", "Adafruit_GFX"));
+                sizeCombo.getSelectionModel().select(font.fontNumber() != 0 ? 1 : 0);
+            } else {
+                var items = new ArrayList<String>();
+                for(int i=0; i<20; i++) {
+                    items.add(Integer.toString(i));
+                }
+                sizeCombo.setItems(FXCollections.observableList(items));
+                sizeCombo.getSelectionModel().select(Integer.toString(font.fontNumber()));
             }
+
+            if(tcUnicodeEnabled && (font.fontMode() != ADAFRUIT && font.fontMode() != ADAFRUIT_LOCAL)) {
+                adafruitFontSel.setSelected(true);
+                sizeCombo.getSelectionModel().select(0);
+            } else {
+                switch (font.fontMode()) {
+                    case DEFAULT_FONT -> defaultFontSelect.setSelected(true);
+                    case ADAFRUIT -> adafruitFontSel.setSelected(true);
+                    case NUMBERED -> largeNumSelect.setSelected(true);
+                    case AVAILABLE -> staticFontSel.setSelected(true);
+                    case ADAFRUIT_LOCAL -> adafruitLocalFontSel.setSelected(true);
+                }
+            }
+            defaultFontSelect.setDisable(tcUnicodeEnabled);
+            staticFontSel.setDisable(tcUnicodeEnabled);
+            largeNumSelect.setDisable(tcUnicodeEnabled);
+
+            defaultFontSelect.setOnAction(this::fontChanged);
+            staticFontSel.setOnAction(this::fontChanged);
+            largeNumSelect.setOnAction(this::fontChanged);
+            adafruitFontSel.setOnAction(this::fontChanged);
+            adafruitLocalFontSel.setOnAction(this::fontChanged);
         }
         else {
             adafruitFontSel.setSelected(true);
             fontVarField.setText("MyFont");
-            fontNumField.setText("1");
+            sizeCombo.getSelectionModel().select(0);
         }
     }
 
+    private void fontChanged(ActionEvent event) {
+
+    }
+
+    @SuppressWarnings("unused")
     public void onFontDefinitionsDocs(ActionEvent actionEvent) {
         SafeNavigator.safeNavigateTo(FONTS_GUIDE_URL);
     }
 
+    @SuppressWarnings("unused")
     public void onCreatePressed(ActionEvent actionEvent) {
         FontDefinition.FontMode mode;
         if(adafruitFontSel.isSelected()) mode = ADAFRUIT;
@@ -61,7 +93,7 @@ public class ChooseFontController {
 
         int mag;
         try {
-            mag = Integer.parseInt(fontNumField.getText());
+            mag = sizeCombo.getSelectionModel().getSelectedIndex();
         }
         catch(Exception e) {
             errorField.setText("Only use integers for font number / size");
@@ -83,6 +115,7 @@ public class ChooseFontController {
         closeIt();
     }
 
+    @SuppressWarnings("unused")
     public void onCancelPressed(ActionEvent actionEvent) {
         result = Optional.empty();
         closeIt();

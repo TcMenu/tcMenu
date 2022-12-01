@@ -439,6 +439,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         return switch (mode) {
             case "true" -> VariableDefinitionMode.VARIABLE_AND_EXPORT;
             case "only" -> VariableDefinitionMode.EXPORT_ONLY;
+            case "font" -> VariableDefinitionMode.FONT_EXPORT;
             default -> VariableDefinitionMode.VARIABLE_ONLY;
         };
     }

@@ -7,5 +7,5 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 public enum VariableDefinitionMode {
-    VARIABLE_ONLY, EXPORT_ONLY, VARIABLE_AND_EXPORT
+    VARIABLE_ONLY, EXPORT_ONLY, VARIABLE_AND_EXPORT, FONT_EXPORT
 }

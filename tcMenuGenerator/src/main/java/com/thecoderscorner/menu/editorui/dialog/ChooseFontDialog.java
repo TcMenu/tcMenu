@@ -14,9 +14,11 @@ import java.util.Optional;
 
 public class ChooseFontDialog extends BaseDialogSupport<ChooseFontController> {
     private final String currentSel;
+    private final boolean isTcUnicode;
 
-    public ChooseFontDialog(Stage stage, String currentText, boolean modal) {
+    public ChooseFontDialog(Stage stage, String currentText, boolean isTcUnicode, boolean modal) {
         currentSel = currentText;
+        this.isTcUnicode = isTcUnicode;
         tryAndCreateDialog(stage, "/ui/fontSelectionDialog.fxml", "Choose font", modal);
     }
 
@@ -27,6 +29,6 @@ public class ChooseFontDialog extends BaseDialogSupport<ChooseFontController> {
 
     @Override
     protected void initialiseController(ChooseFontController controller) {
-        controller.initialise(currentSel);
+        controller.initialise(currentSel, isTcUnicode);
     }
 }
