@@ -13,6 +13,7 @@
  * This library requires the u8g2 library available for download from your IDE library manager.
  */
 
+#include <tcUnicodeHelper.h>
 #include "tcMenuStChromaArt.h"
 #include "BspUserSettings.h"
 
@@ -21,17 +22,19 @@ StChromaArtDrawable::StChromaArtDrawable() {
     BSP_LCD_LayerDefaultInit(0, SDRAM_DEVICE_ADDR);
 }
 
-void StChromaArtDrawable::drawText(const Coord &where, const void *font, int mag, const char *text) {
+Coord StChromaArtDrawable::internalTextExtents(const void *maybeFont, int mag, const char *text, int *baseline) {
+    auto fontHandler = getUnicodeHandler(true);
+    setTcFontAccordingToMag(fontHandler, maybeFont, mag);
+    return fontHandler->textExtents(text, baseline, false);
+}
+
+void StChromaArtDrawable::internalDrawText(const Coord &where, const void *font, int mag, const char *text) {
     if(font == nullptr) return; // font must be defined
 
-    // otherwise mag==1 is adafruit proportional font
-    int16_t xPos = where.x;
-    while(*text && xPos < (int16_t)BSP_LCD_GetXSize()) {
-        int baseline = 0;
-        auto exts = textExtents(font, mag, "(;y", &baseline);
-        xPos += drawAdaFruitFontChar(xPos, where.y + (exts.y - baseline), *text, (const GFXfont*)font);
-        text++;
-    }
+    auto handler = getUnicodeHandler(true);
+    setTcFontAccordingToMag(handler, font, mag);
+    handler->setCursor(where.x, where.y + handler->getYAdvance());
+    handler->print(text);
 }
 
 Coord StChromaArtDrawable::getDisplayDimensions() {
@@ -69,39 +72,6 @@ void StChromaArtDrawable::drawXBitmap(const Coord &where, const Coord &size, con
     }
 }
 
-int StChromaArtDrawable::drawAdaFruitFontChar(int16_t x, int16_t y, uint8_t c, const GFXfont* gfxFont) { // Custom font
-    // make sure it's printable.
-    if(c < gfxFont->first || c > gfxFont->last) return 0;
-    if(x > (int16_t)BSP_LCD_GetXSize()) return 0;
-
-    c -= gfxFont->first;
-    GFXglyph *glyph = gfxFont->glyph + c;
-    uint8_t *bitmap = gfxFont->bitmap;
-
-    uint16_t bo = glyph->bitmapOffset;
-    uint8_t w = glyph->width, h = glyph->height;
-    int8_t xo = glyph->xOffset, yo = glyph->yOffset;
-    uint8_t xx, yy, bits = 0, bit = 0;
-
-    for (yy = 0; yy < h; yy++) {
-        int locY = max(0, y + yo + yy);
-        bool yOK = (locY < (int16_t)BSP_LCD_GetYSize());
-        for (xx = 0; xx < w; xx++) {
-            if (!(bit++ & 7)) {
-                bits = bitmap[bo++];
-            }
-            if (bits & 0x80) {
-                int locX = max(0, x + xo + xx);
-                if(locX < (int16_t)BSP_LCD_GetXSize() && yOK) {
-                    BSP_LCD_DrawPixel(locX, locY, drawColor);
-                }
-            }
-            bits <<= 1;
-        }
-    }
-    return glyph->xAdvance;
-}
-
 void StChromaArtDrawable::drawBox(const Coord &where, const Coord &size, bool filled) {
     BSP_LCD_SetTextColor(drawColor);
     if(filled) {
@@ -133,37 +103,6 @@ void StChromaArtDrawable::drawPolygon(const Coord *points, int numPoints, bool f
 }
 
 void StChromaArtDrawable::transaction(bool isStarting, bool redrawNeeded) {
-}
-
-Coord StChromaArtDrawable::textExtents(const void *maybeFont, int mag, const char *text, int *baseline) {
-    if(maybeFont == nullptr) return Coord(0,0);
-
-    // adafruit font
-    auto* font = reinterpret_cast<const GFXfont*>(maybeFont);
-
-    // first we iterate the normal text and get the width
-    int height = 0;
-    int width = 0;
-    int bl = 0;
-    const char* current = text;
-    while(*current && (*current < font->last)) {
-        auto glIdx = uint16_t(*current) - font->first;
-        auto &g = font->glyph[glIdx];
-        width += g.xAdvance;
-        current++;
-    }
-
-    // the we get the total base line and height.
-    current = "(|jy";
-    while(*current && (*current < font->last)) {
-        auto glIdx = uint16_t(*current) - font->first;
-        auto &g = font->glyph[glIdx];
-        if (g.height > height) height = g.height;
-        bl = g.height + g.yOffset;
-        current++;
-    }
-    if(baseline) *baseline = bl;
-    return Coord(width, height);
 }
 
 #if TC_BSP_TOUCH_DEVICE_PRESENT == true

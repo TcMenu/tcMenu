@@ -26,40 +26,6 @@
 #include <ResistiveTouchScreen.h>
 #include "BspUserSettings.h"
 
-//
-// This section is copied from Adafruit_GFX, it provides support for using Adafruit GFX fonts with this library.
-//
-
-// Font structures for newer Adafruit_GFX (1.1 and later).
-// Example fonts are included in 'Fonts' directory.
-// To use a font in your Arduino sketch, #include the corresponding .h
-// file and pass address of GFXfont struct to setFont().  Pass NULL to
-// revert to 'classic' fixed-space bitmap font.
-
-#include <stdint.h>
-
-/// Font data stored PER GLYPH
-typedef struct {
-    uint16_t bitmapOffset; ///< Pointer into GFXfont->bitmap
-    uint8_t width;         ///< Bitmap dimensions in pixels
-    uint8_t height;        ///< Bitmap dimensions in pixels
-    uint8_t xAdvance;      ///< Distance to advance cursor (x axis)
-    int8_t xOffset;        ///< X dist from cursor pos to UL corner
-    int8_t yOffset;        ///< Y dist from cursor pos to UL corner
-} GFXglyph;
-
-/// Data stored for FONT AS A WHOLE
-typedef struct {
-    uint8_t *bitmap;  ///< Glyph bitmaps, concatenated
-    GFXglyph *glyph;  ///< Glyph array
-    uint16_t first;   ///< ASCII extents (first char)
-    uint16_t last;    ///< ASCII extents (last char)
-    uint8_t yAdvance; ///< Newline distance (y axis)
-} GFXfont;
-
-// End Adafruit GFX included section
-
-
 using namespace tcgfx;
 
 // some colour displays don't create this value
@@ -84,18 +50,17 @@ public:
 
     DeviceDrawable* getSubDeviceFor(const Coord &where, const Coord &size, const color_t *palette, int paletteSize) override {return nullptr; }
 
-    void drawText(const Coord &where, const void *font, int mag, const char *text) override;
+    void internalDrawText(const Coord &where, const void *font, int mag, const char *text) override;
     void drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) override;
     void drawXBitmap(const Coord &where, const Coord &size, const uint8_t *data) override;
     void drawBox(const Coord &where, const Coord &size, bool filled) override;
     void drawCircle(const Coord &where, int radius, bool filled) override;
     void drawPolygon(const Coord *points, int numPoints, bool filled) override;
 
-    Coord getDisplayDimensions();
+    Coord getDisplayDimensions() override;
     void transaction(bool isStarting, bool redrawNeeded) override;
-    Coord textExtents(const void *font, int mag, const char *text, int *baseline) override;
-
-    int drawAdaFruitFontChar(int16_t x, int16_t y, uint8_t c, const GFXfont *gfxFont);
+    Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override;
+    void drawPixel(uint16_t x, uint16_t y) override { BSP_LCD_DrawPixel(x, y, drawColor); }
 };
 
 #if TC_BSP_TOUCH_DEVICE_PRESENT == true
