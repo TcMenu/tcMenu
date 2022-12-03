@@ -11,9 +11,6 @@ public class NoLoadedFont implements LoadedFont {
         public boolean canDisplay(int code) { return false; }
 
         @Override
-        public void setUnicodeGroups(Set<UnicodeBlockMapping> groupsEnabled) { }
-
-        @Override
-        public void deriveFont(FontStyle fontStyle, int size) {
+        public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings) {
         }
 }

@@ -21,6 +21,7 @@
 #include <tcMenu.h>
 #include <tcUtil.h>
 #include <BaseRenderers.h>
+#include <tcUnicodeHelper.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <gfxfont.h>
@@ -85,15 +86,16 @@ public:
     }
 
     void transaction(bool isStarting, bool redrawNeeded) override;
-
-    void drawText(const Coord &where, const void *font, int mag, const char *text) override;
+    void internalDrawText(const Coord &where, const void *font, int mag, const char *text) override;
     void drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) override;
     void drawXBitmap(const Coord &where, const Coord &size, const uint8_t *data) override;
     void drawBox(const Coord &where, const Coord &size, bool filled) override;
     void drawCircle(const Coord& where, int radius, bool filled) override;
     void drawPolygon(const Coord points[], int numPoints, bool filled) override;
-
-    Coord textExtents(const void *font, int mag, const char *text, int *baseline) override;
+    Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override;
+    void drawPixel(uint16_t x, uint16_t y) override;
+protected:
+    UnicodeFontHandler *createFontHandler() override;
 };
 
 #endif /* _TCMENU_TCMENUADAFRUITGFX_H_ */

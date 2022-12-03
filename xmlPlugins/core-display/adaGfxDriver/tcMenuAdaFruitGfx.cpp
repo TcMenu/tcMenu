@@ -25,7 +25,7 @@ void AdafruitDrawable::transaction(bool isStarting, bool redrawNeeded) {
     if(!isStarting) refreshDisplayIfNeeded(graphics, redrawNeeded);
 }
 
-void AdafruitDrawable::drawText(const Coord &where, const void *font, int mag, const char *sz) {
+void AdafruitDrawable::internalDrawText(const Coord &where, const void *font, int mag, const char *sz) {
     graphics->setTextWrap(false);
     int baseline=0;
     Coord exts = textExtents(font, mag, "(;y", &baseline);
@@ -86,7 +86,7 @@ void AdafruitDrawable::drawPolygon(const Coord points[], int numPoints, bool fil
 }
 
 
-Coord AdafruitDrawable::textExtents(const void *f, int mag, const char *text, int *baseline) {
+Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *text, int *baseline) {
     graphics->setFont(static_cast<const GFXfont *>(f));
     graphics->setTextSize(mag);
     auto* font = (GFXfont *) f;
@@ -115,6 +115,14 @@ Coord AdafruitDrawable::textExtents(const void *f, int mag, const char *text, in
         if(baseline) *baseline = bl;
         return Coord(w, height);
     }
+}
+
+void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {
+    graphics->writePixel(x, y, drawColor);
+}
+
+UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
+    return new UnicodeFontHandler(graphics, ENCMODE_UTF8);
 }
 
 //

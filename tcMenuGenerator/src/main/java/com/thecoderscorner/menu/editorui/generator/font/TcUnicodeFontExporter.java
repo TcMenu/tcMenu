@@ -141,7 +141,7 @@ public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> bl
         ps.println("};");
         ps.println();
 
-        ps.printf("const UnicodeFont " + fontName + "[] PROGMEM = {%sBlocks, %d, %d};",  fontName, blocks.size(), yAdvance);
+        ps.printf("const UnicodeFont " + fontName + "[] PROGMEM = { {%sBlocks, %d, %d, TCFONT_ONE_BIT_PER_PIXEL} };",  fontName, blocks.size(), yAdvance);
         ps.println();
         ps.println();
     }

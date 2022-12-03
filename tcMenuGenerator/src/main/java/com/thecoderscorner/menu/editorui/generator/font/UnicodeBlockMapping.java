@@ -2,7 +2,7 @@ package com.thecoderscorner.menu.editorui.generator.font;
 
 public enum UnicodeBlockMapping {
     BASIC_LATIN(0x0000, 0x007F, "Basic Latin"),
-    LATIN1_SUPPLEMENT(0x007F, 0x00FF, "Latin-1 Supplement"),
+    LATIN1_SUPPLEMENT(0x0080, 0x00FF, "Latin-1 Supplement"),
     LATIN_EXTENDED_A(0x0100, 0x017F, "Latin Extended-A"),
     LATIN_EXTENDED_B(0x0180, 0x024F, "Latin Extended-B"),
     IPA_EXTENSIONS(0x0250, 0x02AF, "IPA Extensions"),

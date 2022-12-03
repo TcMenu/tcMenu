@@ -108,7 +108,7 @@ public class CreateFontUtilityController {
     private void recalcFont() {
         fontRenderArea.getChildren().clear();
         controlsByBlock.clear();
-        loadedFont.deriveFont(fontStyleCombo.getValue(), pixelSizeSpinner.getValue());
+        loadedFont.deriveFont(fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
         int gridRow = 0;
         for(var blockRange : UnicodeBlockMapping.values()) {
             if(!blockMappings.contains(blockRange)) continue;

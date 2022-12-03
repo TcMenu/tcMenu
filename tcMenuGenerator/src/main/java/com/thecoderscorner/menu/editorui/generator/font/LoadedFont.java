@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.generator.font;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -12,9 +13,7 @@ public interface LoadedFont {
 
     boolean canDisplay(int code);
 
-    void setUnicodeGroups(Set<UnicodeBlockMapping> groupsEnabled);
-
-    void deriveFont(FontStyle fontStyle, int size);
+    void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newMappings);
 
     public record FontDimensionInformation(int startX, int startY, int width, int height) {
         public static FontDimensionInformation DIMENSION_EMPTY = new FontDimensionInformation(0, 0, 0, 0);

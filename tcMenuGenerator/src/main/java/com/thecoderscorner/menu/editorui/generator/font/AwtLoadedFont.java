@@ -24,7 +24,7 @@ public class AwtLoadedFont implements LoadedFont {
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFile));
             font = font.deriveFont(toAwtStyle(fontStyle), size);
-            setUnicodeGroups(mappings);
+            enabledUnicodeGroups.set(mappings);
             fontHasChanged();
         } catch (Exception e) {
             logger.log(Level.ERROR, "Failed creating font", e);
@@ -34,7 +34,7 @@ public class AwtLoadedFont implements LoadedFont {
     public AwtLoadedFont(Font font, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings) {
         try {
             this.font = font.deriveFont(toAwtStyle(fontStyle), size);
-            setUnicodeGroups(mappings);
+            enabledUnicodeGroups.set(mappings);
             fontHasChanged();
         } catch (Exception e) {
             logger.log(Level.ERROR, "Failed creating font", e);
@@ -58,13 +58,6 @@ public class AwtLoadedFont implements LoadedFont {
     @Override
     public boolean canDisplay(int code) {
         return fontGlyphCache.containsKey(code);
-    }
-
-    @Override
-    public void setUnicodeGroups(Set<UnicodeBlockMapping> groupsEnabled) {
-        logger.log(Level.DEBUG, "Unicode Block Group change" + groupsEnabled);
-        this.enabledUnicodeGroups.set(groupsEnabled);
-        fontHasChanged();
     }
 
     private void fontHasChanged() {
@@ -96,8 +89,9 @@ public class AwtLoadedFont implements LoadedFont {
     }
 
     @Override
-    public void deriveFont(FontStyle fontStyle, int size) {
+    public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newGroups) {
         font = font.deriveFont(toAwtStyle(fontStyle), size);
+        enabledUnicodeGroups.set(newGroups);
         fontHasChanged();
     }
 
