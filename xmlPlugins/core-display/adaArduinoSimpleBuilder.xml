@@ -46,8 +46,8 @@
         </Property>
         <Property id="DISPLAY_ROTATION" name="Display Rotation (0..3)" initial="0" desc="See AdafruitGFX guide for more on rotation" type="int" min="0" max="3"/>
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
-        <Property id="DISPLAY_BUFFER_SIZE" name="Memory display buffer lines (reduces flicker)" initial="0" type="int" min="0" max="320"
-                  desc="Draws items into a memory buffer before screen drawing, reduces flicker. Uses 1 byte per 4 pixels."/>
+        <Property id="DISPLAY_BUFFER_SIZE" name="Lines to buffer (performance increase) (about 40-80 bytes a line)" initial="0" type="int" min="0" max="320"
+                  desc="High performance, draws items into a memory buffer and then writes the result optimally on the TFT"/>
     </Properties>
 
     <ApplicabilityDefs>
