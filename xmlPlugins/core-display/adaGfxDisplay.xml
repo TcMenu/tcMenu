@@ -22,6 +22,8 @@
         <Property id="DISPLAY_CONFIG" name="Display config (blank default)" initial="" desc="Optional, use to override the default graphics configuration" type="variable" />
         <Property id="DISPLAY_BUFFERED" name="Library is memory buffered" initial="false" desc="If the display library is memory buffered" type="boolean" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+        <Property id="DISPLAY_BUFFER_SIZE" name="Memory display buffer lines (reduces flicker)" initial="0" type="int" min="0" max="320"
+                  desc="Draws items into a memory buffer before screen drawing, reduces flicker. Uses 1 byte per 4 pixels."/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -43,6 +45,7 @@
 
         <Variable name="${DISPLAY_VARIABLE}Drawable" type="AdafruitDrawable" export="true">
             <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param value="${DISPLAY_BUFFER_SIZE}"/>
         </Variable>
 
         <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
