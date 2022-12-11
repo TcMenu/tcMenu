@@ -53,6 +53,7 @@ public class CreateFontUtilityController {
     public Button generateAdafruitBtn;
     public Button generateTcUnicodeBtn;
     public Button chooseRangesButton;
+    public ComboBox<AntiAliasMode> antiAliasModeCombo;
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
@@ -77,13 +78,16 @@ public class CreateFontUtilityController {
         this.fontStyleCombo.setItems(FXCollections.observableArrayList(FontStyle.values()));
         this.fontStyleCombo.getSelectionModel().select(0);
 
+        this.antiAliasModeCombo.setItems(FXCollections.observableArrayList(AntiAliasMode.values()));
+        this.antiAliasModeCombo.getSelectionModel().select(0);
+
         SwingUtilities.invokeLater(() -> {
             var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             for(var f : ge.getAllFonts()) {
                 MenuItem item = new MenuItem(f.getName() + " " + f.getFamily());
                 item.setOnAction(event -> {
                     fontFileField.setText("OS " + f.getName() + " " + f.getFamily());
-                    loadedFont = new AwtLoadedFont(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
+                    loadedFont = new AwtLoadedFont(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
                     changeNameField();
                     recalcFont();
                 });
@@ -99,7 +103,7 @@ public class CreateFontUtilityController {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
         fileChoice.ifPresent(file -> {
             fontFileField.setText(file);
-            loadedFont = new AwtLoadedFont(file, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
+            loadedFont = new AwtLoadedFont(file, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
             changeNameField();
             recalcFont();
         });
@@ -108,7 +112,7 @@ public class CreateFontUtilityController {
     private void recalcFont() {
         fontRenderArea.getChildren().clear();
         controlsByBlock.clear();
-        loadedFont.deriveFont(fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings);
+        loadedFont.deriveFont(fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
         int gridRow = 0;
         for(var blockRange : UnicodeBlockMapping.values()) {
             if(!blockMappings.contains(blockRange)) continue;
@@ -164,7 +168,7 @@ public class CreateFontUtilityController {
     }
 
     private Image fromGlyphToImg(ConvertedFontGlyph glyph) {
-        WritableImage img = new WritableImage(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 1);
+        WritableImage img = new WritableImage(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 2);
         var writer = img.getPixelWriter();
         int bitOffset = 0;
         for(int y=glyph.fontDims().startY();y<glyph.fontDims().lastY(); y++) {

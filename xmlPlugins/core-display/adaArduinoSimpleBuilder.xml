@@ -161,7 +161,7 @@
 
         <Variable name="${DISPLAY_VARIABLE}Drawable" type="AdafruitDrawable" export="true" applicabilityRef="whenBlankTFT">
             <Param ref="${DISPLAY_VARIABLE}"/>
-            <Param ref="${DISPLAY_BUFFER_SIZE}"/>
+            <Param value="${DISPLAY_BUFFER_SIZE}"/>
         </Variable>
 
         <Variable name="${DISPLAY_VARIABLE}Drawable" type="AdafruitDrawable" export="true" applicabilityRef="whenBlankMono">

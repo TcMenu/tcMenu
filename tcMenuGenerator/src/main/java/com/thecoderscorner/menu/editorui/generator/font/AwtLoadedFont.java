@@ -14,16 +14,17 @@ import java.util.function.Consumer;
 
 public class AwtLoadedFont implements LoadedFont {
     private final System.Logger logger = System.getLogger(AwtLoadedFont.class.getSimpleName());
-
+    private AntiAliasMode antiAliasMode = AntiAliasMode.ANTI_ALIAS_ON;
     public AtomicReference<Set<UnicodeBlockMapping>> enabledUnicodeGroups = new AtomicReference<>(Set.of());
     public final Map<Integer, ConvertedFontGlyph> fontGlyphCache = new HashMap<>(4096);
 
     private Font font;
 
-    public AwtLoadedFont(String fontFile, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings) {
+    public AwtLoadedFont(String fontFile, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFile));
             font = font.deriveFont(toAwtStyle(fontStyle), size);
+            this.antiAliasMode = mode;
             enabledUnicodeGroups.set(mappings);
             fontHasChanged();
         } catch (Exception e) {
@@ -31,9 +32,10 @@ public class AwtLoadedFont implements LoadedFont {
         }
     }
 
-    public AwtLoadedFont(Font font, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings) {
+    public AwtLoadedFont(Font font, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
         try {
             this.font = font.deriveFont(toAwtStyle(fontStyle), size);
+            this.antiAliasMode = mode;
             enabledUnicodeGroups.set(mappings);
             fontHasChanged();
         } catch (Exception e) {
@@ -89,9 +91,10 @@ public class AwtLoadedFont implements LoadedFont {
     }
 
     @Override
-    public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newGroups) {
+    public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newGroups, AntiAliasMode mode) {
         font = font.deriveFont(toAwtStyle(fontStyle), size);
         enabledUnicodeGroups.set(newGroups);
+        antiAliasMode = mode;
         fontHasChanged();
     }
 
@@ -106,7 +109,7 @@ public class AwtLoadedFont implements LoadedFont {
                 var offScreenImg = new BufferedImage(sizeBmp, sizeBmp, BufferedImage.TYPE_INT_RGB);
                 var strCode = new String(Character.toChars(code));
                 Graphics2D g = (Graphics2D) offScreenImg.getGraphics();
-                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, fromAntiAliasMode(antiAliasMode));
                 g.setFont(font);
                 g.setColor(Color.WHITE);
                 FontMetrics fontMetrics = g.getFontMetrics();
@@ -140,6 +143,15 @@ public class AwtLoadedFont implements LoadedFont {
                 logger.log(Level.ERROR, "Processing of character failed, code=", code, ex);
             }
         });
+    }
+
+    private Object fromAntiAliasMode(AntiAliasMode antiAliasMode) {
+        return switch (antiAliasMode) {
+            case NO_ANTI_ALIAS -> RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
+            case ANTI_ALIAS_ON -> RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+            case ANTI_ALIAS_DEFAULT -> RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT;
+            case ANTI_ALIAS_GASP -> RenderingHints.VALUE_TEXT_ANTIALIAS_GASP;
+        };
     }
 
     private static FontDimensionInformation getFontDimensions(int[] data, int sizeBmp) {

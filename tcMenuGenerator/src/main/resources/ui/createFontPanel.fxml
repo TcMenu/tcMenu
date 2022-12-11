@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="731.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.CreateFontUtilityController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="731.0" styleClass="background" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.CreateFontUtilityController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="162.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="225.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="196.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="246.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="162.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="465.0" minWidth="10.0" prefWidth="166.0" />
   </columnConstraints>
   <rowConstraints>
@@ -40,10 +29,10 @@
       </Label>
       <Label prefHeight="17.0" prefWidth="164.0" text="Select a font file" GridPane.rowIndex="1" />
       <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-      <Label fx:id="fontSizeField" text="Choose characters in font:" GridPane.rowIndex="4" GridPane.columnSpan="3" GridPane.valignment="BOTTOM" />
+      <Label fx:id="fontSizeField" text="Choose characters in font:" GridPane.columnSpan="3" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
-            <Button mnemonicParsing="false" text="Online Help" onAction="#onOnlineHelp"/>
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
             <Button fx:id="chooseRangesButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
             <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
           <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
@@ -52,7 +41,7 @@
       <Label prefHeight="17.0" prefWidth="184.0" text="Size in pixels" GridPane.rowIndex="3" />
       <Spinner fx:id="pixelSizeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       <Label prefHeight="17.0" prefWidth="175.0" text="Structure/header name" GridPane.rowIndex="2" />
-      <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" />
+      <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <Label text="Font style to use" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
          <padding>
             <Insets right="4.0" />
@@ -89,6 +78,8 @@
             </Menu>
         </items>
       </MenuButton>
+      <Label text="Anti-alias mode" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+      <ComboBox fx:id="antiAliasModeCombo" onAction="#onFontStyleChanged" prefHeight="25.0" prefWidth="189.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

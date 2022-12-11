@@ -56,6 +56,8 @@ class TcGFXcanvas2 : public Adafruit_GFX {
 public:
     TcGFXcanvas2(uint16_t w, uint16_t h);
     virtual ~TcGFXcanvas2();
+    bool reInitCanvas(int w, int h);
+
     /**
      * @return the size in bytes needed to store the pixels for this buffer
      */
@@ -72,7 +74,7 @@ public:
     */
     /**********************************************************************/
     uint8_t *getBuffer() const { return buffer; }
-
+    size_t getMaxBufferSize() const { return maxBytesAvailable; }
 protected:
     uint8_t getRawPixel(int16_t x, int16_t y) const;
     void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
@@ -80,6 +82,7 @@ protected:
 
 private:
     uint8_t *buffer;
+    size_t maxBytesAvailable = 0;
 };
 
 /**
@@ -201,7 +204,7 @@ public:
         delete canvas;
     }
 
-    void initSprite(const Coord& spriteWhere, const Coord& spriteSize, const color_t* colPalette, size_t paletteSize);
+    bool initSprite(const Coord& spriteWhere, const Coord& spriteSize, const color_t* colPalette, size_t paletteSize);
     void transaction(bool isStarting, bool redrawNeeded) override;
     color_t getUnderlyingColor(color_t col) override;
     DeviceDrawable *getSubDeviceFor(const Coord &where, const Coord &size, const color_t *palette, int paletteSize) override;
