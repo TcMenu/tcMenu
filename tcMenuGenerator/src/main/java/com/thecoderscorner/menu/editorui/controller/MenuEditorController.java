@@ -668,6 +668,10 @@ public class MenuEditorController {
         editorUI.showCreateFontUtility();
     }
 
+    public void onCreateBitmapTool(ActionEvent actionEvent) {
+        editorUI.showBitmapEditorUtility();
+    }
+
     private record RecentlyUsedItem(String name, String path) {
         public String toString() {
             return name;

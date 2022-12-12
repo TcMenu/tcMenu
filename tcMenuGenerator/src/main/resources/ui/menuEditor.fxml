@@ -82,7 +82,8 @@
               <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="Show IO Expanders" />
               <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu" text="Edit Menu In Menu" />
                 <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="Create Font Utility" />
+              <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="Font Creation Tool" />
+              <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="Bitmap/Widget Creation Tool" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

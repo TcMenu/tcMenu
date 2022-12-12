@@ -144,4 +144,6 @@ public interface CurrentProjectEditorUI {
      * Presents the create font utility
      */
     void showCreateFontUtility();
+
+    void showBitmapEditorUtility();
 }
