@@ -226,7 +226,7 @@ public class GenerateCodeDialogTest {
 
         var oldValue = prop.getLatestValue();
         FontDefinition numberedFont = new FontDefinition(FontDefinition.FontMode.NUMBERED, "", 22);
-        when(editorUI.showFontEditorDialog(oldValue)).thenReturn(Optional.of(numberedFont.toString()));
+        when(editorUI.showFontEditorDialog(oldValue, false)).thenReturn(Optional.of(numberedFont.toString()));
 
         robot.clickOn(nodeName + "_btn");
         var def = fromString(prop.getLatestValue()).orElseThrow();

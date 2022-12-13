@@ -10,7 +10,7 @@
         <jdk.version>17</jdk.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
         <jfx.version>17.0.0.1</jfx.version>
-        <tcmenu.api.version>2.5.1-SNAPSHOT</tcmenu.api.version>
+        <tcmenu.api.version>3.0.0-SNAPSHOT</tcmenu.api.version>
         <springframework.version>5.3.23</springframework.version>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
