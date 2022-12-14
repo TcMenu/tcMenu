@@ -14,6 +14,7 @@
 
 #include <ScrollChoiceMenuItem.h>
 #include "tcMenuAdaFruitGfx.h"
+#include <Adafruit_SPITFT.h>
 
 #if DISPLAY_HAS_MEMBUFFER == true
 #define refreshDisplayIfNeeded(gr, needUpd) {if(needUpd) reinterpret_cast<Adafruit_ILI9341*>(gr)->display();}

@@ -17,6 +17,7 @@
 #include <U8g2lib.h>
 #include <Wire.h>
 #include "tcMenuU8g2.h"
+#include <tcUnicodeHelper.h>
 
 const uint8_t* safeGetFont(const void* fnt) {
     if(fnt) return static_cast<const uint8_t *>(fnt);
@@ -65,7 +66,7 @@ U8g2Drawable::U8g2Drawable(U8G2 *u8g2, TwoWire* wireImpl) : u8g2(u8g2) {
 #endif
 }
 
-void U8g2Drawable::drawText(const Coord &where, const void *font, int mag, const char *text) {
+void U8g2Drawable::internalDrawText(const Coord &where, const void *font, int mag, const char *text) {
     u8g2->setFont(safeGetFont(font));
     u8g2->setFontMode(drawColor == 2);
     auto extraHeight = u8g2->getMaxCharHeight();
@@ -137,7 +138,7 @@ void U8g2Drawable::transaction(bool isStarting, bool redrawNeeded) {
     }
 }
 
-Coord U8g2Drawable::textExtents(const void *font, int mag, const char *text, int *baseline) {
+Coord U8g2Drawable::internalTextExtents(const void *font, int mag, const char *text, int *baseline) {
     u8g2->setFont(safeGetFont(font));
     if(baseline) *baseline = (int)u8g2->getFontDescent();
 #ifdef TC_USE_UTF_8_ENCODING
@@ -145,4 +146,12 @@ Coord U8g2Drawable::textExtents(const void *font, int mag, const char *text, int
 #else
     return Coord(u8g2->getStrWidth(text), u8g2->getMaxCharHeight());
 #endif
+}
+
+void U8g2Drawable::drawPixel(uint16_t x, uint16_t y) {
+    u8g2->drawPixel(x, y);
+}
+
+UnicodeFontHandler* U8g2Drawable::createFontHandler() {
+    return new UnicodeFontHandler(u8g2, ENCMODE_UTF8);
 }

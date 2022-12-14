@@ -160,8 +160,14 @@ public class MenuEditorController {
 
     private void populateAllMenus() {
         if(configStore.isUsingArduinoIDE()) {
-            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples", 0);
-            populateMenu(menuSketches, installer.getArduinoDirectory(), "", 0);
+            boolean ok = populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples", 0);
+            ok = ok && populateMenu(menuSketches, installer.getArduinoDirectory(), "", 0);
+
+            if(!ok) {
+                editorUI.alertOnError(
+                        "Arduino or libs directory error",
+                        "Please check the Arduino and libraries directory from menu 'Edit -> General Settings'");
+            }
         }
         darkModeMenuFlag.setSelected(BaseDialogSupport.getTheme().equals("darkMode"));
     }
@@ -170,7 +176,7 @@ public class MenuEditorController {
         return editorProject;
     }
 
-    private void populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir, int level) {
+    private boolean populateMenu(Menu toPopulate, Optional<Path> maybeDir, String subDir, int level) {
         if(maybeDir.isPresent()) {
             toPopulate.getItems().clear();
             Path subResolved = maybeDir.get().resolve(subDir);
@@ -188,13 +194,16 @@ public class MenuEditorController {
                         }
                     }
                 }
+                return true;
             } catch (IOException e) {
                 logger.log(ERROR, "Unable to populate menus due to exception", e);
+                return false;
             }
 
         }
         else {
-            logger.log(ERROR, "Examples directory not found");
+            logger.log(ERROR, "Directory not found");
+            return true; // not configured, but not an error
         }
     }
 
