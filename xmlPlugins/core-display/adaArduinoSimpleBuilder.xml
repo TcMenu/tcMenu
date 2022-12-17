@@ -97,14 +97,16 @@
     </ApplicabilityDefs>
 
     <SourceFiles>
-        <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER true" applicabilityRef="whenDisplayBuffered"/>
         <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}" />
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp"/>
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp" applicabilityRef="whenDisplayBuffered"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h" applicabilityRef="whenDisplayBuffered"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp" applicabilityRef="whenBlankTFT"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h" applicabilityRef="whenBlankTFT"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+        <Header name="tcMenuAdaFruitGfxMono.h" inSource="true" applicabilityRef="whenDisplayBuffered"/>
+        <Header name="tcMenuAdaFruitGfx.h" inSource="true" applicabilityRef="whenBlankTFT"/>
     </IncludeFiles>
 
     <GlobalVariables>

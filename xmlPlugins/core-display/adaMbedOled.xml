@@ -50,16 +50,15 @@
     </ApplicabilityDefs>
 
     <SourceFiles>
-        <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER true"/>
         <Replacement find="Adafruit_ILI9341" replace="Adafruit_SSD1306_I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
         <Replacement find="Adafruit_ILI9341" replace="Adafruit_SSD1306_Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp"/>
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h"/>
     </SourceFiles>
 
     <IncludeFiles>
         <Header name="Adafruit_SSD1306.h" inSource="true"/>
-        <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+        <Header name="tcMenuAdaFruitGfxMono.h" inSource="true" />
     </IncludeFiles>
 
     <GlobalVariables>

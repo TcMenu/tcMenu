@@ -23,7 +23,8 @@
         <Property id="DISPLAY_BUFFERED" name="Library is memory buffered" initial="false" desc="If the display library is memory buffered" type="boolean" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
         <Property id="DISPLAY_BUFFER_SIZE" name="Memory display buffer lines (reduces flicker)" initial="0" type="int" min="0" max="320"
-                  desc="Draws items into a memory buffer before screen drawing, reduces flicker. Uses 1 byte per 4 pixels."/>
+                  desc="Draws items into a memory buffer before screen drawing, reduces flicker. Uses 1 byte per 4 pixels."
+                  whenProperty="DISPLAY_BUFFERED" isValue="false"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -31,12 +32,15 @@
     <SourceFiles>
         <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER ${DISPLAY_BUFFERED}"/>
         <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp"/>
-        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp" whenProperty="DISPLAY_BUFFERED" isValue="true"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h" whenProperty="DISPLAY_BUFFERED" isValue="true"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp" whenProperty="DISPLAY_BUFFERED" isValue="false"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.h" whenProperty="DISPLAY_BUFFERED" isValue="false"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="tcMenuAdaFruitGfx.h" inSource="true"/>
+        <Header name="tcMenuAdaFruitGfx.h" inSource="true" whenProperty="DISPLAY_BUFFERED" isValue="false"/>
+        <Header name="tcMenuAdaFruitGfxMono.h" inSource="true" whenProperty="DISPLAY_BUFFERED" isValue="true"/>
     </IncludeFiles>
 
     <GlobalVariables>

@@ -90,7 +90,7 @@ public:
     Coord getDisplayDimensions() override {  return Coord(u8g2->getWidth(), u8g2->getHeight()); }
     void transaction(bool isStarting, bool redrawNeeded) override;
     Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override;
-    color_t getUnderlyingColor(color_t col) { return (col<4) ? col : 1; }
+    color_t getUnderlyingColor(color_t col) override { return (col<4) ? col : 1; }
 protected:
     void drawPixel(uint16_t x, uint16_t y) override;
     UnicodeFontHandler *createFontHandler() override;
