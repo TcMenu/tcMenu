@@ -229,7 +229,9 @@ public class ScreenLayoutPersistence {
 
     private ComponentSettingsWithMenuId settingsTransformer(Element element) {
         var menuId = Integer.parseInt(element.getAttribute(ROOTID_ATTRIBUTE));
-        var item = tree.getMenuById(menuId).orElseThrow();
+        var maybeItem = tree.getMenuById(menuId);
+        if(maybeItem.isEmpty()) return null; // no item exists, must have been removed from the menu, ignore.
+        var item = maybeItem.get();
         var parent = tree.findParent(item);
 
         ComponentPositioning componentPositioning = new ComponentPositioning(
