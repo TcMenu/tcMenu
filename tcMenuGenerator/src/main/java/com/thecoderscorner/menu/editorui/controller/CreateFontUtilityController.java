@@ -256,7 +256,7 @@ public class CreateFontUtilityController {
                     if(maybeRawGlyph.isEmpty()) continue;
                     var rawGlyph = maybeRawGlyph.get();
 
-                    int totalHeight = rawGlyph.toBaseLine() + rawGlyph.belowBaseline();
+                    int totalHeight = rawGlyph.toBaseLine() + rawGlyph.fontDims().pixelsBelowBaseline();
                     glyphsInBlock.add(new TcUnicodeFontGlyph(i, rawGlyph.data(), rawGlyph.fontDims().width(),
                             rawGlyph.fontDims().height(), rawGlyph.totalWidth(),
                             rawGlyph.fontDims().startX(), -(totalHeight - rawGlyph.fontDims().startY())));

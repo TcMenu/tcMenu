@@ -118,7 +118,7 @@ public class AwtLoadedFont implements LoadedFont {
                 g.drawString(strCode, 0, (int) lm.getAscent());
                 var data = ((DataBufferInt) offScreenImg.getRaster().getDataBuffer()).getData();
 
-                var dims = getFontDimensions(data, sizeBmp);
+                var dims = getFontDimensions(data, sizeBmp, Math.round(lm.getAscent()));
                 if (width == 0) {
                     logger.log(Level.DEBUG, "Empty Code " + code + "(" + strCode + ")");
                     fontGlyphConsumer.accept(Optional.empty());
@@ -154,7 +154,7 @@ public class AwtLoadedFont implements LoadedFont {
         };
     }
 
-    private static FontDimensionInformation getFontDimensions(int[] data, int sizeBmp) {
+    private static FontDimensionInformation getFontDimensions(int[] data, int sizeBmp, int baseline) {
         int firstYLocation = -1;
         int lastYLocation = 1;
         int firstXLocation = -1;
@@ -189,7 +189,8 @@ public class AwtLoadedFont implements LoadedFont {
         return new FontDimensionInformation(
                 firstXLocation, firstYLocation,
                 (lastXLocation - firstXLocation) + 1,
-                (lastYLocation - firstYLocation) + 1);
+                (lastYLocation - firstYLocation) + 1,
+                lastYLocation > baseline ? lastYLocation - baseline : 0);
     }
 
     static class FontBitPacker {

@@ -14,8 +14,8 @@ public interface LoadedFont {
 
     void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newMappings, AntiAliasMode aliasMode);
 
-    record FontDimensionInformation(int startX, int startY, int width, int height) {
-        public static FontDimensionInformation DIMENSION_EMPTY = new FontDimensionInformation(0, 0, 0, 0);
+    record FontDimensionInformation(int startX, int startY, int width, int height, int pixelsBelowBaseline) {
+        public static FontDimensionInformation DIMENSION_EMPTY = new FontDimensionInformation(0, 0, 0, 0, 0);
 
         public int widthHeight() { return width * height; }
 
