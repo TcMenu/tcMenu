@@ -16,11 +16,12 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Questions, community forum and support
 
-There is a forum where questions can be asked, but the rules of engagement are: **this is my hobby, I make it available because it helps others**. Don't expect immediate answers, make sure you've recreated the problem in a simple sketch that you can send to me. Please consider making at least a one time donation using the sponsor link above before using the forum.
+You can ask questions either in the discussions section of this repo, or using the Arduino forum. We generally answer most questions, but the rules of engagement are: **this is my hobby, I make it available because it helps others**. Don't expect immediate answers, make sure you've recreated the problem in a simple sketch that you can send to me. Please consider making at least a one time donation using the sponsor link if we do help you out.
 
-* [TCC Libraries community discussion forum](https://www.thecoderscorner.com/jforum/)
-* [Consultancy pages on the coders corner](https://www.thecoderscorner.com/support-services/consultancy/)
-* I also monitor the Arduino forum [https://forum.arduino.cc/], Arduino related questions can be asked there too.
+* Discussions section of this git repo (available from top menu of github page).
+* [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
+* [Legacy discussion forum probably to be made read only soon](https://www.thecoderscorner.com/jforum/).
+
 
 ## Packaged installation for Windows, Linux, and MacOS.
 
