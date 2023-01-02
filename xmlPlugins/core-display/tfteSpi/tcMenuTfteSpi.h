@@ -16,6 +16,7 @@
 #include <graphics/GraphicsDeviceRenderer.h>
 #include <TFT_eSPI.h>
 #include <SPI.h>
+#include <ResistiveTouchScreen.h>
 
 #define TFT_SPRITE_BITS 4
 #define SPRITE_PALETTE_SIZE (1 << TFT_SPRITE_BITS)
@@ -75,5 +76,37 @@ public:
     void transaction(bool isStarting, bool redrawNeeded) override;
     color_t getUnderlyingColor(color_t col) override;
 };
+
+#define Y_INVERTED false
+
+namespace iotouch {
+
+    /**
+     * Implements the touch interrogator class, this purely gets the current reading from the device when requested. This
+     * implementation works with the TFT_eSPI touch functions providing tcMenu support for it. It is your responsibility
+     * to have run whatever calibration is needed before calling this function.  The X and Y values to the constructor
+     * are the maximum values that can be returned by calling getTouch.
+     */
+    class AdaLibTouchInterrogator : public iotouch::TouchInterrogator {
+    private:
+        TFT_eSPI* tft;
+        float maxWidthDim;
+        float maxHeightDim;
+    public:
+        AdaLibTouchInterrogator(TFT_eSPI* tft, uint16_t xMax, uint16_t yMax) : tft(tft), maxWidthDim(xMax), maxHeightDim(yMax) {}
+
+        iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation, const iotouch::CalibrationHandler& calib) {
+            uint16_t touchX=0, touchY=0;
+            bool pressed = tft.getTouch(&touchX, &touchY);
+            if(!pressed) return iotouch::NOT_TOUCHED;
+            //serdebugF3("point at ", touchX, touchY);
+
+            *ptrX = calib.calibrateX(float(touchX) / maxWidthDim, false);
+            *ptrY = calib.calibrateY(float(touchY) / maxHeightDim, Y_INVERTED);
+            return iotouch::TOUCHED;
+        }
+    };
+
+}
 
 #endif //TCMENU_PLUGIN_TCMENUTFTESPI_H

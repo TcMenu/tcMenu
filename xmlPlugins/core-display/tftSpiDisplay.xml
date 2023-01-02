@@ -9,7 +9,7 @@
         <Platform>ARDUINO_ESP32</Platform>
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
-    <Description>Draw menus using the TFT_eSPI library with any configuration that you have for color TFTs. Supports double buffering and all menu display types.</Description>
+    <Description>Draw menus using the TFT_eSPI library with any configuration that you have for color TFTs. Supports double buffering and all menu display types. Can use the library touch functions.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/tft_espi-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
@@ -18,6 +18,21 @@
         <Property id="DISPLAY_ROTATION" name="Rotation number" initial="2" desc="Rotation value between 0 and 3" type="int" min="0" max="3" />
         <Property id="DOUBLE_BUFFER_ROWS" name="Maximum rows to double buffer" initial="0" desc="Menus are rendered one item at a time, the largest buffer height - 0=off" type="int" min="0" max="250" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
+        <Property id="INCLUDE_TOUCH_INBUILT" name="Include inbuilt touch support" initial="false" type="boolean"
+                  desc="Use the inbuilt TFT_eSPI touch screen support, it is your responsibility to calibrate it before calling setupMenu."/>
+        <Property id="TOUCH_ROTATION" name="Rotation of the touch screen" initial="PORTRAIT" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"
+                  desc="Sets the orientation of the touch screen if needed, depending on your calibration" type="choice">
+            <Choices>
+                <Choice desc="Portrait">PORTRAIT</Choice>
+                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
+                <Choice desc="Landscape">LANDSCAPE</Choice>
+                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
+            </Choices>
+        </Property>
+        <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="1920" initial="320"
+                  desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"/>
+        <Property id="TOUCH_CALIB_HEIGHT" name="Maximum height reported by touch function" type="int" min="1" max="1920" initial="240"
+                  desc="The maximum height that would be reported when calling the TFT_eSPI touch functions" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -45,6 +60,18 @@
             <Param value="applicationInfo.name"/>
             <Param ref="${DISPLAY_VARIABLE}Drawable"/>
         </Variable>
+
+        <Variable name="touchInterrogator" type="iotouch::TftSpiTouchInterrogator" export="true" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param value="${TOUCH_CALIB_WIDTH}"/>
+            <Param value="${TOUCH_CALIB_HEIGHT}"/>
+        </Variable>
+
+        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true">
+            <Param ref="touchInterrogator"/>
+            <Param ref="renderer"/>
+            <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+        </Variable>
     </GlobalVariables>
 
     <SetupFunctions>
@@ -57,5 +84,7 @@
         <Function object="renderer" name="setUpdatesPerSecond">
             <Param value="${UPDATES_PER_SEC}"/>
         </Function>
+
+        <Function name="start" object="touchScreen"/>
     </SetupFunctions>
 </TcMenuPlugin>
