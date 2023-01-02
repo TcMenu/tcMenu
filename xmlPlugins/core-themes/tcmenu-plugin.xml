@@ -4,7 +4,7 @@
                         xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
-        <Version>3.0.0</Version>
+        <Version>3.1.0</Version>
         <Name>Core themes plugin</Name>
         <Description>This plugin provides themes that can be used with all graphical displays.</Description>
         <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
