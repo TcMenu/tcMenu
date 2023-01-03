@@ -65,7 +65,8 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 * IoAbstraction - https://github.com/davetcc/IoAbstraction
 * TaskManagerIO - https://github.com/davetcc/TaskManagerIO
 * SimpleCollections - https://github.com/davetcc/SimpleCollections
-
+* tcUnicodeHelper - https://github.com/davetcc/tcUnicodeHelper
+* 
 ### Additional libraries you may need depending on display
 
 * LiquidCrystalIO forked from Arduino version - https://github.com/davetcc/LiquidCrystalIO 
