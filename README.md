@@ -92,7 +92,7 @@ Here are a few examples of how the menu can look with version 2.0 of our menu li
 
 ### Support for rotary encoders, digital/analog joysticks and touch buttons
 
-We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574 or MCP23017. Further, we even support more than one encoder.
+We fully support rotary encoder based input with no need for any additional components in many cases. You can even connect your rotary encoder on a PCF8574, AW9523 or MCP23017. Further, we even support more than one encoder.
 
 You can configure 3 or more buttons to work like a digital joystick using button based rotary encoder emulation (Up, Down and OK buttons with optional left and right) on either board pins, i2c expander, shift register. DfRobot analog input style buttons. Either DfRobot, or other analog ladder (configurable in code).
 
@@ -108,7 +108,7 @@ From 2.0 onwards we'll support touch screen interfaces. We have built the suppor
 
 ### Drawing to LiquidCrystal (i2c or direct)
 
-We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly connected, over an i2c sheild (PCF8574, MCP23017)  or on a shift register. Our version of the library integrates better with task manager, yielding frequently.
+We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly connected, over an i2c sheild (PCF8574, MCP23017, AW9523)  or on a shift register. Our version of the library integrates better with task manager, yielding frequently.
 
 ### Adafruit_GFX integration for many displays
 
