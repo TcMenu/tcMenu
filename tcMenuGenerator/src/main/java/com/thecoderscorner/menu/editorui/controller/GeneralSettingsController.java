@@ -256,6 +256,7 @@ public class GeneralSettingsController {
             versionsTable.getItems().add(findLibVersion("LiquidCrystalIO"));
             versionsTable.getItems().add(findLibVersion("TaskManagerIO"));
             versionsTable.getItems().add(findLibVersion("SimpleCollections"));
+            versionsTable.getItems().add(findLibVersion("tcUnicodeHelper"));
 
             versionsTable.getItems().add(new NameWithVersion(
                     "TcMenuDesigner UI", "tcMenuDesigner",
