@@ -1,0 +1,49 @@
+{
+  "version": "1.00",
+  "projectName": "",
+  "author": "dave",
+  "items": [
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "defaultValue": "100",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "%",
+        "step": 1,
+        "name": "Hello",
+        "variableName": "Hello",
+        "id": 1,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    }
+  ],
+  "codeOptions": {
+    "embeddedPlatform": "ARDUINO32",
+    "lastDisplayUuid": "",
+    "lastInputUuid": "",
+    "lastRemoteUuid": "",
+    "lastRemoteUuids": [
+      ""
+    ],
+    "lastThemeUuid": "",
+    "applicationUUID": "05f47cbc-e247-48ee-947a-64897823513b",
+    "applicationName": "New Device",
+    "lastProperties": [],
+    "namingRecursive": true,
+    "saveToSrc": false,
+    "useCppMain": false,
+    "eepromDefinition": "",
+    "authenticatorDefinition": "",
+    "projectIoExpanders": [
+      "deviceIO:"
+    ],
+    "packageNamespace": "",
+    "appIsModular": false
+  }
+}

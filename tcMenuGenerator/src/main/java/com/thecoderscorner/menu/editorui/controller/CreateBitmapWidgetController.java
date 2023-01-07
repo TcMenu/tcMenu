@@ -1,8 +1,10 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -151,6 +153,7 @@ public class CreateBitmapWidgetController {
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
+        SafeNavigator.safeNavigateTo(AppInformationPanel.CREATE_USE_BITMAP_PAGE);
     }
 
     public void onAddImage(ActionEvent actionEvent) {

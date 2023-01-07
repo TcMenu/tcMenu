@@ -17,6 +17,9 @@ public class StartUICommand implements Callable<Integer> {
     @CommandLine.Option(names = {"-f", "--emf-file"}, description = "emf file name")
     private File projectFile;
 
+    @CommandLine.Option(names = {"-c", "--create"}, description = "create emf if needed")
+    private boolean createIfNeeded;
+
     public static AtomicReference<String> userSelectedProject = new AtomicReference<>(null);
 
     public static boolean didUserSelectProject() {
@@ -30,7 +33,7 @@ public class StartUICommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            projectFile = locateProjectFile(projectFile);
+            projectFile = locateProjectFile(projectFile, createIfNeeded);
             userSelectedProject.set(projectFile.getAbsolutePath());
             System.out.println("Designer is starting with project " + userSelectedProject.get());
             Application.launch(MenuEditorApp.class, "");

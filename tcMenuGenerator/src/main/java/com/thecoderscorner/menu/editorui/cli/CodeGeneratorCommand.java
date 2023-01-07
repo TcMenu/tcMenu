@@ -125,7 +125,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     }
 
     public static MenuTreeWithCodeOptions projectFileOrNull(File projectFile) throws IOException {
-        projectFile = locateProjectFile(projectFile);
+        projectFile = locateProjectFile(projectFile, false);
 
         loadedProjectFile = projectFile;
 
@@ -139,15 +139,33 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         return loadedProject;
     }
 
-    public static File locateProjectFile(File projectFile) throws IOException {
+    public static File locateProjectFile(File projectFile, boolean createIfNeeded) throws IOException {
         if(projectFile == null) {
             var path = Paths.get(System.getProperty("user.dir"));
             var maybeEmfPath = Files.find(path, 1, (filePath, attrs) -> filePath.toString().endsWith(".emf")).findFirst();
-            if(maybeEmfPath.isEmpty()) throw new IOException("Could not find an emf file in directory " + path);
+            if(maybeEmfPath.isEmpty()) {
+                if(createIfNeeded) {
+                    try(var emptyEmfFile = CodeGeneratorCommand.class.getResourceAsStream("/packaged-plugins/empty-project.emf")) {
+                        var data = emptyEmfFile.readAllBytes();
+                        Files.write(path.resolve(path.getFileName() + ".emf"), data);
+                    }
+                    catch(Exception ex) {
+                        throw new IOException("Could not create empty EMF file", ex);
+                    }
+                } else {
+                    throw new IOException("Could not find an emf file in directory (create option was false)" + path);
+                }
+
+            }
+
             projectFile = new File(maybeEmfPath.get().toString());
         }
 
-        if(!projectFile.exists()) throw new IOException("Project file does not exist " + projectFile);
+        if(!projectFile.exists()) {
+
+            throw new IOException("Project file does not exist " + projectFile);
+        }
+
         return projectFile;
     }
 
