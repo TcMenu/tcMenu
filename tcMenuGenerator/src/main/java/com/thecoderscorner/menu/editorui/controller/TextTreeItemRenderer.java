@@ -165,6 +165,9 @@ public class TextTreeItemRenderer {
             StringBuilder sb = createBuilderWithName(item.getName());
             String val ;
             switch(item.getNaming()) {
+                case CHECKBOX:
+                    val = "[X]";
+                    break;
                 case ON_OFF:
                     val = "ON";
                     break;

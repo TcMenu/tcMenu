@@ -226,6 +226,7 @@ public class ArduinoItemGeneratorTest {
         generateBooleanItemWithNaming(BooleanMenuItem.BooleanNaming.ON_OFF, "NAMING_ON_OFF");
         generateBooleanItemWithNaming(BooleanMenuItem.BooleanNaming.YES_NO, "NAMING_YES_NO");
         generateBooleanItemWithNaming(BooleanMenuItem.BooleanNaming.TRUE_FALSE, "NAMING_TRUE_FALSE");
+        generateBooleanItemWithNaming(BooleanMenuItem.BooleanNaming.CHECKBOX, "NAMING_CHECKBOX");
     }
 
     public void generateBooleanItemWithNaming(BooleanMenuItem.BooleanNaming naming, String embeddedNaming) {

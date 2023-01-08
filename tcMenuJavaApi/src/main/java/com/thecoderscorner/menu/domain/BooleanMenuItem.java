@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class BooleanMenuItem extends MenuItem {
     public enum BooleanNaming {
-        ON_OFF, YES_NO, TRUE_FALSE
+        ON_OFF, YES_NO, TRUE_FALSE, CHECKBOX
     }
 
     private final BooleanNaming naming;

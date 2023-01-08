@@ -32,6 +32,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
     public static final TidyBooleanNaming TIDY_NAMING_TRUE_FALSE = new TidyBooleanNaming(TRUE_FALSE, "TRUE / FALSE");
     public static final TidyBooleanNaming TIDY_NAMING_ON_OFF = new TidyBooleanNaming(ON_OFF, "ON / OFF");
     public static final TidyBooleanNaming TIDY_NAMING_YES_NO = new TidyBooleanNaming(YES_NO, "YES / NO");
+    public static final TidyBooleanNaming TIDY_NAMING_CHECKBOX = new TidyBooleanNaming(CHECKBOX, "CheckBox");
 
     private ComboBox<TidyBooleanNaming> namingBox;
     private ComboBox<BooleanNamingValue> defaultValue;
@@ -59,6 +60,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
             case TRUE_FALSE -> 0;
             case ON_OFF -> 1;
             case YES_NO -> 2;
+            case CHECKBOX -> 3;
         };
     }
 
@@ -69,7 +71,8 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         ObservableList<TidyBooleanNaming> list = FXCollections.observableList(List.of(
                 TIDY_NAMING_TRUE_FALSE,
                 TIDY_NAMING_ON_OFF,
-                TIDY_NAMING_YES_NO
+                TIDY_NAMING_YES_NO,
+                TIDY_NAMING_CHECKBOX
         ));
         namingBox = new ComboBox<>(list);
         namingBox.getSelectionModel().select(namingToIndex((getMenuItem().getNaming())));
@@ -99,6 +102,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
     private ObservableList<BooleanNamingValue> findBooleanNamingListFor(BooleanNaming naming) {
         return switch (naming) {
+            case CHECKBOX -> FXCollections.observableArrayList(new BooleanNamingValue("Checked", true), new BooleanNamingValue("Unchecked", false));
             case ON_OFF -> FXCollections.observableArrayList(new BooleanNamingValue("On", true), new BooleanNamingValue("Off", false));
             case YES_NO -> FXCollections.observableArrayList(new BooleanNamingValue("Yes", true), new BooleanNamingValue("No", false));
             case TRUE_FALSE -> FXCollections.observableArrayList(new BooleanNamingValue("True", true), new BooleanNamingValue("False", false));
