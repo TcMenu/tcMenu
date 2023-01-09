@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
@@ -52,6 +53,8 @@ public class GenerateCodeDialogTest {
     public static final String UNITTEST_DEFAULT_INPUT_UUID = "20409bb8-b8a1-4d1d-b632-2cf9b57353e3";
     public static final String UNITTEST_DEFAULT_REMOTE_UUID = "850b889b-fb15-4d9b-a589-67d5ffe3488d";
     private static PluginEmbeddedPlatformsImpl embeddedPlatforms;
+    private static CodePluginItem displayPlugin;
+    private static CodePluginItem remotePlugin;
     private GenerateCodeDialog genDialog;
     private Stage stage;
     private static CodeGeneratorRunner generatorRunner;
@@ -71,6 +74,15 @@ public class GenerateCodeDialogTest {
         when(storage.getAdditionalPluginPaths()).thenReturn(Collections.singletonList(pluginTemp.toString()));
         pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginManager.reload();
+
+        displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
+        remotePlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_REMOTE_UUID).orElseThrow();
+
+        // add the tcUnicode property
+        var myList = new ArrayList<CreatorProperty>(displayPlugin.getProperties());
+        myList.add(new CreatorProperty("USE_TC_UNICODE_PROP_NAME", "TcUnicode enable", "TcUnicde enable", "false", SubSystem.DISPLAY,
+                CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.boolValidator(), new AlwaysApplicable()));
+        displayPlugin.setProperties(myList);
 
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);
@@ -118,8 +130,6 @@ public class GenerateCodeDialogTest {
         verifyThat("#platformCombo", (ComboBox<EmbeddedPlatform> cbx) -> cbx.getSelectionModel().getSelectedItem() == EmbeddedPlatform.ARDUINO_AVR);
 
         var inputPlugin = getPlugin(UNITTEST_DEFAULT_INPUT_UUID, SubSystem.INPUT);
-        var displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
-        var remotePlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_REMOTE_UUID).orElseThrow();
 
         // for now we just smoke test the input plugin
         assertExpectedPlugin(robot, inputPlugin, "inputPlugin");

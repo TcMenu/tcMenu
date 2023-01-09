@@ -10,17 +10,20 @@ import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.scene.Node;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.ComboBoxMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.clickOnButtonInDialog;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.writeIntoField;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ApplicationExtension.class)
 public class EditFontTestCase {
@@ -39,20 +42,20 @@ public class EditFontTestCase {
         var dialogPane = createFontDialog(robot, prop);
         robot.clickOn("#defaultFontSelect");
         writeIntoField(robot, "#fontVarField", "", 10);
-        writeIntoField(robot, "#fontNumField", 2, 4);
+        assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("1")));
         clickOnButtonInDialog(robot, dialogPane, "Set Font");
 
         // try the numbered x2
         dialogPane = createFontDialog(robot, prop);
         robot.clickOn("#largeNumSelect");
-        writeIntoField(robot, "#fontNumField", 9, 4);
+        assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("9")));
         writeIntoField(robot, "#fontVarField", "", 10);
         clickOnButtonInDialog(robot, dialogPane, "Set Font");
 
         // try ada font x1
         dialogPane = createFontDialog(robot, prop);
         robot.clickOn("#adafruitFontSel");
-        writeIntoField(robot, "#fontNumField", 2, 4);
+        assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("2")));
         writeIntoField(robot, "#fontVarField", "myFont", 10);
         clickOnButtonInDialog(robot, dialogPane, "Set Font");
     }
@@ -70,7 +73,7 @@ public class EditFontTestCase {
             case NUMBERED -> "#largeNumSelect";
         };
         FxAssert.verifyThat(radioToCheck, RadioButton::isSelected);
-        FxAssert.verifyThat("#fontNumField", TextInputControlMatchers.hasText(String.valueOf(def.fontNumber())));
+        FxAssert.verifyThat("#sizeCombo", ComboBoxMatchers.hasSelectedItem(Integer.toString(def.fontNumber())));
         FxAssert.verifyThat("#fontVarField", TextInputControlMatchers.hasText(def.fontName()));
 
         return robot.lookup(".fontDialog").query();

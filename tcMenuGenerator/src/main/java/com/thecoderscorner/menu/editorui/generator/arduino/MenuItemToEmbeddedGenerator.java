@@ -211,6 +211,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         String itemNaming = switch (item.getNaming()) {
             case ON_OFF -> "NAMING_ON_OFF";
             case YES_NO -> "NAMING_YES_NO";
+            case CHECKBOX -> "NAMING_CHECKBOX";
             default -> "NAMING_TRUE_FALSE";
         };
 

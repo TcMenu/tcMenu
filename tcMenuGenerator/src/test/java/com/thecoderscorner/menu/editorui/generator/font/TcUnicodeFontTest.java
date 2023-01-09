@@ -102,7 +102,7 @@ class TcUnicodeFontTest {
                     {0, myFont123Bitmaps_0, myFont123Glyphs_0, 127} /* Basic Latin */
                 };
                                 
-                const UnicodeFont myFont123[] PROGMEM = {myFont123Blocks, 2, 12};
+                const UnicodeFont myFont123[] PROGMEM = { {myFont123Blocks, 2, 12, TCFONT_ONE_BIT_PER_PIXEL} };
                                 
                 """, os.toString());
     }
