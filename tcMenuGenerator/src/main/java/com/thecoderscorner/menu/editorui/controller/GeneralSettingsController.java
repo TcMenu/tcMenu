@@ -52,6 +52,7 @@ public class GeneralSettingsController {
     public ListView<String> additionalPathsList;
     public Button removePathBtn;
     public ComboBox<String> sketchSearchDepthCombo;
+    public CheckBox eepromStoreSizeField;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
@@ -73,6 +74,7 @@ public class GeneralSettingsController {
         usingArduinoLibsCheck.setSelected(storage.isUsingArduinoIDE());
         useFullyQualifiedNamesField.setSelected(storage.isDefaultRecursiveNamingOn());
         outputCppToSrcField.setSelected(storage.isDefaultSaveToSrcOn());
+        eepromStoreSizeField.setSelected(storage.isDefaultSizedEEPROMStorage());
 
         setDirectoryPickerOrEmpty(projectsTextField, storage.getArduinoOverrideDirectory(), () -> {
             var ardDir = getArduinoDirectory();
@@ -153,6 +155,7 @@ public class GeneralSettingsController {
         storage.setUsingArduinoIDE(usingLibs);
         storage.setDefaultRecursiveNamingOn(useFullyQualifiedNamesField.isSelected());
         storage.setDefaultSaveToSrcOn(outputCppToSrcField.isSelected());
+        storage.setDefaultSizedEEPROMStorage(eepromStoreSizeField.isSelected());
 
         chooseArduinoButton.setDisable(!usingLibs);
         chooseLibsButton.setDisable(!usingLibs);

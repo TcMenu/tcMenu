@@ -28,6 +28,7 @@ public class CodeGeneratorOptions {
     private boolean namingRecursive;
     private boolean saveToSrc;
     private boolean useCppMain;
+    private boolean usingSizedEEPROMStorage;
     private EepromDefinition eepromDefinition;
     private AuthenticatorDefinition authenticatorDefinition;
     private IoExpanderDefinitionCollection projectIoExpanders;
@@ -46,7 +47,7 @@ public class CodeGeneratorOptions {
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
                                 MenuInMenuCollection menuInMenuCollection, boolean appIsModular,
-                                boolean namingRecursive, boolean saveToSrc, boolean useCppMain) {
+                                boolean namingRecursive, boolean saveToSrc, boolean useCppMain, boolean sizeBasedRom) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
@@ -65,6 +66,7 @@ public class CodeGeneratorOptions {
         this.appIsModular = appIsModular;
         this.saveToSrc = saveToSrc;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
+        this.usingSizedEEPROMStorage = sizeBasedRom;
         this.eepromDefinition = eepromDef;
         this.authenticatorDefinition = authDef;
         this.menuInMenuCollection = menuInMenuCollection;
@@ -139,5 +141,9 @@ public class CodeGeneratorOptions {
 
     public boolean isModularApp() {
         return appIsModular;
+    }
+
+    public boolean isUsingSizedEEPROMStorage() {
+        return usingSizedEEPROMStorage;
     }
 }

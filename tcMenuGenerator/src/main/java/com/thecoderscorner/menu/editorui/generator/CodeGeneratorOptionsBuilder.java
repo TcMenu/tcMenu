@@ -34,6 +34,7 @@ public class CodeGeneratorOptionsBuilder {
     private boolean appIsModular = false;
     private boolean saveToSrc = false;
     private boolean useCppMain = false;
+    private boolean sizeBasedEEPROM = true;
     private EepromDefinition eepromDef = new NoEepromDefinition();
     private AuthenticatorDefinition authDef = new NoAuthenticatorDefinition();
     private MenuInMenuCollection menuInMenuDefinitions;
@@ -56,13 +57,14 @@ public class CodeGeneratorOptionsBuilder {
         packageNamespace = other.getPackageNamespace();
         appIsModular = other.isModularApp();
         menuInMenuDefinitions = other.getMenuInMenuCollection();
+        sizeBasedEEPROM = other.isUsingSizedEEPROMStorage();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
-                menuInMenuDefinitions, appIsModular, namingRecursive, saveToSrc, useCppMain);
+                menuInMenuDefinitions, appIsModular, namingRecursive, saveToSrc, useCppMain, sizeBasedEEPROM);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -146,6 +148,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withMenuInMenu(MenuInMenuCollection collection) {
         this.menuInMenuDefinitions = collection;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withUseSizedEEPROMStorage(boolean sized) {
+        this.sizeBasedEEPROM = sized;
         return this;
     }
 }

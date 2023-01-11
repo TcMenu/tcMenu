@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
-import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
@@ -77,12 +76,13 @@ public class GenerateCodeDialogTest {
 
         displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
         remotePlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_REMOTE_UUID).orElseThrow();
+        var inputPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_INPUT_UUID).orElseThrow();
 
         // add the tcUnicode property
-        var myList = new ArrayList<CreatorProperty>(displayPlugin.getProperties());
-        myList.add(new CreatorProperty("USE_TC_UNICODE_PROP_NAME", "TcUnicode enable", "TcUnicde enable", "false", SubSystem.DISPLAY,
+        var myList = new ArrayList<>(inputPlugin.getProperties());
+        myList.add(new CreatorProperty("USE_TC_UNICODE", "TcUnicode enable", "TcUnicde enable", "false", SubSystem.DISPLAY,
                 CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.boolValidator(), new AlwaysApplicable()));
-        displayPlugin.setProperties(myList);
+        inputPlugin.setProperties(myList);
 
         generatorRunner = mock(CodeGeneratorRunner.class);
         editorUI = mock(CurrentProjectEditorUI.class);

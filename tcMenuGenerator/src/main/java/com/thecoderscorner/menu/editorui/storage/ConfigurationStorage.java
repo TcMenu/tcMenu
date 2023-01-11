@@ -10,6 +10,7 @@ public interface ConfigurationStorage {
     String REGISTERED_KEY = "Registered";
     String USING_ARDUINO_IDE = "UsingArduinoIDE";
     String DEFAULT_SAVE_TO_SRC = "DefaultSaveToSrcOn";
+    String DEFAULT_SIZED_ROM_STORAGE = "DefaultSizedEEPROMStorage";
     String DEFAULT_RECURSIVE_NAMING = "DefaultRecursiveNaming";
     String ARDUINO_OVERRIDE_DIR = "ArduinoDirOverride";
     String ARDUINO_LIBS_OVERRIDE_DIR = "ArduinoLibsDirOverride";
@@ -38,8 +39,10 @@ public interface ConfigurationStorage {
 
     boolean isDefaultRecursiveNamingOn();
     boolean isDefaultSaveToSrcOn();
+    boolean isDefaultSizedEEPROMStorage();
     void setDefaultRecursiveNamingOn(boolean state);
     void setDefaultSaveToSrcOn(boolean state);
+    void setDefaultSizedEEPROMStorage(boolean state);
 
     Optional<String> getArduinoOverrideDirectory();
     Optional<String> getArduinoLibrariesOverrideDirectory();

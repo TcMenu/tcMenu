@@ -49,9 +49,11 @@ public class CreateProjectCommand implements Callable<Integer> {
     @Option(names = {"-s", "--src"}, description = "Override save to src default")
     private boolean[] saveToSrcArr;
 
+    @Option(names = {"-e", "--sized-rom"}, description = "Override sized ROM option")
+    private boolean[] useSizedRomArr;
+
     @Option(names = {"-r", "--recursive"}, description = "Override recursive naming default")
     private boolean[] recursiveNamingArr;
-
 
     @Override
     public Integer call() throws Exception {
@@ -104,10 +106,9 @@ public class CreateProjectCommand implements Callable<Integer> {
         var dir = Paths.get(location.toString(), newProject);
         Files.createDirectory(dir);
 
-
-
         var recursiveNaming = recursiveNamingArr != null && recursiveNamingArr.length > 0 ? recursiveNamingArr[0] : configurationStorage.isDefaultRecursiveNamingOn();
         var saveToSrc = saveToSrcArr != null && saveToSrcArr.length > 0 ? saveToSrcArr[0] : configurationStorage.isDefaultSaveToSrcOn();
+        var sizedRom = useSizedRomArr != null && useSizedRomArr.length > 0 ? useSizedRomArr[0] : configurationStorage.isDefaultSizedEEPROMStorage();
 
         if(saveToSrc) {
             Files.createDirectory(dir.resolve("src"));
@@ -123,6 +124,7 @@ public class CreateProjectCommand implements Callable<Integer> {
                 .withPlatform(platform.getBoardId())
                 .withAppName(newProject).withNewId(UUID.randomUUID())
                 .withCppMain(cppMain).withSaveToSrc(saveToSrc).withRecursiveNaming(recursiveNaming)
+                .withUseSizedEEPROMStorage(sizedRom)
                 .withPackageNamespace(packageOrNamespace)
                 .codeOptions();
 

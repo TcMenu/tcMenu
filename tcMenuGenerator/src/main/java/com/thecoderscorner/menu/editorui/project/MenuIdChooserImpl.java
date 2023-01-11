@@ -17,7 +17,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public class MenuIdChooserImpl implements MenuIdChooser {
-    private static final int MAGIC_EEPROM_OFFSET = 2;
+    private static final int MAGIC_EEPROM_OFFSET = 4;
     private final MenuTree menuTree;
     private final TreeSet<Integer> idSet;
 

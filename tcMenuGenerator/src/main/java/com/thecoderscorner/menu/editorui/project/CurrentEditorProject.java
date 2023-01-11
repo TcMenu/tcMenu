@@ -253,6 +253,7 @@ public class CurrentEditorProject {
         return new CodeGeneratorOptionsBuilder()
                 .withRecursiveNaming(configStore.isDefaultRecursiveNamingOn())
                 .withSaveToSrc(configStore.isDefaultSaveToSrcOn())
+                .withUseSizedEEPROMStorage(configStore.isDefaultSizedEEPROMStorage())
                 .codeOptions();
     }
 }

@@ -65,6 +65,7 @@ public class AppInformationPanel {
     private CheckBox recursiveNamingCheck;
     private CheckBox saveToSrcCheck;
     private CheckBox useCppMainCheck;
+    private CheckBox useSizedEepromStorage;
     private TextField appNameTextField;
     private final AtomicBoolean saveToSrcRecurseProtect = new AtomicBoolean(false);
 
@@ -183,7 +184,18 @@ public class AppInformationPanel {
                 .withCppMain(useCppMainCheck.isSelected())
                 .codeOptions()));
         useCppMainCheck.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.MBED_RTOS.getBoardId()));
-        gridPane.add(useCppMainCheck, 1, row, 2, 1);
+        gridPane.add(useCppMainCheck, 1, row++, 2, 1);
+
+        useSizedEepromStorage = new CheckBox("Use size checking on EEPROM storage");
+        useSizedEepromStorage.setId("useSizedEepromStorage");
+        useSizedEepromStorage.setSelected(options.isUsingSizedEEPROMStorage());
+        useSizedEepromStorage.setTooltip(new Tooltip("Save the largest EEPROM location to prevent unsaved new items with higher locations loading"));
+        useSizedEepromStorage.setOnAction(event -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                        .withExisting(controller.getProject().getGeneratorOptions())
+                        .withUseSizedEEPROMStorage(useSizedEepromStorage.isSelected())
+                        .codeOptions()));
+        useSizedEepromStorage.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId()));
+        gridPane.add(useSizedEepromStorage, 1, row, 2, 1);
 
         vbox.getChildren().add(gridPane);
 

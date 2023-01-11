@@ -24,6 +24,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private int maxLevels = 1;
     private boolean saveToSrc = false;
     private boolean defaultRecursive = false;
+    private boolean sizedRomStorage = true;
 
     public PrefsConfigurationStorage() {
         try {
@@ -33,6 +34,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
             Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
             usingIde = prefs.getBoolean(USING_ARDUINO_IDE, true);
             saveToSrc = prefs.getBoolean(DEFAULT_SAVE_TO_SRC, false);
+            sizedRomStorage = prefs.getBoolean(DEFAULT_SIZED_ROM_STORAGE, true);
             defaultRecursive = prefs.getBoolean(DEFAULT_RECURSIVE_NAMING, false);
 
             var ovr = prefs.get(ARDUINO_OVERRIDE_DIR, "");
@@ -192,6 +194,17 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         return saveToSrc;
     }
 
+    @Override
+    public boolean isDefaultSizedEEPROMStorage() {
+        return sizedRomStorage;
+    }
+
+    @Override
+    public void setDefaultSizedEEPROMStorage(boolean state) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(DEFAULT_SIZED_ROM_STORAGE, Boolean.toString(state));
+        sizedRomStorage = state;
+    }
     @Override
     public void setDefaultRecursiveNamingOn(boolean state) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);

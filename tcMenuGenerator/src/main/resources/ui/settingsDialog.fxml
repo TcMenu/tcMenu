@@ -22,7 +22,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
    <center>
       <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -44,9 +44,10 @@
                               <RowConstraints maxHeight="143.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="106.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="49.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
@@ -74,13 +75,13 @@
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                               <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
+                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="9" />
-                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
+                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="10" />
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="87.0" text="Add">
                                        <padding>
@@ -93,8 +94,9 @@
                                     <Insets left="4.0" />
                                  </GridPane.margin>
                               </VBox>
-                              <Label text="Sketch Search Depth:" GridPane.rowIndex="7" />
-                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                              <Label text="Sketch Search Depth:" GridPane.rowIndex="8" />
+                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="EEPROM values stored with size to prevent loading back unsaved items for new projects" GridPane.columnSpan="3" GridPane.rowIndex="7" />
                            </children>
                         </GridPane>
                      </children>
