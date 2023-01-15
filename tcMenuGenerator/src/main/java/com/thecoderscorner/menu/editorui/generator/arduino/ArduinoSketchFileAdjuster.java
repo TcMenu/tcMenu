@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
@@ -144,7 +145,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         var scrollItems = tree.getAllMenuItems().stream()
                 .filter(it -> it instanceof ScrollChoiceMenuItem scr && scr.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM)
                 .map(mi -> (ScrollChoiceMenuItem)mi)
-                .filter(sc -> !sc.getVariable().startsWith("@"))
+                .filter(sc -> !isDefinitionOnlyVariable(sc.getVariable()))
                 .toList();
 
         for(var sc : scrollItems) {
@@ -174,6 +175,10 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 changed = true;
             }
         }
+    }
+
+    public static boolean isDefinitionOnlyVariable(String variableName) {
+        return variableName.startsWith("@");
     }
 
     private void chompBlankLines(ArrayList<String> lines) {

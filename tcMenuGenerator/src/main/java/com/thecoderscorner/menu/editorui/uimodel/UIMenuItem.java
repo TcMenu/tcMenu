@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
@@ -27,6 +28,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +48,7 @@ import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldTy
  */
 public abstract class UIMenuItem<T extends MenuItem> {
 
+
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
 
@@ -60,6 +63,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected TextField nameField;
     protected TextField variableField;
     protected TextField functionNameTextField;
+    private Button functionBtn;
     private TextField eepromField;
     private Label errorsField;
     private CheckBox readOnlyCheck;
@@ -180,15 +184,27 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
         else eepromField = null;
 
+        HBox functionEditorBox = new HBox();
+        functionEditorBox.setSpacing(4);
 
         idx++;
-        grid.add(new Label("onChange Function"), 0, idx);
+        grid.add(new Label("Callback Function"), 0, idx);
         String functionName = menuItem.getFunctionName();
         functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
         functionNameTextField.textProperty().addListener(this::coreValueChanged);
         functionNameTextField.setId("functionNameTextField");
         functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
-        grid.add(functionNameTextField, 1, idx);
+        functionEditorBox.getChildren().add(functionNameTextField);
+        functionBtn = new Button("edit");
+        functionBtn.setId("functionEditor");
+        functionEditorBox.getChildren().add(functionBtn);
+        grid.add(functionEditorBox, 1, idx);
+        functionBtn.setOnAction(event -> {
+            var stage = (Stage) functionNameTextField.getScene().getWindow();
+            var dlg = new EditCallbackFunctionDialog(stage, true, functionNameTextField.getText(),
+                    MenuItemHelper.isRuntimeStructureNeeded(menuItem));
+            dlg.getResult();
+        });
 
         idx = internalInitPanel(grid, idx);
 
@@ -372,6 +388,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
             errorsBuilder.add(new FieldError("Value must be a number", field));
         }
         return val;
+    }
+
+    /**
+     * Turn on or off the function name fields when a function name is not appropriate
+     * @param ena
+     */
+    void disableListEditing(boolean ena) {
+        functionNameTextField.setDisable(ena);
+        functionBtn.setDisable(ena);
     }
 
     public boolean handleCut() {

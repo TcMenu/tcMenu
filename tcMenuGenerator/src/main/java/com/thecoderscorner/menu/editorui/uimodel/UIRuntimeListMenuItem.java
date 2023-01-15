@@ -37,7 +37,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
 
     @Override
     protected int internalInitPanel(GridPane pane, int idx) {
-        functionNameTextField.setDisable(true);
+        disableListEditing(true);
         // nothing to add
         return idx;
     }
