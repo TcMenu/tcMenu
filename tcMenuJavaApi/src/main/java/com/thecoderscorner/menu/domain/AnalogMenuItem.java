@@ -24,7 +24,7 @@ public class AnalogMenuItem extends MenuItem {
     private final int step;
 
     public AnalogMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         // needed for serialisation
         this.maxValue = -1;
         this.offset = -1;
@@ -34,8 +34,8 @@ public class AnalogMenuItem extends MenuItem {
     }
 
     public AnalogMenuItem(String name, String variableName, int id, int eepromAddress, String functionName, int maxValue,
-                          int offset, int divisor, int step, String unitName, boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+                          int offset, int divisor, int step, String unitName, boolean readOnly, boolean localOnly, boolean visible, boolean staticInRAM) {
+        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRAM);
         this.maxValue = maxValue;
         this.offset = offset;
         this.divisor = divisor;
@@ -109,6 +109,7 @@ public class AnalogMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getUnitName(), that.getUnitName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
@@ -117,6 +118,6 @@ public class AnalogMenuItem extends MenuItem {
     @Override
     public int hashCode() {
         return Objects.hash(getMaxValue(), getOffset(), getDivisor(), getStep(), getVariableName(), getUnitName(),
-                            getId(), getEepromAddress(), getFunctionName(), isReadOnly());
+                            getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isStaticDataInRAM());
     }
 }

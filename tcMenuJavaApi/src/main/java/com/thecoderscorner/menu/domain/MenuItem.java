@@ -21,9 +21,10 @@ public abstract class MenuItem {
     protected final boolean readOnly;
     protected final boolean localOnly;
     protected final boolean visible;
+    protected final boolean staticDataInRAM;
 
     public MenuItem(String name, String variableName, int id, int eepromAddress, String functionName,
-                    boolean readOnly, boolean localOnly, boolean visible) {
+                    boolean readOnly, boolean localOnly, boolean visible, boolean staticDataInRAM) {
         this.name = name;
         this.variableName = variableName;
         this.id = id;
@@ -32,6 +33,7 @@ public abstract class MenuItem {
         this.readOnly = readOnly;
         this.localOnly = localOnly;
         this.visible = visible;
+        this.staticDataInRAM = staticDataInRAM;
     }
 
     /**
@@ -107,6 +109,14 @@ public abstract class MenuItem {
     }
 
     public abstract void accept(MenuItemVisitor visitor);
+
+    /**
+     * Mainly used by the designer, this specifies if the info block for a menu item resides in RAM or FLASH
+     * @return true if constant
+     */
+    public boolean isStaticDataInRAM() {
+        return staticDataInRAM;
+    }
 
     @Override
     public String toString() {

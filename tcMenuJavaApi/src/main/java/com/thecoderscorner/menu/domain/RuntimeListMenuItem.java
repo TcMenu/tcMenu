@@ -14,13 +14,13 @@ public class RuntimeListMenuItem extends MenuItem {
     private final int initialRows;
 
     public RuntimeListMenuItem() {
-        super("", null, 0, 0, "", false, false, true);
+        super("", null, 0, 0, "", false, false, true, false);
         initialRows = 0;
     }
 
     public RuntimeListMenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean readOnly,
                                boolean localOnly, boolean visible, int initialRows) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
         this.initialRows = initialRows;
     }
 

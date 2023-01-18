@@ -11,9 +11,9 @@ import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicabl
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.SOURCE;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 
 /**
@@ -24,12 +24,13 @@ public class BuildStructInitializer {
     private final MenuItem menuItem;
     private final String structName;
     private final String structType;
-    private List<HeaderDefinition> headerRequirement = new ArrayList<>();
-    private List<String> structElements = new ArrayList<>();
+    private final List<HeaderDefinition> headerRequirement = new ArrayList<>();
+    private final List<String> structElements = new ArrayList<>();
     private boolean requiresExtern = false;
     private boolean progMem = false;
     private boolean stringChoices = false;
     private String prefix = " menu";
+    private boolean infoBlock = false;
 
     public BuildStructInitializer(MenuItem item, String structName, String structType) {
         this.menuItem = item;
@@ -84,9 +85,11 @@ public class BuildStructInitializer {
         return this;
     }
 
-    public BuildStructInitializer progMemInfo() {
-        this.progMem = true;
+    public BuildStructInitializer memInfoBlock(boolean isConstant) {
+        this.infoBlock = true;
+        this.progMem = isConstant;
         this.prefix = " minfo";
+        this.requiresExtern = !isConstant;
         return this;
     }
 
@@ -103,9 +106,7 @@ public class BuildStructInitializer {
 
     public BuildStructInitializer collectionOfElements(List<String> enumEntries, boolean requiresQuotes) {
         if(requiresQuotes) {
-            structElements.addAll(enumEntries.stream()
-                    .map(entry -> "\"" + entry + "\"")
-                    .collect(Collectors.toList())
+            structElements.addAll(enumEntries.stream().map(entry -> "\"" + entry + "\"").toList()
             );
         }
         else {
@@ -145,5 +146,9 @@ public class BuildStructInitializer {
 
     public MenuItem getMenuItem() {
         return menuItem;
+    }
+
+    public boolean isInfoBlock() {
+        return infoBlock;
     }
 }

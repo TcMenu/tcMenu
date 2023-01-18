@@ -6,9 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
@@ -33,6 +32,7 @@ import javafx.stage.Stage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -47,10 +47,12 @@ import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldTy
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
-
-
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
+    public static final Set<Class<? extends MenuItem>> MENU_CLASSES_BASED_ON_INFO = Set.of(
+            AnalogMenuItem.class, ActionMenuItem.class, BooleanMenuItem.class, EnumMenuItem.class,
+            SubMenuItem.class, FloatMenuItem.class
+    );
 
     private final MenuIdChooser chooser;
     protected VariableNameGenerator variableNameGenerator;
@@ -69,6 +71,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private CheckBox readOnlyCheck;
     private CheckBox noRemoteCheck;
     private CheckBox visibleCheck;
+    private CheckBox staticDataRamCheckbox;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer, String urlDocs) {
@@ -147,6 +150,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         variableField.setId("variableField");
         variableField.setTooltip(new Tooltip("The name of the variable to be created. Always prepended with menu"));
         variableField.textProperty().addListener(this::coreValueChanged);
+        variableField.setMaxWidth(9999);
         variableField.setOnKeyPressed((keyEvent) ->
                 variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
 
@@ -168,6 +172,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
             eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
             eepromField.setId("eepromField");
+            eepromField.setMaxWidth(9999);
             eepromField.setTooltip(new Tooltip("The location in EEPROM to store this value or -1 for none"));
             eepromField.textProperty().addListener(this::coreValueChanged);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
@@ -187,24 +192,26 @@ public abstract class UIMenuItem<T extends MenuItem> {
         HBox functionEditorBox = new HBox();
         functionEditorBox.setSpacing(4);
 
-        idx++;
-        grid.add(new Label("Callback Function"), 0, idx);
-        String functionName = menuItem.getFunctionName();
-        functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
-        functionNameTextField.textProperty().addListener(this::coreValueChanged);
-        functionNameTextField.setId("functionNameTextField");
-        functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
-        functionEditorBox.getChildren().add(functionNameTextField);
-        functionBtn = new Button("edit");
-        functionBtn.setId("functionEditor");
-        functionEditorBox.getChildren().add(functionBtn);
-        grid.add(functionEditorBox, 1, idx);
-        functionBtn.setOnAction(event -> {
-            var stage = (Stage) functionNameTextField.getScene().getWindow();
-            var dlg = new EditCallbackFunctionDialog(stage, true, functionNameTextField.getText(),
-                    MenuItemHelper.isRuntimeStructureNeeded(menuItem));
-            dlg.getResult();
-        });
+        if(itemRequiresFunctionCallback()) {
+            idx++;
+            grid.add(new Label("Callback Function"), 0, idx);
+            String functionName = menuItem.getFunctionName();
+            functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
+            functionNameTextField.textProperty().addListener(this::coreValueChanged);
+            functionNameTextField.setId("functionNameTextField");
+            functionNameTextField.setMaxWidth(9999);
+            functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
+            functionEditorBox.getChildren().add(functionNameTextField);
+            functionBtn = new Button("edit");
+            functionBtn.setId("functionEditor");
+            functionEditorBox.getChildren().add(functionBtn);
+            grid.add(functionEditorBox, 1, idx);
+            functionBtn.setOnAction(event -> {
+                var stage = (Stage) functionNameTextField.getScene().getWindow();
+                var dlg = new EditCallbackFunctionDialog(stage, true, functionNameTextField.getText(), menuItem);
+                dlg.getResult().ifPresent(res -> functionNameTextField.setText(res));
+            });
+        }
 
         idx = internalInitPanel(grid, idx);
 
@@ -233,12 +240,26 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idx++;
         grid.add(visibleCheck, 1, idx);
 
+        staticDataRamCheckbox = new CheckBox("Store static data in RAM");
+        if(MENU_CLASSES_BASED_ON_INFO.contains(menuItem.getClass())) {
+            staticDataRamCheckbox.setId("memLocationCheck");
+            staticDataRamCheckbox.setTooltip(new Tooltip("Store static data in RAM instead of FLASH so it can be changed at runtime"));
+            staticDataRamCheckbox.setOnAction(this::checkboxChanged);
+            staticDataRamCheckbox.setSelected(menuItem.isStaticDataInRAM());
+            idx++;
+            grid.add(staticDataRamCheckbox, 1, idx);
+        }
+
         textFieldsForCopy = grid.getChildren().stream()
                 .filter(node -> node instanceof TextField)
                 .map(textField -> (TextField) textField)
                 .collect(Collectors.toList());
 
         return grid;
+    }
+
+    protected boolean itemRequiresFunctionCallback() {
+        return true;
     }
 
     public void focusFirst() {
@@ -274,7 +295,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .withVariableName(varName)
                 .withReadOnly(readOnlyCheck.isSelected())
                 .withLocalOnly(noRemoteCheck.isSelected())
-                .withVisible(visibleCheck.isSelected());
+                .withVisible(visibleCheck.isSelected())
+                .withStaticDataInRAM(staticDataRamCheckbox.isSelected());
     }
 
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {
@@ -388,15 +410,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
             errorsBuilder.add(new FieldError("Value must be a number", field));
         }
         return val;
-    }
-
-    /**
-     * Turn on or off the function name fields when a function name is not appropriate
-     * @param ena
-     */
-    void disableListEditing(boolean ena) {
-        functionNameTextField.setDisable(ena);
-        functionBtn.setDisable(ena);
     }
 
     public boolean handleCut() {

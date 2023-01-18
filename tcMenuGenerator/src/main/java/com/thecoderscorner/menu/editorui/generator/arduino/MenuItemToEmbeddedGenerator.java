@@ -46,12 +46,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(item.getOffset())
                 .addElement(Math.max(1, item.getDivisor()))
                 .addQuoted(item.getUnitName() != null ? item.getUnitName() : "")
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "AnalogMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement(defaultValue)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menu));
@@ -177,11 +178,12 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
                 .addPossibleFunction(item.getFunctionName())
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "ActionMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menu));
@@ -195,12 +197,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getNumDecimalPlaces())
                 .addPossibleFunction(item.getFunctionName())
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "FloatMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement(defaultValue)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menu));
@@ -222,12 +225,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(1)
                 .addPossibleFunction(item.getFunctionName())
                 .addElement(itemNaming)
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "BooleanMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement(defaultValue)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menu));
@@ -246,12 +250,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addElement(item.getEnumEntries().size() - 1)
                 .addPossibleFunction(item.getFunctionName())
                 .addElement("enumStr" + itemVar)
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EnumMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement(defaultValue)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(choices, info, menu));
@@ -303,19 +308,25 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
                 .addPossibleFunction(item.getFunctionName())
-                .progMemInfo();
+                .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menuBack = new BuildStructInitializer(item, "Back" + itemVar, "BackMenuItem")
-                .addElement(makeRtFunctionName())
+                .addElement("&minfo" + itemVar)
                 .addElement(nextChild)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "SubMenuItem")
                 .addElement("&minfo" + itemVar)
                 .addElement("&menuBack" + itemVar)
                 .addElement(nextMenuName)
+                .addElement(programMemArgument(item))
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menuBack, menu));
+    }
+
+    private String programMemArgument(MenuItem item) {
+        return item.isStaticDataInRAM() ? "INFO_LOCATION_RAM" : "INFO_LOCATION_PGM";
     }
 }

@@ -18,13 +18,13 @@ public class SubMenuItem extends MenuItem {
     private final boolean secured;
 
     public SubMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         // needed for serialisation
         this.secured = false;
     }
 
-    public SubMenuItem(String name, String varName, int id, int eepromAddr, boolean localOnly, boolean visible, boolean secured) {
-        super(name, varName, id, eepromAddr, null, false, localOnly, visible);
+    public SubMenuItem(String name, String varName, int id, int eepromAddr, boolean localOnly, boolean visible, boolean secured, boolean staticInRAM) {
+        super(name, varName, id, eepromAddr, null, false, localOnly, visible, staticInRAM);
         this.secured = secured;
     }
 
@@ -54,6 +54,7 @@ public class SubMenuItem extends MenuItem {
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
                 isSecured() == that.isSecured() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
@@ -61,6 +62,6 @@ public class SubMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isSecured(), getVariableName());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), isSecured(), getVariableName(), isStaticDataInRAM());
     }
 }

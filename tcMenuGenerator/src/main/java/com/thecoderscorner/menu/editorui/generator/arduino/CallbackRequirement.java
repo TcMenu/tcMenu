@@ -15,9 +15,22 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.RUNTIME_MENU_URL;
 
 public class CallbackRequirement {
+    public static final String RUNTIME_FUNCTION_SUFIX = "RtCall";
     public static final String RUNTIME_CALLBACK_PARAMS = "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize)";
+
+    public static final String PLAIN_TEXT_CALLBACK = "textItemRenderFn";
+    public static final String IP_ADDRESS_CALLBACK = "ipAddressRenderFn";
+    public static final String TIME_CALLBACK = "timeItemRenderFn";
+    public static final String DATE_CALLBACK = "dateItemRenderFn";
+    public static final String LARGE_NUM_CALLBACK = "largeNumItemRenderFn";
+    public static final String RGB_CALLBACK = "rgbAlphaItemRenderFn";
+
     private final VariableNameGenerator generator;
     private final String callbackName;
     private final MenuItem callbackItem;
@@ -40,6 +53,30 @@ public class CallbackRequirement {
             @Override
             public void visit(RuntimeListMenuItem item) {
                 runtimeCustomCallback(item);
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                generateCallbackAsPossibleOverride(item);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem item) {
+                generateCallbackAsPossibleOverride(item);
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem item) {
+                generateCallbackAsPossibleOverride(item);
+            }
+
+            private void generateCallbackAsPossibleOverride(MenuItem item) {
+                String functionName = item.getFunctionName();
+                if(!StringHelper.isStringEmptyOrNull(functionName) && functionName.endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    setResult(generateRtCallForType(item, functionName));
+                } else {
+                    anyItem(item);
+                }
             }
 
             @Override
@@ -103,19 +140,28 @@ public class CallbackRequirement {
             private void generateSourceForEditableRuntime(MenuItem item, String baseCbFn) {
                 var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
 
-                var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                        + generator.makeRtFunctionName(item) + ", "
-                        + baseCbFn + ", \""
-                        + item.getName() + "\", "
-                        + item.getEepromAddress() + ", "
-                        + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
+                String renderingMacroDef;
+                if(callbackPresent && isApplicableForOverrideRtCall(item) && item.getFunctionName().endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    renderingMacroDef = "RENDERING_CALLBACK_NAME_OVERRIDDEN("
+                            + generator.makeRtFunctionName(item) + ", "
+                            + item.getFunctionName() + ", \""
+                            + item.getName() + "\", "
+                            + item.getEepromAddress() + ")";
+                } else {
+                    renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
+                            + generator.makeRtFunctionName(item) + ", "
+                            + baseCbFn + ", \""
+                            + item.getName() + "\", "
+                            + item.getEepromAddress() + ", "
+                            + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
 
 
-                if(item instanceof ScrollChoiceMenuItem sc) {
-                    if(sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
-                        var varName = sc.getVariable().startsWith("@") ? sc.getVariable().substring(1) : sc.getVariable();
-                        setResult(List.of("extern char " + sc.getVariable() + "[];", renderingMacroDef));
-                        return;
+                    if (item instanceof ScrollChoiceMenuItem sc) {
+                        if (sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
+                            var varName = sc.getVariable().startsWith("@") ? sc.getVariable().substring(1) : sc.getVariable();
+                            setResult(List.of("extern char " + sc.getVariable() + "[];", renderingMacroDef));
+                            return;
+                        }
                     }
                 }
                 setResult(List.of(renderingMacroDef));
@@ -137,18 +183,6 @@ public class CallbackRequirement {
             @Override
             public void visit(EditableLargeNumberMenuItem item) {
                 generateSourceForEditableRuntime(item, "largeNumItemRenderFn");
-            }
-
-            @Override
-            public void visit(SubMenuItem item) {
-                var renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                        + generator.makeRtFunctionName(item) + ", "
-                        + "backSubItemRenderFn, \""
-                        + item.getName() + "\", "
-                        + item.getEepromAddress() + ", "
-                        + "NO_CALLBACK)";
-
-                setResult(List.of(renderingMacroDef));
             }
 
             @Override
@@ -180,6 +214,30 @@ public class CallbackRequirement {
                     setResult("int " + generator.makeRtFunctionName(choiceMenuItem) + RUNTIME_CALLBACK_PARAMS + ";");
                 }
                 else anyItem(choiceMenuItem);
+            }
+
+            @Override
+            public void visit(EditableTextMenuItem item) {
+                processAsPossibleRtOverride(item);
+            }
+
+            private void processAsPossibleRtOverride(MenuItem item) {
+                String functionName = item.getFunctionName();
+                if(!StringHelper.isStringEmptyOrNull(functionName) && functionName.endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    setResult("int " + functionName + RUNTIME_CALLBACK_PARAMS + ";");
+                } else {
+                    anyItem(item);
+                }
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                processAsPossibleRtOverride(numItem);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                processAsPossibleRtOverride(rgbItem);
             }
 
             @Override
@@ -227,5 +285,55 @@ public class CallbackRequirement {
 
     public boolean isHeaderOnlyCallback() {
         return headerOnlyCallback;
+    }
+
+    public static String generateRtCallForType(MenuItem item, String variableName, String joining) {
+        return generateRtCallForType(item, variableName).stream().collect(Collectors.joining(joining));
+    }
+
+    public static List<String> generateRtCallForType(MenuItem item, String variableName) {
+        var cbFn = getDefaultCallbackNameForType(item).orElseThrow();
+        return List.of(
+                String.format("int CALLBACK_FUNCTION %s", variableName) + RUNTIME_CALLBACK_PARAMS + " {",
+                "    // See " + RUNTIME_MENU_URL,
+                "    switch(mode) {",
+                "    case RENDERFN_NAME:",
+                "        return false; // use default",
+                "    }",
+                "    return " + cbFn + "(item, row, mode, buffer, bufferSize);",
+                "}");
+    }
+
+    public static Optional<String> getDefaultCallbackNameForType(MenuItem item) {
+        return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<>() {
+            @Override
+            public void visit(EditableTextMenuItem text) {
+                setResult(switch (text.getItemType()) {
+                    case PLAIN_TEXT -> PLAIN_TEXT_CALLBACK;
+                    case IP_ADDRESS -> IP_ADDRESS_CALLBACK;
+                    case TIME_24H, TIME_12H, TIME_24_HUNDREDS, TIME_DURATION_SECONDS, TIME_DURATION_HUNDREDS, TIME_24H_HHMM, TIME_12H_HHMM ->
+                            TIME_CALLBACK;
+                    case GREGORIAN_DATE -> DATE_CALLBACK;
+                });
+            }
+
+            @Override
+            public void visit(EditableLargeNumberMenuItem numItem) {
+                setResult(LARGE_NUM_CALLBACK);
+            }
+
+            @Override
+            public void visit(Rgb32MenuItem rgbItem) {
+                setResult(RGB_CALLBACK);
+            }
+
+            @Override
+            public void anyItem(MenuItem item) {
+            }
+        });
+    }
+
+    public static boolean isApplicableForOverrideRtCall(MenuItem menuItem) {
+        return menuItem instanceof EditableLargeNumberMenuItem || menuItem instanceof Rgb32MenuItem || menuItem instanceof EditableTextMenuItem;
     }
 }

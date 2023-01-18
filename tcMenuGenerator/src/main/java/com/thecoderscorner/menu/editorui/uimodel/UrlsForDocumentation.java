@@ -15,5 +15,6 @@ public interface UrlsForDocumentation {
     String LARGE_NUM_URL = MENU_MENU_ITEM_URL + "largenum-menu-item/";
     String LIST_URL = MENU_MENU_ITEM_URL + "list-menu-item/";
     String SUB_MENU_URL = MENU_MENU_ITEM_URL + "sub-menu-item/";
+    String RUNTIME_MENU_URL = MENU_MENU_ITEM_URL + "based-on-runtimemenuitem/";
     String REMOTE_AUTHENTICATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/";
 }

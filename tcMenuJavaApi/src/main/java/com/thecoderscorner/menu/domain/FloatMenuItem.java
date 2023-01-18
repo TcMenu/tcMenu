@@ -19,14 +19,14 @@ public class FloatMenuItem extends MenuItem {
     private final int numDecimalPlaces;
 
     public FloatMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         // needed for serialisation
         this.numDecimalPlaces = 0;
     }
 
     public FloatMenuItem(String name, String varName, int id, String functionName, int eepromAddr, int numDecimalPlaces,
-                         boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddr, functionName, readOnly, localOnly, visible);
+                         boolean readOnly, boolean localOnly, boolean visible, boolean staticInRAM) {
+        super(name, varName, id, eepromAddr, functionName, readOnly, localOnly, visible, staticInRAM);
         this.numDecimalPlaces = numDecimalPlaces;
     }
 
@@ -41,6 +41,7 @@ public class FloatMenuItem extends MenuItem {
                 isVisible() == that.isVisible() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
@@ -48,7 +49,7 @@ public class FloatMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNumDecimalPlaces(), getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName());
+        return Objects.hash(getNumDecimalPlaces(), getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isStaticDataInRAM());
     }
 
     public int getNumDecimalPlaces() {

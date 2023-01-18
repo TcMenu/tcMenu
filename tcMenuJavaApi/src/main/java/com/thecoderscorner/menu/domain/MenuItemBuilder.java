@@ -14,12 +14,18 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder, M extends MenuI
     String functionName;
     boolean readOnly;
     boolean localOnly;
+    boolean staticDataInRAM;
     boolean visible = true;
 
     abstract T getThis();
 
     public T withName(String name) {
         this.name = name;
+        return getThis();
+    }
+
+    public T withStaticDataInRAM(boolean inRAM) {
+        staticDataInRAM = inRAM;
         return getThis();
     }
 
@@ -67,6 +73,7 @@ abstract public class MenuItemBuilder<T extends MenuItemBuilder, M extends MenuI
         readOnly = item.isReadOnly();
         localOnly = item.isLocalOnly();
         visible = item.isVisible();
+        staticDataInRAM = item.isStaticDataInRAM();
     }
 
     public abstract M menuItem();

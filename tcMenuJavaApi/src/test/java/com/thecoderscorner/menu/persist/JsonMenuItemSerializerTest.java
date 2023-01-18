@@ -27,7 +27,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 102,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -40,7 +41,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 105,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -53,7 +55,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 102,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -70,7 +73,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 101,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -88,7 +92,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 104,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -100,7 +105,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 20,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -115,7 +121,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 64,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -129,7 +136,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 110,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -143,7 +151,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 101,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  }\n" +
             "]";
@@ -163,7 +172,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 101,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -181,7 +191,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 104,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -193,7 +204,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 20,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -208,7 +220,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 64,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -222,7 +235,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 110,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  },\n" +
             "  {\n" +
@@ -236,7 +250,8 @@ class JsonMenuItemSerializerTest {
             "      \"eepromAddress\": 101,\n" +
             "      \"readOnly\": false,\n" +
             "      \"localOnly\": false,\n" +
-            "      \"visible\": true\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
             "    }\n" +
             "  }\n" +
             "]";

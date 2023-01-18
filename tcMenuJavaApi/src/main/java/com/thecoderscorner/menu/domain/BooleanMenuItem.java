@@ -23,13 +23,13 @@ public class BooleanMenuItem extends MenuItem {
 
     public BooleanMenuItem() {
         // needed for serialisation
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         this.naming = BooleanNaming.ON_OFF;
     }
 
     public BooleanMenuItem(String name, String varName, int id, int eepromAddress, String functionName, BooleanNaming naming,
-                           boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+                           boolean readOnly, boolean localOnly, boolean visible, boolean staticInRam) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.naming = naming;
     }
 
@@ -51,6 +51,7 @@ public class BooleanMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 isVisible() == that.isVisible() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 getNaming() == that.getNaming() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
@@ -59,7 +60,7 @@ public class BooleanMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNaming(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
+        return Objects.hash(getNaming(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName(), isStaticDataInRAM());
     }
 
     @Override

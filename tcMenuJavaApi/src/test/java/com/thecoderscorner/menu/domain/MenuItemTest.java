@@ -37,6 +37,7 @@ public class MenuItemTest {
                 .withReadOnly(true)
                 .withLocalOnly(true)
                 .withStep(2)
+                .withStaticDataInRAM(true)
                 .withMaxValue(10000).menuItem();
 
         assertBaseMenuFields(item, "Test Menu", 10, 100);
@@ -49,6 +50,7 @@ public class MenuItemTest {
         assertEquals("TestMenu", item.getVariableName());
         assertTrue(item.isReadOnly());
         assertTrue(item.isLocalOnly());
+        assertTrue(item.isStaticDataInRAM());
         assertTrue(item.isVisible());
         assertFalse(item.hasChildren());
 
@@ -64,6 +66,7 @@ public class MenuItemTest {
                 .withEnumList(Collections.singletonList("Enum1"))
                 .withFunctionName("someFn")
                 .withVariableName("Menu123")
+                .withStaticDataInRAM(true)
                 .withVisible(false)
                 .menuItem();
 
@@ -73,6 +76,7 @@ public class MenuItemTest {
         assertFalse(item.isReadOnly());
         assertFalse(item.isLocalOnly());
         assertFalse(item.isVisible());
+        assertTrue(item.isStaticDataInRAM());
         assertEquals("someFn", item.getFunctionName());
         assertEquals("Menu123", item.getVariableName());
 

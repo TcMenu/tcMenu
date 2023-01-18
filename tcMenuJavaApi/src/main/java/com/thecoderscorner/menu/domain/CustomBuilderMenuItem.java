@@ -20,7 +20,7 @@ public class CustomBuilderMenuItem extends MenuItem {
 
     public CustomBuilderMenuItem(String name, String variableName, int id, int eepromAddress, String functionName,
                                  boolean readOnly, boolean localOnly, boolean visible, CustomMenuType theType) {
-        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
         menuType = theType;
     }
 

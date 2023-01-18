@@ -13,13 +13,13 @@ public class Rgb32MenuItem extends MenuItem {
     private final boolean includeAlphaChannel;
 
     public Rgb32MenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         includeAlphaChannel = false;
     }
 
     public Rgb32MenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean includeAlphaChannel,
                          boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
         this.includeAlphaChannel = includeAlphaChannel;
     }
 

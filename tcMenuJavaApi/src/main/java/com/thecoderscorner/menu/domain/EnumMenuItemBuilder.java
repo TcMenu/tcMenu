@@ -39,7 +39,7 @@ public class EnumMenuItemBuilder extends MenuItemBuilder<EnumMenuItemBuilder, En
     }
 
     public EnumMenuItem menuItem() {
-        return new EnumMenuItem(name, variableName, id, eepromAddr, functionName, enumList, readOnly, localOnly, visible);
+        return new EnumMenuItem(name, variableName, id, eepromAddr, functionName, enumList, readOnly, localOnly, visible, staticDataInRAM);
     }
 
     public static EnumMenuItemBuilder anEnumMenuItemBuilder() {

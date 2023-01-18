@@ -37,8 +37,12 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
 
     @Override
     protected int internalInitPanel(GridPane pane, int idx) {
-        disableListEditing(true);
         // nothing to add
         return idx;
+    }
+
+    @Override
+    protected boolean itemRequiresFunctionCallback() {
+        return false;
     }
 }

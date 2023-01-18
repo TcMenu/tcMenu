@@ -6,28 +6,27 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.controller.AboutController;
-import com.thecoderscorner.menu.editorui.controller.EditDialogController;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.controller.EditFunctionController;
 import javafx.stage.Stage;
 
 import java.util.Optional;
 
 
 /** Example of displaying a splash page for a standalone JavaFX application */
-public class EditCallbackFunctionDialog extends BaseDialogSupport<EditDialogController> {
+public class EditCallbackFunctionDialog extends BaseDialogSupport<EditFunctionController> {
     private final String fnDefinition;
-    private final boolean runtimeItem;
+    private final MenuItem menuItem;
 
-    public EditCallbackFunctionDialog(Stage stage, boolean modal, String fnDefinition, boolean runtimeItem) {
+    public EditCallbackFunctionDialog(Stage stage, boolean modal, String fnDefinition, MenuItem menuItem) {
         this.fnDefinition = fnDefinition;
-        this.runtimeItem = runtimeItem;
+        this.menuItem = menuItem;
         tryAndCreateDialog(stage, "/ui/editFunctionCallback.fxml", "Edit Function Callback", modal);
     }
 
     @Override
-    protected void initialiseController(EditDialogController controller) throws Exception {
-        controller.initialise(fnDefinition, runtimeItem);
+    protected void initialiseController(EditFunctionController controller) throws Exception {
+        controller.initialise(fnDefinition, menuItem);
     }
 
     public Optional<String> getResult() {

@@ -22,7 +22,7 @@ public class EditableLargeNumberMenuItem extends MenuItem {
     private final boolean negativeAllowed;
 
     public EditableLargeNumberMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         digitsAllowed = 0;
         decimalPlaces = 0;
         negativeAllowed = false;
@@ -32,7 +32,7 @@ public class EditableLargeNumberMenuItem extends MenuItem {
     public EditableLargeNumberMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int digitsAllowed,
                                        int decimalPlaces, boolean negativeAllowed, boolean readOnly, boolean localOnly,
                                        boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
         this.digitsAllowed = digitsAllowed;
         this.decimalPlaces = decimalPlaces;
         this.negativeAllowed = negativeAllowed;

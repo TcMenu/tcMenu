@@ -13,7 +13,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.persist.VersionInfo;
@@ -53,6 +53,7 @@ public class AppInformationPanel {
     public static final String MENU_IN_MENU_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/";
     public static final String CREATE_USE_BITMAP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/creating-and-using-bitmaps-menu/";
 
+    private final PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
     private final MenuEditorController controller;
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager pluginManager;
@@ -109,10 +110,14 @@ public class AppInformationPanel {
         gridPane.add(platformCombo, 1, row, 2, 1);
         editorUI.getEmbeddedPlatforms().stream().filter(p -> p.getBoardId().equals(options.getEmbeddedPlatform()))
                 .findFirst().ifPresent(env -> platformCombo.getSelectionModel().select(env));
-        platformCombo.setOnAction(event -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
-                .withExisting(options)
-                .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
-                .codeOptions()));
+        platformCombo.setOnAction(event -> {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(options)
+                    .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                    .codeOptions());
+            useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
+            useSizedEepromStorage.setDisable(platforms.isJava(platformCombo.getValue()));
+        });
         ++row;
 
         gridPane.add(new Label("File name"), 0, row);
@@ -183,7 +188,7 @@ public class AppInformationPanel {
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withCppMain(useCppMainCheck.isSelected())
                 .codeOptions()));
-        useCppMainCheck.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.MBED_RTOS.getBoardId()));
+        useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
         gridPane.add(useCppMainCheck, 1, row++, 2, 1);
 
         useSizedEepromStorage = new CheckBox("Use size checking on EEPROM storage");
@@ -194,7 +199,7 @@ public class AppInformationPanel {
                         .withExisting(controller.getProject().getGeneratorOptions())
                         .withUseSizedEEPROMStorage(useSizedEepromStorage.isSelected())
                         .codeOptions()));
-        useSizedEepromStorage.setDisable(options.getEmbeddedPlatform().equals(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId()));
+        useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
         gridPane.add(useSizedEepromStorage, 1, row, 2, 1);
 
         vbox.getChildren().add(gridPane);

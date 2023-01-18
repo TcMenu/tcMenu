@@ -17,7 +17,7 @@ public class ScrollChoiceMenuItem extends MenuItem {
     private final String variable;
 
     public ScrollChoiceMenuItem() {
-        super("", null,-1, -1, null, false, false, true);
+        super("", null,-1, -1, null, false, false, true, false);
         variable = null;
         choiceMode = ScrollChoiceMode.ARRAY_IN_EEPROM;
         itemWidth = numEntries = eepromOffset = 0;
@@ -26,7 +26,7 @@ public class ScrollChoiceMenuItem extends MenuItem {
     public ScrollChoiceMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int itemWidth, int eepromOffset,
                                 int numEntries, ScrollChoiceMode mode, String variable, boolean readOnly, boolean localOnly,
                                 boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
         this.numEntries = numEntries;
         this.itemWidth = itemWidth;
         this.eepromOffset = eepromOffset;

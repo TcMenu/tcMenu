@@ -25,7 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CodeVariableCppExtractorTest {
-    private CodeVariableCppExtractor extractor;
+    private final CodeVariableCppExtractor extractor;
     private final UUID APPUUID = UUID.randomUUID();
 
     {
@@ -45,7 +45,7 @@ public class CodeVariableCppExtractorTest {
                 .addEeprom(-1)
                 .addElement(22)
                 .addPossibleFunction(null)
-                .progMemInfo();
+                .memInfoBlock(true);
 
         assertEquals("", extractor.mapStructHeader(initializer));
         assertEquals("const PROGMEM StructType minfoMyStruct = { \"Test1\", 0xffff, 22, NO_CALLBACK };",

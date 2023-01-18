@@ -169,7 +169,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
         var expanded = p.expandExpression(context, val);
         if(p instanceof ReferenceCodeParameter) {
-            return (val == null || val.equalsIgnoreCase("null")) ? "NULL" : ("&" + expanded);
+            return (val == null || val.equalsIgnoreCase("null")) ? "nullptr" : ("&" + expanded);
         }
         else return expanded;
     }
@@ -240,10 +240,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
         else if(headerDefinition.getHeaderType() == HeaderType.FONT) {
             var def = fromString(expando.expandExpression(context, headerDefinition.getHeaderName()));
-            if(def.isPresent()) {
-                return def.get().getIncludeDef();
-            }
-            return "";
+            return def.map(FontDefinition::getIncludeDef).orElse("");
         }
         else {
             return "#include <" + expando.expandExpression(context, headerDefinition.getHeaderName()) + ">";
@@ -261,8 +258,11 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             sb.append("const ").append(progMem()).append(s.getStructType()).append(s.getPrefix()).append(s.getStructName()).append(" = { ");
             sb.append(String.join(", ", s.getStructElements()));
             sb.append(" };");
-        }
-        else {
+        } else if(s.isInfoBlock()) {
+            sb.append(s.getStructType()).append(s.getPrefix()).append(s.getStructName()).append(" = { ");
+            sb.append(String.join(", ", s.getStructElements()));
+            sb.append(" };");
+        } else {
             sb.append(s.getStructType()).append(s.getPrefix()).append(s.getStructName()).append("(");
             sb.append(String.join(", ", s.getStructElements()));
             sb.append(");");

@@ -20,14 +20,14 @@ public class EnumMenuItem extends MenuItem {
     private final List<String> enumEntries;
 
     public EnumMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         // needed for serialisation
         enumEntries = Collections.emptyList();
     }
 
     public EnumMenuItem(String name, String varName, int id, int eepromAddress, String functionName, List<String> enumEntries,
-                        boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible);
+                        boolean readOnly, boolean localOnly, boolean visible, boolean staticInRAM) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRAM);
         this.enumEntries = enumEntries;
     }
 
@@ -45,6 +45,7 @@ public class EnumMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getEnumEntries(), that.getEnumEntries()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
@@ -53,7 +54,7 @@ public class EnumMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEnumEntries(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
+        return Objects.hash(getEnumEntries(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName(), isStaticDataInRAM());
     }
 
     @Override

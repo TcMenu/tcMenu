@@ -6,7 +6,6 @@
 
 package com.thecoderscorner.menu.domain.state;
 
-import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -15,8 +14,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
+import static com.thecoderscorner.menu.domain.util.MenuItemHelper.stateForMenuItem;
 
 /**
  * Menu tree holds all the menu items for a specific remote connection or local session. It holds a hierarchy of
@@ -35,7 +34,7 @@ public class MenuTree {
     /**
      * This is the root menu item, the top level item on the display basically
      */
-    public static final SubMenuItem ROOT = new SubMenuItem("Root", null, 0, -1, false, true, false);
+    public static final SubMenuItem ROOT = new SubMenuItem("Root", null, 0, -1, false, true, false, false);
 
     /**
      * The maximum expected items in a typical menu.

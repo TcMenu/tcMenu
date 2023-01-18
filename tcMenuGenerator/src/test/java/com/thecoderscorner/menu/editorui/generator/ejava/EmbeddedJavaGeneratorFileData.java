@@ -283,7 +283,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "functionName": "callback1",
                   "readOnly": false,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -300,7 +301,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "eepromAddress": 2,
                   "readOnly": true,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -313,7 +315,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "eepromAddress": 0,
                   "readOnly": false,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -327,7 +330,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "eepromAddress": -1,
                   "readOnly": false,
                   "localOnly": true,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -346,7 +350,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "functionName": "callback1",
                   "readOnly": true,
                   "localOnly": true,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -361,7 +366,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "functionName": "callback2",
                   "readOnly": false,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -376,7 +382,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "functionName": "@headerOnly",
                   "readOnly": false,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               },
               {
@@ -390,7 +397,8 @@ public class EmbeddedJavaGeneratorFileData {
                   "functionName": "listHasChanged",
                   "readOnly": false,
                   "localOnly": false,
-                  "visible": true
+                  "visible": true,
+                  "staticDataInRAM": false
                 }
               }
             ]""\";
@@ -440,7 +448,7 @@ public class EmbeddedJavaGeneratorFileData {
                 public RuntimeListMenuItem getAbc() {
                     return (RuntimeListMenuItem) menuTree.getMenuById(1043).orElseThrow();
                 }
-
+                        
                 public RuntimeListMenuItem getMyList() {
                     return (RuntimeListMenuItem) menuTree.getMenuById(2039).orElseThrow();
                 }

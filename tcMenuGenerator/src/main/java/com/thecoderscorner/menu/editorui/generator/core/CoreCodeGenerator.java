@@ -572,6 +572,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     private Collection<CodeGeneratorCapable> extraCodeDefinitions() {
         var extraDefs = new ArrayList<CodeGeneratorCapable>(options.getExpanderDefinitions().getAllExpanders());
+        extraDefs.add(new SizeBasedEEPROMCodeCapable(options.isUsingSizedEEPROMStorage()));
         extraDefs.add(options.getEepromDefinition());
         extraDefs.add(options.getAuthenticatorDefinition());
         return extraDefs;

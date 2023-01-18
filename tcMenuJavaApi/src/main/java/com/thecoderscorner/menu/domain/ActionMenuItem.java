@@ -17,13 +17,13 @@ import java.util.Objects;
 public class ActionMenuItem extends MenuItem {
 
     public ActionMenuItem() {
-        super("", null, -1, -1, null, false, false, true);
+        super("", null, -1, -1, null, false, false, true, false);
         // needed for serialisation
     }
 
     public ActionMenuItem(String name, String variableName, int id, String functionName, int eepromAddr,
-                          boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible);
+                          boolean readOnly, boolean localOnly, boolean visible, boolean staticInRAM) {
+        super(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, staticInRAM);
     }
 
     /**
@@ -49,6 +49,7 @@ public class ActionMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isVisible() == that.isVisible() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
@@ -56,6 +57,6 @@ public class ActionMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isReadOnly(), isLocalOnly());
+        return Objects.hash(getName(), getId(), getEepromAddress(), getFunctionName(), getVariableName(), isReadOnly(), isLocalOnly(), isStaticDataInRAM());
     }
 }
