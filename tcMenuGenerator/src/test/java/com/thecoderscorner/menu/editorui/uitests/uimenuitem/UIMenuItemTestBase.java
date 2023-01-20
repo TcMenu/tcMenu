@@ -90,12 +90,18 @@ public abstract class UIMenuItemTestBase {
     }
 
     protected void performAllCommonChecks(MenuItem item, boolean hasEepromField) {
+        performAllCommonChecks(item, hasEepromField, true);
+    }
+
+    protected void performAllCommonChecks(MenuItem item, boolean hasEepromField, boolean hasFunctionField) {
         verifyThat("#idField", Node::isDisabled);
         verifyThat("#idField", TextInputControlMatchers.hasText(Integer.toString(item.getId())));
         if(hasEepromField) verifyThat("#eepromField", TextInputControlMatchers.hasText(Integer.toString(item.getEepromAddress())));
         verifyThat("#nameField", TextInputControlMatchers.hasText(item.getName()));
-        verifyThat("#functionNameTextField", TextInputControlMatchers.hasText(
-                item.getFunctionName() == null ? UIMenuItem.NO_FUNCTION_DEFINED : item.getFunctionName()));
+        if(hasFunctionField) {
+            verifyThat("#functionNameTextField", TextInputControlMatchers.hasText(
+                    item.getFunctionName() == null ? UIMenuItem.NO_FUNCTION_DEFINED : item.getFunctionName()));
+        }
         verifyThat("#uiItemErrors", (Node node)->!node.isVisible());
     }
 

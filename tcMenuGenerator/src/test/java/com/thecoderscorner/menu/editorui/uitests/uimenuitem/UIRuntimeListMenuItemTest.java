@@ -38,6 +38,6 @@ public class UIRuntimeListMenuItemTest extends UIMenuItemTestBase {
         if(uiList.isEmpty()) throw new IllegalArgumentException("No menu item found");
         createMainPanel(uiList);
 
-        performAllCommonChecks(uiList.get().getMenuItem(), false);
+        performAllCommonChecks(uiList.get().getMenuItem(), false, false);
     }
 }

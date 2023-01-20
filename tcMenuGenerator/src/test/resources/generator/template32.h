@@ -17,6 +17,7 @@
 #include <JoystickSwitchInput.h>
 #include <RuntimeMenuItem.h>
 #include <IoAbstraction.h>
+#include <EepromItemStorage.h>
 #include <EepromAbstraction.h>
 #include <RemoteAuthentication.h>
 

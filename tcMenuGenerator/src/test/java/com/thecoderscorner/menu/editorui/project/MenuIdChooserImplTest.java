@@ -44,7 +44,7 @@ public class MenuIdChooserImplTest {
         MenuTree menuTree = new MenuTree();
         chooser = new MenuIdChooserImpl(menuTree);
         assertEquals(1, chooser.nextHighestId());
-        assertEquals(2, chooser.nextHighestEeprom());
+        assertEquals(4, chooser.nextHighestEeprom());
 
         EnumMenuItem item = EnumMenuItemBuilder.anEnumMenuItemBuilder()
                 .withId(1)
@@ -53,7 +53,7 @@ public class MenuIdChooserImplTest {
                 .withEnumList(Collections.emptyList())
                 .menuItem();
         menuTree.addMenuItem(MenuTree.ROOT, item);
-        assertEquals(2, chooser.nextHighestEeprom());
+        assertEquals(4, chooser.nextHighestEeprom());
     }
 
     @Test

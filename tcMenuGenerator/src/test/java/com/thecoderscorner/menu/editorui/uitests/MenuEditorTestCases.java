@@ -176,6 +176,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, itemToAdd);
 
         // pressing Undo should remove the item from the list, after pressing check its not in MenuTree or on display
+        robot.clickOn("#menuTree");
         pushCtrlAndKey(robot, KeyCode.Z);
         assertOnItemInTree(itemToAdd, false);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
