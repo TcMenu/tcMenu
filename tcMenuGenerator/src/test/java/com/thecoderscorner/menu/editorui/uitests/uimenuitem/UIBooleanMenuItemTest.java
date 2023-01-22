@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
+import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -43,15 +44,17 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         performAllCommonChecks(uiItem.getMenuItem(), true);
         verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(TIDY_NAMING_ON_OFF));
         verifyThat("#defaultValueCombo", ComboBoxMatchers.hasSelectedItem(new BooleanNamingValue("On", true)));
+        verifyThat("#memLocationCheck", (CheckBox cb) -> !cb.isSelected());
 
         writeIntoField(robot, "nameField", "helloBoolean");
-
+        robot.clickOn("#memLocationCheck");
         TestUtils.selectItemInCombo(robot, "#defaultValueCombo", (BooleanNamingValue v) -> !v.value());
 
         var capturedItem = captureTheLatestBoolean();
         assertEquals(ON_OFF, capturedItem.getNaming());
         assertFalse(MenuItemHelper.getValueFor(capturedItem, menuTree, true));
         assertEquals("helloBoolean", capturedItem.getName());
+        assertTrue(capturedItem.isStaticDataInRAM());
     }
 
     @Test

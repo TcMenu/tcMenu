@@ -78,8 +78,16 @@ public:
 };
 
 #define Y_INVERTED false
+#define XPT_2046_MAX 4096
 
 namespace iotouch {
+
+    enum TftSpiTouchMode {
+        TFT_TOUCH_NONE,
+        TFT_TOUCH_IOA,
+        TFT_TOUCH_ROM,
+        TFT_TOUCH_CUSTOM
+    };
 
     /**
      * Implements the touch interrogator class, this purely gets the current reading from the device when requested. This
@@ -87,22 +95,34 @@ namespace iotouch {
      * to have run whatever calibration is needed before calling this function.  The X and Y values to the constructor
      * are the maximum values that can be returned by calling getTouch.
      */
-    class AdaLibTouchInterrogator : public iotouch::TouchInterrogator {
+    class TftSpiTouchInterrogator : public iotouch::TouchInterrogator {
     private:
         TFT_eSPI* tft;
+        TftSpiTouchMode touchMode;
         float maxWidthDim;
         float maxHeightDim;
     public:
-        AdaLibTouchInterrogator(TFT_eSPI* tft, uint16_t xMax, uint16_t yMax) : tft(tft), maxWidthDim(xMax), maxHeightDim(yMax) {}
+        AdaLibTouchInterrogator(TFT_eSPI* tft, TftSpiTouchMode mode, uint16_t xMax, uint16_t yMax) : tft(tft), touchMode(mode),
+                maxWidthDim(xMax), maxHeightDim(yMax) {}
 
         iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation, const iotouch::CalibrationHandler& calib) {
+
             uint16_t touchX=0, touchY=0;
-            bool pressed = tft.getTouch(&touchX, &touchY);
+            bool pressed;
+            if(touchMode == TFT_TOUCH_IOA) {
+                pressed = tft->getTouchRaw(&touchX, &touchY);
+                *ptrX = calib.calibrateX(float(touchX) / XPT_2046_MAX, false);
+                *ptrY = calib.calibrateY(float(touchY) / XPT_2046_MAX, Y_INVERTED);
+
+            } else {
+                pressed = tft.getTouch(&touchX, &touchY);
+                *ptrX = calib.calibrateX(float(touchX) / maxWidthDim, false);
+                *ptrY = calib.calibrateY(float(touchY) / maxHeightDim, Y_INVERTED);
+            }
+
             if(!pressed) return iotouch::NOT_TOUCHED;
             //serdebugF3("point at ", touchX, touchY);
 
-            *ptrX = calib.calibrateX(float(touchX) / maxWidthDim, false);
-            *ptrY = calib.calibrateY(float(touchY) / maxHeightDim, Y_INVERTED);
             return iotouch::TOUCHED;
         }
     };

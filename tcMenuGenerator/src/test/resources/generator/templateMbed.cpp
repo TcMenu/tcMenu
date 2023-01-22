@@ -27,8 +27,12 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
+RENDERING_CALLBACK_NAME_OVERRIDDEN(fnAnalogRAMRtCall, textRenderRtCall, "Analog RAM", 0)
+TextMenuItem menuAnalogRAM(fnAnalogRAMRtCall, 0, 10003, 10, NULL);
+AnalogMenuInfo minfoAnalogRAM = { "Analog RAM", 10003, 0, 100, NO_CALLBACK, 0, 10, "" };
+AnalogMenuItem menuAnalogRAM(&minfoAnalogRAM, 0, &menuAnalogRAM, INFO_LOCATION_RAM);
 const char pgmStrIoTMonitorText[] = { "IoT Monitor" };
-RemoteMenuItem menuIoTMonitor(pgmStrIoTMonitorText, 10002, NULL);
+RemoteMenuItem menuIoTMonitor(pgmStrIoTMonitorText, 10002, &menuAnalogRAM);
 const char pgmStrAuthenticatorText[] = { "Authenticator" };
 EepromAuthenticationInfoMenuItem menuAuthenticator(pgmStrAuthenticatorText, NO_CALLBACK, 10001, &menuIoTMonitor);
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
@@ -51,27 +55,27 @@ RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IntLargeRtCall, largeNumItemRenderFn, 
 EditableLargeNumberMenuItem menuMySubSub1IntLarge(fnMySubSub1IntLargeRtCall, LargeFixedNumber(8, 0, 0U, 0U, false), 10, false, &menuMySubSub1TextItem);
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DecLargeRtCall, largeNumItemRenderFn, "Dec Large", -1, onDecLarge)
 EditableLargeNumberMenuItem menuMySubSub1DecLarge(fnMySubSub1DecLargeRtCall, LargeFixedNumber(8, 3, 0U, 0U, false), 9, true, &menuMySubSub1IntLarge);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RtCall, backSubItemRenderFn, "Sub1", -1, NO_CALLBACK)
 const SubMenuInfo minfoMySubSub1 = { "Sub1", 8, 0xffff, 0, NO_CALLBACK };
-BackMenuItem menuBackMySubSub1(fnMySubSub1RtCall, &menuMySubSub1DecLarge);
-SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuAuthenticator);
+BackMenuItem menuBackMySubSub1(&minfoMySubSub1, &menuMySubSub1DecLarge, INFO_LOCATION_PGM);
+SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuAuthenticator, INFO_LOCATION_PGM);
 ListRuntimeMenuItem menuMySubMyList(7, 0, fnMySubMyListRtCall, &menuMySubSub1);
 const AnyMenuInfo minfoMySubMyAction = { "My Action", 6, 0xffff, 0, onActionItem };
-ActionMenuItem menuMySubMyAction(&minfoMySubMyAction, &menuMySubMyList);
+ActionMenuItem menuMySubMyAction(&minfoMySubMyAction, &menuMySubMyList, INFO_LOCATION_PGM);
 const FloatMenuInfo minfoMySubMyFloat = { "My Float", 5, 0xffff, 3, NO_CALLBACK };
-FloatMenuItem menuMySubMyFloat(&minfoMySubMyFloat, 0.0, &menuMySubMyAction);
+FloatMenuItem menuMySubMyFloat(&minfoMySubMyFloat, 0.0, &menuMySubMyAction, INFO_LOCATION_PGM);
 const BooleanMenuInfo minfoMySubMyBoolean = { "My Boolean", 4, 6, 1, onBoolChange, NAMING_YES_NO };
-BooleanMenuItem menuMySubMyBoolean(&minfoMySubMyBoolean, false, &menuMySubMyFloat);
+BooleanMenuItem menuMySubMyBoolean(&minfoMySubMyBoolean, false, &menuMySubMyFloat, INFO_LOCATION_PGM);
 const char enumStrMySubMyEnum_0[] = "Item1";
 const char enumStrMySubMyEnum_1[] = "Item2";
 const char* const enumStrMySubMyEnum[]  = { enumStrMySubMyEnum_0, enumStrMySubMyEnum_1 };
 const EnumMenuInfo minfoMySubMyEnum = { "MyEnum", 3, 4, 1, onEnumChange, enumStrMySubMyEnum };
-EnumMenuItem menuMySubMyEnum(&minfoMySubMyEnum, 0, &menuMySubMyBoolean);
+EnumMenuItem menuMySubMyEnum(&minfoMySubMyEnum, 0, &menuMySubMyBoolean, INFO_LOCATION_PGM);
 const AnalogMenuInfo minfoMySubMyAnalog = { "My Analog", 2, 2, 255, onAnalogItem, 0, 1, "Unit" };
-AnalogMenuItem menuMySubMyAnalog(&minfoMySubMyAnalog, 0, &menuMySubMyEnum);
+AnalogMenuItem menuMySubMyAnalog(&minfoMySubMyAnalog, 0, &menuMySubMyEnum, INFO_LOCATION_PGM);
 
 void setupMenu() {
     // First we set up eeprom and authentication (if needed).
+    setSizeBasedEEPROMStorageEnabled(true);
     glBspRom.initialise(50);
     menuMgr.setEepromRef(&glBspRom);
     menuMgr.setAuthenticator(&authManager);

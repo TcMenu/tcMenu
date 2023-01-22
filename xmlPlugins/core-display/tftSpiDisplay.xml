@@ -18,9 +18,16 @@
         <Property id="DISPLAY_ROTATION" name="Rotation number" initial="2" desc="Rotation value between 0 and 3" type="int" min="0" max="3" />
         <Property id="DOUBLE_BUFFER_ROWS" name="Maximum rows to double buffer" initial="0" desc="Menus are rendered one item at a time, the largest buffer height - 0=off" type="int" min="0" max="250" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
-        <Property id="INCLUDE_TOUCH_INBUILT" name="Include inbuilt touch support" initial="false" type="boolean"
-                  desc="Use the inbuilt TFT_eSPI touch screen support, it is your responsibility to calibrate it before calling setupMenu."/>
-        <Property id="TOUCH_ROTATION" name="Rotation of the touch screen" initial="PORTRAIT" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"
+        <Property id="TOUCH_INTEGRATION" name="Inbuilt touch support" initial="NO_TOUCH" type="choice"
+                  desc="If and how the inbuilt touch support should work">
+            <Choices>
+                <Choice desc="Do not use TFT_eSPI touch">TOUCH_NONE</Choice>
+                <Choice desc="Use touch - IoAbstraction's calibration to EEPROM">TOUCH_IOA</Choice>
+                <Choice desc="Use touch - TFT_eSPI calibration to EEPROM">TOUCH_ROM</Choice>
+                <Choice desc="Use touch with my own calibration">TOUCH_CUSTOM</Choice>
+            </Choices>
+        </Property>
+        <Property id="TOUCH_ROTATION" name="Rotation of the touch screen" initial="PORTRAIT" whenProperty="TOUCH_INTEGRATION" isNotValue="TOUCH_NONE"
                   desc="Sets the orientation of the touch screen if needed, depending on your calibration" type="choice">
             <Choices>
                 <Choice desc="Portrait">PORTRAIT</Choice>
@@ -29,10 +36,13 @@
                 <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
             </Choices>
         </Property>
-        <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="1920" initial="320"
-                  desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"/>
-        <Property id="TOUCH_CALIB_HEIGHT" name="Maximum height reported by touch function" type="int" min="1" max="1920" initial="240"
-                  desc="The maximum height that would be reported when calling the TFT_eSPI touch functions" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true"/>
+        <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="65535" initial="240"
+                  desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="TOUCH_INTEGRATION" isNotValue="TOUCH_NONE"/>
+        <Property id="TOUCH_CALIB_HEIGHT" name="Maximum height reported by touch function" type="int" min="1" max="65535" initial="320"
+                  desc="The maximum height that would be reported when calling the TFT_eSPI touch functions" whenProperty="TOUCH_INTEGRATION" isNotValue="TOUCH_NONE"/>
+        <Property id="TOUCH_CALIB_ROM_LOCATION" name="EEPROM location to store calibration data" initial="200" type="int" min="0" max="65535"
+                  desc="Location in the EEPROM device where the calibration data should be stored, length may vary depending on option"
+                  whenProperty="TOUCH_INTEGRATION" matches="TOUCH_IOA|TOUCH_ROM"/>
     </Properties>
 
     <ApplicabilityDefs/>
@@ -61,13 +71,14 @@
             <Param ref="${DISPLAY_VARIABLE}Drawable"/>
         </Variable>
 
-        <Variable name="touchInterrogator" type="iotouch::TftSpiTouchInterrogator" export="true" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true">
+        <Variable name="touchInterrogator" type="iotouch::TftSpiTouchInterrogator" export="true" whenProperty="TOUCH_INTEGRATION" isNotValue="TOUCH_NONE">
             <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param value="iotouch::TFT_${TOUCH_INTEGRATION}"/>
             <Param value="${TOUCH_CALIB_WIDTH}"/>
             <Param value="${TOUCH_CALIB_HEIGHT}"/>
         </Variable>
 
-        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true">
+        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="TOUCH_INTEGRATION" isNotValue="TOUCH_NONE">
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
             <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>

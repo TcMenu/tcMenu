@@ -17,11 +17,12 @@
 #include <JoystickSwitchInput.h>
 #include <superTheme123.h>
 #include "MySpecialTransport.h"
+#include <RuntimeMenuItem.h>
 #include <RemoteMenuItem.h>
 #include <ScrollChoiceMenuItem.h>
-#include <RuntimeMenuItem.h>
 #include <EditableLargeNumberMenuItem.h>
 #include <IoAbstraction.h>
+#include <EepromItemStorage.h>
 #include <mbed/HalStm32EepromAbstraction.h>
 #include <RemoteAuthentication.h>
 
@@ -36,6 +37,9 @@ extern const GFXfont sans24p7b;
 
 
 // Global Menu Item exports
+extern TextMenuItem menuAnalogRAM;
+extern AnalogMenuInfo minfoAnalogRAM;
+extern AnalogMenuItem menuAnalogRAM;
 extern RemoteMenuItem menuIoTMonitor;
 extern EepromAuthenticationInfoMenuItem menuAuthenticator;
 extern ScrollChoiceMenuItem menuMySubSub1CustomChoice;
@@ -75,5 +79,6 @@ void CALLBACK_FUNCTION onIpChange(int id);
 void CALLBACK_FUNCTION onRamChoice(int id);
 void CALLBACK_FUNCTION onRgb(int id);
 void CALLBACK_FUNCTION onRomChoice(int id);
+int textRenderRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);
 
 #endif // MENU_GENERATED_CODE_H

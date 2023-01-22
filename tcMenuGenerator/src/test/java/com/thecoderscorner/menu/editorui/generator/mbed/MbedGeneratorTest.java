@@ -6,7 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.mbed;
 
-import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
@@ -86,6 +86,10 @@ public class MbedGeneratorTest {
                 .withMenuType(AUTHENTICATION).withEepromAddr(-1).menuItem());
         tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("IoT Monitor")
                 .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("Analog RAM")
+                .withDivisor(10).withOffset(0).withMaxValue(100).withStaticDataInRAM(true).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10003).withName("Analog RAM")
+                .withLength(10).withEditItemType(EditItemType.PLAIN_TEXT).withFunctionName("textRenderRtCall").menuItem());
 
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
