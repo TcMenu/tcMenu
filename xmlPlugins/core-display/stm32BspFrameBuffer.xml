@@ -16,7 +16,11 @@
         <Property id="DISPLAY_WIDTH" name="Pixel width in X dimension" initial="240" desc="The number of pixels across the screen" type="int" min="1" max="10000"/>
         <Property id="DISPLAY_HEIGHT" name="Pixel width in Y dimension" initial="320" desc="The number of pixels down the screen" type="int" min="1" max="10000"/>
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
-        <Property id="TOUCH_ROTATION" name="Rotation - not supported yet" initial="PORTRAIT" desc="Sets the orientation of the touch screen" type="choice">
+
+        <Property id="TOUCH_SEPARATOR" name="Optional Touch settings" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
+        <Property id="TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
+        <Property id="TOUCH_ROTATION" name="Rotation - not supported yet" initial="PORTRAIT" desc="Sets the orientation of the touch screen"
+                  type="choice" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" >
             <Choices>
                 <Choice desc="Portrait">PORTRAIT</Choice>
                 <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
@@ -24,12 +28,18 @@
                 <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
             </Choices>
         </Property>
-        <Property id="TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
-        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true" desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
-        <Property id="TOUCH_CALIB_SETUP_FUNCTION" name="Function that prepares for calibration UI" initial="true" desc="A function that resets the screen and touch rotation for the the calibration UI" type="variable" />
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
+                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
+                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
     </Properties>
 
-    <ApplicabilityDefs/>
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="touchCalibrationNeeded" mode="and">
+            <Applicability whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"/>
+            <Applicability whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
     <SourceFiles>
         <Replacement find="define TC_BSP_TOUCH_DEVICE_PRESENT true" replace="define TC_BSP_TOUCH_DEVICE_PRESENT ${TOUCH_SCREEN_REQUIRED}"/>
         <SourceFile name="mbedStm32Bsp/BspUserSettings.h" overwrite="never"/>
@@ -41,6 +51,7 @@
         <Header name="BspUserSettings.h" inSource="true"/>
         <Header name="tcMenuStChromaArt.h" inSource="true"/>
         <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false"/>
+        <Header name="extras/DrawableTouchCalibrator.h" inSource="false" applicabilityRef="touchCalibrationNeeded"/>
     </IncludeFiles>
 
     <GlobalVariables>
@@ -62,6 +73,13 @@
             <Param ref="renderer"/>
             <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
         </Variable>
+
+        <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" applicabilityRef="touchCalibrationNeeded">
+            <Param ref="touchScreen"/>
+            <Param ref="renderer"/>
+            <Param value="${TOUCH_CALIBRATION_STORAGE_LOC}"/>
+        </Variable>
+
     </GlobalVariables>
 
     <SetupFunctions>
@@ -70,6 +88,5 @@
         </Function>
 
         <Function name="start" object="touchScreen" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"/>
-
     </SetupFunctions>
 </TcMenuPlugin>

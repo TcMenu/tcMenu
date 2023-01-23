@@ -96,6 +96,6 @@
             <Param value="${UPDATES_PER_SEC}"/>
         </Function>
 
-        <Function name="start" object="touchScreen"/>
+        <Function name="start" object="touchScreen"  whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true" />
     </SetupFunctions>
 </TcMenuPlugin>

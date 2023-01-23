@@ -83,6 +83,9 @@ void StChromaArtDrawable::drawBox(const Coord &where, const Coord &size, bool fi
 }
 
 void StChromaArtDrawable::drawCircle(const Coord &where, int radius, bool filled) {
+    // make sure the circle is within bounds, otherwise it crashes BSP.
+    if(where.x < radius || where.y < radius || where.x + radius > BSP_LCD_GetXSize() || where.y + radius > BSP_LCD_GetYSize()) return;
+
     BSP_LCD_SetTextColor(drawColor);
     if(filled) {
         BSP_LCD_FillCircle(where.x, where.y, radius);
