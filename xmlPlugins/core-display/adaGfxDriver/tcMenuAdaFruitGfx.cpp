@@ -121,7 +121,7 @@ Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *
             auto allGlyphs = (GFXglyph*)pgm_read_ptr(&font->glyph);
             unsigned char glyphHeight = pgm_read_byte(&allGlyphs[glIdx].height);
             if (glyphHeight > height) height = glyphHeight;
-            bl = glyphHeight + pgm_read_byte(&allGlyphs[glIdx].yOffset);
+            bl = glyphHeight + (signed char)pgm_read_byte(&allGlyphs[glIdx].yOffset);
             current++;
         }
         if(baseline) *baseline = bl;
