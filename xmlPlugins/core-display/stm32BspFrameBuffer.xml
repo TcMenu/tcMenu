@@ -19,6 +19,8 @@
 
         <Property id="TOUCH_SEPARATOR" name="Optional Touch settings" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
         <Property id="TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
+                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
         <Property id="TOUCH_ROTATION" name="Rotation - not supported yet" initial="PORTRAIT" desc="Sets the orientation of the touch screen"
                   type="choice" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" >
             <Choices>
@@ -28,8 +30,6 @@
                 <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
             </Choices>
         </Property>
-        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
-                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
         <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
                   desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
     </Properties>

@@ -36,6 +36,11 @@
                   desc="Interrupt pin reduces polling so the library will only read upon changes" type="pin" />
         <Property id="TOUCH_CS_PIN" name="Touch CS pin" initial="9" whenProperty="TOUCH_LIBRARY" isNotValue="Adafruit_FT6206"
                   desc="As the touch device is on SPI, it must have a CS pin to select it" type="pin" />
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
+                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
+        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
+                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true" />
+
     </Properties>
 
     <ApplicabilityDefs/>
@@ -49,7 +54,9 @@
     </SourceFiles>
 
     <IncludeFiles>
+        <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false" />
         <Header name="tcMenuAdaTouchDriver.h" inSource="true" />
+        <Header name="extras/DrawableTouchCalibrator.h" inSource="false" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true"/>
     </IncludeFiles>
 
     <GlobalVariables>
@@ -67,6 +74,12 @@
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
             <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+        </Variable>
+
+        <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true">
+            <Param ref="touchScreen"/>
+            <Param ref="renderer"/>
+            <Param value="${TOUCH_CALIBRATION_STORAGE_LOC}"/>
         </Variable>
     </GlobalVariables>
 

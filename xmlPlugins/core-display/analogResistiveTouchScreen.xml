@@ -30,11 +30,21 @@
                 <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
             </Choices>
         </Property>
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
+                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
+        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
+                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true" />
+
     </Properties>
 
     <ApplicabilityDefs/>
+
     <SourceFiles/>
-    <IncludeFiles/>
+
+    <IncludeFiles>
+        <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false" />
+        <Header name="extras/DrawableTouchCalibrator.h" inSource="false" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true"/>
+    </IncludeFiles>
 
     <GlobalVariables>
         <Variable name="touchInterrogator" type="iotouch::ResistiveTouchInterrogator" export="true">
@@ -48,6 +58,12 @@
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
             <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+        </Variable>
+
+        <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true">
+            <Param ref="touchScreen"/>
+            <Param ref="renderer"/>
+            <Param value="${TOUCH_CALIBRATION_STORAGE_LOC}"/>
         </Variable>
     </GlobalVariables>
 
