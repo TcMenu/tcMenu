@@ -22,7 +22,6 @@
 //
 #define KNOWN_DEVICE_TOUCH_RANGE_X 4096.0F
 #define KNOWN_DEVICE_TOUCH_RANGE_Y 4096.0F
-#define Y_INVERTED false
 
 namespace iotouch {
 
@@ -39,14 +38,14 @@ namespace iotouch {
             theTouchDevice.begin();
         }
 
-        iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation, const iotouch::CalibrationHandler& calib) {
+        iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, const iotouch::TouchOrientationSettings& rotation, const iotouch::CalibrationHandler& calib) {
             if(theTouchDevice.touched() == 0) return iotouch::NOT_TOUCHED;
 
             TS_Point pt = theTouchDevice.getPoint();
             //serdebugF3("point at ", pt.x, pt.y);
 
-            *ptrX = calib.calibrateX(float(pt.x) / KNOWN_DEVICE_TOUCH_RANGE_X, false);
-            *ptrY = calib.calibrateY(float(pt.y) / KNOWN_DEVICE_TOUCH_RANGE_Y, Y_INVERTED);
+            *ptrX = calib.calibrateX(float(pt.x) / KNOWN_DEVICE_TOUCH_RANGE_X, rotation.isXInverted());
+            *ptrY = calib.calibrateY(float(pt.y) / KNOWN_DEVICE_TOUCH_RANGE_Y, rotation.isYInverted());
             return iotouch::TOUCHED;
         }
     };

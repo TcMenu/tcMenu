@@ -20,27 +20,30 @@
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
 
         <Property id="TOUCH_SEPARATOR" name="Optional Touch settings" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
-        <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
-        <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="Enable IoAbstraction touch calibration" initial="true"
-                  desc="Enable the IoAbstraction internal touch calibration, includes calibration UI" type="boolean" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"  />
-        <Property id="TOUCH_USE_RAW_TFT_FUNCTION" name="Use the raw TFT function" initial="true" type="boolean"
-                  desc="Use the raw function call to acquire the uncalibrated value from TFTeSPI library"
-                  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
-        <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
-                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
-        <Property id="TFT_TOUCH_ROTATION" name="Rotation of the touch screen" initial="PORTRAIT" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
-                  desc="Sets the orientation of the touch screen if needed, depending on your calibration" type="choice">
-            <Choices>
-                <Choice desc="Portrait">PORTRAIT</Choice>
-                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
-                <Choice desc="Landscape">LANDSCAPE</Choice>
-                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
-            </Choices>
-        </Property>
+        <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="false" desc="Set to true to enable the touch screen support" type="boolean" />
         <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="65535" initial="240"
                   desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
         <Property id="TOUCH_CALIB_HEIGHT" name="Maximum height reported by touch function" type="int" min="1" max="65535" initial="320"
                   desc="The maximum height that would be reported when calling the TFT_eSPI touch functions" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Property id="TOUCH_USE_RAW_TFT_FUNCTION" name="Use the raw TFT function" initial="true" type="boolean"
+                  desc="Use the raw function call to acquire the uncalibrated value from TFTeSPI library"
+                  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
+
+        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
+                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+
+
+        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="Enable IoAbstraction touch calibration" initial="true"
+                  desc="Enable the IoAbstraction internal touch calibration, includes calibration UI" type="boolean" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
+                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
+
     </Properties>
 
     <ApplicabilityDefs>
@@ -78,16 +81,21 @@
 
         <Variable name="touchInterrogator" type="iotouch::TftSpiTouchInterrogator" export="true" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
             <Param ref="${DISPLAY_VARIABLE}"/>
-            <Param value="iotouch::TFT_${TOUCH_INTEGRATION}"/>
             <Param value="${TOUCH_CALIB_WIDTH}"/>
             <Param value="${TOUCH_CALIB_HEIGHT}"/>
             <Param value="${TOUCH_USE_RAW_TFT_FUNCTION}"/>
         </Variable>
 
+        <Variable name="touchOrientation" type="iotouch::TouchOrientationSettings" export="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param value="${TFT_TOUCH_SWAP_XY}"/>
+            <Param value="${TFT_TOUCH_X_INVERTED}"/>
+            <Param value="${TFT_TOUCH_Y_INVERTED}"/>
+        </Variable>
+
         <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
-            <Param value="iotouch::TouchInterrogator::${TFT_TOUCH_ROTATION}"/>
+            <Param value="touchOrientation"/>
         </Variable>
 
         <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" applicabilityRef="touchCalibrationNeeded">
@@ -108,6 +116,6 @@
             <Param value="${UPDATES_PER_SEC}"/>
         </Function>
 
-        <Function name="start" object="touchScreen"  whenProperty="INCLUDE_TOUCH_INBUILT" isValue="true" />
+        <Function name="start" object="touchScreen"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
     </SetupFunctions>
 </TcMenuPlugin>

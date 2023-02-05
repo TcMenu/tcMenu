@@ -110,14 +110,14 @@ void StChromaArtDrawable::transaction(bool isStarting, bool redrawNeeded) {
 
 #if TC_BSP_TOUCH_DEVICE_PRESENT == true
 
-iotouch::TouchState StBspTouchInterrogator::internalProcessTouch(float *ptrX, float *ptrY, iotouch::TouchInterrogator::TouchRotation rotation,
+iotouch::TouchState StBspTouchInterrogator::internalProcessTouch(float *ptrX, float *ptrY, const iotouch::TouchOrientationSettings& rotation,
                                                                  const iotouch::CalibrationHandler& calibrationHandler) {
     TS_StateTypeDef tsState;
     BSP_TS_GetState(&tsState);
     if(!tsState.TouchDetected) return iotouch::NOT_TOUCHED;
 
-    *ptrX = calibrationHandler.calibrateX((float)tsState.X / float(width), false);
-    *ptrY = calibrationHandler.calibrateY(float(height - tsState.Y) / float(height), false);
+    *ptrX = calibrationHandler.calibrateX((float)tsState.X / float(width), rotation.isXInverted());
+    *ptrY = calibrationHandler.calibrateY(float(height - tsState.Y) / float(height), rotation.isYInverted());
     return iotouch::TOUCHED;
 }
 

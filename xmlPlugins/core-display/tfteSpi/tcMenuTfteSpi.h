@@ -80,7 +80,6 @@ public:
 #define TC_TFT_ESPI_NEEDS_TOUCH false
 #if TC_TFT_ESPI_NEEDS_TOUCH == true
 
-#define Y_INVERTED false
 #define XPT_2046_MAX 4096
 
 namespace iotouch {
@@ -101,7 +100,7 @@ namespace iotouch {
         TftSpiTouchInterrogator(TFT_eSPI* tft, uint16_t xMax, uint16_t yMax, bool rawTouch)
                 : tft(tft), maxWidthDim(xMax), maxHeightDim(yMax), usingRawTouch(rawTouch) { }
 
-        iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation,
+        iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, const TouchOrientationSettings& touchOrientationSettings,
                                                  const iotouch::CalibrationHandler& calib) override;
     };
 

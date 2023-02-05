@@ -17,14 +17,6 @@
     <ImageFile>resistive-touch.jpg</ImageFile>
 
     <Properties>
-        <Property id="TOUCH_ROTATION" name="Rotation" initial="PORTRAIT" desc="Sets the orientation of the touch screen" type="choice">
-            <Choices>
-                <Choice desc="Portrait">PORTRAIT</Choice>
-                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
-                <Choice desc="Landscape">LANDSCAPE</Choice>
-                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
-            </Choices>
-        </Property>
         <Property id="TOUCH_LIBRARY" name="Touch Library (must be installed)" initial="Adafruit_FT6206" type="choice"
                   desc="The touch library that supports the touch device, library must be installed">
             <Choices>
@@ -36,11 +28,23 @@
                   desc="Interrupt pin reduces polling so the library will only read upon changes" type="pin" />
         <Property id="TOUCH_CS_PIN" name="Touch CS pin" initial="9" whenProperty="TOUCH_LIBRARY" isNotValue="Adafruit_FT6206"
                   desc="As the touch device is on SPI, it must have a CS pin to select it" type="pin" />
+        <Property id="HARDWARE_TOUCH_ROTATION" name="Library Touch Rotation (0..3)" initial="0" type="int" min="0" max="3"
+                  desc="The library level touch rotation as provided to setRotation - XPT only" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen"/>
+
+        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false"
+                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"
+                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"
+                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+
+
+        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
         <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
                   desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
         <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
                   desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true" />
-
     </Properties>
 
     <ApplicabilityDefs/>
@@ -70,10 +74,16 @@
             <Param value="touchDevice"/>
         </Variable>
 
+        <Variable name="touchOrientation" type="iotouch::TouchOrientationSettings" export="false">
+            <Param value="${TFT_TOUCH_SWAP_XY}"/>
+            <Param value="${TFT_TOUCH_X_INVERTED}"/>
+            <Param value="${TFT_TOUCH_Y_INVERTED}"/>
+        </Variable>
+
         <Variable name="touchScreen" type="MenuTouchScreenManager" export="true">
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
-            <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+            <Param value="touchOrientation"/>
         </Variable>
 
         <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true">
@@ -90,6 +100,9 @@
         <Function name="initWithoutInput" object="menuMgr">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
+        </Function>
+        <Function name="setRotation" object="touchDevice" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen">
+            <Param value="${HARDWARE_TOUCH_ROTATION}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>

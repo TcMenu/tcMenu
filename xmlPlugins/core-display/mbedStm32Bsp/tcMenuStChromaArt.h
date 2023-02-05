@@ -70,7 +70,7 @@ private:
     int width, height;
 public:
     StBspTouchInterrogator(int wid, int hei);
-    iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, TouchRotation rotation,
+    iotouch::TouchState internalProcessTouch(float *ptrX, float *ptrY, const iotouch::TouchOrientationSettings& rotation,
                                              const iotouch::CalibrationHandler& calib) override;
 };
 

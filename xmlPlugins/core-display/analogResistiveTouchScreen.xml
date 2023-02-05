@@ -22,14 +22,16 @@
         <Property id="XMINUS_PIN" name="X- pin" initial="A0" desc="Set to X- pin, must be an ADC pin" type="pin"/>
         <Property id="YPLUS_PIN" name="Y+ pin" initial="22" desc="Set to Y+ pin, must be an ADC pin" type="pin"/>
         <Property id="YMINUS_PIN" name="Y- pin" initial="A1" desc="Set to Y- pin" type="pin"/>
-        <Property id="TOUCH_ROTATION" name="Rotation" initial="PORTRAIT" desc="Sets the orientation of the touch screen" type="choice">
-            <Choices>
-                <Choice desc="Portrait">PORTRAIT</Choice>
-                <Choice desc="Portrait Inverted">PORTRAIT_INVERTED</Choice>
-                <Choice desc="Landscape">LANDSCAPE</Choice>
-                <Choice desc="Landscape Inverted">LANDSCAPE_INVERTED</Choice>
-            </Choices>
-        </Property>
+
+        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false"
+                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"
+                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"
+                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+
+        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
         <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
                   desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
         <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
@@ -54,10 +56,16 @@
             <Param value="${YMINUS_PIN}"/>
         </Variable>
 
+        <Variable name="touchOrientation" type="iotouch::TouchOrientationSettings" export="false">
+            <Param value="${TFT_TOUCH_SWAP_XY}"/>
+            <Param value="${TFT_TOUCH_X_INVERTED}"/>
+            <Param value="${TFT_TOUCH_Y_INVERTED}"/>
+        </Variable>
+
         <Variable name="touchScreen" type="MenuTouchScreenManager" export="true">
             <Param ref="touchInterrogator"/>
             <Param ref="renderer"/>
-            <Param value="iotouch::TouchInterrogator::${TOUCH_ROTATION}"/>
+            <Param value="touchOrientation"/>
         </Variable>
 
         <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true">
