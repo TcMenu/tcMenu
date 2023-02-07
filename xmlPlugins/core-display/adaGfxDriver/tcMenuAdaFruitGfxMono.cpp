@@ -17,7 +17,7 @@
 
 void AdafruitDrawable::transaction(bool isStarting, bool redrawNeeded) {
     if(!isStarting && redrawNeeded) {
-        reinterpret_cast<Adafruit_ILI9341*>(gr)->display();
+        reinterpret_cast<Adafruit_PCD8544*>(graphics)->display();
     }
 }
 

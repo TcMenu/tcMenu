@@ -32,11 +32,11 @@
                   desc="The library level touch rotation as provided to setRotation - XPT only" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen"/>
 
         <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false"
+        <Property id="LIB_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false"
                   desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
-        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"
+        <Property id="LIB_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"
                   type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
-        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"
+        <Property id="LIB_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"
                   type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
 
 
@@ -53,7 +53,6 @@
         <Replacement find="XPT2046_Touchscreen" replace="${TOUCH_LIBRARY}"/>
         <Replacement find="KNOWN_DEVICE_TOUCH_RANGE_X 4096.0F" replace="KNOWN_DEVICE_TOUCH_RANGE_X 240.0F" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
         <Replacement find="KNOWN_DEVICE_TOUCH_RANGE_Y 4096.0F" replace="KNOWN_DEVICE_TOUCH_RANGE_Y 320.0F" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
-        <Replacement find="Y_INVERTED false" replace="Y_INVERTED true" whenProperty="TOUCH_LIBRARY" isValue="Adafruit_FT6206"/>
         <SourceFile name="adaTouchDriver/tcMenuAdaTouchDriver.h" />
     </SourceFiles>
 
@@ -75,9 +74,9 @@
         </Variable>
 
         <Variable name="touchOrientation" type="iotouch::TouchOrientationSettings" export="false">
-            <Param value="${TFT_TOUCH_SWAP_XY}"/>
-            <Param value="${TFT_TOUCH_X_INVERTED}"/>
-            <Param value="${TFT_TOUCH_Y_INVERTED}"/>
+            <Param value="${LIB_TOUCH_SWAP_XY}"/>
+            <Param value="${LIB_TOUCH_X_INVERTED}"/>
+            <Param value="${LIB_TOUCH_Y_INVERTED}"/>
         </Variable>
 
         <Variable name="touchScreen" type="MenuTouchScreenManager" export="true">
