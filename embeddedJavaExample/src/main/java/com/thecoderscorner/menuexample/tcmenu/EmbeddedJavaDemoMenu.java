@@ -23,7 +23,8 @@ tcMenuCopy:[
       "functionName": "led1BrightnessHasChanged",
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -42,7 +43,8 @@ tcMenuCopy:[
       "functionName": "led2BrightnessHasChanged",
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -61,7 +63,8 @@ tcMenuCopy:[
       "functionName": "inputControlHasChanged",
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -75,7 +78,8 @@ tcMenuCopy:[
       "eepromAddress": 10,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -89,7 +93,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -103,7 +108,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -117,7 +123,8 @@ tcMenuCopy:[
       "eepromAddress": 6,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -132,7 +139,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": true,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -145,7 +153,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -158,7 +167,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -173,7 +183,8 @@ tcMenuCopy:[
       "functionName": "",
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -187,7 +198,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -202,7 +214,8 @@ tcMenuCopy:[
       "eepromAddress": 21,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -218,7 +231,8 @@ tcMenuCopy:[
       "eepromAddress": 13,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   },
   {
@@ -232,7 +246,8 @@ tcMenuCopy:[
       "eepromAddress": -1,
       "readOnly": false,
       "localOnly": false,
-      "visible": true
+      "visible": true,
+      "staticDataInRAM": false
     }
   }
 ]""";
