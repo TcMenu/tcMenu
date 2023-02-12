@@ -19,7 +19,7 @@
         <Property id="DOUBLE_BUFFER_ROWS" name="Maximum rows to double buffer" initial="0" desc="Menus are rendered one item at a time, the largest buffer height - 0=off" type="int" min="0" max="250" />
         <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
 
-        <Property id="TOUCH_SEPARATOR" name="Optional Touch settings" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
+        <Property id="TOUCH_SEPARATOR" name="Optional Touch settings (DEV test)" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
         <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="false" desc="Set to true to enable the touch screen support" type="boolean" />
         <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="65535" initial="240"
                   desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
@@ -29,7 +29,7 @@
                   desc="Use the raw function call to acquire the uncalibrated value from TFTeSPI library"
                   whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
 
-        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation (DEV test)" initial="" desc="Optional Calibration Settings" type="separator"/>
         <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
                   desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
         <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
@@ -38,7 +38,7 @@
                   type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
 
 
-        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
+        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration (DEV test)" initial="" desc="Optional Calibration Settings" type="separator"/>
         <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="Enable IoAbstraction touch calibration" initial="true"
                   desc="Enable the IoAbstraction internal touch calibration, includes calibration UI" type="boolean" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"  />
         <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
