@@ -86,13 +86,9 @@ public class ArduinoLibraryInstaller {
      *
      * @return true if the libraries are the same or newer.
      */
-    public LibraryStatus statusOfAllLibraries() {
-        return new LibraryStatus(
-                isLibraryUpToDate("tcMenu"),
-                isLibraryUpToDate("IoAbstraction"),
-                isLibraryUpToDate("LiquidCrystalIO"),
-                isLibraryUpToDate("TaskManagerIO")
-        );
+    public boolean areCoreLibrariesUpToDate() {
+        return isLibraryUpToDate("tcMenu") && isLibraryUpToDate("IoAbstraction") && isLibraryUpToDate("TaskManagerIO") &&
+                isLibraryUpToDate("SimpleCollections") && isLibraryUpToDate("tcUnicodeHelper");
     }
 
     /**
@@ -112,9 +108,6 @@ public class ArduinoLibraryInstaller {
         }
         else if(installationType == CURRENT_APP) {
             var version = configStore.getVersion();
-            if(version.endsWith("-SNAPSHOT")) {
-                version = version.replace("-SNAPSHOT", "");
-            }
             return new VersionInfo(version);
         }
         else if(installationType == CURRENT_LIB){

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import org.w3c.dom.Document;
@@ -30,7 +31,6 @@ import static java.lang.System.Logger.Level.*;
 public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private static final System.Logger logger = System.getLogger(OnlineLibraryVersionDetector.class.getSimpleName());
 
-    public enum ReleaseType { STABLE, BETA, PREVIOUS }
 
     public final static String LIBRARY_VERSIONING_URL_APPEND = "/libraries/library-versions.xml";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);

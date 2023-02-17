@@ -2,6 +2,8 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
+import com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -122,6 +124,7 @@ public class EditFunctionController {
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
+        SafeNavigator.safeNavigateTo(UrlsForDocumentation.CORE_CALLBACK_MENU_DOCS_URL);
     }
 
     public Optional<String> getResult() {

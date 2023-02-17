@@ -31,13 +31,13 @@ public class LibraryStatus {
         return ioAbstractionUpToDate;
     }
 
-    public boolean isLiquidCrystalIoUpToDate() {
-        return liquidCrystalIoUpToDate;
-    }
-
     public boolean isTaskManagerIOUpToDate() { return taskManagerIOUpToDate; }
 
     public boolean isUpToDate() {
         return tcMenuUpToDate && liquidCrystalIoUpToDate && ioAbstractionUpToDate && taskManagerIOUpToDate;
+    }
+
+    public class LibraryStatusBuilder {
+
     }
 }

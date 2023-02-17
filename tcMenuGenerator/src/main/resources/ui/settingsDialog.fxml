@@ -22,7 +22,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
    <center>
       <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -112,8 +112,8 @@
                               <TableView fx:id="versionsTable" prefHeight="405.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="Library name" />
-                                  <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="92.0" text="Available" />
-                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="92.0" text="Actual" />
+                                  <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="Available" />
+                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="Actual" />
                                 </columns>
                               </TableView>
                            </center>

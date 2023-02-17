@@ -247,7 +247,7 @@ public class AppInformationPanel {
                 vbox.getChildren().add(setManually);
                 setManually.setOnAction(actionEvent -> editorUI.showGeneralSettings());
                 needRefresh = true;
-            } else if (storage.isUsingArduinoIDE() && installer.statusOfAllLibraries().isUpToDate()) {
+            } else if (storage.isUsingArduinoIDE() && installer.areCoreLibrariesUpToDate()) {
                 var lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
                 lblTcMenuOK.setId("tcMenuStatusArea");
                 lblTcMenuOK.getStyleClass().add("libsOK");

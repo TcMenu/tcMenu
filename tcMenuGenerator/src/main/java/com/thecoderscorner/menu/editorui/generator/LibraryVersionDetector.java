@@ -6,11 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.Map;
-
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 
 public interface LibraryVersionDetector {
     void changeReleaseType(ReleaseType releaseType);

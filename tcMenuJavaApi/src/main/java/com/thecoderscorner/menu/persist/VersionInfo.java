@@ -17,18 +17,40 @@ public class VersionInfo {
     private final int major;
     private final int minor;
     private final int patch;
+    private final ReleaseType releaseType;
     public VersionInfo(String ver) {
         String[] verSplit = ver.split("[-.]");
         if(verSplit.length < 2) {
             major = minor = patch = 0;
+            releaseType = ReleaseType.STABLE;
         }
         else {
-            major = Integer.parseInt(verSplit[0]);
-            minor = Integer.parseInt(verSplit[1]);
-            if (verSplit.length == 3) {
-                patch = Integer.parseInt(verSplit[2]);
+            int maj, min, pat;
+            ReleaseType r;
+            try {
+                maj = Integer.parseInt(verSplit[0]);
+                min = Integer.parseInt(verSplit[1]);
+                pat = (verSplit.length > 2) ? Integer.parseInt(verSplit[2]) : 0;
+                r = (verSplit.length > 3) ? fromReleaseSpecifier(verSplit[3]) : ReleaseType.STABLE;
+            } catch (Exception ex) {
+                maj = min = pat = -1;
+                r = ReleaseType.STABLE;
             }
-            else patch = 0;
+            major = maj;
+            minor = min;
+            patch = pat;
+            releaseType = r;
+        }
+    }
+
+    private ReleaseType fromReleaseSpecifier(String s) {
+        switch (s.toLowerCase()) {
+            case "patch": return ReleaseType.PATCH;
+            case "snapshot":
+            case "beta":
+            case "rc":  return ReleaseType.BETA;
+            case "prev": return ReleaseType.PREVIOUS;
+            default: return ReleaseType.STABLE;
         }
     }
 
@@ -53,7 +75,11 @@ public class VersionInfo {
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + patch;
+        if(releaseType == ReleaseType.STABLE) {
+            return major + "." + minor + "." + patch;
+        } else {
+            return major + "." + minor + "." + patch + "-" + releaseType;
+        }
     }
 
     @Override
@@ -63,15 +89,12 @@ public class VersionInfo {
         VersionInfo that = (VersionInfo) o;
         return major == that.major &&
                 minor == that.minor &&
-                patch == that.patch;
+                patch == that.patch &&
+                releaseType == that.releaseType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(major, minor, patch);
-    }
-
-    public int asInteger() {
-        return (major * 1000000) + (minor * 1000) + patch;
+        return Objects.hash(major, minor, patch, releaseType);
     }
 }
