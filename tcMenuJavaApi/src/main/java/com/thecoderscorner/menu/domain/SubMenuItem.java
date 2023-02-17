@@ -54,6 +54,7 @@ public class SubMenuItem extends MenuItem {
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
                 isSecured() == that.isSecured() &&
+                isVisible() == that.isVisible() &&
                 isStaticDataInRAM() == that.isStaticDataInRAM() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&

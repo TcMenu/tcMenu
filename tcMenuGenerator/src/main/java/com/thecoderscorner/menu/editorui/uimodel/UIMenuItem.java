@@ -268,6 +268,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     private String getFunctionName(List<FieldError> errors) {
+        if(functionNameTextField == null) return "";
         String text = functionNameTextField.getText();
         if (StringHelper.isStringEmptyOrNull(text) || NO_FUNCTION_DEFINED.equals(text)) {
             return null;

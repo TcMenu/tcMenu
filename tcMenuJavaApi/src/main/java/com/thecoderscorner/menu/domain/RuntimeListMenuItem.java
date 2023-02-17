@@ -38,6 +38,7 @@ public class RuntimeListMenuItem extends MenuItem {
                 getEepromAddress() == that.getEepromAddress() &&
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
+                isVisible() == that.isVisible() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());

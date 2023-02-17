@@ -30,8 +30,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
         RuntimeListMenuItemBuilder builder = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder().withExisting(getMenuItem());
         List<FieldError> errors = new ArrayList<>();
         getChangedDefaults(builder, errors);
-        RuntimeListMenuItem item = builder.menuItem();
-        functionNameTextField.setText(item.getFunctionName());
+        var item = builder.menuItem();
         return getItemOrReportError(item, errors);
     }
 
