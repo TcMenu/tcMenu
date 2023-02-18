@@ -7,7 +7,6 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.AboutController;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.stage.Stage;
 
@@ -19,7 +18,7 @@ public class AboutDialog extends BaseDialogSupport<AboutController> {
 
     public AboutDialog(ConfigurationStorage storage, Stage stage, boolean modal) {
         this.storage = storage;
-        tryAndCreateDialog(stage, "/ui/aboutDialog.fxml", "About tcMenu Designer", modal);
+        tryAndCreateDialog(stage, "/ui/aboutDialog.fxml", bundle.getString("about.dialog.title"), modal);
     }
 
     @Override

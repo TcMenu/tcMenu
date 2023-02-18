@@ -34,7 +34,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </ImageView>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Thanks for using TcMenu designer!" wrappingWidth="598.39453125" GridPane.columnSpan="2">
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.thanks.for.using" wrappingWidth="598.39453125" GridPane.columnSpan="2">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
@@ -44,20 +44,22 @@
       </Text>
       <VBox prefHeight="248.0" prefWidth="348.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <children>
-            <Label fx:id="tcMenuVersionField" text="You've installed TcMenu Version X.X" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="If you're new to TcMenu here are a few links to get you quickly up and running:" wrappingWidth="367.103515625" />
-            <Hyperlink onAction="#onGettingStartedVideo" text="Getting started video on youtube" />
-            <Hyperlink onAction="#onTcMenuDocs" text="TcMenu documentation" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Releasing a UI on three platforms costs money, licenses, certificates etc. Please consider sponsoring us at the link below." wrappingWidth="338.9375" />
-            <Hyperlink onAction="#onSponsorOptions" text="One off payment or monthly sponsorship options" />
+            <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.get.up.and.running.quick" wrappingWidth="367.103515625" />
+            <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube" />
+            <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.please.sponsor.us" wrappingWidth="338.9375" />
+            <Hyperlink onAction="#onSponsorOptions" text="%splash.dialog.payment.options" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.help.with.translation" wrappingWidth="338.9375" />
+            <Hyperlink onAction="#onLanguageResourcesLink" text="%splash.dialog.translation.github" />
          </children>
       </VBox>
-      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="Get started using TcMenu &gt;&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="%splash.dialog.get.started" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode" prefHeight="100.0" prefWidth="208.0" text="Light mode" GridPane.rowIndex="3" GridPane.valignment="TOP">
+      <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode" prefHeight="100.0" prefWidth="255.0" text="%splash.dialog.light.mode" GridPane.rowIndex="3" GridPane.valignment="TOP">
          <graphic>
             <ImageView fitHeight="83.0" fitWidth="118.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -69,7 +71,7 @@
             <Insets left="4.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode" text="Dark mode" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.valignment="TOP">
+      <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode" prefHeight="99.0" prefWidth="255.0" text="%splash.dialog.dark.mode" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.valignment="TOP">
          <graphic>
             <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -78,7 +80,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <Label text="Select color scheme:" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+      <Label text="%splash.dialog.choose.color.scheme" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>

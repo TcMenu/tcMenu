@@ -29,6 +29,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +44,8 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
+    public static final String GITHUB_LANGUAGE_FILES_URL = GITHUB_PROJECT_URL + "";
+    public static final String GITHUB_DISCUSSION_URL = GITHUB_PROJECT_URL + "discussions";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
     public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
     public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
@@ -69,6 +72,7 @@ public class AppInformationPanel {
     private CheckBox useSizedEepromStorage;
     private TextField appNameTextField;
     private final AtomicBoolean saveToSrcRecurseProtect = new AtomicBoolean(false);
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
@@ -88,7 +92,7 @@ public class AppInformationPanel {
         vbox.setSpacing(5);
 
         if (storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
-            Label docsLbl = new Label(" This is a BETA version - don't use in production");
+            Label docsLbl = new Label(" " + bundle.getString("core.beta.version.warning"));
             docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
             vbox.getChildren().add(docsLbl);
         }
@@ -103,7 +107,7 @@ public class AppInformationPanel {
         ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
-        gridPane.add(new Label("Platform"), 0, row);
+        gridPane.add(new Label(bundle.getString("core.platform")), 0, row);
         var platformCombo = new ComboBox<>(observableArrayList(editorUI.getEmbeddedPlatforms()));
         platformCombo.setId("platformCombo");
         platformCombo.setMaxWidth(999);
@@ -120,23 +124,23 @@ public class AppInformationPanel {
         });
         ++row;
 
-        gridPane.add(new Label("File name"), 0, row);
+        gridPane.add(new Label(bundle.getString("core.platform")), 0, row);
         TextField filenameField = new TextField(controller.getProject().getFileName());
         filenameField.setId("filenameField");
         filenameField.setEditable(false);
         gridPane.add(filenameField, 1, row, 2, 1);
         ++row;
 
-        gridPane.add(new Label("Project unique ID"), 0, row);
+        gridPane.add(new Label(bundle.getString("core.project.uuid")), 0, row);
         appUuidLabel = new TextField(options.getApplicationUUID().toString());
         appUuidLabel.setId("appUuidLabel");
         appUuidLabel.setEditable(false);
         gridPane.add(appUuidLabel, 1, row);
-        Button changeId = new Button("Change ID");
+        Button changeId = new Button(bundle.getString("app.info.change.id"));
         changeId.setId("changeIdBtn");
         changeId.setPrefWidth(99);
         changeId.setOnAction(e -> {
-            if (editorUI.questionYesNo("Really change ID", "The ID is used by IoT devices to identify the device, so changing it may cause problems.")) {
+            if (editorUI.questionYesNo(bundle.getString("app.info.really.change.id.title"), bundle.getString("app.info.really.change.id.message"))) {
                 controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                         .withExisting(options)
                         .withNewId(UUID.randomUUID())

@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -54,6 +55,7 @@ import static java.lang.System.Logger.Level.WARNING;
 public class MenuEditorApp extends Application {
 
     private volatile MenuEditorController controller;
+    private static ResourceBundle designerBundle;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -70,10 +72,13 @@ public class MenuEditorApp extends Application {
 
         ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
 
+        designerBundle = ResourceBundle.getBundle("/i18n/TcMenuUIText", prefsStore.getChosenLocale());
+
         createOrUpdateDirectoriesAsNeeded(prefsStore);
 
-        primaryStage.setTitle("Embedded Menu Designer");
+        primaryStage.setTitle(designerBundle.getString("main.editor.title"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
+        loader.setResources(designerBundle);
         Pane myPane = loader.load();
 
         controller = loader.getController();
@@ -91,7 +96,7 @@ public class MenuEditorApp extends Application {
         manager.loadPlugins();
 
         var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        var editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer, prefsStore, libraryVersionDetector, homeDirectory);
+        var editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer, prefsStore, libraryVersionDetector, homeDirectory, designerBundle);
 
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
 
@@ -148,6 +153,10 @@ public class MenuEditorApp extends Application {
 
         LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
         return libraryVersionDetector;
+    }
+
+    public static ResourceBundle getBundle() {
+        return designerBundle;
     }
 
     public static void createOrUpdateDirectoriesAsNeeded(ConfigurationStorage storage) {

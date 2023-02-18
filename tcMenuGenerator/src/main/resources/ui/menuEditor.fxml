@@ -6,94 +6,111 @@
   ~
   -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.input.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="%menu.file">
             <items>
-              <MenuItem accelerator="Shortcut+N" mnemonicParsing="false" onAction="#onFileNew" text="New Project" />
-                  <MenuItem accelerator="Shortcut+O" mnemonicParsing="false" onAction="#onFileOpen" text="Open Project.." />
-                  <Menu fx:id="examplesMenu" mnemonicParsing="false" text="Open tcMenu Example" />
-                  <Menu fx:id="menuRecents" mnemonicParsing="false" text="Open Recent" />
-                  <Menu fx:id="menuSketches" mnemonicParsing="false" text="Open from Sketches" />
+              <MenuItem accelerator="Shortcut+N" mnemonicParsing="false" onAction="#onFileNew" text="%edit.file.new.project" />
+                  <MenuItem accelerator="Shortcut+O" mnemonicParsing="false" onAction="#onFileOpen" text="%edit.file.open.project" />
+                  <Menu fx:id="examplesMenu" mnemonicParsing="false" text="%edit.file.open.example" />
+                  <Menu fx:id="menuRecents" mnemonicParsing="false" text="%edit.file.open.recent" />
+                  <Menu fx:id="menuSketches" mnemonicParsing="false" text="%edit.file.open.sketch" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem accelerator="Shortcut+S" mnemonicParsing="false" onAction="#onFileSave" text="Save Project" />
-                  <MenuItem mnemonicParsing="false" onAction="#onFileSaveAs" text="Save Project As..">
+                  <MenuItem accelerator="Shortcut+S" mnemonicParsing="false" onAction="#onFileSave" text="%edit.file.save.project" />
+                  <MenuItem mnemonicParsing="false" onAction="#onFileSaveAs" text="%edit.file.save.project.as">
                       <accelerator>
                           <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                       </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#onFileNew" text="Close Project" />
+                  <MenuItem mnemonicParsing="false" onAction="#onFileNew" text="%edit.file.close.project" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onFileExit" text="Exit" />
+                  <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onFileExit" text="%menu.file.exit" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" onShowing="#onShowEditMenu" text="Edit">
+            <Menu mnemonicParsing="false" onShowing="#onShowEditMenu" text="%menu.edit">
               <items>
-                <MenuItem fx:id="menuCut" mnemonicParsing="false" onAction="#onCut" text="Cut" />
-                  <MenuItem fx:id="menuCopy" mnemonicParsing="false" onAction="#onCopy" text="Copy" />
-                  <MenuItem fx:id="menuPaste" mnemonicParsing="false" onAction="#onPaste" text="Paste" />
+                <MenuItem fx:id="menuCut" mnemonicParsing="false" onAction="#onCut" text="%menu.edit.cut" />
+                  <MenuItem fx:id="menuCopy" mnemonicParsing="false" onAction="#onCopy" text="%menu.edit.copy" />
+                  <MenuItem fx:id="menuPaste" mnemonicParsing="false" onAction="#onPaste" text="%menu.edit.paste" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuUndo" accelerator="Shortcut+Z" mnemonicParsing="false" onAction="#onUndo" text="Undo" />
-                  <MenuItem fx:id="menuRedo" accelerator="Shortcut+Y" mnemonicParsing="false" onAction="#onRedo" text="Redo" />
+                  <MenuItem fx:id="menuUndo" accelerator="Shortcut+Z" mnemonicParsing="false" onAction="#onUndo" text="%menu.edit.undo" />
+                  <MenuItem fx:id="menuRedo" accelerator="Shortcut+Y" mnemonicParsing="false" onAction="#onRedo" text="%menu.edit.redo" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#onGeneralSettings" text="General Settings" />
-                  <CheckMenuItem fx:id="darkModeMenuFlag" mnemonicParsing="false" onAction="#onDarkModeChange" text="Dark Mode" />
+                  <MenuItem mnemonicParsing="false" onAction="#onGeneralSettings" text="%menu.edit.general.settings" />
+                  <CheckMenuItem fx:id="darkModeMenuFlag" mnemonicParsing="false" onAction="#onDarkModeChange" text="%splash.dialog.dark.mode" />
               </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Menu Item">
+            <Menu mnemonicParsing="false" text="%menu.menuitem">
               <items>
-                  <MenuItem fx:id="menuAddItem" mnemonicParsing="false" onAction="#onAddToTreeMenu" text="Add Item">
+                  <MenuItem fx:id="menuAddItem" mnemonicParsing="false" onAction="#onAddToTreeMenu" text="%menu.menuitem.add.item">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem fx:id="menuRemoveItem" mnemonicParsing="false" onAction="#onRemoveTreeMenu" text="Remove Item">
+                  <MenuItem fx:id="menuRemoveItem" mnemonicParsing="false" onAction="#onRemoveTreeMenu" text="%menu.menuitem.remove.item">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#onFocusMenuTree" text="Focus Menu Tree" accelerator="F10" />
-                  <MenuItem mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="Focus Editor (Esc)" accelerator="F9" />
+                  <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree" text="%menu.menuitem.focus.tree" />
+                  <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="%menu.menuitem.focus.editor" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="Move Item Up">
+                  <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="%menu.menuitem.move.up">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="U" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                <MenuItem fx:id="menuItemDown" mnemonicParsing="false" onAction="#onTreeMoveDown" text="Move Item Down">
+                <MenuItem fx:id="menuItemDown" mnemonicParsing="false" onAction="#onTreeMoveDown" text="%menu.menuitem.move.down">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
               </items>
             </Menu>
-          <Menu mnemonicParsing="false" text="Code">
+          <Menu mnemonicParsing="false" text="%menu.code">
             <items>
-              <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="Generate code" />
-              <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="Show ID &amp; ROM Layout" />
-              <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="Show IO Expanders" />
-              <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu" text="Edit Menu In Menu" />
+              <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="%menu.code.generate" />
+              <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="%menu.code.show.layout" />
+              <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="%menu.code.show.io.expanders" />
+              <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu" text="%menu.code.menu.in.menu" />
                 <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="Font Creation Tool" />
-              <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="Bitmap/Widget Creation Tool" />
+              <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="%menu.code.font.creator" />
+              <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="%menu.code.bitmap.creator" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu mnemonicParsing="false" text="%menu.help">
             <items>
-              <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="About.." />
-              <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="Documentation.." />
-                  <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="Getting Started.." />
+              <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="%menu.help.about" />
+              <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="%menu.help.docs" />
+                  <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="%menu.help.getting.started" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="TCC Forum" />
-                  <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics" text="Prepare Diagnostics" />
+                  <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="%menu.help.old.forum" />
+                  <MenuItem mnemonicParsing="false" onAction="#onMenuDiscussions" text="%menu.help.discussions" />
+                  <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics" text="%menu.help.prepare.diagnotics" />
             </items>
           </Menu>
         </menus>
@@ -194,7 +211,7 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <Label styleClass="item-title" text="Prototype view" />
+            <Label styleClass="item-title" text="%main.editor.prototype" />
             <TextArea fx:id="prototypeTextArea" editable="false" minHeight="94.0" prefHeight="94.0" prefWidth="350.0" styleClass="lcdDisplayTextArea" />
             <Label fx:id="currentEditLabel" prefHeight="30.0" prefWidth="582.0" styleClass="item-title" text="Editor">
                <padding>

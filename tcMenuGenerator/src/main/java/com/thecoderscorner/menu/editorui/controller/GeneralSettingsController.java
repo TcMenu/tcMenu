@@ -36,6 +36,11 @@ import static java.lang.System.Logger.Level.INFO;
 public class GeneralSettingsController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final List<LocaleWithDescription> availableLocales = List.of(
+            new LocaleWithDescription("Default language", Locale.getDefault(), true),
+            new LocaleWithDescription("English", Locale.ENGLISH, false),
+            new LocaleWithDescription("French", Locale.FRENCH, false)
+    );
 
     public CheckBox usingArduinoLibsCheck;
     public CheckBox useFullyQualifiedNamesField;
@@ -53,6 +58,7 @@ public class GeneralSettingsController {
     public Button removePathBtn;
     public ComboBox<String> sketchSearchDepthCombo;
     public CheckBox eepromStoreSizeField;
+    public ComboBox<LocaleWithDescription> languageCombo;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
@@ -110,7 +116,21 @@ public class GeneralSettingsController {
         additionalPathsList.setItems(FXCollections.observableList(additionalPaths));
         if(!additionalPaths.isEmpty()) additionalPathsList.getSelectionModel().select(0);
 
+        populateLanguages();
+
         populateVersions();
+    }
+
+    private void populateLanguages() {
+        languageCombo.setItems(FXCollections.observableList(availableLocales));
+        languageCombo.getSelectionModel().select(findLocaleInList(storage.getChosenLocale()));
+    }
+
+    private LocaleWithDescription findLocaleInList(Locale chosenLocale) {
+        for (var locDesc : availableLocales) {
+            if(locDesc.locale().equals(chosenLocale)) return locDesc;
+        }
+        return availableLocales.get(0);
     }
 
     private void setDirectoryPickerOrEmpty(TextField field, Optional<String> maybePath, Supplier<Optional<String>> defaulter) {
@@ -332,12 +352,25 @@ public class GeneralSettingsController {
         }
     }
 
+    public void onLanguageChange(ActionEvent actionEvent) {
+        var item = languageCombo.getSelectionModel().getSelectedItem();
+        if(item == null) return;
+        storage.setChosenLocale(item.locale());
+    }
+
     public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo available, VersionInfo installed) { }
 
     static class NameWithVersionValueFactory implements Callback<TableColumn.CellDataFeatures<NameWithVersion, NameWithVersion>, ObservableValue<NameWithVersion>> {
         @Override
         public ObservableValue<NameWithVersion> call(TableColumn.CellDataFeatures<NameWithVersion, NameWithVersion> data) {
             return new ReadOnlyObjectWrapper<>(data.getValue());
+        }
+    }
+
+    public record LocaleWithDescription(String description, Locale locale, boolean isDefault) {
+        @Override
+        public String toString() {
+            return description;
         }
     }
 }

@@ -22,7 +22,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="581.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
    <center>
       <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -30,7 +30,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="600.0">
                      <children>
-                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="426.0" prefWidth="578.0">
+                        <GridPane layoutX="14.0" layoutY="14.0" prefHeight="486.0" prefWidth="578.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="148.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="391.0" minWidth="10.0" prefWidth="342.0" />
@@ -47,16 +47,18 @@
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="49.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="102.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="51.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" GridPane.columnSpan="2">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" wrappingWidth="493.505859375" GridPane.columnSpan="2">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" GridPane.rowIndex="1" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Libraries folder" GridPane.rowIndex="2" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" wrappingWidth="162.3828125" GridPane.rowIndex="1" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Libraries folder" wrappingWidth="147.826171875" GridPane.rowIndex="2" />
                               <TextField fx:id="projectsTextField" editable="false" prefHeight="25.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <TextField fx:id="libsTextField" editable="false" prefHeight="25.0" prefWidth="345.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                               <Button fx:id="chooseArduinoButton" mnemonicParsing="false" onAction="#onChooseArduino" prefHeight="25.0" prefWidth="92.0" text="Choose" GridPane.columnIndex="2" GridPane.rowIndex="1">
@@ -67,15 +69,15 @@
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin></Button>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" wrappingWidth="493.1171875" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
-                              <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                              <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
+                              <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="492.0" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                              <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="491.0" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="495.0" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                              <Label prefHeight="20.0" prefWidth="492.0" styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
@@ -94,9 +96,16 @@
                                     <Insets left="4.0" />
                                  </GridPane.margin>
                               </VBox>
-                              <Label text="Sketch Search Depth:" GridPane.rowIndex="8" />
+                              <Label prefHeight="17.0" prefWidth="150.0" text="Sketch Search Depth:" GridPane.rowIndex="8" />
                               <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="EEPROM values stored with size to prevent loading back unsaved items for new projects" GridPane.columnSpan="3" GridPane.rowIndex="7" />
+                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="493.0" text="EEPROM values stored with size to prevent loading back unsaved items for new projects" GridPane.columnSpan="3" GridPane.rowIndex="7" />
+                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="Default locale to use" GridPane.columnSpan="2" GridPane.rowIndex="11" GridPane.valignment="BOTTOM">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label prefHeight="17.0" prefWidth="148.0" text="Language:" GridPane.rowIndex="12" />
+                              <ComboBox fx:id="languageCombo" onAction="#onLanguageChange" prefHeight="25.0" prefWidth="348.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
                            </children>
                         </GridPane>
                      </children>

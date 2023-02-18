@@ -13,7 +13,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="511.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AddFlashRemoteController">
    <top>
-      <Label text="Enter flash values" BorderPane.alignment="TOP_LEFT">
+      <Label text="%flash.remote.enter.value" BorderPane.alignment="TOP_LEFT">
          <font>
             <Font size="14.0" />
          </font>
@@ -25,8 +25,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" styleClass="background" BorderPane.alignment="CENTER">
         <buttons>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
-          <Button fx:id="addRemoteButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onAddRemote" text="Add Remote" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" />
+          <Button fx:id="addRemoteButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onAddRemote" text="%flash.remote.add.remote" />
         </buttons>
       </ButtonBar>
    </bottom>
@@ -41,8 +41,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Remote UUID" />
-            <Label text="Remote Name" GridPane.rowIndex="1" />
+            <Label text="%flash.remote.enter.uuid" />
+            <Label text="%flash.remote.enter.name" GridPane.rowIndex="1" />
             <TextField fx:id="uuidField" GridPane.columnIndex="1" />
             <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>

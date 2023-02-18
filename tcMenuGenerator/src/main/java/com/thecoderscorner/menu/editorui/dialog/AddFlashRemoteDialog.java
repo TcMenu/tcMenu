@@ -7,22 +7,21 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.AddFlashRemoteController;
-import com.thecoderscorner.menu.editorui.controller.ChooseFontController;
-import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import javafx.stage.Stage;
 
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 
 public class AddFlashRemoteDialog extends BaseDialogSupport<AddFlashRemoteController> {
     private final Optional<FlashRemoteId> currentSel;
 
     public AddFlashRemoteDialog(Stage stage, Optional<FlashRemoteId> flashRemoteId, boolean modal) {
         currentSel = flashRemoteId;
-        var textMode = flashRemoteId.isEmpty() ? "New" : "Edit";
-        tryAndCreateDialog(stage, "/ui/addNewFlashRemote.fxml", textMode + " Flash Remote", modal);
+        String title;
+        if(flashRemoteId.isEmpty()) title = bundle.getString("flash.remote.title.new");
+        else title = bundle.getString("flash.remote.title.edit");
+        tryAndCreateDialog(stage, "/ui/addNewFlashRemote.fxml", title, modal);
     }
 
     public Optional<FlashRemoteId> getResultOrEmpty() {

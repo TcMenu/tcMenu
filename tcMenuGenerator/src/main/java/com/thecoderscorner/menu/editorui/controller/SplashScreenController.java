@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
@@ -18,10 +19,10 @@ public class SplashScreenController {
     public Button closeButton;
     public Label tcMenuVersionField;
 
-    public void initialise(CurrentProjectEditorUI editorUI, Consumer<String> themeListener, ConfigurationStorage storage) {
+    public void initialise(CurrentProjectEditorUI editorUI, Consumer<String> themeListener, ConfigurationStorage storage, ResourceBundle bundle) {
         this.editorUI = editorUI;
         this.themeListener = themeListener;
-        this.tcMenuVersionField.setText("You've installed TcMenu Designer " + storage.getVersion());
+        this.tcMenuVersionField.setText(bundle.getString("splash.dialog.you.installed.version") + storage.getVersion());
     }
 
     public void onGettingStartedVideo(ActionEvent actionEvent) {
@@ -53,5 +54,9 @@ public class SplashScreenController {
         BaseDialogSupport.setTheme(darkMode);
         BaseDialogSupport.getJMetro().setScene(closeButton.getScene());
         themeListener.accept(darkMode);
+    }
+
+    public void onLanguageResourcesLink(ActionEvent actionEvent) {
+        editorUI.browseToURL(GITHUB_LANGUAGE_FILES_URL);
     }
 }

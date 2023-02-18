@@ -12,6 +12,8 @@ import java.util.prefs.Preferences;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class PrefsConfigurationStorage implements ConfigurationStorage {
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+
     public static final String BUILD_VERSION_KEY = "build.version";
     public static final String BUILD_ARTIFACT_KEY = "build.artifactId";
     public static final String BUILD_TIMESTAMP_KEY = "build.timestamp";
@@ -25,6 +27,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private boolean saveToSrc = false;
     private boolean defaultRecursive = false;
     private boolean sizedRomStorage = true;
+    private Locale currentLocale;
 
     public PrefsConfigurationStorage() {
         try {
@@ -36,6 +39,17 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
             saveToSrc = prefs.getBoolean(DEFAULT_SAVE_TO_SRC, false);
             sizedRomStorage = prefs.getBoolean(DEFAULT_SIZED_ROM_STORAGE, true);
             defaultRecursive = prefs.getBoolean(DEFAULT_RECURSIVE_NAMING, false);
+            var localeText = prefs.get(OVERRIDE_LOCALE_NAME_PREF, "DEFAULT");
+            if(localeText.equals("DEFAULT")) {
+                currentLocale = Locale.getDefault();
+            } else {
+                try {
+                    currentLocale = Locale.forLanguageTag(localeText);
+                } catch(Exception ex) {
+                    logger.log(ERROR, "Could not load locale so using default", ex);
+                    currentLocale = Locale.getDefault();
+                }
+            }
 
             var ovr = prefs.get(ARDUINO_OVERRIDE_DIR, "");
             maybeOverrideDirectory = StringHelper.isStringEmptyOrNull(ovr) ? Optional.empty() : Optional.of(ovr);
@@ -120,6 +134,22 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     @Override
     public int getMenuProjectMaxLevel() {
         return maxLevels;
+    }
+
+    @Override
+    public Locale getChosenLocale() {
+        return currentLocale;
+    }
+
+    @Override
+    public void setChosenLocale(Locale locale) {
+        currentLocale = locale;
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        var localeName = "DEFAULT";
+        if(!locale.equals(Locale.getDefault())) {
+            localeName = locale.toString();
+        }
+        prefs.put(OVERRIDE_LOCALE_NAME_PREF, localeName);
     }
 
     @Override

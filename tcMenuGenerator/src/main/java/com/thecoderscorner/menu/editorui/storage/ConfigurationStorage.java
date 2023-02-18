@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.storage;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public interface ConfigurationStorage {
@@ -16,6 +17,7 @@ public interface ConfigurationStorage {
     String ARDUINO_LIBS_OVERRIDE_DIR = "ArduinoLibsDirOverride";
     String LAST_RUN_VERSION_KEY = "LastRunVersion";
     String EXTRA_PLUGIN_PATHS = "ExtraPluginPaths";
+    String OVERRIDE_LOCALE_NAME_PREF = "OverrideLocale";
 
     String MENU_PROJECT_MAX_LEVELS = "MenuProjectMaxLevels";
 
@@ -54,6 +56,9 @@ public interface ConfigurationStorage {
 
     void setMenuProjectMaxLevel(int levels);
     int getMenuProjectMaxLevel();
+
+    Locale getChosenLocale();
+    void setChosenLocale(Locale locale);
 
     List<String> getAdditionalPluginPaths();
     void setAdditionalPluginPaths(List<String> path);

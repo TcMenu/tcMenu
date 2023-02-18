@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.cli.StartUICommand;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
@@ -45,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +62,6 @@ import static java.lang.System.Logger.Level.INFO;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public class MenuEditorController {
-    public static final String REGISTRATION_URL = "https://www.thecoderscorner.com/tcc/app/registerTcMenu";
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     public CheckMenuItem darkModeMenuFlag;
@@ -103,6 +104,7 @@ public class MenuEditorController {
     private LibraryVersionDetector libVerDetector;
     private int menuToProjectMaxLevels = 1;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
@@ -165,7 +167,7 @@ public class MenuEditorController {
 
             if(!ok) {
                 editorUI.alertOnError(
-                        "Arduino or libs directory error",
+                        bundle.getString("core.arduino.or.libraries.missing"),
                         "Please check the Arduino and libraries directory from menu 'Edit -> General Settings'");
             }
         }
@@ -247,7 +249,7 @@ public class MenuEditorController {
     }
 
     public void presentInfoPanel() {
-        currentEditLabel.setText("Edit Project Settings");
+        currentEditLabel.setText(bundle.getString("main.editor.edit.settings"));
         AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector, configStore);
         editorBorderPane.setCenter(panel.showEmptyInfoPanel());
         currentEditor = Optional.empty();
@@ -275,7 +277,8 @@ public class MenuEditorController {
                     editorBorderPane.setCenter(scrollPane);
                     currentEditor = Optional.of(uiMenuItem);
                     appInfoPanel = Optional.empty();
-                    currentEditLabel.setText("Edit " + newValue.getClass().getSimpleName() + " ID: " + newValue.getId());
+                    currentEditLabel.setText(String.format(bundle.getString("main.editor.edit.item.fmt"),
+                            newValue.getClass().getSimpleName(), newValue.getId()));
                 }, this::presentInfoPanel
         );
 
@@ -359,6 +362,10 @@ public class MenuEditorController {
 
     public void onMenuTCCForum(ActionEvent actionEvent) {
         editorUI.browseToURL(TCC_FORUM_PAGE);
+    }
+
+    public void onMenuDiscussions(ActionEvent actionEvent) {
+        editorUI.browseToURL(GITHUB_DISCUSSION_URL);
     }
 
     public void onTreeCopy(ActionEvent actionEvent) {
@@ -491,7 +498,7 @@ public class MenuEditorController {
     public void onGenerateCode(ActionEvent event) {
         try {
             if(!editorProject.isFileNameSet()) {
-                editorUI.alertOnError("No filename set", "Please set a filename to continue");
+                editorUI.alertOnError(bundle.getString("core.no.filename.set"), bundle.getString("core.please.select.file.first"));
                 return;
             }
 
@@ -660,7 +667,7 @@ public class MenuEditorController {
             content.putString(sb.toString());
             systemClipboard.setContent(content);
 
-            var alert = new Alert(Alert.AlertType.INFORMATION, "Diagnostic data copied to clipboard", ButtonType.CLOSE);
+            var alert = new Alert(Alert.AlertType.INFORMATION, MenuEditorApp.getBundle().getString("core.diagnostics.copied"), ButtonType.CLOSE);
             alert.showAndWait();
             logger.log(INFO, "Diagnostics generated successfully");
 
@@ -679,6 +686,10 @@ public class MenuEditorController {
 
     public void onCreateBitmapTool(ActionEvent actionEvent) {
         editorUI.showBitmapEditorUtility();
+    }
+
+    public void onConfigureLocales(ActionEvent actionEvent) {
+        editorUI.showLocaleConfiguration(editorProject);
     }
 
     private record RecentlyUsedItem(String name, String path) {

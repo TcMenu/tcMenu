@@ -64,17 +64,17 @@
                   <Image url="@../img/menu-icon-large.png" />
                </image>
             </ImageView>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Embedded form designer" wrappingWidth="488.986328125" GridPane.columnSpan="2147483647">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%about.dialog.form.designer.text" wrappingWidth="488.986328125" GridPane.columnSpan="2147483647">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Text>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Version" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Built on" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%core.version" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%core.built.on" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(C) 2018 - 2022 by TheCodersCorner.com" wrappingWidth="341.3203125" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
             <Label fx:id="apiVersion" prefHeight="17.0" prefWidth="246.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <Label fx:id="buildDateLabel" prefHeight="17.0" prefWidth="245.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Label text="Thanks to both OpenJDK, OpenJFX for the runtime and and JMetro for the theme that we use." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.valignment="TOP" />
+            <Label text="%about.dialog.thanks.text" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.valignment="TOP" />
          </children>
       </GridPane>
    </center>

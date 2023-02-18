@@ -146,4 +146,6 @@ public interface CurrentProjectEditorUI {
     void showCreateFontUtility();
 
     void showBitmapEditorUtility();
+
+    void showLocaleConfiguration(CurrentEditorProject project);
 }

@@ -25,11 +25,11 @@ public class SplashScreenDialog extends BaseDialogSupport<SplashScreenController
         this.editorUI = editorUI;
         this.themeListener = themeListener;
         this.storage = storage;
-        tryAndCreateDialog(stage, "/ui/splashScreen.fxml", "TcMenu Designer", modal);
+        tryAndCreateDialog(stage, "/ui/splashScreen.fxml", bundle.getString("splash.dialog.title"), modal);
     }
 
     @Override
     protected void initialiseController(SplashScreenController controller) {
-        controller.initialise(editorUI, themeListener, storage);
+        controller.initialise(editorUI, themeListener, storage, bundle);
     }
 }

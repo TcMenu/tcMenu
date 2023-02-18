@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -10,6 +11,7 @@ import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
 
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -21,6 +23,7 @@ public abstract class BaseDialogSupport<T> {
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
     protected Stage dialogStage;
     protected T controller;
+    protected ResourceBundle bundle = MenuEditorApp.getBundle();
 
     /**
      * Usually called to initialise the dialog and present on screen.
@@ -33,6 +36,9 @@ public abstract class BaseDialogSupport<T> {
         this.dialogStage = stage;
         try {
             var loader = new FXMLLoader(NewItemDialog.class.getResource(resource));
+            if(bundle != null) {
+                loader.setResources(bundle);
+            }
             Pane pane = loader.load();
             controller = loader.getController();
             initialiseController(controller);

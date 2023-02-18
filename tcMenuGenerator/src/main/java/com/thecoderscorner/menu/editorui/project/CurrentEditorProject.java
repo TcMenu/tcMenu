@@ -249,6 +249,14 @@ public class CurrentEditorProject {
         return !changeHistory.isEmpty();
     }
 
+    public List<Locale> getLocales() {
+        return List.of(Locale.getDefault());
+    }
+
+    public void changeLocales(List<Locale> locales) {
+
+    }
+
     public CodeGeneratorOptions makeBlankGeneratorOptions() {
         return new CodeGeneratorOptionsBuilder()
                 .withRecursiveNaming(configStore.isDefaultRecursiveNamingOn())

@@ -35,6 +35,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -50,11 +51,12 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final EmbeddedPlatforms platforms;
     private final ArduinoLibraryInstaller installer;
     private final ConfigurationStorage configStore;
+    private final ResourceBundle designerBundle;
     private CurrentEditorProject editorProject;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
-                                      LibraryVersionDetector versionDetector, String home) {
+                                      LibraryVersionDetector versionDetector, String home, ResourceBundle designerBundle) {
         this.manager = manager;
         this.mainStage = mainStage;
         this.platforms = platforms;
@@ -62,6 +64,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         this.configStore = storage;
         this.versionDetector = versionDetector;
         this.homeDirectory = home;
+        this.designerBundle = designerBundle;
     }
 
     public void setEditorProject(CurrentEditorProject project) {
@@ -103,7 +106,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public Optional<String> findFileNameFromUser(boolean open) {
-        return findFileNameFromUser(Optional.empty(), open, "Menu Definitions|*.emf");
+        return findFileNameFromUser(Optional.empty(), open, designerBundle.getString("menu.file.fmt.name") +  "|*.emf");
     }
 
     @Override
@@ -111,17 +114,27 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         logger.log(ERROR, "Show error with heading: {0}, description: {1}", heading, description);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+        heading = decodeBundleIfNeeded(heading);
         alert.setTitle(heading);
         alert.setHeaderText(heading);
-        alert.setContentText(description);
+        alert.setContentText(decodeBundleIfNeeded(description));
         alert.showAndWait();
+    }
+
+    private String decodeBundleIfNeeded(String s) {
+        if(s != null && s.startsWith("%") && s.length() > 1) {
+            return designerBundle.getString(s.substring(1));
+        } else {
+            return s;
+        }
     }
 
     @Override
     public boolean questionYesNo(String title, String header) {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, header, ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, decodeBundleIfNeeded(header), ButtonType.YES, ButtonType.NO);
         BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
+        title = decodeBundleIfNeeded(title);
         alert.setTitle(title);
         alert.setHeaderText(title);
         return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
@@ -167,7 +180,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     public void showCodeGeneratorDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Start - show code generator dialog");
         if(!editorProject.isFileNameSet()) {
-            this.alertOnError("No filename set", "Please set a filename to continue");
+            this.alertOnError("%core.no.filename.set", "%core.please.select.file.first");
             throw new IllegalArgumentException("No filename provided");
         }
 
@@ -178,7 +191,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
         catch (Exception ex) {
             logger.log(ERROR, "Did not present code generator", ex);
-            this.alertOnError("Failed to open generator", "Please check that the code plugins are installed and the project is valid");
+            this.alertOnError("%core.code.gen.dlg.failure", "%core.code.gen.dlg.failure.desc");
         }
 
         logger.log(INFO, "End - show code generator dialog");
@@ -307,5 +320,11 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showBitmapEditorUtility() {
         new CreateBitmapWidgetToolDialog(mainStage, this, homeDirectory);
+    }
+
+    @Override
+    public void showLocaleConfiguration(CurrentEditorProject project) {
+        var dlg = new ConfigureLocalesDialog(mainStage, true, project.getLocales());
+        dlg.getResult().ifPresent(project::changeLocales);
     }
 }
