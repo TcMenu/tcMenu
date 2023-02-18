@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="406.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="257.0" minWidth="10.0" prefWidth="257.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="76.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="272.0" minWidth="10.0" prefWidth="267.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="128.0" minHeight="0.0" prefHeight="27.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="330.0" minHeight="10.0" prefHeight="305.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label prefHeight="17.0" prefWidth="246.0" text="Available locales" />
+      <Label prefHeight="17.0" prefWidth="254.0" text="Selected locales" GridPane.columnIndex="2" />
+      <ListView prefHeight="299.0" prefWidth="254.0" GridPane.rowIndex="1" />
+      <ListView prefHeight="305.0" prefWidth="256.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </GridPane.margin>
+         <children>
+            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="&gt;&gt;" />
+            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="69.0" text="&lt;&lt;">
+               <VBox.margin>
+                  <Insets top="4.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+      <ButtonBar prefHeight="38.0" prefWidth="592.0" GridPane.columnSpan="3" GridPane.rowIndex="3">
+        <buttons>
+            <Button mnemonicParsing="false" text="Online Help" />
+          <Button cancelButton="true" mnemonicParsing="false" text="Cancel" />
+            <Button defaultButton="true" mnemonicParsing="false" text="Apply" />
+        </buttons>
+      </ButtonBar>
+      <Label prefHeight="17.0" prefWidth="253.0" text="Selected resource bundle file:" GridPane.rowIndex="2" />
+      <TextField editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</GridPane>
