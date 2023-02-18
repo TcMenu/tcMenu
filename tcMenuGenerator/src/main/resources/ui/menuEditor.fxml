@@ -227,12 +227,12 @@
    </center>
    <bottom>
        <VBox>
-          <Label prefWidth="803.0" text="Please help keep TcMenu Designer going by sponsoring us. Thank you if you already have!" wrapText="true" BorderPane.alignment="CENTER">
+          <Label prefWidth="803.0" text="%main.editor.please.sponsor.text" wrapText="true" BorderPane.alignment="CENTER">
              <font>
                 <Font size="14.0" />
              </font>
           </Label>
-           <Hyperlink onAction="#onSponsorLinkPressed">I'm interested in sponsoring or would like to make a donation.</Hyperlink>
+           <Hyperlink onAction="#onSponsorLinkPressed" text="%main.editor.sponsor.link"/>
          <BorderPane.margin>
             <Insets left="10.0" right="10.0" />
          </BorderPane.margin>

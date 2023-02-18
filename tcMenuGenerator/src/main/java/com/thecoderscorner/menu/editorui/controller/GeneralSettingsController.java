@@ -39,7 +39,7 @@ public class GeneralSettingsController {
     private final List<LocaleWithDescription> availableLocales = List.of(
             new LocaleWithDescription("Default language", Locale.getDefault(), true),
             new LocaleWithDescription("English", Locale.ENGLISH, false),
-            new LocaleWithDescription("French", Locale.FRENCH, false)
+            new LocaleWithDescription("Français (French)", Locale.FRENCH, false)
     );
 
     public CheckBox usingArduinoLibsCheck;

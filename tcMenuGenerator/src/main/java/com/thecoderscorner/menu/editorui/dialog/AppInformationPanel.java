@@ -44,7 +44,7 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
-    public static final String GITHUB_LANGUAGE_FILES_URL = GITHUB_PROJECT_URL + "";
+    public static final String GITHUB_LANGUAGE_FILES_URL = GITHUB_PROJECT_URL + "tree/master/tcMenuGenerator/src/main/resources/i18n";
     public static final String GITHUB_DISCUSSION_URL = GITHUB_PROJECT_URL + "discussions";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
     public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
@@ -124,7 +124,7 @@ public class AppInformationPanel {
         });
         ++row;
 
-        gridPane.add(new Label(bundle.getString("core.platform")), 0, row);
+        gridPane.add(new Label(bundle.getString("core.file.name")), 0, row);
         TextField filenameField = new TextField(controller.getProject().getFileName());
         filenameField.setId("filenameField");
         filenameField.setEditable(false);
@@ -151,7 +151,7 @@ public class AppInformationPanel {
         gridPane.add(changeId, 2, row);
         ++row;
 
-        gridPane.add(new Label("Project name"), 0, row);
+        gridPane.add(new Label(bundle.getString("app.info.project.name")), 0, row);
         appNameTextField = new TextField(options.getApplicationName());
         appNameTextField.setId("appNameTextField");
         appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
@@ -161,7 +161,7 @@ public class AppInformationPanel {
         gridPane.add(appNameTextField, 1, row, 2, 1);
         VBox.setMargin(gridPane, new Insets(10, 0, 10, 0));
         row++;
-        gridPane.add(new Label("Project description"), 0, row);
+        gridPane.add(new Label(bundle.getString("app.info.project.description")), 0, row);
         TextArea appDescTextArea = new TextArea(controller.getProject().getDescription());
         appDescTextArea.setId("appDescTextArea");
         appDescTextArea.setWrapText(true);
@@ -170,7 +170,7 @@ public class AppInformationPanel {
         gridPane.add(appDescTextArea, 1, row, 2, 1);
         ++row;
 
-        recursiveNamingCheck = new CheckBox("Use fully qualified variable names for menu items");
+        recursiveNamingCheck = new CheckBox(bundle.getString("app.info.check.use.recursive.naming"));
         recursiveNamingCheck.setId("recursiveNamingCheck");
         recursiveNamingCheck.setSelected(options.isNamingRecursive());
         recursiveNamingCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
@@ -179,13 +179,13 @@ public class AppInformationPanel {
                 .codeOptions()));
         gridPane.add(recursiveNamingCheck, 1, row++, 2, 1);
 
-        saveToSrcCheck = new CheckBox("Save CPP and H files to src directory");
+        saveToSrcCheck = new CheckBox(bundle.getString("app.info.check.save.to.src.dir"));
         saveToSrcCheck.setId("saveToSrcCheck");
         saveToSrcCheck.setSelected(options.isSaveToSrc());
         saveToSrcCheck.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
         gridPane.add(saveToSrcCheck, 1, row++, 2, 1);
 
-        useCppMainCheck = new CheckBox("Use CPP main instead of INO file");
+        useCppMainCheck = new CheckBox(bundle.getString("app.info.check.use.cpp.main"));
         useCppMainCheck.setId("useCppMainCheck");
         useCppMainCheck.setSelected(options.isUseCppMain());
         useCppMainCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
@@ -195,7 +195,7 @@ public class AppInformationPanel {
         useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
         gridPane.add(useCppMainCheck, 1, row++, 2, 1);
 
-        useSizedEepromStorage = new CheckBox("Use size checking on EEPROM storage");
+        useSizedEepromStorage = new CheckBox(bundle.getString("app.info.check.use.size.based.eeprom"));
         useSizedEepromStorage.setId("useSizedEepromStorage");
         useSizedEepromStorage.setSelected(options.isUsingSizedEEPROMStorage());
         useSizedEepromStorage.setTooltip(new Tooltip("Save the largest EEPROM location to prevent unsaved new items with higher locations loading"));
@@ -209,8 +209,8 @@ public class AppInformationPanel {
         vbox.getChildren().add(gridPane);
 
         // add the documentation links
-        labelWithUrl(vbox, LIBRARY_DOCS_URL, "Browse docs and watch starter videos (F1 at any time)", "libdocsurl");
-        labelWithUrl(vbox, GITHUB_PROJECT_URL, "Please give us a star on github if you like this tool", "githuburl");
+        labelWithUrl(vbox, LIBRARY_DOCS_URL, bundle.getString("app.info.browse.link.docs"), "libdocsurl");
+        labelWithUrl(vbox, GITHUB_PROJECT_URL, bundle.getString("app.info.give.us.a.star"), "githuburl");
 
         libraryInfoVBox = new VBox(3.0);
         checkAndReportItems(libraryInfoVBox);
@@ -220,7 +220,7 @@ public class AppInformationPanel {
 
     private void checkAndReportItems(VBox vbox) {
         vbox.getChildren().clear();
-        vbox.getChildren().add(new Label("Reading version information.."));
+        vbox.getChildren().add(new Label(bundle.getString("app.info.reading.version.info")));
         executor.submit(() -> {
             if (libraryVersionDetector.availableVersionsAreValid(true)) {
                 Platform.runLater(this::redrawTheTitlePage);
@@ -236,7 +236,7 @@ public class AppInformationPanel {
         try {
             var currentUI = installer.getVersionOfLibrary("java-app", CURRENT_APP);
             if (!currentUI.isSameOrNewerThan(installer.getVersionOfLibrary("java-app", AVAILABLE_APP))) {
-                var uiNeedsUpdate = new Button("There is a UI update available, you can check versions from General Settings");
+                var uiNeedsUpdate = new Button(bundle.getString("app.info.ui.update.available"));
                 uiNeedsUpdate.setId("tcMenuStatusArea");
                 uiNeedsUpdate.getStyleClass().add("libsNotOK");
                 uiNeedsUpdate.setOnAction(actionEvent -> editorUI.showGeneralSettings());
@@ -245,19 +245,19 @@ public class AppInformationPanel {
             }
 
             if (installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
-                var setManually = new Button("Set Arduino directory in General Settings");
+                var setManually = new Button(bundle.getString("app.info.ui.set.arduino.directory"));
                 setManually.setId("tcMenuStatusArea");
                 setManually.getStyleClass().add("libsNotOK");
                 vbox.getChildren().add(setManually);
                 setManually.setOnAction(actionEvent -> editorUI.showGeneralSettings());
                 needRefresh = true;
             } else if (storage.isUsingArduinoIDE() && installer.areCoreLibrariesUpToDate()) {
-                var lblTcMenuOK = new Label("Embedded Arduino libraries all up-to-date");
+                var lblTcMenuOK = new Label(bundle.getString("app.info.ui.libraries.up.to.date"));
                 lblTcMenuOK.setId("tcMenuStatusArea");
                 lblTcMenuOK.getStyleClass().add("libsOK");
                 vbox.getChildren().add(lblTcMenuOK);
             } else if (storage.isUsingArduinoIDE()) {
-                var libsNotOK = new Button("Libraries need updating, check in General Settings");
+                var libsNotOK = new Button(bundle.getString("app.info.ui.libraries.need.update"));
                 libsNotOK.getStyleClass().add("libsNotOK");
                 libsNotOK.setId("tcMenuStatusArea");
                 libsNotOK.setOnAction(actionEvent -> editorUI.showGeneralSettings());
@@ -275,7 +275,7 @@ public class AppInformationPanel {
             if (!pluginManager.getLoadErrors().isEmpty()) {
                 List<String> loadErrors = pluginManager.getLoadErrors();
                 if (!loadErrors.isEmpty()) {
-                    var errors = "At least one plugins failed, default plugins in ~/.tcmenu/plugins:\n"
+                    var errors = bundle.getString("app.info.plugin.load.failure") + " ~/.tcmenu/plugins:\n"
                             + loadErrors.stream().limit(10).collect(Collectors.joining("\n"));
 
                     if (loadErrors.size() > 10) {
@@ -288,16 +288,15 @@ public class AppInformationPanel {
                     vbox.getChildren().add(pluginLabel);
                 }
             } else if (pluginsNotUpdated) {
-                var pluginLabel = new Button("SEVERE ERROR: Code generator plugins did not automatically update, click to retry");
+                var pluginLabel = new Button(bundle.getString("app.info.severe.error"));
                 pluginLabel.setId("tcMenuPluginIndicator");
                 pluginLabel.getStyleClass().add("libsNotOK");
                 pluginLabel.setOnAction(actionEvent -> {
                     var alert = new Alert(Alert.AlertType.INFORMATION);
                     getJMetro().setScene(alert.getDialogPane().getScene());
-                    alert.setTitle("Code Generator Plugin update");
-                    alert.setHeaderText("Notes about plugins not updating");
-                    alert.setContentText("When designer updated it could not update the plugins automatically. " +
-                            "Before proceeding we recommend deleting ~/.tcmenu/plugins");
+                    alert.setTitle(bundle.getString("app.info.plugin.updater.fail.title"));
+                    alert.setHeaderText(bundle.getString("app.info.plugin.updater.fail.header"));
+                    alert.setContentText(bundle.getString("app.info.plugin.updater.fail.message"));
                     alert.showAndWait();
                     MenuEditorApp.createOrUpdateDirectoriesAsNeeded(storage);
                     controller.presentInfoPanel();
@@ -307,7 +306,7 @@ public class AppInformationPanel {
             }
 
             if (needRefresh) {
-                var refreshButton = new Button("Refresh library status");
+                var refreshButton = new Button(bundle.getString("app.info.plugin.refresh"));
                 refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
                 vbox.getChildren().add(refreshButton);
             }
@@ -343,8 +342,8 @@ public class AppInformationPanel {
         var location = Paths.get(controller.getProject().getFileName()).toFile().getParentFile().toPath();
         if(saveToSrcCheck.isSelected()) location = location.resolve("src");
 
-        if(editorUI.questionYesNo("Change source directory?",
-                "Change source location? Selecting yes requires you to move the source to the new location " + location)) {
+        if(editorUI.questionYesNo(bundle.getString("app.info.change.src.dir.header"),
+                bundle.getString("app.info.change.src.dir.message") + " " + location)) {
             controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                     .withExisting(controller.getProject().getGeneratorOptions())
                     .withSaveToSrc(saveToSrcCheck.isSelected())
