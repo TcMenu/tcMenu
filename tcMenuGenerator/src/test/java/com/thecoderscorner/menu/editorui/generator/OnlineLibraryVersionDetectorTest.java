@@ -7,15 +7,15 @@
 package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
+import com.thecoderscorner.menu.persist.ReleaseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.*;
+import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.LIBRARY_VERSIONING_URL_APPEND;
 import static com.thecoderscorner.menu.editorui.util.IHttpClient.HttpDataType;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 

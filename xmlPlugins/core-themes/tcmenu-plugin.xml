@@ -5,7 +5,7 @@
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
         <Version>3.2.0-SNAPSHOT</Version>
-        <Name>Core themes plugin</Name>
+        <Name>%plugin.name</Name>
         <Description>This plugin provides themes that can be used with all graphical displays.</Description>
         <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
     </GeneralDetails>

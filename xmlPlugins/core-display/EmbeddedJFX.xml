@@ -10,8 +10,8 @@
     <ImageFile>embedded-java.png</ImageFile>
 
     <Properties>
-        <Property id="JDK_INCLUDES_JAVAFX" name="JDK includes OpenJFX" initial="false"  type="boolean"
-                  desc="If your JDK already has the OpenJFX libraries included, EG Liberica"/>
+        <Property id="JDK_INCLUDES_JAVAFX" name="%java.includes.openjfx" initial="false"  type="boolean"
+                  desc="%java.includes.openjfx.desc"/>
     </Properties>
 
     <ApplicabilityDefs/>

@@ -26,6 +26,7 @@ import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -191,7 +192,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
         catch (Exception ex) {
             logger.log(ERROR, "Did not present code generator", ex);
-            this.alertOnError("%core.code.gen.dlg.failure", "%core.code.gen.dlg.failure.desc");
+            this.alertOnError(designerBundle.getString("core.code.gen.dlg.failure"), designerBundle.getString("core.code.gen.dlg.failure.desc"));
         }
 
         logger.log(INFO, "End - show code generator dialog");
@@ -324,7 +325,15 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showLocaleConfiguration(CurrentEditorProject project) {
-        var dlg = new ConfigureLocalesDialog(mainStage, true, project.getLocales());
-        dlg.getResult().ifPresent(project::changeLocales);
+        if(!project.getLocaleHandler().isLocalSupportEnabled() && project.isFileNameSet()) {
+            if(questionYesNo(designerBundle.getString("core.enable.locale.support.header"), designerBundle.getString("core.enable.locale.support.message"))) {
+                project.enableLocaleHandler();
+            }
+        }
+        if(project.getLocaleHandler() instanceof PropertiesLocaleEnabledHandler handler) {
+            new ConfigureLocalesDialog(mainStage, true, handler);
+        } else {
+            alertOnError(designerBundle.getString("core.no.filename.set"), designerBundle.getString("core.please.select.file.first"));
+        }
     }
 }

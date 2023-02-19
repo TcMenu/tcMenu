@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Dark Mode Modern for larger color displays" id="e3d447ef-a620-47fa-9a3c-012665b30bdf"
+<TcMenuPlugin name="%theme.dark.modern.name" id="e3d447ef-a620-47fa-9a3c-012665b30bdf"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -11,27 +11,25 @@
         <Platform>STM32DUINO</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Dark mode theme for medium to large color TFT displays, with more spacing and padding than traditional, especially suited to touch screens when used with larger fonts. This can only be used with color displays</Description>
+    <Description>%theme.dark.modern.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/dark-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-dark-mode-modern.jpg</ImageFile>
 
     <Properties>
-        <Property id="ITEM_FONT" name="Default font for items" initial="def:,1" desc="Default font for items, choose a type suitable for your display" type="font"/>
-        <Property id="TITLE_FONT" name="Default font for titles" initial="def:,1" desc="Default font for titles, choose a type suitable for your display" type="font"/>
-        <Property id="BORDER_FOR_ACTIONS" name="Borders width for action items (0 = none)" initial="0" desc="The width of the border to use around actions items" type="int" min="0" max="3"/>
-        <Property id="TITLE_SHOW_MODE" name="How to show the title" initial="TITLE_FIRST_ROW" desc="This controls if the title should show always, only as the first item, or never" type="choice">
+        <Property id="ITEM_FONT" name="%theme.item.font" initial="def:,1" desc="%theme.item.font.desc" type="font"/>
+        <Property id="TITLE_FONT" name="%theme.title.font" initial="def:,1" desc="%theme.title.font.desc" type="font"/>
+        <Property id="BORDER_FOR_ACTIONS" name="%theme.border.for.action" initial="0" desc="%theme.border.for.action.desc" type="int" min="0" max="3"/>
+        <Property id="TITLE_SHOW_MODE" name="%theme.title.show.mode" initial="TITLE_FIRST_ROW" desc="%theme.title.show.mode.desc" type="choice">
             <Choices>
-                <Choice desc="No Title">NO_TITLE</Choice>
-                <Choice desc="Title on first row">TITLE_FIRST_ROW</Choice>
-                <Choice desc="Always show title">TITLE_ALWAYS</Choice>
+                <Choice desc="%theme.title.none">NO_TITLE</Choice>
+                <Choice desc="%theme.title.first.row">TITLE_FIRST_ROW</Choice>
+                <Choice desc="%theme.title.always">TITLE_ALWAYS</Choice>
             </Choices>
         </Property>
-        <Property id="USE_TC_UNICODE" name="Use TcUnicode instead of library fonts" initial="false" type="boolean"
-                  desc="When enabled render using TcUnicode fonts and drawing utilities instead of using native library calls"/>
-        <Property id="USE_SLIDER_ANALOG" name="Use sliders for analog items" initial="true" desc="When an item is analog, default to using a slider" type="boolean"/>
-        <Property id="NEED_EDITING_ICONS" name="Use icons for active/edit status" initial="false" desc="Show an icon on the left to represent active / edit status" type="boolean"/>
-    </Properties>
+        <Property id="USE_TC_UNICODE" name="%theme.use.tcunicode" initial="false" type="boolean" desc="%theme.use.tcunicode.desc"/>
+        <Property id="USE_SLIDER_ANALOG" name="%theme.use.sliders" initial="true" desc="%theme.use.sliders.desc" type="boolean"/>
+        <Property id="NEED_EDITING_ICONS" name="%theme.need.edit.icons" initial="false" desc="theme.need.edit.icons.desc" type="boolean"/>    </Properties>
 
     <ApplicabilityDefs/>
 

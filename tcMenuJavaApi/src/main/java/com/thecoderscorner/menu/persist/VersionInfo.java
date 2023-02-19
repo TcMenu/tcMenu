@@ -49,7 +49,7 @@ public class VersionInfo {
             case "snapshot":
             case "beta":
             case "rc":  return ReleaseType.BETA;
-            case "prev": return ReleaseType.PREVIOUS;
+            case "previous": return ReleaseType.PREVIOUS;
             default: return ReleaseType.STABLE;
         }
     }

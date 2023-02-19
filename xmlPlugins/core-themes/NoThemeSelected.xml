@@ -1,4 +1,4 @@
-<TcMenuPlugin name="No theme selected" id="2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e"
+<TcMenuPlugin name="%theme.not.required" id="2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -12,7 +12,7 @@
        <Platform>RASPBERRY_PIJ</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Please select a theme that can be used with your display, take care to only use mono themes with monochrome displays.</Description>
+    <Description>%theme.not.required.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/rendering-with-tcmenu-lcd-tft-oled/"/>
     <RequiredLibraries/>
     <ImageFile>no-theme.png</ImageFile>

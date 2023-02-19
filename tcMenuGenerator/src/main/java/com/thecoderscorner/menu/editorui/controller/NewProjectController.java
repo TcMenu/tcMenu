@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
@@ -18,7 +19,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -33,11 +37,13 @@ public class NewProjectController {
     public Button createButton;
     public TextField locationTextField;
     public CheckBox cppMainCheckbox;
+    public CheckBox enableI18nSupportCheck;
     public TextField namespaceField;
     private Optional<String> maybeDirectory;
     private CurrentEditorProject project;
     private ConfigurationStorage storage;
     private EmbeddedPlatforms platforms;
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public void initialise(ConfigurationStorage storage, EmbeddedPlatforms platforms, CurrentEditorProject project) {
         this.storage = storage;
@@ -65,6 +71,7 @@ public class NewProjectController {
         platformCombo.setDisable(newOnlyMode);
         var isJavaPlatform = EmbeddedPlatform.RASPBERRY_PIJ.equals(platformCombo.getSelectionModel().getSelectedItem());
         cppMainCheckbox.setDisable(newOnlyMode && !isJavaPlatform);
+        enableI18nSupportCheck.setDisable(newOnlyMode && !isJavaPlatform);
 
         if(newOnlyMode) {
             createButton.setDisable(false);
@@ -78,7 +85,7 @@ public class NewProjectController {
 
     public void onDirectorySelection(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Choose base location");
+        directoryChooser.setTitle(bundle.getString("create.project.choose.directory"));
         maybeDirectory.ifPresent(dir ->  directoryChooser.setInitialDirectory(new File(dir)));
         File possibleFile = directoryChooser.showDialog(createButton.getScene().getWindow());
 
@@ -113,17 +120,23 @@ public class NewProjectController {
                         s -> logger.log(INFO, s),
                         namespaceField.getText()
                 );
+
+                if(enableI18nSupportCheck.isSelected()) {
+                    projectCreator.enableI18nSupport(Paths.get(maybeDirectory.get()).resolve(projName), List.of(Locale.FRENCH),
+                            s -> logger.log(INFO, s));
+                }
+
                 Path emfFileName = Paths.get(maybeDirectory.get(), projName, projName + ".emf");
                 project.openProject(emfFileName.toString());
             } catch (Exception e) {
                 logger.log(ERROR, "Failure processing create new project", e);
-                var alert = new Alert(Alert.AlertType.ERROR, "Error during create project", ButtonType.CLOSE);
+                var alert = new Alert(Alert.AlertType.ERROR, bundle.getString("create.dialog.error.creating"), ButtonType.CLOSE);
                 BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
                 alert.showAndWait();
             }
         }
         else {
-            var alert = new Alert(Alert.AlertType.WARNING, "Please ensure all fields are populated", ButtonType.CLOSE);
+            var alert = new Alert(Alert.AlertType.WARNING, bundle.getString("create.dialog.fields.not.populated"), ButtonType.CLOSE);
             BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.showAndWait();
             return; // avoid closing.
@@ -135,9 +148,9 @@ public class NewProjectController {
 
     private boolean passDirtyCheck() {
         if(project.isDirty()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "The project has not been saved, data may be lost", ButtonType.YES, ButtonType.NO);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, bundle.getString("create.dialog.project.unsaved"), ButtonType.YES, ButtonType.NO);
             BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.setHeaderText("Project is unsaved, proceed anyway?");
+            alert.setHeaderText(bundle.getString("create.dialog.project.unsaved.header"));
             var result = alert.showAndWait();
             if(result.isPresent() && result.get() == ButtonType.YES) {
                 project.setDirty(false);

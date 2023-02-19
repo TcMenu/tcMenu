@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
@@ -29,10 +30,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -73,6 +71,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private CheckBox visibleCheck;
     private CheckBox staticDataRamCheckbox;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer, String urlDocs) {
         this.menuItem = menuItem;
@@ -102,8 +101,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
             itemType = (menuItem != null) ? menuItem.getClass().getSimpleName() : "";
         }
 
-        Hyperlink docsHyperlink = new Hyperlink("Online documentation for " + itemType);
-        docsHyperlink.setTooltip(new Tooltip("Visit " + urlDocs));
+        Hyperlink docsHyperlink = new Hyperlink(bundle.getString("menu.editor.online.help") + " " + itemType);
+        docsHyperlink.setTooltip(new Tooltip(urlDocs));
         docsHyperlink.setOnAction(evt -> SafeNavigator.safeNavigateTo(urlDocs));
         docsHyperlink.setId("onlineDocsHyperlink");
         grid.add(docsHyperlink, 0, idx, 2, 1);
@@ -113,18 +112,18 @@ public abstract class UIMenuItem<T extends MenuItem> {
         errorsField.setId("uiItemErrors");
         errorsField.setManaged(false);
         errorsField.setVisible(false);
-        errorsField.setText("No Errors");
+        errorsField.setText("");
         grid.add(errorsField, 0, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("ID"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.id.field")), 0, idx);
         idField = new TextField(String.valueOf(menuItem.getId()));
         idField.setId("idField");
         idField.setDisable(true);
         grid.add(idField, 1, idx);
 
         idx++;
-        grid.add(new Label("Name"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.name.field")), 0, idx);
         nameField = new TextField(menuItem.getName());
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
@@ -138,7 +137,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.add(nameField, 1, idx);
 
         idx++;
-        grid.add(new Label("Menu Variable Name"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.variable.name")), 0, idx);
         var varName = menuItem.getVariableName();
         if(StringHelper.isStringEmptyOrNull(varName)) {
             varName = variableNameGenerator.makeNameToVar(getMenuItem());
@@ -154,7 +153,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         variableField.setOnKeyPressed((keyEvent) ->
                 variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
 
-        var varSyncButton = new Button("sync");
+        var varSyncButton = new Button(bundle.getString("menu.editor.button.sync"));
         varSyncButton.setOnAction(actionEvent -> {
             variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
             callChangeConsumer();
@@ -166,7 +165,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         if(MenuItemHelper.eepromSizeForItem(getMenuItem()) != 0) {
             idx++;
-            grid.add(new Label("Eeprom Save Addr"), 0, idx);
+            grid.add(new Label(bundle.getString("menu.editor.eeprom.save.addr")), 0, idx);
             HBox eepromBox = new HBox();
             eepromBox.setSpacing(4);
 
@@ -178,7 +177,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
             eepromBox.getChildren().add(eepromField);
 
-            Button eepromNextBtn = new Button("auto");
+            Button eepromNextBtn = new Button(bundle.getString("menu.editor.button.auto"));
             eepromNextBtn.setId("eepromNextBtn");
             eepromBox.getChildren().add(eepromNextBtn);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
@@ -194,7 +193,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         if(itemRequiresFunctionCallback()) {
             idx++;
-            grid.add(new Label("Callback Function"), 0, idx);
+            grid.add(new Label(bundle.getString("menu.editor.callback.function")), 0, idx);
             String functionName = menuItem.getFunctionName();
             functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
             functionNameTextField.textProperty().addListener(this::coreValueChanged);
@@ -202,7 +201,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             functionNameTextField.setMaxWidth(9999);
             functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
             functionEditorBox.getChildren().add(functionNameTextField);
-            functionBtn = new Button("edit");
+            functionBtn = new Button(bundle.getString("menu.editor.button.edit"));
             functionBtn.setId("functionEditor");
             functionEditorBox.getChildren().add(functionBtn);
             grid.add(functionEditorBox, 1, idx);
@@ -215,19 +214,19 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         idx = internalInitPanel(grid, idx);
 
-        readOnlyCheck = new CheckBox("Read Only");
+        readOnlyCheck = new CheckBox(bundle.getString("menu.editor.check.read.only"));
         readOnlyCheck.setId("readOnlyField");
         readOnlyCheck.setTooltip(new Tooltip("Prevents any editing of the item both locally and remotely"));
         readOnlyCheck.setOnAction(this::checkboxChanged);
         readOnlyCheck.setSelected(menuItem.isReadOnly());
 
-        noRemoteCheck = new CheckBox("Do not send remotely");
+        noRemoteCheck = new CheckBox(bundle.getString("menu.editor.check.local.only"));
         noRemoteCheck.setId("dontRemoteField");
         noRemoteCheck.setTooltip(new Tooltip("Prevent the item being sent over IoT when checked"));
         noRemoteCheck.setOnAction(this::checkboxChanged);
         noRemoteCheck.setSelected(menuItem.isLocalOnly());
 
-        visibleCheck = new CheckBox("Item is visible");
+        visibleCheck = new CheckBox(bundle.getString("menu.editor.check.visible"));
         visibleCheck.setId("visibleItemField");
         visibleCheck.setTooltip(new Tooltip("Control the visibility of this item"));
         visibleCheck.setOnAction(this::checkboxChanged);
@@ -240,7 +239,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idx++;
         grid.add(visibleCheck, 1, idx);
 
-        staticDataRamCheckbox = new CheckBox("Store static data in RAM");
+        staticDataRamCheckbox = new CheckBox(bundle.getString("menu.editor.check.static.in.ram"));
         if(MENU_CLASSES_BASED_ON_INFO.contains(menuItem.getClass())) {
             staticDataRamCheckbox.setId("memLocationCheck");
             staticDataRamCheckbox.setTooltip(new Tooltip("Store static data in RAM instead of FLASH so it can be changed at runtime"));
@@ -307,7 +306,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             return Optional.of(item);
         }
         else {
-            String errorText = "Some fields are preventing save\n";
+            String errorText = bundle.getString("menu.editor.fields.preventing.save") + "\n";
             errorText += errors.stream()
                     .map(error-> error.getField() + " - " + error.getMessage())
                     .collect(Collectors.joining("\n"));

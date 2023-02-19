@@ -9,21 +9,25 @@ package com.thecoderscorner.menu.editorui.uitests;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.plugin.*;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
-import com.thecoderscorner.menu.persist.VersionInfo;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.*;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.PersistedMenu;
+import com.thecoderscorner.menu.persist.ReleaseType;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -45,14 +49,16 @@ import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.ReleaseType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
@@ -86,8 +92,11 @@ public class MenuEditorTestCases {
         var sketch2 = dirHelper.createSketch(SKETCHES_DIR, "sketches2", true);
         dirHelper.createSketch(SKETCHES_DIR, "sketchesIgnore", false);
 
+        var bundle = MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
+
         // load the main window FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
+        loader.setResources(bundle);
         Pane myPane = loader.load();
 
         // we need to mock a few things around the edges to make testing easier.
@@ -135,7 +144,7 @@ public class MenuEditorTestCases {
 
     private void setUpInstallerLibVersions() throws IOException {
         // and we are always up to date library wise in unit test land
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
         when(installer.getVersionOfLibrary("java-app", AVAILABLE_APP)).thenReturn(new VersionInfo("1.0.0"));
@@ -150,7 +159,7 @@ public class MenuEditorTestCases {
         when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(false, true, true, true));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(false);
     }
 
     private CodePluginConfig generateCodePluginConfig() {
@@ -190,7 +199,8 @@ public class MenuEditorTestCases {
         assertTrue(project.isDirty());
         pushCtrlAndKey(robot, KeyCode.A);
         robot.push(new KeyCodeCombination(KeyCode.S, DOWN, DOWN, UP, UP, UP));
-        verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
+        verify(persistor, atLeastOnce()).save(eq(FILE_NAME_SIMULATED), any(), eq(project.getMenuTree()),
+                eq(project.getGeneratorOptions()), any());
 
         pushCtrlAndKey(robot, KeyCode.L);
         verify(editorProjectUI, atLeastOnce()).showRomLayoutDialog(project.getMenuTree());
@@ -260,7 +270,8 @@ public class MenuEditorTestCases {
 
         // save the project
         pushCtrlAndKey(robot, KeyCode.S);
-        Mockito.verify(persistor, atLeastOnce()).save(FILE_NAME_SIMULATED, "project desc", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor, atLeastOnce()).save(eq(FILE_NAME_SIMULATED), eq("project desc"),
+                eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
 
         // now project should be clean
         assertFalse(project.isDirty());
@@ -389,7 +400,8 @@ public class MenuEditorTestCases {
     }
 
     @Test
-    void testAddOnSubmenuNotActiveAddsToParent(FxRobot robot) throws Exception {
+    void
+    testAddOnSubmenuNotActiveAddsToParent(FxRobot robot) throws Exception {
         // open the usual suspect.
         openTheCompleteMenuTree(robot);
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
@@ -449,7 +461,7 @@ public class MenuEditorTestCases {
 
     @Test
     void testAreaInformationPanelNeedingUpdate(FxRobot robot) throws Exception {
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, false));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(false);
         when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.2"));
 
         openTheCompleteMenuTree(robot);
@@ -465,7 +477,7 @@ public class MenuEditorTestCases {
 
     @Test
     void testTheRootAreaInformationPanel(FxRobot robot) throws Exception {
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
 
         openTheCompleteMenuTree(robot);
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
@@ -476,7 +488,7 @@ public class MenuEditorTestCases {
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         verifyThat("#libdocsurl", (Hyperlink hl) -> hl.getText().equals("Browse docs and watch starter videos (F1 at any time)"));
-        verifyThat("#githuburl", (Hyperlink hl) -> hl.getText().equals("Please give us a star on github if you like this tool"));
+        verifyThat("#githuburl", (Hyperlink hl) -> hl.getText().equals("Please give us a star on GitHub if you like this tool"));
 
         robot.clickOn("#libdocsurl");
         verify(editorProjectUI).browseToURL(AppInformationPanel.LIBRARY_DOCS_URL);
@@ -492,7 +504,7 @@ public class MenuEditorTestCases {
 
     @Test
     void testEditingTheNameAndDescriptionOnRootPanel(FxRobot robot) throws Exception {
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         openTheCompleteMenuTree(robot);
 
         TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
@@ -521,7 +533,7 @@ public class MenuEditorTestCases {
 
 
         var oldUuid = project.getGeneratorOptions().getApplicationUUID();
-        when(editorProjectUI.questionYesNo(eq("Really change ID"), any())).thenReturn(true);
+        when(editorProjectUI.questionYesNo(eq("Really change app ID?"), any())).thenReturn(true);
         robot.clickOn("#changeIdBtn");
         assertNotEquals(oldUuid, project.getGeneratorOptions().getApplicationUUID());
     }

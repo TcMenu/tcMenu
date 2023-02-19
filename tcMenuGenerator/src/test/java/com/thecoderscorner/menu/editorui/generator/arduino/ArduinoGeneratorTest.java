@@ -16,7 +16,6 @@ import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthent
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
-import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +92,7 @@ public class ArduinoGeneratorTest {
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        when(installer.statusOfAllLibraries()).thenReturn(new LibraryStatus(true, true, true, true));
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
 
         var standardOptions = new CodeGeneratorOptionsBuilder()
                 .withPlatform(ARDUINO32.getBoardId())

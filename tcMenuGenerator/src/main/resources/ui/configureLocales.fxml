@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane maxHeight="-Infinity" styleClass="background" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="406.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="com.thecoderscorner.menu.editorui.controller.ConfigureLocalesController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="406.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ConfigureLocalesController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="257.0" minWidth="10.0" prefWidth="257.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="76.0" />
@@ -26,15 +26,15 @@
    <children>
       <Label prefHeight="17.0" prefWidth="246.0" text="%locale.dialog.available.locales" />
       <Label prefHeight="17.0" prefWidth="254.0" text="%locale.dialog.selected.locales" GridPane.columnIndex="2" />
-      <ListView prefHeight="299.0" prefWidth="254.0" GridPane.rowIndex="1" />
-      <ListView prefHeight="305.0" prefWidth="256.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <ListView fx:id="availableLocaleList" prefHeight="299.0" prefWidth="254.0" GridPane.rowIndex="1" />
+      <ListView fx:id="activeLocalList" prefHeight="305.0" prefWidth="256.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
          </GridPane.margin>
          <children>
-            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="&gt;&gt;" />
-            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="69.0" text="&lt;&lt;">
+            <Button fx:id="moveToActiveButton" mnemonicParsing="false" onAction="#onMoveToActive" prefHeight="26.0" prefWidth="74.0" text="&gt;&gt;" />
+            <Button fx:id="removeFromActiveButton" mnemonicParsing="false" onAction="#onRemoveFromActive" prefHeight="26.0" prefWidth="69.0" text="&lt;&lt;">
                <VBox.margin>
                   <Insets top="4.0" />
                </VBox.margin>
@@ -43,13 +43,13 @@
       </VBox>
       <ButtonBar prefHeight="38.0" prefWidth="592.0" GridPane.columnSpan="3" GridPane.rowIndex="3">
         <buttons>
-            <Button mnemonicParsing="false" text="%core.online.help" />
-          <Button cancelButton="true" mnemonicParsing="false" text="%core.cancel.text" />
-            <Button defaultButton="true" mnemonicParsing="false" text="%core.apply.text" />
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelSettings" text="%core.cancel.text" />
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#onApplySettings" text="%core.apply.text" />
         </buttons>
       </ButtonBar>
       <Label prefHeight="17.0" prefWidth="253.0" text="%locale.dialog.resource.bundle.location" GridPane.rowIndex="2" />
-      <TextField editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+      <TextField fx:id="fileResourceLocationField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

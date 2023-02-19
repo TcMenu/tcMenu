@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.LogManager;
@@ -56,6 +57,7 @@ public class MenuEditorApp extends Application {
 
     private volatile MenuEditorController controller;
     private static ResourceBundle designerBundle;
+    public static final Locale EMPTY_LOCALE = new Locale("");
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -72,7 +74,7 @@ public class MenuEditorApp extends Application {
 
         ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
 
-        designerBundle = ResourceBundle.getBundle("/i18n/TcMenuUIText", prefsStore.getChosenLocale());
+        configureBundle(prefsStore.getChosenLocale());
 
         createOrUpdateDirectoriesAsNeeded(prefsStore);
 
@@ -215,6 +217,11 @@ public class MenuEditorApp extends Application {
         {
             Logger.getAnonymousLogger().severe("Could not load default logger:" + e.getMessage());
         }
+    }
+
+    public static ResourceBundle configureBundle(Locale locale) {
+        designerBundle = ResourceBundle.getBundle("i18n.TcMenuUIText", locale);
+        return designerBundle;
     }
 
     /**

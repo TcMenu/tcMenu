@@ -6,10 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.util.LibraryStatus;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -80,11 +80,7 @@ public class ArduinoLibraryInstallerTest {
         );
         when(verDetector.acquireVersions()).thenReturn(versions);
 
-        LibraryStatus libraryStatus = installer.statusOfAllLibraries();
-        assertFalse(libraryStatus.isUpToDate());
-        assertTrue(libraryStatus.isIoAbstractionUpToDate());
-        assertTrue(libraryStatus.isTcMenuUpToDate());
-        assertFalse(libraryStatus.isLiquidCrystalIoUpToDate());
+        assertFalse(installer.areCoreLibrariesUpToDate());
 
         assertEquals("1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
         assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());

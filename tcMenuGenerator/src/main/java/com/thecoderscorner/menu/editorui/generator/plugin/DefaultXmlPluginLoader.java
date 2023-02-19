@@ -18,6 +18,7 @@ import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyVal
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.scene.image.Image;
@@ -45,6 +46,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final ConfigurationStorage configStorage;
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
     private final boolean includeDefaultDir;
+    private ResourceBundle resourceBundle;
 
     public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
@@ -159,6 +161,13 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             Document doc = XMLDOMHelper.loadDocumentFromPath(directoryPath.resolve("tcmenu-plugin.xml"));
             var root = doc.getDocumentElement();
 
+            resourceBundle = null;
+
+            if(Files.exists(directoryPath.resolve("i18n"))) {
+                var bundleLoader = new SafeBundleLoader(directoryPath.resolve("i18n"), "plugin-lang");
+                resourceBundle = bundleLoader.getBundleForLocale(configStorage.getChosenLocale());
+            }
+
             var shortName = root.getAttribute("shortName");
             var detailElem = elementWithName(root, "GeneralDetails");
             var pluginsElem = elementWithName(root, "Plugins");
@@ -192,7 +201,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             }));
 
             config.setModuleName(shortName);
-            config.setName(textOfElementByName(detailElem, "Name"));
+            config.setName(withBundle(textOfElementByName(detailElem, "Name")));
 
             var licenseField = elementWithName(detailElem, "License");
             if (licenseField != null) {
@@ -212,6 +221,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             logger.log(ERROR, "Did not fully load library because of error in " + directoryPath, e);
             return null;
         }
+    }
+
+    private String withBundle(String src) {
+        if(resourceBundle == null || src == null || !src.startsWith("%")) return src;
+        return resourceBundle.getString(src.substring(1));
     }
 
     public CodePluginItem loadPlugin(String data) {
@@ -380,8 +394,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             String initial = elem.getAttribute("initial");
             return new CreatorProperty(
                     elem.getAttribute("id"),
-                    elem.getAttribute("name"),
-                    elem.getAttribute("desc"),
+                    withBundle(elem.getAttribute("name")),
+                    withBundle(elem.getAttribute("desc")),
                     initial,
                     item.getSubsystem(),
                     CreatorProperty.PropType.USE_IN_DEFINE,
@@ -431,7 +445,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private PropertyValidationRules makeChoices(Element elem, String initialValue) {
         return CannedPropertyValidators.choicesValidator(transformElements(elem, "Choices", "Choice", chElem ->
-            new ChoiceDescription(chElem.getTextContent(), getAttributeOrDefault(chElem, "desc", chElem.getTextContent()))
+            new ChoiceDescription(chElem.getTextContent(), withBundle(getAttributeOrDefault(chElem, "desc", chElem.getTextContent())))
         ), initialValue);
     }
 
@@ -504,8 +518,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setSubsystem(SubSystem.valueOf(root.getAttribute("subsystem")));
         config.setThemeNeeded(Boolean.parseBoolean(getAttributeOrDefault(root, "needsTheme", "false")));
         config.setId(root.getAttribute("id"));
-        config.setDescription(root.getAttribute("name"));
-        config.setExtendedDescription(textOfElementByName(root, "Description"));
+        config.setDescription(withBundle(root.getAttribute("name")));
+        config.setExtendedDescription(withBundle(textOfElementByName(root, "Description")));
         config.setImageFileName(textOfElementByName(root, "ImageFile"));
         config.setSupportedPlatforms(transformElements(root, "SupportedPlatforms", "Platform",
                 (ele) -> embeddedPlatforms.getEmbeddedPlatformFromId(ele.getTextContent())));

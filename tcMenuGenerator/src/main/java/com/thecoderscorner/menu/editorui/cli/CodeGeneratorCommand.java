@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import picocli.CommandLine;
 
@@ -171,7 +172,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {
         if(persistor != null && loadedProjectFile != null) {
-            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts);
+            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts, new NoLocaleEnabledLocalHandler());
         }
     }
 

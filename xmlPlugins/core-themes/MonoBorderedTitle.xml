@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Mono/OLED theme with bordered title" id="815316bb-76c9-436a-8f83-be0bced963df"
+<TcMenuPlugin name="%theme.mono.border.name" id="815316bb-76c9-436a-8f83-be0bced963df"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
@@ -11,25 +11,24 @@
         <Platform>STM32DUINO</Platform>
        <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>This theme is designed for OLED and other monochrome displays of low to medium resolution. It draws the title line with a border at the bottom, and uses the standard edit/active icons.</Description>
+    <Description>%theme.mono.border.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
     <ImageFile>theme-oled-bordered.jpg</ImageFile>
 
     <Properties>
-        <Property id="ITEM_FONT" name="Default font for items" initial="def:,1" desc="Default font for items, choose a type suitable for your display" type="font"/>
-        <Property id="TITLE_FONT" name="Default font for titles" initial="def:,1" desc="Default font for titles, choose a type suitable for your display" type="font"/>
-        <Property id="TITLE_BORDER_WIDTH" name="Border size of title" initial="1" desc="The bottom border size of the title" type="int" min="0" max="3"/>
-        <Property id="TITLE_TO_ITEM_SPACING" name="Spacing between title and first item" initial="2" desc="The spacing between the title and the first item" type="int" min="0" max="10"/>
-        <Property id="TITLE_SHOW_MODE" name="How to show the title" initial="TITLE_FIRST_ROW" desc="This controls if the title should show always, only as the first item, or never" type="choice">
+        <Property id="ITEM_FONT" name="%theme.item.font" initial="def:,1" desc="%theme.item.font.desc" type="font"/>
+        <Property id="TITLE_FONT" name="%theme.title.font" initial="def:,1" desc="%theme.title.font.desc" type="font"/>
+        <Property id="TITLE_BORDER_WIDTH" name="%theme.mono.border.title" initial="1" desc="%theme.mono.border.title.desc" type="int" min="0" max="3"/>
+        <Property id="TITLE_TO_ITEM_SPACING" name="%theme.mono.spacing.title.item" initial="2" desc="The spacing between the title and the first item" type="int" min="0" max="10"/>
+        <Property id="TITLE_SHOW_MODE" name="%theme.title.show.mode" initial="TITLE_FIRST_ROW" desc="%theme.title.show.mode.desc" type="choice">
             <Choices>
-                <Choice desc="No Title">NO_TITLE</Choice>
-                <Choice desc="Title on first row">TITLE_FIRST_ROW</Choice>
-                <Choice desc="Always show title">TITLE_ALWAYS</Choice>
+                <Choice desc="%theme.title.none">NO_TITLE</Choice>
+                <Choice desc="%theme.title.first.row">TITLE_FIRST_ROW</Choice>
+                <Choice desc="%theme.title.always">TITLE_ALWAYS</Choice>
             </Choices>
         </Property>
-        <Property id="USE_TC_UNICODE" name="Use TcUnicode instead of library fonts" initial="false" type="boolean"
-                  desc="When enabled render using TcUnicode fonts and drawing utilities instead of using native library calls"/>
+        <Property id="USE_TC_UNICODE" name="%theme.use.tcunicode" initial="false" type="boolean" desc="%theme.use.tcunicode.desc"/>
     </Properties>
 
     <ApplicabilityDefs/>

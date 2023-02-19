@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
@@ -94,6 +95,8 @@ public class GenerateCodeDialogTest {
     @Start
     public void onStart(Stage stage) {
         this.stage = stage;
+
+        MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
 
         assertEquals(1, pluginManager.getLoadedPlugins().size());
 

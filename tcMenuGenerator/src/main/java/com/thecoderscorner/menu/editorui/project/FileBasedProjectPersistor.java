@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
@@ -73,8 +74,11 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
     }
 
     @Override
-    public void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options) throws IOException {
+    public void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler localeHandler) throws IOException {
         logger.log(INFO, "Save file starting for: " + fileName);
+
+        // make sure we save out any in flight changes to internationalisation files.
+        localeHandler.saveChanges();
 
         List<PersistedMenu> itemsInOrder = serializer.populateListInOrder(MenuTree.ROOT, tree);
 

@@ -1,18 +1,99 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.util.*;
 
 public class ConfigureLocalesController {
-    private List<Locale> activeLocales;
-    private Optional<List<Locale>> result = Optional.empty();
+    public enum LocaleStatus { AVAILABLE, TO_CREATE }
 
-    public void initialise(List<Locale> activeLocales) {
-        this.activeLocales = activeLocales;
+    private PropertiesLocaleEnabledHandler localeHandler;
+    public ListView<NamedLocale> availableLocaleList;
+    public ListView<NamedLocaleWithStatus> activeLocalList;
+    public Button moveToActiveButton;
+    public Button removeFromActiveButton;
+    public TextField fileResourceLocationField;
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
+
+    public void initialise(PropertiesLocaleEnabledHandler localeHandler) {
+        this.localeHandler = localeHandler;
+        List<NamedLocale> namedLocales = Arrays.stream(Locale.getISOLanguages())
+                .map(Locale::of).map(NamedLocale::new).toList();
+        this.availableLocaleList.setItems(FXCollections.observableList(namedLocales));
+        this.availableLocaleList.getSelectionModel().selectFirst();
+
+
+        var locales = localeHandler.getEnabledLocales().stream()
+                .map(locale -> new NamedLocaleWithStatus(locale, LocaleStatus.AVAILABLE))
+                .toList();
+        this.activeLocalList.setItems(FXCollections.observableArrayList(locales));
+        this.activeLocalList.getSelectionModel().selectFirst();
     }
 
-    public Optional<List<Locale>> getResult() {
-        return result;
+    public void onMoveToActive(ActionEvent actionEvent) {
+        var sel = availableLocaleList.getSelectionModel().getSelectedItem();
+        if(sel == null) return;
+        if(activeLocalList.getItems().stream().anyMatch(nl -> nl.locale().equals(sel))) return;
+        activeLocalList.getItems().add(new NamedLocaleWithStatus(sel.locale(), LocaleStatus.TO_CREATE));
     }
+
+    public void onRemoveFromActive(ActionEvent actionEvent) {
+        var sel = activeLocalList.getSelectionModel().getSelectedItem();
+        if(sel == null) return;
+        if(sel.status() == LocaleStatus.TO_CREATE) {
+            activeLocalList.getItems().remove(sel);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText(bundle.getString("locale.dialog.remove.manual.header"));
+            alert.setContentText(bundle.getString("locale.dialog.remove.manual.message"));
+            alert.showAndWait();
+        }
+    }
+
+    public void onOnlineHelp(ActionEvent actionEvent) {
+        // TODO, generate a page once further along on locale support
+    }
+
+    public void onCancelSettings(ActionEvent actionEvent) {
+        ((Stage)fileResourceLocationField.getScene().getWindow()).close();
+    }
+
+    public void onApplySettings(ActionEvent actionEvent) {
+        var items = activeLocalList.getItems().stream().filter(ns -> ns.status() == LocaleStatus.TO_CREATE).toList();
+
+        for(var item : items) {
+            var bundleLoader = localeHandler.getSafeLoader();
+            bundleLoader.saveChangesKeepingFormatting(item.locale(), Map.of());
+        }
+
+        ((Stage)fileResourceLocationField.getScene().getWindow()).close();
+    }
+
+    record NamedLocale(Locale locale) {
+        @Override
+        public String toString() {
+            return locale.getDisplayLanguage();
+        }
+    }
+
+    record NamedLocaleWithStatus(Locale locale, LocaleStatus status) {
+        @Override
+        public String toString() {
+            if(StringHelper.isStringEmptyOrNull(locale.getLanguage())) {
+                return MenuEditorApp.getBundle().getString("locale.dialog.default.bundle");
+            } else {
+                return locale.getDisplayLanguage() + ((status == LocaleStatus.TO_CREATE) ? " *" : "");
+            }
+        }
+    }
+
 }

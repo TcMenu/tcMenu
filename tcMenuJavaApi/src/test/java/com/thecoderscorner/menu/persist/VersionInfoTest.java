@@ -6,6 +6,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class VersionInfoTest {
 
+    @Test
+    public void testCreatingObjects() {
+        var test1 = VersionInfo.fromString("1.0");
+        assertEquals("1.0.0", test1.toString());
+        var test1a = VersionInfo.fromString("1.0.0");
+        assertEquals("1.0.0", test1.toString());
+        var test2 = new VersionInfo("1.2.3");
+        assertEquals("1.2.3", test2.toString());
+        var test3 = new VersionInfo("1.2.3-SNAPSHOT");
+        assertEquals("1.2.3-BETA", test3.toString());
+        var test4 = new VersionInfo("1.2.3-BETA");
+        assertEquals("1.2.3-BETA", test3.toString());
+        var test5 = new VersionInfo("100.203.293-RC");
+        assertEquals("100.203.293-BETA", test5.toString());
+        var test6 = new VersionInfo("182.32222.22-PREVIOUS");
+        assertEquals("182.32222.22-PREVIOUS", test6.toString());
+
+        assertNotEquals(test1, test2);
+        assertEquals(test1, test1);
+        assertEquals(test1, test1a);
+        assertEquals(test3, test4);
+        assertNotEquals(test2, test3);
+    }
 
     @Test
     public void testVersionInfoNoPatch() {

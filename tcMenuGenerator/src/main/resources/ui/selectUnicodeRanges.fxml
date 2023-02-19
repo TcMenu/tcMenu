@@ -38,13 +38,13 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Select Unicode text ranges" GridPane.columnSpan="2">
+            <Label text="%unicode.select.ranges" GridPane.columnSpan="2">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <Label text="Search ranges for:" GridPane.rowIndex="1" />
-            <TextField fx:id="unicodeSearchField" promptText="range name or char code" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="%unicode.search.ranges" GridPane.rowIndex="1" />
+            <TextField fx:id="unicodeSearchField" promptText="%unicode.search.ranges.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
    </top>

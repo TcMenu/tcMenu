@@ -8,7 +8,6 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
@@ -16,8 +15,8 @@ import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefiniti
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
-import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ public class FileBasedProjectPersistorTest {
                 .withEepromDefinition(new NoEepromDefinition()).withAuthenticationDefinition(new NoAuthenticatorDefinition())
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
                 .codeOptions();
-        persistor.save(projFile.toString(), "", tree, options);
+        persistor.save(projFile.toString(), "", tree, options, new NoLocaleEnabledLocalHandler());
 
         MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());
 

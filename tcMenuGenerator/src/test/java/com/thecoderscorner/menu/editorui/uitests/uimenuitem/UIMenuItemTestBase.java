@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -34,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
+import static com.thecoderscorner.menu.editorui.MenuEditorApp.EMPTY_LOCALE;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -51,10 +53,11 @@ public abstract class UIMenuItemTestBase {
     protected void init(Stage stage) {
         manager = mock(CodePluginManager.class);
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
+        var bundle = MenuEditorApp.configureBundle(EMPTY_LOCALE);
         editorUI = new CurrentProjectEditorUIImpl(manager, stage, mock(EmbeddedPlatforms.class),
                 mock(ArduinoLibraryInstaller.class), storage,
-                mock(LibraryVersionDetector.class), System.getProperty("user.home")
-        );
+                mock(LibraryVersionDetector.class), System.getProperty("user.home"),
+                bundle);
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);
         this.stage = stage;

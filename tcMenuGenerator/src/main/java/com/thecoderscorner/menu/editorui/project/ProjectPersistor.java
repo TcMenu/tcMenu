@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.IOException;
@@ -36,9 +37,10 @@ public interface ProjectPersistor {
      * @param desc     description for the file
      * @param tree     the tree to be saved
      * @param options  the code generator options
+     * @param handler  the locale handler to ensure any locale specifics are saved too
      * @throws IOException if there is a problem saving.
      */
-    void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options) throws IOException;
+    void save(String fileName, String desc, MenuTree tree, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException;
 
     List<PersistedMenu> copyTextToItems(String items);
 

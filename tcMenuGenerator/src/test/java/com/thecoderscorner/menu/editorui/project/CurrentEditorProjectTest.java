@@ -24,6 +24,7 @@ import static com.thecoderscorner.menu.editorui.uitests.MenuEditorTestCases.FILE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class CurrentEditorProjectTest {
@@ -145,12 +146,12 @@ public class CurrentEditorProjectTest {
         Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save(FILE_NAME_SIMULATED, "", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED), eq(""), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
 
         Mockito.when(editorUI.findFileNameFromUser(false)).thenReturn(Optional.of(FILE_NAME_SIMULATED + "1"));
         project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE_AS);
         assertFalse(project.isDirty());
-        Mockito.verify(persistor).save(FILE_NAME_SIMULATED + "1", "", project.getMenuTree(), project.getGeneratorOptions());
+        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED + "1"), eq(""), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
 
     }
 

@@ -1,4 +1,4 @@
-<TcMenuPlugin name="AdaFruit_GFX with manual declaration and configuration"
+<TcMenuPlugin name="%adafruit.manual.name"
               id="7c486068-9879-459f-89ee-9522366524a3"
               subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
@@ -12,19 +12,18 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Draw menus using the AdafruitGFX library. Create the graphics variable and configure it yourself, here you just tell us the name of the variable and the type. This version works with most displays and is very configurable.</Description>
+    <Description>%adafruit.manual.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
     <Properties>
-        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Name of the AdaGfx display variable exactly as declared in sketch" type="variable" />
-        <Property id="DISPLAY_TYPE" name="Display variable type" initial="Adafruit_ILI9341" desc="Type of the AdaGfx display variable as declared in sketch" type="variable" />
-        <Property id="DISPLAY_CONFIG" name="Display config (blank default)" initial="" desc="Optional, use to override the default graphics configuration" type="variable" />
-        <Property id="DISPLAY_BUFFERED" name="Library is memory buffered" initial="false" desc="If the display library is memory buffered" type="boolean" />
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
-        <Property id="DISPLAY_BUFFER_SIZE" name="Memory display buffer lines (reduces flicker)" initial="0" type="int" min="0" max="320"
-                  desc="Draws items into a memory buffer before screen drawing, reduces flicker. Uses 1 byte per 4 pixels."
-                  whenProperty="DISPLAY_BUFFERED" isValue="false"/>
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="Adafruit_ILI9341" desc="%core.display.variable.type.desc" type="variable" />
+        <Property id="DISPLAY_CONFIG" name="%core.display.config" initial="" desc="%core.display.config.desc" type="variable" />
+        <Property id="DISPLAY_BUFFERED" name="%core.display.is.buffered" initial="false" desc="core.display.is.buffered.desc" type="boolean" />
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="core.screen.updates.sec.desc" type="int" min="1" max="10"/>
+        <Property id="DISPLAY_BUFFER_SIZE" name="core.display.buffer.size" initial="0" type="int" min="0" max="320"
+                  desc="%core.display.buffer.size.desc" whenProperty="DISPLAY_BUFFERED" isValue="false"/>
     </Properties>
 
     <ApplicabilityDefs/>

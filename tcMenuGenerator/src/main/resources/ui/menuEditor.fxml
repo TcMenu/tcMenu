@@ -99,7 +99,7 @@
               <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="%menu.code.font.creator" />
               <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="%menu.code.bitmap.creator" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" />
+                  <MenuItem mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" accelerator="F6" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="%menu.help">

@@ -1,4 +1,4 @@
-<TcMenuPlugin name="AdafruitGFX quick start for 5110, ST77xx and ILI9341"
+<TcMenuPlugin name="%adafruit.quickstart.name"
               id="4dcb12ec-13d8-4466-b8b6-bd575eae4612"
               subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
@@ -13,13 +13,13 @@
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Draw menus using AdafruitGFX library using our quick start for Nokia 5110, ST77xx and ILI9341. This version defaults many configuration options to reasonable settings, for other cases use the custom Adafruit plugin.</Description>
+    <Description>%adafruit.quickstart.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
     <Properties>
-        <Property id="DISPLAY_VARIABLE" name="Variable name" initial="gfx" desc="Name of the variable to create" type="variable" />
-        <Property id="DISPLAY_TYPE" name="Display type" initial="Adafruit_ST7735" desc="Type of display you have" type="choice">
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="Adafruit_ST7735" desc="%core.display.variable.type" type="choice">
             <Choices>
                 <Choice desc="ST7735">Adafruit_ST7735</Choice>
                 <Choice desc="ST7789">Adafruit_ST7789</Choice>
@@ -27,27 +27,26 @@
                 <Choice desc="PCD8544/Nokia5110">Adafruit_PCD8544</Choice>
             </Choices>
         </Property>
-        <Property id="DISPLAY_WIDTH" name="Display width" initial="320" desc="Pixel width in hardware" type="int" min="16" max="5000"/>
-        <Property id="DISPLAY_HEIGHT" name="Display height" initial="240" desc="Pixel height in hardware" type="int" min="16" max="5000"/>
-        <Property id="DISPLAY_RESET_PIN" name="Optional Reset Pin" initial="-1" desc="Option the pin on which Reset is connected" type="pin" />
-        <Property id="DISPLAY_CS_PIN" name="CS Pin (SPI only)" initial="-1" desc="Option the pin on which CS is connected" type="pin" />
-        <Property id="DISPLAY_RS_PIN" name="RS Pin (SPI only)" initial="-1" desc="Option the pin on which RS is connected" type="pin" />
-        <Property id="DISPLAY_DATA_PIN" name="Data Pin (SW SPI only)" initial="-1" desc="Optionally specify the data pin for SW SPI" type="pin" />
-        <Property id="DISPLAY_CLOCK_PIN" name="Clock Pin (SW SPI only)" initial="-1" desc="Optionally specify the clock pin for SW SPI" type="pin" />
-        <Property id="ST7735_TAB_TYPE" name="Tab Type for ST7735" initial="INITR_BLACKTAB"  type="choice"  whenProperty="DISPLAY_TYPE" matches="(Adafruit_ST7735|Adafruit_ST7789)"
-                  desc="When using ST7735 based displays the type color of the tab usually denotes the display type">
+        <Property id="DISPLAY_WIDTH" name="%core.display.width" initial="320" desc="%core.display.width.desc" type="int" min="16" max="5000"/>
+        <Property id="DISPLAY_HEIGHT" name="%core.display.height" initial="240" desc="core.display.height.desc" type="int" min="16" max="5000"/>
+        <Property id="DISPLAY_RESET_PIN" name="%core.reset.pin" initial="-1" desc="%core.reset.pin.desc" type="pin" />
+        <Property id="DISPLAY_CS_PIN" name="%core.cs.pin" initial="-1" desc="%core.cs.pin.desc" type="pin" />
+        <Property id="DISPLAY_RS_PIN" name="%core.rs.pin" initial="-1" desc="%core.rs.pin.desc" type="pin" />
+        <Property id="DISPLAY_DATA_PIN" name="%core.option.data.pin" initial="-1" desc="%core.option.data.pin" type="pin" />
+        <Property id="DISPLAY_CLOCK_PIN" name="%core.option.clock.pin" initial="-1" desc="%core.option.clock.pin.desc" type="pin" />
+        <Property id="ST7735_TAB_TYPE" name="%adafruit.quickstart.tab" initial="INITR_BLACKTAB"  type="choice"  whenProperty="DISPLAY_TYPE" matches="(Adafruit_ST7735|Adafruit_ST7789)"
+                  desc="%adafruit.quickstart.tab.desc">
             <Choices>
-                <Choice desc="Black Tab">INITR_BLACKTAB</Choice>
-                <Choice desc="Green Tab">INITR_GREENTAB</Choice>
-                <Choice desc="Red Tab">INITR_REDTAB</Choice>
-                <Choice desc="Mini 160x80">INITR_MINI160x80</Choice>
-                <Choice desc="Hallowing">INITR_HALLOWING</Choice>
+                <Choice desc="%adafruit.quickstart.black.tab">INITR_BLACKTAB</Choice>
+                <Choice desc="%adafruit.quickstart.green.tab">INITR_GREENTAB</Choice>
+                <Choice desc="%adafruit.quickstart.red.tab">INITR_REDTAB</Choice>
+                <Choice desc="%adafruit.quickstart.mini.tab">INITR_MINI160x80</Choice>
+                <Choice desc="%adafruit.quickstart.hallowing.tab">INITR_HALLOWING</Choice>
             </Choices>
         </Property>
-        <Property id="DISPLAY_ROTATION" name="Display Rotation (0..3)" initial="0" desc="See AdafruitGFX guide for more on rotation" type="int" min="0" max="3"/>
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="5" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
-        <Property id="DISPLAY_BUFFER_SIZE" name="Lines to buffer (performance increase) (about 40-80 bytes a line)" initial="0" type="int" min="0" max="320"
-                  desc="High performance, draws items into a memory buffer and then writes the result optimally on the TFT"/>
+        <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="0" desc="%adafruit.display.rotation.desc" type="int" min="0" max="3"/>
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="%core.screen.updates.sec.desc" type="int" min="1" max="10"/>
+        <Property id="DISPLAY_BUFFER_SIZE" name="%core.display.buffer.size" initial="0" type="int" min="0" max="320"  desc="%core.display.buffer.size.desc"/>
     </Properties>
 
     <ApplicabilityDefs>

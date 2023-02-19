@@ -25,7 +25,7 @@
 
 <BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
    <top>
-      <Label prefHeight="27.0" prefWidth="534.0" text="Choose the font to use" BorderPane.alignment="CENTER">
+      <Label prefHeight="27.0" prefWidth="534.0" text="%unicode.font.to.use" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
@@ -36,16 +36,16 @@
    <center>
       <VBox prefHeight="343.0" prefWidth="504.0" BorderPane.alignment="CENTER">
          <children>
-            <Hyperlink onAction="#onFontDefinitionsDocs" text="Read the documentation on how font definitions work" />
-            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="Adafruit or TcUnicode Library Font">
+            <Hyperlink onAction="#onFontDefinitionsDocs" text="%read.docs.on.how.definitions.work" />
+            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="%unicode.adafruit.tcunicode.select">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="Adafruit or TcUnicode font local to project" toggleGroup="$main" />
-            <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="Static Font (U8G2 displays)" toggleGroup="$main" />
-            <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Numbered Font (TFT_eSPI displays)" toggleGroup="$main" />
-             <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="Use the default font if possible" toggleGroup="$main" />
+            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="%unicode.adafruit.font.local" toggleGroup="$main" />
+            <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="%unicode.static.u8g2.font" toggleGroup="$main" />
+            <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="%unicode.font.num.select" toggleGroup="$main" />
+             <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="%unicode.font.default.case" toggleGroup="$main" />
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -59,9 +59,9 @@
                   <RowConstraints />
               </rowConstraints>
                <children>
-                    <Label text="Font Variable Name" GridPane.rowIndex="1" />
+                    <Label text="%unicode.font.variable.name" GridPane.rowIndex="1" />
                     <TextField fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label fx:id="fontSizeLabel" text="Font Number / Size" GridPane.rowIndex="2" />
+                    <Label fx:id="fontSizeLabel" text="%unicode.font.size" GridPane.rowIndex="2" />
                     <Label fx:id="errorField" style="-fx-text-fill: red; -fx-font-weight: bold;" text="" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                   <ComboBox fx:id="sizeCombo" prefHeight="25.0" prefWidth="245.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
@@ -78,8 +78,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
-            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Set Font" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
+            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="%core.apply.text" />
         </buttons>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

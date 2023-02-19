@@ -13,11 +13,17 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
 
 import java.io.IOException;
-import java.lang.System.Logger.Level;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
@@ -27,6 +33,7 @@ import java.util.*;
 public class CurrentEditorProject {
 
     public static final String NO_CREATOR_SELECTED = "";
+    public static final String MENU_PROJECT_LANG_FILENAME = "project-lang";
 
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
@@ -43,6 +50,7 @@ public class CurrentEditorProject {
     private String description;
     private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions;
+    private LocaleMappingHandler localeHandler = null;
 
     private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
@@ -60,6 +68,7 @@ public class CurrentEditorProject {
         description = "";
         uncommittedItems.clear();
         generatorOptions = makeBlankGeneratorOptions();
+        localeHandler = new NoLocaleEnabledLocalHandler();
         setDirty(false);
         updateTitle();
     }
@@ -108,7 +117,7 @@ public class CurrentEditorProject {
             }
         } catch (IOException e) {
             fileName = Optional.empty();
-            logger.log(Level.ERROR, "open operation failed on " + file, e);
+            logger.log(ERROR, "open operation failed on " + file, e);
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
         return false;
@@ -137,10 +146,10 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 uncommittedItems.clear();
-                projectPersistor.save(file, description, menuTree, generatorOptions);
+                projectPersistor.save(file, description, menuTree, generatorOptions, new NoLocaleEnabledLocalHandler());
                 setDirty(false);
             } catch (IOException e) {
-                logger.log(Level.ERROR, "save operation failed on " + file, e);
+                logger.log(ERROR, "save operation failed on " + file, e);
                 editorUI.alertOnError("Unable to save file", "Could not save file to chosen location");
             }
         });
@@ -249,12 +258,40 @@ public class CurrentEditorProject {
         return !changeHistory.isEmpty();
     }
 
-    public List<Locale> getLocales() {
-        return List.of(Locale.getDefault());
+    public LocaleMappingHandler getLocaleHandler() {
+        if(localeHandler != null && localeHandler.isLocalSupportEnabled()) return localeHandler;
+
+        if(fileName.isPresent() && Files.exists(Paths.get(fileName.get()).getParent())) {
+            var dir = Paths.get(fileName.get()).getParent();
+            var i18nDir = dir.resolve("i18n");
+            var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
+            if(Files.exists(rootProperties)) {
+                localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+            } else {
+                localeHandler = new NoLocaleEnabledLocalHandler();
+            }
+        } else {
+            localeHandler = new NoLocaleEnabledLocalHandler();
+        }
+        return localeHandler;
     }
 
-    public void changeLocales(List<Locale> locales) {
+    public void enableLocaleHandler() {
+        // short circuit - check if already enabled and skip
+        if(localeHandler != null && localeHandler.isLocalSupportEnabled()) return;
 
+        // otherwise try and enable but only if the project has already been saved.
+        if (fileName.isPresent() && Files.exists(Paths.get(fileName.get()).getParent())) {
+            var dir = Paths.get(fileName.get()).getParent();
+            var i18nDir = dir.resolve("i18n");
+            var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
+            try {
+                Files.writeString(rootProperties, "# Locale file created by tcMenu");
+                localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+            } catch (IOException e) {
+                logger.log(ERROR, "Error creating resource bundle for languages", e);
+            }
+        }
     }
 
     public CodeGeneratorOptions makeBlankGeneratorOptions() {

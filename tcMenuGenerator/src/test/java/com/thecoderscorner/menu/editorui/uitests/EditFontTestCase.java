@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.ChooseFontDialog;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
@@ -10,7 +11,6 @@ import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.scene.Node;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
@@ -23,7 +23,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.clickOnButtonInDialog;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.writeIntoField;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ApplicationExtension.class)
 public class EditFontTestCase {
@@ -43,25 +43,26 @@ public class EditFontTestCase {
         robot.clickOn("#defaultFontSelect");
         writeIntoField(robot, "#fontVarField", "", 10);
         assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("1")));
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
+        clickOnButtonInDialog(robot, dialogPane, "Apply");
 
         // try the numbered x2
         dialogPane = createFontDialog(robot, prop);
         robot.clickOn("#largeNumSelect");
         assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("9")));
         writeIntoField(robot, "#fontVarField", "", 10);
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
+        clickOnButtonInDialog(robot, dialogPane, "Apply");
 
         // try ada font x1
         dialogPane = createFontDialog(robot, prop);
         robot.clickOn("#adafruitFontSel");
         assertTrue(TestUtils.selectItemInCombo(robot, "#sizeCombo", (String val) -> val.equals("2")));
         writeIntoField(robot, "#fontVarField", "myFont", 10);
-        clickOnButtonInDialog(robot, dialogPane, "Set Font");
+        clickOnButtonInDialog(robot, dialogPane, "Apply");
     }
 
     private Node createFontDialog(FxRobot robot, CreatorProperty prop) throws InterruptedException {
         var def = FontDefinition.fromString(prop.getLatestValue()).orElseThrow();
+        MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
         TestUtils.runOnFxThreadAndWait(()->new ChooseFontDialog(stage, def.toString(), false, false));
         WaitForAsyncUtils.waitForFxEvents();
 
