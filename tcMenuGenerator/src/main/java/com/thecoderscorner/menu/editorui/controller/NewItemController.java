@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
@@ -20,6 +21,7 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMenuItemBuilder;
@@ -30,6 +32,7 @@ import static java.lang.System.Logger.Level.ERROR;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class NewItemController {
+    private ResourceBundle bundle = MenuEditorApp.getBundle();
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private static Optional<String> lastRadioId = Optional.empty();
 
@@ -88,14 +91,14 @@ public class NewItemController {
         int id = Integer.parseInt(idField.getText());
 
         if(id < 1 || id > Short.MAX_VALUE) {
-            editorUI.alertOnError("ID is not an allowed value",
-                    "ID must be unique, greater than 0 and less than 32768");
+            editorUI.alertOnError(bundle.getString("create.item.out.of.range.title"),
+                    bundle.getString("create.item.out.of.range.message"));
             return;
         }
 
         if(!menuIdChooser.isIdUnique(id)) {
-            editorUI.alertOnError("ID is not unique in this menu",
-                    "Each ID must be unique within the menu, ID is the way the menu system uniquely identifies each item.");
+            editorUI.alertOnError(bundle.getString("create.item.not.unique.title"),
+                    bundle.getString("create.item.not.unique.message"));
             return;
         }
 

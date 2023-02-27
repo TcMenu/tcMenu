@@ -16,7 +16,7 @@
 
 <BorderPane prefHeight="501.0" prefWidth="768.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.generator.ui.CodeGenLoggingController">
    <top>
-      <Label graphicTextGap="0.0" prefHeight="25.0" prefWidth="800.0" text="Code Generation Log" BorderPane.alignment="CENTER">
+      <Label graphicTextGap="0.0" prefHeight="25.0" prefWidth="800.0" text="%code.gen.log.title" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </BorderPane.margin>
@@ -31,9 +31,9 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button fx:id="includeDebugButton" mnemonicParsing="false" onAction="#onIncludeDebug" text="Include debug" />
-          <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="Copy to clipboard" />
-            <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="Close" />
+            <Button fx:id="includeDebugButton" mnemonicParsing="false" onAction="#onIncludeDebug" text="%code.gen.include.debug" />
+          <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="%code.gen.copy.clipboard" />
+            <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
         </buttons>
          <opaqueInsets>
             <Insets top="5.0" />

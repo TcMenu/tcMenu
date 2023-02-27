@@ -23,7 +23,7 @@ public class NewProjectDialog extends BaseDialogSupport<NewProjectController> {
         this.platforms = platforms;
         this.project = project;
 
-        tryAndCreateDialog(stage, "/ui/createNewProject.fxml", "Create New Project", modal);
+        tryAndCreateDialog(stage, "/ui/createNewProject.fxml", bundle.getString("create.project.title"), modal);
     }
 
     @Override

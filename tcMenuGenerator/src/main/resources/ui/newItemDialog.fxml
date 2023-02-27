@@ -22,7 +22,7 @@
 
 <BorderPane prefHeight="394.0" prefWidth="504.0" styleClass="background,addItemDialog" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.NewItemController">
    <top>
-      <Label prefHeight="22.0" prefWidth="513.0" text="Choose the type of menu to create" BorderPane.alignment="CENTER">
+      <Label prefHeight="22.0" prefWidth="513.0" text="%create.item.header" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -33,26 +33,26 @@
    <center>
       <VBox prefHeight="227.0" prefWidth="504.0" spacing="4.0" BorderPane.alignment="CENTER">
          <children>
-            <RadioButton fx:id="subMenuSelect" mnemonicParsing="false" text="Sub menu item that can contain child items">
+            <RadioButton fx:id="subMenuSelect" mnemonicParsing="false" text="%create.item.submenu.choice">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup></RadioButton>
-             <Label>Numeric menu items</Label>
-            <RadioButton fx:id="analogSelect" mnemonicParsing="false" text="Integer and Decimal values up to 5 digits (stored as uint16)" toggleGroup="$main" />
-             <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="Very large numeric values up to 12 digits" toggleGroup="$main" />
-             <RadioButton fx:id="floatSelect" mnemonicParsing="false" text="Floating point value for readonly status only" toggleGroup="$main" />
-             <Label>Selection items</Label>
-            <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="Enumeration item - simple choices known upfront" toggleGroup="$main" />
-             <RadioButton fx:id="choiceSelect" mnemonicParsing="false" text="Scroll Choice for EEPROM, RAM and custom choices" toggleGroup="$main" />
-            <RadioButton fx:id="boolSelect" mnemonicParsing="false" text="Boolean item for On/Off or Yes/No" toggleGroup="$main" />
-             <RadioButton fx:id="actionSelect" mnemonicParsing="false" text="Action item that runs callback when selected" toggleGroup="$main" />
-             <Label>Text and Complex data</Label>
-            <RadioButton fx:id="textSelect" mnemonicParsing="false" text="Text, IP address, Date, Time menu item" toggleGroup="$main" />
-             <RadioButton fx:id="rgbSelect" mnemonicParsing="false" text="Color item representing Red, Green, Blue" toggleGroup="$main" />
-            <RadioButton fx:id="listSelect" mnemonicParsing="false" text="List item for handling lists of data / values" toggleGroup="$main" />
-            <Label>Authentication and IoT</Label>
-            <RadioButton fx:id="iotListSelect" mnemonicParsing="false" text="IoT Monitor shows the status of IoT / remote connections" toggleGroup="$main" />
-            <RadioButton fx:id="authenticatorSelect" mnemonicParsing="false" text="EEPROM Authentication Editor to manage pairing" toggleGroup="$main" />
+             <Label text="%create.item.label.numeric"/>
+            <RadioButton fx:id="analogSelect" mnemonicParsing="false" text="%create.item.analog.choice" toggleGroup="$main" />
+             <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="%create.item.large.num.choice" toggleGroup="$main" />
+             <RadioButton fx:id="floatSelect" mnemonicParsing="false" text="%create.item.float.choice" toggleGroup="$main" />
+             <Label text="%create.item.label.selection"/>
+            <RadioButton fx:id="enumSelect" mnemonicParsing="false" text="%create.item.enum.choice" toggleGroup="$main" />
+             <RadioButton fx:id="choiceSelect" mnemonicParsing="false" text="%create.item.scroll.choce" toggleGroup="$main" />
+            <RadioButton fx:id="boolSelect" mnemonicParsing="false" text="%create.item.bool.choice" toggleGroup="$main" />
+             <RadioButton fx:id="actionSelect" mnemonicParsing="false" text="%create.item.action.choice" toggleGroup="$main" />
+             <Label text="%create.item.label.text.complex"/>
+            <RadioButton fx:id="textSelect" mnemonicParsing="false" text="%create.item.text.choice" toggleGroup="$main" />
+             <RadioButton fx:id="rgbSelect" mnemonicParsing="false" text="%create.item.rgb.choice" toggleGroup="$main" />
+            <RadioButton fx:id="listSelect" mnemonicParsing="false" text="%create.item.list.choice" toggleGroup="$main" />
+            <Label text="%create.item.label.iot.auth"/>
+            <RadioButton fx:id="iotListSelect" mnemonicParsing="false" text="%create.item.iot.monitor.choice" toggleGroup="$main" />
+            <RadioButton fx:id="authenticatorSelect" mnemonicParsing="false" text="%create.item.authenticator.view.choice" toggleGroup="$main" />
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -63,7 +63,7 @@
                 <RowConstraints />
               </rowConstraints>
                <children>
-                  <Label text="Menu Id (must be unique)" GridPane.rowIndex="1" />
+                  <Label text="%create.item.unique.id" GridPane.rowIndex="1" />
                   <TextField fx:id="idField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
                <padding>
@@ -79,8 +79,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
-          <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Create" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
+          <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="%core.create.text" />
         </buttons>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

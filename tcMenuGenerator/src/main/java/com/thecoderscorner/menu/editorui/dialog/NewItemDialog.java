@@ -23,7 +23,7 @@ public class NewItemDialog extends BaseDialogSupport<NewItemController> {
         this.tree = tree;
         this.editorUI = editorUI;
 
-        tryAndCreateDialog(stage, "/ui/newItemDialog.fxml", "Create new item", modal);
+        tryAndCreateDialog(stage, "/ui/newItemDialog.fxml", bundle.getString("create.item.title"), modal);
     }
 
     public Optional<MenuItem> getResultOrEmpty() {
