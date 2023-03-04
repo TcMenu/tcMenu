@@ -11,8 +11,8 @@
     <ImageFile>DfRobotShield.jpg</ImageFile>
 
     <Properties>
-        <Property id="DF_KEY_REPEAT" name="%dfrobot.key.repeat" initial="20" desc="%dfrobot.key.repeat.desc"
-                  type="int" min="1" max="50"/>
+        <Property id="DF_KEY_REPEAT" name="%dfrobot.key.repeat" initial="20" desc="%dfrobot.key.repeat.desc" type="int" min="1" max="50"/>
+        <Property id="DF_RIGHT_SEL" name="%dfrobot.use.right.as.sel" initial="false" desc="%dfrobot.use.right.as.sel.desc" type="boolean" />
     </Properties>
 
     <ApplicabilityDefs/>
@@ -36,21 +36,27 @@
             <Param value="false"/>
         </Function>
 
-        <Function name="initForUpDownOk" object="menuMgr">
+        <Function name="initFor4WayJoystick" object="menuMgr" whenProperty="DF_RIGHT_SEL" isValue="true">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
             <Param value="DF_KEY_DOWN"/>
             <Param value="DF_KEY_UP"/>
+            <Param value="DF_KEY_LEFT"/>
+            <Param value="DF_KEY_RIGHT"/>
+            <Param value="-1"/>
+            <Param value="${DF_KEY_REPEAT}"/>
+        </Function>
+
+        <Function name="initFor4WayJoystick" object="menuMgr" whenProperty="DF_RIGHT_SEL" isValue="false">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="DF_KEY_DOWN"/>
+            <Param value="DF_KEY_UP"/>
+            <Param value="DF_KEY_LEFT"/>
+            <Param value="DF_KEY_RIGHT"/>
             <Param value="DF_KEY_SELECT"/>
             <Param value="${DF_KEY_REPEAT}"/>
         </Function>
 
-        <Function name="setBackButton" object="menuMgr">
-            <Param value="DF_KEY_LEFT"/>
-        </Function>
-
-        <Function name="setNextButton" object="menuMgr">
-            <Param value="DF_KEY_RIGHT"/>
-        </Function>
     </SetupFunctions>
 </TcMenuPlugin>

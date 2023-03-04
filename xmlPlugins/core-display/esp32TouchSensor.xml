@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Use ESP32 touch pad sensors for input"
+<TcMenuPlugin name="%esp32.sensor.name"
               id="cc0f9246-03be-4adf-b1f5-dd501085122a" subsystem="INPUT"
               requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6,21 +6,21 @@
     <SupportedPlatforms>
            <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>Interfaces with the ESP32 touch pad sensors to use them as buttons with switches, either interrupt based or polled mode is supported.</Description>
+    <Description>%esp32.sensor.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/touch-pad-sensor-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>touch-pad-sensor.jpg</ImageFile>
 
     <Properties>
-        <Property id="SWITCH_THRESHOLD" name="Switch activation threshold" initial="800" desc="Point below which the switch is considered pressed" type="int" min="0" max="32768"/>
-        <Property id="SW_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice">
+        <Property id="SWITCH_THRESHOLD" name="%esp32.sensor.threshold" initial="800" desc="%esp32.sensor.threshold.desc" type="int" min="0" max="32768"/>
+        <Property id="SW_POLLING_MODE" name="%core.input.polling" initial="SWITCHES_POLL_EVERYTHING" desc="%core.input.polling.desc" type="choice">
             <Choices>
-                <Choice desc="Polling for keys and encoders">SWITCHES_POLL_EVERYTHING</Choice>
-                <Choice desc="Everything interrupt driven">SWITCHES_NO_POLLING</Choice>
-                <Choice desc="Keys polling, encoder A pin interrupt">SWITCHES_POLL_KEYS_ONLY</Choice>
+                <Choice desc="%core.input.polling.all">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="%core.input.polling.none">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="%core.input.polling.keys">SWITCHES_POLL_KEYS_ONLY</Choice>
             </Choices>
         </Property>
-        <Property id="TP_HIGH_VOLTAGE" name="High voltage setting" initial="TOUCH_HVOLT_2V7" desc="The high voltage setting to use for the touch pad" type="choice">
+        <Property id="TP_HIGH_VOLTAGE" name="%esp32.sensor.high.voltage" initial="TOUCH_HVOLT_2V7" desc="%esp32.sensor.high.voltage.desc" type="choice">
             <Choices>
                 <Choice>TOUCH_HVOLT_KEEP</Choice>
                 <Choice>TOUCH_HVOLT_2V4</Choice>
@@ -30,7 +30,7 @@
                 <Choice>TOUCH_HVOLT_MAX</Choice>
             </Choices>
         </Property>
-        <Property id="TP_LOW_VOLTAGE" name="Low voltage setting" initial="TOUCH_LVOLT_0V5" desc="The low voltage setting to use for the touch pad" type="choice">
+        <Property id="TP_LOW_VOLTAGE" name="%esp32.sensor.low.voltage" initial="TOUCH_LVOLT_0V5" desc="%esp32.sensor.low.voltage.desc" type="choice">
             <Choices>
                 <Choice>TOUCH_LVOLT_KEEP</Choice>
                 <Choice>TOUCH_LVOLT_0V5</Choice>
@@ -40,7 +40,7 @@
                 <Choice>TOUCH_LVOLT_MAX</Choice>
             </Choices>
         </Property>
-        <Property id="TP_ATTENUATION" name="Attenuation setting" initial="TOUCH_HVOLT_ATTEN_1V" desc="The attenuation setting to use for the touch pad" type="choice">
+        <Property id="TP_ATTENUATION" name="%esp32.sensor.attenuation" initial="TOUCH_HVOLT_ATTEN_1V" desc="esp32.sensor.attenuation.desc" type="choice">
             <Choices>
                 <Choice>TOUCH_HVOLT_ATTEN_KEEP</Choice>
                 <Choice>TOUCH_HVOLT_ATTEN_1V5</Choice>
@@ -50,16 +50,25 @@
                 <Choice>TOUCH_HVOLT_ATTEN_MAX</Choice>
             </Choices>
         </Property>
-        <Property id="UP_SENSOR" name="Up Sensor Num" initial="3" desc="The touch sensor for UP" type="pin"/>
-        <Property id="DOWN_SENSOR" name="Down Sensor Num" initial="3" desc="The touch sensor for DOWN" type="pin"/>
-        <Property id="BACK_SENSOR" name="Left / Back Sensor Num (-1 off)" initial="-1" desc="Left or back touch sensor connection, or -1 for none" type="pin"/>
-        <Property id="NEXT_SENSOR" name="Right / Next Sensor Num (-1 off)" initial="-1" desc="Right or Next touch sensor connection, or -1 for none" type="pin"/>
-        <Property id="SELECT_SENSOR" name="Select Sensor Num" initial="3" desc="The sensor for select" type="pin"/>
-        <Property id="TS_KEY_REPEAT" name="Key repeat speed in ticks (default 20)" initial="20" desc="The key repeat speed for the encoder buttons"
+        <Property id="UP_SENSOR" name="%esp32.sensor.up" initial="3" desc="%esp32.sensor.up.desc" type="pin"/>
+        <Property id="DOWN_SENSOR" name="%esp32.sensor.down" initial="3" desc="%esp32.sensor.down.desc" type="pin"/>
+        <Property id="BACK_SENSOR" name="%esp32.sensor.left" initial="-1" desc="%esp32.sensor.left.desc" type="pin"/>
+        <Property id="NEXT_SENSOR" name="%esp32.sensor.right" initial="-1" desc="%esp32.sensor.right.desc" type="pin"/>
+        <Property id="SELECT_SENSOR" name="%esp32.sensor.sel" initial="3" desc="%esp32.sensor.sel.desc" type="pin"/>
+        <Property id="TS_KEY_REPEAT" name="%core.key.repeat.speed" initial="20" desc="%core.key.repeat.speed.desc"
                   type="int" min="1" max="50"/>
     </Properties>
 
-    <ApplicabilityDefs/>
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="leftAndRightDefined" mode="and">
+            <Applicability whenProperty="BACK_SENSOR" isNotValue="-1"/>
+            <Applicability whenProperty="NEXT_SENSOR" isNotValue="-1"/>
+        </ApplicabilityDef>
+        <ApplicabilityDef key="leftAndRightNotDefined" mode="and">
+            <Applicability whenProperty="BACK_SENSOR" isValue="-1"/>
+            <Applicability whenProperty="NEXT_SENSOR" isValue="-1"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
 
     <SourceFiles>
         <SourceFile name="esp32Touch/ESP32TouchKeysAbstraction.h"/>
@@ -86,7 +95,7 @@
             <Param value="false"/>
         </Function>
 
-        <Function name="initForUpDownOk" object="menuMgr">
+        <Function name="initForUpDownOk" object="menuMgr" applicabilityRef="leftAndRightNotDefined">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
             <Param value="${DOWN_SENSOR}"/>
@@ -95,12 +104,15 @@
             <Param value="${TS_KEY_REPEAT}"/>
         </Function>
 
-        <Function name="setBackButton" object="menuMgr" whenProperty="BACK_SENSOR" isNotValue="-1">
+        <Function name="initFor4WayJoystick" object="menuMgr" applicabilityRef="leftAndRightDefined">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${DOWN_SENSOR}"/>
+            <Param value="${UP_SENSOR}"/>
             <Param value="${BACK_SENSOR}"/>
-        </Function>
-
-        <Function name="setNextButton" object="menuMgr" whenProperty="NEXT_SENSOR" isNotValue="-1">
             <Param value="${NEXT_SENSOR}"/>
+            <Param value="${SELECT_SENSOR}"/>
+            <Param value="${TS_KEY_REPEAT}"/>
         </Function>
 
         <Function name="ensureInterruptRegistered" object="esp32Touch"/>

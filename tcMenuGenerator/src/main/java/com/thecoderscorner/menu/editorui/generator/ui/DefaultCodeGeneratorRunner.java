@@ -6,10 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
-import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import javafx.application.Platform;
@@ -48,6 +48,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
             CodeGenerator gen = platforms.getCodeGeneratorFor(platform, project.getGeneratorOptions());
             if(gen != null) {
                 FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/generatorLog.fxml"));
+                loader.setResources(MenuEditorApp.getBundle());
                 BorderPane pane = loader.load();
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);

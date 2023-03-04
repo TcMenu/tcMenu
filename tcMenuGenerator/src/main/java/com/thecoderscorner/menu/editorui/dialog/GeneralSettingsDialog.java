@@ -30,7 +30,7 @@ public class GeneralSettingsDialog extends BaseDialogSupport<GeneralSettingsCont
         this.manager = manager;
         this.home = home;
 
-        tryAndCreateDialog(stage, "/ui/settingsDialog.fxml", "General Application Settings", true);
+        tryAndCreateDialog(stage, "/ui/settingsDialog.fxml", bundle.getString("settings.dialog.title"), true);
     }
 
 

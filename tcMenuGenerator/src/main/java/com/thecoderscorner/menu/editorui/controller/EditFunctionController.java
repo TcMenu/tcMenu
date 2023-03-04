@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.*;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
@@ -21,29 +23,29 @@ import static com.thecoderscorner.menu.editorui.generator.validation.StringPrope
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.NO_FUNCTION_DEFINED;
 
 public class EditFunctionController {
-    public static final String CREATED_ON_YOUR_BEHALF = "The code for this is created for you by designer";
     public TextArea codeOutputArea;
     public ComboBox<String> callbackTypeCombo;
     public TextField functionNameField;
     private Optional<String> result = Optional.empty();
     private MenuItem menuItem;
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public void initialise(String fnDefinition, com.thecoderscorner.menu.domain.MenuItem menuItem) {
         this.menuItem = menuItem;
         boolean runtimeItem = isApplicableForOverrideRtCall(menuItem);
         if(runtimeItem) {
             callbackTypeCombo.setItems(FXCollections.observableArrayList(
-                    "No Callback Defined",
-                    "Function callback with implementation",
-                    "Function callback definition only",
-                    "Runtime RenderFn Override implementation",
-                    "Runtime RenderFn Override definition only"
+                    bundle.getString("edit.function.no.callback"),
+                    bundle.getString("edit.function.regular.callback"),
+                    bundle.getString("edit.function.regular.callback.def"),
+                    bundle.getString("edit.function.rtcall.callback"),
+                    bundle.getString("edit.function.rtcall.callback.def")
             ));
         } else {
             callbackTypeCombo.setItems(FXCollections.observableArrayList(
-                    "No Callback Defined",
-                    "Function callback with implementation",
-                    "Function callback definition only"
+                    bundle.getString("edit.function.no.callback"),
+                    bundle.getString("edit.function.regular.callback"),
+                    bundle.getString("edit.function.regular.callback.def")
             ));
         }
 
@@ -103,9 +105,9 @@ public class EditFunctionController {
             } else {
                 result = Optional.empty();
                 var alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Variable name invalid");
-                alert.setHeaderText("Please check the variable name");
-                alert.setContentText("Ensure there are no spaces in the variable name, it is not blank, and that it only contains latin characters");
+                alert.setTitle(bundle.getString("edit.function.variable.error.title"));
+                alert.setHeaderText(bundle.getString("edit.function.variable.error.header"));
+                alert.setContentText(bundle.getString("edit.function.variable.error.message"));
                 BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
                 alert.showAndWait();
             }
@@ -117,7 +119,7 @@ public class EditFunctionController {
         functionNameField.setDisable(index == 0);
         final String variableName = functionNameField.getText().replace("@", "") + ((index > 2) ? RUNTIME_FUNCTION_SUFIX : "");
         codeOutputArea.setText(switch (index) {
-            default -> CREATED_ON_YOUR_BEHALF;
+            default -> bundle.getString("edit.function.code.created.for.you");
             case 2 -> String.format("void CALLBACK_FUNCTION %s(int id) {", variableName) + LINE_BREAK + "}";
             case 4 -> generateRtCallForType(menuItem, variableName, LINE_BREAK);
         });

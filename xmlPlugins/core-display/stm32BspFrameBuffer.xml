@@ -1,4 +1,4 @@
-<TcMenuPlugin name="STM32 LTDC frame buffer (optional touch) using BSP functions"
+<TcMenuPlugin name="%ltdc.driver.name"
               id="fc7b8f22-6553-43d6-9968-df4ee2562aaf" subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -7,32 +7,32 @@
         <Platform>MBED_RTOS</Platform>
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
-    <Description>Uses the ST Microelectronics BSP driver for the LTDC display buffer, and optionally the BSP touch screen support if needed. This driver is for STM32 boards only when using mbed or Stm32Duino and requires considerable configuration.</Description>
+    <Description>%ltdc.driver.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed-stm32-menu-touch-display/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
 
     <Properties>
-        <Property id="DISPLAY_WIDTH" name="Pixel width in X dimension" initial="240" desc="The number of pixels across the screen" type="int" min="1" max="10000"/>
-        <Property id="DISPLAY_HEIGHT" name="Pixel width in Y dimension" initial="320" desc="The number of pixels down the screen" type="int" min="1" max="10000"/>
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
+        <Property id="DISPLAY_WIDTH" name="%core.display.width" initial="240" desc="%core.display.width.desc" type="int" min="1" max="10000"/>
+        <Property id="DISPLAY_HEIGHT" name="%core.display.height" initial="320" desc="%core.display.height.desc" type="int" min="1" max="10000"/>
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="10" desc="%core.screen.updates.sec.desc" type="int" min="1" max="10"/>
 
-        <Property id="TOUCH_SEPARATOR" name="Optional Touch settings" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
-        <Property id="TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="true" desc="Set to true to enable the touch screen support" type="boolean" />
+        <Property id="TOUCH_SEPARATOR" name="%core.touch.separator" initial="" desc="%core.touch.separator.desc" type="separator"/>
+        <Property id="TOUCH_SCREEN_REQUIRED" name="%core.touch.required" initial="true" desc="%core.touch.required.desc" type="boolean" />
 
-        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
-        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
-        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+        <Property id="ORIENTATION_SEPARATOR" name="%core.touch.orientation" initial="" desc="%core.touch.orientation.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  desc="%core.touch.swap.xy.desc" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.x.inverted.desc"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.y.inverted.desc"/>
 
-        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
-                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
-        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
-                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
+        <Property id="CALIB_SEPARATOR" name="%core.touch.calibration" initial="" desc="%core.touch.calibration.desc" type="separator"/>
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="%core.enable.touch.calib" initial="true"
+                  desc="%core.enable.touch.calib.desc" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="%core.touch.calib.addr" initial="400" type="int"
+                  desc="%core.touch.calib.addr.desc"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
     </Properties>
 
     <ApplicabilityDefs>

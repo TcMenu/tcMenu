@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Control menu with UP and DOWN buttons"
+<TcMenuPlugin name="%updown.button.name"
               id="2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049" subsystem="INPUT"
               requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -12,31 +12,39 @@
         <Platform>STM32DUINO</Platform>
         <Platform>MBED_RTOS</Platform>
     </SupportedPlatforms>
-    <Description>Switches that represent up, down and OK controlled by switches library. These are fully debounced either pull up or pull down switches and can either be connected direct to Arduino or via an i2c expander.</Description>
+    <Description>%updown.button.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>up-down-encoder.jpg</ImageFile>
 
     <Properties>
-        <Property id="SW_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice">
+        <Property id="SW_POLLING_MODE" name="%core.input.polling" initial="SWITCHES_POLL_EVERYTHING" desc="%core.input.polling.desc" type="choice">
             <Choices>
-                <Choice desc="Polling for keys and encoders">SWITCHES_POLL_EVERYTHING</Choice>
-                <Choice desc="Everything interrupt driven">SWITCHES_NO_POLLING</Choice>
-                <Choice desc="Keys polling, encoder A pin interrupt">SWITCHES_POLL_KEYS_ONLY</Choice>
+                <Choice desc="%core.input.polling.none">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="%core.input.polling.all">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="%core.input.polling.keys">SWITCHES_POLL_KEYS_ONLY</Choice>
             </Choices>
         </Property>
-        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="This allows you to provide an IoAbstractionRef if your input is on an IO expander" type="io-device"/>
-        <Property id="ENCODER_UP_PIN" name="Up Button Pin" initial="2" desc="The pin on which the UP button is connected" type="pin"/>
-        <Property id="ENCODER_DOWN_PIN" name="Down Button Pin" initial="3" desc="The pin on which DOWN button is connected" type="pin"/>
-        <Property id="ENCODER_BACK_PIN" name="Left / Back Button Pin (-1 off)" initial="-1" desc="Left or back button pin connection, or -1 for none" type="pin"/>
-        <Property id="ENCODER_NEXT_PIN" name="Right / Next Button Pin (-1 off)" initial="-1" desc="Right or Next button pin connection, or -1 for none" type="pin"/>
-        <Property id="ENCODER_OK_PIN" name="OK Button Pin" initial="8" desc="The pin on which OK is connected" type="pin"/>
-        <Property id="ENC_KEY_REPEAT" name="Key repeat speed in ticks (default 20)" initial="20" desc="The key repeat speed for the encoder buttons"
-                  type="int" min="1" max="50"/>
-        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
+        <Property id="SWITCH_IODEVICE" name="%core.switch.io.device" initial="devicePins" desc="%core.switch.io.device.desc" type="io-device"/>
+        <Property id="ENCODER_UP_PIN" name="%updown.encoder.up.pin" initial="2" desc="%updown.encoder.up.pin.desc" type="pin"/>
+        <Property id="ENCODER_DOWN_PIN" name="%updown.encoder.down.pin" initial="3" desc="%updown.encoder.down.pin.desc" type="pin"/>
+        <Property id="ENCODER_BACK_PIN" name="%updown.encoder.left.pin" initial="-1" desc="%updown.encoder.left.pin.desc" type="pin"/>
+        <Property id="ENCODER_NEXT_PIN" name="%updown.encoder.right.pin" initial="-1" desc="%updown.encoder.right.pin.desc" type="pin"/>
+        <Property id="ENCODER_OK_PIN" name="%updown.encoder.ok.pin" initial="8" desc="%updown.encoder.ok.pin.desc" type="pin"/>
+        <Property id="ENC_KEY_REPEAT" name="%core.key.repeat.speed" initial="20" desc="%core.key.repeat.speed.desc" type="int" min="1" max="50"/>
+        <Property id="PULLUP_LOGIC" name="%core.pullup.logic" initial="true" desc="%core.pullup.logic.desc" type="boolean"/>
     </Properties>
 
-    <ApplicabilityDefs/>
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="leftAndRightDefined" mode="and">
+            <Applicability whenProperty="ENCODER_BACK_PIN" isNotValue="-1"/>
+            <Applicability whenProperty="ENCODER_NEXT_PIN" isNotValue="-1"/>
+        </ApplicabilityDef>
+        <ApplicabilityDef key="leftAndRightNotDefined" mode="and">
+            <Applicability whenProperty="ENCODER_BACK_PIN" isValue="-1"/>
+            <Applicability whenProperty="ENCODER_NEXT_PIN" isValue="-1"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
 
     <SourceFiles/>
 
@@ -51,7 +59,18 @@
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 
-        <Function name="initForUpDownOk" object="menuMgr">
+        <Function name="initFor4WayJoystick" object="menuMgr" applicabilityRef="leftAndRightDefined">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${ENCODER_DOWN_PIN}"/>
+            <Param value="${ENCODER_UP_PIN}"/>
+            <Param value="${ENCODER_BACK_PIN}"/>
+            <Param value="${ENCODER_NEXT_PIN}"/>
+            <Param value="${ENCODER_OK_PIN}"/>
+            <Param value="${ENC_KEY_REPEAT}"/>
+        </Function>
+
+        <Function name="initForUpDownOk" object="menuMgr" applicabilityRef="leftAndRightNotDefined">
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
             <Param value="${ENCODER_DOWN_PIN}"/>
@@ -60,12 +79,5 @@
             <Param value="${ENC_KEY_REPEAT}"/>
         </Function>
 
-        <Function name="setBackButton" object="menuMgr" whenProperty="ENCODER_BACK_PIN" isNotValue="-1">
-            <Param value="${ENCODER_BACK_PIN}"/>
-        </Function>
-
-        <Function name="setNextButton" object="menuMgr" whenProperty="ENCODER_NEXT_PIN" isNotValue="-1">
-            <Param value="${ENCODER_NEXT_PIN}"/>
-        </Function>
     </SetupFunctions>
 </TcMenuPlugin>

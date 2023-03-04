@@ -19,8 +19,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
-            <Button fx:id="selectRangeButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelectRanges" text="Select Ranges" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" />
+            <Button fx:id="selectRangeButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelectRanges" text="%core.apply.text" />
         </buttons>
       </ButtonBar>
    </bottom>

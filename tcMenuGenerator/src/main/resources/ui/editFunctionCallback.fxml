@@ -17,16 +17,16 @@
    <children>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#onUpdatePressed" text="Update" />
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#onUpdatePressed" text="%core.apply.text" />
         </buttons>
       </ButtonBar>
-      <Label text="Callback type" />
+      <Label text="%edit.function.callback.type" />
       <ComboBox fx:id="callbackTypeCombo" onAction="#onCallbackTypeChanged" prefHeight="26.0" prefWidth="363.0" GridPane.columnIndex="1" />
-      <Label text="Function name" GridPane.rowIndex="1" />
+      <Label text="%edit.function.callback.name" GridPane.rowIndex="1" />
       <TextField fx:id="functionNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label alignment="TOP_LEFT" text="Code Definition (if needed):" GridPane.rowIndex="2" GridPane.valignment="TOP">
+      <Label alignment="TOP_LEFT" text="%edit.function.code.definition" GridPane.rowIndex="2" GridPane.valignment="TOP">
          <GridPane.margin>
             <Insets top="5.0" />
          </GridPane.margin></Label>

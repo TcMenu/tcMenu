@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -64,9 +65,7 @@ public class GeneralSettingsController {
     private LibraryVersionDetector versionDetector;
     private CodePluginManager pluginManager;
     private ArduinoLibraryInstaller installer;
-
-    private static final List<String> recurseLevels = List.of("Do not follow sketch sub directories", "Follow sketch sub directories one level",
-            "Follow sketch sub directories two levels", "Follow sketch sub directories three levels");
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public void initialise(ConfigurationStorage storage, LibraryVersionDetector versionDetector,
                            ArduinoLibraryInstaller installer, CodePluginManager pluginManager,
@@ -109,7 +108,12 @@ public class GeneralSettingsController {
         additionalPathsList.getSelectionModel().selectedItemProperty().addListener((observableValue, s1, s2) ->
                 removePathBtn.setDisable(additionalPathsList.getSelectionModel().getSelectedItem() == null));
 
-        sketchSearchDepthCombo.setItems(FXCollections.observableArrayList(recurseLevels));
+        sketchSearchDepthCombo.setItems(FXCollections.observableArrayList(
+                bundle.getString("settings.search.depth.0"),
+                bundle.getString("settings.search.depth.1"),
+                bundle.getString("settings.search.depth.2"),
+                bundle.getString("settings.search.depth.3")
+        ));
         sketchSearchDepthCombo.getSelectionModel().select(storage.getMenuProjectMaxLevel());
 
         List<String> additionalPaths = storage.getAdditionalPluginPaths();
@@ -327,8 +331,8 @@ public class GeneralSettingsController {
 
     private void refreshAdditionalPaths(ArrayList<String> paths) {
         additionalPathsList.setItems(FXCollections.observableList(paths));
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Reload all plugins?", ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Plugin reload");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, bundle.getString("settings.reload.all.plugins") , ButtonType.YES, ButtonType.NO);
+        alert.setTitle(bundle.getString("settings.plugins.reload"));
         BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         var result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.YES) {

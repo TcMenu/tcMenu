@@ -21,7 +21,7 @@ public class EditCallbackFunctionDialog extends BaseDialogSupport<EditFunctionCo
     public EditCallbackFunctionDialog(Stage stage, boolean modal, String fnDefinition, MenuItem menuItem) {
         this.fnDefinition = fnDefinition;
         this.menuItem = menuItem;
-        tryAndCreateDialog(stage, "/ui/editFunctionCallback.fxml", "Edit Function Callback", modal);
+        tryAndCreateDialog(stage, "/ui/editFunctionCallback.fxml", bundle.getString("edit.function.title"), modal);
     }
 
     @Override

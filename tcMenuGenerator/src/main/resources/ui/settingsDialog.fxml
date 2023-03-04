@@ -52,32 +52,32 @@
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="51.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / project storage location" wrappingWidth="493.505859375" GridPane.columnSpan="2">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.arduino.location" wrappingWidth="493.505859375" GridPane.columnSpan="2">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arduino / projects folder" wrappingWidth="162.3828125" GridPane.rowIndex="1" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Libraries folder" wrappingWidth="147.826171875" GridPane.rowIndex="2" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.arduino.dir" wrappingWidth="162.3828125" GridPane.rowIndex="1" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.libraries.dir" wrappingWidth="147.826171875" GridPane.rowIndex="2" />
                               <TextField fx:id="projectsTextField" editable="false" prefHeight="25.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <TextField fx:id="libsTextField" editable="false" prefHeight="25.0" prefWidth="345.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <Button fx:id="chooseArduinoButton" mnemonicParsing="false" onAction="#onChooseArduino" prefHeight="25.0" prefWidth="92.0" text="Choose" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                              <Button fx:id="chooseArduinoButton" mnemonicParsing="false" onAction="#onChooseArduino" prefHeight="25.0" prefWidth="92.0" text="%core.choose.button" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin></Button>
-                              <Button fx:id="chooseLibsButton" mnemonicParsing="false" onAction="#onChooseLibs" prefHeight="25.0" prefWidth="90.0" text="Choose" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                              <Button fx:id="chooseLibsButton" mnemonicParsing="false" onAction="#onChooseLibs" prefHeight="25.0" prefWidth="90.0" text="%core.choose.button" GridPane.columnIndex="2" GridPane.rowIndex="2">
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin></Button>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Code generator settings for new projects" wrappingWidth="493.1171875" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.codegen.new.projects" wrappingWidth="493.1171875" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
-                              <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="492.0" text="I am using Arduino IDE and have global libraries installed" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                              <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="491.0" text="Use fully qualified variable names for new projects" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="495.0" text="Output CPP and Headers into the src directory for new projects" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label prefHeight="20.0" prefWidth="492.0" styleClass="label-bright" text="Additional paths to search for plugins" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
+                              <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="492.0" text="%settings.using.arduino.ide" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                              <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="491.0" text="%settings.using.fully.qualified.vars" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                              <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="495.0" text="%settings.output.cpp.plugin.src" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                              <Label prefHeight="20.0" prefWidth="492.0" styleClass="label-bright" text="%settings.additional.plugin.path" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
@@ -85,26 +85,26 @@
                               <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="10" />
                               <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="87.0" text="Add">
+                                    <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="87.0" text="%core.add.button">
                                        <padding>
                                           <Insets left="3.0" />
                                        </padding>
                                     </Button>
-                                    <Button fx:id="removePathBtn" mnemonicParsing="false" onAction="#onRemoveSelectedPath" prefHeight="25.0" prefWidth="91.0" text="Remove" />
+                                    <Button fx:id="removePathBtn" mnemonicParsing="false" onAction="#onRemoveSelectedPath" prefHeight="25.0" prefWidth="91.0" text="%core.remove.button" />
                                  </children>
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin>
                               </VBox>
-                              <Label prefHeight="17.0" prefWidth="150.0" text="Sketch Search Depth:" GridPane.rowIndex="8" />
+                              <Label prefHeight="17.0" prefWidth="150.0" text="%settings.sketch.search.depth" GridPane.rowIndex="8" />
                               <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="493.0" text="EEPROM values stored with size to prevent loading back unsaved items for new projects" GridPane.columnSpan="3" GridPane.rowIndex="7" />
+                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="493.0" text="%settings.eeprom.save.sized.default" GridPane.columnSpan="3" GridPane.rowIndex="7" />
                               <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="Default locale to use" GridPane.columnSpan="2" GridPane.rowIndex="11" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <Label prefHeight="17.0" prefWidth="148.0" text="Language:" GridPane.rowIndex="12" />
+                              <Label prefHeight="17.0" prefWidth="148.0" text="%core.language" GridPane.rowIndex="12" />
                               <ComboBox fx:id="languageCombo" onAction="#onLanguageChange" prefHeight="25.0" prefWidth="348.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
                            </children>
                         </GridPane>
@@ -112,7 +112,7 @@
                   </AnchorPane>
             </content>
           </Tab>
-            <Tab text="Library Versions">
+            <Tab text="%settings.library.versions">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -120,16 +120,16 @@
                            <center>
                               <TableView fx:id="versionsTable" prefHeight="405.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
-                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="Library name" />
-                                  <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="Available" />
-                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="Actual" />
+                                  <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="%settings.library.name" />
+                                  <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="%settings.available.ver" />
+                                    <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="%settings.actual.ver" />
                                 </columns>
                               </TableView>
                            </center>
                            <top>
                               <HBox prefHeight="30.0" prefWidth="578.0" spacing="4.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Library and plugin stream" wrappingWidth="178.251953125">
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.plugin.stream" wrappingWidth="178.251953125">
                                        <HBox.margin>
                                           <Insets top="4.0" />
                                        </HBox.margin>
@@ -149,8 +149,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="Refresh Version List" />
-          <Button defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="Close" />
+            <Button mnemonicParsing="false" onAction="#onRefreshLibraries" text="%settings.refresh.libraries" />
+          <Button defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
         </buttons>
          <opaqueInsets>
             <Insets top="5.0" />
