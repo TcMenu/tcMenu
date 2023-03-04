@@ -50,12 +50,12 @@
 
         <Variable name="${DISPLAY_CONFIG}" type="U8g2GfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
 
-        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="true">
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="true" export="true">
             <Param ref="${DISPLAY_VARIABLE}"/>
             <Param ref="Wire"/>
         </Variable>
 
-        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="false">
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="false" export="true">
             <Param ref="${DISPLAY_VARIABLE}"/>
         </Variable>
 
