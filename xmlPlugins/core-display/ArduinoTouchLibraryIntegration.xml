@@ -1,4 +1,4 @@
-<TcMenuPlugin name="FT6206/XPT2046 touch screen plugin that provides integration with library"
+<TcMenuPlugin name="%touch.lib.name"
               id="406a3089-6bc6-491e-9e3b-2cc2ec20a3cb" subsystem="INPUT"
               requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -11,14 +11,14 @@
        <Platform>ARDUINO_ESP8266</Platform>
        <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
-    <Description>FT6206/XPT2046 touchscreen plugins that integrates with either Adafruit's FT6206 or Paul Stoffregen's XPT2046 library. Works with a wide range of touch screens.</Description>
+    <Description>%touch.lib.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ft6206-xt2046-touch-screen-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>resistive-touch.jpg</ImageFile>
 
     <Properties>
-        <Property id="TOUCH_LIBRARY" name="Touch Library (must be installed)" initial="Adafruit_FT6206" type="choice"
-                  desc="The touch library that supports the touch device, library must be installed">
+        <Property id="TOUCH_LIBRARY" name="%touch.lib.prop" initial="Adafruit_FT6206" type="choice"
+                  desc="%touch.lib.prop.desc">
             <Choices>
                 <Choice desc="FT6206 - AdaFruit">Adafruit_FT6206</Choice>
                 <Choice desc="XPT2046 - Paul Stoffregen">XPT2046_Touchscreen</Choice>
@@ -31,20 +31,19 @@
         <Property id="HARDWARE_TOUCH_ROTATION" name="Library Touch Rotation (0..3)" initial="0" type="int" min="0" max="3"
                   desc="The library level touch rotation as provided to setRotation - XPT only" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen"/>
 
-        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="LIB_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false"
-                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
-        <Property id="LIB_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"
-                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
-        <Property id="LIB_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"
-                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+        <Property id="ORIENTATION_SEPARATOR" name="%core.touch.orientation" initial="" desc="%core.touch.orientation.desc" type="separator"/>
+        <Property id="LIB_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  desc="%core.touch.swap.xy.desc" type="boolean" />
+        <Property id="LIB_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.x.inverted.desc"/>
+        <Property id="LIB_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.y.inverted.desc"/>
 
-
-        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TOUCH_SCREEN_CALIBRATE" name="Enable touch calibration" initial="true"
-                  desc="Enable the internal touch calibration, includes calibration UI" type="boolean" />
-        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
-                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TOUCH_SCREEN_CALIBRATE" isValue="true" />
+        <Property id="CALIB_SEPARATOR" name="%core.touch.calibration" initial="" desc="%core.touch.calibration.desc" type="separator"/>
+        <Property id="TOUCH_SCREEN_CALIBRATE" name="%core.enable.touch.calib" initial="true"
+                  desc="%core.enable.touch.calib.desc" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="%core.touch.calib.addr" initial="400" type="int"
+                  desc="%core.touch.calib.addr.desc"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
     </Properties>
 
     <ApplicabilityDefs/>

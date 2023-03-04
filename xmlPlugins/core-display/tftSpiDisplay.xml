@@ -14,36 +14,33 @@
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
     <Properties>
-        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Name of the variable we should create" type="variable" />
-        <Property id="DISPLAY_ROTATION" name="Rotation number" initial="2" desc="Rotation value between 0 and 3" type="int" min="0" max="3" />
-        <Property id="DOUBLE_BUFFER_ROWS" name="Maximum rows to double buffer" initial="0" desc="Menus are rendered one item at a time, the largest buffer height - 0=off" type="int" min="0" max="250" />
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.auto.desc" type="variable" />
+        <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="2" desc="%adafruit.display.rotation.desc" type="int" min="0" max="3" />
+        <Property id="DOUBLE_BUFFER_ROWS" name="%core.display.buffer.size" initial="0" desc="%core.display.buffer.size.desc" type="int" min="0" max="250" />
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="10" desc="core.screen.updates.sec.desc" type="int" min="1" max="30" />
 
-        <Property id="TOUCH_SEPARATOR" name="Optional Touch settings (DEV test)" initial="" desc="Optional Settings for BSP touch controller" type="separator"/>
-        <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="Touch screen required" initial="false" desc="Set to true to enable the touch screen support" type="boolean" />
-        <Property id="TOUCH_CALIB_WIDTH" name="Maximum width reported by touch function" type="int" min="1" max="65535" initial="240"
-                  desc="The maximum width that would be reported when calling the TFT_eSPI touch functions" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
-        <Property id="TOUCH_CALIB_HEIGHT" name="Maximum height reported by touch function" type="int" min="1" max="65535" initial="320"
-                  desc="The maximum height that would be reported when calling the TFT_eSPI touch functions" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
-        <Property id="TOUCH_USE_RAW_TFT_FUNCTION" name="Use the raw TFT function" initial="true" type="boolean"
-                  desc="Use the raw function call to acquire the uncalibrated value from TFTeSPI library"
-                  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
+        <Property id="TOUCH_SEPARATOR" name="%core.touch.separator" initial="" desc="%core.touch.separator.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="%core.touch.required" initial="false" desc="%core.touch.required.desc" type="boolean" />
+        <Property id="TOUCH_CALIB_WIDTH" name="%touch.tft.calib.width" type="int" min="1" max="65535" initial="240"
+                  desc="%touch.tft.calib.width.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Property id="TOUCH_CALIB_HEIGHT" name="%touch.tft.calib.height" type="int" min="1" max="65535" initial="320"
+                  desc="%touch.tft.calib.height.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Property id="TOUCH_USE_RAW_TFT_FUNCTION" name="%touch.tft.use.raw" initial="true" type="boolean"
+                  desc="%touch.tft.use.raw.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
 
-        <Property id="ORIENTATION_SEPARATOR" name="Touch Orientation (DEV test)" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TFT_TOUCH_SWAP_XY" name="Switch orientation from X,Y to Y,X" initial="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
-                  desc="Swaps over the orientation of the touch screen from X,Y to Y,X if needed" type="boolean" />
-        <Property id="TFT_TOUCH_X_INVERTED" name="Invert values in raw X dimension" initial="false"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="Invert the raw X plane on the touch screen (before applying orientation)"/>
-        <Property id="TFT_TOUCH_Y_INVERTED" name="Invert values in raw Y dimension" initial="false"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="Invert the raw Y plane on the touch screen (before applying orientation)"/>
+        <Property id="ORIENTATION_SEPARATOR" name="%core.touch.orientation" initial="" desc="%core.touch.orientation.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  desc="%core.touch.swap.xy.desc" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.x.inverted.desc"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.y.inverted.desc"/>
 
-
-        <Property id="CALIB_SEPARATOR" name="Optional Touch Calibration (DEV test)" initial="" desc="Optional Calibration Settings" type="separator"/>
-        <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="Enable IoAbstraction touch calibration" initial="true"
-                  desc="Enable the IoAbstraction internal touch calibration, includes calibration UI" type="boolean" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"  />
-        <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="Calibration EEPROM storage location" initial="400" type="int"
-                  desc="The location in EEPROM to start storing calibration data"  min="4" max="65535" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
-
+        <Property id="CALIB_SEPARATOR" name="%core.touch.calibration" initial="" desc="%core.touch.calibration.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="%core.enable.touch.calib" initial="true"
+                  desc="%core.enable.touch.calib.desc" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="%core.touch.calib.addr" initial="400" type="int"
+                  desc="%core.touch.calib.addr.desc"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
     </Properties>
 
     <ApplicabilityDefs>
