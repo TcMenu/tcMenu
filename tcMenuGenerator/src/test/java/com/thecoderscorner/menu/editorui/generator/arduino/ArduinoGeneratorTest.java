@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDe
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +96,7 @@ public class ArduinoGeneratorTest {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
 
         var standardOptions = new CodeGeneratorOptionsBuilder()
-                .withPlatform(ARDUINO32.getBoardId())
+                .withPlatform(ARDUINO32)
                 .withEepromDefinition(new AVREepromDefinition())
                 .withAuthenticationDefinition(new EepromAuthenticatorDefinition(100, 3))
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
@@ -111,7 +112,7 @@ public class ArduinoGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, new NoLocaleEnabledLocalHandler()));
 
         VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
         assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));

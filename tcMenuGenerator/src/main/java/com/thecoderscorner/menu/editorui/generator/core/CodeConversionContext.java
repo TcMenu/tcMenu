@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
@@ -14,6 +15,8 @@ import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyVali
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 
 /**
  * When code is being converted we need to know the context of the conversion, this context should contain all the
@@ -35,6 +38,11 @@ public class CodeConversionContext {
         properties.add(new CreatorProperty("NAMESPACE", "Namespace", "Namespace", options.getPackageNamespace(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         properties.add(new CreatorProperty("APP_NAME", "App name", "App name", options.getApplicationName(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         properties.add(new CreatorProperty("APP_UUID", "App ID", "App ID", options.getApplicationUUID().toString(), SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
+
+        // when using the generated folder option to separate generated code, sometimes an offset is needed to access non-generated files (always back one level)
+        ProjectSaveLocation sl = options.getSaveLocation();
+        var srcOffset = (sl == PROJECT_TO_SRC_WITH_GENERATED || sl == PROJECT_TO_CURRENT_WITH_GENERATED) ? "../" : "";
+        properties.add(new CreatorProperty("SRC_DIR_OFFSET", "Src Dir Offset", "Src Dir Offset", srcOffset, SubSystem.INPUT, CreatorProperty.PropType.TEXTUAL, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         this.properties = properties;
         this.platform = platform;
     }

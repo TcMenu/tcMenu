@@ -8,17 +8,18 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
-import com.thecoderscorner.menu.persist.VersionInfo;
+import com.thecoderscorner.menu.persist.*;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static picocli.CommandLine.Command;
 
 @Command(name="generate")
@@ -63,7 +65,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             loader.loadPlugins();
             var versionDetector = MenuEditorApp.createLibraryVersionDetector();
             platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(versionDetector, loader, prefsStore), prefsStore);
-            var embeddedPlatform = platforms.getEmbeddedPlatformFromId(project.getOptions().getEmbeddedPlatform());
+            var embeddedPlatform = project.getOptions().getEmbeddedPlatform();
             var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
 
             List<CodePluginItem> allPlugins = loader.getLoadedPlugins().stream()
@@ -91,7 +93,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             codeGen.setLoggerFunction((level, s) -> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
-            codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions());
+            codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(), getLocaleHandler(location));
             return 0;
         }
         catch (Exception ex) {
@@ -133,11 +135,22 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         // just in case we make a backup.
         Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile + ".last"), StandardCopyOption.REPLACE_EXISTING);
 
-        if(persistor == null) persistor = new FileBasedProjectPersistor();
+        if(persistor == null) persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
 
         var loadedProject = persistor.open(projectFile.getAbsolutePath());
         projectDescription = loadedProject.getDescription();
         return loadedProject;
+    }
+
+    public static LocaleMappingHandler getLocaleHandler(Path basePath) {
+        Path i18nDir = basePath.resolve(CurrentEditorProject.TCMENU_I18N_SRC_DIR);
+        if(Files.exists(i18nDir)) {
+            var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
+            if(Files.exists(rootProperties))
+            return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+        }
+
+        return new NoLocaleEnabledLocalHandler();
     }
 
     public static File locateProjectFile(File projectFile, boolean createIfNeeded) throws IOException {
@@ -163,7 +176,6 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         }
 
         if(!projectFile.exists()) {
-
             throw new IOException("Project file does not exist " + projectFile);
         }
 

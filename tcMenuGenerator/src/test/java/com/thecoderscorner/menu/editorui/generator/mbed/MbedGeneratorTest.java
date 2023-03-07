@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
@@ -23,6 +24,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,11 +105,11 @@ public class MbedGeneratorTest {
         );
 
         var options = new CodeGeneratorOptionsBuilder()
-                .withPlatform(MBED_RTOS.getBoardId()).withAppName("tester").withNewId(SERVER_UUID)
+                .withPlatform(MBED_RTOS).withAppName("tester").withNewId(SERVER_UUID)
                 .withEepromDefinition(new BspStm32EepromDefinition(50))
                 .withAuthenticationDefinition(new ReadOnlyAuthenticatorDefinition("1234", flashRemotes))
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
-                .withRecursiveNaming(true).withSaveToSrc(true)
+                .withRecursiveNaming(true).withSaveLocation(ProjectSaveLocation.ALL_TO_CURRENT)
                 .codeOptions();
 
         ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options);
@@ -119,7 +121,7 @@ public class MbedGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, new NoLocaleEnabledLocalHandler()));
 
         var sourceDir = projectDir.resolve("src");
 

@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.persist;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class NoLocaleEnabledLocalHandler implements LocaleMappingHandler {
     @Override
@@ -31,5 +32,15 @@ public class NoLocaleEnabledLocalHandler implements LocaleMappingHandler {
 
     @Override
     public void saveChanges() {
+    }
+
+    @Override
+    public Map<String, String> getUnderlyingMap() {
+        return Map.of();
+    }
+
+    @Override
+    public Locale getCurrentLocale() {
+        return new Locale("--");
     }
 }

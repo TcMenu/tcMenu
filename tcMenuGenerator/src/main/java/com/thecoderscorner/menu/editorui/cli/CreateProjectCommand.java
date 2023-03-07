@@ -24,6 +24,8 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static picocli.CommandLine.*;
@@ -129,12 +131,14 @@ public class CreateProjectCommand implements Callable<Integer> {
             throw new IllegalArgumentException("For Java platforms you must provide a package name");
         }
 
-        var persistor = new FileBasedProjectPersistor();
+        var persistor = new FileBasedProjectPersistor(platforms);
         var  tree = new MenuTree();
         var generator = new CodeGeneratorOptionsBuilder()
-                .withPlatform(platform.getBoardId())
+                .withPlatform(platform)
                 .withAppName(newProject).withNewId(UUID.randomUUID())
-                .withCppMain(cppMain).withSaveToSrc(saveToSrc).withRecursiveNaming(recursiveNaming)
+                .withCppMain(cppMain)
+                .withSaveLocation(saveToSrc ? PROJECT_TO_SRC_WITH_GENERATED : PROJECT_TO_CURRENT_WITH_GENERATED)
+                .withRecursiveNaming(recursiveNaming)
                 .withUseSizedEEPROMStorage(sizedRom)
                 .withPackageNamespace(packageOrNamespace)
                 .codeOptions();
@@ -154,12 +158,17 @@ public class CreateProjectCommand implements Callable<Integer> {
         logger.accept("Project created!");
     }
 
-    public void enableI18nSupport(Path location, List<Locale> locales, Consumer<String> logger) throws IOException {
+    public static void enableI18nSupport(Path location, List<Locale> locales, Consumer<String> logger) throws IOException {
         var i18n = location.resolve("i18n");
-        Files.createDirectory(i18n);
+        if(!Files.exists(i18n)) {
+            Files.createDirectory(i18n);
+            logger.accept("Created directory " + i18n);
+        } else {
+            logger.accept("Directory already exists " + i18n);
+        }
         SafeBundleLoader safeBundleLoader = new SafeBundleLoader(i18n, MENU_PROJECT_LANG_FILENAME);
         safeBundleLoader.saveChangesKeepingFormatting(MenuEditorApp.EMPTY_LOCALE, Map.of());
-        logger.accept("Created directory " + i18n + " and saved default file");
+        logger.accept("Saved default locale file");
         for(var locale : locales) {
             safeBundleLoader.saveChangesKeepingFormatting(locale, Map.of());
             logger.accept("Created locale file " + locale);

@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.core;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -26,10 +27,13 @@ public interface CodeGenerator {
      * @param directory the place to store the output files.
      * @param generators the list of generators to use, assumed to be in priority order
      * @param menuTree the tree of menu items to be represented
+     * @param prevPluginFiles the previous plugin files as a list of strings
+     * @param options the options from the current project
+     * @param handler the locale handler containing translations (could be the no-op handler)
      * @return true if conversion successful
      */
     boolean startConversion(Path directory, List<CodePluginItem> generators, MenuTree menuTree,
-                            List<String> previousPluginFiles, CodeGeneratorOptions options);
+                            List<String> prevPluginFiles, CodeGeneratorOptions options, LocaleMappingHandler handler);
 
     /**
      * Called before the conversion starts to set the logger to use for the rest of the conversion.

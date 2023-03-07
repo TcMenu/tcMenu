@@ -228,7 +228,7 @@ public class MenuEditorTestCases {
         // now we get hold of the sub menu and the items in the submenu
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
         MenuItem childItem = project.getMenuTree().getMenuById(2).orElseThrow();
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
 
         // change selection in the tree to the submenu and press the add item button
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
@@ -308,7 +308,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
 
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
         MenuItem subChildItem = project.getMenuTree().getMenuById(2).orElseThrow();
         recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem);
@@ -360,7 +360,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
         // select the item with ID 100 which is a submenu.
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
@@ -407,7 +407,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
         // select item 1, in the ROOT menu
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
         MenuItem item = project.getMenuTree().getMenuById(1).orElseThrow();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), item));
 
@@ -429,7 +429,7 @@ public class MenuEditorTestCases {
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
         // get hold of the tree and the sub menu item
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
 
         ArgumentCaptor<BiConsumer> captor = ArgumentCaptor.forClass(BiConsumer.class);
@@ -466,7 +466,7 @@ public class MenuEditorTestCases {
 
         openTheCompleteMenuTree(robot);
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
 
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
@@ -481,7 +481,7 @@ public class MenuEditorTestCases {
 
         openTheCompleteMenuTree(robot);
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
 
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), subItem));
 
@@ -507,15 +507,15 @@ public class MenuEditorTestCases {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         openTheCompleteMenuTree(robot);
 
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         var opts = project.getGeneratorOptions();
 
         testMainCheckboxState(robot, "#recursiveNamingCheck", () -> project.getGeneratorOptions().isNamingRecursive());
         testMainCheckboxState(robot, "#useCppMainCheck", () -> project.getGeneratorOptions().isUseCppMain());
-        when(editorProjectUI.questionYesNo(eq("Change source directory?"), any(String.class))).thenReturn(true);
-        testMainCheckboxState(robot, "#saveToSrcCheck", () -> project.getGeneratorOptions().isSaveToSrc());
+        /*when(editorProjectUI.questionYesNo(eq("Change source directory?"), any(String.class))).thenReturn(true);
+        testMainCheckboxState(robot, "#saveToSrcCheck", () -> project.getGeneratorOptions().getSaveLocation());*/
 
         FxAssert.verifyThat("#filenameField", TextInputControlMatchers.hasText(project.getFileName()));
         FxAssert.verifyThat("#appUuidLabel", TextInputControlMatchers.hasText(opts.getApplicationUUID().toString()));
@@ -568,9 +568,9 @@ public class MenuEditorTestCases {
      * @return true if the item was found.
      */
     @SuppressWarnings("Duplicates") // because the duplicate is not trivial to fix and factoring out looks worse.
-    private boolean recursiveSelectTreeItem(TreeView<MenuItem> treeView, TreeItem<MenuItem> treeItem, MenuItem subItem) throws Exception {
+    private boolean recursiveSelectTreeItem(TreeView<MenuEditorController.MenuItemWithDescription> treeView, TreeItem<MenuEditorController.MenuItemWithDescription> treeItem, MenuItem subItem) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
-        if(treeItem.getValue().equals(subItem)) {
+        if(treeItem.getValue().item().equals(subItem)) {
             Platform.runLater(()-> {
                 treeView.getSelectionModel().select(treeItem);
                 latch.countDown();
@@ -579,8 +579,8 @@ public class MenuEditorTestCases {
             return true;
         }
 
-        for (TreeItem<MenuItem> item : treeItem.getChildren()) {
-            if(item.getValue().equals(subItem)) {
+        for (TreeItem<MenuEditorController.MenuItemWithDescription> item : treeItem.getChildren()) {
+            if(item.getValue().item().equals(subItem)) {
                 Platform.runLater(()-> {
                     treeView.getSelectionModel().select(item);
                     latch.countDown();
@@ -588,7 +588,7 @@ public class MenuEditorTestCases {
                 if(!latch.await(1000, TimeUnit.MILLISECONDS))  throw new IllegalStateException("select problem");
                 return true;
             }
-            if(item.getValue().hasChildren()) {
+            if(item.getValue().item().hasChildren()) {
                 if(recursiveSelectTreeItem(treeView, item, subItem)) {
                     return true;
                 }
@@ -650,15 +650,15 @@ public class MenuEditorTestCases {
      */
     private void checkTheTreeMatchesMenuTree(FxRobot robot, MenuItem selected) {
         // First get the tree and make sure it has a ROOT menu item
-        TreeView<MenuItem> treeView = robot.lookup("#menuTree").query();
-        assertEquals(MenuTree.ROOT, treeView.getRoot().getValue());
+        TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
+        assertEquals(MenuTree.ROOT, treeView.getRoot().getValue().item());
 
-        assertEquals(selected, treeView.getSelectionModel().getSelectedItem().getValue());
+        assertEquals(selected, treeView.getSelectionModel().getSelectedItem().getValue().item());
 
         // now we check the top level entries.
         MenuTree menuTree = project.getMenuTree();
         List<MenuItem> childItems = treeView.getRoot().getChildren().stream()
-                .map(TreeItem::getValue)
+                .map(itm -> itm.getValue().item())
                 .collect(Collectors.toList());
         assertEquals(menuTree.getMenuItems(MenuTree.ROOT), childItems);
 
@@ -667,13 +667,13 @@ public class MenuEditorTestCases {
         menuTree.getMenuItems(MenuTree.ROOT).stream()
                 .filter(MenuItem::hasChildren)
                 .forEach(subMenu -> {
-                    Optional<TreeItem<MenuItem>> subTree =  treeView.getRoot().getChildren().stream()
-                            .filter(item -> item.getValue().getId() == subMenu.getId())
+                    Optional<TreeItem<MenuEditorController.MenuItemWithDescription>> subTree =  treeView.getRoot().getChildren().stream()
+                            .filter(item -> item.getValue().item().getId() == subMenu.getId())
                             .findFirst();
                     assertTrue(subTree.isPresent());
 
                     List<MenuItem> subChildTree = subTree.get().getChildren().stream()
-                            .map(TreeItem::getValue)
+                            .map(item -> item.getValue().item())
                             .collect(Collectors.toList());
 
                     assertEquals(menuTree.getMenuItems(subMenu), subChildTree);

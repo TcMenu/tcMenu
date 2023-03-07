@@ -25,11 +25,11 @@
 
     <SourceFiles>
         <Replacement find="CustomDrawableType" replace="${CLASS_NAME}Drawable" />
-        <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" />
+        <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" overwrite="false" />
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="CustomDisplayDrawable.h" inSource="cppSrc" />
+        <Header name="${SRC_DIR_OFFSET}CustomDisplayDrawable.h" inSource="cppSrc"/>
     </IncludeFiles>
 
     <GlobalVariables>

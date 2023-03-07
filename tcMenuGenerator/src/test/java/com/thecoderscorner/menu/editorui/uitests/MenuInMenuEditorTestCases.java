@@ -7,18 +7,15 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
 import com.thecoderscorner.menu.editorui.dialog.EditMenuInMenuDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.EnumWithStringValue;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.mgr.MenuInMenu;
-import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -36,11 +33,7 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.writeIntoField;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
-import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 @ExtendWith(ApplicationExtension.class)
 public class MenuInMenuEditorTestCases {
@@ -61,7 +54,7 @@ public class MenuInMenuEditorTestCases {
         menuInMenuColections.addDefinition(testDef2);
         this.stage = stage;
         this.options = new CodeGeneratorOptionsBuilder()
-                .withPlatform(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId())
+                .withPlatform(EmbeddedPlatform.RASPBERRY_PIJ)
                 .withMenuInMenu(menuInMenuColections)
                 .codeOptions();
         tree = buildSimpleTreeReadOnly();

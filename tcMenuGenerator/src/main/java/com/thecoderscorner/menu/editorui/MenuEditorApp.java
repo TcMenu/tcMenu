@@ -100,7 +100,7 @@ public class MenuEditorApp extends Application {
         var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
         var editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer, prefsStore, libraryVersionDetector, homeDirectory, designerBundle);
 
-        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
+        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(platforms);
 
         CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor, prefsStore);
         editorUI.setEditorProject(project);

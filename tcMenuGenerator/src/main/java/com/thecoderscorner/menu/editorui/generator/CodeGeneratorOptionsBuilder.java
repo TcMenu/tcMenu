@@ -14,13 +14,14 @@ import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuCollecti
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+
 import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.NO_CREATOR_SELECTED;
 
 public class CodeGeneratorOptionsBuilder {
-    private String embeddedPlatform = EmbeddedPlatform.ARDUINO32.getBoardId();
+    private EmbeddedPlatform embeddedPlatform = EmbeddedPlatform.ARDUINO32;
     private String lastDisplayUuid = NO_CREATOR_SELECTED;
     private String lastInputUuid = NO_CREATOR_SELECTED;
     private List<String> lastRemoteUuids = List.of(NO_CREATOR_SELECTED);
@@ -30,9 +31,9 @@ public class CodeGeneratorOptionsBuilder {
     private String packageNamespace = "";
     private List<CreatorProperty> lastProperties = List.of();
     private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
+    private ProjectSaveLocation saveLocation = ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
     private boolean namingRecursive = false;
     private boolean appIsModular = false;
-    private boolean saveToSrc = false;
     private boolean useCppMain = false;
     private boolean sizeBasedEEPROM = true;
     private EepromDefinition eepromDef = new NoEepromDefinition();
@@ -49,7 +50,7 @@ public class CodeGeneratorOptionsBuilder {
         applicationName = other.getApplicationName();
         lastProperties = other.getLastProperties();
         namingRecursive = other.isNamingRecursive();
-        saveToSrc = other.isSaveToSrc();
+        saveLocation = other.getSaveLocation();
         useCppMain = other.isUseCppMain();
         eepromDef = other.getEepromDefinition();
         authDef = other.getAuthenticatorDefinition();
@@ -64,7 +65,7 @@ public class CodeGeneratorOptionsBuilder {
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
-                menuInMenuDefinitions, appIsModular, namingRecursive, saveToSrc, useCppMain, sizeBasedEEPROM);
+                menuInMenuDefinitions, saveLocation, appIsModular, namingRecursive, useCppMain, sizeBasedEEPROM);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -72,8 +73,8 @@ public class CodeGeneratorOptionsBuilder {
         return this;
     }
 
-    public CodeGeneratorOptionsBuilder withSaveToSrc(Boolean saveSrc) {
-        saveToSrc = saveSrc;
+    public CodeGeneratorOptionsBuilder withSaveLocation(ProjectSaveLocation save) {
+        saveLocation = save;
         return this;
     }
 
@@ -107,7 +108,7 @@ public class CodeGeneratorOptionsBuilder {
         return this;
     }
 
-    public CodeGeneratorOptionsBuilder withPlatform(String boardId) {
+    public CodeGeneratorOptionsBuilder withPlatform(EmbeddedPlatform boardId) {
         this.embeddedPlatform = boardId;
         return this;
     }

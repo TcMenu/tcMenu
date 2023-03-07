@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class ModuleFilePatcherTest {
@@ -28,7 +27,7 @@ class ModuleFilePatcherTest {
     public void setupDirectories() throws IOException {
         tempDir = Files.createTempDirectory(getClass().getSimpleName());
         options = new CodeGeneratorOptionsBuilder().withAppName("Hello App").
-                withPlatform(EmbeddedPlatform.RASPBERRY_PIJ.getBoardId())
+                withPlatform(EmbeddedPlatform.RASPBERRY_PIJ)
                 .withPackageNamespace("com.thecoderscorner.test").codeOptions();
         storage = mock(ConfigurationStorage.class);
         project = new EmbeddedJavaProject(tempDir, options, storage, (level, s) -> {});

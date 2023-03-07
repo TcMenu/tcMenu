@@ -9,9 +9,11 @@ import com.thecoderscorner.menu.editorui.generator.core.*;
 import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,7 +52,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
     @Override
     public boolean startConversion(Path directory, List<CodePluginItem> plugins, MenuTree menuTree,
-                                   List<String> previousPluginFiles, CodeGeneratorOptions options) {
+                                   List<String> previousPluginFiles, CodeGeneratorOptions options,
+                                   LocaleMappingHandler handler) {
         try {
             logLine(INFO,"Starting conversion, Embedded Java to directory " + directory);
             allPlugins = plugins;
@@ -82,7 +85,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             }
 
             var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
-            fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), javaProject.getProjectRoot(), previousPluginFiles);
+            fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), javaProject.getProjectRoot(),
+                    options.getSaveLocation(), previousPluginFiles);
 
             logLine(INFO, "Checking if all dependencies are in the maven POM");
             allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
@@ -357,7 +361,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
 
     private void generateMenuDefinitionsClass(MenuTree menuTree, CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {
         logLine(INFO, "Building the menu definitions class");
-        var copyTextGenerator = new FileBasedProjectPersistor();
+        var copyTextGenerator = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
         var menusAsText = variableAsJavaString(copyTextGenerator.itemsToCopyText(MenuTree.ROOT, menuTree));
         var builder = javaProject.classBuilder("Menu")
                 .addPackageImport("com.thecoderscorner.menu.domain.*")

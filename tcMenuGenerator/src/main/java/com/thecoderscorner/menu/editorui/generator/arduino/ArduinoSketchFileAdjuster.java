@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
@@ -24,10 +25,10 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.isRuntimeStructureNeeded;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.INFO;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -65,12 +66,12 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     public Path createFileIfNeeded(BiConsumer<System.Logger.Level, String> logger, Path dir, CodeGeneratorOptions projectOptions) throws IOException {
         Path inoFile;
         this.logger = logger;
-        var path = options.isSaveToSrc() ? dir.resolve("src") : dir;
+        var path = isSavingToSrcDir() ? dir.resolve("src") : dir;
         if(options.isUseCppMain()) {
             inoFile = getCppMainPath(path);
         }
         else {
-            inoFile = Paths.get(CoreCodeGenerator.toSourceFile(path, ".ino"));
+            inoFile = Paths.get(CoreCodeGenerator.toSourceFile(path, ".ino", false));
         }
 
         if(Files.exists(inoFile)) return inoFile;
@@ -82,8 +83,12 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         return inoFile;
     }
 
+    private boolean isSavingToSrcDir() {
+        return options.getSaveLocation() == ALL_TO_SRC || options.getSaveLocation() == PROJECT_TO_SRC_WITH_GENERATED;
+    }
+
     protected Path getCppMainPath(Path path) {
-        return Paths.get(CoreCodeGenerator.toSourceFile(path, "_main.cpp"));
+        return Paths.get(CoreCodeGenerator.toSourceFile(path, "_main.cpp", false));
     }
 
     public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
@@ -121,7 +126,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         }
 
         ArrayList<String> lines = new ArrayList<>(Files.readAllLines(source));
-        if(needsInclude) addIncludeToTopOfFile(lines, projectName);
+        if(needsInclude) addIncludeToTopOfFile(lines, projectName, options.getSaveLocation());
         if(needsSetup) addSetupCode(lines, SETUP_PATTERN, "    setupMenu();");
         if(needsTaskMgr) taskManagerIsMissing(lines);
         List<CallbackRequirement> callbacksToMake = new ArrayList<>(callbacks);
@@ -236,8 +241,12 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         }
     }
 
-    protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName) {
-        lines.add(0, "#include \"" + projectName + "_menu.h\"");
+    protected void addIncludeToTopOfFile(ArrayList<String> lines, String projectName, ProjectSaveLocation location) {
+        String loc = "";
+        if(location == PROJECT_TO_SRC_WITH_GENERATED || location == PROJECT_TO_CURRENT_WITH_GENERATED) {
+            loc = "generated/";
+        }
+        lines.add(0,  "#include \"" + loc + projectName + "_menu.h\"");
         changed = true;
     }
 }

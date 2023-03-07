@@ -67,7 +67,8 @@ public class TextFieldEditHandler implements FieldEditHandler {
 
     @Override
     public String getValueAsString() {
-        return MenuItemFormatter.formatToWire(item, textField.getText());
+        var fmt = new MenuItemFormatter();
+        return fmt.formatToWire(item, textField.getText());
     }
 
     @Override

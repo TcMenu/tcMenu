@@ -11,12 +11,13 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 
 import java.util.List;
 import java.util.UUID;
 
 public class CodeGeneratorOptions {
-    private String embeddedPlatform;
+    private EmbeddedPlatform embeddedPlatform;
     private String lastDisplayUuid;
     private String lastInputUuid;
     private String lastRemoteUuid;
@@ -26,7 +27,7 @@ public class CodeGeneratorOptions {
     private String applicationName;
     private List<CreatorProperty> lastProperties;
     private boolean namingRecursive;
-    private boolean saveToSrc;
+    private ProjectSaveLocation saveLocation;
     private boolean useCppMain;
     private boolean usingSizedEEPROMStorage;
     private EepromDefinition eepromDefinition;
@@ -41,13 +42,13 @@ public class CodeGeneratorOptions {
         // for serialisation
     }
 
-    public CodeGeneratorOptions(String embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
+    public CodeGeneratorOptions(EmbeddedPlatform embeddedPlatform, String displayTypeId, String inputTypeId, List<String> remoteCapabilities,
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName, String packageNamespace,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
-                                MenuInMenuCollection menuInMenuCollection, boolean appIsModular,
-                                boolean namingRecursive, boolean saveToSrc, boolean useCppMain, boolean sizeBasedRom) {
+                                MenuInMenuCollection menuInMenuCollection, ProjectSaveLocation saveLocation,
+                                boolean appIsModular, boolean namingRecursive, boolean useCppMain, boolean sizeBasedRom) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
@@ -64,7 +65,7 @@ public class CodeGeneratorOptions {
         this.packageNamespace = packageNamespace;
         this.namingRecursive = namingRecursive;
         this.appIsModular = appIsModular;
-        this.saveToSrc = saveToSrc;
+        this.saveLocation = saveLocation;
         this.useCppMain = useCppMain || embeddedPlatform.equals("MBED_RTOS");
         this.usingSizedEEPROMStorage = sizeBasedRom;
         this.eepromDefinition = eepromDef;
@@ -92,7 +93,7 @@ public class CodeGeneratorOptions {
         return applicationUUID;
     }
 
-    public String getEmbeddedPlatform() {
+    public EmbeddedPlatform getEmbeddedPlatform() {
         return embeddedPlatform;
     }
 
@@ -121,8 +122,8 @@ public class CodeGeneratorOptions {
         return namingRecursive;
     }
 
-    public boolean isSaveToSrc() {
-        return saveToSrc;
+    public ProjectSaveLocation getSaveLocation() {
+        return saveLocation;
     }
 
     public boolean isUseCppMain() {

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -18,6 +19,7 @@ import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -67,7 +69,7 @@ public class AppInformationPanel {
     private VBox libraryInfoVBox;
     private TextField appUuidLabel;
     private CheckBox recursiveNamingCheck;
-    private CheckBox saveToSrcCheck;
+    private ComboBox<ProjectSaveLocation> saveToSrcCombo;
     private CheckBox useCppMainCheck;
     private CheckBox useSizedEepromStorage;
     private TextField appNameTextField;
@@ -112,12 +114,11 @@ public class AppInformationPanel {
         platformCombo.setId("platformCombo");
         platformCombo.setMaxWidth(999);
         gridPane.add(platformCombo, 1, row, 2, 1);
-        editorUI.getEmbeddedPlatforms().stream().filter(p -> p.getBoardId().equals(options.getEmbeddedPlatform()))
-                .findFirst().ifPresent(env -> platformCombo.getSelectionModel().select(env));
+        platformCombo.getSelectionModel().select(options.getEmbeddedPlatform());
         platformCombo.setOnAction(event -> {
             controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                     .withExisting(options)
-                    .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                    .withPlatform(platformCombo.getSelectionModel().getSelectedItem())
                     .codeOptions());
             useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
             useSizedEepromStorage.setDisable(platforms.isJava(platformCombo.getValue()));
@@ -170,6 +171,15 @@ public class AppInformationPanel {
         gridPane.add(appDescTextArea, 1, row, 2, 1);
         ++row;
 
+        gridPane.add(new Label(bundle.getString("app.info.save.gen.loc")), 0, row);
+        saveToSrcCombo = new ComboBox<>();
+        saveToSrcCombo.setId("saveToSrcCbx");
+        saveToSrcCombo.setItems(FXCollections.observableArrayList(ProjectSaveLocation.values()));
+        saveToSrcCombo.getSelectionModel().select(options.getSaveLocation());
+        saveToSrcCombo.setMaxWidth(999);
+        saveToSrcCombo.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
+        gridPane.add(saveToSrcCombo, 1, row++, 2, 1);
+
         recursiveNamingCheck = new CheckBox(bundle.getString("app.info.check.use.recursive.naming"));
         recursiveNamingCheck.setId("recursiveNamingCheck");
         recursiveNamingCheck.setSelected(options.isNamingRecursive());
@@ -178,12 +188,6 @@ public class AppInformationPanel {
                 .withRecursiveNaming(recursiveNamingCheck.isSelected())
                 .codeOptions()));
         gridPane.add(recursiveNamingCheck, 1, row++, 2, 1);
-
-        saveToSrcCheck = new CheckBox(bundle.getString("app.info.check.save.to.src.dir"));
-        saveToSrcCheck.setId("saveToSrcCheck");
-        saveToSrcCheck.setSelected(options.isSaveToSrc());
-        saveToSrcCheck.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
-        gridPane.add(saveToSrcCheck, 1, row++, 2, 1);
 
         useCppMainCheck = new CheckBox(bundle.getString("app.info.check.use.cpp.main"));
         useCppMainCheck.setId("useCppMainCheck");
@@ -339,19 +343,26 @@ public class AppInformationPanel {
     private void saveToSrcPressed() {
         if(saveToSrcRecurseProtect.get()) return;
 
-        var location = Paths.get(controller.getProject().getFileName()).toFile().getParentFile().toPath();
-        if(saveToSrcCheck.isSelected()) location = location.resolve("src");
-
-        if(editorUI.questionYesNo(bundle.getString("app.info.change.src.dir.header"),
-                bundle.getString("app.info.change.src.dir.message") + " " + location)) {
+        // when the project is new (never saved), we are safe to change the save location type.
+        if(!controller.getProject().isFileNameSet()) {
             controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                     .withExisting(controller.getProject().getGeneratorOptions())
-                    .withSaveToSrc(saveToSrcCheck.isSelected())
+                    .withSaveLocation(saveToSrcCombo.getSelectionModel().getSelectedItem())
+                    .codeOptions());
+            return;
+        }
+
+        var location = Paths.get(controller.getProject().getFileName()).toFile().getParentFile().toPath();
+
+        var isNotSameAsCurrent = controller.getProject().getGeneratorOptions().getSaveLocation() != saveToSrcCombo.getSelectionModel().getSelectedItem();
+        if(isNotSameAsCurrent && editorUI.questionYesNo(bundle.getString("app.info.change.src.dir.header"),
+                bundle.getString("app.info.change.src.dir.message") + " - " + location)) {
+            controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+                    .withExisting(controller.getProject().getGeneratorOptions())
+                    .withSaveLocation(saveToSrcCombo.getSelectionModel().getSelectedItem())
                     .codeOptions());
         } else {
-            saveToSrcRecurseProtect.set(true);
-            saveToSrcCheck.setSelected(controller.getProject().getGeneratorOptions().isSaveToSrc());
-            saveToSrcRecurseProtect.set(false);
+            saveToSrcCombo.getSelectionModel().select(controller.getProject().getGeneratorOptions().getSaveLocation());
         }
     }
 }

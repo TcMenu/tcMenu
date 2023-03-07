@@ -71,6 +71,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
 
     @Override
     public EmbeddedPlatform getEmbeddedPlatformFromId(String id) {
+        // safe for any situation.
+        if(id == null) return ARDUINO_AVR;
+
         // at least attempt to handle the newer definitions on the line below from the new C# UI.
         if(id.equals(ARDUINO_AVR.getBoardId()) || id.equals("ARDUINO_UNO") || id.equals("ARDUINO_AVR")) {
             return ARDUINO_AVR;

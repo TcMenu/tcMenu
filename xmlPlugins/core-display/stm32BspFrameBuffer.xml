@@ -43,13 +43,14 @@
     </ApplicabilityDefs>
     <SourceFiles>
         <Replacement find="define TC_BSP_TOUCH_DEVICE_PRESENT true" replace="define TC_BSP_TOUCH_DEVICE_PRESENT ${TOUCH_SCREEN_REQUIRED}"/>
-        <SourceFile name="mbedStm32Bsp/BspUserSettings.h" overwrite="never"/>
+        <Replacement find="BspUserSettings\\.h" replace="${SRC_DIR_OFFSET}BspUserSettings.h"/>
+        <SourceFile name="mbedStm32Bsp/BspUserSettings.h" overwrite="false"/>
         <SourceFile name="mbedStm32Bsp/tcMenuStChromaArt.h" />
         <SourceFile name="mbedStm32Bsp/tcMenuStChromaArt.cpp" />
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="BspUserSettings.h" inSource="true"/>
+        <Header name="${SRC_DIR_OFFSET}BspUserSettings.h" inSource="true"/>
         <Header name="tcMenuStChromaArt.h" inSource="true"/>
         <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false"/>
         <Header name="extras/DrawableTouchCalibrator.h" inSource="false" applicabilityRef="touchCalibrationNeeded"/>

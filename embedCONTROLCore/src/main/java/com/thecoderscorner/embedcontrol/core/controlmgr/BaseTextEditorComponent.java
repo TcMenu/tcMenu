@@ -3,7 +3,6 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
 
 /**
  * Provide the base capabilities that are needed for text editing, regardless of the UI technology used.
@@ -21,7 +20,8 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
         if (status == RenderingStatus.EDIT_IN_PROGRESS) return;
 
         try {
-            var toSend = MenuItemFormatter.formatToWire(item, text);
+            MenuItemFormatter fmt = new MenuItemFormatter();
+            var toSend = fmt.formatToWire(item, text);
             var correlation =  componentControl.editorUpdatedItem(item, toSend);
             editStarted(correlation);
         } catch (Exception ex) {
@@ -43,9 +43,10 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
 
     @Override
     public String getControlText() {
+        var fmt = new MenuItemFormatter();
         String str = "";
         if (controlTextIncludesName())  str = item.getName() + " ";
-        if (controlTextIncludesValue()) str += MenuItemFormatter.formatForDisplay(item, currentVal);
+        if (controlTextIncludesValue()) str += fmt.formatForDisplay(item, currentVal);
         return str;
     }
 

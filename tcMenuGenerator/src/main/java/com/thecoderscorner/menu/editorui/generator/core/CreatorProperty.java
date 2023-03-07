@@ -46,6 +46,17 @@ public class CreatorProperty {
         this.applicability = new AlwaysApplicable();
     }
 
+    public CreatorProperty(String name, String latestValue, SubSystem subsystem) {
+        // for reading back purposes.
+        this.name = name;
+        this.latestValue = latestValue;
+        this.subsystem = subsystem;
+        this.initialValue = null;
+        this.description = null;
+        this.extendedDescription = null;
+        this.applicability = new AlwaysApplicable();
+    }
+
     /**
      * Create a property setting all the fields upfront.
      * @param name the name of the property usually prefer uppercase with underscores in-between words

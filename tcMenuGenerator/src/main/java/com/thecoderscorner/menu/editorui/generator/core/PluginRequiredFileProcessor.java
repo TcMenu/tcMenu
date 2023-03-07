@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
@@ -11,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
 import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -33,7 +35,8 @@ public class PluginRequiredFileProcessor {
         this.uiLogger = uiLogger;
     }
 
-    public void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory, Path projectHome, List<String> previousPluginFiles) throws TcMenuConversionException {
+    public void dealWithRequiredPlugins(List<CodePluginItem> generators, Path directory, Path projectHome, ProjectSaveLocation psl,
+                                        List<String> previousPluginFiles) throws TcMenuConversionException {
         uiLogger.accept(INFO, "Checking if any plugin files need removal because of plugin changes");
 
         var newPluginFileSet = generators.stream()
@@ -60,11 +63,12 @@ public class PluginRequiredFileProcessor {
         uiLogger.accept(INFO, "Adding all files required by selected plugins");
 
         for (var gen : generators) {
-            generatePluginsForCreator(gen, directory, projectHome);
+            generatePluginsForCreator(gen, directory, projectHome, psl);
         }
     }
 
-    protected void generatePluginsForCreator(CodePluginItem item, Path directory, Path projectHome) throws TcMenuConversionException {
+    protected void generatePluginsForCreator(CodePluginItem item, Path directory, Path projectHome,
+                                             ProjectSaveLocation psl) throws TcMenuConversionException {
         var expando = new CodeParameter(CodeParameter.NO_TYPE, null, true, "");
         var filteredSourceFiles = item.getRequiredSourceFiles().stream()
                 .filter(sf -> sf.getApplicability().isApplicable(context.getProperties())).toList();
@@ -83,8 +87,11 @@ public class PluginRequiredFileProcessor {
                     throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
                 }
 
-                Path resolvedOutputFile = directory.resolve(fileNamePart);
-
+                Path resolvedOutputFile = directory;
+                if(isGeneratedDirOn(psl) && srcFile.isOverwritable()) {
+                    resolvedOutputFile = resolvedOutputFile.resolve("generated");
+                }
+                resolvedOutputFile = resolvedOutputFile.resolve(fileNamePart);
                 if(!srcFile.isOverwritable() && Files.exists(resolvedOutputFile)) {
                     uiLogger.accept(WARNING, "Source file " + srcFile.getFileName() + " already exists and overwrite is false, skipping");
                 } else if(srcFile instanceof RequiredZipFile zipFile) {
@@ -124,6 +131,10 @@ public class PluginRequiredFileProcessor {
                 throw new TcMenuConversionException("Unexpected exception processing " + srcFile, e);
             }
         }
+    }
+
+    private boolean isGeneratedDirOn(ProjectSaveLocation psl) {
+        return psl == PROJECT_TO_CURRENT_WITH_GENERATED || psl == PROJECT_TO_SRC_WITH_GENERATED;
     }
 
 }

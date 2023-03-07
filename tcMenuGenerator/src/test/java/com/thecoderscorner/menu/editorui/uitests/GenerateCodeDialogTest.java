@@ -108,7 +108,8 @@ public class GenerateCodeDialogTest {
         var projectFile = prjDir.resolve("myProject.emf");
         var prj = Objects.requireNonNull(GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf")).readAllBytes();
         Files.write(projectFile, prj);
-        var project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor(), mock(ConfigurationStorage.class));
+        var project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl()),
+                mock(ConfigurationStorage.class));
         project.openProject(projectFile.toString());
         return project;
     }

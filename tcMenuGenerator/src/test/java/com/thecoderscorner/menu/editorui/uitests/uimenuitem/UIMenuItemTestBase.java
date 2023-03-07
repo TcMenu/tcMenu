@@ -18,6 +18,7 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 import static com.thecoderscorner.menu.editorui.MenuEditorApp.EMPTY_LOCALE;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,7 +99,7 @@ public abstract class UIMenuItemTestBase {
     }
 
     protected void performAllCommonChecks(MenuItem item, boolean hasEepromField, boolean hasFunctionField) {
-        verifyThat("#idField", Node::isDisabled);
+        verifyThat("#idField", Predicate.not(TextField::isEditable));
         verifyThat("#idField", TextInputControlMatchers.hasText(Integer.toString(item.getId())));
         if(hasEepromField) verifyThat("#eepromField", TextInputControlMatchers.hasText(Integer.toString(item.getEepromAddress())));
         verifyThat("#nameField", TextInputControlMatchers.hasText(item.getName()));
@@ -116,7 +118,7 @@ public abstract class UIMenuItemTestBase {
         Platform.runLater(() -> {
             BorderPane borderLayout = new BorderPane();
             borderLayout.setMinSize(500, 500);
-            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree));
+            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree, new NoLocaleEnabledLocalHandler()));
             dialogPane.getChildren().add(borderLayout);
             stage.show();
             latch.countDown();

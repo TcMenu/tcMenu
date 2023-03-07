@@ -11,17 +11,17 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.text.Text;
 import org.testfx.api.FxRobot;
 import org.testfx.matcher.base.NodeMatchers;
-import org.testfx.matcher.control.TableViewMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
@@ -37,14 +37,13 @@ import java.util.stream.Collectors;
 import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.testfx.api.FxAssert.verifyThat;
 
 
 public class TestUtils {
 
     public static MenuTree buildTreeFromJson(String json) {
-        var persistor = new FileBasedProjectPersistor();
+        var persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
         var listOfItems = persistor.copyTextToItems(json);
         if(listOfItems.isEmpty()) throw new IllegalArgumentException("Structure created empty list of items");
         MenuTree tree = new MenuTree();

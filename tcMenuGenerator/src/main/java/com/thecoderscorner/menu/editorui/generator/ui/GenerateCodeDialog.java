@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
-import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -105,7 +104,7 @@ public class GenerateCodeDialog {
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         var allItems = project.getMenuTree().getAllMenuItems();
 
-        reloadAllPlugins(platforms.getEmbeddedPlatformFromId(genOptions.getEmbeddedPlatform()));
+        reloadAllPlugins(genOptions.getEmbeddedPlatform());
         CodePluginItem itemInput = findItemByUuidOrDefault(inputsSupported, genOptions.getLastInputUuid(), Optional.empty());
         CodePluginItem itemDisplay = findItemByUuidOrDefault(displaysSupported, genOptions.getLastDisplayUuid(), Optional.empty());
         CodePluginItem itemTheme = findItemByUuidOrDefault(themesSupported, genOptions.getLastThemeUuid(), Optional.of(DEFAULT_THEME_ID));
@@ -247,7 +246,7 @@ public class GenerateCodeDialog {
 
         platformCombo = new ComboBox<>(observableArrayList(platforms.getEmbeddedPlatforms()));
         embeddedPane.add(platformCombo, 1, 0, 2, 1);
-        EmbeddedPlatform platform = getLastEmbeddedPlatform();
+        EmbeddedPlatform platform = project.getGeneratorOptions().getEmbeddedPlatform();
         platformCombo.getSelectionModel().select(platform);
         platformCombo.setId("platformCombo");
         platformCombo.getSelectionModel().selectedItemProperty().addListener(
@@ -321,22 +320,6 @@ public class GenerateCodeDialog {
                     .withEepromDefinition(newRom)
                     .codeOptions());
         });
-    }
-
-    private EmbeddedPlatform getLastEmbeddedPlatform() {
-        var platform = EmbeddedPlatform.ARDUINO_AVR;
-        String lastPlatform = project.getGeneratorOptions().getEmbeddedPlatform();
-        try {
-            platform = platforms.getEmbeddedPlatformFromId(lastPlatform);
-        }
-        catch (Exception e) {
-            logger.log(ERROR, "Chosen platform could not be loaded back." + lastPlatform, e);
-            editorUI.alertOnError(
-                    "Platform changed",
-                    "The platform " + lastPlatform + "is no longer available, defaulting to AVR"
-            );
-        }
-        return platform;
     }
 
     private void refreshPluginContents(EmbeddedPlatform newPlatform, UICodePluginItem pluginItem, List<CodePluginItem> items) {
@@ -497,7 +480,7 @@ public class GenerateCodeDialog {
         String themeId = currentTheme != null ? currentTheme.getItem().getId() : "";
         var opts = project.getGeneratorOptions();
         project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(opts)
-                .withPlatform(platformCombo.getSelectionModel().getSelectedItem().getBoardId())
+                .withPlatform(platformCombo.getSelectionModel().getSelectedItem())
                 .withDisplay(currentDisplay.getItem().getId())
                 .withInput(currentInput.getItem().getId())
                 .withRemotes(currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()))

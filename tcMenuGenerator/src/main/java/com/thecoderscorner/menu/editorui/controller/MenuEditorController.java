@@ -20,6 +20,7 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
@@ -43,10 +44,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +82,7 @@ public class MenuEditorController {
     public Menu examplesMenu;
     public TextArea prototypeTextArea;
     public BorderPane rootPane;
-    public TreeView<MenuItem> menuTree;
+    public TreeView<MenuItemWithDescription> menuTree;
     public Button menuTreeAdd;
     public Button menuTreeRemove;
     public Button menuTreeCopy;
@@ -135,7 +133,7 @@ public class MenuEditorController {
 
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
-                onTreeChangeSelection(newItem.getValue());
+                onTreeChangeSelection(newItem.getValue().item());
             }
         });
 
@@ -241,11 +239,21 @@ public class MenuEditorController {
     }
 
     private void onEditorChange(MenuItem original, MenuItem changed) {
-        if (!original.equals(changed)) {
-            menuTree.getSelectionModel().getSelectedItem().setValue(changed);
+        TreeItem<MenuItemWithDescription> selectedItem = menuTree.getSelectionModel().getSelectedItem();
+        if (!original.equals(changed) || localeIsDifferent(changed, selectedItem)) {
+            selectedItem.setValue(new MenuItemWithDescription(changed));
             editorProject.applyCommand(Command.EDIT, changed);
             redrawPrototype();
         }
+    }
+
+    private boolean localeIsDifferent(MenuItem changed, TreeItem<MenuItemWithDescription> selItem) {
+        LocaleMappingHandler lh = editorProject.getLocaleHandler();
+        if(changed.getName().startsWith("%") && lh.isLocalSupportEnabled()) {
+            var newText = lh.getFromLocaleWithDefault(changed.getName(), changed.getName());
+            return (!newText.equals(selItem.getValue().desc()));
+        }
+        return false;
     }
 
     public void presentInfoPanel() {
@@ -270,7 +278,7 @@ public class MenuEditorController {
 
         editorUI.createPanelForMenuItem(newValue, editorProject.getMenuTree(), gen, this::onEditorChange)
                 .ifPresentOrElse((uiMenuItem) -> {
-                    ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel(editorProject.getMenuTree()));
+                    ScrollPane scrollPane = new ScrollPane(uiMenuItem.initPanel(editorProject.getMenuTree(), editorProject.getLocaleHandler()));
                     scrollPane.setFitToWidth(true);
                     scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
                     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -300,13 +308,13 @@ public class MenuEditorController {
     }
 
     private void redrawTreeControl() {
-        TreeItem<MenuItem> selectedItem = menuTree.getSelectionModel().getSelectedItem();
+        TreeItem<MenuItemWithDescription> selectedItem = menuTree.getSelectionModel().getSelectedItem();
         int sel = MenuTree.ROOT.getId();
         if (selectedItem != null && selectedItem.getValue() != null) {
-            sel = selectedItem.getValue().getId();
+            sel = selectedItem.getValue().item().getId();
         }
 
-        TreeItem<MenuItem> rootItem = new TreeItem<>(MenuTree.ROOT);
+        TreeItem<MenuItemWithDescription> rootItem = new TreeItem<>(new MenuItemWithDescription(MenuTree.ROOT));
         rootItem.setExpanded(true);
 
         SubMenuItem root = MenuTree.ROOT;
@@ -319,10 +327,10 @@ public class MenuEditorController {
         selectChildInTreeById(rootItem, sel);
     }
 
-    private void selectChildInTreeById(TreeItem<MenuItem> item, int id) {
+    private void selectChildInTreeById(TreeItem<MenuItemWithDescription> item, int id) {
         // if we had a selection before the rebuild, honour it
-        for (TreeItem<MenuItem> child : item.getChildren()) {
-            if (child.getValue().getId() == id) {
+        for (TreeItem<MenuItemWithDescription> child : item.getChildren()) {
+            if (child.getValue().item().getId() == id) {
                 menuTree.getSelectionModel().select(child);
                 return;
             } else if (!child.getChildren().isEmpty()) {
@@ -335,11 +343,11 @@ public class MenuEditorController {
         prototypeTextArea.setText(new TextTreeItemRenderer(editorProject.getMenuTree()).getTreeAsText());
     }
 
-    private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItem> treeItem) {
+    private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItemWithDescription> treeItem) {
         if (menuItems == null) return;
 
         for (MenuItem item : menuItems) {
-            TreeItem<MenuItem> child = new TreeItem<>(item);
+            TreeItem<MenuItemWithDescription> child = new TreeItem<>(new MenuItemWithDescription(item));
             if (item.hasChildren()) {
                 child.setExpanded(true);
                 recurseTreeItems(editorProject.getMenuTree().getMenuItems(item), child);
@@ -372,7 +380,7 @@ public class MenuEditorController {
         var selected = menuTree.getSelectionModel().getSelectedItem();
         if(selected == null) return;
 
-        var cp = editorProject.getProjectPersistor().itemsToCopyText(selected.getValue(), editorProject.getMenuTree());
+        var cp = editorProject.getProjectPersistor().itemsToCopyText(selected.getValue().item(), editorProject.getMenuTree());
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.putString(cp);
@@ -394,15 +402,15 @@ public class MenuEditorController {
     }
 
     public void onTreeMoveUp(ActionEvent event) {
-        MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
+        var selected = menuTree.getSelectionModel().getSelectedItem().getValue();
         if(selected == null) return;
-        editorProject.applyCommand(new UpDownItemChange(selected, getProject().getMenuTree().findParent(selected), true));
+        editorProject.applyCommand(new UpDownItemChange(selected.item(), getProject().getMenuTree().findParent(selected.item()), true));
         redrawTreeControl();
     }
 
     public void onTreeMoveDown(ActionEvent event) {
-        MenuItem selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        editorProject.applyCommand(new UpDownItemChange(selected, getProject().getMenuTree().findParent(selected), false));
+        var selected = menuTree.getSelectionModel().getSelectedItem().getValue();
+        editorProject.applyCommand(new UpDownItemChange(selected.item(), getProject().getMenuTree().findParent(selected.item()), false));
         redrawTreeControl();
     }
 
@@ -420,7 +428,7 @@ public class MenuEditorController {
     }
 
     private SubMenuItem getSelectedSubMenu() {
-        MenuItem selMenu = menuTree.getSelectionModel().getSelectedItem().getValue();
+        var selMenu = menuTree.getSelectionModel().getSelectedItem().getValue().item();
         if (!selMenu.hasChildren()) {
             selMenu = editorProject.getMenuTree().findParent(selMenu);
         }
@@ -432,7 +440,7 @@ public class MenuEditorController {
     }
 
     public void onRemoveTreeMenu(ActionEvent actionEvent) {
-        MenuItem toRemove = menuTree.getSelectionModel().getSelectedItem().getValue();
+        var toRemove = menuTree.getSelectionModel().getSelectedItem().getValue().item;
 
         if (toRemove.equals(MenuTree.ROOT)) {
             return; // cannot remove root.
@@ -531,9 +539,9 @@ public class MenuEditorController {
                     darkModeMenuFlag.setSelected(themeName.equals("darkMode"));
                     BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
                 });
-                TreeItem<MenuItem> item = menuTree.getSelectionModel().getSelectedItem();
+                var item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
-                    onTreeChangeSelection(item.getValue());
+                    onTreeChangeSelection(item.getValue().item());
                 }
             });
         }
@@ -695,6 +703,47 @@ public class MenuEditorController {
     private record RecentlyUsedItem(String name, String path) {
         public String toString() {
             return name;
+        }
+    }
+
+    public class MenuItemWithDescription {
+        private final String desc;
+        private final MenuItem item;
+        public MenuItemWithDescription(MenuItem item) {
+            this.item = item;
+            if(item.equals(MenuTree.ROOT)) {
+                desc = "Root Item";
+            } else {
+                desc = editorProject.getLocaleHandler().getFromLocaleWithDefault(item.getName(), item.getName());
+            }
+        }
+
+        public MenuItem item() {
+            return item;
+        }
+
+        public String desc() {
+            return desc;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MenuItemWithDescription that = (MenuItemWithDescription) o;
+            return Objects.equals(item, that.item);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(item);
+        }
+
+        @Override
+        public String toString() {
+            if(item.getId() == 0) return desc;
+
+            return desc + " (ID " + item.getId() + ")";
         }
     }
 }

@@ -349,8 +349,9 @@ public class MenuManagerServer implements NewServerConnectionListener {
         if (state instanceof StringListMenuState) {
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ((StringListMenuState) state).getValue());
         } else {
+            var fmt = new MenuItemFormatter();
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE,
-                    MenuItemFormatter.formatToWire(item, state.getValue().toString()));
+                    fmt.formatToWire(item, state.getValue().toString()));
         }
 
         updateRemotesWithLatestState(cmd);

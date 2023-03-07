@@ -9,12 +9,17 @@ import java.util.stream.Collectors;
 public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     private final SafeBundleLoader bundleLoader;
     private final Object localeLock = new Object();
-    private Locale currentLocale = Locale.getDefault();
-    private Map<String, String> cachedEntries = new HashMap<>();
+    private Locale currentLocale;
+    private Map<String, String> cachedEntries;
     private boolean needsSave = false;
 
     public PropertiesLocaleEnabledHandler(SafeBundleLoader bundleLoader) {
         this.bundleLoader = bundleLoader;
+        try {
+            changeLocale(Locale.of(""));
+        } catch(Exception ex) {
+            throw new UnsupportedOperationException("Default Locale not available", ex);
+        }
     }
 
     @Override
@@ -59,7 +64,11 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
         synchronized (localeLock) {
             saveChanges();
             currentLocale = locale;
-            cachedEntries = bundleLoader.loadResourceBundleAsMap(currentLocale);
+            if(locale.getLanguage().equals("--")) {
+                cachedEntries = new HashMap<>();
+            } else {
+                cachedEntries = bundleLoader.loadResourceBundleAsMap(currentLocale);
+            }
             needsSave = false;
         }
     }
@@ -74,7 +83,21 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
         }
     }
 
+    @Override
+    public Map<String, String> getUnderlyingMap() {
+        synchronized (localeLock) {
+            return Map.copyOf(cachedEntries);
+        }
+    }
+
     public SafeBundleLoader getSafeLoader() {
         return bundleLoader;
+    }
+
+    @Override
+    public Locale getCurrentLocale() {
+        synchronized (localeLock) {
+            return currentLocale;
+        }
     }
 }

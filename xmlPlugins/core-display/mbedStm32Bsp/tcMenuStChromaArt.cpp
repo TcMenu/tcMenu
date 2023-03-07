@@ -15,7 +15,6 @@
 
 #include <tcUnicodeHelper.h>
 #include "tcMenuStChromaArt.h"
-#include "BspUserSettings.h"
 
 StChromaArtDrawable::StChromaArtDrawable() {
     BSP_LCD_Init();

@@ -67,6 +67,12 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             errors.add(new FieldError("'Step' must be exactly divisible by 'Maximum Value'", "Step"));
         }
 
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            var unitResStr = menuItemToLocale("unit");
+            localHandler.setLocalSpecificEntry(unitResStr.substring(1), unitName);
+            unitName = unitResStr;
+        }
+
         AnalogMenuItemBuilder builder = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
                 .withExisting(getMenuItem())
                 .withOffset(offset)
@@ -75,6 +81,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
                 .withStep(step)
                 .withUnit(unitName);
         getChangedDefaults(builder, errors);
+        var item = builder.menuItem();
 
         try {
             String text = defaultValueField.getText();
@@ -82,14 +89,15 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             if(value < 0 || value > maxValue) {
                 errors.add(new FieldError("must be between 0 and " + maxValue, "DefaultValue"));
             } else {
-                MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
-                realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0)));
+                MenuItemHelper.setMenuState(item, value, menuTree);
+                var fmt = new MenuItemFormatter(localHandler);
+                realInterpretationField.setText(fmt.formatForDisplay(item, MenuItemHelper.getValueFor(item, menuTree, 0)));
             }
         } catch (NumberFormatException e) {
             errors.add(new FieldError("Value could not be parsed " + e.getClass().getSimpleName() + " " + e.getMessage(), "DefaultValue"));
         }
 
-        return getItemOrReportError(builder.menuItem(), errors);
+        return getItemOrReportError(item, errors);
     }
 
     @Override
@@ -102,6 +110,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
         idx++;
         cannedChoicesCombo = new ComboBox<>();
+        cannedChoicesCombo.setMaxWidth(9999);
         cannedChoicesCombo.setItems(FXCollections.observableList(CANNED_CHOICES));
         cannedChoicesCombo.getSelectionModel().select(0);
         cannedChoicesCombo.setId("cannedChoicesCombo");
@@ -116,7 +125,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             }
         });
         grid.add(new Label("Pre-made starters"), 0, idx);
-        grid.add(cannedChoicesCombo, 1, idx);
+        grid.add(cannedChoicesCombo, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label("Offset from zero"), 0, idx);
@@ -124,7 +133,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         offsetField.setId("offsetField");
         offsetField.textProperty().addListener(this::analogValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(offsetField);
-        grid.add(offsetField, 1, idx);
+        grid.add(offsetField, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label("Maximum value"), 0, idx);
@@ -132,7 +141,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         maxValueField.setId("maxValueField");
         maxValueField.textProperty().addListener(this::analogValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(maxValueField);
-        grid.add(maxValueField, 1, idx);
+        grid.add(maxValueField, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label("Divisor"), 0, idx);
@@ -140,7 +149,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         divisorField.setId("divisorField");
         divisorField.textProperty().addListener(this::analogValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(divisorField);
-        grid.add(divisorField, 1, idx);
+        grid.add(divisorField, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label("Step"), 0, idx);
@@ -148,26 +157,32 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         stepField.setId("stepField");
         stepField.textProperty().addListener(this::analogValueChanged);
         TextFormatterUtils.applyIntegerFormatToField(stepField);
-        grid.add(stepField, 1, idx);
+        grid.add(stepField, 1, idx, 2, 1);
+
+        String unitName = getMenuItem().getUnitName();
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            unitName = localHandler.getFromLocaleWithDefault(menuItemToLocale("unit"), unitName);
+        }
 
         idx++;
         grid.add(new Label("Unit name"), 0, idx);
-        unitNameField = new TextField(getMenuItem().getUnitName());
+        unitNameField = new TextField(unitName);
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::analogValueChanged);
-        grid.add(unitNameField, 1, idx);
+        grid.add(unitNameField, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label("Default value (0..maxValue)"), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
         realInterpretationField = new Label();
-        realInterpretationField.setText(MenuItemFormatter.formatForDisplay(getMenuItem(), value));
+        MenuItemFormatter fmt= new MenuItemFormatter(localHandler);
+        realInterpretationField.setText(fmt.formatForDisplay(getMenuItem(), value));
         grid.add(realInterpretationField, 2, idx);
         defaultValueField = new TextField(Integer.toString(value));
         defaultValueField.setId("defaultValueField");
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
         TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
-        grid.add(defaultValueField, 1, idx);
+        grid.add(defaultValueField, 1, idx, 1, 1);
 
         return idx;
     }
@@ -177,11 +192,20 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         populateMinMaxLabel();
     }
 
+    @Override
+    protected void localeDidChange() {
+        String unitName = getMenuItem().getUnitName();
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            unitName = localHandler.getFromLocaleWithDefault(menuItemToLocale("unit"), unitName);
+        }
+        unitNameField.setText(unitName);
+    }
 
-        private void populateMinMaxLabel() {
+    private void populateMinMaxLabel() {
+        var fmt = new MenuItemFormatter(localHandler);
         minMaxLabel.setText(String.format("Min value: %s. Max value %s.",
-                MenuItemFormatter.formatForDisplay(getMenuItem(), 0),
-                MenuItemFormatter.formatForDisplay(getMenuItem(), getMenuItem().getMaxValue())
+                fmt.formatForDisplay(getMenuItem(), 0),
+                fmt.formatForDisplay(getMenuItem(), getMenuItem().getMaxValue())
         ));
     }
 

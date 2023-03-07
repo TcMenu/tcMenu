@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
@@ -54,12 +55,12 @@ public class FileBasedProjectPersistorTest {
 
         Path projFile = dir.resolve("projectSave.emf");
 
-        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor();
+        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
         MenuTree tree = TestUtils.buildCompleteTree();
         List<String> remoteUuids = List.of("uuid3");
         List<CreatorProperty> propsList = Collections.singletonList(new CreatorProperty("name", "desc", "extra desc", "123", DISPLAY, CreatorProperty.PropType.USE_IN_DEFINE, CannedPropertyValidators.textValidator(), new AlwaysApplicable()));
         var options = new CodeGeneratorOptionsBuilder()
-                .withPlatform(ARDUINO_AVR.getBoardId())
+                .withPlatform(ARDUINO_AVR)
                 .withDisplay("uuid1").withInput("uuid2").withTheme("uuid4").withRemotes(remoteUuids)
                 .withProperties(propsList).withAppName("app name").withNewId(APPLICATION_UUID)
                 .withEepromDefinition(new NoEepromDefinition()).withAuthenticationDefinition(new NoAuthenticatorDefinition())
@@ -72,7 +73,7 @@ public class FileBasedProjectPersistorTest {
         compareTrees(tree, openResult.getMenuTree());
 
 
-        assertEquals(ARDUINO_AVR.getBoardId(), openResult.getOptions().getEmbeddedPlatform());
+        assertEquals(ARDUINO_AVR, openResult.getOptions().getEmbeddedPlatform());
         assertEquals("uuid1", openResult.getOptions().getLastDisplayUuid());
         assertEquals("uuid2", openResult.getOptions().getLastInputUuid());
         assertEquals("uuid3", openResult.getOptions().getLastRemoteCapabilitiesUuids().get(0));

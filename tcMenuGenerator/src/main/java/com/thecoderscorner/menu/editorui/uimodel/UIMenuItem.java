@@ -6,8 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
-import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
@@ -26,15 +27,18 @@ import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldType.*;
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * This represents a UI editor that can edit the fields of a MenuItem, specialised for each type of menu item in a
@@ -45,6 +49,8 @@ import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldTy
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
+    protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
+
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
     public static final Set<Class<? extends MenuItem>> MENU_CLASSES_BASED_ON_INFO = Set.of(
@@ -56,11 +62,13 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected VariableNameGenerator variableNameGenerator;
     protected final BiConsumer<MenuItem, MenuItem> changeConsumer;
     private T menuItem;
+    protected LocaleMappingHandler localHandler;
     MenuTree menuTree;
     private final String urlDocs;
 
     private TextField idField;
     protected TextField nameField;
+    private MenuButton localeMenuButton;
     protected TextField variableField;
     protected TextField functionNameTextField;
     private Button functionBtn;
@@ -81,12 +89,19 @@ public abstract class UIMenuItem<T extends MenuItem> {
         this.urlDocs = urlDocs;
     }
 
-    public GridPane initPanel(MenuTree tree) {
+    public GridPane initPanel(MenuTree tree, LocaleMappingHandler handler) {
         this.menuTree = tree;
+        this.localHandler = handler;
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
+        grid.setMaxWidth(9999);
         grid.setPadding(new Insets(0, 10, 6, 10));
+        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col2 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
+        ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+        col2.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(col1, col2, col3);
 
         int idx = 0;
 
@@ -113,18 +128,25 @@ public abstract class UIMenuItem<T extends MenuItem> {
         errorsField.setManaged(false);
         errorsField.setVisible(false);
         errorsField.setText("");
-        grid.add(errorsField, 0, idx, 2, 1);
+        grid.add(errorsField, 0, idx, 3, 1);
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.id.field")), 0, idx);
         idField = new TextField(String.valueOf(menuItem.getId()));
         idField.setId("idField");
-        idField.setDisable(true);
-        grid.add(idField, 1, idx);
+        idField.setEditable(false);
+        grid.add(idField, 1, idx++, 2, 1);
 
-        idx++;
+        localeMenuButton = new MenuButton(toLang(localHandler.getCurrentLocale()));
+        localeMenuButton.getItems().addAll(getLocaleMenuItems());
+        localeMenuButton.setDisable(!localHandler.isLocalSupportEnabled());
+        localeMenuButton.setId("localeMenuItems");
+        localeMenuButton.setMaxWidth(9999);
+        grid.add(localeMenuButton, 2, idx, 1, 1);
+
         grid.add(new Label(bundle.getString("menu.editor.name.field")), 0, idx);
-        nameField = new TextField(menuItem.getName());
+        String text = localHandler.getFromLocaleWithDefault(menuItemToLocale("name"), menuItem.getName());
+        nameField = new TextField(text);
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
 
@@ -134,7 +156,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             }
             callChangeConsumer();
         });
-        grid.add(nameField, 1, idx);
+        grid.add(nameField, 1, idx, 1, 1);
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.variable.name")), 0, idx);
@@ -142,8 +164,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
         if(StringHelper.isStringEmptyOrNull(varName)) {
             varName = variableNameGenerator.makeNameToVar(getMenuItem());
         }
-        HBox varNameBox = new HBox();
-        varNameBox.setSpacing(4);
 
         variableField = new TextField(varName);
         variableField.setId("variableField");
@@ -154,20 +174,18 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 variableNameGenerator.getUncommittedItems().remove(getMenuItem().getId()));
 
         var varSyncButton = new Button(bundle.getString("menu.editor.button.sync"));
+        varSyncButton.setMaxWidth(9999);
         varSyncButton.setOnAction(actionEvent -> {
             variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
             callChangeConsumer();
         });
         varSyncButton.setId("varSyncButton");
-        varNameBox.getChildren().add(variableField);
-        varNameBox.getChildren().add(varSyncButton);
-        grid.add(varNameBox, 1, idx);
+        grid.add(variableField, 1, idx, 1, 1);
+        grid.add(varSyncButton, 2, idx, 1, 1);
 
         if(MenuItemHelper.eepromSizeForItem(getMenuItem()) != 0) {
             idx++;
             grid.add(new Label(bundle.getString("menu.editor.eeprom.save.addr")), 0, idx);
-            HBox eepromBox = new HBox();
-            eepromBox.setSpacing(4);
 
             eepromField = new TextField(String.valueOf(menuItem.getEepromAddress()));
             eepromField.setId("eepromField");
@@ -175,21 +193,16 @@ public abstract class UIMenuItem<T extends MenuItem> {
             eepromField.setTooltip(new Tooltip("The location in EEPROM to store this value or -1 for none"));
             eepromField.textProperty().addListener(this::coreValueChanged);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
-            eepromBox.getChildren().add(eepromField);
+            grid.add(eepromField, 1, idx);
 
             Button eepromNextBtn = new Button(bundle.getString("menu.editor.button.auto"));
             eepromNextBtn.setId("eepromNextBtn");
-            eepromBox.getChildren().add(eepromNextBtn);
+            eepromNextBtn.setMaxWidth(9999);
+            grid.add(eepromNextBtn, 2, idx);
             TextFormatterUtils.applyIntegerFormatToField(eepromField);
-
-            grid.add(eepromBox, 1, idx);
-
             eepromNextBtn.setOnAction((act) -> eepromField.setText(Integer.toString(chooser.nextHighestEeprom())));
         }
         else eepromField = null;
-
-        HBox functionEditorBox = new HBox();
-        functionEditorBox.setSpacing(4);
 
         if(itemRequiresFunctionCallback()) {
             idx++;
@@ -200,11 +213,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
             functionNameTextField.setId("functionNameTextField");
             functionNameTextField.setMaxWidth(9999);
             functionNameTextField.setTooltip(new Tooltip("Defines the callback function or blank for none. Advanced: start with @ to define only in header"));
-            functionEditorBox.getChildren().add(functionNameTextField);
+            grid.add(functionNameTextField, 1, idx);
             functionBtn = new Button(bundle.getString("menu.editor.button.edit"));
             functionBtn.setId("functionEditor");
-            functionEditorBox.getChildren().add(functionBtn);
-            grid.add(functionEditorBox, 1, idx);
+            functionBtn.setMaxWidth(9999);
+            grid.add(functionBtn, 2, idx);
             functionBtn.setOnAction(event -> {
                 var stage = (Stage) functionNameTextField.getScene().getWindow();
                 var dlg = new EditCallbackFunctionDialog(stage, true, functionNameTextField.getText(), menuItem);
@@ -233,11 +246,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
         visibleCheck.setSelected(menuItem.isVisible());
 
         idx++;
-        grid.add(readOnlyCheck, 1, idx);
+        grid.add(readOnlyCheck, 1, idx, 2, 1);
         idx++;
-        grid.add(noRemoteCheck, 1, idx);
+        grid.add(noRemoteCheck, 1, idx, 2, 1);
         idx++;
-        grid.add(visibleCheck, 1, idx);
+        grid.add(visibleCheck, 1, idx, 2, 1);
 
         staticDataRamCheckbox = new CheckBox(bundle.getString("menu.editor.check.static.in.ram"));
         if(MENU_CLASSES_BASED_ON_INFO.contains(menuItem.getClass())) {
@@ -246,7 +259,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             staticDataRamCheckbox.setOnAction(this::checkboxChanged);
             staticDataRamCheckbox.setSelected(menuItem.isStaticDataInRAM());
             idx++;
-            grid.add(staticDataRamCheckbox, 1, idx);
+            grid.add(staticDataRamCheckbox, 1, idx, 2, 1);
         }
 
         textFieldsForCopy = grid.getChildren().stream()
@@ -255,6 +268,48 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .collect(Collectors.toList());
 
         return grid;
+    }
+
+    private void localHasChanged(Locale l) {
+        try {
+            if(l == null) return;
+            localHandler.changeLocale(l);
+            nameField.setText(localHandler.getFromLocaleWithDefault(menuItemToLocale("name"), menuItem.getName()));
+            localeMenuButton.setText(toLang(l));
+            localeDidChange();
+        } catch (IOException e) {
+            logger.log(ERROR, "Locale could not be changed to " + l, e);
+        }
+
+    }
+
+    protected void localeDidChange() {
+    }
+
+    private List<javafx.scene.control.MenuItem> getLocaleMenuItems() {
+        var list = localHandler.getEnabledLocales().stream()
+                .map(l -> {
+                    var mi = new javafx.scene.control.MenuItem(toLang(l));
+                    mi.setOnAction(event -> localHasChanged(l));
+                    return mi;
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+        javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
+        item.setOnAction(event -> localHasChanged(Locale.of("--")));
+        list.add(item);
+        return list;
+    }
+
+    private String toLang(Locale l) {
+        return switch(l.getLanguage()) {
+            case "" -> bundle.getString("locale.dialog.default.bundle");
+            case "--" -> "--";
+            default -> l.getDisplayLanguage() + " - " + l.getLanguage();
+        };
+    }
+
+    protected String menuItemToLocale(String name) {
+        return "%menu." + menuItem.getId() + "." + name;
     }
 
     protected boolean itemRequiresFunctionCallback() {
@@ -285,6 +340,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
                 errorsBuilder, 19, MANDATORY);
+
+        if(localHandler.isLocalSupportEnabled()) {
+            String localeEntry = menuItemToLocale("name");
+            localHandler.setLocalSpecificEntry(localeEntry.substring(1), name);
+            name = localeEntry;
+        }
 
         String varName = safeStringFromProperty(variableField.textProperty(), "VariableName",
                 errorsBuilder, 128, OPTIONAL);

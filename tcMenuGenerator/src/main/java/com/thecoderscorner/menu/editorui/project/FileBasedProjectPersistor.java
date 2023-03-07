@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefin
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
@@ -33,19 +34,24 @@ import static java.lang.System.Logger.Level.INFO;
  * An implementation of the ProjectPersisor that is based on GSON based JSON library.
  * It saves a human readable JSON file containing all the settings, and can load back
  * equally.
- *
+ * <p>
  * The file open / save dialog is based on JAva FX.
  */
 public class FileBasedProjectPersistor implements ProjectPersistor {
 
+
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private final JsonMenuItemSerializer serializer = new JsonMenuItemSerializer((gsonBuilder) ->
-            gsonBuilder.registerTypeAdapter(EepromDefinition.class, new EepromDefinitionSerialiser())
-                    .registerTypeAdapter(EepromDefinition.class, new EepromDefinitionDeseriailiser())
-                    .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionSerialiser())
-                    .registerTypeAdapter(AuthenticatorDefinition.class, new AuthDefinitionDeseriailiser())
-                    .registerTypeAdapter(IoExpanderDefinitionCollection.class, new IoExpanderDefinitionSerialiser())
-                    .registerTypeAdapter(IoExpanderDefinitionCollection.class, new IoExpanderDefinitionDeseriailiser()));
+    private final JsonMenuItemSerializer serializer;
+    private final EmbeddedPlatforms platforms;
+
+    public FileBasedProjectPersistor(EmbeddedPlatforms platforms) {
+        this.platforms = platforms;
+        var optsSerializer = new JsonCodeGeneratorOptionsSerialisation(platforms);
+
+        serializer = new JsonMenuItemSerializer((gsonBuilder) ->
+                gsonBuilder.registerTypeAdapter(CodeGeneratorOptions.class, optsSerializer.getDeserialiser())
+                           .registerTypeAdapter(CodeGeneratorOptions.class, optsSerializer.getSerialiser()));
+    }
 
     @Override
     public MenuTreeWithCodeOptions open(String fileName) throws IOException {
@@ -56,7 +62,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             MenuTree tree = new MenuTree();
             prj.getItems().forEach((item) -> {
                 tree.addMenuItem(fromParentId(tree, item.getParentId()), item.getItem());
-                if(item.getDefaultValue() != null && JsonMenuItemSerializer.checkItemValueCanPersist(item)) {
+                if (item.getDefaultValue() != null && JsonMenuItemSerializer.checkItemValueCanPersist(item)) {
                     MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
                 }
             });
@@ -130,7 +136,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         @Override
         public JsonElement serialize(IoExpanderDefinitionCollection definitionCollection, Type type, JsonSerializationContext jsonSerializationContext) {
             var array = new JsonArray();
-            for(var def : definitionCollection.getAllExpanders()) {
+            for (var def : definitionCollection.getAllExpanders()) {
                 array.add(def.toString());
             }
             return array;
@@ -142,11 +148,10 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         public IoExpanderDefinitionCollection deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             var list = new ArrayList<IoExpanderDefinition>();
             var jsonArray = jsonElement.getAsJsonArray();
-            for(var def : jsonArray) {
+            for (var def : jsonArray) {
                 IoExpanderDefinition.fromString(def.getAsString()).ifPresent(list::add);
             }
             return new IoExpanderDefinitionCollection(list);
         }
     }
-
 }

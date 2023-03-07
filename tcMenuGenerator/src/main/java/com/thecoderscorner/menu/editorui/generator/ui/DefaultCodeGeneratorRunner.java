@@ -60,7 +60,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 var threadSafeMenuTree = project.getMenuTree();
                 new Thread(() -> {
                     gen.startConversion(Paths.get(path), threadSafeCreators, threadSafeMenuTree,
-                            threadSafePreviousPluginFiles, project.getGeneratorOptions());
+                            threadSafePreviousPluginFiles, project.getGeneratorOptions(), project.getLocaleHandler());
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal);

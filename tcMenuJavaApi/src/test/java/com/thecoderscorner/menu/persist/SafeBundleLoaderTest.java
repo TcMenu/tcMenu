@@ -132,10 +132,20 @@ public class SafeBundleLoaderTest {
         handler.changeLocale(Locale.FRENCH);
         assertEquals("bonjour", handler.getLocalSpecificEntry("welcome"));
 
+        var underlyingMap = handler.getUnderlyingMap();
+        assertEquals(3, underlyingMap.size());
+        assertEquals("bonjour", underlyingMap.get("welcome"));
+
+        assertEquals(Locale.FRENCH, handler.getCurrentLocale());
+
         handler.changeLocale(EMPTY_LOCALE);
         assertEquals("hello", handler.getLocalSpecificEntry("welcome"));
         handler.setLocalSpecificEntry("welcome", "foo");
         handler.saveChanges();
+
+        assertEquals("foo", handler.getFromLocaleWithDefault("%welcome", "non"));
+        assertEquals("non", handler.getFromLocaleWithDefault("welcome", "non"));
+        assertEquals("non", handler.getFromLocaleWithDefault("%another", "non"));
 
         var bundle = loader.getBundleForLocale(EMPTY_LOCALE);
         assertEquals("foo", bundle.getString("welcome"));

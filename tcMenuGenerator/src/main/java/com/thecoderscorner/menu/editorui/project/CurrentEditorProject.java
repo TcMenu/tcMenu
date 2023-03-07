@@ -20,9 +20,12 @@ import com.thecoderscorner.menu.persist.SafeBundleLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
@@ -34,6 +37,7 @@ public class CurrentEditorProject {
 
     public static final String NO_CREATOR_SELECTED = "";
     public static final String MENU_PROJECT_LANG_FILENAME = "project-lang";
+    public static final String TCMENU_I18N_SRC_DIR = "i18n";
 
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
@@ -109,6 +113,7 @@ public class CurrentEditorProject {
                 description = openedProject.getDescription();
                 generatorOptions = openedProject.getOptions();
                 if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
+                checkIfLocalesPresentAndEnable();
                 setDirty(false);
                 updateTitle();
                 changeHistory.clear();
@@ -121,6 +126,16 @@ public class CurrentEditorProject {
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
         return false;
+    }
+
+    private void checkIfLocalesPresentAndEnable() {
+        if(!isFileNameSet() || fileName.isEmpty() || Paths.get(fileName.get()).getParent() == null) return;
+        Path projDir = Paths.get(fileName.get()).getParent();
+        if(Files.exists(projDir.resolve(TCMENU_I18N_SRC_DIR))) {
+            enableLocaleHandler();
+        } else {
+            localeHandler = new NoLocaleEnabledLocalHandler();
+        }
     }
 
     public boolean openProject() {
@@ -146,7 +161,7 @@ public class CurrentEditorProject {
         fileName.ifPresent((file)-> {
             try {
                 uncommittedItems.clear();
-                projectPersistor.save(file, description, menuTree, generatorOptions, new NoLocaleEnabledLocalHandler());
+                projectPersistor.save(file, description, menuTree, generatorOptions, localeHandler);
                 setDirty(false);
             } catch (IOException e) {
                 logger.log(ERROR, "save operation failed on " + file, e);
@@ -263,7 +278,7 @@ public class CurrentEditorProject {
 
         if(fileName.isPresent() && Files.exists(Paths.get(fileName.get()).getParent())) {
             var dir = Paths.get(fileName.get()).getParent();
-            var i18nDir = dir.resolve("i18n");
+            var i18nDir = dir.resolve(TCMENU_I18N_SRC_DIR);
             var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
             if(Files.exists(rootProperties)) {
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
@@ -282,11 +297,16 @@ public class CurrentEditorProject {
 
         // otherwise try and enable but only if the project has already been saved.
         if (fileName.isPresent() && Files.exists(Paths.get(fileName.get()).getParent())) {
-            var dir = Paths.get(fileName.get()).getParent();
-            var i18nDir = dir.resolve("i18n");
-            var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
             try {
-                Files.writeString(rootProperties, "# Locale file created by tcMenu");
+                var dir = Paths.get(fileName.get()).getParent();
+                var i18nDir = dir.resolve(TCMENU_I18N_SRC_DIR);
+                if(!Files.exists(i18nDir)) {
+                    Files.createDirectory(i18nDir);
+                }
+                var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
+                if(!Files.exists(rootProperties)) {
+                    Files.writeString(rootProperties, "# Locale file created by tcMenu");
+                }
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
             } catch (IOException e) {
                 logger.log(ERROR, "Error creating resource bundle for languages", e);
@@ -297,7 +317,7 @@ public class CurrentEditorProject {
     public CodeGeneratorOptions makeBlankGeneratorOptions() {
         return new CodeGeneratorOptionsBuilder()
                 .withRecursiveNaming(configStore.isDefaultRecursiveNamingOn())
-                .withSaveToSrc(configStore.isDefaultSaveToSrcOn())
+                .withSaveLocation(configStore.isDefaultSaveToSrcOn() ? PROJECT_TO_SRC_WITH_GENERATED : PROJECT_TO_CURRENT_WITH_GENERATED)
                 .withUseSizedEEPROMStorage(configStore.isDefaultSizedEEPROMStorage())
                 .codeOptions();
     }
