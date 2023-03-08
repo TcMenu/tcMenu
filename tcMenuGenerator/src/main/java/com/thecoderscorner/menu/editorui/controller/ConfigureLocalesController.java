@@ -5,10 +5,7 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -22,15 +19,24 @@ public class ConfigureLocalesController {
     public Button moveToActiveButton;
     public Button removeFromActiveButton;
     public TextField fileResourceLocationField;
+    public ComboBox<String> countryCodeCombo;
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public void initialise(PropertiesLocaleEnabledHandler localeHandler) {
         this.localeHandler = localeHandler;
         List<NamedLocale> namedLocales = Arrays.stream(Locale.getISOLanguages())
                 .map(Locale::of).map(NamedLocale::new).toList();
+
+        var countryList = new ArrayList<String>();
+        countryList.add("--");
+        for(var countryCode : Locale.getISOCountries(Locale.IsoCountryCode.PART1_ALPHA2).stream().sorted().toList()) {
+            countryList.add(countryCode);
+        }
+        countryCodeCombo.setItems(FXCollections.observableList(countryList));
+        countryCodeCombo.getSelectionModel().select(0);
+
         this.availableLocaleList.setItems(FXCollections.observableList(namedLocales));
         this.availableLocaleList.getSelectionModel().selectFirst();
-
 
         var locales = localeHandler.getEnabledLocales().stream()
                 .map(locale -> new NamedLocaleWithStatus(locale, LocaleStatus.AVAILABLE))
@@ -42,8 +48,13 @@ public class ConfigureLocalesController {
     public void onMoveToActive(ActionEvent actionEvent) {
         var sel = availableLocaleList.getSelectionModel().getSelectedItem();
         if(sel == null) return;
+
         if(activeLocalList.getItems().stream().anyMatch(nl -> nl.locale().equals(sel))) return;
-        activeLocalList.getItems().add(new NamedLocaleWithStatus(sel.locale(), LocaleStatus.TO_CREATE));
+        var country = countryCodeCombo.getSelectionModel().getSelectedItem();
+
+        // If there is no country, then it is a language level entry, otherwise it has language_country
+        var locale = country.equals("--") ? sel.locale() : Locale.of(sel.locale().getLanguage(), country);
+        activeLocalList.getItems().add(new NamedLocaleWithStatus(locale, LocaleStatus.TO_CREATE));
     }
 
     public void onRemoveFromActive(ActionEvent actionEvent) {
@@ -91,7 +102,7 @@ public class ConfigureLocalesController {
             if(StringHelper.isStringEmptyOrNull(locale.getLanguage())) {
                 return MenuEditorApp.getBundle().getString("locale.dialog.default.bundle");
             } else {
-                return locale.getDisplayLanguage() + ((status == LocaleStatus.TO_CREATE) ? " *" : "");
+                return locale.getDisplayLanguage() + " " +  locale.getDisplayCountry() + ((status == LocaleStatus.TO_CREATE) ? " *" : "");
             }
         }
     }

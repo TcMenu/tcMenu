@@ -33,7 +33,7 @@ public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> 
 
         if (!controlTextIncludesValue()) return prefix;
 
-        return prefix + " " + MenuItemFormatter.formatForDisplay(item, currentVal);
+        return prefix + " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
     }
 
     protected void toggleState() {

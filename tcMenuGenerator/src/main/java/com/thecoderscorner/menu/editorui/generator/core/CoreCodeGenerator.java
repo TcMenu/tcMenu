@@ -26,6 +26,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.io.BufferedWriter;
@@ -164,13 +165,14 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         langSelectText.append("// or omit for the default language").append(TWO_LINES);
 
         String defaultLocaleFile = toSourceFile(srcDir, "_lang" + ".h", generated);
-        localeToCpp(defaultLocaleFile, Locale.of(""), true);
-
+        localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
+        var defaultLocaleMap = localeHandler.getUnderlyingMap();
+        localeToCpp(defaultLocaleFile, Locale.of(""), defaultLocaleMap);
         boolean useElIf = false;
 
         for (var locale : localeHandler.getEnabledLocales().stream().filter(l -> !l.getLanguage().equals("")).toList()) {
-            String localeFile = toSourceFile(srcDir, "_lang_" + locale.getLanguage() + ".h", generated);
-            localeToCpp(localeFile, locale, false);
+            String localeFile = toSourceFile(srcDir, "_lang_" + locale.toString() + ".h", generated);
+            localeToCpp(localeFile, locale, defaultLocaleMap);
 
             if(useElIf) {
                 langSelectText.append("#elif");
@@ -178,7 +180,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 langSelectText.append("#if");
                 useElIf = true;
             }
-            langSelectText.append(" defined(TC_LOCALE_").append(locale.getLanguage().toUpperCase()).append(')')
+            langSelectText.append(" defined(TC_LOCALE_").append(locale.toString().toUpperCase()).append(')')
                     .append(LINE_BREAK);
             langSelectText.append("# include \"").append(Paths.get(localeFile).getFileName()).append("\"").append(LINE_BREAK);
         }
@@ -198,19 +200,25 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         logLine(DEBUG, "Finished locale processing");
     }
 
-    private void localeToCpp(String localeOutputFile, Locale locale, boolean isDefault) throws IOException {
+    private void localeToCpp(String localeOutputFile, Locale locale, Map<String, String> defaultLocaleMap) throws IOException {
         StringBuilder sb = new StringBuilder(8192);
         sb.append(GENERATED_LOCAL_HEADER).append(" Locale ").append(locale).append(LINE_BREAK);
         sb.append("// Never include directly, always include the langSelect header").append(TWO_LINES);
 
         localeHandler.changeLocale(locale);
         var allEntries = localeHandler.getUnderlyingMap();
-        for(var entry : allEntries.entrySet()) {
-            sb.append("#define ").append(entry.getKey()).append(" \"").append(entry.getKey()).append("\"");
+        for(var entry : defaultLocaleMap.entrySet()) {
+            var value = (allEntries.containsKey(entry.getKey())) ? allEntries.get(entry.getKey()) : entry.getValue();
+            sb.append("#define ").append(asDefine(entry.getKey())).append(" \"").append(value).append("\"");
             sb.append(LINE_BREAK);
         }
         Files.writeString(Path.of(localeOutputFile), sb.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         logLine(INFO, "Created locale file " + localeOutputFile + " for " + locale);
+    }
+
+    public static String asDefine(String key) {
+        var words = key.split("[^A-Za-z0-9]+");
+        return "TC_I18N_" + Arrays.stream(words).map(String::toUpperCase).collect(Collectors.joining("_"));
     }
 
     private void createTheSourceDirectoriesIfNeeded(Path srcDir, boolean genDir) throws IOException {

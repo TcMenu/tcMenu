@@ -79,7 +79,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private CheckBox visibleCheck;
     private CheckBox staticDataRamCheckbox;
     private List<TextField> textFieldsForCopy = Collections.emptyList();
-    private final ResourceBundle bundle = MenuEditorApp.getBundle();
+    protected final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public UIMenuItem(T menuItem, MenuIdChooser chooser, VariableNameGenerator gen, BiConsumer<MenuItem, MenuItem> changeConsumer, String urlDocs) {
         this.menuItem = menuItem;
@@ -294,7 +294,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
                     return mi;
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
-        javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
+        list.add(new SeparatorMenuItem());
+        var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
         item.setOnAction(event -> localHasChanged(Locale.of("--")));
         list.add(item);
         return list;
@@ -304,7 +305,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return switch(l.getLanguage()) {
             case "" -> bundle.getString("locale.dialog.default.bundle");
             case "--" -> "--";
-            default -> l.getDisplayLanguage() + " - " + l.getLanguage();
+            default -> l.getDisplayLanguage() + "-" + l.getCountry();
         };
     }
 

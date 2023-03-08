@@ -20,14 +20,15 @@ import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
+import com.thecoderscorner.menu.editorui.simui.SimulatorUI;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -51,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
@@ -80,7 +81,6 @@ public class MenuEditorController {
     public javafx.scene.control.MenuItem menuItemDown;
 
     public Menu examplesMenu;
-    public TextArea prototypeTextArea;
     public BorderPane rootPane;
     public TreeView<MenuItemWithDescription> menuTree;
     public Button menuTreeAdd;
@@ -103,6 +103,7 @@ public class MenuEditorController {
     private int menuToProjectMaxLevels = 1;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
+    private SimulatorUI simulatorUI = null;
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
@@ -243,13 +244,13 @@ public class MenuEditorController {
         if (!original.equals(changed) || localeIsDifferent(changed, selectedItem)) {
             selectedItem.setValue(new MenuItemWithDescription(changed));
             editorProject.applyCommand(Command.EDIT, changed);
-            redrawPrototype();
+            if(simulatorUI != null) simulatorUI.itemHasChanged(changed);
         }
     }
 
     private boolean localeIsDifferent(MenuItem changed, TreeItem<MenuItemWithDescription> selItem) {
         LocaleMappingHandler lh = editorProject.getLocaleHandler();
-        if(changed.getName().startsWith("%") && lh.isLocalSupportEnabled()) {
+        if(lh.isLocalSupportEnabled() && changed.getName().startsWith("%")) {
             var newText = lh.getFromLocaleWithDefault(changed.getName(), changed.getName());
             return (!newText.equals(selItem.getValue().desc()));
         }
@@ -323,7 +324,7 @@ public class MenuEditorController {
         menuTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         menuTree.getSelectionModel().selectFirst();
 
-        redrawPrototype();
+        if(simulatorUI != null) simulatorUI.itemHasChanged(null);
         selectChildInTreeById(rootItem, sel);
     }
 
@@ -337,10 +338,6 @@ public class MenuEditorController {
                 selectChildInTreeById(child, id);
             }
         }
-    }
-
-    private void redrawPrototype() {
-        prototypeTextArea.setText(new TextTreeItemRenderer(editorProject.getMenuTree()).getTreeAsText());
     }
 
     private void recurseTreeItems(List<MenuItem> menuItems, TreeItem<MenuItemWithDescription> treeItem) {
@@ -537,7 +534,7 @@ public class MenuEditorController {
                 configStore.setLastRunVersion(current);
                 editorUI.showSplashScreen(themeName -> {
                     darkModeMenuFlag.setSelected(themeName.equals("darkMode"));
-                    BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+                    BaseDialogSupport.getJMetro().setScene(menuTree.getScene());
                 });
                 var item = menuTree.getSelectionModel().getSelectedItem();
                 if(item != null) {
@@ -636,7 +633,7 @@ public class MenuEditorController {
 
     public void onDarkModeChange(ActionEvent actionEvent) {
         BaseDialogSupport.setTheme(darkModeMenuFlag.isSelected() ?  "darkMode" : "lightMode");
-        BaseDialogSupport.getJMetro().setScene(prototypeTextArea.getScene());
+        BaseDialogSupport.getJMetro().setScene(menuTree.getScene());
     }
 
     public void onSponsorLinkPressed(ActionEvent actionEvent) {
@@ -644,7 +641,7 @@ public class MenuEditorController {
     }
 
     public void onShowExpanders(ActionEvent actionEvent) {
-        ChooseIoExpanderDialog dlg = new ChooseIoExpanderDialog((Stage)prototypeTextArea.getScene().getWindow(),
+        ChooseIoExpanderDialog dlg = new ChooseIoExpanderDialog((Stage)menuTree.getScene().getWindow(),
                 Optional.empty(), editorProject, true);
     }
 
@@ -698,6 +695,20 @@ public class MenuEditorController {
 
     public void onConfigureLocales(ActionEvent actionEvent) {
         editorUI.showLocaleConfiguration(editorProject);
+    }
+
+    public void OnShowPreviewWindow(ActionEvent actionEvent) {
+        if(!editorProject.isFileNameSet()) {
+            editorUI.alertOnError(bundle.getString("core.no.filename.set"), bundle.getString("core.please.select.file.first"));
+            return;
+        }
+
+        simulatorUI = new SimulatorUI();
+        simulatorUI.presentSimulator(editorProject.getMenuTree(), editorProject.getFileName(),
+                editorProject.getGeneratorOptions().getApplicationUUID(),
+                (Stage)menuTree.getScene().getWindow(),
+                editorProject.getLocaleHandler());
+        simulatorUI.setCloseConsumer(windowEvent -> simulatorUI = null);
     }
 
     private record RecentlyUsedItem(String name, String path) {

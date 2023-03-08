@@ -23,6 +23,7 @@ public class SafeBundleLoaderTest {
         tempDir = Files.createTempDirectory("safeloader");
         Files.write(tempDir.resolve("test.properties"), getClass().getResource("/testBundle/test.properties").openStream().readAllBytes());
         Files.write(tempDir.resolve("test_fr.properties"), getClass().getResource("/testBundle/test_fr.properties").openStream().readAllBytes());
+        Files.write(tempDir.resolve("test_fr_CA.properties"), getClass().getResource("/testBundle/test_fr_CA.properties").openStream().readAllBytes());
     }
 
     @AfterEach
@@ -46,6 +47,9 @@ public class SafeBundleLoaderTest {
         assertEquals("bonjour", bundle.getString("welcome"));
         assertEquals("au rivoir", bundle.getString("leave"));
         assertEquals("merci", bundle.getString("thanks"));
+
+        bundle = loader.getBundleForLocale(Locale.CANADA_FRENCH);
+        assertEquals("bonjourCA", bundle.getString("welcome"));
     }
 
     @Test
@@ -94,10 +98,23 @@ public class SafeBundleLoaderTest {
     }
 
     @Test
-    public void testSavingDefaultCompltelyNewFile() throws IOException {
+    public void testSavingDefaultCompletelyNewFileLocaleOnly() throws IOException {
         SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
         loader.saveChangesKeepingFormatting(Locale.GERMAN, Map.of("welcome", "hi"));
         var allBytes = Files.readAllBytes(tempDir.resolve("test_de.properties"));
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n" +
+                "welcome=hi\n", new String(allBytes));
+
+        loader.saveChangesKeepingFormatting(Locale.ITALIAN, Map.of());
+        allBytes = Files.readAllBytes(tempDir.resolve("test_it.properties"));
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n", new String(allBytes));
+    }
+
+    @Test
+    public void testSavingDefaultCompletelyNewFileLocaleCountry() throws IOException {
+        SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
+        loader.saveChangesKeepingFormatting(new Locale("de", "CH"), Map.of("welcome", "hi"));
+        var allBytes = Files.readAllBytes(tempDir.resolve("test_de_CH.properties"));
         assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n" +
                 "welcome=hi\n", new String(allBytes));
 
@@ -114,11 +131,13 @@ public class SafeBundleLoaderTest {
         assertEquals("test", handler.getSafeLoader().getBaseName());
         assertEquals(tempDir, handler.getSafeLoader().getLocation());
         assertEquals(tempDir.resolve("test_fr.properties"), handler.getSafeLoader().getPathForLocale(Locale.FRENCH));
+        assertEquals(tempDir.resolve("test_fr_CA.properties"), handler.getSafeLoader().getPathForLocale(Locale.CANADA_FRENCH));
         assertEquals(tempDir.resolve("test.properties"), handler.getSafeLoader().getPathForLocale(EMPTY_LOCALE));
 
         var locales = handler.getEnabledLocales();
-        assertEquals(2, locales.size());
+        assertEquals(3, locales.size());
         assertTrue(locales.contains(Locale.FRENCH));
+        assertTrue(locales.contains(new Locale("fr", "CA")));
         assertTrue(locales.contains(EMPTY_LOCALE));
     }
 

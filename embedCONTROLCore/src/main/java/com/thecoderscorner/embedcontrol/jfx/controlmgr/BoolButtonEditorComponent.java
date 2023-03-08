@@ -6,6 +6,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -28,7 +29,7 @@ public class BoolButtonEditorComponent extends BaseBoolEditorComponent<Node> {
 
     @Override
     public Node createComponent() {
-        button = new Button(item.getName());
+        button = new Button(MenuItemFormatter.defaultInstance().getItemName(item));
         button.setMaxWidth(9999);
         button.setFont(Font.font(getDrawingSettings().getFontSize()));
         setNodeConditionalColours(button, getDrawingSettings().getColors(), ColorComponentType.BUTTON);

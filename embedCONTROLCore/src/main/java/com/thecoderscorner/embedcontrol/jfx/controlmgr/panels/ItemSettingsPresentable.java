@@ -6,6 +6,7 @@ import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.ComponentSettingsCustomizer;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
@@ -20,7 +21,7 @@ public class ItemSettingsPresentable implements PanelPresentable<Node> {
 
     public ItemSettingsPresentable(MenuItem item, JfxNavigationManager navigator, GlobalSettings globalSettings,
                                    ComponentSettingsCustomizer colorSettings) {
-        this(item.getId(), item.getName(), navigator, globalSettings, colorSettings, colorSettings);
+        this(item.getId(), MenuItemFormatter.defaultInstance().getItemName(item), navigator, globalSettings, colorSettings, colorSettings);
     }
 
     public ItemSettingsPresentable(int id, String name, JfxNavigationManager navigator, GlobalSettings globalSettings,

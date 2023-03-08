@@ -5,7 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
-import javafx.scene.Node;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 
 public class ScrollUpDownEditorComponent extends UpDownEditorComponentBase<CurrentScrollPosition> {
     public ScrollUpDownEditorComponent(MenuItem item, MenuComponentControl remote, ComponentSettings settings, ThreadMarshaller marshaller) {
@@ -15,7 +15,7 @@ public class ScrollUpDownEditorComponent extends UpDownEditorComponentBase<Curre
     @Override
     public String getControlText() {
         var text = "";
-        if(controlTextIncludesName()) text += item.getName();
+        if(controlTextIncludesName()) text += MenuItemFormatter.defaultInstance().getItemName(item);
         if(controlTextIncludesValue()) text += " " + currentVal.getValue();
         return text;
     }

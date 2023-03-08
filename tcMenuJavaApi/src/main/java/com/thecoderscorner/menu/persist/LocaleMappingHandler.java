@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public interface LocaleMappingHandler {
+    LocaleMappingHandler NOOP_IMPLEMENTATION = new NoLocaleEnabledLocalHandler();
+
     boolean isLocalSupportEnabled();
     String getLocalSpecificEntry(String source) throws IllegalArgumentException;
     void setLocalSpecificEntry(String source, String newValue) throws IllegalArgumentException;
@@ -19,6 +21,6 @@ public interface LocaleMappingHandler {
         if(!isLocalSupportEnabled() || !localeEntry.startsWith("%") && localeEntry.length() > 1) return defText;
         if(getCurrentLocale().getLanguage().equals("--")) return defText;
         String ret = getLocalSpecificEntry(localeEntry.substring(1));
-        return (ret == null || ret.isEmpty()) ? defText : ret;
+        return (ret == null) ? defText : ret;
     }
 }

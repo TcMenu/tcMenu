@@ -32,7 +32,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             new AnalogCannedChoice("[Choose one]", 0, 0, 0, ""),
             new AnalogCannedChoice("Integer 0 - 255", 0, 1, 255, ""),
             new AnalogCannedChoice("Integer 1 - 512", 1, 1, 511, ""),
-            new AnalogCannedChoice("Integer percentage 0% - 100%", 0, 1, 100, "%"),
+            new AnalogCannedChoice("Integer 0% - 100%", 0, 1, 100, "%"),
             new AnalogCannedChoice("Tenths 0.0 - 100.0", 0, 10, 1000, ""),
             new AnalogCannedChoice("Hundredths 0.00A - 10.00A", 0, 100, 1000, "A"),
             new AnalogCannedChoice("Halves 0.0N - 10.00N", 0, 2, 20, "N"),
@@ -58,13 +58,14 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     @Override
     protected Optional<AnalogMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
-        String unitName = safeStringFromProperty(unitNameField.textProperty(), "Unit Name", errors, 4, StringFieldType.OPTIONAL);
-        int divisor = safeIntFromProperty(divisorField.textProperty(), "Divisor", errors, 0, 10000);
-        int offset = safeIntFromProperty(offsetField.textProperty(), "Offset", errors, Short.MIN_VALUE, Short.MAX_VALUE);
-        int step = safeIntFromProperty(stepField.textProperty(), "Step", errors, 1, 128);
-        int maxValue = safeIntFromProperty(maxValueField.textProperty(), "Maximum Value", errors, 1, 65535);
+        String unitName = safeStringFromProperty(unitNameField.textProperty(), bundle.getString("menu.editor.analog.unit"), errors, 4, StringFieldType.OPTIONAL);
+        int divisor = safeIntFromProperty(divisorField.textProperty(), bundle.getString("menu.editor.analog.divisor"), errors, 0, 10000);
+        int offset = safeIntFromProperty(offsetField.textProperty(), bundle.getString("menu.editor.analog.offset"), errors, Short.MIN_VALUE, Short.MAX_VALUE);
+        String stepStr = bundle.getString("menu.editor.analog.step");
+        int step = safeIntFromProperty(stepField.textProperty(), stepStr, errors, 1, 128);
+        int maxValue = safeIntFromProperty(maxValueField.textProperty(), bundle.getString("menu.editor.analog.max"), errors, 1, 65535);
         if(step == 0 || ((maxValue % step) != 0)) {
-            errors.add(new FieldError("'Step' must be exactly divisible by 'Maximum Value'", "Step"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.step.wrong"), stepStr));
         }
 
         if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
@@ -83,18 +84,20 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         getChangedDefaults(builder, errors);
         var item = builder.menuItem();
 
+        var defValueStr = bundle.getString("menu.editor.default.value");
         try {
             String text = defaultValueField.getText();
             int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
             if(value < 0 || value > maxValue) {
-                errors.add(new FieldError("must be between 0 and " + maxValue, "DefaultValue"));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.analog.range") + maxValue, defValueStr));
             } else {
                 MenuItemHelper.setMenuState(item, value, menuTree);
                 var fmt = new MenuItemFormatter(localHandler);
                 realInterpretationField.setText(fmt.formatForDisplay(item, MenuItemHelper.getValueFor(item, menuTree, 0)));
             }
         } catch (NumberFormatException e) {
-            errors.add(new FieldError("Value could not be parsed " + e.getClass().getSimpleName() + " " + e.getMessage(), "DefaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " +
+                    e.getClass().getSimpleName() + " " + e.getMessage(), defValueStr));
         }
 
         return getItemOrReportError(item, errors);
@@ -124,11 +127,11 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
                 analogValueChanged(unitNameField.textProperty(), "", "");
             }
         });
-        grid.add(new Label("Pre-made starters"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.pre.made")), 0, idx);
         grid.add(cannedChoicesCombo, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Offset from zero"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.offset")), 0, idx);
         offsetField = new TextField(String.valueOf(getMenuItem().getOffset()));
         offsetField.setId("offsetField");
         offsetField.textProperty().addListener(this::analogValueChanged);
@@ -136,7 +139,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         grid.add(offsetField, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Maximum value"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.max")), 0, idx);
         maxValueField = new TextField(String.valueOf(getMenuItem().getMaxValue()));
         maxValueField.setId("maxValueField");
         maxValueField.textProperty().addListener(this::analogValueChanged);
@@ -144,7 +147,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         grid.add(maxValueField, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Divisor"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.divisor")), 0, idx);
         divisorField = new TextField(String.valueOf(getMenuItem().getDivisor()));
         divisorField.setId("divisorField");
         divisorField.textProperty().addListener(this::analogValueChanged);
@@ -152,7 +155,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         grid.add(divisorField, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Step"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.step")), 0, idx);
         stepField = new TextField(String.valueOf(getMenuItem().getStep()));
         stepField.setId("stepField");
         stepField.textProperty().addListener(this::analogValueChanged);
@@ -165,14 +168,14 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         }
 
         idx++;
-        grid.add(new Label("Unit name"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.analog.unit")), 0, idx);
         unitNameField = new TextField(unitName);
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::analogValueChanged);
         grid.add(unitNameField, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Default value (0..maxValue)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
         realInterpretationField = new Label();
         MenuItemFormatter fmt= new MenuItemFormatter(localHandler);
@@ -203,7 +206,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
     private void populateMinMaxLabel() {
         var fmt = new MenuItemFormatter(localHandler);
-        minMaxLabel.setText(String.format("Min value: %s. Max value %s.",
+        minMaxLabel.setText(String.format(bundle.getString("menu.editor.analog.min.max.fmt"),
                 fmt.formatForDisplay(getMenuItem(), 0),
                 fmt.formatForDisplay(getMenuItem(), getMenuItem().getMaxValue())
         ));

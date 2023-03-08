@@ -20,8 +20,7 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
         if (status == RenderingStatus.EDIT_IN_PROGRESS) return;
 
         try {
-            MenuItemFormatter fmt = new MenuItemFormatter();
-            var toSend = fmt.formatToWire(item, text);
+            var toSend = MenuItemFormatter.defaultInstance().formatToWire(item, text);
             var correlation =  componentControl.editorUpdatedItem(item, toSend);
             editStarted(correlation);
         } catch (Exception ex) {
@@ -43,10 +42,9 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
 
     @Override
     public String getControlText() {
-        var fmt = new MenuItemFormatter();
         String str = "";
         if (controlTextIncludesName())  str = item.getName() + " ";
-        if (controlTextIncludesValue()) str += fmt.formatForDisplay(item, currentVal);
+        if (controlTextIncludesValue()) str += MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         return str;
     }
 

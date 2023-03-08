@@ -39,9 +39,9 @@ public class UISubMenuItem extends UIMenuItem<SubMenuItem> {
     @Override
     protected int internalInitPanel(GridPane pane, int idx) {
         idx++;
-        secureCheckbox = new CheckBox("Secure submenu with password");
+        secureCheckbox = new CheckBox(bundle.getString("menu.editor.sub.secure"));
         secureCheckbox.setSelected(getMenuItem().isSecured());
-        pane.add(secureCheckbox, 0, idx, 2, 1);
+        pane.add(secureCheckbox, 1, idx, 2, 1);
         return idx;
     }
 }

@@ -7,6 +7,7 @@ import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import javafx.geometry.Insets;
@@ -77,7 +78,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
     @Override
     public String getPanelName() {
         if(controller == null) return "empty";
-        return presentedItem == MenuTree.ROOT ? controller.getConnectionName() : presentedItem.getName();
+        return presentedItem == MenuTree.ROOT ? controller.getConnectionName() : MenuItemFormatter.defaultInstance().getItemName(presentedItem);
     }
 
     @Override
@@ -161,7 +162,7 @@ public class JfxMenuControlGrid implements MenuControlGrid<Node>, PanelPresentab
 
     @Override
     public EditorComponent<Node> addIoTMonitor(MenuItem item, ComponentSettings componentSettings) {
-        return addButtonWithAction(item, item.getName(), componentSettings, menuItem -> controller.presentIoTAuthPanel());
+        return addButtonWithAction(item, MenuItemFormatter.defaultInstance().getItemName(item), componentSettings, menuItem -> controller.presentIoTAuthPanel());
     }
 
     @Override

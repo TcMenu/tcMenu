@@ -8,6 +8,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.texted.*;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItem;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.mgr.DialogShowMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
@@ -51,7 +52,7 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private void onButtonPressed(ActionEvent evt) {
         if(editorComponent.isPresent()) {
             if(!editorComponent.get().isCurrentlyValid()) {
-                dlgManager.withTitle(item.getName() + " did not validate", false)
+                dlgManager.withTitle(MenuItemFormatter.defaultInstance().getItemName(item) + " did not validate", false)
                         .withMessage("Please ensure the value is valid for the type of field", false)
                         .withDelegate(DialogShowMode.LOCAL_TO_DELEGATE, menuButtonType -> true)
                         .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);

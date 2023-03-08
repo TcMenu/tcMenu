@@ -14,6 +14,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.google.gson;
     requires info.picocli;
     requires org.jfxtras.styles.jmetro;
+    requires com.thecoderscorner.embedcontrol.core;
 
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.controller;

@@ -7,6 +7,7 @@ import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -34,7 +35,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         colorRanges = new HashMap<>();
         colorRanges.put(ColorSettingsController.DEFAULT_COLOR_NAME, new GlobalColorCustomizable(settings));
         for (var item : tree.getAllSubMenus()) {
-            colorRanges.put("SubMenu " + item.getName(), layoutPersistence.getColorCustomizerFor(item, Optional.empty(), false));
+            colorRanges.put("SubMenu " + MenuItemFormatter.defaultInstance().getItemName(item), layoutPersistence.getColorCustomizerFor(item, Optional.empty(), false));
         }
         this.settings = settings;
         this.manager = manager;

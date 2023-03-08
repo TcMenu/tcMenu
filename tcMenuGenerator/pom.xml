@@ -35,12 +35,19 @@
 
     <dependencies>
 
-        <!-- production dependencies -->
+        <!-- internal production dependencies -->
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.thecoderscorner.tcmenu</groupId>
+            <artifactId>embedCONTROL</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- external production dependencies -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

@@ -81,7 +81,8 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
             prepareDefaultValueBasedOnNaming();
         });
         namingBox.setId("booleanNamingCombo");
-        pane.add(namingBox, 1, idx);
+        namingBox.setMaxWidth(9999);
+        pane.add(namingBox, 1, idx, 2, 1);
         idx++;
 
         pane.add(new Label("Default Value"), 0, idx);
@@ -89,7 +90,8 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         prepareDefaultValueBasedOnNaming();
         defaultValue.setOnAction(event -> callChangeConsumer());
         defaultValue.setId("defaultValueCombo");
-        pane.add(defaultValue, 1, idx);
+        defaultValue.setMaxWidth(9999);
+        pane.add(defaultValue, 1, idx, 2, 1);
 
         return idx;
     }

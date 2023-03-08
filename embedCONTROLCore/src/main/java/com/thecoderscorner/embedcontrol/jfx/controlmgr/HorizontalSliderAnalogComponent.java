@@ -85,8 +85,8 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.HIGHLIGHT)));
 
         String toDraw = "";
-        if(controlTextIncludesName()) toDraw = item.getName();
-        if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.formatForDisplay(item, currentVal);
+        if(controlTextIncludesName()) toDraw = MenuItemFormatter.defaultInstance().getItemName(item);
+        if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         final Text textObj = new Text(toDraw);
         gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.BUTTON)));
         gc.setFont(Font.font(gc.getFont().getFamily(), getDrawingSettings().getFontSize()));

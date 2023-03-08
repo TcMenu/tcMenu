@@ -11,7 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatform
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
 
 import java.io.File;
@@ -144,7 +144,7 @@ public class CreateProjectCommand implements Callable<Integer> {
                 .codeOptions();
 
         var projectEmf = dir.resolve(newProject + ".emf");
-        persistor.save(projectEmf.toString(), "Project description", tree, generator, new NoLocaleEnabledLocalHandler());
+        persistor.save(projectEmf.toString(), "Project description", tree, generator, LocaleMappingHandler.NOOP_IMPLEMENTATION);
 
         if(platforms.isJava(platform)) {
             logger.accept("Java project, all files will be created on first generate");

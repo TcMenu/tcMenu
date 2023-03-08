@@ -150,7 +150,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
         }
 
-        return new NoLocaleEnabledLocalHandler();
+        return LocaleMappingHandler.NOOP_IMPLEMENTATION;
     }
 
     public static File locateProjectFile(File projectFile, boolean createIfNeeded) throws IOException {
@@ -184,7 +184,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {
         if(persistor != null && loadedProjectFile != null) {
-            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts, new NoLocaleEnabledLocalHandler());
+            persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts, LocaleMappingHandler.NOOP_IMPLEMENTATION);
         }
     }
 

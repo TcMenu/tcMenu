@@ -241,11 +241,11 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      */
     public static TitleWidget<Image> standardWifiWidget() {
         return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img/con-fail.png"),
-                JfxNavigationHeader.class.getResource("/img/wifi-poor.png"),
-                JfxNavigationHeader.class.getResource("/img/wifi-low.png"),
-                JfxNavigationHeader.class.getResource("/img/wifi-fair.png"),
-                JfxNavigationHeader.class.getResource("/img/wifi-full.png"));
+                JfxNavigationHeader.class.getResource("/img-core/con-fail.png"),
+                JfxNavigationHeader.class.getResource("/img-core/wifi-poor.png"),
+                JfxNavigationHeader.class.getResource("/img-core/wifi-low.png"),
+                JfxNavigationHeader.class.getResource("/img-core/wifi-fair.png"),
+                JfxNavigationHeader.class.getResource("/img-core/wifi-full.png"));
     }
 
     /**
@@ -254,7 +254,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      */
     public static TitleWidget<Image> standardSettingsWidget() {
         return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img/settings-cog.png")
+                JfxNavigationHeader.class.getResource("/img-core/settings-cog.png")
         );
     }
 
@@ -264,7 +264,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      */
     public static TitleWidget<Image> standardSaveWidget() {
         return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img/save-icon.png")
+                JfxNavigationHeader.class.getResource("/img-core/save-icon.png")
         );
     }
 
@@ -274,9 +274,9 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      */
     public static TitleWidget<Image> standardStatusLedWidget() {
         return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img/red-led-icon.png"),
-                JfxNavigationHeader.class.getResource("/img/orange-led-icon.png"),
-                JfxNavigationHeader.class.getResource("/img/green-led-icon.png")
+                JfxNavigationHeader.class.getResource("/img-core/red-led-icon.png"),
+                JfxNavigationHeader.class.getResource("/img-core/orange-led-icon.png"),
+                JfxNavigationHeader.class.getResource("/img-core/green-led-icon.png")
         );
     }
 
@@ -287,8 +287,8 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
      */
     public static TitleWidget<Image> standardLayoutWidget() {
         return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img/layout-off.png"),
-                JfxNavigationHeader.class.getResource("/img/layout-on.png")
+                JfxNavigationHeader.class.getResource("/img-core/layout-off.png"),
+                JfxNavigationHeader.class.getResource("/img-core/layout-on.png")
         );
     }
 

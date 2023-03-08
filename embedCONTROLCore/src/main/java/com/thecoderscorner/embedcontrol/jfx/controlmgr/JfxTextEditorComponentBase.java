@@ -40,8 +40,8 @@ public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorCompon
     public String getControlText()
     {
         String str = "";
-        if (controlTextIncludesName()) str = item.getName() + " ";
-        if (controlTextIncludesValue()) str += MenuItemFormatter.formatForDisplay(item, currentVal);
+        if (controlTextIncludesName()) str = MenuItemFormatter.defaultInstance().getItemName(item) + " ";
+        if (controlTextIncludesValue()) str += MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         return str;
     }
 

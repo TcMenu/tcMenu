@@ -8,14 +8,22 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import java.math.BigDecimal;
 
 public class MenuItemFormatter {
-    private final  LocaleMappingHandler localHandler;
-
-    public MenuItemFormatter() {
-        localHandler = null;
-    }
+    private static final MenuItemFormatter defaultInstance = new MenuItemFormatter();
+    private LocaleMappingHandler localHandler = null;
 
     public MenuItemFormatter(LocaleMappingHandler handler) {
         localHandler = handler;
+    }
+
+    private MenuItemFormatter() {
+    }
+
+    public static MenuItemFormatter defaultInstance() {
+        return defaultInstance;
+    }
+
+    public static void setDefaultLocalHandler(LocaleMappingHandler localHandler) {
+        defaultInstance.localHandler = localHandler;
     }
 
     public String bundleIfPossible(String s) {
@@ -208,5 +216,11 @@ public class MenuItemFormatter {
 
     private String formatFloatForDisplay(FloatMenuItem fl, float val) {
         return String.format("%." + fl.getNumDecimalPlaces() + "f", val);
+    }
+
+    public String getItemName(MenuItem item) {
+        if(localHandler == null) return item.getName();
+        
+        return localHandler.getFromLocaleWithDefault(item.getName(), item.getName());
     }
 }

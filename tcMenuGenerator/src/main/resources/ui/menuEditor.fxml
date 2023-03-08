@@ -15,7 +15,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
@@ -87,6 +86,8 @@
                         <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="%menu.code">
@@ -99,7 +100,7 @@
               <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="%menu.code.font.creator" />
               <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="%menu.code.bitmap.creator" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" accelerator="F6" />
+                  <MenuItem accelerator="F6" mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="%menu.help">
@@ -211,17 +212,15 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <Label styleClass="item-title" text="%main.editor.prototype" />
-            <TextArea fx:id="prototypeTextArea" editable="false" minHeight="94.0" prefHeight="94.0" prefWidth="350.0" styleClass="lcdDisplayTextArea" />
-            <Label fx:id="currentEditLabel" prefHeight="30.0" prefWidth="582.0" styleClass="item-title" text="Editor">
+            <Label fx:id="currentEditLabel" prefHeight="19.0" prefWidth="582.0" styleClass="item-title" text="Editor">
                <padding>
-                  <Insets bottom="6.0" top="10.0" />
+                  <Insets bottom="6.0" top="4.0" />
                </padding>
             </Label>
             <BorderPane fx:id="editorBorderPane" />
          </children>
          <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            <Insets bottom="5.0" left="5.0" right="5.0" />
          </padding>
       </VBox>
    </center>
@@ -232,7 +231,7 @@
                 <Font size="14.0" />
              </font>
           </Label>
-           <Hyperlink onAction="#onSponsorLinkPressed" text="%main.editor.sponsor.link"/>
+           <Hyperlink onAction="#onSponsorLinkPressed" text="%main.editor.sponsor.link" />
          <BorderPane.margin>
             <Insets left="10.0" right="10.0" />
          </BorderPane.margin>

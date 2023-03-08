@@ -5,6 +5,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class NoLocaleEnabledLocalHandler implements LocaleMappingHandler {
+    protected  NoLocaleEnabledLocalHandler() {}
+
     @Override
     public boolean isLocalSupportEnabled() {
         return false;

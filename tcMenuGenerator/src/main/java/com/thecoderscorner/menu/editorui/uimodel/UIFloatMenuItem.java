@@ -41,16 +41,18 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
                 .withDecimalPlaces(dp);
         getChangedDefaults(builder, errors);
 
+        String defValueName = bundle.getString("menu.editor.default.value");
         try {
             String text = defaultValueField.getText();
             var value = StringHelper.isStringEmptyOrNull(text) ? 0 : Float.parseFloat(text);
             if (Float.isNaN(value)) {
-                errors.add(new FieldError("Value can't be NaN", "DefaultValue"));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.value.nan"), defValueName));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
             }
         } catch(Exception ex) {
-            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " +
+                    ex.getClass().getSimpleName() + " " + ex.getMessage(), defValueName));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);
@@ -59,21 +61,21 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
-        grid.add(new Label("Decimal Places"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.decimal.places")), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getNumDecimalPlaces()));
         decimalPlaces.textProperty().addListener(this::coreValueChanged);
         decimalPlaces.setId("decimalPlacesField");
         TextFormatterUtils.applyIntegerFormatToField(decimalPlaces);
-        grid.add(decimalPlaces, 1, idx);
+        grid.add(decimalPlaces, 1, idx, 2, 1);
 
         idx++;
-        grid.add(new Label("Default value"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0.0F);
         defaultValueField = new TextField(Float.toString(value));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
         defaultValueField.setId("defaultValueField");
         TextFormatterUtils.applyFormatToField(defaultValueField, TextFormatterUtils.FLOAT_MATCH);
-        grid.add(defaultValueField, 1, idx);
+        grid.add(defaultValueField, 1, idx, 2, 1);
         return idx;
     }
 }

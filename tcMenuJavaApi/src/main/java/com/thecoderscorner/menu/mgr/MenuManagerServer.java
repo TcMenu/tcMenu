@@ -349,7 +349,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
         if (state instanceof StringListMenuState) {
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ((StringListMenuState) state).getValue());
         } else {
-            var fmt = new MenuItemFormatter();
+            var fmt = MenuItemFormatter.defaultInstance();
             cmd = new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, item.getId(), ChangeType.ABSOLUTE,
                     fmt.formatToWire(item, state.getValue().toString()));
         }

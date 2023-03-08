@@ -14,7 +14,6 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
 
@@ -72,7 +71,7 @@ public class CurrentEditorProject {
         description = "";
         uncommittedItems.clear();
         generatorOptions = makeBlankGeneratorOptions();
-        localeHandler = new NoLocaleEnabledLocalHandler();
+        localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
         setDirty(false);
         updateTitle();
     }
@@ -129,12 +128,14 @@ public class CurrentEditorProject {
     }
 
     private void checkIfLocalesPresentAndEnable() {
-        if(!isFileNameSet() || fileName.isEmpty() || Paths.get(fileName.get()).getParent() == null) return;
+        // we must always reset first.
+        localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
+        if(!isFileNameSet() || fileName.isEmpty() || Paths.get(fileName.get()).getParent() == null) {
+            return;
+        }
         Path projDir = Paths.get(fileName.get()).getParent();
         if(Files.exists(projDir.resolve(TCMENU_I18N_SRC_DIR))) {
             enableLocaleHandler();
-        } else {
-            localeHandler = new NoLocaleEnabledLocalHandler();
         }
     }
 
@@ -283,10 +284,10 @@ public class CurrentEditorProject {
             if(Files.exists(rootProperties)) {
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
             } else {
-                localeHandler = new NoLocaleEnabledLocalHandler();
+                localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
             }
         } else {
-            localeHandler = new NoLocaleEnabledLocalHandler();
+            localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
         }
         return localeHandler;
     }

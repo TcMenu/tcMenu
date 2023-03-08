@@ -29,7 +29,7 @@ public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorCompo
         if (!controlTextIncludesValue()) return str;
 
         str += " ";
-        str += MenuItemFormatter.formatForDisplay(item, currentVal);
+        str += MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
 
         return str;
     }
