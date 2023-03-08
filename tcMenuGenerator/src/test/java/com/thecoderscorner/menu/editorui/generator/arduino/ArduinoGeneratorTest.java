@@ -9,15 +9,19 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.AVREepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
-import com.thecoderscorner.menu.editorui.generator.plugin.*;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO32;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.ARDUINO_AVR;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
@@ -71,7 +76,11 @@ public class ArduinoGeneratorTest {
 
     @Test
     void testConversionForAvr() throws IOException {
-        runConversionWith(ARDUINO_AVR, "/generator/template", false);
+        runConversionWith("/generator/template", new CodeGeneratorOptionsBuilder()
+                .withRecursiveNaming(false)
+                .withPlatform(ARDUINO_AVR)
+                .withSaveLocation(ALL_TO_CURRENT)
+                .codeOptions(), LocaleMappingHandler.NOOP_IMPLEMENTATION);
     }
 
     private MenuItem generateItemWithName(String name) {
@@ -86,25 +95,27 @@ public class ArduinoGeneratorTest {
 
     @Test
     void testConversionForSamd() throws IOException {
-        runConversionWith(ARDUINO32, "/generator/template32", true);
+        runConversionWith("/generator/template32", new CodeGeneratorOptionsBuilder()
+                .withRecursiveNaming(true)
+                .withSaveLocation(PROJECT_TO_CURRENT_WITH_GENERATED)
+                .withPlatform(ARDUINO32).codeOptions(), LocaleMappingHandler.NOOP_IMPLEMENTATION);
     }
 
-    private void runConversionWith(EmbeddedPlatform platform, String templateToUse, boolean recursiveName) throws IOException {
+    private void runConversionWith(String templateToUse, CodeGeneratorOptions options, LocaleMappingHandler handler) throws IOException {
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
 
         var standardOptions = new CodeGeneratorOptionsBuilder()
-                .withPlatform(ARDUINO32)
+                .withExisting(options)
                 .withEepromDefinition(new AVREepromDefinition())
                 .withAuthenticationDefinition(new EepromAuthenticatorDefinition(100, 3))
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
                 .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
-                .withRecursiveNaming(recursiveName)
                 .codeOptions();
         ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions);
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, platform);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform());
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
@@ -112,16 +123,20 @@ public class ArduinoGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, new NoLocaleEnabledLocalHandler()));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, handler));
 
         VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
         assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));
         assertEquals("ChannelÖôóò", gen.makeNameToVar(generateItemWithName("ChannelÖôóò")));
 
-        var cppGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.cpp")));
-        var hGenerated = new String(Files.readAllBytes(projectDir.resolve(projectDir.getFileName() + "_menu.h")));
-        var pluginGeneratedH = new String(Files.readAllBytes(projectDir.resolve("source.h")));
-        var pluginGeneratedCPP = new String(Files.readAllBytes(projectDir.resolve("source.cpp")));
+        var genDir = projectDir;
+        if(options.getSaveLocation()== PROJECT_TO_CURRENT_WITH_GENERATED || options.getSaveLocation()==PROJECT_TO_SRC_WITH_GENERATED) {
+            genDir = projectDir.resolve("generated");
+        }
+        var cppGenerated = new String(Files.readAllBytes(genDir.resolve(projectDir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(genDir.resolve(projectDir.getFileName() + "_menu.h")));
+        var pluginGeneratedH = new String(Files.readAllBytes(genDir.resolve("source.h")));
+        var pluginGeneratedCPP = new String(Files.readAllBytes(genDir.resolve("source.cpp")));
 
         var cppTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream(templateToUse + ".cpp")).readAllBytes());
         var hTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream(templateToUse + ".h")).readAllBytes());

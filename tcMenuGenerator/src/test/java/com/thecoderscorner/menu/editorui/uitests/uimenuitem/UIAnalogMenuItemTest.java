@@ -55,14 +55,14 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         // firstly check that all the fields are populated properly
         performAllCommonChecks(analogItem, true);
 
-        tryToEnterBadValueIntoField(robot, "defaultValueField", "nameField", "10000", "DefaultValue - must be between 0 and 100");
+        tryToEnterBadValueIntoField(robot, "defaultValueField", "nameField", "10000", "Default Value - must be between 0 and 100");
 
 
         tryToEnterBadValueIntoField(robot, "offsetField", "nameField", "-1000000",
-                "Offset - Value must be between -32768 and 32767");
+                "Offset from zero - Value must be between -32768 and 32767");
 
         tryToEnterBadValueIntoField(robot, "unitNameField", "nameField", "too long",
-                "Unit Name - field must be less than 4 characters");
+                "Unit name - field must be less than 4 characters");
 
         tryToEnterBadValueIntoField(robot, "divisorField", "nameField", "100000",
                 "Divisor - Value must be between 0 and 10000");

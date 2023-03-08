@@ -30,6 +30,7 @@ import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.END_OF_METHODS_TEXT;
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
 import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.ConnectionType;
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -44,6 +45,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     private CodeConversionContext context;
     private EmbeddedJavaPluginCreator pluginCreator;
     private List<CodePluginItem> allPlugins;
+    private LocaleMappingHandler handler;
 
     public EmbeddedJavaGenerator(ConfigurationStorage storage, EmbeddedPlatform platform) {
         this.configStorage = storage;
@@ -56,7 +58,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                                    LocaleMappingHandler handler) {
         try {
             logLine(INFO,"Starting conversion, Embedded Java to directory " + directory);
-            allPlugins = plugins;
+            this.allPlugins = plugins;
+            this.handler = handler;
             varGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive(), Set.of());
             var rootMenuName = getFirstMenuItemVariableName(menuTree, options.isNamingRecursive());
             context = new CodeConversionContext(platform, rootMenuName, options, options.getLastProperties());
@@ -88,6 +91,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             fileProcessor.dealWithRequiredPlugins(plugins, makePluginPath(javaProject), javaProject.getProjectRoot(),
                     options.getSaveLocation(), previousPluginFiles);
 
+            if(handler.isLocalSupportEnabled()) {
+                copyLocaleDataIntoProject();
+            }
+
             logLine(INFO, "Checking if all dependencies are in the maven POM");
             allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
                     .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
@@ -100,6 +107,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             logger.log(ERROR, "Exception during java project conversion", ex);
         }
         return false;
+    }
+
+    private void copyLocaleDataIntoProject() {
+
     }
 
     private void createJavaModuleFile(CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {
@@ -171,7 +182,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter")
                 .addPackageImport("org.springframework.context.annotation.*")
                 .addPackageImport("java.time.Clock")
-                .addPackageImport("java.util.UUID")
+                .addPackageImport("java.util.*")
                 .addPackageImport("java.util.concurrent.*")
                 .addPackageImport("java.nio.file.Path")
                 .setStatementBeforeClass("""
@@ -221,6 +232,16 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${server.name}\") String serverName")
                         .withParameter("@Value(\"${server.uuid}\") String serverUUID").withParameter("MenuAuthenticator authenticator").withParameter("Clock clock")
                         .withStatement("return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);"));
+
+        if(handler.isLocalSupportEnabled()) {
+            builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
+                    .withAnnotation("Bean")
+                    .withStatement("return new ResourceBundleMappingHandler(ResourceBundle.getBundle(\"i18n." + MENU_PROJECT_LANG_FILENAME+ "\"));"));
+        } else {
+            builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
+                    .withAnnotation("Bean").withStatement("return LocaleMappingHandler.NOOP_IMPLEMENTATION;"));
+        }
+
 
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
             wrapper.addToContext(cap, builder);

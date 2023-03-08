@@ -21,7 +21,7 @@ class MenuItemFormatterTest {
 
     @Test
     public void testFormatForDisplay() {
-        var fmt = new MenuItemFormatter();
+        var fmt = MenuItemFormatter.defaultInstance();
         assertEquals("-39.5dB", fmt.formatForDisplay(tree.getMenuById(1).orElseThrow(), 101));
         assertEquals("hello", fmt.formatForDisplay(tree.getMenuById(2).orElseThrow(), new CurrentScrollPosition(1, "hello")));
         assertEquals("True", fmt.formatForDisplay(tree.getMenuById(3).orElseThrow(), true));
@@ -34,7 +34,7 @@ class MenuItemFormatterTest {
 
     @Test
     void testIntegerPercentageCase() {
-        var fmt = new MenuItemFormatter();
+        var fmt = MenuItemFormatter.defaultInstance();
 
         AnalogMenuItem item = new AnalogMenuItemBuilder()
                 .withDivisor(1).withOffset(0).withMaxValue(100).withUnit("%")

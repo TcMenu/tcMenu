@@ -89,7 +89,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
             String text = defaultValueField.getText();
             int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
             if(value < 0 || value > maxValue) {
-                errors.add(new FieldError(bundle.getString("menu.editor.err.analog.range") + maxValue, defValueStr));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.analog.range") + " " + maxValue, defValueStr));
             } else {
                 MenuItemHelper.setMenuState(item, value, menuTree);
                 var fmt = new MenuItemFormatter(localHandler);

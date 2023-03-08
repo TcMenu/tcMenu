@@ -11,7 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.mgr.MenuInMenu;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +70,7 @@ class EmbeddedJavaGeneratorTest {
                 .withProperties(plugin.getProperties()).codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
-        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, new NoLocaleEnabledLocalHandler());
+        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
 
         var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 
@@ -100,7 +100,7 @@ class EmbeddedJavaGeneratorTest {
                 .codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
-        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, new NoLocaleEnabledLocalHandler());
+        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
 
         var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 

@@ -18,7 +18,7 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -118,7 +118,7 @@ public abstract class UIMenuItemTestBase {
         Platform.runLater(() -> {
             BorderPane borderLayout = new BorderPane();
             borderLayout.setMinSize(500, 500);
-            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree, new NoLocaleEnabledLocalHandler()));
+            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree, LocaleMappingHandler.NOOP_IMPLEMENTATION));
             dialogPane.getChildren().add(borderLayout);
             stage.show();
             latch.countDown();

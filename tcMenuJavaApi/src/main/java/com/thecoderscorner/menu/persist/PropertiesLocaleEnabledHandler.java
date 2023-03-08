@@ -20,7 +20,7 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     public PropertiesLocaleEnabledHandler(SafeBundleLoader bundleLoader) {
         this.bundleLoader = bundleLoader;
         try {
-            changeLocale(Locale.of(""));
+            changeLocale(DEFAULT_LOCALE);
         } catch(Exception ex) {
             throw new UnsupportedOperationException("Default Locale not available", ex);
         }

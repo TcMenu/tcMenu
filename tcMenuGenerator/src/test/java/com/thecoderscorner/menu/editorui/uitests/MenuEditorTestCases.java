@@ -218,9 +218,6 @@ public class MenuEditorTestCases {
 
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
 
-        // smoke test of the prototype area, there is a proper test of the text rendering elsewhere
-        assertTrue(((TextArea)robot.lookup("#prototypeTextArea").query()).getText().contains("FloatTest         -12345.1235"));
-
         // we stub out the new item dialog as it has its
         MenuItem itemToAdd = aNewMenuItem();
         Mockito.when(editorProjectUI.showNewItemDialog(project.getMenuTree())).thenReturn(Optional.ofNullable(itemToAdd));

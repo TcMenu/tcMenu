@@ -325,15 +325,23 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showLocaleConfiguration(CurrentEditorProject project) {
-        if(!project.getLocaleHandler().isLocalSupportEnabled() && project.isFileNameSet()) {
-            if(questionYesNo(designerBundle.getString("core.enable.locale.support.header"), designerBundle.getString("core.enable.locale.support.message"))) {
+        if(!project.isFileNameSet()) {
+            alertOnError(designerBundle.getString("core.no.filename.set"), designerBundle.getString("core.please.select.file.first"));
+            return;
+        }
+
+        if(!project.getLocaleHandler().isLocalSupportEnabled()) {
+            if(questionYesNo(designerBundle.getString("core.enable.locale.support.message"), designerBundle.getString("core.enable.locale.support.header"))) {
                 project.enableLocaleHandler();
+            } else {
+                return; // do nothing
             }
         }
+
         if(project.getLocaleHandler() instanceof PropertiesLocaleEnabledHandler handler) {
             new ConfigureLocalesDialog(mainStage, true, handler);
         } else {
-            alertOnError(designerBundle.getString("core.no.filename.set"), designerBundle.getString("core.please.select.file.first"));
+            logger.log(ERROR, "Fail safe, locale handler in unexpected bad state");
         }
     }
 }

@@ -24,7 +24,8 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerat
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildTreeFromJson;
@@ -86,13 +88,14 @@ public class MbedGeneratorTest {
     public void testMbedConversion() throws IOException {
 
         MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
-        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("Authenticator")
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("%menu.10001.name")
                 .withMenuType(AUTHENTICATION).withEepromAddr(-1).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("IoT Monitor")
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("%menu.10002.name")
                 .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("Analog RAM")
-                .withDivisor(10).withOffset(0).withMaxValue(100).withStaticDataInRAM(true).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10003).withName("Analog RAM")
+        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("%menu.10003.name")
+                .withDivisor(10).withOffset(0).withMaxValue(100).withUnit("%menu.10003.unit")
+                .withStaticDataInRAM(true).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10003).withName("Text Plain")
                 .withLength(10).withEditItemType(EditItemType.PLAIN_TEXT).withFunctionName("textRenderRtCall").menuItem());
 
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
@@ -109,7 +112,7 @@ public class MbedGeneratorTest {
                 .withEepromDefinition(new BspStm32EepromDefinition(50))
                 .withAuthenticationDefinition(new ReadOnlyAuthenticatorDefinition("1234", flashRemotes))
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
-                .withRecursiveNaming(true).withSaveLocation(ProjectSaveLocation.ALL_TO_CURRENT)
+                .withRecursiveNaming(true).withSaveLocation(ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED)
                 .codeOptions();
 
         ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options);
@@ -121,15 +124,20 @@ public class MbedGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, new NoLocaleEnabledLocalHandler()));
+        putLocaleFilesInPlace(projectDir.resolve("i18n"));
+
+        var propsLocale = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(projectDir.resolve("i18n"), MENU_PROJECT_LANG_FILENAME));
+
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, propsLocale));
 
         var sourceDir = projectDir.resolve("src");
+        var generatedDir = sourceDir.resolve("generated");
 
-        var cppGenerated = new String(Files.readAllBytes(sourceDir.resolve(projectDir.getFileName() + "_menu.cpp")));
-        var hGenerated = new String(Files.readAllBytes(sourceDir.resolve(projectDir.getFileName() + "_menu.h")));
-        var pluginGeneratedH = new String(Files.readAllBytes(sourceDir.resolve("source.h")));
-        var pluginGeneratedCPP = new String(Files.readAllBytes(sourceDir.resolve("source.cpp")));
-        var pluginGeneratedTransport = new String(Files.readAllBytes(sourceDir.resolve("MySpecialTransport.h")));
+        var cppGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.h")));
+        var pluginGeneratedH = new String(Files.readAllBytes(generatedDir.resolve("source.h")));
+        var pluginGeneratedCPP = new String(Files.readAllBytes(generatedDir.resolve("source.cpp")));
+        var pluginGeneratedTransport = new String(Files.readAllBytes(generatedDir.resolve("MySpecialTransport.h")));
 
         var cppTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.cpp")).readAllBytes());
         var hTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.h")).readAllBytes());
@@ -147,5 +155,22 @@ public class MbedGeneratorTest {
                 My Transport file
                 #define THE_SERIAL Serial
                 """, pluginGeneratedTransport);
+    }
+
+    private void putLocaleFilesInPlace(Path i18n) throws IOException {
+        Files.createDirectory(i18n);
+        Files.writeString(i18n.resolve(MENU_PROJECT_LANG_FILENAME + ".properties"), """
+                menu.10001.name=Auth Def Text
+                menu.10002.name=IoT Def Text
+                menu.10003.name=Analog Ram Def
+                menu.10003.unit=De
+                """);
+
+        Files.writeString(i18n.resolve(MENU_PROJECT_LANG_FILENAME + "_fr.properties"), """
+                menu.10001.name=Auth Fr Text
+                menu.10002.name=IoT Fr Text
+                menu.10003.name=Analog Ram Fr
+                menu.10003.unit=Fr
+                """);
     }
 }

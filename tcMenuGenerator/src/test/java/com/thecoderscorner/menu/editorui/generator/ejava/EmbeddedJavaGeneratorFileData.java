@@ -173,7 +173,7 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
             import org.springframework.context.annotation.*;
             import java.time.Clock;
-            import java.util.UUID;
+            import java.util.*;
             import java.util.concurrent.*;
             import java.nio.file.Path;
             import com.thecoderscorner.menu.remote.protocol.*;
@@ -239,6 +239,11 @@ public class EmbeddedJavaGeneratorFileData {
                 @Bean
                 public MenuManagerServer menuManagerServer(ScheduledExecutorService executor, UnitTestMenu menuDef, @Value("${server.name}") String serverName, @Value("${server.uuid}") String serverUUID, MenuAuthenticator authenticator, Clock clock) {
                     return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);
+                }
+                
+                @Bean
+                public LocaleMappingHandler localeHandler() {
+                    return LocaleMappingHandler.NOOP_IMPLEMENTATION;
                 }
                         
                 @Bean

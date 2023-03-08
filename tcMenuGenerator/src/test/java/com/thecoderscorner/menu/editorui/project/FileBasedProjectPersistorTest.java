@@ -17,7 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDef
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
-import com.thecoderscorner.menu.persist.NoLocaleEnabledLocalHandler;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ public class FileBasedProjectPersistorTest {
                 .withEepromDefinition(new NoEepromDefinition()).withAuthenticationDefinition(new NoAuthenticatorDefinition())
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
                 .codeOptions();
-        persistor.save(projFile.toString(), "", tree, options, new NoLocaleEnabledLocalHandler());
+        persistor.save(projFile.toString(), "", tree, options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
 
         MenuTreeWithCodeOptions openResult = persistor.open(projFile.toString());
 
