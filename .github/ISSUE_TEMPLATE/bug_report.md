@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-** Commerical or Personal use **
+**Commerical or Personal use**
 Are you using tcMenu for commercial or personal/community use.
 
 **To Reproduce**
