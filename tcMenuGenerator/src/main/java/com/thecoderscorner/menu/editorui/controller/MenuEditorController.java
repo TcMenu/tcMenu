@@ -241,20 +241,9 @@ public class MenuEditorController {
 
     private void onEditorChange(MenuItem original, MenuItem changed) {
         TreeItem<MenuItemWithDescription> selectedItem = menuTree.getSelectionModel().getSelectedItem();
-        if (!original.equals(changed) || localeIsDifferent(changed, selectedItem)) {
-            selectedItem.setValue(new MenuItemWithDescription(changed));
-            editorProject.applyCommand(Command.EDIT, changed);
-            if(simulatorUI != null) simulatorUI.itemHasChanged(changed);
-        }
-    }
-
-    private boolean localeIsDifferent(MenuItem changed, TreeItem<MenuItemWithDescription> selItem) {
-        LocaleMappingHandler lh = editorProject.getLocaleHandler();
-        if(lh.isLocalSupportEnabled() && changed.getName().startsWith("%")) {
-            var newText = lh.getFromLocaleWithDefault(changed.getName(), changed.getName());
-            return (!newText.equals(selItem.getValue().desc()));
-        }
-        return false;
+        selectedItem.setValue(new MenuItemWithDescription(changed));
+        editorProject.applyCommand(Command.EDIT, changed);
+        if(simulatorUI != null) simulatorUI.itemHasChanged(changed);
     }
 
     public void presentInfoPanel() {

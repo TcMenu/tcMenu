@@ -167,7 +167,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         String defaultLocaleFile = toSourceFile(srcDir, "_lang" + ".h", generated);
         localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
         var defaultLocaleMap = localeHandler.getUnderlyingMap();
-        localeToCpp(defaultLocaleFile, Locale.of(""), defaultLocaleMap);
+        localeToCpp(defaultLocaleFile, PropertiesLocaleEnabledHandler.DEFAULT_LOCALE, defaultLocaleMap);
         boolean useElIf = false;
 
         for (var locale : localeHandler.getEnabledLocales().stream().filter(l -> !l.getLanguage().equals("")).toList()) {
@@ -328,7 +328,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 List<MenuItem> childItems = menuTree.getMenuItems(item);
                 String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
-                                new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild, false))
+                                new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild,
+                                        false, localeHandler))
                         .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
@@ -336,7 +337,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 Object defVal = MenuItemHelper.getValueFor(item, menuTree, MenuItemHelper.getDefaultFor(item));
                 String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
-                                new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null, toEmbeddedCppValue(item, defVal)))
+                                new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null,
+                                        toEmbeddedCppValue(item, defVal), localeHandler))
                         .orElse(Collections.emptyList()));
             }
         }
@@ -410,7 +412,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         return menuTree.getAllSubMenus().stream()
                 .flatMap(menuItem -> menuTree.getMenuItems(menuItem).stream())
                 .filter(mi -> (!isStringEmptyOrNull(mi.getFunctionName())) || MenuItemHelper.isRuntimeStructureNeeded(mi))
-                .map(i -> new CallbackRequirement(namingGenerator, i.getFunctionName(), i))
+                .map(i -> new CallbackRequirement(namingGenerator, i.getFunctionName(), i, localeHandler))
                 .collect(Collectors.toMap(CallbackRequirement::getCallbackItem, cr -> cr));
     }
 

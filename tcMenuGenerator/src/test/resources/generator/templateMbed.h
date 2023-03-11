@@ -25,6 +25,7 @@
 #include <EepromItemStorage.h>
 #include <mbed/HalStm32EepromAbstraction.h>
 #include <RemoteAuthentication.h>
+#include "project_langSelect.h"
 
 // variables we declare that you may need to access
 extern const PROGMEM ConnectorLocalInfo applicationInfo;
@@ -37,11 +38,11 @@ extern const GFXfont sans24p7b;
 
 
 // Global Menu Item exports
-extern TextMenuItem menuAnalogRAM;
-extern AnalogMenuInfo minfoAnalogRAM;
-extern AnalogMenuItem menuAnalogRAM;
-extern RemoteMenuItem menuIoTMonitor;
-extern EepromAuthenticationInfoMenuItem menuAuthenticator;
+extern TextMenuItem menuTextEditor;
+extern AnalogMenuInfo minfoAnalogRam;
+extern AnalogMenuItem menuAnalogRam;
+extern RemoteMenuItem menuIoTMon;
+extern EepromAuthenticationInfoMenuItem menuCustomAuth;
 extern ScrollChoiceMenuItem menuMySubSub1CustomChoice;
 extern ScrollChoiceMenuItem menuMySubSub1RamChoice;
 extern ScrollChoiceMenuItem menuMySubSub1EepromChoice;

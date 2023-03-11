@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,10 +78,10 @@ public class ArduinoSketchFileAdjusterTest {
         when(generator.makeNameToVar(itemId9)).thenReturn("SubnetMask");
         when(generator.makeNameToVar(itemId10)).thenReturn("List");
         callbacks = List.of(
-                new CallbackRequirement(generator, "callback", itemId8),
-                new CallbackRequirement(generator, "fnListRtCall", itemId10),
-                new CallbackRequirement(generator, "onIpChange", itemId9),
-                new CallbackRequirement(generator, "@includeOnly", itemId6)
+                new CallbackRequirement(generator, "callback", itemId8, LocaleMappingHandler.NOOP_IMPLEMENTATION),
+                new CallbackRequirement(generator, "fnListRtCall", itemId10, LocaleMappingHandler.NOOP_IMPLEMENTATION),
+                new CallbackRequirement(generator, "onIpChange", itemId9, LocaleMappingHandler.NOOP_IMPLEMENTATION),
+                new CallbackRequirement(generator, "@includeOnly", itemId6, LocaleMappingHandler.NOOP_IMPLEMENTATION)
         );
     }
 

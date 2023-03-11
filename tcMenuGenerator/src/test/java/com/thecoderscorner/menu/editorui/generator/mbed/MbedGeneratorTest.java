@@ -86,22 +86,6 @@ public class MbedGeneratorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testMbedConversion() throws IOException {
-
-        MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
-        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("%menu.10001.name")
-                .withMenuType(AUTHENTICATION).withEepromAddr(-1).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("%menu.10002.name")
-                .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("%menu.10003.name")
-                .withDivisor(10).withOffset(0).withMaxValue(100).withUnit("%menu.10003.unit")
-                .withStaticDataInRAM(true).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10003).withName("Text Plain")
-                .withLength(10).withEditItemType(EditItemType.PLAIN_TEXT).withFunctionName("textRenderRtCall").menuItem());
-
-        ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
-        when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
-
         var flashRemotes = List.of(
                 new FlashRemoteId("name1", "first-uuid"),
                 new FlashRemoteId("name2", "second-uuid")
@@ -114,6 +98,22 @@ public class MbedGeneratorTest {
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection())
                 .withRecursiveNaming(true).withSaveLocation(ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED)
                 .codeOptions();
+
+        MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("%menu.10001.name")
+                .withMenuType(AUTHENTICATION).withEepromAddr(-1).withVariableName("CustomAuth").menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("%menu.10002.name")
+                .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).withVariableName("IoTMon").menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("%menu.10003.name")
+                .withDivisor(10).withOffset(0).withMaxValue(100).withUnit("%menu.10003.unit")
+                .withVariableName("AnalogRam").withStaticDataInRAM(true).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10004).withName("%menu.10004.name")
+                .withLength(10).withEditItemType(EditItemType.PLAIN_TEXT).withFunctionName("textRenderRtCall")
+                .withVariableName("TextEditor").menuItem());
+
+        ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
+        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
+        when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
         ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options);
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS);
@@ -164,6 +164,7 @@ public class MbedGeneratorTest {
                 menu.10002.name=IoT Def Text
                 menu.10003.name=Analog Ram Def
                 menu.10003.unit=De
+                menu.10004.name=Text Edit Def
                 """);
 
         Files.writeString(i18n.resolve(MENU_PROJECT_LANG_FILENAME + "_fr.properties"), """
@@ -171,6 +172,7 @@ public class MbedGeneratorTest {
                 menu.10002.name=IoT Fr Text
                 menu.10003.name=Analog Ram Fr
                 menu.10003.unit=Fr
+                menu.10004.name=Text Edit
                 """);
     }
 }

@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,7 +34,8 @@ public class ArduinoItemGeneratorTest {
                 .withStaticDataInRAM(true)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("VarAbc", "Channel", null, "1234"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "VarAbc", "Channel", null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
@@ -79,7 +81,8 @@ public class ArduinoItemGeneratorTest {
                 .withEnumList(List.of("Turntable", "Computer"))
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("ChannelÖôóò", null, null, "1234"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "ChannelÖôóò", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
         assertEquals(3, result.get().size());
         BuildStructInitializer choices = result.get().get(0);
@@ -107,7 +110,8 @@ public class ArduinoItemGeneratorTest {
                 .withLength(10)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("GenState", null, null, "1234"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "GenState", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -125,7 +129,8 @@ public class ArduinoItemGeneratorTest {
                 .withLength(20)
                 .menuItem();
 
-        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator("IpAddress", null, null, "1234"));
+        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(
+                "IpAddress", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -143,7 +148,8 @@ public class ArduinoItemGeneratorTest {
                 .withLength(20)
                 .menuItem();
 
-        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator("Time", null, null, "1234"));
+        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(
+                "Time", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -162,7 +168,8 @@ public class ArduinoItemGeneratorTest {
                 .withFunctionName("onPressMe")
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("PressMe", null, null, "1234"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "PressMe", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -185,7 +192,8 @@ public class ArduinoItemGeneratorTest {
                 .withDecimalPlaces(5)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("CalcVal", null, null, "12.34"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "CalcVal", null, null, "12.34", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -207,7 +215,8 @@ public class ArduinoItemGeneratorTest {
                 .withFunctionName(null)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("SubMenu", "NextItem", "ChildItem", "1234"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "SubMenu", "NextItem", "ChildItem", "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(3, result.get().size());
@@ -244,7 +253,8 @@ public class ArduinoItemGeneratorTest {
                 .withStaticDataInRAM(naming == BooleanMenuItem.BooleanNaming.ON_OFF)
                 .menuItem();
 
-        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator("Enabled", null, null, "true"));
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "Enabled", null, null, "true", LocaleMappingHandler.NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());

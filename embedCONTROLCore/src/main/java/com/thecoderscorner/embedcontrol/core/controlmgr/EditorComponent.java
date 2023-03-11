@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -10,6 +11,7 @@ import com.thecoderscorner.menu.remote.protocol.CorrelationId;
  * @param <T> the base node type for the UI
  */
 public interface EditorComponent<T> {
+
     /**
      * The possible alignments for the items within the control
      */
@@ -25,6 +27,12 @@ public interface EditorComponent<T> {
      * @param newValue the menu state containing the update
      */
     void onItemUpdated(MenuState<?> newValue);
+
+    /**
+     * There has been a structural change that requires the item to be recalculated.
+     * @param item the replacement item after a structural update.
+     */
+    void structuralChange(MenuItem item);
 
     /**
      * A correlation has been received from the remote and needs processing

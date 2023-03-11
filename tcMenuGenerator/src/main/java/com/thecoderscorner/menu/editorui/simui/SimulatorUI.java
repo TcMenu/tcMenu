@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.simui;
 
+import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
@@ -131,7 +132,9 @@ public class SimulatorUI {
             if(item == null) {
 
             } else if (editorComponents.containsKey(item.getId())) {
-                editorComponents.get(item.getId()).onItemUpdated(controller.getMenuTree().getMenuState(item));
+                EditorComponent<Node> nodeEditorComponent = editorComponents.get(item.getId());
+                nodeEditorComponent.onItemUpdated(controller.getMenuTree().getMenuState(item));
+                nodeEditorComponent.structuralChange(item);
             }
         }
     }

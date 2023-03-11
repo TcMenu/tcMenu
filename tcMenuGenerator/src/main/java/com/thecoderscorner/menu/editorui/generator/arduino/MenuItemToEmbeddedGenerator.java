@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +24,11 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     private final String nextChild;
     private final String itemVar;
     private final Object defaultValue;
+    private final LocaleMappingHandler handler;
 
-    public MenuItemToEmbeddedGenerator(String itemVar, String nextVar, String nextCh, Object defaultValue) {
+    public MenuItemToEmbeddedGenerator(String itemVar, String nextVar, String nextCh, Object defaultValue,
+                                       LocaleMappingHandler handler) {
+        this.handler = handler;
         this.nextMenuName = generateMenuVariable(nextVar);
         this.nextChild = generateMenuVariable(nextCh);
         this.itemVar = itemVar;
@@ -38,14 +42,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(AnalogMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "AnalogMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getMaxValue())
                 .addPossibleFunction(item.getFunctionName())
                 .addElement(item.getOffset())
                 .addElement(Math.max(1, item.getDivisor()))
-                .addQuoted(item.getUnitName() != null ? item.getUnitName() : "")
+                .addQuoted(getUnitName(item))
                 .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "AnalogMenuItem")
@@ -56,6 +60,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 .requiresExtern();
 
         setResult(Arrays.asList(info, menu));
+    }
+
+    private String getUnitName(AnalogMenuItem item) {
+        return item.getUnitName() != null ? handler.getFromLocaleWithDefault(item.getUnitName(), item.getUnitName()) : "";
+    }
+
+    private String getItemName(MenuItem item) {
+        return handler.getFromLocaleWithDefault(item.getName(), item.getName());
     }
 
     @Override
@@ -173,7 +185,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(ActionMenuItem item) {
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "AnyMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
@@ -192,7 +204,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(FloatMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "FloatMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getNumDecimalPlaces())
@@ -219,7 +231,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         };
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "BooleanMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(1)
@@ -239,12 +251,16 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(EnumMenuItem item) {
+        List<String> enumEntries = item.getEnumEntries().stream()
+                .map(v -> handler.getFromLocaleWithDefault(v, v))
+                .toList();
+
         BuildStructInitializer choices = new BuildStructInitializer(item, itemVar, "")
                 .stringChoices()
-                .collectionOfElements(item.getEnumEntries(), true);
+                .collectionOfElements(enumEntries, true);
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "EnumMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getEnumEntries().size() - 1)
@@ -278,7 +294,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(CustomBuilderMenuItem customItem) {
         String textName = "pgmStr" + itemVar + "Text";
         var nameField = new BuildStructInitializer(customItem, textName + "[]", "char")
-                .addQuoted(customItem.getName())
+                .addQuoted(getItemName(customItem))
                 .progMemStruct();
 
         switch (customItem.getMenuType()) {
@@ -303,7 +319,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(SubMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "SubMenuInfo")
-                .addQuoted(item.getName())
+                .addQuoted(getItemName(item))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)

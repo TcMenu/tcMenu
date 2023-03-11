@@ -21,7 +21,7 @@ public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
     protected final MenuComponentControl componentControl;
     private final ComponentSettings drawingSettings;
     protected final ThreadMarshaller threadMarshaller;
-    protected final MenuItem item;
+    protected MenuItem item;
     private final Object tickLock = new Object();
     private CorrelationId correlation;
     private long lastCorrelation = System.currentTimeMillis();
@@ -146,6 +146,12 @@ public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
             logger.log(System.Logger.Level.ERROR, "No correlation update received for " + corId);
             markRecentlyUpdated(RenderingStatus.CORRELATION_ERROR);
         }
+    }
+
+    @Override
+    public void structuralChange(MenuItem item) {
+        this.item = item;
+        markRecentlyUpdated(RenderingStatus.RECENT_UPDATE);
     }
 
     /**

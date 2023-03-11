@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +36,12 @@ public class CallbackRequirement {
     private final String callbackName;
     private final MenuItem callbackItem;
     private final boolean headerOnlyCallback;
+    private final LocaleMappingHandler handler;
 
-    public CallbackRequirement(VariableNameGenerator generator, String callbackName, MenuItem callbackItem) {
+    public CallbackRequirement(VariableNameGenerator generator, String callbackName, MenuItem callbackItem,
+                               LocaleMappingHandler handler) {
         this.generator = generator;
+        this.handler = handler;
         headerOnlyCallback = !StringHelper.isStringEmptyOrNull(callbackName) && callbackName.startsWith("@");
         this.callbackName = headerOnlyCallback ? callbackName.substring(1) : callbackName;
         this.callbackItem = callbackItem;
@@ -145,20 +149,19 @@ public class CallbackRequirement {
                     renderingMacroDef = "RENDERING_CALLBACK_NAME_OVERRIDDEN("
                             + generator.makeRtFunctionName(item) + ", "
                             + item.getFunctionName() + ", \""
-                            + item.getName() + "\", "
+                            +  handler.getFromLocaleWithDefault(item.getName(), item.getName()) + "\", "
                             + item.getEepromAddress() + ")";
                 } else {
                     renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
                             + generator.makeRtFunctionName(item) + ", "
                             + baseCbFn + ", \""
-                            + item.getName() + "\", "
+                            + handler.getFromLocaleWithDefault(item.getName(), item.getName()) + "\", "
                             + item.getEepromAddress() + ", "
                             + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
 
 
                     if (item instanceof ScrollChoiceMenuItem sc) {
                         if (sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
-                            var varName = sc.getVariable().startsWith("@") ? sc.getVariable().substring(1) : sc.getVariable();
                             setResult(List.of("extern char " + sc.getVariable() + "[];", renderingMacroDef));
                             return;
                         }
@@ -193,12 +196,12 @@ public class CallbackRequirement {
     }
 
     private String functionFromEditType(EditItemType itemType) {
-        switch(itemType) {
-            case PLAIN_TEXT: return "textItemRenderFn";
-            case IP_ADDRESS: return "ipAddressRenderFn";
-            case GREGORIAN_DATE: return "dateItemRenderFn";
-            default: return "timeItemRenderFn";
-        }
+        return switch (itemType) {
+            case PLAIN_TEXT -> "textItemRenderFn";
+            case IP_ADDRESS -> "ipAddressRenderFn";
+            case GREGORIAN_DATE -> "dateItemRenderFn";
+            default -> "timeItemRenderFn";
+        };
     }
 
     public String generateHeader() {
@@ -288,7 +291,7 @@ public class CallbackRequirement {
     }
 
     public static String generateRtCallForType(MenuItem item, String variableName, String joining) {
-        return generateRtCallForType(item, variableName).stream().collect(Collectors.joining(joining));
+        return String.join(joining, generateRtCallForType(item, variableName));
     }
 
     public static List<String> generateRtCallForType(MenuItem item, String variableName) {

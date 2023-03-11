@@ -27,14 +27,14 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_OVERRIDDEN(fnAnalogRAMRtCall, textRenderRtCall, "Analog RAM", 0)
-TextMenuItem menuAnalogRAM(fnAnalogRAMRtCall, 0, 10003, 10, NULL);
-AnalogMenuInfo minfoAnalogRAM = { "Analog RAM", 10003, 0, 100, NO_CALLBACK, 0, 10, "" };
-AnalogMenuItem menuAnalogRAM(&minfoAnalogRAM, 0, &menuAnalogRAM, INFO_LOCATION_RAM);
-const char pgmStrIoTMonitorText[] = { "IoT Monitor" };
-RemoteMenuItem menuIoTMonitor(pgmStrIoTMonitorText, 10002, &menuAnalogRAM);
-const char pgmStrAuthenticatorText[] = { "Authenticator" };
-EepromAuthenticationInfoMenuItem menuAuthenticator(pgmStrAuthenticatorText, NO_CALLBACK, 10001, &menuIoTMonitor);
+RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTextEditorRtCall, textRenderRtCall, "Text Edit Def", 0)
+TextMenuItem menuTextEditor(fnTextEditorRtCall, "", 10004, 10, NULL);
+AnalogMenuInfo minfoAnalogRam = { "Analog Ram Def", 10003, 0, 100, NO_CALLBACK, 0, 10, "De" };
+AnalogMenuItem menuAnalogRam(&minfoAnalogRam, 0, &menuTextEditor, INFO_LOCATION_RAM);
+const char pgmStrIoTMonText[] = { "IoT Def Text" };
+RemoteMenuItem menuIoTMon(pgmStrIoTMonText, 10002, &menuAnalogRam);
+const char pgmStrCustomAuthText[] = { "Auth Def Text" };
+EepromAuthenticationInfoMenuItem menuCustomAuth(pgmStrCustomAuthText, NO_CALLBACK, 10001, &menuIoTMon);
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
 extern char myChoiceRam[];
 RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RamChoiceRtCall, enumItemRenderFn, "Ram Choice", 31, onRamChoice)
@@ -57,7 +57,7 @@ RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DecLargeRtCall, largeNumItemRenderFn, 
 EditableLargeNumberMenuItem menuMySubSub1DecLarge(fnMySubSub1DecLargeRtCall, LargeFixedNumber(8, 3, 0U, 0U, false), 9, true, &menuMySubSub1IntLarge);
 const SubMenuInfo minfoMySubSub1 = { "Sub1", 8, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackMySubSub1(&minfoMySubSub1, &menuMySubSub1DecLarge, INFO_LOCATION_PGM);
-SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuAuthenticator, INFO_LOCATION_PGM);
+SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuCustomAuth, INFO_LOCATION_PGM);
 ListRuntimeMenuItem menuMySubMyList(7, 0, fnMySubMyListRtCall, &menuMySubSub1);
 const AnyMenuInfo minfoMySubMyAction = { "My Action", 6, 0xffff, 0, onActionItem };
 ActionMenuItem menuMySubMyAction(&minfoMySubMyAction, &menuMySubMyList, INFO_LOCATION_PGM);
@@ -93,9 +93,9 @@ void setupMenu() {
     turboTron.begin(&Serial, &applicationInfo, &menuMySubMyAnalog, MBED_RTOS);
 
     // We have an IoT monitor, register the server
-    menuIoTMonitor.setRemoteServer(remoteServer);
+    menuIoTMon.setRemoteServer(remoteServer);
 
     // We have an EEPROM authenticator, it needs initialising
-    menuAuthenticator.init();
+    menuCustomAuth.init();
 }
 
