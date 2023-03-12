@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.RUNTIME_MENU_URL;
 
@@ -148,14 +147,14 @@ public class CallbackRequirement {
                 if(callbackPresent && isApplicableForOverrideRtCall(item) && item.getFunctionName().endsWith(RUNTIME_FUNCTION_SUFIX)) {
                     renderingMacroDef = "RENDERING_CALLBACK_NAME_OVERRIDDEN("
                             + generator.makeRtFunctionName(item) + ", "
-                            + item.getFunctionName() + ", \""
-                            +  handler.getFromLocaleWithDefault(item.getName(), item.getName()) + "\", "
+                            + item.getFunctionName() + ", "
+                            + MenuItemToEmbeddedGenerator.getItemName(item, handler) + ", "
                             + item.getEepromAddress() + ")";
                 } else {
                     renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
                             + generator.makeRtFunctionName(item) + ", "
-                            + baseCbFn + ", \""
-                            + handler.getFromLocaleWithDefault(item.getName(), item.getName()) + "\", "
+                            + baseCbFn + ", "
+                            + MenuItemToEmbeddedGenerator.getItemName(item, handler) + ", "
                             + item.getEepromAddress() + ", "
                             + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
 

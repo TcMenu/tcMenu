@@ -456,8 +456,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
             writer.write("// Global variable declarations");
             writer.write(LINE_BREAK);
-            writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { \"" +
-                    options.getApplicationName() + "\", \"" + options.getApplicationUUID().toString() + "\" };");
+            writer.write("const " + (usesProgMem ? "PROGMEM " : "") + " ConnectorLocalInfo applicationInfo = { " +
+                    getApplicationName() + ", \"" + options.getApplicationUUID().toString() + "\" };");
             writer.write(LINE_BREAK);
             if (hasRemotePlugins && requiresGlobalServerDefinition()) {
                 writer.write("TcMenuRemoteServer remoteServer(applicationInfo);");
@@ -560,6 +560,14 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             throw new TcMenuConversionException("Header Generation failed", e);
         }
 
+    }
+
+    private String getApplicationName() {
+        if(localeHandler.isLocalSupportEnabled() && options.getApplicationName().startsWith("%")) {
+            return asDefine(options.getApplicationName().substring(1));
+        } else {
+            return "\"" + options.getApplicationName() + "\"";
+        }
     }
 
     private boolean requiresGlobalServerDefinition() {

@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,14 +43,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(AnalogMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "AnalogMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getMaxValue())
                 .addPossibleFunction(item.getFunctionName())
                 .addElement(item.getOffset())
                 .addElement(Math.max(1, item.getDivisor()))
-                .addQuoted(getUnitName(item))
+                .addElement(getUnitName(item, handler))
                 .memInfoBlock(!item.isStaticDataInRAM());
 
         BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "AnalogMenuItem")
@@ -62,12 +63,20 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         setResult(Arrays.asList(info, menu));
     }
 
-    private String getUnitName(AnalogMenuItem item) {
-        return item.getUnitName() != null ? handler.getFromLocaleWithDefault(item.getUnitName(), item.getUnitName()) : "";
+    public static String getUnitName(AnalogMenuItem item, LocaleMappingHandler handler) {
+        if(item.getUnitName() != null && handler.isLocalSupportEnabled() && item.getUnitName().startsWith("%")) {
+            return String.format("TC_I18N_MENU_%d_UNIT", item.getId());
+        } else {
+            return "\"" + item.getUnitName() + "\""; // as before;
+        }
     }
 
-    private String getItemName(MenuItem item) {
-        return handler.getFromLocaleWithDefault(item.getName(), item.getName());
+    public static String getItemName(MenuItem item, LocaleMappingHandler handler) {
+        if(handler.isLocalSupportEnabled() && item.getName().startsWith("%")) {
+            return String.format("TC_I18N_MENU_%d_NAME", item.getId());
+        } else {
+            return "\"" + item.getName() + "\""; // as before
+        }
     }
 
     @Override
@@ -185,7 +194,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(ActionMenuItem item) {
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "AnyMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)
@@ -204,7 +213,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(FloatMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "FloatMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getNumDecimalPlaces())
@@ -231,7 +240,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         };
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "BooleanMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(1)
@@ -251,16 +260,23 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(EnumMenuItem item) {
-        List<String> enumEntries = item.getEnumEntries().stream()
-                .map(v -> handler.getFromLocaleWithDefault(v, v))
-                .toList();
+        List<String> enumEntries = item.getEnumEntries();
+        boolean quotesNeeded = true;
+        if(handler.isLocalSupportEnabled() && !enumEntries.isEmpty() && enumEntries.get(0).startsWith("%")) {
+            var tempList = new ArrayList<String>(enumEntries.size()+1);
+            for(int i=0;i<enumEntries.size();i++) {
+                tempList.add(String.format("TC_I18N_MENU_%d_ENUM_%d", item.getId(), i));
+            }
+            quotesNeeded = false;
+            enumEntries = tempList;
+        }
 
         BuildStructInitializer choices = new BuildStructInitializer(item, itemVar, "")
                 .stringChoices()
-                .collectionOfElements(enumEntries, true);
+                .collectionOfElements(enumEntries, quotesNeeded);
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "EnumMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(item.getEnumEntries().size() - 1)
@@ -294,7 +310,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(CustomBuilderMenuItem customItem) {
         String textName = "pgmStr" + itemVar + "Text";
         var nameField = new BuildStructInitializer(customItem, textName + "[]", "char")
-                .addQuoted(getItemName(customItem))
+                .addElement(getItemName(customItem, handler))
                 .progMemStruct();
 
         switch (customItem.getMenuType()) {
@@ -319,7 +335,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     @Override
     public void visit(SubMenuItem item) {
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "SubMenuInfo")
-                .addQuoted(getItemName(item))
+                .addElement(getItemName(item, handler))
                 .addElement(item.getId())
                 .addEeprom(item.getEepromAddress())
                 .addElement(0)

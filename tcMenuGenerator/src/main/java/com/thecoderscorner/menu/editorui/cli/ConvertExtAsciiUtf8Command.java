@@ -25,8 +25,10 @@ public class ConvertExtAsciiUtf8Command implements Callable<Integer> {
             var out = (StringHelper.isStringEmptyOrNull(outputFile)) ? inputFile : outputFile;
             Files.writeString(Paths.get(out), str, StandardCharsets.UTF_8);
             System.out.println("Converted to UTF8 in file " + out);
+            return 0;
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
     }
 }
