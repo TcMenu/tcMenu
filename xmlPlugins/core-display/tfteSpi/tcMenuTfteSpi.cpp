@@ -13,10 +13,11 @@
  */
 
 #include "tcMenuTfteSpi.h"
-#include "tcUnicodeHelper.h"
+#include "tcUnicodeTFT_eSPI.h"
 #include <TFT_eSPI.h>
 
 using namespace iotouch;
+using namespace tcgfx;
 
 TfteSpiDrawable::TfteSpiDrawable(TFT_eSPI *tft, int spriteHeight) : tft(tft), spriteWithConfig(nullptr), spriteHeight(spriteHeight) {}
 
@@ -110,7 +111,7 @@ void TfteSpiDrawable::fontPtrToNum(const void* font, int mag) {
 }
 
 UnicodeFontHandler *TfteSpiDrawable::createFontHandler() {
-    return fontHandler = new UnicodeFontHandler(tft, tccore::ENCMODE_UTF8);
+    return fontHandler = new UnicodeFontHandler(newTFT_eSPITextPipeline(tft), tccore::ENCMODE_UTF8);
 }
 
 //
@@ -126,7 +127,7 @@ bool TftSpriteAndConfig::initSprite(const Coord &spriteWhere, const Coord &sprit
     if(spriteSize.x > size.x || spriteSize.y > size.y) return false;
 
     if(root->isTcUnicodeEnabled() && fontHandler == nullptr) {
-        fontHandler = new UnicodeFontHandler(&sprite, tccore::ENCMODE_UTF8);
+        fontHandler = new UnicodeFontHandler(newTFT_eSPITextPipeline(&sprite), tccore::ENCMODE_UTF8);
     }
 
     // create the sprite if needed

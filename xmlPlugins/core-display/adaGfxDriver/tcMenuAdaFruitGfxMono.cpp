@@ -14,6 +14,9 @@
 
 #include <ScrollChoiceMenuItem.h>
 #include "tcMenuAdaFruitGfxMono.h"
+#include <tcUnicodeAdaGFX.h>
+
+using namespace tcgfx;
 
 void AdafruitDrawable::transaction(bool isStarting, bool redrawNeeded) {
     if(!isStarting && redrawNeeded) {
@@ -121,7 +124,7 @@ void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {
 }
 
 UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
-    return new UnicodeFontHandler(graphics, ENCMODE_UTF8);
+    return new UnicodeFontHandler(new newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
 }
 
 //

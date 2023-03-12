@@ -1,16 +1,20 @@
 package com.thecoderscorner.menu.persist;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.UnmappableCharacterException;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.System.Logger.Level.DEBUG;
+
 public class SafeBundleLoader {
+    private static final String PROPERTIES_DEFAULT_FILE_HEADER = "# Created by TcMenu to hold menu translations, will always be written in UTF-8";
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     enum PropertiesLineType { BLANK, COMMENT, HAS_KEY_AND_VALUE, UNKNOWN }
 
@@ -54,10 +58,24 @@ public class SafeBundleLoader {
     public Map<String, String> loadResourceBundleAsMap(Locale locale) throws IOException {
         Path resolvedPath = getPathForLocale(locale);
 
-        var lines = Files.readAllLines(resolvedPath)
-                .stream().map(PropertiesFileLine::new)
-                .filter(line -> line.getLineType() == PropertiesLineType.HAS_KEY_AND_VALUE)
-                .collect(Collectors.toList());
+        List<PropertiesFileLine> lines;
+        try {
+            logger.log(DEBUG, "Loading properties as UTF-8 " + resolvedPath);
+            // First try loading the properties as UTF-8
+            lines = Files.readAllLines(resolvedPath, StandardCharsets.UTF_8)
+                    .stream().map(PropertiesFileLine::new)
+                    .filter(line -> line.getLineType() == PropertiesLineType.HAS_KEY_AND_VALUE)
+                    .collect(Collectors.toList());
+        } catch(MalformedInputException | UnmappableCharacterException ex) {
+            logger.log(DEBUG, "Properties not UTF-8, fall back to ASCII: " + resolvedPath + " - " + ex.getMessage());
+            lines = Files.readAllLines(resolvedPath, StandardCharsets.ISO_8859_1)
+                    .stream().map(PropertiesFileLine::new)
+                    .filter(line -> line.getLineType() == PropertiesLineType.HAS_KEY_AND_VALUE)
+                    .collect(Collectors.toList());
+        } catch(NoSuchFileException | FileNotFoundException | FileSystemNotFoundException ex) {
+            logger.log(DEBUG, "Properties file doesn't exist: " + resolvedPath + " - " + ex.getMessage());
+            lines = new ArrayList<>();
+        }
 
         var mapToReturn = new HashMap<String, String>(lines.size() + 20);
         for(var line : lines) {
@@ -71,12 +89,12 @@ public class SafeBundleLoader {
         try {
             List<PropertiesFileLine> lines;
             if(Files.exists(resolvedPath)) {
-                lines = Files.readAllLines(resolvedPath)
+                lines = Files.readAllLines(resolvedPath, StandardCharsets.UTF_8)
                         .stream().map(PropertiesFileLine::new)
                         .collect(Collectors.toCollection(ArrayList::new));
             } else {
-                lines = new ArrayList();
-                lines.add(new PropertiesFileLine("# Created by TcMenu to hold menu translations", true));
+                lines = new ArrayList<>();
+                lines.add(new PropertiesFileLine(PROPERTIES_DEFAULT_FILE_HEADER, true));
             }
 
             for(var value : allValues.entrySet()) {
@@ -104,7 +122,7 @@ public class SafeBundleLoader {
         if(locale.getLanguage() == null || locale.getLanguage().length() == 0) {
             return location.resolve(baseName + ".properties");
         } else {
-            return location.resolve(baseName + "_" + locale.toString() + ".properties");
+            return location.resolve(baseName + "_" + locale + ".properties");
         }
     }
 

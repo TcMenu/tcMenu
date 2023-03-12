@@ -23,4 +23,15 @@ public interface LocaleMappingHandler {
         String ret = getLocalSpecificEntry(localeEntry.substring(1));
         return (ret == null) ? defText : ret;
     }
+
+    default String getWithLocaleInitIfNeeded(String localeName, String existing) {
+        if(isLocalSupportEnabled()) {
+            if(!existing.startsWith("%") && this instanceof PropertiesLocaleEnabledHandler) {
+                ((PropertiesLocaleEnabledHandler)this).putIntoDefaultIfNeeded(localeName.substring(1), existing);
+            }
+            return getFromLocaleWithDefault(existing, existing);
+        } else {
+            return existing;
+        }
+    }
 }

@@ -13,6 +13,7 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     private final Object localeLock = new Object();
     private Locale currentLocale;
     private Map<String, String> cachedEntries;
+    private Map<String, String> parentCachedEntries;
     private Map<String, String> defaultCachedEntries;
     private boolean needsSave = false;
     private boolean defaultNeedsSave = false;
@@ -35,6 +36,9 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     public String getLocalSpecificEntry(String source) throws IllegalArgumentException {
         synchronized (localeLock) {
             var ret = cachedEntries.get(source);
+            if(ret == null && parentCachedEntries != null) {
+                ret = parentCachedEntries.get(source);
+            }
             if(ret == null) {
                 ret = defaultCachedEntries.get(source);
             }
@@ -90,14 +94,21 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
             }
             saveChanges();
             currentLocale = locale;
+
+            parentCachedEntries = null;
+
             if(locale.getLanguage().equals("--")) {
                 cachedEntries = new HashMap<>();
             } else if(locale.getLanguage().isEmpty()) {
                 cachedEntries = defaultCachedEntries;
+            } else if(locale.getCountry() == null || locale.getCountry().isEmpty() ) {
+                cachedEntries = bundleLoader.loadResourceBundleAsMap(currentLocale);
             } else {
                 cachedEntries = bundleLoader.loadResourceBundleAsMap(currentLocale);
+                parentCachedEntries = bundleLoader.loadResourceBundleAsMap(new Locale(currentLocale.getLanguage()));
             }
             needsSave = false;
+            defaultNeedsSave = false;
         }
     }
 
@@ -118,7 +129,15 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     @Override
     public Map<String, String> getUnderlyingMap() {
         synchronized (localeLock) {
-            return Map.copyOf(cachedEntries);
+            // lowest priority is the default locale.
+            var underlyingAll = new HashMap<String, String>(defaultCachedEntries);
+            // followed by the parent (IE language level)
+            if(parentCachedEntries != null) {
+                underlyingAll.putAll(parentCachedEntries);
+            }
+            // lastly followed by country.
+            underlyingAll.putAll(cachedEntries);
+            return underlyingAll;
         }
     }
 
@@ -131,5 +150,11 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
         synchronized (localeLock) {
             return currentLocale;
         }
+    }
+
+    public void putIntoDefaultIfNeeded(String localeName, String existing) {
+        if(defaultCachedEntries.containsKey(localeName)) return;
+        defaultCachedEntries.put(localeName, existing);
+        defaultNeedsSave = true;
     }
 }

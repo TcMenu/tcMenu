@@ -145,7 +145,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.add(localeMenuButton, 2, idx, 1, 1);
 
         grid.add(new Label(bundle.getString("menu.editor.name.field")), 0, idx);
-        String text = localHandler.getFromLocaleWithDefault(menuItemToLocale("name"), menuItem.getName());
+        String text = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("name"), menuItem.getName());
         nameField = new TextField(text);
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));

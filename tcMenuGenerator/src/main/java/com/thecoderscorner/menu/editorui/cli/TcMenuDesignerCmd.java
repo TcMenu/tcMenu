@@ -19,7 +19,8 @@ import static picocli.CommandLine.*;
         SetConfigCommand.class,
         ListPlatformsCommand.class,
         WrapWebServerFilesCommand.class,
-        ConfigureI18nCommand.class
+        ConfigureI18nCommand.class,
+        ConvertExtAsciiUtf8Command.class
 })
 public class TcMenuDesignerCmd {
 

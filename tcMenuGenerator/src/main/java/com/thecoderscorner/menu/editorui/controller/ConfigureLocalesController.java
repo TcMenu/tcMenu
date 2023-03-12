@@ -25,7 +25,8 @@ public class ConfigureLocalesController {
     public void initialise(PropertiesLocaleEnabledHandler localeHandler) {
         this.localeHandler = localeHandler;
         List<NamedLocale> namedLocales = Arrays.stream(Locale.getISOLanguages())
-                .map(Locale::of).map(NamedLocale::new).toList();
+                .map(Locale::of).map(NamedLocale::new)
+                .sorted(Comparator.comparing(NamedLocale::toString)).toList();
 
         var countryList = new ArrayList<String>();
         countryList.add("--");

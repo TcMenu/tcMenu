@@ -42,6 +42,8 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         List<FieldError> errors = new ArrayList<>();
 
         ObservableList<String> items = listView.getItems();
+
+
         if(items.isEmpty()) {
             errors.add(new FieldError("There must be at least one choice", "Choices"));
         }
@@ -49,8 +51,19 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
             errors.add(new FieldError("Choices must not contain speech marks or backslash", "Choices"));
         }
 
-        EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem())
-                .withEnumList(items);
+        EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem());
+
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            var itemsLocaleList = new ArrayList<String>();
+            for(int i=0; i<items.size(); i++) {
+                String enumEntryName = getEnumEntryKey(i);
+                localHandler.setLocalSpecificEntry(enumEntryName, items.get(i));
+                itemsLocaleList.add("%" + enumEntryName);
+            }
+            builder.withEnumList(itemsLocaleList);
+        } else {
+            builder.withEnumList(items);
+        }
 
         getChangedDefaults(builder, errors);
 
@@ -73,7 +86,16 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
         grid.add(new Label("Values"), 0, idx);
-        ObservableList<String> list = FXCollections.observableArrayList(getMenuItem().getEnumEntries());
+        List<String> enumEntries = getMenuItem().getEnumEntries();
+        ObservableList<String> list = FXCollections.observableArrayList(enumEntries);
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            var itemsLocaleList = new ArrayList<String>();
+            for(int i=0; i<enumEntries.size(); i++) {
+                String enumEntryName = getEnumEntryKey(i);
+                itemsLocaleList.add(localHandler.getWithLocaleInitIfNeeded("%" + enumEntryName, enumEntries.get(i)));
+            }
+            list = FXCollections.observableList(itemsLocaleList);
+        }
         listView = new ListView<>(list);
         listView.setEditable(true);
         listView.setPrefHeight(120);
@@ -101,7 +123,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         removeButton.setOnAction(event -> {
             String selectedItem = listView.getSelectionModel().getSelectedItem();
             if(selectedItem != null) {
-                list.remove(selectedItem);
+                listView.getItems().remove(selectedItem);
             }
         });
 
@@ -123,5 +145,9 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         grid.add(defaultValueField, 1, idx);
 
         return idx;
+    }
+
+    private String getEnumEntryKey(int i) {
+        return String.format("menu.%d.enum.%d", getMenuItem().getId(), i);
     }
 }

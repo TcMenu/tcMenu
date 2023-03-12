@@ -17,7 +17,9 @@
 #include <U8g2lib.h>
 #include <Wire.h>
 #include "tcMenuU8g2.h"
-#include <tcUnicodeHelper.h>
+#include <tcUnicodeU8G2.h>
+
+using namespace tcgfx;
 
 const uint8_t* safeGetFont(const void* fnt) {
     if(fnt) return static_cast<const uint8_t *>(fnt);
@@ -153,5 +155,5 @@ void U8g2Drawable::drawPixel(uint16_t x, uint16_t y) {
 }
 
 UnicodeFontHandler* U8g2Drawable::createFontHandler() {
-    return new UnicodeFontHandler(u8g2, ENCMODE_UTF8);
+    return new UnicodeFontHandler(newU8G2TextPipeline(u8g2), ENCMODE_UTF8);
 }

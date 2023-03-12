@@ -71,6 +71,11 @@ public class SafeBundleLoaderTest {
                 "\n" +
                 "# two blank lines and comment\n" +
                 "thanks=thank you\n" +
+                "\n" +
+                "menu.5.name=Menu 5 name\n" +
+                "menu.3.enum.1=Menu 3 enum1\n" +
+                "\n" +
+                "root.only.entry=1234\n" +
                 "food=pizza\n", new String(allBytes));
     }
 
@@ -88,6 +93,10 @@ public class SafeBundleLoaderTest {
                 "\n" +
                 "# two blank lines and comment\n" +
                 "thanks=merci\n" +
+                "\n" +
+                "# utf8 should be maintained in the file and not lost\n" +
+                "menu.5.name=Paramètres\n" +
+                "menu.3.enum.1=Pâtes\n" +
                 "food=pizza\n", new String(allBytes));
 
         var mapOfValues = loader.loadResourceBundleAsMap(Locale.FRENCH);
@@ -102,25 +111,38 @@ public class SafeBundleLoaderTest {
         SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
         loader.saveChangesKeepingFormatting(Locale.GERMAN, Map.of("welcome", "hi"));
         var allBytes = Files.readAllBytes(tempDir.resolve("test_de.properties"));
-        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n" +
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations, will always be written in UTF-8\n" +
                 "welcome=hi\n", new String(allBytes));
 
         loader.saveChangesKeepingFormatting(Locale.ITALIAN, Map.of());
         allBytes = Files.readAllBytes(tempDir.resolve("test_it.properties"));
-        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n", new String(allBytes));
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations, will always be written in UTF-8\n", new String(allBytes));
     }
 
     @Test
     public void testSavingDefaultCompletelyNewFileLocaleCountry() throws IOException {
-        SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
-        loader.saveChangesKeepingFormatting(new Locale("de", "CH"), Map.of("welcome", "hi"));
-        var allBytes = Files.readAllBytes(tempDir.resolve("test_de_CH.properties"));
-        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n" +
-                "welcome=hi\n", new String(allBytes));
+        var loader = new SafeBundleLoader(tempDir, "test");
+        var handler = new PropertiesLocaleEnabledHandler(loader);
 
+        // create a completely new locale of language and country and add a property to it.
+        handler.changeLocale(new Locale("de", "CH"));
+        handler.getWithLocaleInitIfNeeded("%extra.prop.name", "123"); // will only be in default
+        handler.setLocalSpecificEntry("welcome", "Guten Tag"); // will only be this value in DE
+        handler.saveChanges();
+
+        // read it back and it should have the property after saving, the property should also be in the root locale
+        var allBytes = Files.readAllBytes(tempDir.resolve("test_de_CH.properties"));
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations, will always be written in UTF-8\n" +
+                "welcome=Guten Tag\n", new String(allBytes));
+        allBytes = Files.readAllBytes(tempDir.resolve("test.properties"));
+        assertTrue(new String(allBytes).contains("extra.prop.name=123"));
+        assertTrue(new String(allBytes).contains("welcome=hello"));
+        assertFalse(new String(allBytes).contains("welcome=Guten Tag"));
+
+        // now create a completely empty new file.
         loader.saveChangesKeepingFormatting(Locale.ITALIAN, Map.of());
         allBytes = Files.readAllBytes(tempDir.resolve("test_it.properties"));
-        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations\n", new String(allBytes));
+        assertEqualsIgnoringCRLF("# Created by TcMenu to hold menu translations, will always be written in UTF-8\n", new String(allBytes));
     }
 
     @Test
@@ -142,6 +164,40 @@ public class SafeBundleLoaderTest {
     }
 
     @Test
+    public void testPropertiesLocaleHandleLanguageCountry() throws IOException {
+        SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
+        var handler = new PropertiesLocaleEnabledHandler(loader);
+
+        assertTrue(handler.isLocalSupportEnabled());
+        handler.changeLocale(new Locale("fr", "CA"));
+
+        // test that overrides work
+        assertEquals("bonjourCA", handler.getLocalSpecificEntry("welcome"));
+        assertEquals("Salade", handler.getFromLocaleWithDefault("%menu.3.enum.1", "non"));
+        assertEquals("Paramètres des pâtes", handler.getFromLocaleWithDefault("%menu.5.name", "non"));
+
+        // test that defaulting is back to language level and not root.
+        assertEquals("au rivoir", handler.getFromLocaleWithDefault("%leave", "non"));
+        assertEquals("merci", handler.getFromLocaleWithDefault("%thanks", "non"));
+
+        // this should default back to the default locale
+        assertEquals("1234", handler.getFromLocaleWithDefault("%root.only.entry", "non"));
+
+        var underlyingMap = handler.getUnderlyingMap();
+        assertEquals(6, underlyingMap.size());
+        assertEquals("bonjourCA", underlyingMap.get("welcome"));
+        assertEquals("Salade", underlyingMap.get("menu.3.enum.1"));
+        assertEquals("Paramètres des pâtes", underlyingMap.get("menu.5.name"));
+
+        // test that defaulting is back to language level and not root.
+        assertEquals("au rivoir", underlyingMap.get("leave"));
+        assertEquals("merci", underlyingMap.get("thanks"));
+
+        // test an entry that only exists at the root level.
+        assertEquals("1234", underlyingMap.get("root.only.entry"));
+    }
+
+    @Test
     public void testPropertiesLocaleHandler() throws IOException {
         SafeBundleLoader loader = new SafeBundleLoader(tempDir, "test");
         var handler = new PropertiesLocaleEnabledHandler(loader);
@@ -152,8 +208,10 @@ public class SafeBundleLoaderTest {
         assertEquals("bonjour", handler.getLocalSpecificEntry("welcome"));
 
         var underlyingMap = handler.getUnderlyingMap();
-        assertEquals(3, underlyingMap.size());
+        assertEquals(6, underlyingMap.size());
         assertEquals("bonjour", underlyingMap.get("welcome"));
+        assertEquals("Paramètres", handler.getFromLocaleWithDefault("%menu.5.name", "non"));
+        assertEquals("Pâtes", handler.getFromLocaleWithDefault("%menu.3.enum.1", "non"));
 
         assertEquals(Locale.FRENCH, handler.getCurrentLocale());
 

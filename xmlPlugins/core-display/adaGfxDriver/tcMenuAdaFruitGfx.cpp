@@ -15,6 +15,10 @@
 #include <ScrollChoiceMenuItem.h>
 #include "tcMenuAdaFruitGfx.h"
 #include <Adafruit_SPITFT.h>
+#include <tcUnicodeAdaGFX.h>
+
+using namespace tcgfx;
+
 
 #if DISPLAY_HAS_MEMBUFFER == true
 #define refreshDisplayIfNeeded(gr, needUpd) {if(needUpd) reinterpret_cast<Adafruit_ILI9341*>(gr)->display();}
@@ -134,7 +138,7 @@ void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {
 }
 
 UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
-    return new UnicodeFontHandler(graphics, ENCMODE_UTF8);
+    return new UnicodeFontHandler(newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
 }
 
 //
