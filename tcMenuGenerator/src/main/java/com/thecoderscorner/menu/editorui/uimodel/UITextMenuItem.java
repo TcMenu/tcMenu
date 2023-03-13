@@ -44,14 +44,15 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
         List<FieldError> errors = new ArrayList<>();
         EditableTextMenuItemBuilder builder = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withExisting(getMenuItem())
-                .withLength(safeIntFromProperty(lenField.textProperty(), "MaxLength", errors, 1, 256))
+                .withLength(safeIntFromProperty(lenField.textProperty(), bundle.getString("menu.editor.text.max.len"),
+                        errors, 1, 256))
                 .withEditItemType(editTypeField.getValue());
 
         getChangedDefaults(builder, errors);
 
         String text = defaultValueField.getText();
         if(!verifyValueForEditType(editTypeField.getValue())) {
-            errors.add(new FieldError("Value is not valid " + text, "defaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.invalid.value") + " " + text, bundle.getString("menu.editor.default.value")));
         } else {
             MenuItemHelper.setMenuState(getMenuItem(), text, menuTree);
         }
@@ -63,7 +64,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
 
-        grid.add(new Label("Max. length"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.text.max.len")), 0, idx);
         lenField = new TextField(String.valueOf(getMenuItem().getTextLength()));
         lenField.textProperty().addListener(this::coreValueChanged);
         lenField.setId("textLength");
@@ -71,7 +72,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
         grid.add(lenField, 1, idx);
 
         idx++;
-        grid.add(new Label("Editor Type"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.text.edit.type")), 0, idx);
         editTypeField = new ComboBox<>(FXCollections.observableArrayList(EditItemType.values()));
         editTypeField.getSelectionModel().select(getMenuItem().getItemType());
         editTypeField.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -82,7 +83,7 @@ public class UITextMenuItem extends UIMenuItem<EditableTextMenuItem> {
         grid.add(editTypeField, 1, idx);
 
         idx++;
-        grid.add(new Label("Default Value"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, "");
         defaultValueField = new TextField(value);
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());

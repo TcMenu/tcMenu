@@ -44,18 +44,17 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         ObservableList<String> items = listView.getItems();
 
 
-        if(items.isEmpty()) {
-            errors.add(new FieldError("There must be at least one choice", "Choices"));
-        }
-        else if(items.stream().anyMatch(str-> str.isEmpty() || str.matches(".*[\"\\\\].*$"))) {
-            errors.add(new FieldError("Choices must not contain speech marks or backslash", "Choices"));
+        if (items.isEmpty()) {
+            errors.add(new FieldError(bundle.getString("menu.editor.enum.no.choices"), "Choices"));
+        } else if (items.stream().anyMatch(str -> str.isEmpty() || str.matches(".*[\"\\\\].*$"))) {
+            errors.add(new FieldError(bundle.getString("menu.editor.enum.fmt.error"), "Choices"));
         }
 
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem());
 
-        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+        if (localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
             var itemsLocaleList = new ArrayList<String>();
-            for(int i=0; i<items.size(); i++) {
+            for (int i = 0; i < items.size(); i++) {
                 String enumEntryName = getEnumEntryKey(i);
                 localHandler.setLocalSpecificEntry(enumEntryName, items.get(i));
                 itemsLocaleList.add("%" + enumEntryName);
@@ -67,16 +66,17 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
 
         getChangedDefaults(builder, errors);
 
+        var defValue = bundle.getString("menu.editor.default.value");
         try {
             String text = defaultValueField.getText();
             int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
             if (value < 0 || value > items.size()) {
-                errors.add(new FieldError("Value must be between 0 and " + items.size(), "DefaultValue"));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.analog.range") + " " + items.size(), defValue));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
             }
-        } catch(Exception ex) {
-            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+        } catch (Exception ex) {
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + ex.getClass().getSimpleName() + " " + ex.getMessage(), defValue));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);
@@ -85,7 +85,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
-        grid.add(new Label("Values"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.enum.values")), 0, idx);
         List<String> enumEntries = getMenuItem().getEnumEntries();
         ObservableList<String> list = FXCollections.observableArrayList(enumEntries);
         if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
@@ -107,9 +107,9 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         listView.setMinHeight(100);
         grid.add(listView, 1, idx, 1, 3);
         idx+=3;
-        Button addButton = new Button("Add");
+        Button addButton = new Button(bundle.getString("core.add.button"));
         addButton.setId("addEnumEntry");
-        Button removeButton = new Button("Remove");
+        Button removeButton = new Button(bundle.getString("core.remove.button"));
         removeButton.setId("removeEnumEntry");
         removeButton.setDisable(true);
         HBox hbox = new HBox(addButton, removeButton);
@@ -136,7 +136,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         listView.getSelectionModel().selectFirst();
 
         idx++;
-        grid.add(new Label("Default index (0 based)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, 0);
         defaultValueField = new TextField(Integer.toString(value));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());

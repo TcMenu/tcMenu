@@ -28,12 +28,6 @@ import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming.*;
 import static com.thecoderscorner.menu.domain.BooleanMenuItemBuilder.aBooleanMenuItemBuilder;
 
 public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
-
-    public static final TidyBooleanNaming TIDY_NAMING_TRUE_FALSE = new TidyBooleanNaming(TRUE_FALSE, "TRUE / FALSE");
-    public static final TidyBooleanNaming TIDY_NAMING_ON_OFF = new TidyBooleanNaming(ON_OFF, "ON / OFF");
-    public static final TidyBooleanNaming TIDY_NAMING_YES_NO = new TidyBooleanNaming(YES_NO, "YES / NO");
-    public static final TidyBooleanNaming TIDY_NAMING_CHECKBOX = new TidyBooleanNaming(CHECKBOX, "CheckBox");
-
     private ComboBox<TidyBooleanNaming> namingBox;
     private ComboBox<BooleanNamingValue> defaultValue;
 
@@ -69,10 +63,10 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         idx++;
         pane.add(new Label("Possible responses"), 0, idx);
         ObservableList<TidyBooleanNaming> list = FXCollections.observableList(List.of(
-                TIDY_NAMING_TRUE_FALSE,
-                TIDY_NAMING_ON_OFF,
-                TIDY_NAMING_YES_NO,
-                TIDY_NAMING_CHECKBOX
+                new TidyBooleanNaming(TRUE_FALSE, bundle.getString("menu.editor.bool.true.false")),
+                new TidyBooleanNaming(ON_OFF, bundle.getString("menu.editor.bool.on.off")),
+                new TidyBooleanNaming(YES_NO, bundle.getString("menu.editor.bool.yes.no")),
+                new TidyBooleanNaming(CHECKBOX, bundle.getString("menu.editor.bool.checkbox"))
         ));
         namingBox = new ComboBox<>(list);
         namingBox.getSelectionModel().select(namingToIndex((getMenuItem().getNaming())));
@@ -85,7 +79,7 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
         pane.add(namingBox, 1, idx, 2, 1);
         idx++;
 
-        pane.add(new Label("Default Value"), 0, idx);
+        pane.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         defaultValue = new ComboBox<>();
         prepareDefaultValueBasedOnNaming();
         defaultValue.setOnAction(event -> callChangeConsumer());
@@ -104,10 +98,14 @@ public class UIBooleanMenuItem extends UIMenuItem<BooleanMenuItem> {
 
     private ObservableList<BooleanNamingValue> findBooleanNamingListFor(BooleanNaming naming) {
         return switch (naming) {
-            case CHECKBOX -> FXCollections.observableArrayList(new BooleanNamingValue("Checked", true), new BooleanNamingValue("Unchecked", false));
-            case ON_OFF -> FXCollections.observableArrayList(new BooleanNamingValue("On", true), new BooleanNamingValue("Off", false));
-            case YES_NO -> FXCollections.observableArrayList(new BooleanNamingValue("Yes", true), new BooleanNamingValue("No", false));
-            case TRUE_FALSE -> FXCollections.observableArrayList(new BooleanNamingValue("True", true), new BooleanNamingValue("False", false));
+            case CHECKBOX -> FXCollections.observableArrayList(new BooleanNamingValue(bundle.getString("menu.editor.bool.checked"),
+                    true), new BooleanNamingValue(bundle.getString("menu.editor.bool.unchecked"), false));
+            case ON_OFF -> FXCollections.observableArrayList(new BooleanNamingValue(bundle.getString("menu.editor.bool.on"),
+                    true), new BooleanNamingValue(bundle.getString("menu.editor.bool.off"), false));
+            case YES_NO -> FXCollections.observableArrayList(new BooleanNamingValue(bundle.getString("menu.editor.bool.yes"),
+                    true), new BooleanNamingValue(bundle.getString("menu.editor.bool.no"), false));
+            case TRUE_FALSE -> FXCollections.observableArrayList(new BooleanNamingValue(bundle.getString("menu.editor.bool.true"),
+                    true), new BooleanNamingValue(bundle.getString("menu.editor.bool.false"), false));
         };
     }
 

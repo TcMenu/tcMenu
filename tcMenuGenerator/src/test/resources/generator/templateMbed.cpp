@@ -27,13 +27,13 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTextEditorRtCall, textRenderRtCall, "Text Edit Def", 0)
+RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTextEditorRtCall, textRenderRtCall, TC_I18N_MENU_10004_NAME, 0)
 TextMenuItem menuTextEditor(fnTextEditorRtCall, "", 10004, 10, NULL);
-AnalogMenuInfo minfoAnalogRam = { "Analog Ram Def", 10003, 0, 100, NO_CALLBACK, 0, 10, "De" };
+AnalogMenuInfo minfoAnalogRam = { TC_I18N_MENU_10003_NAME, 10003, 0, 100, NO_CALLBACK, 0, 10, TC_I18N_MENU_10003_UNIT };
 AnalogMenuItem menuAnalogRam(&minfoAnalogRam, 0, &menuTextEditor, INFO_LOCATION_RAM);
-const char pgmStrIoTMonText[] = { "IoT Def Text" };
+const char pgmStrIoTMonText[] = { TC_I18N_MENU_10002_NAME };
 RemoteMenuItem menuIoTMon(pgmStrIoTMonText, 10002, &menuAnalogRam);
-const char pgmStrCustomAuthText[] = { "Auth Def Text" };
+const char pgmStrCustomAuthText[] = { TC_I18N_MENU_10001_NAME };
 EepromAuthenticationInfoMenuItem menuCustomAuth(pgmStrCustomAuthText, NO_CALLBACK, 10001, &menuIoTMon);
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
 extern char myChoiceRam[];

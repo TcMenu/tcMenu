@@ -35,7 +35,8 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
     protected Optional<FloatMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
 
-        int dp = safeIntFromProperty(decimalPlaces.textProperty(), "Decimal Places", errors, 1, 6);
+        int dp = safeIntFromProperty(decimalPlaces.textProperty(), bundle.getString("menu.editor.decimal.places"),
+                errors, 1, 6);
         FloatMenuItemBuilder builder = FloatMenuItemBuilder.aFloatMenuItemBuilder()
                 .withExisting(getMenuItem())
                 .withDecimalPlaces(dp);

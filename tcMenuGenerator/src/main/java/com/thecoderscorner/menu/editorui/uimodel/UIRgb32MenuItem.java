@@ -45,7 +45,8 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
         try {
             MenuItemHelper.setMenuState(getMenuItem(), defaultValueField.getText(), menuTree);
         } catch(Exception ex) {
-            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " +
+                    ex.getClass().getSimpleName() + " " + ex.getMessage(), bundle.getString("menu.editor.default.value")));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);
@@ -54,7 +55,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
-        grid.add(new Label("Default Value (HTML)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value") + " (HTML)"), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, PortableColor.BLACK);
         defaultValueField = new TextField(getMenuItem().isIncludeAlphaChannel() ? value.toString() : value.toString().substring(0, 7));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
@@ -63,7 +64,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
         grid.add(defaultValueField, 1, idx);
 
         idx++;
-        alphaCheck = new CheckBox("Enable alpha channel");
+        alphaCheck = new CheckBox(bundle.getString("menu.editor.rgb.alpha"));
         alphaCheck.setId("alphaCheck");
         alphaCheck.setSelected(getMenuItem().isIncludeAlphaChannel());
         alphaCheck.selectedProperty().addListener((observableValue, aBoolean, t1) -> callChangeConsumer());
