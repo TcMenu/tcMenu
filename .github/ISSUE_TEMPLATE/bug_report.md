@@ -24,10 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Desktop UI issue (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - OS: [e.g. macOS/Windows/Linux]
+ - Version [e.g. Ventura/Win11]
  - Output of diagnostics from tcMenuDesigner
+ - Designer Version and any other relevant details
 
 **Embedded environment
  Provide as much information as possible about the board configuration here.
