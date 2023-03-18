@@ -4,7 +4,7 @@
                         xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/libraries/tcmenu-plugin.xsd">
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
-        <Version>3.2.0-SNAPSHOT</Version>
+        <Version>3.2.0-BETA</Version>
         <Name>Core remote control</Name>
         <Description>This plugin contains remote control capabilites for Ethernet, WiFi, Bluetooth and Serial.</Description>
         <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>

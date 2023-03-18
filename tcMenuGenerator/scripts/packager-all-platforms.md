@@ -46,7 +46,6 @@ Copy the following files from tcMenuDesigner into tcmenu
 
 * app/tcMenuDesigner.cfg
 * tcMenuDesigner.exe
-* tcMenuDesigner.ico
 
 ## Packaging - build for Debian / Ubuntu using package command
 

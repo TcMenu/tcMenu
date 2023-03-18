@@ -164,40 +164,48 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         langSelectText.append("// This is the header to include. Set TC_LOCAL_?? to a locale").append(LINE_BREAK);
         langSelectText.append("// or omit for the default language").append(TWO_LINES);
 
-        String defaultLocaleFile = toSourceFile(srcDir, "_lang" + ".h", generated);
-        localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
-        var defaultLocaleMap = localeHandler.getUnderlyingMap();
-        localeToCpp(defaultLocaleFile, PropertiesLocaleEnabledHandler.DEFAULT_LOCALE, defaultLocaleMap);
-        boolean useElIf = false;
+        var previousLocale = localeHandler.getCurrentLocale();
 
-        for (var locale : localeHandler.getEnabledLocales().stream().filter(l -> !l.getLanguage().equals("")).toList()) {
-            String localeFile = toSourceFile(srcDir, "_lang_" + locale.toString() + ".h", generated);
-            localeToCpp(localeFile, locale, defaultLocaleMap);
+        try {
+            String defaultLocaleFile = toSourceFile(srcDir, "_lang" + ".h", generated);
+            localeHandler.changeLocale(PropertiesLocaleEnabledHandler.DEFAULT_LOCALE);
+            var defaultLocaleMap = localeHandler.getUnderlyingMap();
+            localeToCpp(defaultLocaleFile, PropertiesLocaleEnabledHandler.DEFAULT_LOCALE, defaultLocaleMap);
+            boolean useElIf = false;
 
-            if(useElIf) {
-                langSelectText.append("#elif");
-            } else {
-                langSelectText.append("#if");
-                useElIf = true;
+            for (var locale : localeHandler.getEnabledLocales().stream().filter(l -> !l.getLanguage().equals("")).toList()) {
+                String localeFile = toSourceFile(srcDir, "_lang_" + locale.toString() + ".h", generated);
+                localeToCpp(localeFile, locale, defaultLocaleMap);
+
+                if (useElIf) {
+                    langSelectText.append("#elif");
+                } else {
+                    langSelectText.append("#if");
+                    useElIf = true;
+                }
+                langSelectText.append(" defined(TC_LOCALE_").append(locale.toString().toUpperCase()).append(')')
+                        .append(LINE_BREAK);
+                langSelectText.append("# include \"").append(Paths.get(localeFile).getFileName()).append("\"").append(LINE_BREAK);
             }
-            langSelectText.append(" defined(TC_LOCALE_").append(locale.toString().toUpperCase()).append(')')
-                    .append(LINE_BREAK);
-            langSelectText.append("# include \"").append(Paths.get(localeFile).getFileName()).append("\"").append(LINE_BREAK);
-        }
 
-        Path defPath = Paths.get(defaultLocaleFile);
-        if(useElIf) {
-            langSelectText.append("#else").append(LINE_BREAK).append("#include \"")
-                    .append(defPath.getFileName()).append("\"").append(LINE_BREAK)
-                    .append("#endif").append(LINE_BREAK);
-        } else {
-            langSelectText.append("#include \"").append(defPath.getFileName()).append("\"").append(LINE_BREAK);
-        }
+            Path defPath = Paths.get(defaultLocaleFile);
+            if (useElIf) {
+                langSelectText.append("#else").append(LINE_BREAK).append("#include \"")
+                        .append(defPath.getFileName()).append("\"").append(LINE_BREAK)
+                        .append("#endif").append(LINE_BREAK);
+            } else {
+                langSelectText.append("#include \"").append(defPath.getFileName()).append("\"").append(LINE_BREAK);
+            }
 
-        var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generated));
-        Files.writeString(selFile, langSelectText.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        logLine(INFO, "Wrote out the language selector - " + selFile);
-        logLine(DEBUG, "Finished locale processing");
+            var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generated));
+            Files.writeString(selFile, langSelectText.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            logLine(INFO, "Wrote out the language selector - " + selFile);
+            logLine(DEBUG, "Finished locale processing");
+        }
+        finally {
+            // put back the same locale as was selected before.
+            localeHandler.changeLocale(previousLocale);
+        }
     }
 
     private void localeToCpp(String localeOutputFile, Locale locale, Map<String, String> defaultLocaleMap) throws IOException {
