@@ -418,14 +418,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
         String s = stringProperty.get();
         if(s == null) {
             if(fieldType != OPTIONAL) {
-                errorsBuilder.add(new FieldError("field must be populated", field));
+                errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field));
             }
             return "";
         }
 
         // check the size of the text is within the allowable range.
         if(fieldType == OPTIONAL &&  s.length() > maxLen) {
-            errorsBuilder.add(new FieldError("field must be less than " + maxLen + " characters", field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.field.len") + " "
+                    + maxLen + " characters", field));
         }
         else if(fieldType != OPTIONAL  && (s.length() > maxLen || s.isEmpty())) {
             errorsBuilder.add(new FieldError("field must not be blank and less than " + maxLen + " characters", field));
@@ -434,13 +435,13 @@ public abstract class UIMenuItem<T extends MenuItem> {
         // callbacks have a special mode where they are still function names, but they can start with "@"
         // otherwise check the variable or text against the regex.
         if(fieldType == CALLBACK_FN && !s.matches("^@?[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
-            errorsBuilder.add(new FieldError("Field must use only letters, digits, and '_'", field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field));
         }
         else if(fieldType == VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
-            errorsBuilder.add(new FieldError("Field must use only letters, digits, and '_'", field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field));
         }
-        else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()]*$")) {
-            errorsBuilder.add(new FieldError("Text can only contain letters, numbers, spaces and '-_()*%'", field));
+        else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()\\.]*$")) {
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.text.invalid"), field));
         }
         return s;
     }

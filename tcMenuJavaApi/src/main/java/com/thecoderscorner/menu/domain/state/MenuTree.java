@@ -173,29 +173,48 @@ public class MenuTree {
     }
 
     /**
-     * Moves the item either up or down in the list for that submenu
-     * @param parent the parent id
-     * @param newItem the item to move
-     * @param moveType  the direction of the move.
+     * Moves the item within the menu structure, the new location is either the submenu it should be moved to, or the
+     * item it should appear after.
+     * @param itemMoved the item that has been moved
+     * @param newLocation the new location in the structure for the item
+     * @param before should be before the new location or after, if newLocation is a submenu it is always after
      */
-    public void moveItem(SubMenuItem parent, MenuItem newItem, MoveType moveType) {
+    public void moveItem(MenuItem itemMoved, MenuItem newLocation, boolean before) {
         synchronized (subMenuItems) {
-            ArrayList<MenuItem> items = subMenuItems.get(parent);
-            int idx = items.indexOf(newItem);
-            if(idx < 0) return;
+            // get rid of the old entry first as we are moving
+            SubMenuItem existingParent = findParent(itemMoved);
+            var items = subMenuItems.get(existingParent);
+            items.remove(itemMoved);
 
-            items.remove(idx);
-
-            idx = (moveType == MoveType.MOVE_UP)? idx -1 : idx + 1;
-            if(idx<0) idx=0;
-
-            if(idx>=items.size()) {
-                items.add(newItem);
+            // now locate where we are to add it
+            SubMenuItem newSub;
+            int idxToAdd = -1; // end
+            if(newLocation instanceof SubMenuItem) {
+                newSub = (SubMenuItem) newLocation;
+            } else {
+                newSub = findParent(newLocation);
+                idxToAdd = findIndexOf(newSub, newLocation);
+                if(!before) idxToAdd++;
             }
-            else {
-                items.add(idx, newItem);
+
+            // now add to the new location
+            items = subMenuItems.get(newSub);
+            if(idxToAdd < 0 || idxToAdd >= items.size()) {
+                items.add(itemMoved);
+            } else {
+                items.add(idxToAdd, itemMoved);
             }
         }
+    }
+
+    public int findIndexOf(SubMenuItem which, MenuItem item) {
+        var items = subMenuItems.get(which);
+        for(int i=0; i<items.size(); i++) {
+            if(items.get(i).equals(item)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**

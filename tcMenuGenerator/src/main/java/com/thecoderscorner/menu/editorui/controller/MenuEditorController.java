@@ -27,7 +27,6 @@ import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -61,6 +60,7 @@ import static java.lang.System.Logger.Level.INFO;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public class MenuEditorController {
+    private final static DataFormat objectDataFormat = new DataFormat("application/x-java-serialized-object");
     private final System.Logger logger = System.getLogger(MenuEditorController.class.getSimpleName());
     public Label statusField;
     public CheckMenuItem darkModeMenuFlag;
@@ -77,8 +77,6 @@ public class MenuEditorController {
     public javafx.scene.control.MenuItem aboutMenuItem;
     public javafx.scene.control.MenuItem menuAddItem;
     public javafx.scene.control.MenuItem menuRemoveItem;
-    public javafx.scene.control.MenuItem menuItemUp;
-    public javafx.scene.control.MenuItem menuItemDown;
 
     public Menu examplesMenu;
     public BorderPane rootPane;
@@ -87,8 +85,6 @@ public class MenuEditorController {
     public Button menuTreeRemove;
     public Button menuTreeCopy;
     public Button menuTreePaste;
-    public Button menuTreeUp;
-    public Button menuTreeDown;
     public BorderPane editorBorderPane;
     public MenuBar mainMenu;
 
@@ -125,6 +121,8 @@ public class MenuEditorController {
                 }
             } else if(event.getCode() == KeyCode.ESCAPE) {
                 onFocusCurrentEditor(new ActionEvent(menuTree, menuTree));
+            } else if(event.getCode() == KeyCode.DELETE || event.getCode() == KeyCode.BACK_SPACE) {
+                onRemoveTreeMenu(new ActionEvent(menuTree, menuTree));
             }
         });
 
@@ -132,6 +130,7 @@ public class MenuEditorController {
             editorProject.openProject(StartUICommand.userSelectedProject());
         }
 
+        menuTree.setCellFactory(param -> new MenuItemTreeCell(new MenuItemTreeController()));
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
                 onTreeChangeSelection(newItem.getValue().item());
@@ -241,7 +240,8 @@ public class MenuEditorController {
 
     private void onEditorChange(MenuItem original, MenuItem changed) {
         TreeItem<MenuItemWithDescription> selectedItem = menuTree.getSelectionModel().getSelectedItem();
-        selectedItem.setValue(new MenuItemWithDescription(changed));
+        selectedItem.getValue().setItem(changed);
+        menuTree.refresh();
         editorProject.applyCommand(Command.EDIT, changed);
         if(simulatorUI != null) simulatorUI.itemHasChanged(changed);
     }
@@ -283,12 +283,8 @@ public class MenuEditorController {
         // we cannot modify root.
         var isRoot = MenuTree.ROOT.equals(newValue);
         menuRemoveItem.setDisable(isRoot);
-        menuItemUp.setDisable(isRoot);
-        menuItemDown.setDisable(isRoot);
         menuTreeRemove.setDisable(isRoot);
         menuTreeCopy.setDisable(newValue == null);
-        menuTreeUp.setDisable(isRoot);
-        menuTreeDown.setDisable(isRoot);
         menuTreePaste.setDisable(!isClipboardContentValid());
     }
 
@@ -385,19 +381,6 @@ public class MenuEditorController {
                     new MenuIdChooserImpl(editorProject.getMenuTree())));
             redrawTreeControl();
         }
-    }
-
-    public void onTreeMoveUp(ActionEvent event) {
-        var selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        if(selected == null) return;
-        editorProject.applyCommand(new UpDownItemChange(selected.item(), getProject().getMenuTree().findParent(selected.item()), true));
-        redrawTreeControl();
-    }
-
-    public void onTreeMoveDown(ActionEvent event) {
-        var selected = menuTree.getSelectionModel().getSelectedItem().getValue();
-        editorProject.applyCommand(new UpDownItemChange(selected.item(), getProject().getMenuTree().findParent(selected.item()), false));
-        redrawTreeControl();
     }
 
     public void onAddToTreeMenu(ActionEvent actionEvent) {
@@ -707,9 +690,13 @@ public class MenuEditorController {
     }
 
     public class MenuItemWithDescription {
-        private final String desc;
-        private final MenuItem item;
+        private String desc;
+        private MenuItem item;
         public MenuItemWithDescription(MenuItem item) {
+            setItem(item);
+        }
+
+        public void setItem(MenuItem item) {
             this.item = item;
             if(item.equals(MenuTree.ROOT)) {
                 desc = "Root Item";
@@ -744,6 +731,22 @@ public class MenuEditorController {
             if(item.getId() == 0) return desc;
 
             return desc + " (ID " + item.getId() + ")";
+        }
+    }
+
+    private class MenuItemTreeController implements MenuItemTreeCell.MenuItemCellController {
+        @Override
+        public void itemClickedLeft(TreeCell<MenuItemWithDescription> item) {}
+
+        @Override
+        public void itemClickedRight(TreeCell<MenuItemWithDescription> item) {}
+
+        @Override
+        public void menuHasMovedFromTo(MenuItem originalLocation, MenuItem newLocation, MenuItemTreeCell.MenuInsertionPoint where) {
+            SubMenuItem currParent = editorProject.getMenuTree().findParent(originalLocation);
+            editorProject.applyCommand(new ItemMovedChangeCommand(originalLocation, newLocation, editorProject.getMenuTree(), where));
+            // once the command is applied and the drag and drop finishes, entirely redraw the tree control.
+            Platform.runLater(MenuEditorController.this::redrawTreeControl);
         }
     }
 }

@@ -143,20 +143,17 @@ public class MenuTreeTest {
         menuTree.addMenuItem(ROOT, item1);
         menuTree.addMenuItem(ROOT, item2);
 
-        menuTree.moveItem(ROOT, item2, MenuTree.MoveType.MOVE_UP);
+        menuTree.moveItem(item2, item3, true);
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
+
+        menuTree.moveItem(item2, item3, false);
         assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item3, item2, item1);
 
-        menuTree.moveItem(ROOT, item3, MenuTree.MoveType.MOVE_DOWN);
-        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
+        menuTree.moveItem(item1, item2, true);
+        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item3, item1, item2);
 
-        menuTree.moveItem(ROOT, item1, MenuTree.MoveType.MOVE_DOWN);
+        menuTree.moveItem(item2, item3, true);
         assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
-
-        menuTree.moveItem(ROOT, item2, MenuTree.MoveType.MOVE_UP);
-        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item3, item1);
-
-        menuTree.moveItem(ROOT, item1, MenuTree.MoveType.MOVE_UP);
-        assertThat(menuTree.getMenuItems(ROOT)).containsExactly(item2, item1, item3);
     }
 
     @Test

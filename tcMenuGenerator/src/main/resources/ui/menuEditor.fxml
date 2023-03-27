@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
         <menus>
@@ -75,17 +75,6 @@
                   </MenuItem>
                   <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree" text="%menu.menuitem.focus.tree" />
                   <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="%menu.menuitem.focus.editor" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuItemUp" mnemonicParsing="false" onAction="#onTreeMoveUp" text="%menu.menuitem.move.up">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="U" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                <MenuItem fx:id="menuItemDown" mnemonicParsing="false" onAction="#onTreeMoveDown" text="%menu.menuitem.move.down">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
               </items>
@@ -169,30 +158,6 @@
                        </graphic>
                        <tooltip>
                            <Tooltip text="Paste item(s)" />
-                       </tooltip>
-                   </Button>
-                   <Button fx:id="menuTreeUp" mnemonicParsing="false" onAction="#onTreeMoveUp">
-                       <graphic>
-                           <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                               <image>
-                                   <Image url="@../img/tree-up.png" />
-                               </image>
-                           </ImageView>
-                       </graphic>
-                       <tooltip>
-                           <Tooltip text="Move item up" />
-                       </tooltip>
-                   </Button>
-                   <Button fx:id="menuTreeDown" mnemonicParsing="false" onAction="#onTreeMoveDown">
-                       <graphic>
-                           <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                               <image>
-                                   <Image url="@../img/tree-down.png" />
-                               </image>
-                           </ImageView>
-                       </graphic>
-                       <tooltip>
-                           <Tooltip text="Move item down" />
                        </tooltip>
                    </Button>
                </children>

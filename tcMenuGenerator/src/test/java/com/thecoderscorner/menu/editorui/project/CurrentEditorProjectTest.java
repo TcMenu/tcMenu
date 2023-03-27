@@ -89,11 +89,6 @@ public class CurrentEditorProjectTest {
         project.applyCommand(NEW, item1, MenuTree.ROOT);
         project.applyCommand(NEW, item2, MenuTree.ROOT);
         assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
-        project.applyCommand(new UpDownItemChange(item1, MenuTree.ROOT, false));
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
-
-        project.applyCommand(new UpDownItemChange(item1, MenuTree.ROOT, true));
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
 
         project.undoChange();
         assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
