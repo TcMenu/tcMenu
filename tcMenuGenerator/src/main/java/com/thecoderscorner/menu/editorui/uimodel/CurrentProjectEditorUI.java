@@ -103,6 +103,12 @@ public interface CurrentProjectEditorUI {
     void showAboutDialog(ArduinoLibraryInstaller installer);
 
     /**
+     * Shows a search dialog where the user can type either by ID or name to search menu items in the tree
+     * @param tree the tree to search
+     */
+    Optional<MenuItem> showSearchDialog(MenuTree tree);
+
+    /**
      * Shows the code generator dialog that can be used to build native Arduino code.
      * @param installer the arduino installer object.
      */

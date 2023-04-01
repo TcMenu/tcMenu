@@ -76,6 +76,8 @@
                   <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree" text="%menu.menuitem.focus.tree" />
                   <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="%menu.menuitem.focus.editor" />
                   <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem accelerator="F4" mnemonicParsing="false" onAction="#onSearchPressed" text="%menu.menuitem.search.items"/>
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
               </items>
             </Menu>
@@ -124,7 +126,10 @@
                      </graphic>
                      <tooltip>
                         <Tooltip text="Add menu item" />
-                     </tooltip></Button>
+                     </tooltip>
+                     <HBox.margin>
+                        <Insets right="3.0" />
+                     </HBox.margin></Button>
                   <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -135,7 +140,10 @@
                      </graphic>
                      <tooltip>
                         <Tooltip text="Remove menu item" />
-                     </tooltip></Button>
+                     </tooltip>
+                     <HBox.margin>
+                        <Insets right="3.0" />
+                     </HBox.margin></Button>
                   <Button fx:id="menuTreeCopy" mnemonicParsing="false" onAction="#onTreeCopy">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -147,6 +155,9 @@
                      <tooltip>
                         <Tooltip text="Copy selected item(s)" />
                      </tooltip>
+                     <HBox.margin>
+                        <Insets right="3.0" />
+                     </HBox.margin>
                   </Button>
                    <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste">
                        <graphic>
@@ -159,7 +170,22 @@
                        <tooltip>
                            <Tooltip text="Paste item(s)" />
                        </tooltip>
+                     <HBox.margin>
+                        <Insets right="3.0" />
+                     </HBox.margin>
                    </Button>
+                  <Button mnemonicParsing="false" onAction="#onSearchPressed" prefHeight="29.0" prefWidth="54.0">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../img/tree-search.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
                </children>
                <opaqueInsets>
                   <Insets />

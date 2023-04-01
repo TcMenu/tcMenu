@@ -47,6 +47,11 @@ public class JsonMenuItemSerializer {
     public List<PersistedMenu> populateListInOrder(SubMenuItem node, MenuTree menuTree) {
         ArrayList<PersistedMenu> list = new ArrayList<>();
         List<MenuItem> items = menuTree.getMenuItems(node);
+        if(!node.equals(MenuTree.ROOT)) {
+            PersistedMenu sub = new PersistedMenu(menuTree.findParent(node), node);
+            sub.setDefaultValue("false");
+            list.add(sub);
+        }
         for (MenuItem item : items) {
             PersistedMenu persistedMenu = new PersistedMenu(node, item);
             if(menuTree.getMenuState(item) != null) {

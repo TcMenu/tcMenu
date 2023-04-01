@@ -178,6 +178,13 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
+    public Optional<MenuItem> showSearchDialog(MenuTree tree) {
+        logger.log(INFO, "Showing search dialog");
+        var d = new SearchMenuItemDialog(tree, mainStage, true);
+        return d.getResult();
+    }
+
+    @Override
     public void showCodeGeneratorDialog(ArduinoLibraryInstaller installer) {
         logger.log(INFO, "Start - show code generator dialog");
         if(!editorProject.isFileNameSet()) {

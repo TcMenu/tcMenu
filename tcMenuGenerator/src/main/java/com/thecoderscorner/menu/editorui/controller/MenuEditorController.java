@@ -683,6 +683,11 @@ public class MenuEditorController {
         simulatorUI.setCloseConsumer(windowEvent -> simulatorUI = null);
     }
 
+    public void onSearchPressed(ActionEvent actionEvent) {
+        var selected = editorUI.showSearchDialog(editorProject.getMenuTree());
+        selected.ifPresent(item -> selectChildInTreeById(menuTree.getRoot(), item.getId()));
+    }
+
     private record RecentlyUsedItem(String name, String path) {
         public String toString() {
             return name;
