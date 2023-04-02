@@ -41,7 +41,7 @@ public class UITextMenuItemTest extends UIMenuItemTestBase {
         performAllCommonChecks(ui.getMenuItem(), true);
 
         tryToEnterBadValueIntoField(robot, "textLength", "nameField", "1000",
-                "MaxLength - Value must be between 1 and 256");
+                "Max. length - Value must be between 1 and 256");
 
         writeIntoField(robot, "textLength", 10);
 

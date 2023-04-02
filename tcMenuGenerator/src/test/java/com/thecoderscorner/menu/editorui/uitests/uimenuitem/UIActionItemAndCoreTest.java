@@ -12,7 +12,6 @@ import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -26,7 +25,6 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,7 +142,7 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         performAllCommonChecks(subItem, false);
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This#Is+Err",
-                "Name - Text can only contain letters, numbers, spaces and '-_()*%'");
+                "Name - Text can only contain letters, numbers, spaces and '.-_()*%'");
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "",
                 "Name - field must not be blank and less than 19 characters");

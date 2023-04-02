@@ -44,10 +44,10 @@ public class JsonMenuItemSerializer {
         return gson;
     }
 
-    public List<PersistedMenu> populateListInOrder(SubMenuItem node, MenuTree menuTree) {
+    public List<PersistedMenu> populateListInOrder(SubMenuItem node, MenuTree menuTree, boolean processingRoot) {
         ArrayList<PersistedMenu> list = new ArrayList<>();
         List<MenuItem> items = menuTree.getMenuItems(node);
-        if(!node.equals(MenuTree.ROOT)) {
+        if(!node.equals(MenuTree.ROOT) && processingRoot) {
             PersistedMenu sub = new PersistedMenu(menuTree.findParent(node), node);
             sub.setDefaultValue("false");
             list.add(sub);
@@ -59,7 +59,7 @@ public class JsonMenuItemSerializer {
             }
             list.add(persistedMenu);
             if (item.hasChildren()) {
-                list.addAll(populateListInOrder(MenuItemHelper.asSubMenu(item), menuTree));
+                list.addAll(populateListInOrder(MenuItemHelper.asSubMenu(item), menuTree, false));
             }
         }
         return list;
@@ -68,7 +68,7 @@ public class JsonMenuItemSerializer {
     public String itemsToCopyText(MenuItem startingPoint, MenuTree tree) {
         List<PersistedMenu> items;
         if(startingPoint instanceof SubMenuItem) {
-            items = populateListInOrder((SubMenuItem) startingPoint, tree);
+            items = populateListInOrder((SubMenuItem) startingPoint, tree, true);
         }
         else {
             items = new ArrayList<>(); // has to be an array list.

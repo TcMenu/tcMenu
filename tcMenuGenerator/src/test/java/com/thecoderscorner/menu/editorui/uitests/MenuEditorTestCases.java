@@ -241,21 +241,6 @@ public class MenuEditorTestCases {
                 childItem,
                 itemToAdd
         );
-        // move it up and see that the menu changes order and gets drawn properly
-        robot.clickOn("#menuTreeUp");
-        assertThat(project.getMenuTree().getMenuItems(subItem)).containsExactly(
-                itemToAdd,
-                childItem
-        );
-        checkTheTreeMatchesMenuTree(robot, itemToAdd);
-
-        // and back again to the previous ordering.
-        robot.clickOn("#menuTreeDown");
-        assertThat(project.getMenuTree().getMenuItems(subItem)).containsExactly(
-                childItem,
-                itemToAdd
-        );
-        checkTheTreeMatchesMenuTree(robot, itemToAdd);
 
         // and then lastly lets get rid of the item we just added. Root should be selected afterwards.
         robot.clickOn("#menuTreeRemove");

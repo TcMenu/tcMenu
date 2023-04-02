@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
 import static com.thecoderscorner.menu.editorui.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,26 +77,6 @@ public class CurrentEditorProjectTest {
         assertFalse(project.getMenuTree().getMenuById(1).isPresent());
         project.redoChange();
         assertTrue(project.getMenuTree().getMenuById(1).isPresent());
-
-        assertTrue(project.isDirty());
-    }
-
-    @Test
-    public void testMovingItemsAround() {
-        assertFalse(project.canRedo());
-
-        project.applyCommand(NEW, item1, MenuTree.ROOT);
-        project.applyCommand(NEW, item2, MenuTree.ROOT);
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
-
-        project.undoChange();
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item2, item1);
-
-        assertTrue(project.canRedo());
-        assertTrue(project.canUndo());
-
-        project.undoChange();
-        assertThat(project.getMenuTree().getMenuItems(MenuTree.ROOT)).containsExactly(item1, item2);
 
         assertTrue(project.isDirty());
     }

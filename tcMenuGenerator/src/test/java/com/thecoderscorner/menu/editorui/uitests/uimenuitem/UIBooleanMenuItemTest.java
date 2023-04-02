@@ -42,7 +42,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         MenuItemHelper.setMenuState(menuTree.getMenuById(4).orElseThrow(), true, menuTree);
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
-        verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(new TidyBooleanNaming(ON_OFF, "On/Off")));
+        verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(new TidyBooleanNaming(ON_OFF, "On / Off")));
         verifyThat("#defaultValueCombo", ComboBoxMatchers.hasSelectedItem(new BooleanNamingValue("On", true)));
         verifyThat("#memLocationCheck", (CheckBox cb) -> !cb.isSelected());
 

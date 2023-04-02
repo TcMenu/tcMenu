@@ -6,24 +6,17 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.google.gson.*;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +79,7 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         // make sure we save out any in flight changes to internationalisation files.
         localeHandler.saveChanges();
 
-        List<PersistedMenu> itemsInOrder = serializer.populateListInOrder(MenuTree.ROOT, tree);
+        List<PersistedMenu> itemsInOrder = serializer.populateListInOrder(MenuTree.ROOT, tree, true);
 
         try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
             String user = System.getProperty("user.name");
@@ -104,54 +97,4 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         return serializer.itemsToCopyText(startingPoint, tree);
     }
 
-    static class EepromDefinitionSerialiser implements JsonSerializer<EepromDefinition> {
-        @Override
-        public JsonElement serialize(EepromDefinition eepromDefinition, Type type, JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(eepromDefinition != null ? eepromDefinition.writeToProject() : "");
-        }
-    }
-
-    static class EepromDefinitionDeseriailiser implements JsonDeserializer<EepromDefinition> {
-        @Override
-        public EepromDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            return EepromDefinition.readFromProject(jsonElement.getAsString());
-        }
-    }
-
-    static class AuthDefinitionSerialiser implements JsonSerializer<AuthenticatorDefinition> {
-        @Override
-        public JsonElement serialize(AuthenticatorDefinition authDefinition, Type type, JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(authDefinition != null ? authDefinition.writeToProject() : "");
-        }
-    }
-
-    static class AuthDefinitionDeseriailiser implements JsonDeserializer<AuthenticatorDefinition> {
-        @Override
-        public AuthenticatorDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            return AuthenticatorDefinition.readFromProject(jsonElement.getAsString());
-        }
-    }
-
-    static class IoExpanderDefinitionSerialiser implements JsonSerializer<IoExpanderDefinitionCollection> {
-        @Override
-        public JsonElement serialize(IoExpanderDefinitionCollection definitionCollection, Type type, JsonSerializationContext jsonSerializationContext) {
-            var array = new JsonArray();
-            for (var def : definitionCollection.getAllExpanders()) {
-                array.add(def.toString());
-            }
-            return array;
-        }
-    }
-
-    static class IoExpanderDefinitionDeseriailiser implements JsonDeserializer<IoExpanderDefinitionCollection> {
-        @Override
-        public IoExpanderDefinitionCollection deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            var list = new ArrayList<IoExpanderDefinition>();
-            var jsonArray = jsonElement.getAsJsonArray();
-            for (var def : jsonArray) {
-                IoExpanderDefinition.fromString(def.getAsString()).ifPresent(list::add);
-            }
-            return new IoExpanderDefinitionCollection(list);
-        }
-    }
 }
