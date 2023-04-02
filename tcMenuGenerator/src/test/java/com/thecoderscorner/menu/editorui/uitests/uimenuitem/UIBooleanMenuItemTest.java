@@ -42,7 +42,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         MenuItemHelper.setMenuState(menuTree.getMenuById(4).orElseThrow(), true, menuTree);
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
-        verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(TIDY_NAMING_ON_OFF));
+        verifyThat("#booleanNamingCombo", ComboBoxMatchers.hasSelectedItem(new TidyBooleanNaming(ON_OFF, "On/Off")));
         verifyThat("#defaultValueCombo", ComboBoxMatchers.hasSelectedItem(new BooleanNamingValue("On", true)));
         verifyThat("#memLocationCheck", (CheckBox cb) -> !cb.isSelected());
 
@@ -63,7 +63,7 @@ public class UIBooleanMenuItemTest extends UIMenuItemTestBase {
         var uiItem = generateBooleanDialog();
         performAllCommonChecks(uiItem.getMenuItem(), true);
 
-        TestUtils.selectItemInCombo(robot, "#booleanNamingCombo", (TidyBooleanNaming n) -> n.equals(TIDY_NAMING_YES_NO));
+        TestUtils.selectItemInCombo(robot, "#booleanNamingCombo", (TidyBooleanNaming n) -> n.naming() == YES_NO);
 
         var capturedItem = captureTheLatestBoolean();
         assertEquals(YES_NO, capturedItem.getNaming());
