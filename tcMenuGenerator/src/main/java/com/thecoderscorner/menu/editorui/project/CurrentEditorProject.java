@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.project;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
@@ -40,7 +41,6 @@ public class CurrentEditorProject {
 
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
-    private static final String TITLE = "TcMenu Designer";
     private static final int UNDO_BUFFER_SIZE = 200;
     private final CurrentProjectEditorUI editorUI;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -208,7 +208,8 @@ public class CurrentEditorProject {
         if(fileName.isPresent()) {
             titlePrettyFile = Paths.get(fileName.get()).getFileName().toString();
         }
-        editorUI.setTitle(titlePrettyFile + (isDirty()?"* - ":" - ") + TITLE);
+        var title = MenuEditorApp.getBundle().getString("main.editor.title") + " " + configStore.getVersion();
+        editorUI.setTitle(titlePrettyFile + (isDirty()?"* - ":" - ") + title);
     }
 
     public MenuTree getMenuTree() {

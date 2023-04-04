@@ -6,9 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
-import com.thecoderscorner.menu.editorui.controller.ChooseFontController;
 import com.thecoderscorner.menu.editorui.controller.ConfigureExpanderController;
-import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import javafx.stage.Stage;
 
@@ -22,7 +20,7 @@ public class ConfigureIoExpanderDialog extends BaseDialogSupport<ConfigureExpand
     public ConfigureIoExpanderDialog(Stage stage, IoExpanderDefinition def, Collection<String> namesInUse, boolean modal) {
         currentSel = def;
         this.namesInUse = namesInUse;
-        tryAndCreateDialog(stage, "/ui/configureIoExpander.fxml", "Configure IO Device", modal);
+        tryAndCreateDialog(stage, "/ui/configureIoExpander.fxml", bundle.getString("io.exp.title.configure"), modal);
     }
 
     public Optional<IoExpanderDefinition> getResultOrEmpty() {

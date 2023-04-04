@@ -17,7 +17,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
    <top>
-      <Label prefHeight="28.0" prefWidth="446.0" stylesheets="@tcmenu-extras.css" text="ROM and ID layouts" BorderPane.alignment="CENTER">
+      <Label prefHeight="28.0" prefWidth="446.0" stylesheets="@tcmenu-extras.css" text="%rom.layout.title" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="14.0" />
          </font></Label>
@@ -27,7 +27,7 @@
          <content>
             <VBox fx:id="idContainer" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <Label text="ID Ranges">
+                  <Label text="%rom.layout.id">
                      <font>
                         <Font size="11.0" />
                      </font></Label>
@@ -41,7 +41,7 @@
          <content>
             <VBox fx:id="eepromContainer" prefHeight="200.0" prefWidth="199.0">
                <children>
-                  <Label text="EEPROM Ranges" />
+                  <Label text="%rom.layout.eeprom" />
                </children>
             </VBox>
          </content>
@@ -56,7 +56,7 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="Close" />
+          <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
         </buttons>
       </ButtonBar>
    </bottom>

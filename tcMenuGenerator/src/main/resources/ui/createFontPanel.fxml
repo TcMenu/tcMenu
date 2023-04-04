@@ -22,27 +22,27 @@
       <RowConstraints maxHeight="351.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label prefHeight="20.0" prefWidth="388.0" text="TcUnicode Font Generator" GridPane.columnSpan="2">
+      <Label prefHeight="20.0" prefWidth="388.0" text="%font.create.title" GridPane.columnSpan="2">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <Label prefHeight="17.0" prefWidth="164.0" text="Select a font file" GridPane.rowIndex="1" />
+      <Label prefHeight="17.0" prefWidth="164.0" text="%font.create.select" GridPane.rowIndex="1" />
       <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-      <Label fx:id="fontSizeField" text="Choose characters in font:" GridPane.columnSpan="3" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
+      <Label fx:id="fontSizeField" text="%font.create.choose" GridPane.columnSpan="3" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
       <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-            <Button fx:id="chooseRangesButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="Choose Ranges" />
-            <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="Generate Adafruit" />
-          <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode" text="Generate TcUnicode" />
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
+            <Button fx:id="chooseRangesButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges" text="%font.create.choose.range" />
+            <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit" text="%font.create.ada" />
+          <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode" text="%font.create.uni" />
         </buttons>
       </ButtonBar>
-      <Label prefHeight="17.0" prefWidth="184.0" text="Size in pixels" GridPane.rowIndex="3" />
+      <Label prefHeight="17.0" prefWidth="184.0" text="%font.create.size" GridPane.rowIndex="3" />
       <Spinner fx:id="pixelSizeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-      <Label prefHeight="17.0" prefWidth="175.0" text="Structure/header name" GridPane.rowIndex="2" />
+      <Label prefHeight="17.0" prefWidth="175.0" text="%font.create.struct.name" GridPane.rowIndex="2" />
       <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <Label text="Font style to use" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Label text="%font.create.style" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
          <padding>
             <Insets right="4.0" />
          </padding>
@@ -69,16 +69,16 @@
             </GridPane>
          </content>
       </ScrollPane>
-      <MenuButton mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="Choose Font" GridPane.columnIndex="3" GridPane.rowIndex="1">
+      <MenuButton mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="%font.create.choose.font" GridPane.columnIndex="3" GridPane.rowIndex="1">
         <items>
-          <MenuItem mnemonicParsing="false" onAction="#onChooseFont" text="Choose From File" />
-            <Menu fx:id="loadedFontsMenu" mnemonicParsing="false" text="Loaded Fonts">
+          <MenuItem mnemonicParsing="false" onAction="#onChooseFont" text="%font.create.choose.file" />
+            <Menu fx:id="loadedFontsMenu" mnemonicParsing="false" text="%font.create.loaded">
               <items>
               </items>
             </Menu>
         </items>
       </MenuButton>
-      <Label text="Anti-alias mode" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+      <Label text="%font.create.antialias" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
       <ComboBox fx:id="antiAliasModeCombo" onAction="#onFontStyleChanged" prefHeight="25.0" prefWidth="189.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
    </children>
    <padding>

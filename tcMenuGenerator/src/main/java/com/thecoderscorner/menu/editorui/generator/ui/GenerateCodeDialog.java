@@ -7,6 +7,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -100,7 +101,7 @@ public class GenerateCodeDialog {
         placeDirectoryAndEmbeddedPanels(pane);
 
         centerPane = new VBox(5);
-        addTitleLabel(centerPane, "Select the input type:");
+        addTitleLabel(centerPane, MenuEditorApp.getBundle().getString("code.gen.input.type"));
         CodeGeneratorOptions genOptions = project.getGeneratorOptions();
         var allItems = project.getMenuTree().getAllMenuItems();
 
@@ -119,13 +120,13 @@ public class GenerateCodeDialog {
         currentInput.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentInput);
 
-        addTitleLabel(centerPane, "Select the display type:");
+        addTitleLabel(centerPane, MenuEditorApp.getBundle().getString("code.gen.display.type"));
         currentDisplay = new UICodePluginItem(manager, itemDisplay, CHANGE, this::onDisplayChange, editorUI, allItems, 0, "displayPlugin");
         currentDisplay.getStyleClass().add("uiCodeGen");
         centerPane.getChildren().add(currentDisplay);
 
         if(itemTheme != null) {
-            themeTitle = addTitleLabel(centerPane, "Select a theme:");
+            themeTitle = addTitleLabel(centerPane, MenuEditorApp.getBundle().getString("code.gen.theme.sel"));
             currentTheme = new UICodePluginItem(manager, itemTheme, CHANGE, this::onThemeChange, editorUI, allItems, 0, "themePlugin");
             currentTheme.setId("currentThemeUI");
             currentTheme.getStyleClass().add("uiCodeGen");
@@ -140,11 +141,11 @@ public class GenerateCodeDialog {
         else currentTheme = null;
 
         BorderPane remoteLabelPane = new BorderPane();
-        Label titleLbl = new Label("Select IoT/remote capabilities:");
+        Label titleLbl = new Label(MenuEditorApp.getBundle().getString("code.gen.remote.type"));
         titleLbl.setStyle("-fx-font-size: 16px; -fx-opacity: 0.6; -fx-font-weight: bold;");
         remoteLabelPane.setLeft(titleLbl);
 
-        Button addRemoteCapabilityButton = new Button("Add another IoT/remote");
+        Button addRemoteCapabilityButton = new Button(MenuEditorApp.getBundle().getString("code.gen.remote.add"));
         remoteLabelPane.setRight(addRemoteCapabilityButton);
         addRemoteCapabilityButton.setOnAction(this::produceAnotherRemoteCapability);
         centerPane.getChildren().add(remoteLabelPane);
@@ -176,11 +177,11 @@ public class GenerateCodeDialog {
         filterChoicesByPlatform(platformCombo.getValue());
 
         ButtonBar buttonBar = new ButtonBar();
-        Button generateButton = new Button("Generate Code");
+        Button generateButton = new Button(MenuEditorApp.getBundle().getString("code.gen.generate.code"));
         generateButton.setDefaultButton(true);
         generateButton.setOnAction(this::onGenerateCode);
         generateButton.setId("generateButton");
-        Button cancelButton = new Button("Cancel");
+        Button cancelButton = new Button(MenuEditorApp.getBundle().getString("core.cancel.text"));
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(this::onCancel);
         buttonBar.getButtons().addAll(cancelButton, generateButton);
@@ -198,7 +199,7 @@ public class GenerateCodeDialog {
         BorderPane.setMargin(pane.getTop(), new Insets(5));
 
 
-        var title = "Code Generator:" + project.getFileName();
+        var title = MenuEditorApp.getBundle().getString("code.gen.title") + " " + project.getFileName();
         createDialogStateAndShow(stage, pane, title, modal);
     }
 
@@ -434,11 +435,9 @@ public class GenerateCodeDialog {
     private void onGenerateCode(ActionEvent actionEvent) {
         if(currentDisplay.getItem().isThemeNeeded() && currentTheme.getItem().getId().equals(DEFAULT_THEME_ID)) {
             var alert = new Alert(Alert.AlertType.WARNING, "No theme selected", ButtonType.CLOSE);
-            alert.setTitle("Theme Configuration Error");
-            alert.setHeaderText("Selected display requires a theme");
-            alert.setContentText("Displays need configuration to work properly, this is provided by the theme. " +
-                    "We strongly recommend you start with one of our core themes and modify it to meet your needs." +
-                    "However, advanced users could start with the manual theme.");
+            alert.setTitle(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.title"));
+            alert.setHeaderText(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.header"));
+            alert.setContentText(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.desc"));
 
             BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
             alert.showAndWait();
@@ -446,11 +445,10 @@ public class GenerateCodeDialog {
         }
 
         if(platformCombo.getSelectionModel().getSelectedItem() == EmbeddedPlatform.RASPBERRY_PIJ && namespaceField.getText().isEmpty()) {
-            var alert = new Alert(Alert.AlertType.ERROR, "You must provide a package name", ButtonType.CLOSE);
-            alert.setTitle("Package name needed for Embedded Java");
-            alert.setHeaderText("Package name needed for Embedded Java creation");
-            alert.setContentText("Please enter a package name in the namespace field, usually in lower case and following " +
-                                "reverse domain format, for example: 'com.thecoderscorner.example'");
+            var alert = new Alert(Alert.AlertType.ERROR, "Error", ButtonType.CLOSE);
+            alert.setTitle(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.title"));
+            alert.setHeaderText(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.header"));
+            alert.setContentText(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.desc"));
             alert.showAndWait();
             return;
         }
@@ -576,7 +574,7 @@ public class GenerateCodeDialog {
                 .toList();
 
         VBox vbox = new VBox(5);
-        addTitleLabel(vbox, "Select the " + changeWhat + " to use:");
+        addTitleLabel(vbox, String.format(MenuEditorApp.getBundle().getString("code.gen.select.what.fmt"), changeWhat));
         vbox.getChildren().addAll(listOfComponents);
 
         BorderPane pane = new BorderPane();

@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
-            <artifactId>embedCONTROL</artifactId>
+            <artifactId>embedCONTROLFx</artifactId>
             <version>${project.version}</version>
         </dependency>
 

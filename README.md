@@ -140,13 +140,13 @@ This menu library provides complete IoT remote control, presently over serial an
 
 ## Ready built remote control for tcMenu - embedCONTROL
 
-We are transitioning to a new IoT control UI where the core product is based on an OpenSource framework called embedCONTROL within this repository. It will be released in stages, firstly for desktop Windows, MacOS, Linux, then for mobile, Android first followed by iOS. While this transition is complete you can continue to use the old Windows App store version.
+We are transitioning to a new IoT control UI where the core product is based on an OpenSource framework called embedCONTROL within this repository. We provide a ready-made build for Windows, ,macOS and Linux, and also a mobile friendly web-app version that can run from a Raspberry PI and serves well to iOS and Android.
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
 ## Accessing TcMenu remotely using an API
 
-## Java / JVM API
+### Java / JVM API
 
 There is a java API for accessing the menu remotely, source includes JavaDoc to help getting started. There is an example JavaFX UI built with it within the above Repo. Include the following into your maven build file:
 
@@ -154,6 +154,10 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
         </dependency>
+
+### JavaScript and TypeScript
+
+There is also an early version of a TypeScript API that can be used from any JavaScript environment. https://github.com/davetcc/embedcontrolJS. In the future, we may better package this API to a package manager.
 
 ## Working with menus using the CLI
 

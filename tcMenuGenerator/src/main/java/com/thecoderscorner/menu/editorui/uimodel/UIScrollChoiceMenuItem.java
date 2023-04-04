@@ -52,32 +52,33 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
                 .withNumEntries(numItems);
 
         if(modeCombo.getValue().mode() != ScrollChoiceMode.CUSTOM_RENDERFN) {
-            var width = safeIntFromProperty(itemWidthField.textProperty(), "Item Width", errors, 1, 255);
+            var width = safeIntFromProperty(itemWidthField.textProperty(), bundle.getString("menu.editor.item.width"), errors, 1, 255);
             builder.withItemWidth(width);
         }
 
         if(modeCombo.getValue().mode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
-            var eepromOffset = safeIntFromProperty(eepromOffsetField.textProperty(), "EEPROM Offset", errors, 0, 65000);
+            var eepromOffset = safeIntFromProperty(eepromOffsetField.textProperty(), bundle.getString("menu.editor.eeprom.offset"), errors, 0, 65000);
             builder.withEepromOffset(eepromOffset);
         }
 
         if(modeCombo.getValue().mode() == ScrollChoiceMode.ARRAY_IN_RAM) {
-            var variable = safeStringFromProperty(variableField.textProperty(), "Variable Name", errors, 64, StringFieldType.VARIABLE);
+            var variable = safeStringFromProperty(variableField.textProperty(), bundle.getString("menu.editor.ram.variable"), errors, 64, StringFieldType.VARIABLE);
             builder.withVariable(variable);
         }
 
         getChangedDefaults(builder, errors);
 
+        String defValStr = defaultValueField.getText();
+        String defValField = bundle.getString("menu.editor.default.value");
         try {
-            String text = defaultValueField.getText();
-            int value = StringHelper.isStringEmptyOrNull(text) ? 0 : Integer.parseInt(text);
+            int value = StringHelper.isStringEmptyOrNull(defValStr) ? 0 : Integer.parseInt(defValStr);
             if (value < 0 || value > numItems) {
-                errors.add(new FieldError("Value must be between 0 and " + numItems, "DefaultValue"));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.analog.range") + " " + numItems, defValField));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
             }
         } catch(Exception ex) {
-            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " + ex.getClass().getSimpleName() + " " + ex.getMessage(), defValField));
         }
         return getItemOrReportError(builder.menuItem(), errors);
     }
@@ -93,9 +94,9 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         idx++;
         grid.add(new Label("Mode"), 0, idx);
         modeCombo = new ComboBox<>(FXCollections.observableList(List.of(
-                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_EEPROM, "Data is in EEPROM"),
-                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_RAM, "Data is in RAM"),
-                new TidyScrollChoiceValue(ScrollChoiceMode.CUSTOM_RENDERFN, "Custom renderFN")
+                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_EEPROM, bundle.getString("menu.editor.scroll.choice.eeprom")),
+                new TidyScrollChoiceValue(ScrollChoiceMode.ARRAY_IN_RAM, bundle.getString("menu.editor.scroll.choice.ram")),
+                new TidyScrollChoiceValue(ScrollChoiceMode.CUSTOM_RENDERFN, bundle.getString("menu.editor.scroll.choice.custom"))
         )));
         modeCombo.getSelectionModel().select(choiceToIndex(getMenuItem().getChoiceMode()));
         modeCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -106,7 +107,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         grid.add(modeCombo, 1, idx);
 
         idx++;
-        grid.add(new Label("Initial Items"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.initial.items")), 0, idx);
         numItemsField = new TextField(String.valueOf(getMenuItem().getNumEntries()));
         numItemsField.textProperty().addListener(this::coreValueChanged);
         numItemsField.setId("numItemsFieldField");
@@ -114,7 +115,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         grid.add(numItemsField, 1, idx);
 
         idx++;
-        grid.add(new Label("Item Width"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.item.width")), 0, idx);
         itemWidthField = new TextField(String.valueOf(getMenuItem().getItemWidth()));
         itemWidthField.textProperty().addListener(this::coreValueChanged);
         itemWidthField.setId("itemWidthFieldField");
@@ -122,7 +123,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         grid.add(itemWidthField, 1, idx);
 
         idx++;
-        grid.add(new Label("EEPROM Offset (Rom only)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.eeprom.offset")), 0, idx);
         eepromOffsetField = new TextField(String.valueOf(getMenuItem().getEepromOffset()));
         eepromOffsetField.textProperty().addListener(this::coreValueChanged);
         eepromOffsetField.setId("eepromOffsetFieldField");
@@ -130,7 +131,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         grid.add(eepromOffsetField, 1, idx);
 
         idx++;
-        grid.add(new Label("Variable (RAM only)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.ram.variable")), 0, idx);
         variableField = new TextField(getMenuItem().getVariable());
         variableField.setId("choiceVarField");
         variableField.textProperty().addListener(this::coreValueChanged);
@@ -139,7 +140,7 @@ public class UIScrollChoiceMenuItem extends UIMenuItem<ScrollChoiceMenuItem> {
         enableNeededFieldsBasedOnMode(getMenuItem().getChoiceMode());
 
         idx++;
-        grid.add(new Label("Default index (0 based)"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, new CurrentScrollPosition(0, ""));
         defaultValueField = new TextField(Integer.toString(value.getPosition()));
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());

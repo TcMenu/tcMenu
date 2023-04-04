@@ -23,7 +23,7 @@
 
 <BorderPane prefHeight="395.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController">
    <top>
-      <Label prefHeight="27.0" prefWidth="534.0" text="Select the EEPROM implementation" BorderPane.alignment="CENTER">
+      <Label prefHeight="27.0" prefWidth="534.0" text="%eeprom.type.title" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
@@ -36,9 +36,9 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onHelpPressed" text="Online Help" />
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
-            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Choose EEPROM" />
+            <Button mnemonicParsing="false" onAction="#onHelpPressed" text="%core.online.help" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
+            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="%core.choose.button" />
         </buttons>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -65,26 +65,26 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <RadioButton fx:id="noRomRadio" mnemonicParsing="false" selected="true" text="No EEPROM or manually configured by setting on menuMgr" GridPane.columnSpan="2">
+            <RadioButton fx:id="noRomRadio" mnemonicParsing="false" selected="true" text="%eeprom.type.no.rom" GridPane.columnSpan="2">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="avrRomRadio" mnemonicParsing="false" text="AVR EEPROM using AVR specific calls" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-            <RadioButton fx:id="eepromRadio" mnemonicParsing="false" text="Use the EEPROM class (you must call EEPROM.begin before setupMenu)" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <RadioButton fx:id="at24Radio" mnemonicParsing="false" text="Use an I2C AT24Cxx based EEPROM" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-            <RadioButton fx:id="bspStRadio" mnemonicParsing="false" text="Use battery backed RAM on an STM32 board with BSP driver" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-            <Label fx:id="memOffsetLabel" text="Memory offset" GridPane.rowIndex="7">
+            <RadioButton fx:id="avrRomRadio" mnemonicParsing="false" text="%eeprom.type.avr.rom" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <RadioButton fx:id="eepromRadio" mnemonicParsing="false" text="%eeprom.type.eeprom.class" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+            <RadioButton fx:id="at24Radio" mnemonicParsing="false" text="%eeprom.type.at24.rom" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+            <RadioButton fx:id="bspStRadio" mnemonicParsing="false" text="%eeprom.type.bsp.stm" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+            <Label fx:id="memOffsetLabel" text="%eeprom.type.mem.offs" GridPane.rowIndex="7">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
-            <Label fx:id="i2cAddrLabel" text="I2C Address" GridPane.rowIndex="4">
+            <Label fx:id="i2cAddrLabel" text="%io.exp.i2c.addr" GridPane.rowIndex="4">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
-            <Label fx:id="romPageLabel" text="ROM Page Size" GridPane.rowIndex="5">
+            <Label fx:id="romPageLabel" text="%eeprom.type.page.size" GridPane.rowIndex="5">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>

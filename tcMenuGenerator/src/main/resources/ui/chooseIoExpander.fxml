@@ -27,19 +27,19 @@
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
             <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-            <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddExpander" text="Add New"/>
-            <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveExpander" text="Remove" />
-            <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="Cancel" />
-            <Button fx:id="selectButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelect" text="Select" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddExpander" text="%core.add.button"/>
+            <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveExpander" text="%core.remove.button" />
+            <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.cancel.text" />
+            <Button fx:id="selectButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelect" text="%core.select.text" />
         </buttons>
       </ButtonBar>
    </bottom>
    <center>
       <TableView fx:id="mainTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="tableNameCol" prefWidth="126.0" text="Expander name" />
-          <TableColumn fx:id="tableDescCol" prefWidth="351.0" text="Expander Description" />
-            <TableColumn fx:id="tableInUseCol" prefWidth="87.0" text="In Use?" />
+          <TableColumn fx:id="tableNameCol" prefWidth="126.0" text="%io.exp.col.name" />
+          <TableColumn fx:id="tableDescCol" prefWidth="351.0" text="%io.exp.col.desc" />
+            <TableColumn fx:id="tableInUseCol" prefWidth="87.0" text="%io.exp.col.in.use" />
         </columns>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

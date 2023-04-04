@@ -35,9 +35,9 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onHelpPressed" text="Online Help" />
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="Cancel" />
-            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="Set Authenticator" />
+            <Button mnemonicParsing="false" onAction="#onHelpPressed" text="%core.online.help" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
+            <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="%auth.sel.set.button" />
         </buttons>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -64,32 +64,32 @@
             <RowConstraints maxHeight="165.0" minHeight="10.0" prefHeight="162.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <RadioButton fx:id="noAuthRadio" mnemonicParsing="false" selected="true" text="No authentication or manually configured" GridPane.columnSpan="2">
+            <RadioButton fx:id="noAuthRadio" mnemonicParsing="false" selected="true" text="%auth.sel.no.auth" GridPane.columnSpan="2">
                <toggleGroup>
                   <ToggleGroup fx:id="main" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="eepromAuthRadio" mnemonicParsing="false" text="Use EEPROM authenticator (stores PIN and remote IDs in EEPROM)" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-            <Label fx:id="eepromStartLabel" text="EEPROM start address" GridPane.rowIndex="2">
+            <RadioButton fx:id="eepromAuthRadio" mnemonicParsing="false" text="%auth.sel.eeprom.auth" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <Label fx:id="eepromStartLabel" text="%auth.sel.eeprom.start" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
             <TextField fx:id="eepromStartField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label fx:id="pinFlashLabel" text="PIN for secure sub menus" GridPane.rowIndex="5">
+            <Label fx:id="pinFlashLabel" text="%auth.sel.pin.flash.loc" GridPane.rowIndex="5">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
-            <Label fx:id="variableFlashLabel" text="Pre canned remote IDs to store in FLASH" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label fx:id="variableFlashLabel" text="%auth.sel.flash.precanned" GridPane.columnSpan="2" GridPane.rowIndex="6">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
             <TextField fx:id="eepromNumRemotes" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <RadioButton fx:id="flashAuthRadio" mnemonicParsing="false" text="Use FLASH based authenticator (PIN and remote IDs set upfront in FLASH)" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+            <RadioButton fx:id="flashAuthRadio" mnemonicParsing="false" text="%auth.sel.flash.auth" toggleGroup="$main" GridPane.columnSpan="2" GridPane.rowIndex="4" />
             <TextField fx:id="pinFlashField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <Label fx:id="eepromNumRemLabel" text="Number of paired remotes (50 bytes each)" GridPane.rowIndex="3">
+            <Label fx:id="eepromNumRemLabel" text="%auth.sel.num.flash.pairs" GridPane.rowIndex="3">
                <GridPane.margin>
                   <Insets left="15.0" />
                </GridPane.margin>
@@ -105,8 +105,8 @@
                <right>
                   <VBox prefHeight="200.0" prefWidth="100.0" spacing="4.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onFlashAddRemote" prefHeight="26.0" prefWidth="102.0" text="Add" />
-                        <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onFlashRemoveRemote" prefHeight="26.0" prefWidth="103.0" text="Remove" />
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onFlashAddRemote" prefHeight="26.0" prefWidth="102.0" text="%core.add.button" />
+                        <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onFlashRemoveRemote" prefHeight="26.0" prefWidth="103.0" text="%core.remove.button" />
                      </children>
                   </VBox>
                </right>

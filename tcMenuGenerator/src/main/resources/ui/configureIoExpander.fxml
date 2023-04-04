@@ -27,9 +27,9 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="590.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
-            <Button fx:id="setExpanderButton" defaultButton="true" mnemonicParsing="false" onAction="#onSetExpander" text="Set Expander" />
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" />
+            <Button fx:id="setExpanderButton" defaultButton="true" mnemonicParsing="false" onAction="#onSetExpander" text="%io.exp.set.expander" />
         </buttons>
       </ButtonBar>
    </bottom>
@@ -48,16 +48,16 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Expander type" />
-            <Label text="Variable name" GridPane.rowIndex="1" />
-            <Label text="I2C Address" GridPane.rowIndex="2" />
-            <Label text="Interrupt pin (or -1 for none)" GridPane.rowIndex="3" />
+            <Label text="%io.exp.type" />
+            <Label text="%io.exp.var.name" GridPane.rowIndex="1" />
+            <Label text="%io.exp.i2c.addr" GridPane.rowIndex="2" />
+            <Label text="%io.exp.interrupt.pin" GridPane.rowIndex="3" />
             <ComboBox fx:id="expanderTypeCombo" prefHeight="26.0" prefWidth="296.0" GridPane.columnIndex="1" />
             <TextField fx:id="variableNameField" promptText="Variable" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="i2cAddrField" promptText="0x20" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <TextField fx:id="interruptPinField" promptText="Pin or -1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label fx:id="helpTextField" alignment="TOP_LEFT" maxHeight="9999.0" maxWidth="9999.0" text="Help text" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-            <CheckBox fx:id="invertedField" mnemonicParsing="false" text="Invert all logic" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label fx:id="helpTextField" alignment="TOP_LEFT" maxHeight="9999.0" maxWidth="9999.0" text="%io.exp.help.text" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+            <CheckBox fx:id="invertedField" mnemonicParsing="false" text="%io.exp.invert.all.logic" GridPane.columnIndex="1" GridPane.rowIndex="4" />
          </children>
       </GridPane>
    </center>

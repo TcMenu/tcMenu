@@ -30,23 +30,23 @@
       <RowConstraints maxHeight="238.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="Native bitmap and title widget creation tool" GridPane.columnSpan="2">
+      <Label text="%bitmap.create.title" GridPane.columnSpan="2">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
       <ButtonBar prefHeight="38.0" prefWidth="718.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
-            <Button mnemonicParsing="false" onAction="#onClose" text="Close" />
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-            <Button fx:id="addImgButton" mnemonicParsing="false" onAction="#onAddImage" text="Add Image" />
-            <Button fx:id="removeImgButton" mnemonicParsing="false" onAction="#onRemoveImage" text="Remove Image" />
-            <Button fx:id="createWidgetButton" mnemonicParsing="false" onAction="#onCreateWidget" text="Create Widget" />
-          <Button fx:id="createBitmapButton" mnemonicParsing="false" onAction="#onCreateBitmaps" text="Create Bitmaps" />
+            <Button mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
+            <Button fx:id="addImgButton" mnemonicParsing="false" onAction="#onAddImage" text="%bitmap.add.image" />
+            <Button fx:id="removeImgButton" mnemonicParsing="false" onAction="#onRemoveImage" text="%bitmap.remove.image" />
+            <Button fx:id="createWidgetButton" mnemonicParsing="false" onAction="#onCreateWidget" text="%bitmap.create.widget" />
+          <Button fx:id="createBitmapButton" mnemonicParsing="false" onAction="#onCreateBitmaps" text="%bitmap.create.bitmap" />
         </buttons>
       </ButtonBar>
-      <Label text="Variable Name to use" GridPane.rowIndex="3" />
-      <CheckBox fx:id="clipboardCheckBox" mnemonicParsing="false" prefHeight="17.0" prefWidth="403.0" text="Create bitmaps on clipboard" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
+      <Label text="%bitmap.var.name.use" GridPane.rowIndex="3" />
+      <CheckBox fx:id="clipboardCheckBox" mnemonicParsing="false" prefHeight="17.0" prefWidth="403.0" text="%bitmap.create.clipboard" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
          <padding>
             <Insets left="5.0" />
          </padding>
@@ -91,7 +91,7 @@
             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
          </GridPane.margin>
       </ToggleButton>
-      <Label text="Pixel format" GridPane.rowIndex="4" />
+      <Label text="%bitmap.pixel.format" GridPane.rowIndex="4" />
       <ComboBox fx:id="pixelFormatCombo" onAction="#onPixelFormatChange" prefHeight="25.0" prefWidth="402.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
       <TextField fx:id="variableField" promptText="variableName" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
    </children>

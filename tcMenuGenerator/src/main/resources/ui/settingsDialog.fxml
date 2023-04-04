@@ -99,7 +99,7 @@
                               <Label prefHeight="17.0" prefWidth="150.0" text="%settings.sketch.search.depth" GridPane.rowIndex="8" />
                               <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                               <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="493.0" text="%settings.eeprom.save.sized.default" GridPane.columnSpan="3" GridPane.rowIndex="7" />
-                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="Default locale to use" GridPane.columnSpan="2" GridPane.rowIndex="11" GridPane.valignment="BOTTOM">
+                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="%settings.default.locale.use" GridPane.columnSpan="2" GridPane.rowIndex="11" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>

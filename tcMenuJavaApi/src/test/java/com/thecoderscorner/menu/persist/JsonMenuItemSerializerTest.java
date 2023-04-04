@@ -159,6 +159,20 @@ class JsonMenuItemSerializerTest {
 
     private static final String EXPECTED_COPY_TEXT = "tcMenuCopy:[\n" +
             "  {\n" +
+            "    \"parentId\": 0,\n" +
+            "    \"type\": \"subMenu\",\n" +
+            "    \"item\": {\n" +
+            "      \"secured\": false,\n" +
+            "      \"name\": \"ghi\",\n" +
+            "      \"id\": 3,\n" +
+            "      \"eepromAddress\": 102,\n" +
+            "      \"readOnly\": false,\n" +
+            "      \"localOnly\": false,\n" +
+            "      \"visible\": true,\n" +
+            "      \"staticDataInRAM\": false\n" +
+            "    }\n" +
+            "  },\n" +
+            "  {\n" +
             "    \"parentId\": 3,\n" +
             "    \"type\": \"enumItem\",\n" +
             "    \"defaultValue\": \"1\",\n" +
@@ -309,16 +323,17 @@ class JsonMenuItemSerializerTest {
         assertEquals(EXPECTED_COPY_TEXT, ser);
 
         var copiedData = serializer.copyTextToItems(ser);
-        assertEquals(3, copiedData.get(0).getParentId());
-        assertEquals(tree.getMenuById(4).orElseThrow(), copiedData.get(0).getItem());
-        assertEquals(tree.getMenuById(5).orElseThrow(), copiedData.get(1).getItem());
-        assertEquals(tree.getMenuById(6).orElseThrow(), copiedData.get(2).getItem());
-        assertEquals(tree.getMenuById(7).orElseThrow(), copiedData.get(3).getItem());
-        assertEquals(tree.getMenuById(8).orElseThrow(), copiedData.get(4).getItem());
-        assertEquals(tree.getMenuById(9).orElseThrow(), copiedData.get(5).getItem());
+        assertEquals(0, copiedData.get(0).getParentId());
+        assertEquals(3, copiedData.get(1).getParentId());
+        assertEquals(tree.getMenuById(4).orElseThrow(), copiedData.get(1).getItem());
+        assertEquals(tree.getMenuById(5).orElseThrow(), copiedData.get(2).getItem());
+        assertEquals(tree.getMenuById(6).orElseThrow(), copiedData.get(3).getItem());
+        assertEquals(tree.getMenuById(7).orElseThrow(), copiedData.get(4).getItem());
+        assertEquals(tree.getMenuById(8).orElseThrow(), copiedData.get(5).getItem());
+        assertEquals(tree.getMenuById(9).orElseThrow(), copiedData.get(6).getItem());
         assertEquals(1, MenuItemHelper.getValueFor(tree.getMenuById(4).orElseThrow(), tree, 0));
         assertEquals(100, MenuItemHelper.getValueFor(tree.getMenuById(5).orElseThrow(), tree, 0));
-        assertEquals("1", copiedData.get(0).getDefaultValue());
-        assertEquals("100", copiedData.get(1).getDefaultValue());
+        assertEquals("1", copiedData.get(1).getDefaultValue());
+        assertEquals("100", copiedData.get(2).getDefaultValue());
     }
 }

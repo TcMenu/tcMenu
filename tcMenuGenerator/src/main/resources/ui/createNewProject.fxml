@@ -63,7 +63,7 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="584.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" />
             <Button fx:id="createButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreate" text="Create &gt;&gt;" />
         </buttons>
       </ButtonBar>

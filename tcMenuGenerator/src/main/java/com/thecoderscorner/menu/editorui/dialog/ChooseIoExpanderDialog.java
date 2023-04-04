@@ -20,7 +20,7 @@ public class ChooseIoExpanderDialog extends BaseDialogSupport<ChooseIoExpanderCo
     public ChooseIoExpanderDialog(Stage stage, Optional<IoExpanderDefinition> def, CurrentEditorProject project, boolean modal) {
         this.currentSel = def;
         this.project = project;
-        tryAndCreateDialog(stage, "/ui/chooseIoExpander.fxml", "Configured IO Devices", modal);
+        tryAndCreateDialog(stage, "/ui/chooseIoExpander.fxml", bundle.getString("io.exp.title"), modal);
     }
 
     public Optional<String> getResultOrEmpty() {

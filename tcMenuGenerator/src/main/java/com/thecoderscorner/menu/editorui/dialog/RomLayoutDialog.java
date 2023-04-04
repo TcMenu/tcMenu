@@ -16,7 +16,7 @@ public class RomLayoutDialog extends BaseDialogSupport<RomLayoutController> {
 
     public RomLayoutDialog(Stage stage, MenuTree menuTree, boolean modal) {
         this.menuTree = menuTree;
-        tryAndCreateDialog(stage, "/ui/romLayoutDialog.fxml", "Rom Layout", modal);
+        tryAndCreateDialog(stage, "/ui/romLayoutDialog.fxml", bundle.getString("rom.layout.title"), modal);
     }
 
     @Override

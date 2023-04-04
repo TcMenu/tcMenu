@@ -7,9 +7,7 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.ChooseAuthenticatorController;
-import com.thecoderscorner.menu.editorui.controller.EepromTypeSelectionController;
 import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import javafx.stage.Stage;
 
 import java.util.Optional;
@@ -19,7 +17,7 @@ public class SelectAuthenticatorTypeDialog extends BaseDialogSupport<ChooseAuthe
 
     public SelectAuthenticatorTypeDialog(Stage stage, AuthenticatorDefinition current, boolean modal) {
         this.current = current;
-        tryAndCreateDialog(stage, "/ui/authenticationSelectionDialog.fxml", "Choose Authenticator", modal);
+        tryAndCreateDialog(stage, "/ui/authenticationSelectionDialog.fxml", bundle.getString("auth.sel.title"), modal);
     }
 
     public Optional<AuthenticatorDefinition> getResultOrEmpty() {

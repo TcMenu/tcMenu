@@ -8,9 +8,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thecoderscorner.tcmenu</groupId>
-    <artifactId>embedCONTROL</artifactId>
-    <name>embedCONTROL</name>
-    <description>TcMenu embedCONTROL JavaFX UI for connecting to embedded menu apps</description>
+    <artifactId>embedCONTROLFx</artifactId>
+    <name>embedCONTROLFx</name>
+    <description>TcMenu embedCONTROL JavaFX UI components for embedded menu apps</description>
     <version>3.2.0-BETA</version>
 
     <properties>

@@ -39,14 +39,15 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     @Override
     protected Optional<EditableLargeNumberMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
-        var dp = safeIntFromProperty(decimalPlaces.textProperty(), "Decimal Places", errors, 0, 8);
-        var tot = safeIntFromProperty(totalDigits.textProperty(), "Total Digits", errors, 4, 12);
+        var dp = safeIntFromProperty(decimalPlaces.textProperty(), bundle.getString("menu.editor.decimal.places"), errors, 0, 8);
+        String totDigitsStr = bundle.getString("menu.editor.total.digits");
+        var tot = safeIntFromProperty(totalDigits.textProperty(), totDigitsStr, errors, 4, 12);
 
         if(tot <= dp) {
-            errors.add(new FieldError("Total must be greater than decimal places", "Total Digits"));
+            errors.add(new FieldError(bundle.getString("menu.editor.total.digits.greater.dp"), totDigitsStr));
         }
         if((tot - dp) > 9) {
-            errors.add(new FieldError("Whole part cannot be larger than 9 figures", "Total Digits"));
+            errors.add(new FieldError(bundle.getString("menu.editor.whole.too.large"), totDigitsStr));
         }
 
         boolean negAllowed = negativeAllowedCheck.isSelected();
@@ -61,12 +62,12 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
             String text = defaultValueField.getText();
             var value = StringHelper.isStringEmptyOrNull(text) ? BigDecimal.ZERO : new BigDecimal(text);
             if (value.doubleValue() < 0 && !negAllowed) {
-                errors.add(new FieldError("Value can't be negative", "DefaultValue"));
+                errors.add(new FieldError(bundle.getString("menu.editor.value.cant.negative"), "DefaultValue"));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
             }
         } catch(Exception ex) {
-            errors.add(new FieldError("Value could not be parsed " + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
+            errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + ex.getClass().getSimpleName() + " " + ex.getMessage(), "DefaultValue"));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);
@@ -75,7 +76,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
     @Override
     protected int internalInitPanel(GridPane grid, int idx) {
         idx++;
-        grid.add(new Label("Decimal Places"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.decimal.places")), 0, idx);
         decimalPlaces = new TextField(String.valueOf(getMenuItem().getDecimalPlaces()));
         decimalPlaces.textProperty().addListener(this::coreValueChanged);
         decimalPlaces.setId("lgeDecimalPlaces");
@@ -83,7 +84,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(decimalPlaces, 1, idx);
 
         idx++;
-        grid.add(new Label("Total Digits"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.total.digits")), 0, idx);
         totalDigits = new TextField(String.valueOf(getMenuItem().getDigitsAllowed()));
         totalDigits.textProperty().addListener(this::coreValueChanged);
         totalDigits.setId("lgeTotalDigits");
@@ -91,7 +92,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(totalDigits, 1, idx);
 
         idx++;
-        grid.add(new Label("Default value"), 0, idx);
+        grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
         var value = MenuItemHelper.getValueFor(getMenuItem(), menuTree, BigDecimal.ZERO);
         defaultValueField = new TextField(value.toString());
         defaultValueField.textProperty().addListener(e -> callChangeConsumer());
@@ -100,7 +101,7 @@ public class UILargeNumberMenuItem extends UIMenuItem<EditableLargeNumberMenuIte
         grid.add(defaultValueField, 1, idx);
 
         idx++;
-        negativeAllowedCheck = new CheckBox("Allow negative values");
+        negativeAllowedCheck = new CheckBox(bundle.getString("menu.editor.allow.negative"));
         negativeAllowedCheck.setOnAction(this::checkboxChanged);
         negativeAllowedCheck.setId("NegAllowCheck");
         negativeAllowedCheck.setSelected(getMenuItem().isNegativeAllowed());

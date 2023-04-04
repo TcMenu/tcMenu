@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
@@ -129,7 +130,7 @@ public class UICodePluginItem extends BorderPane {
         infoContainer.getChildren().add(licenseLink);
         infoContainer.getChildren().add(vendorLink);
 
-        actionButton = new Button(action == UICodeAction.CHANGE ? "Change" : "Select");
+        actionButton = new Button(MenuEditorApp.getBundle().getString(action == UICodeAction.CHANGE ? "core.change.text" : "core.select.text"));
         if(BaseDialogSupport.isCurrentThemeDark()) {
             actionButton.setStyle("-fx-font-size: 110%; -fx-font-weight: bold; -fx-background-color: #444");
         }
@@ -260,7 +261,7 @@ public class UICodePluginItem extends BorderPane {
         fontLabel.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontLabel.setDisable(true);
         fontLabel.setId(makeAnId(property.getName()));
-        Button fontButton = new Button("Set Font");
+        Button fontButton = new Button(MenuEditorApp.getBundle().getString("core.set.font.text"));
         fontButton.setTooltip(new Tooltip(property.getExtendedDescription()));
         fontButton.setId(makeAnId(property.getName() + "_btn"));
         fontButton.setOnAction(actionEvent -> {
@@ -332,9 +333,9 @@ public class UICodePluginItem extends BorderPane {
         }
         else if(editorUI != null) {
             editorUI.alertOnError(
-                    "Validation error during table edit",
-                    "The value '" + value + "' is not valid for " + property.getName()
-                            + "\nReason: " + property.getValidationRules());
+                    MenuEditorApp.getBundle().getString("core.validation.error"),
+                    String.format(MenuEditorApp.getBundle().getString("code.gen.plugin.entry.invalid"), value, property.getName(), property.getValidationRules())
+            );
         }
     }
 
@@ -352,7 +353,7 @@ public class UICodePluginItem extends BorderPane {
         titleLabel.setText(item.getDescription());
 
         if(item.getDocsLink() != null) {
-            docsLink.setText("Click for documentation");
+            docsLink.setText(MenuEditorApp.getBundle().getString("code.gen.plugin.click.docs"));
             docsLink.setDisable(false);
             docsLink.setOnAction((event)->SafeNavigator.safeNavigateTo(item.getDocsLink()));
         }
