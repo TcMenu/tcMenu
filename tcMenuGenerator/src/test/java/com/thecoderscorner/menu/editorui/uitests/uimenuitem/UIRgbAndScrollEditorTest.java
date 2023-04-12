@@ -153,7 +153,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2"));
 
         tryToEnterBadValueIntoField(robot, "choiceVarField", "nameField", "123 45",
-                "Variable Name - Field must use only letters, digits, and '_'");
+                "RAM Variable - Field must use only letters, digits, and '_'");
 
         writeIntoField(robot, "choiceVarField", "ramVarName");
         writeIntoField(robot, "itemWidthFieldField", 10);

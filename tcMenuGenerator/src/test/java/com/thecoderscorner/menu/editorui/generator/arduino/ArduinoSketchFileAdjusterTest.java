@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
@@ -30,6 +31,7 @@ import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -49,7 +51,9 @@ public class ArduinoSketchFileAdjusterTest {
         tree = TestUtils.buildCompleteTree();
         inoFile = dir.resolve(dir.getFileName() + ".ino");
         emptyLogger = Mockito.mock(BiConsumer.class);
-        adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions(), new PrefsConfigurationStorage());
+        var mockedConfig = Mockito.mock(ConfigurationStorage.class);
+        when(mockedConfig.getNumBackupItems()).thenReturn(0);
+        adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions(), mockedConfig);
 
         scrollChoice = new ScrollChoiceMenuItemBuilder()
                 .withId(1111)
