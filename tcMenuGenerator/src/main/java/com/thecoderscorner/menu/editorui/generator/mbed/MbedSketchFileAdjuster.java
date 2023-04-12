@@ -8,14 +8,15 @@ package com.thecoderscorner.menu.editorui.generator.mbed;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
 
-    public MbedSketchFileAdjuster(CodeGeneratorOptions options) {
-        super(options);
+    public MbedSketchFileAdjuster(CodeGeneratorOptions options, ConfigurationStorage config) {
+        super(options, config);
     }
 
     @Override

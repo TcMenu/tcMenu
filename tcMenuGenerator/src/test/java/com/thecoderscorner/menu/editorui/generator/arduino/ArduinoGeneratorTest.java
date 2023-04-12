@@ -21,6 +21,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,7 +115,7 @@ public class ArduinoGeneratorTest {
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
                 .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
                 .codeOptions();
-        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions);
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, new PrefsConfigurationStorage());
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform());
 
         var firstPlugin = pluginConfig.getPlugins().get(0);

@@ -28,6 +28,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     private boolean defaultRecursive = false;
     private boolean sizedRomStorage = true;
     private Locale currentLocale;
+    private int numBackupItems;
 
     public PrefsConfigurationStorage() {
         try {
@@ -39,6 +40,7 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
             saveToSrc = prefs.getBoolean(DEFAULT_SAVE_TO_SRC, false);
             sizedRomStorage = prefs.getBoolean(DEFAULT_SIZED_ROM_STORAGE, true);
             defaultRecursive = prefs.getBoolean(DEFAULT_RECURSIVE_NAMING, false);
+            numBackupItems = prefs.getInt(NUM_BACKUP_ITEMS, DEFAULT_NUM_BACKUPS);
             var localeText = prefs.get(OVERRIDE_LOCALE_NAME_PREF, "DEFAULT");
             if(localeText.equals("DEFAULT")) {
                 currentLocale = Locale.getDefault();
@@ -262,5 +264,17 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     public void setAdditionalPluginPaths(List<String> path) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.put(EXTRA_PLUGIN_PATHS, String.join(",", path));
+    }
+
+    @Override
+    public int getNumBackupItems() {
+        return numBackupItems;
+    }
+
+    @Override
+    public void setNumBackupItems(int newNum) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.putInt(NUM_BACKUP_ITEMS, newNum);
+        numBackupItems = newNum;
     }
 }

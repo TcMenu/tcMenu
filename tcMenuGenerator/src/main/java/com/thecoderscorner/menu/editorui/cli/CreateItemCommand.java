@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class CreateItemCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            var project = projectFileOrNull(projectFile);
+            var project = projectFileOrNull(projectFile, new PrefsConfigurationStorage());
             var chooser = new MenuIdChooserImpl(project.getMenuTree());
             var variableGen = new VariableNameGenerator(project.getMenuTree(), project.getOptions().isNamingRecursive());
             SubMenuItem parentItem = findParent(project.getMenuTree());

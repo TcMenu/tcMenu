@@ -12,6 +12,9 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.BackupManager;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.IOException;
@@ -41,12 +44,14 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
     /** the pattern to loop for the loop method */
     private static final Pattern LOOP_PATTERN = Pattern.compile("void\\s+loop\\(\\)(.*)");
     protected final CodeGeneratorOptions options;
+    private final ConfigurationStorage config;
 
     protected boolean changed = false;
     protected BiConsumer<System.Logger.Level, String> logger;
 
-    public ArduinoSketchFileAdjuster(CodeGeneratorOptions options) {
+    public ArduinoSketchFileAdjuster(CodeGeneratorOptions options, ConfigurationStorage config) {
         this.options = options;
+        this.config = config;
     }
 
     protected String emptyFileContents() {
@@ -91,8 +96,8 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
         return Paths.get(CoreCodeGenerator.toSourceFile(path, "_main.cpp", false));
     }
 
-    public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
-                                Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {
+    public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, Path projectRoot, String inoFile,
+                                String projectName, Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {
 
         this.logger = logger;
         changed = false;
@@ -135,7 +140,8 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
 
         if(changed) {
             logger.accept(INFO, "INO Previously existed, backup existing file");
-            Files.copy(source, Paths.get(source + ".backup"), REPLACE_EXISTING);
+            var backupMgr = new BackupManager(config);
+            backupMgr.backupFile(projectRoot, source);
 
             logger.accept(INFO, "Writing out changes to INO sketch file");
             chompBlankLines(lines);

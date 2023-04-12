@@ -47,9 +47,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
         if (installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if (arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options), installer, platform);
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options, configStorage), installer, platform);
         } else if (mbedPlatforms.contains(platform)) {
-            return new MbedGenerator(new MbedSketchFileAdjuster(options), installer, platform);
+            return new MbedGenerator(new MbedSketchFileAdjuster(options, configStorage), installer, platform);
         } else if(javaPlatforms.contains(platform)) {
             return new EmbeddedJavaGenerator(configStorage, platform);
         } else {

@@ -744,7 +744,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         try {
             var inoFile = sketchAdjuster.createFileIfNeeded(this::logLine, directory, options);
             logLine(INFO, "Making adjustments to " + inoFile);
-            sketchAdjuster.makeAdjustments(this::logLine, inoFile.toString(), projectName, callbackFunctions.values(), menuTree);
+            sketchAdjuster.makeAdjustments(this::logLine, directory, inoFile.toString(), projectName, callbackFunctions.values(), menuTree);
         } catch (IOException e) {
             logger.log(ERROR, "Sketch modification failed", e);
             throw new TcMenuConversionException("Could not modify sketch", e);

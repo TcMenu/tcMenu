@@ -13,6 +13,7 @@ public interface ConfigurationStorage {
     String DEFAULT_SAVE_TO_SRC = "DefaultSaveToSrcOn";
     String DEFAULT_SIZED_ROM_STORAGE = "DefaultSizedEEPROMStorage";
     String DEFAULT_RECURSIVE_NAMING = "DefaultRecursiveNaming";
+    String NUM_BACKUP_ITEMS = "NumBackupItems";
     String ARDUINO_OVERRIDE_DIR = "ArduinoDirOverride";
     String ARDUINO_LIBS_OVERRIDE_DIR = "ArduinoLibsDirOverride";
     String LAST_RUN_VERSION_KEY = "LastRunVersion";
@@ -20,6 +21,7 @@ public interface ConfigurationStorage {
     String OVERRIDE_LOCALE_NAME_PREF = "OverrideLocale";
 
     String MENU_PROJECT_MAX_LEVELS = "MenuProjectMaxLevels";
+    int DEFAULT_NUM_BACKUPS = 20;
 
     enum TcMenuReleaseType {
         BETA, REGULAR, SUPPORTED
@@ -62,6 +64,9 @@ public interface ConfigurationStorage {
 
     List<String> getAdditionalPluginPaths();
     void setAdditionalPluginPaths(List<String> path);
+
+    int getNumBackupItems();
+    void setNumBackupItems(int newNum);
 
     void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
 }

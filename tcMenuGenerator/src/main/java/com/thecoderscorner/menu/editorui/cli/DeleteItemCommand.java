@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class DeleteItemCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try {
-            var project = projectFileOrNull(projectFile);
+            var project = projectFileOrNull(projectFile, new PrefsConfigurationStorage());
 
             if(id <= 0) throw new IllegalArgumentException("Cannot remove ROOT item!!");
 

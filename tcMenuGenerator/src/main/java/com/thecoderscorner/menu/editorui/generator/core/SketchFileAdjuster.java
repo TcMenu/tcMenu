@@ -27,7 +27,7 @@ public interface SketchFileAdjuster {
      * @param callbacks the list of callbacks.
      * @throws IOException in the event of an error
      */
-    void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName,
+    void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, Path rootDir, String inoFile, String projectName,
                          Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException;
 
     /**

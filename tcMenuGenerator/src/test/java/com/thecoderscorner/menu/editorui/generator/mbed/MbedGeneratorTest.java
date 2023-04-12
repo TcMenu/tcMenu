@@ -24,6 +24,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import com.thecoderscorner.menu.persist.VersionInfo;
@@ -115,7 +116,7 @@ public class MbedGeneratorTest {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
-        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options);
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options, new PrefsConfigurationStorage());
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);

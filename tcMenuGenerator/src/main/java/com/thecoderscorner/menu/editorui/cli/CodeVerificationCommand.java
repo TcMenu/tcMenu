@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 
 import java.io.File;
 import java.util.Comparator;
@@ -31,7 +32,7 @@ public class CodeVerificationCommand implements Callable<Integer> {
         try {
             log(false, "Starting EEPROM overlap check");
 
-            var project = projectFileOrNull(projectFile);
+            var project = projectFileOrNull(projectFile, new PrefsConfigurationStorage());
 
             var allItems = project.getMenuTree().getAllMenuItems().stream()
                     .filter(itm -> itm.getEepromAddress() != -1)

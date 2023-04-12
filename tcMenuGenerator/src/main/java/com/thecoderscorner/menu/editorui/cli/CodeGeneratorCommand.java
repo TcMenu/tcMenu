@@ -12,7 +12,9 @@ import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.BackupManager;
 import com.thecoderscorner.menu.persist.*;
 import picocli.CommandLine;
 
@@ -52,11 +54,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            var project = projectFileOrNull(projectFile);
+            var prefsStore = new PrefsConfigurationStorage();
+            var project = projectFileOrNull(projectFile, prefsStore);
 
             System.out.format("Starting code generator for %s\n", project.getOptions().getApplicationName());
 
-            var prefsStore = new PrefsConfigurationStorage();
             MenuEditorApp.createOrUpdateDirectoriesAsNeeded(prefsStore);
             prefsStore.setLastRunVersion(new VersionInfo(prefsStore.getVersion()));
 
@@ -127,13 +129,14 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         return toReturn;
     }
 
-    public static MenuTreeWithCodeOptions projectFileOrNull(File projectFile) throws IOException {
+    public static MenuTreeWithCodeOptions projectFileOrNull(File projectFile, ConfigurationStorage config) throws IOException {
         projectFile = locateProjectFile(projectFile, false);
 
         loadedProjectFile = projectFile;
 
         // just in case we make a backup.
-        Files.copy(Paths.get(projectFile.toString()), Paths.get(projectFile + ".last"), StandardCopyOption.REPLACE_EXISTING);
+        var backup = new BackupManager(config);
+        backup.backupFile(projectFile.toPath().getParent(), projectFile.toPath());
 
         if(persistor == null) persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
 

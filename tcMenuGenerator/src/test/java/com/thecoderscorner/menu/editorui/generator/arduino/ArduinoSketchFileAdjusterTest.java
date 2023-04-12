@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.ScrollChoiceMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +49,7 @@ public class ArduinoSketchFileAdjusterTest {
         tree = TestUtils.buildCompleteTree();
         inoFile = dir.resolve(dir.getFileName() + ".ino");
         emptyLogger = Mockito.mock(BiConsumer.class);
-        adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions());
+        adjuster = new ArduinoSketchFileAdjuster(new CodeGeneratorOptions(), new PrefsConfigurationStorage());
 
         scrollChoice = new ScrollChoiceMenuItemBuilder()
                 .withId(1111)
@@ -97,7 +98,7 @@ public class ArduinoSketchFileAdjusterTest {
     public void testCreatingFileFromScratch() throws IOException {
 
         var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
-        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
+        adjuster.makeAdjustments(emptyLogger, dir, file.toString(), "superProject", callbacks, tree);
 
         List<String> lines = Files.readAllLines(file);
 
@@ -140,7 +141,7 @@ public class ArduinoSketchFileAdjusterTest {
         Files.write(inoFile, inoContent.getBytes());
 
         var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
-        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
+        adjuster.makeAdjustments(emptyLogger, dir, file.toString(), "superProject", callbacks, tree);
 
         List<String> lines = Files.readAllLines(file);
 
@@ -201,7 +202,7 @@ public class ArduinoSketchFileAdjusterTest {
         Files.write(inoFile, inoContent.getBytes());
 
         var file = adjuster.createFileIfNeeded(emptyLogger, dir, new CodeGeneratorOptions());
-        adjuster.makeAdjustments(emptyLogger, file.toString(), "superProject", callbacks, tree);
+        adjuster.makeAdjustments(emptyLogger, dir, file.toString(), "superProject", callbacks, tree);
 
         // Shouldn't do anything this time around.
         Path backup = inoFile.resolveSibling(file.toString() + ".backup");

@@ -434,7 +434,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         return new SketchFileAdjuster() {
 
             @Override
-            public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, String inoFile, String projectName, Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {}
+            public void makeAdjustments(BiConsumer<System.Logger.Level, String> logger, Path dir, String inoFile, String projectName, Collection<CallbackRequirement> callbacks, MenuTree tree) throws IOException {}
 
             @Override
             public Path createFileIfNeeded(BiConsumer<System.Logger.Level, String> logger, Path path, CodeGeneratorOptions projectOptions) throws IOException {

@@ -71,12 +71,10 @@
     </ApplicabilityDefs>
 
     <SourceFiles>
-        <SourceFile name="esp32Touch/ESP32TouchKeysAbstraction.h"/>
-        <SourceFile name="esp32Touch/ESP32TouchKeysAbstraction.cpp"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="ESP32TouchKeysAbstraction.h" inSource="true"/>
+        <Header name="esp32/ESP32TouchKeysAbstraction.h" inSource="false"/>
     </IncludeFiles>
 
     <GlobalVariables>
