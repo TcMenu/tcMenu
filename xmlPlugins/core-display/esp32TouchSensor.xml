@@ -40,7 +40,7 @@
                 <Choice>TOUCH_LVOLT_MAX</Choice>
             </Choices>
         </Property>
-        <Property id="TP_ATTENUATION" name="%esp32.sensor.attenuation" initial="TOUCH_HVOLT_ATTEN_1V" desc="esp32.sensor.attenuation.desc" type="choice">
+        <Property id="TP_ATTENUATION" name="%esp32.sensor.attenuation" initial="TOUCH_HVOLT_ATTEN_1V" desc="%esp32.sensor.attenuation.desc" type="choice">
             <Choices>
                 <Choice>TOUCH_HVOLT_ATTEN_KEEP</Choice>
                 <Choice>TOUCH_HVOLT_ATTEN_1V5</Choice>
@@ -48,6 +48,12 @@
                 <Choice>TOUCH_HVOLT_ATTEN_0V5</Choice>
                 <Choice>TOUCH_HVOLT_ATTEN_0V</Choice>
                 <Choice>TOUCH_HVOLT_ATTEN_MAX</Choice>
+            </Choices>
+        </Property>
+        <Property id="TP_THRESHOLD_DETECTION" name="%esp32.sensor.threshold" initial="TOUCH_TRIGGER_BELOW" desc="%esp32.sensor.threshold.desc" type="choice">
+            <Choices>
+                <Choice desc="Triggers BELOW threshold">TOUCH_TRIGGER_BELOW</Choice>
+                <Choice desc="Triggers ABOVE threshold">TOUCH_TRIGGER_ABOVE</Choice>
             </Choices>
         </Property>
         <Property id="UP_SENSOR" name="%esp32.sensor.up" initial="3" desc="%esp32.sensor.up.desc" type="pin"/>
@@ -87,6 +93,10 @@
     </GlobalVariables>
 
     <SetupFunctions>
+        <Function name="setTouchTriggerMode" object="esp32Touch">
+            <Param value="${TP_THRESHOLD_DETECTION}"/>
+        </Function>
+
         <Function name="init" object="switches">
             <Param ref="esp32Touch" />
             <Param value="${SW_POLLING_MODE}" />
