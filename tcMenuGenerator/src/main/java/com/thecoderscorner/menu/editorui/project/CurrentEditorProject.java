@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.BackupManager;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
@@ -156,6 +157,15 @@ public class CurrentEditorProject {
                 return;
             } else {
                 fileName = name;
+            }
+        } else {
+            var backupManager = new BackupManager(configStore);
+            Path projFile = Paths.get(fileName.get());
+            Path dir = projFile.getParent();
+            try {
+                backupManager.backupFile(dir, projFile);
+            } catch (IOException e) {
+                logger.log(ERROR, "Unable to backup project file, continuing anyway", e);
             }
         }
 

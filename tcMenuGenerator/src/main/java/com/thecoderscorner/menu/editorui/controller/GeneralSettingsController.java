@@ -60,6 +60,7 @@ public class GeneralSettingsController {
     public ComboBox<String> sketchSearchDepthCombo;
     public CheckBox eepromStoreSizeField;
     public ComboBox<LocaleWithDescription> languageCombo;
+    public Spinner<Integer> backupSpinner;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
@@ -80,6 +81,9 @@ public class GeneralSettingsController {
         useFullyQualifiedNamesField.setSelected(storage.isDefaultRecursiveNamingOn());
         outputCppToSrcField.setSelected(storage.isDefaultSaveToSrcOn());
         eepromStoreSizeField.setSelected(storage.isDefaultSizedEEPROMStorage());
+
+        backupSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, storage.getNumBackupItems()));
+        backupSpinner.valueProperty().addListener((observable, oldValue, newValue) -> storage.setNumBackupItems(newValue));
 
         setDirectoryPickerOrEmpty(projectsTextField, storage.getArduinoOverrideDirectory(), () -> {
             var ardDir = getArduinoDirectory();

@@ -7,6 +7,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -22,7 +23,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="581.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="617.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
    <center>
       <TabPane prefHeight="220.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -45,6 +46,7 @@
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="49.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="49.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="102.0" vgrow="SOMETIMES" />
@@ -77,13 +79,13 @@
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="492.0" text="%settings.using.arduino.ide" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="491.0" text="%settings.using.fully.qualified.vars" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                               <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="495.0" text="%settings.output.cpp.plugin.src" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label prefHeight="20.0" prefWidth="492.0" styleClass="label-bright" text="%settings.additional.plugin.path" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM">
+                              <Label prefHeight="20.0" prefWidth="492.0" styleClass="label-bright" text="%settings.additional.plugin.path" GridPane.columnSpan="2" GridPane.rowIndex="10" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="10" />
-                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
+                              <ListView fx:id="additionalPathsList" prefHeight="74.0" prefWidth="491.0" GridPane.columnSpan="2" GridPane.rowIndex="11" />
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="11">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#onAddNewPath" prefHeight="25.0" prefWidth="87.0" text="%core.add.button">
                                        <padding>
@@ -96,16 +98,18 @@
                                     <Insets left="4.0" />
                                  </GridPane.margin>
                               </VBox>
-                              <Label prefHeight="17.0" prefWidth="150.0" text="%settings.sketch.search.depth" GridPane.rowIndex="8" />
-                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                              <Label prefHeight="17.0" prefWidth="150.0" text="%settings.sketch.search.depth" GridPane.rowIndex="9" />
+                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefHeight="25.0" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                               <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged" prefHeight="17.0" prefWidth="493.0" text="%settings.eeprom.save.sized.default" GridPane.columnSpan="3" GridPane.rowIndex="7" />
-                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="%settings.default.locale.use" GridPane.columnSpan="2" GridPane.rowIndex="11" GridPane.valignment="BOTTOM">
+                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="%settings.default.locale.use" GridPane.columnSpan="2" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
                                  <font>
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <Label prefHeight="17.0" prefWidth="148.0" text="%core.language" GridPane.rowIndex="12" />
-                              <ComboBox fx:id="languageCombo" onAction="#onLanguageChange" prefHeight="25.0" prefWidth="348.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                              <Label prefHeight="17.0" prefWidth="148.0" text="%core.language" GridPane.rowIndex="13" />
+                              <ComboBox fx:id="languageCombo" onAction="#onLanguageChange" prefHeight="25.0" prefWidth="348.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                              <Label text="%settings.num.backups" GridPane.rowIndex="8" />
+                              <Spinner fx:id="backupSpinner" prefHeight="25.0" prefWidth="373.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                            </children>
                         </GridPane>
                      </children>
@@ -118,7 +122,7 @@
                      <children>
                         <BorderPane layoutX="14.0" layoutY="14.0" prefHeight="423.0" prefWidth="578.0">
                            <center>
-                              <TableView fx:id="versionsTable" prefHeight="405.0" prefWidth="578.0" BorderPane.alignment="CENTER">
+                              <TableView fx:id="versionsTable" prefHeight="453.0" prefWidth="578.0" BorderPane.alignment="CENTER">
                                 <columns>
                                   <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="%settings.library.name" />
                                   <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="%settings.available.ver" />
