@@ -85,6 +85,8 @@ void AdafruitDrawable::drawPolygon(const Coord points[], int numPoints, bool fil
 }
 
 Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *text, int *baseline) {
+    if(mag == 0) mag = 1; // never allow 0 magnification
+
     graphics->setFont(static_cast<const GFXfont *>(f));
     graphics->setTextSize(mag);
     auto* font = (GFXfont *) f;
@@ -95,22 +97,21 @@ Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *
     if(font == nullptr) {
         // for the default font, the starting offset is 0, and we calculate the height.
         if(baseline) *baseline = 0;
-        return Coord(w * mag, h * mag);
+        return Coord(w, h);
     }
-    else  {
-        computeBaselineIfNeeded(f, mag);
-        if(baseline) *baseline = (bl * mag);
-        return Coord(int(w * mag), height * mag);
+    else {
+        computeBaselineIfNeeded(font);
+        if(baseline) *baseline = (computedBaseline * mag);
+        return Coord(int(w), (computedHeight * mag));
     }
 }
 
 void AdafruitDrawable::computeBaselineIfNeeded(const GFXfont* font) {
-    // cache the last baseline.
-    if(computedFont == font && computedBaseline > 0) return computedBaseline;
-    computedFont = font;
+    // we cache the last baseline, if the font is unchanged, don't calculate again
+    if(computedFont == font && computedBaseline > 0) return;
 
-    // we need to work out the biggest glyph and maximum extent beyond the baseline, we use 'Ay(' for this
-    const char sz[] = "AgyjK(";
+    // we need to work out the biggest glyph and maximum extent beyond the baseline, we use 4 chars 'Agj(' for this
+    const char sz[] = "Agj(";
     int height = 0;
     int bl = 0;
     const char* current = sz;
@@ -119,11 +120,15 @@ void AdafruitDrawable::computeBaselineIfNeeded(const GFXfont* font) {
     while(*current && (*current < fontLast)) {
         size_t glIdx = *current - fontFirst;
         auto allGlyphs = (GFXglyph*)pgm_read_ptr(&font->glyph);
-        unsigned char glyphHeight = pgm_read_byte(&allGlyphs[glIdx].height);
+        int glyphHeight = int(pgm_read_byte(&allGlyphs[glIdx].height));
         if (glyphHeight > height) height = glyphHeight;
-        bl = glyphHeight + pgm_read_byte(&allGlyphs[glIdx].yOffset);
+        auto yOffset = int8_t(pgm_read_byte(&allGlyphs[glIdx].yOffset));
+        bl += glyphHeight + yOffset;
         current++;
     }
+    computedFont = font;
+    computedBaseline = bl / 4;
+    computedHeight = height;
 }
 
 void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {

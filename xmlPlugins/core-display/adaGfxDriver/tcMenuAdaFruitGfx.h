@@ -156,6 +156,9 @@ class AdafruitDrawable : public DeviceDrawable {
 private:
     Adafruit_GFX* graphics;
     AdafruitCanvasDrawable2bpp* canvasDrawable;
+    const GFXfont* computedFont = nullptr;
+    int16_t computedBaseline = 0;
+    int16_t computedHeight = 0;
 protected:
     int spriteHeight = 0;
 public:
@@ -180,6 +183,7 @@ public:
     void drawPixel(uint16_t x, uint16_t y) override;
     Adafruit_GFX* getGfx() { return graphics; }
 protected:
+    void computeBaselineIfNeeded(const GFXfont* font);
     explicit AdafruitDrawable() : graphics(nullptr), canvasDrawable(nullptr), spriteHeight(0) {}
     void setGraphics(Adafruit_GFX* gfx) { graphics = gfx; }
 

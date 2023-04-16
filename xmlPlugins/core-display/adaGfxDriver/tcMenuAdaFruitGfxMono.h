@@ -89,6 +89,9 @@ typedef struct ColorGfxMenuConfig<const GFXfont*> AdaColorGfxMenuConfig;
 class AdafruitDrawable : public DeviceDrawable {
 private:
     Adafruit_GFX* graphics;
+    const GFXfont* computedFont = nullptr;
+    int16_t computedBaseline = 0;
+    int16_t computedHeight = 0;
 public:
     explicit AdafruitDrawable(Adafruit_GFX* graphics, int spriteHeight = 0) : graphics(graphics) {
         setSubDeviceType(NO_SUB_DEVICE);
@@ -111,6 +114,7 @@ public:
     void drawPixel(uint16_t x, uint16_t y) override;
     Adafruit_GFX* getGfx() { return graphics; }
 protected:
+    void computeBaselineIfNeeded(const GFXfont* font);
     explicit AdafruitDrawable() : graphics(nullptr) {}
     void setGraphics(Adafruit_GFX* gfx) { graphics = gfx; }
 
