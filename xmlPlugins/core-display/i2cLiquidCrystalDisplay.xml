@@ -18,23 +18,23 @@
     <ImageFile>lcd-display.jpg</ImageFile>
 
     <Properties>
-        <Property id="LCD_WIDTH" name="Lcd Width" initial="16" desc="Number of characters across the LCD" type="int" min="1" max="20"/>
-        <Property id="LCD_HEIGHT" name="Lcd Height" initial="2" desc="Number of rows on the LCD" type="int" min="1" max="4"/>
-        <Property id="I2C_ADDRESS" name="I2C Address" initial="0x20" desc="Address on which the display responds" type="hex" max="255"/>
-        <Property id="PIN_LAYOUT" name="LCD Pin Layout" initial="EN_RW_RS" desc="How pins are arrange on your backpack" type="choice">
+        <Property id="LCD_WIDTH" name="%lcd.char.width" initial="16" desc="%lcd.char.width.desc" type="int" min="1" max="20"/>
+        <Property id="LCD_HEIGHT" name="%lcd.char.height" initial="2" desc="%lcd.char.height.desc" type="int" min="1" max="4"/>
+        <Property id="I2C_ADDRESS" name="%lcd.i2c.addr" initial="0x20" desc="%lcd.i2c.addr.desc" type="hex" max="255"/>
+        <Property id="PIN_LAYOUT" name="LCD Pin Layout" initial="EN_RW_RS" desc="%lcd.pin.layout.desc" type="choice">
             <Choices>
                 <Choice desc="EN, RW, RS, BL, Data">EN_RW_RS</Choice>
                 <Choice desc="RS, RW, EN, BL, Data">RS_RW_EN</Choice>
             </Choices>
         </Property>
-        <Property id="WIRE_VARIABLE" name="I2C (Wire) Variable" initial="Wire" desc="The name of the I2C instance to use (default Wire)" type="variable"/>
-        <Property id="UNO_OR_FULL" name="Uno (less functional) or Full (8K bigger)" initial="unoLcd" desc="Uno (less functional/smaller) of Full functionality plugin ~8K difference" type="choice">
+        <Property id="WIRE_VARIABLE" name="%lcd.wire.variable" initial="Wire" desc="%lcd.wire.variable.desc" type="variable"/>
+        <Property id="UNO_OR_FULL" name="%dfrobot.uno.full" initial="unoLcd" desc="%dfrobot.uno.full.desc" type="choice">
             <Choices>
                 <Choice desc="Uno - Low Memory">unoLcd</Choice>
                 <Choice desc="Full - More Configurable">fullLcd</Choice>
             </Choices>
         </Property>
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="2" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="2" desc="%core.screen.updates.sec.desc" type="int" min="1" max="10"/>
     </Properties>
 
     <ApplicabilityDefs/>

@@ -50,7 +50,7 @@
                 <Choice>TOUCH_HVOLT_ATTEN_MAX</Choice>
             </Choices>
         </Property>
-        <Property id="TP_THRESHOLD_DETECTION" name="%esp32.sensor.threshold" initial="TOUCH_TRIGGER_BELOW" desc="%esp32.sensor.threshold.desc" type="choice">
+        <Property id="TP_THRESHOLD_DETECTION" name="%esp32.sensor.threshold.mode" initial="TOUCH_TRIGGER_BELOW" desc="%esp32.sensor.threshold.mode.desc" type="choice">
             <Choices>
                 <Choice desc="Triggers BELOW threshold">TOUCH_TRIGGER_BELOW</Choice>
                 <Choice desc="Triggers ABOVE threshold">TOUCH_TRIGGER_ABOVE</Choice>

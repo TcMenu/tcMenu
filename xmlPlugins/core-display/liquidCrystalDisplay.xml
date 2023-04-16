@@ -18,8 +18,8 @@
     <ImageFile>lcd-display.jpg</ImageFile>
 
     <Properties>
-        <Property id="LCD_WIDTH" name="Lcd Width" initial="16" desc="Number of characters across the LCD" type="int" min="1" max="20"/>
-        <Property id="LCD_HEIGHT" name="Lcd Height" initial="2" desc="Number of rows on the LCD" type="int" min="1" max="4"/>
+        <Property id="LCD_WIDTH" name="%lcd.char.width" initial="16" desc="%lcd.char.width.desc" type="int" min="1" max="20"/>
+        <Property id="LCD_HEIGHT" name="%lcd.char.height" initial="2" desc="%lcd.char.height.desc" type="int" min="1" max="4"/>
         <Property id="LCD_RS" name="LCD RS Pin" initial="1" desc="RS Pin connection to LCD" type="pin"/>
         <Property id="LCD_RW" name="LCD RW Pin" initial="-1" desc="RW Pin connection to LCD" type="pin"/>
         <Property id="LCD_EN" name="LCD EN Pin" initial="2" desc="EN Pin connection to LCD" type="pin"/>
@@ -27,16 +27,16 @@
         <Property id="LCD_D5" name="LCD D5 Pin" initial="5" desc="D5 Pin connection to LCD" type="pin"/>
         <Property id="LCD_D6" name="LCD D6 Pin" initial="6" desc="D6 Pin connection to LCD" type="pin"/>
         <Property id="LCD_D7" name="LCD D7 Pin" initial="7" desc="D7 Pin connection to LCD" type="pin"/>
-        <Property id="LCD_BACKLIGHT" name="Backlight Pin" initial="-1" desc="Optional backlight pin, -1 for none" type="pin"/>
-        <Property id="LCD_PWM_PIN" name="PWM Contrast Pin" initial="-1" desc="Optional PWM contrast pin, -1 for none" type="pin"/>
-        <Property id="LCD_IO_DEVICE" name="LCD IO Device (default blank)" initial="devicePins" desc="This allows you to provide an IoAbstractionRef if your display is on a non-standard IO expander" type="io-device"/>
-        <Property id="UNO_OR_FULL" name="Uno (less functional) or Full (8K bigger)" initial="unoLcd" desc="Uno (less functional/smaller) of Full functionality plugin ~8K difference" type="choice">
+        <Property id="LCD_BACKLIGHT" name="%lcd.backlight.pin" initial="-1" desc="%lcd.backlight.pin.desc" type="pin"/>
+        <Property id="LCD_PWM_PIN" name="%lcd.pwm.contrast.pin" initial="-1" desc="%lcd.pwm.contrast.pin.desc" type="pin"/>
+        <Property id="LCD_IO_DEVICE" name="%lcd.io.device" initial="devicePins" desc="%lcd.io.device.desc" type="io-device"/>
+        <Property id="UNO_OR_FULL" name="%dfrobot.uno.full" initial="unoLcd" desc="%dfrobot.uno.full.desc" type="choice">
             <Choices>
                 <Choice desc="Uno - Low Memory">unoLcd</Choice>
                 <Choice desc="Full - More Configurable">fullLcd</Choice>
             </Choices>
         </Property>
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="2" desc="Number of screen updates per second, ensure it divides by 1000" type="int" min="1" max="10"/>
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="2" desc="%core.screen.updates.sec.desc" type="int" min="1" max="10"/>
     </Properties>
 
     <ApplicabilityDefs/>

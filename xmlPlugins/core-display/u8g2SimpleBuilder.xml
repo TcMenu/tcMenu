@@ -19,8 +19,8 @@
     <ImageFile>oled-display.jpg</ImageFile>
 
     <Properties>
-        <Property id="DISPLAY_VARIABLE" name="Display variable name" initial="gfx" desc="Display variable name as declared in sketch" type="variable" />
-        <Property id="DISPLAY_TYPE" name="Display variable type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="The U8G2 display type to be used" type="choice">
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="%core.display.variable.type.desc" type="choice">
             <Choices>
                 <Choice desc="SSD1305 128x32 4W HW SPI">U8G2_SSD1305_128X32_NONAME_F_4W_HW_SPI</Choice>
                 <Choice desc="SSD1305 128x32 4W SW SPI">U8G2_SSD1305_128X32_NONAME_F_4W_SW_SPI</Choice>
@@ -69,7 +69,7 @@
 
             </Choices>
         </Property>
-        <Property id="DISPLAY_ROTATION" name="Display rotation angle" initial="U8G2_R0" desc="Rotation of the display as per U8G2 docs" type="choice" >
+        <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="U8G2_R0" desc="%adafruit.display.rotation.desc" type="choice" >
             <Choices>
                 <Choice>U8G2_R0</Choice>
                 <Choice>U8G2_R1</Choice>
@@ -78,19 +78,14 @@
                 <Choice>U8G2_MIRROR</Choice>
             </Choices>
         </Property>
-        <Property id="DISPLAY_CLOCK_PIN" name="Serial Clock Pin - SW I2C" initial="U8X8_PIN_NONE" desc="Serial bus clock pin for I2C mode (U8X8_PIN_NONE = default)" type="pin" />
-        <Property id="DISPLAY_DATA_PIN" name="Serial Data Pin - SW I2C" initial="U8X8_PIN_NONE" desc="Serial bus data pin for I2C mode (U8X8_PIN_NONE = default)" type="pin" />
-        <Property id="DISPLAY_RESET_PIN" name="Optional Reset Pin" initial="U8X8_PIN_NONE" desc="Option the pin on which Reset is connected (U8X8_PIN_NONE = none)" type="pin" />
-        <Property id="DISPLAY_CS_PIN" name="CS Pin (SPI only)" initial="U8X8_PIN_NONE" whenProperty="DISPLAY_TYPE" matches=".*SPI"
-                  desc="Option the pin on which CS is connected (U8X8_PIN_NONE = default)" type="pin" />
-        <Property id="DISPLAY_RS_PIN" name="RS Pin (SPI only)" initial="U8X8_PIN_NONE" whenProperty="DISPLAY_TYPE" matches=".*SPI"
-                  desc="Option the pin on which RS is connected (U8X8_PIN_NONE = default)" type="pin" />
-        <Property id="UPDATES_PER_SEC" name="Screen updates per second" initial="10" desc="How many times per second to check for screen updates" type="int" min="1" max="30" />
-        <Property id="YIELDING_WIRE_CB" name="Advanced: Improve I2C latency by yielding" initial="false" type="boolean"
-                  whenProperty="DISPLAY_TYPE" matches=".*HW_I2C"
-                  desc="Overrides byte callback calling yieldForMicros frequently to improve latency, you must call Wire.begin() yourself" />
-        <Property id="USE_UTF8_SUPPORT" name="Turn on support for UTF-8" initial="false" type="boolean"
-                  desc="When true we'll call into U8G2 using UTF8 functions, otherwise we'll use regular print"/>
+        <Property id="DISPLAY_CLOCK_PIN" name="%core.option.clock.pin" initial="U8X8_PIN_NONE" desc="%core.option.clock.pin.desc" type="pin" />
+        <Property id="DISPLAY_DATA_PIN" name="%core.option.data.pin" initial="U8X8_PIN_NONE" desc="%core.option.data.pin.desc" type="pin" />
+        <Property id="DISPLAY_RESET_PIN" name="%core.reset.pin" initial="U8X8_PIN_NONE" desc="%core.reset.pin.desc" type="pin" />
+        <Property id="DISPLAY_CS_PIN" name="%core.cs.pin" initial="U8X8_PIN_NONE" whenProperty="DISPLAY_TYPE" matches=".*SPI" desc="%core.cs.pin.desc" type="pin" />
+        <Property id="DISPLAY_RS_PIN" name="%core.rs.pin" initial="U8X8_PIN_NONE" whenProperty="DISPLAY_TYPE" matches=".*SPI" desc="%core.rs.pin.desc" type="pin" />
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="10" desc="%core.screen.updates.sec.desc" type="int" min="1" max="30" />
+        <Property id="YIELDING_WIRE_CB" name="%u8g2.yield.callback" initial="false" type="boolean" whenProperty="DISPLAY_TYPE" matches=".*HW_I2C" desc="%u8g2.yield.callback.desc" />
+        <Property id="USE_UTF8_SUPPORT" name="%u8g2.enable.utf8" initial="false" type="boolean" desc="%u8g2.enable.utf8.desc"/>
     </Properties>
 
     <ApplicabilityDefs/>
