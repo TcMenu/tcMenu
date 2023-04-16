@@ -84,7 +84,6 @@ void AdafruitDrawable::drawPolygon(const Coord points[], int numPoints, bool fil
     }
 }
 
-
 Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *text, int *baseline) {
     graphics->setFont(static_cast<const GFXfont *>(f));
     graphics->setTextSize(mag);
@@ -96,26 +95,34 @@ Coord AdafruitDrawable::internalTextExtents(const void *f, int mag, const char *
     if(font == nullptr) {
         // for the default font, the starting offset is 0, and we calculate the height.
         if(baseline) *baseline = 0;
-        return Coord(w, h);
+        return Coord(w * mag, h * mag);
     }
-    else {
-        // we need to work out the biggest glyph and maximum extent beyond the baseline, we use 'Ay(' for this
-        const char sz[] = "AgyjK(";
-        int height = 0;
-        int bl = 0;
-        const char* current = sz;
-        auto fontLast = pgm_read_word(&font->last);
-        auto fontFirst = pgm_read_word(&font->first);
-        while(*current && (*current < fontLast)) {
-            size_t glIdx = *current - fontFirst;
-            auto allGlyphs = (GFXglyph*)pgm_read_ptr(&font->glyph);
-            unsigned char glyphHeight = pgm_read_byte(&allGlyphs[glIdx].height);
-            if (glyphHeight > height) height = glyphHeight;
-            bl = glyphHeight + pgm_read_byte(&allGlyphs[glIdx].yOffset);
-            current++;
-        }
-        if(baseline) *baseline = bl;
-        return Coord((int)w, height);
+    else  {
+        computeBaselineIfNeeded(f, mag);
+        if(baseline) *baseline = (bl * mag);
+        return Coord(int(w * mag), height * mag);
+    }
+}
+
+void AdafruitDrawable::computeBaselineIfNeeded(const GFXfont* font) {
+    // cache the last baseline.
+    if(computedFont == font && computedBaseline > 0) return computedBaseline;
+    computedFont = font;
+
+    // we need to work out the biggest glyph and maximum extent beyond the baseline, we use 'Ay(' for this
+    const char sz[] = "AgyjK(";
+    int height = 0;
+    int bl = 0;
+    const char* current = sz;
+    auto fontLast = pgm_read_word(&font->last);
+    auto fontFirst = pgm_read_word(&font->first);
+    while(*current && (*current < fontLast)) {
+        size_t glIdx = *current - fontFirst;
+        auto allGlyphs = (GFXglyph*)pgm_read_ptr(&font->glyph);
+        unsigned char glyphHeight = pgm_read_byte(&allGlyphs[glIdx].height);
+        if (glyphHeight > height) height = glyphHeight;
+        bl = glyphHeight + pgm_read_byte(&allGlyphs[glIdx].yOffset);
+        current++;
     }
 }
 
