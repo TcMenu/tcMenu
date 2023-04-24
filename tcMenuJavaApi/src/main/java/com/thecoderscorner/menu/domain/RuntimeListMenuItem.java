@@ -12,20 +12,27 @@ import java.util.Objects;
 
 public class RuntimeListMenuItem extends MenuItem {
     private final int initialRows;
+    private final boolean usingInfoBlock;
 
     public RuntimeListMenuItem() {
         super("", null, 0, 0, "", false, false, true, false);
         initialRows = 0;
+        usingInfoBlock = false;
     }
 
     public RuntimeListMenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean readOnly,
-                               boolean localOnly, boolean visible, int initialRows) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
+                               boolean localOnly, boolean visible, int initialRows, boolean usingInfoBlock, boolean staticInRam) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.initialRows = initialRows;
+        this.usingInfoBlock = usingInfoBlock;
     }
 
     public int getInitialRows() {
         return initialRows;
+    }
+
+    public boolean isUsingInfoBlock() {
+        return usingInfoBlock;
     }
 
     @Override
@@ -39,6 +46,7 @@ public class RuntimeListMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 isVisible() == that.isVisible() &&
+                isUsingInfoBlock() == that.isUsingInfoBlock() &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
@@ -46,7 +54,7 @@ public class RuntimeListMenuItem extends MenuItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName());
+        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName(), isUsingInfoBlock());
     }
 
     @Override

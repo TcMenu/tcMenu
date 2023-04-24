@@ -12,7 +12,8 @@ package com.thecoderscorner.menu.domain;
  */
 public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuItemBuilder, RuntimeListMenuItem> {
 
-    private int initialRows;
+    private int initialRows = 0;
+    private boolean usingInfoBlock = true;
 
     @Override
     public RuntimeListMenuItemBuilder getThis() {
@@ -29,8 +30,13 @@ public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuI
         return getThis();
     }
 
+    public RuntimeListMenuItemBuilder withUsingInfoBlock(boolean usingInfoBlock) {
+        this.usingInfoBlock = usingInfoBlock;
+        return getThis();
+    }
+
     public RuntimeListMenuItem menuItem() {
-        return new RuntimeListMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, initialRows);
+        return new RuntimeListMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, initialRows, usingInfoBlock, staticDataInRAM);
     }
 
     public static RuntimeListMenuItemBuilder aRuntimeListMenuItemBuilder() {

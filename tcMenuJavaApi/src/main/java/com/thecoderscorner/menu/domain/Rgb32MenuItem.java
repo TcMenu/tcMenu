@@ -18,8 +18,8 @@ public class Rgb32MenuItem extends MenuItem {
     }
 
     public Rgb32MenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean includeAlphaChannel,
-                         boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
+                         boolean readOnly, boolean localOnly, boolean visible, boolean staticInRam) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.includeAlphaChannel = includeAlphaChannel;
     }
 

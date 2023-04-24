@@ -7,14 +7,16 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.persist.LocaleMappingHandler.NOOP_IMPLEMENTATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +37,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "VarAbc", "Channel", null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "VarAbc", "Channel", null, "1234", NOOP_IMPLEMENTATION));
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
@@ -82,7 +84,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "ChannelÖôóò", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "ChannelÖôóò", null, null, "1234", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
         assertEquals(3, result.get().size());
         BuildStructInitializer choices = result.get().get(0);
@@ -101,43 +103,56 @@ public class ArduinoItemGeneratorTest {
     }
 
     @Test
-    public void testGenerateTextItem() {
+    public void testGenerateTextItemWithInfoBlocks() {
         EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(11)
                 .withName("Gen &^%State")
                 .withEepromAddr(22)
-                .withFunctionName(null)
+                .withFunctionName("StandardCallback")
                 .withLength(10)
                 .menuItem();
 
+        var req = makeCallbackRequirement(item);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "GenState", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
-        assertTrue(result.isPresent());
+                "GenState", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertEquals(2, result.orElseThrow().size());
+        BuildStructInitializer info = result.orElseThrow().get(0);
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "GenState");
+        assertThat(info.getStructElements()).containsExactly("\"Gen &^%State\"", "11", "22", "0", "StandardCallback");
 
-        assertEquals(1, result.get().size());
-        BuildStructInitializer menu = result.get().get(0);
-
+        BuildStructInitializer menu = result.orElseThrow().get(1);
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
-        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "1234", "11", "10", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "1234", "10", "NULL", "INFO_LOCATION_PGM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("void CALLBACK_FUNCTION StandardCallback(int id);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).containsExactly("",
+                "void CALLBACK_FUNCTION StandardCallback(int id) {",
+                "    // TODO - your menu change code",
+                "}");
 
         EditableTextMenuItem ip = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(12)
                 .withName("Ip:Address")
                 .withEepromAddr(22)
-                .withFunctionName(null)
+                .withFunctionName("@ipAddrCall")
                 .withEditItemType(EditItemType.IP_ADDRESS)
                 .withLength(20)
                 .menuItem();
 
+        req = makeCallbackRequirement(ip);
         result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(
-                "IpAddress", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
-        assertTrue(result.isPresent());
+                "IpAddress", null, null, "IpStorage(127,0,0,1)", NOOP_IMPLEMENTATION));
+        assertEquals(2, result.orElseThrow().size());
+        info = result.orElseThrow().get(0);
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "IpAddress");
+        assertThat(info.getStructElements()).containsExactly("\"Ip:Address\"", "12", "22", "0", "ipAddrCall");
 
-        assertEquals(1, result.get().size());
-        menu = result.get().get(0);
-
+        menu = result.orElseThrow().get(1);
         checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
-        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "1234", "12", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("&minfoIpAddress", "IpStorage(127,0,0,1)", "NULL", "INFO_LOCATION_PGM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("void CALLBACK_FUNCTION ipAddrCall(int id);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
 
         EditableTextMenuItem time = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(66)
@@ -146,10 +161,126 @@ public class ArduinoItemGeneratorTest {
                 .withFunctionName(null)
                 .withEditItemType(EditItemType.TIME_12H)
                 .withLength(20)
+                .withStaticDataInRAM(true)
+                .menuItem();
+        req = makeCallbackRequirement(time);
+        result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(
+                "Time", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertTrue(result.isPresent());
+
+        assertEquals(2, result.get().size());
+
+        info = result.orElseThrow().get(0);
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "Time", false);
+        assertThat(info.getStructElements()).containsExactly("\"Time\"", "66", "22", "0", "NO_CALLBACK");
+
+        menu = result.get().get(1);
+        checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
+        assertThat(menu.getStructElements()).containsExactly("&minfoTime", "1234", "(MultiEditWireType)3", "NULL", "INFO_LOCATION_RAM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
+
+        EditableTextMenuItem date = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(166)
+                .withName("My Date")
+                .withEepromAddr(2223)
+                .withFunctionName("@DateCallback")
+                .withEditItemType(EditItemType.GREGORIAN_DATE)
+                .withLength(20)
+                .withStaticDataInRAM(false)
+                .menuItem();
+        req = makeCallbackRequirement(date);
+        result = MenuItemHelper.visitWithResult(date, new MenuItemToEmbeddedGenerator(
+                "MyDate", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertTrue(result.isPresent());
+
+        assertEquals(2, result.get().size());
+
+        info = result.orElseThrow().get(0);
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "MyDate");
+        assertThat(info.getStructElements()).containsExactly("\"My Date\"", "166", "2223", "0", "DateCallback");
+
+        menu = result.get().get(1);
+        checkTheBasicsOfItem(menu, "DateFormattedMenuItem", "MyDate");
+        assertThat(menu.getStructElements()).containsExactly("&minfoMyDate", "1234", "NULL", "INFO_LOCATION_PGM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("void CALLBACK_FUNCTION DateCallback(int id);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
+    }
+
+    @Test
+    public void testGenerateTextItemWithOverrides() {
+        EditableTextMenuItem item = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(11)
+                .withName("Gen &^%State")
+                .withEepromAddr(22)
+                .withFunctionName("SuperRtCall")
+                .withLength(10)
                 .menuItem();
 
+        var req = makeCallbackRequirement(item);
+        Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
+                "GenState", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        BuildStructInitializer menu = result.get().get(0);
+        checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
+        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "1234", "11", "10", "NULL");
+        assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnGenStateRtCall, SuperRtCall, \"Gen &^%State\", 22)");
+        assertEquals("int SuperRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).containsExactly(
+                "int CALLBACK_FUNCTION SuperRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
+                "    // See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/based-on-runtimemenuitem/",
+                "    switch(mode) {",
+                "    case RENDERFN_NAME:",
+                "        return false; // use default",
+                "    }",
+                "    return textItemRenderFn(item, row, mode, buffer, bufferSize);",
+                "}");
+
+        EditableTextMenuItem ip = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(12)
+                .withName("Ip:Address")
+                .withEepromAddr(22)
+                .withFunctionName("ipAddrRtCall")
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .withLength(20)
+                .menuItem();
+
+        req = makeCallbackRequirement(ip);
+        result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(
+                "IpAddress", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        menu = result.get().get(0);
+
+        checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
+        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "1234", "12", "NULL");
+        assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnIpAddressRtCall, ipAddrRtCall, \"Ip:Address\", 22)");
+        assertEquals("int ipAddrRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).containsExactly(
+                "int CALLBACK_FUNCTION ipAddrRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
+                "    // See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/based-on-runtimemenuitem/",
+                "    switch(mode) {",
+                "    case RENDERFN_NAME:",
+                "        return false; // use default",
+                "    }",
+                "    return ipAddressRenderFn(item, row, mode, buffer, bufferSize);",
+                "}");
+
+        EditableTextMenuItem time = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(66)
+                .withName("Time")
+                .withEepromAddr(22)
+                .withFunctionName("@TimeRtCall")
+                .withEditItemType(EditItemType.TIME_12H)
+                .withLength(20)
+                .menuItem();
+
+        req = makeCallbackRequirement(time);
         result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(
-                "Time", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "Time", null, null, "1234", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -157,6 +288,47 @@ public class ArduinoItemGeneratorTest {
 
         checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
         assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "1234", "66", "(MultiEditWireType)3", "NULL");
+        assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTimeRtCall, TimeRtCall, \"Time\", 22)");
+        assertEquals("int TimeRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
+    }
+
+    @Test
+    public void testRgb32Item() {
+        var rgb = new Rgb32MenuItemBuilder().withId(983).withEepromAddr(29384).withName("RGB").withFunctionName("").withAlpha(false).menuItem();
+        var req = makeCallbackRequirement(rgb);
+        var result = MenuItemHelper.visitWithResult(rgb, new MenuItemToEmbeddedGenerator(
+                "RGB", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertEquals(2, result.orElseThrow().size());
+        var info = result.get().get(0);
+        var menu = result.get().get(1);
+
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "RGB");
+        assertThat(info.getStructElements()).containsExactly("\"RGB\"", "983", "29384", "0", "NO_CALLBACK");
+
+        menu = result.get().get(1);
+        checkTheBasicsOfItem(menu, "Rgb32MenuItem", "RGB");
+        assertThat(menu.getStructElements()).containsExactly("&minfoRGB", "1234", "false", "NULL", "INFO_LOCATION_PGM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
+
+        rgb = new Rgb32MenuItemBuilder().withExisting(rgb).withFunctionName("@XyzRtCall").menuItem();
+        req = makeCallbackRequirement(rgb);
+        result = MenuItemHelper.visitWithResult(rgb, new MenuItemToEmbeddedGenerator(
+                "RGB", null, null, "1234", NOOP_IMPLEMENTATION));
+        assertEquals(1, result.orElseThrow().size());
+        menu = result.get().get(0);
+        checkTheBasicsOfItem(menu, "Rgb32MenuItem", "RGB");
+        assertThat(menu.getStructElements()).containsExactly("fnRGBRtCall", "1234", "983", "false", "NULL");
+        assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnRGBRtCall, XyzRtCall, \"RGB\", 29384)");
+        assertEquals("int XyzRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
+        assertThat(req.generateSketchCallback()).isEmpty();
+    }
+
+    private CallbackRequirement makeCallbackRequirement(MenuItem item) {
+        var vg = new VariableNameGenerator(new MenuTree(), false);
+        return new CallbackRequirement(vg, item.getFunctionName(), item, NOOP_IMPLEMENTATION);
     }
 
     @Test
@@ -169,7 +341,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "PressMe", null, null, "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "PressMe", null, null, "1234", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -193,7 +365,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "CalcVal", null, null, "12.34", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "CalcVal", null, null, "12.34", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -216,7 +388,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "SubMenu", "NextItem", "ChildItem", "1234", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "SubMenu", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(3, result.get().size());
@@ -254,7 +426,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "Enabled", null, null, "true", LocaleMappingHandler.NOOP_IMPLEMENTATION));
+                "Enabled", null, null, "true", NOOP_IMPLEMENTATION));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());

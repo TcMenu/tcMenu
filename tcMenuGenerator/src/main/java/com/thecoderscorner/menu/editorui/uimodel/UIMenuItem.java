@@ -53,10 +53,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     public enum StringFieldType { VARIABLE, MANDATORY, OPTIONAL, CALLBACK_FN }
     public static final String NO_FUNCTION_DEFINED = "NoCallback";
-    public static final Set<Class<? extends MenuItem>> MENU_CLASSES_BASED_ON_INFO = Set.of(
-            AnalogMenuItem.class, ActionMenuItem.class, BooleanMenuItem.class, EnumMenuItem.class,
-            SubMenuItem.class, FloatMenuItem.class
-    );
 
     private final MenuIdChooser chooser;
     protected VariableNameGenerator variableNameGenerator;
@@ -253,14 +249,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.add(visibleCheck, 1, idx, 2, 1);
 
         staticDataRamCheckbox = new CheckBox(bundle.getString("menu.editor.check.static.in.ram"));
-        if(MENU_CLASSES_BASED_ON_INFO.contains(menuItem.getClass())) {
-            staticDataRamCheckbox.setId("memLocationCheck");
-            staticDataRamCheckbox.setTooltip(new Tooltip("Store static data in RAM instead of FLASH so it can be changed at runtime"));
-            staticDataRamCheckbox.setOnAction(this::checkboxChanged);
-            staticDataRamCheckbox.setSelected(menuItem.isStaticDataInRAM());
-            idx++;
-            grid.add(staticDataRamCheckbox, 1, idx, 2, 1);
-        }
+        staticDataRamCheckbox.setId("memLocationCheck");
+        staticDataRamCheckbox.setTooltip(new Tooltip("Store static data in RAM instead of FLASH so it can be changed at runtime"));
+        staticDataRamCheckbox.setOnAction(this::checkboxChanged);
+        staticDataRamCheckbox.setSelected(menuItem.isStaticDataInRAM());
+        idx++;
+        grid.add(staticDataRamCheckbox, 1, idx, 2, 1);
 
         textFieldsForCopy = grid.getChildren().stream()
                 .filter(node -> node instanceof TextField)

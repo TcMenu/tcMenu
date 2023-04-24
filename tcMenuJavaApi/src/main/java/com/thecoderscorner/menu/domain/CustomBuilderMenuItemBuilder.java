@@ -31,7 +31,7 @@ public class CustomBuilderMenuItemBuilder extends MenuItemBuilder<CustomBuilderM
     }
 
     public CustomBuilderMenuItem menuItem() {
-        return new CustomBuilderMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, menuType);
+        return new CustomBuilderMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, menuType, staticDataInRAM);
     }
 
     public static CustomBuilderMenuItemBuilder aCustomBuilderItemBuilder() {

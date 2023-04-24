@@ -26,8 +26,8 @@ public class EditableTextMenuItem extends MenuItem {
     }
 
     public EditableTextMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int length,
-                                EditItemType itemType, boolean readOnly, boolean localOnly, boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
+                                EditItemType itemType, boolean readOnly, boolean localOnly, boolean visible, boolean staticInRam) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.textLength = length;
         this.itemType = itemType;
     }

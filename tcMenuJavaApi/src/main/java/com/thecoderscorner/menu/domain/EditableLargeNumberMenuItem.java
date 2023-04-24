@@ -31,8 +31,8 @@ public class EditableLargeNumberMenuItem extends MenuItem {
 
     public EditableLargeNumberMenuItem(String name, String varName, int id, int eepromAddress, String functionName, int digitsAllowed,
                                        int decimalPlaces, boolean negativeAllowed, boolean readOnly, boolean localOnly,
-                                       boolean visible) {
-        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
+                                       boolean visible, boolean staticInRam) {
+        super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.digitsAllowed = digitsAllowed;
         this.decimalPlaces = decimalPlaces;
         this.negativeAllowed = negativeAllowed;

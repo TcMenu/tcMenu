@@ -19,8 +19,8 @@ public class CustomBuilderMenuItem extends MenuItem {
     private final CustomMenuType menuType;
 
     public CustomBuilderMenuItem(String name, String variableName, int id, int eepromAddress, String functionName,
-                                 boolean readOnly, boolean localOnly, boolean visible, CustomMenuType theType) {
-        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible, false);
+                                 boolean readOnly, boolean localOnly, boolean visible, CustomMenuType theType, boolean staticRam) {
+        super(name, variableName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticRam);
         menuType = theType;
     }
 

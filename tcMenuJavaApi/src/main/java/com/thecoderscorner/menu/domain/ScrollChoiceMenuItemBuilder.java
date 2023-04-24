@@ -53,6 +53,6 @@ public class ScrollChoiceMenuItemBuilder extends MenuItemBuilder<ScrollChoiceMen
 
     public ScrollChoiceMenuItem menuItem() {
         return new ScrollChoiceMenuItem(name, variableName, id, eepromAddr, functionName, itemWidth, eepromOffset, numEntries, choiceMode,
-                variable, readOnly, localOnly, visible);
+                variable, readOnly, localOnly, visible, staticDataInRAM);
     }
 }

@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
+import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.RUNTIME_FUNCTION_SUFIX;
 
 /**
  * This class follows the visitor pattern to generate code for each item
@@ -81,109 +83,155 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(EditableLargeNumberMenuItem item) {
-        BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EditableLargeNumberMenuItem")
-                .addElement(makeRtFunctionName())
-                .addElement(defaultValue)
-                .addElement(item.getId())
-                .addElement(item.isNegativeAllowed())
-                .addElement(nextMenuName)
-                .requiresExtern()
-                .addHeaderFileRequirement("RuntimeMenuItem.h", false)
-                .addHeaderFileRequirement("EditableLargeNumberMenuItem.h", false);
-        setResult(List.of(menu));
+        if(isCallbackARuntimeOverride(item)) {
+            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EditableLargeNumberMenuItem")
+                    .addElements(makeRtFunctionName(), defaultValue, item.getId(), item.isNegativeAllowed(), nextMenuName)
+                    .requiresExtern()
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                    .addHeaderFileRequirement("EditableLargeNumberMenuItem.h", false);
+            setResult(List.of(menu));
+        } else {
+            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EditableLargeNumberMenuItem")
+                    .addElements("&minfo" + itemVar, defaultValue, item.getId(), item.isNegativeAllowed(), nextMenuName)
+                    .addElement(programMemArgument(item))
+                    .requiresExtern()
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                    .addHeaderFileRequirement("EditableLargeNumberMenuItem.h", false);
+            setResult(List.of(makeAnyItemStruct(item), menu));
+        }
 
     }
 
     @Override
     public void visit(EditableTextMenuItem item) {
         if (item.getItemType() == EditItemType.IP_ADDRESS) {
-            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
-                    .addElement(makeRtFunctionName())
-                    .addElement(defaultValue)
-                    .addElement(item.getId())
-                    .addElement(nextMenuName)
-                    .requiresExtern();
-            setResult(List.of(menu));
+            if(isCallbackARuntimeOverride(item)) {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
+                        .addElements(makeRtFunctionName(), defaultValue, item.getId(), nextMenuName)
+                        .requiresExtern();
+                setResult(List.of(menu));
+            } else {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "IpAddressMenuItem")
+                        .addElements("&minfo" +itemVar, defaultValue, nextMenuName)
+                        .addElement(programMemArgument(item))
+                        .requiresExtern();
+                setResult(List.of(makeAnyItemStruct(item), menu));
+            }
         } else if (item.getItemType() == EditItemType.PLAIN_TEXT) {
-            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TextMenuItem")
-                    .addElement(makeRtFunctionName())
-                    .addElement(defaultValue)
-                    .addElement(item.getId())
-                    .addElement(item.getTextLength())
-                    .addElement(nextMenuName)
-                    .requiresExtern()
-                    .addHeaderFileRequirement("RuntimeMenuItem.h", false);
-            setResult(List.of(menu));
+            if(isCallbackARuntimeOverride(item)) {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TextMenuItem")
+                        .addElements(makeRtFunctionName(), defaultValue, item.getId(), item.getTextLength(), nextMenuName)
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(menu));
+            } else {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TextMenuItem")
+                        .addElements("&minfo" + itemVar, defaultValue, item.getTextLength(), nextMenuName)
+                        .addElement(programMemArgument(item))
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(makeAnyItemStruct(item), menu));
+            }
         } else if (item.getItemType() == EditItemType.GREGORIAN_DATE) {
-            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
-                    .addElement(makeRtFunctionName())
-                    .addElement(defaultValue)
-                    .addElement(item.getId())
-                    .addElement(nextMenuName)
-                    .requiresExtern()
-                    .addHeaderFileRequirement("RuntimeMenuItem.h", false);
-            setResult(List.of(menu));
+            if(isCallbackARuntimeOverride(item)) {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
+                        .addElements(makeRtFunctionName(), defaultValue, item.getId(), nextMenuName)
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(menu));
+            } else {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "DateFormattedMenuItem")
+                        .addElements("&minfo" + itemVar, defaultValue, nextMenuName)
+                        .addElement(programMemArgument(item))
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(makeAnyItemStruct(item), menu));
+            }
 
         } else {
             // time based
-            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
-                    .addElement(makeRtFunctionName())
-                    .addElement(defaultValue)
-                    .addElement(item.getId())
-                    .addElement("(MultiEditWireType)" + item.getItemType().getMsgId())
-                    .addElement(nextMenuName)
-                    .requiresExtern()
-                    .addHeaderFileRequirement("RuntimeMenuItem.h", false);
-            setResult(List.of(menu));
+            if(isCallbackARuntimeOverride(item)) {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
+                        .addElements(makeRtFunctionName(), defaultValue, item.getId(), "(MultiEditWireType)" + item.getItemType().getMsgId(), nextMenuName)
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(menu));
+            } else {
+                BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "TimeFormattedMenuItem")
+                        .addElements("&minfo" + itemVar, defaultValue, "(MultiEditWireType)" + item.getItemType().getMsgId(), nextMenuName)
+                        .addElement(programMemArgument(item))
+                        .requiresExtern()
+                        .addHeaderFileRequirement("RuntimeMenuItem.h", false);
+                setResult(List.of(makeAnyItemStruct(item), menu));
+            }
         }
     }
 
     public void visit(Rgb32MenuItem item) {
-        BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "Rgb32MenuItem")
-                .addElement(makeRtFunctionName())
-                .addElement(defaultValue)
-                .addElement(item.getId())
-                .addElement(item.isIncludeAlphaChannel())
-                .addElement(nextMenuName)
-                .requiresExtern()
-                .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
+        if(isCallbackARuntimeOverride(item)) {
+            BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "Rgb32MenuItem")
+                    .addElement(makeRtFunctionName())
+                    .addElement(defaultValue)
+                    .addElement(item.getId())
+                    .addElement(item.isIncludeAlphaChannel())
+                    .addElement(nextMenuName)
+                    .requiresExtern()
+                    .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
+            setResult(List.of(menu));
+        } else {
+            BuildStructInitializer menuItem = new BuildStructInitializer(item, itemVar, "Rgb32MenuItem")
+                    .addElement("&minfo" + itemVar)
+                    .addElement(defaultValue)
+                    .addElement(item.isIncludeAlphaChannel())
+                    .addElement(nextMenuName)
+                    .addElement(programMemArgument(item))
+                    .requiresExtern()
+                    .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
+            setResult(List.of(makeAnyItemStruct(item), menuItem));
+        }
+    }
 
-        setResult(List.of(menu));
+    private boolean isCallbackARuntimeOverride(MenuItem item) {
+        return (!StringHelper.isStringEmptyOrNull(item.getFunctionName()) && item.getFunctionName().endsWith(RUNTIME_FUNCTION_SUFIX));
     }
 
     public void visit(ScrollChoiceMenuItem item) {
-        BuildStructInitializer menu;
         if (item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_EEPROM) {
-            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
-                    .addElement(item.getId())
-                    .addElement(makeRtFunctionName())
+            var menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement("&minfo" + itemVar)
                     .addElement(defaultValue)
                     .addElement(item.getEepromOffset())
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .memInfoBlock(!item.isStaticDataInRAM())
+                    .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
+            setResult(List.of(makeAnyItemStruct(item),  menu));
         } else if (item.getChoiceMode() == ScrollChoiceMode.ARRAY_IN_RAM) {
-            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
-                    .addElement(item.getId())
-                    .addElement(makeRtFunctionName())
+            var menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement("&minfo" + itemVar)
                     .addElement(defaultValue)
                     .addElement(item.getVariable())
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .memInfoBlock(!item.isStaticDataInRAM())
+                    .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
+            setResult(List.of(makeAnyItemStruct(item),  menu));
         } else { // custom callback mode
-            menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
-                    .addElement(item.getId())
+            var menu = new BuildStructInitializer(item, itemVar, "ScrollChoiceMenuItem")
+                    .addElement("&minfo" + itemVar)
                     .addElement(makeRtFunctionName())
                     .addElement(defaultValue)
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .memInfoBlock(!item.isStaticDataInRAM())
+                    .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
+            setResult(List.of(makeAnyItemStruct(item), menu));
         }
-        menu.addHeaderFileRequirement("ScrollChoiceMenuItem.h", false);
-        setResult(List.of(menu));
     }
 
     private String makeRtFunctionName() {
@@ -296,14 +344,38 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(RuntimeListMenuItem listItem) {
-        BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
+        if(listItem.isUsingInfoBlock()) {
+            BuildStructInitializer info = makeAnyItemStruct(listItem);
+            BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
+                    .addElement("&minfo" + itemVar)
+                    .addElement(listItem.getInitialRows())
+                    .addElement(makeRtFunctionName())
+                    .addElement(nextMenuName)
+                    .addElement(programMemArgument(listItem))
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                    .requiresExtern();
+            setResult(List.of(info, listStruct));
+        } else {
+            BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
+                    .addElement(listItem.getId())
+                    .addElement(listItem.getInitialRows())
+                    .addElement(makeRtFunctionName())
+                    .addElement(nextMenuName)
+                    .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                    .requiresExtern();
+            setResult(List.of(listStruct));
+        }
+    }
+
+    private BuildStructInitializer makeAnyItemStruct(MenuItem listItem) {
+        BuildStructInitializer info = new BuildStructInitializer(listItem, itemVar, "AnyMenuInfo")
+                .addElement(getItemName(listItem, handler))
                 .addElement(listItem.getId())
-                .addElement(listItem.getInitialRows())
-                .addElement(makeRtFunctionName())
-                .addHeaderFileRequirement("RuntimeMenuItem.h", false)
-                .addElement(nextMenuName)
-                .requiresExtern();
-        setResult(List.of(listStruct));
+                .addEeprom(listItem.getEepromAddress())
+                .addElement(0)
+                .addPossibleFunction(listItem.getFunctionName())
+                .memInfoBlock(!listItem.isStaticDataInRAM());
+        return info;
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
@@ -49,6 +50,10 @@ public class BuildStructInitializer {
 
     public BuildStructInitializer addElement(Object value) {
         structElements.add(safeValue(value));
+        return this;
+    }
+    public BuildStructInitializer addElements(Object... values) {
+        structElements.addAll(Arrays.stream(values).map(this::safeValue).toList());
         return this;
     }
 

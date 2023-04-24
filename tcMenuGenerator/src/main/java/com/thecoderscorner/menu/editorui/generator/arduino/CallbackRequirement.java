@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.RUNTIME_MENU_URL;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
 
 public class CallbackRequirement {
     public static final String RUNTIME_FUNCTION_SUFIX = "RtCall";
@@ -74,9 +74,13 @@ public class CallbackRequirement {
             }
 
             private void generateCallbackAsPossibleOverride(MenuItem item) {
-                String functionName = item.getFunctionName();
-                if(!StringHelper.isStringEmptyOrNull(functionName) && functionName.endsWith(RUNTIME_FUNCTION_SUFIX)) {
-                    setResult(generateRtCallForType(item, functionName));
+                String fn = item.getFunctionName();
+                if(!StringHelper.isStringEmptyOrNull(fn) && fn.endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    if(fn.startsWith("@")) {
+                        setResult(List.of());
+                    } else {
+                        setResult(generateRtCallForType(item, fn));
+                    }
                 } else {
                     anyItem(item);
                 }
@@ -92,23 +96,13 @@ public class CallbackRequirement {
 
             private void runtimeCustomCallback(MenuItem item) {
                 setResult(List.of(
-                        "// see tcMenu list documentation on thecoderscorner.com",
+                        "// This callback needs to be implemented by you, see the below docs:",
+                        "//  1. List Docs - " + LIST_URL,
+                        "//  2. ScrollChoice Docs - " + CHOICE_URL,
                         "int CALLBACK_FUNCTION " + generator.makeRtFunctionName(item) + RUNTIME_CALLBACK_PARAMS + " {",
-                        "   switch(mode) {",
-                        "    case RENDERFN_INVOKE:",
-                        "        // TODO - your code to invoke goes here - row is the index of the item",
-                        "        return true;",
-                        "    case RENDERFN_NAME:",
-                        "        // TODO - each row has it's own name - 0xff is the parent item",
-                        "        ltoaClrBuff(buffer, row, 3, NOT_PADDED, bufferSize);",
-                        "        return true;",
-                        "    case RENDERFN_VALUE:",
-                        "        // TODO - each row can has its own value - 0xff is the parent item",
-                        "        buffer[0] = 'V'; buffer[1]=0;",
-                        "        fastltoa(buffer, row, 3, NOT_PADDED, bufferSize);",
-                        "        return true;",
-                        "    case RENDERFN_EEPROM_POS: return 0xffff; // lists are generally not saved to EEPROM",
-                        "    default: return false;",
+                        "    switch(mode) {",
+                        "    default:",
+                        "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
                         "    }",
                         "}"
                 ));
@@ -118,14 +112,15 @@ public class CallbackRequirement {
             public void anyItem(MenuItem item) {
                 if(StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
                     setResult(List.of());
-                }
-                else {
+                } else if(!item.getFunctionName().startsWith("@")){
                     setResult(List.of(
                             "",
                             "void CALLBACK_FUNCTION " + callbackName + "(int id) {",
                             "    // TODO - your menu change code",
                             "}"
                     ));
+                } else {
+                    setResult(List.of());
                 }
             }
         }).orElse(Collections.emptyList());
@@ -136,55 +131,42 @@ public class CallbackRequirement {
 
             @Override
             public void visit(EditableTextMenuItem item) {
-                var baseCbFn = functionFromEditType(item.getItemType());
-                generateSourceForEditableRuntime(item, baseCbFn);
+                generateSourceForEditableRuntime(item);
             }
 
-            private void generateSourceForEditableRuntime(MenuItem item, String baseCbFn) {
-                var callbackPresent = !StringHelper.isStringEmptyOrNull(item.getFunctionName());
+            private void generateSourceForEditableRuntime(MenuItem item) {
+                String fn = item.getFunctionName();
+                var callbackPresent = !StringHelper.isStringEmptyOrNull(fn);
+                if(callbackPresent && fn.startsWith("@")) fn = fn.substring(1);
 
-                String renderingMacroDef;
-                if(callbackPresent && isApplicableForOverrideRtCall(item) && item.getFunctionName().endsWith(RUNTIME_FUNCTION_SUFIX)) {
-                    renderingMacroDef = "RENDERING_CALLBACK_NAME_OVERRIDDEN("
+                if(callbackPresent && isApplicableForOverrideRtCall(item) && fn.endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    var renderingMacroDef = "RENDERING_CALLBACK_NAME_OVERRIDDEN("
                             + generator.makeRtFunctionName(item) + ", "
-                            + item.getFunctionName() + ", "
+                            + fn + ", "
                             + MenuItemToEmbeddedGenerator.getItemName(item, handler) + ", "
                             + item.getEepromAddress() + ")";
-                } else {
-                    renderingMacroDef = "RENDERING_CALLBACK_NAME_INVOKE("
-                            + generator.makeRtFunctionName(item) + ", "
-                            + baseCbFn + ", "
-                            + MenuItemToEmbeddedGenerator.getItemName(item, handler) + ", "
-                            + item.getEepromAddress() + ", "
-                            + (callbackPresent ? callbackName : "NO_CALLBACK") + ")";
-
-
-                    if (item instanceof ScrollChoiceMenuItem sc) {
-                        if (sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
-                            setResult(List.of("extern char " + sc.getVariable() + "[];", renderingMacroDef));
-                            return;
-                        }
-                    }
+                    setResult(List.of(renderingMacroDef));
+                } else if (item instanceof ScrollChoiceMenuItem sc && sc.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM) {
+                    setResult(List.of("extern char " + sc.getVariable() + "[];"));
                 }
-                setResult(List.of(renderingMacroDef));
             }
 
             @Override
             public void visit(Rgb32MenuItem item) {
-                generateSourceForEditableRuntime(item, "rgbAlphaItemRenderFn");
+                generateSourceForEditableRuntime(item);
             }
 
             @Override
             public void visit(ScrollChoiceMenuItem item) {
                 if(item.getChoiceMode() != ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
-                    generateSourceForEditableRuntime(item, "enumItemRenderFn");
+                    generateSourceForEditableRuntime(item);
                 }
                 else anyItem(item);
             }
 
             @Override
             public void visit(EditableLargeNumberMenuItem item) {
-                generateSourceForEditableRuntime(item, "largeNumItemRenderFn");
+                generateSourceForEditableRuntime(item);
             }
 
             @Override
@@ -226,6 +208,7 @@ public class CallbackRequirement {
             private void processAsPossibleRtOverride(MenuItem item) {
                 String functionName = item.getFunctionName();
                 if(!StringHelper.isStringEmptyOrNull(functionName) && functionName.endsWith(RUNTIME_FUNCTION_SUFIX)) {
+                    if(functionName.startsWith("@")) functionName = functionName.substring(1);
                     setResult("int " + functionName + RUNTIME_CALLBACK_PARAMS + ";");
                 } else {
                     anyItem(item);

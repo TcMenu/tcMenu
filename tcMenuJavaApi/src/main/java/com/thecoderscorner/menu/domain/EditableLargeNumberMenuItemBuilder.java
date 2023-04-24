@@ -30,7 +30,7 @@ public class EditableLargeNumberMenuItemBuilder extends MenuItemBuilder<Editable
 
     public EditableLargeNumberMenuItem menuItem() {
         return new EditableLargeNumberMenuItem(this.name, this.variableName, this.id, this.eepromAddr, this.functionName,
-                totalDigits, decimalPlaces, negativeAllowed, readOnly, localOnly, visible);
+                totalDigits, decimalPlaces, negativeAllowed, readOnly, localOnly, visible, staticDataInRAM);
     }
 
     public static EditableLargeNumberMenuItemBuilder aLargeNumberItemBuilder() {
