@@ -92,7 +92,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             setResult(List.of(menu));
         } else {
             BuildStructInitializer menu = new BuildStructInitializer(item, itemVar, "EditableLargeNumberMenuItem")
-                    .addElements("&minfo" + itemVar, defaultValue, item.getId(), item.isNegativeAllowed(), nextMenuName)
+                    .addElements("&minfo" + itemVar, defaultValue, item.isNegativeAllowed(), nextMenuName)
                     .addElement(programMemArgument(item))
                     .requiresExtern()
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false)
@@ -204,7 +204,6 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
-                    .memInfoBlock(!item.isStaticDataInRAM())
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item),  menu));
@@ -216,7 +215,6 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
-                    .memInfoBlock(!item.isStaticDataInRAM())
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item),  menu));
@@ -227,7 +225,6 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(defaultValue)
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
-                    .memInfoBlock(!item.isStaticDataInRAM())
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item), menu));
