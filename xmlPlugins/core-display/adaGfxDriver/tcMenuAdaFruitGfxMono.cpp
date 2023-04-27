@@ -14,6 +14,7 @@
 
 #include <ScrollChoiceMenuItem.h>
 #include "tcMenuAdaFruitGfxMono.h"
+#include <tcUnicodeHelper.h>
 #include <tcUnicodeAdaGFX.h>
 
 using namespace tcgfx;
@@ -136,7 +137,7 @@ void AdafruitDrawable::drawPixel(uint16_t x, uint16_t y) {
 }
 
 UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
-    return new UnicodeFontHandler(new newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
+    return new UnicodeFontHandler(newAdafruitTextPipeline(graphics), ENCMODE_UTF8);
 }
 
 //
