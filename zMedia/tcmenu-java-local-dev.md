@@ -44,5 +44,13 @@ Add the following "VM options" as this avoids JavaFX throwing an error:
 
     -ea --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
+## Building the API or EmbedCONTROL Core with Maven
 
+If for any reason you want to build the API with maven (outside of IntelliJ), you'll need to set up a GPG key. You don't need to follow the steps for broadcasting the key as you're not going to deploy the release to maven central.
+
+https://maven.apache.org/developers/release/pmc-gpg-keys.html
+
+See the "Configure passphrase in settings.xml" in the following: https://maven.apache.org/plugins/maven-gpg-plugin/usage.html
+
+Once these steps are done, you should be able to build the API and embedCONTROL Core.
 
