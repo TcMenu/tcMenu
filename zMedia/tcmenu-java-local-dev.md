@@ -46,7 +46,7 @@ Add the following "VM options" as this avoids JavaFX throwing an error:
 
 ## Building the API or EmbedCONTROL Core with Maven
 
-If for any reason you want to build the API with maven (outside of IntelliJ), you'll need to set up a GPG key. You don't need to follow the steps for broadcasting the key as you're not going to deploy the release to maven central.
+If for any reason you want to build the API with maven (IE outside of IntelliJ), you'll need to set up a GPG key. You don't need to follow the steps for broadcasting the key as you're not going to deploy the release to maven central.
 
 https://maven.apache.org/developers/release/pmc-gpg-keys.html
 
