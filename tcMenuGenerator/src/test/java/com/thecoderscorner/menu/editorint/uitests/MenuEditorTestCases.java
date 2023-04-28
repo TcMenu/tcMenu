@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorui.uitests;
+package com.thecoderscorner.menu.editorint.uitests;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;

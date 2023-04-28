@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.uitests;
+package com.thecoderscorner.menu.editorint.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.NewProjectDialog;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;

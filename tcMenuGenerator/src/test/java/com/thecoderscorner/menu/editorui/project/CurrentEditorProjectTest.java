@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
-import static com.thecoderscorner.menu.editorui.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
+import static com.thecoderscorner.menu.editorint.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

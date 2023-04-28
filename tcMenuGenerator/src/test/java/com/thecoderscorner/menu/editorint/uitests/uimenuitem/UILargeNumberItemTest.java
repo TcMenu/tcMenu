@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
+package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
 import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;

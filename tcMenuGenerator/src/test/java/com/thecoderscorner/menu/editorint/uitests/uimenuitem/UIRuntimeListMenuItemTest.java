@@ -1,18 +1,11 @@
-package com.thecoderscorner.menu.editorui.uitests.uimenuitem;
+package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
 
-import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItem;
-import com.thecoderscorner.menu.domain.EditableLargeNumberMenuItemBuilder;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.uimodel.UILargeNumberMenuItem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
