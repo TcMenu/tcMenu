@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.uitests;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
@@ -16,7 +17,6 @@ import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.TableViewMatchers;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,22 +26,21 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(ApplicationExtension.class)
 public class IoExpanderDialogTestCases {
-    private ChooseIoExpanderDialog dialog;
     private Stage stage;
     private CurrentEditorProject project;
     private Path randomPath;
 
     @Start
     public void initialiseDialog(Stage stage) throws Exception {
+        MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
         this.stage = stage;
         randomPath = Files.createTempDirectory("prj");
         project = GenerateCodeDialogTest.createTheProject(randomPath, mock(CurrentProjectEditorUI.class));
-        dialog = new ChooseIoExpanderDialog(stage, Optional.empty(), project, false);
+        new ChooseIoExpanderDialog(stage, Optional.empty(), project, false);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

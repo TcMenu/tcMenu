@@ -21,16 +21,17 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameIpItemRtCall, ipAddressRenderFn, "Ip Item", -1, headerOnly)
-IpAddressMenuItem menuOverrideSubNameIpItem(fnOverrideSubNameIpItemRtCall, IpAddressStorage(127, 0, 0, 1), 79, NULL);
-RENDERING_CALLBACK_NAME_INVOKE(fnOverrideSubNameTextItemRtCall, textItemRenderFn, "Text Item", -1, callback2)
-TextMenuItem menuOverrideSubNameTextItem(fnOverrideSubNameTextItemRtCall, "", 99, 10, &menuOverrideSubNameIpItem);
+const AnyMenuInfo minfoOverrideSubNameIpItem = { "Ip Item", 79, 0xffff, 0, headerOnly };
+IpAddressMenuItem menuOverrideSubNameIpItem(&minfoOverrideSubNameIpItem, IpAddressStorage(127, 0, 0, 1), NULL, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoOverrideSubNameTextItem = { "Text Item", 99, 0xffff, 0, callback2 };
+TextMenuItem menuOverrideSubNameTextItem(&minfoOverrideSubNameTextItem, "", 10, &menuOverrideSubNameIpItem, INFO_LOCATION_PGM);
 const AnalogMenuInfo minfoOverrideAnalog2Name = { "test2", 2, 4, 100, callback1, 0, 1, "dB" };
 AnalogMenuItem menuOverrideAnalog2Name(&minfoOverrideAnalog2Name, 0, &menuOverrideSubNameTextItem, INFO_LOCATION_PGM);
 const SubMenuInfo minfoOverrideSubName = { "sub", 100, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackOverrideSubName(&minfoOverrideSubName, &menuOverrideAnalog2Name, INFO_LOCATION_PGM);
 SubMenuItem menuOverrideSubName(&minfoOverrideSubName, &menuBackOverrideSubName, NULL, INFO_LOCATION_PGM);
-ListRuntimeMenuItem menuAbc(1043, 2, fnAbcRtCall, &menuOverrideSubName);
+const AnyMenuInfo minfoAbc = { "Abc", 1043, 0, 0, NO_CALLBACK };
+ListRuntimeMenuItem menuAbc(&minfoAbc, 2, fnAbcRtCall, &menuOverrideSubName, INFO_LOCATION_PGM);
 const AnalogMenuInfo minfoTest = { "test", 1, 2, 100, NO_CALLBACK, 0, 1, "dB" };
 AnalogMenuItem menuTest(&minfoTest, 0, &menuAbc, INFO_LOCATION_PGM);
 const char enumStrExtra_0[] = "test";

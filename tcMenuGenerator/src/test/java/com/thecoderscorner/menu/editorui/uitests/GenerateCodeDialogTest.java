@@ -94,6 +94,8 @@ public class GenerateCodeDialogTest {
 
     @Start
     public void onStart(Stage stage) {
+        MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
+
         this.stage = stage;
 
         MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);

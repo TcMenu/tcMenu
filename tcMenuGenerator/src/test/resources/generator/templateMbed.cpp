@@ -35,26 +35,27 @@ const char pgmStrIoTMonText[] = { TC_I18N_MENU_10002_NAME };
 RemoteMenuItem menuIoTMon(pgmStrIoTMonText, 10002, &menuAnalogRam);
 const char pgmStrCustomAuthText[] = { TC_I18N_MENU_10001_NAME };
 EepromAuthenticationInfoMenuItem menuCustomAuth(pgmStrCustomAuthText, NO_CALLBACK, 10001, &menuIoTMon);
-ScrollChoiceMenuItem menuMySubSub1CustomChoice(18, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL);
+const AnyMenuInfo minfoMySubSub1CustomChoice = { "Custom Choice", 18, 33, 0, NO_CALLBACK };
+ScrollChoiceMenuItem menuMySubSub1CustomChoice(&minfoMySubSub1CustomChoice, fnMySubSub1CustomChoiceRtCall, 0, 6, NULL, INFO_LOCATION_PGM);
 extern char myChoiceRam[];
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RamChoiceRtCall, enumItemRenderFn, "Ram Choice", 31, onRamChoice)
-ScrollChoiceMenuItem menuMySubSub1RamChoice(17, fnMySubSub1RamChoiceRtCall, 0, myChoiceRam, 5, 6, &menuMySubSub1CustomChoice);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1EepromChoiceRtCall, enumItemRenderFn, "EepromChoice", 29, onRomChoice)
-ScrollChoiceMenuItem menuMySubSub1EepromChoice(16, fnMySubSub1EepromChoiceRtCall, 0, 128, 11, 4, &menuMySubSub1RamChoice);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1RGBRtCall, rgbAlphaItemRenderFn, "RGB", -1, onRgb)
-Rgb32MenuItem menuMySubSub1RGB(fnMySubSub1RGBRtCall, RgbColor32(0, 0, 0, 255), 15, true, &menuMySubSub1EepromChoice);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DateFieldRtCall, dateItemRenderFn, "Date Field", 25, NO_CALLBACK)
-DateFormattedMenuItem menuMySubSub1DateField(fnMySubSub1DateFieldRtCall, DateStorage(1, 1, 2020), 14, &menuMySubSub1RGB);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TimeFieldRtCall, timeItemRenderFn, "Time Field", -1, NO_CALLBACK)
-TimeFormattedMenuItem menuMySubSub1TimeField(fnMySubSub1TimeFieldRtCall, TimeStorage(0, 0, 0, 0), 13, (MultiEditWireType)8, &menuMySubSub1DateField);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IPAddressRtCall, ipAddressRenderFn, "IP Address", 21, onIpChange)
-IpAddressMenuItem menuMySubSub1IPAddress(fnMySubSub1IPAddressRtCall, IpAddressStorage(127, 0, 0, 1), 12, &menuMySubSub1TimeField);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1TextItemRtCall, textItemRenderFn, "Text Item", 7, NO_CALLBACK)
-TextMenuItem menuMySubSub1TextItem(fnMySubSub1TextItemRtCall, "", 11, 14, &menuMySubSub1IPAddress);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1IntLargeRtCall, largeNumItemRenderFn, "Int Large", -1, NO_CALLBACK)
-EditableLargeNumberMenuItem menuMySubSub1IntLarge(fnMySubSub1IntLargeRtCall, LargeFixedNumber(8, 0, 0U, 0U, false), 10, false, &menuMySubSub1TextItem);
-RENDERING_CALLBACK_NAME_INVOKE(fnMySubSub1DecLargeRtCall, largeNumItemRenderFn, "Dec Large", -1, onDecLarge)
-EditableLargeNumberMenuItem menuMySubSub1DecLarge(fnMySubSub1DecLargeRtCall, LargeFixedNumber(8, 3, 0U, 0U, false), 9, true, &menuMySubSub1IntLarge);
+const AnyMenuInfo minfoMySubSub1RamChoice = { "Ram Choice", 17, 31, 0, onRamChoice };
+ScrollChoiceMenuItem menuMySubSub1RamChoice(&minfoMySubSub1RamChoice, 0, myChoiceRam, 5, 6, &menuMySubSub1CustomChoice, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1EepromChoice = { "EepromChoice", 16, 29, 0, onRomChoice };
+ScrollChoiceMenuItem menuMySubSub1EepromChoice(&minfoMySubSub1EepromChoice, 0, 128, 11, 4, &menuMySubSub1RamChoice, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1RGB = { "RGB", 15, 0xffff, 0, onRgb };
+Rgb32MenuItem menuMySubSub1RGB(&minfoMySubSub1RGB, RgbColor32(0, 0, 0, 255), true, &menuMySubSub1EepromChoice, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1DateField = { "Date Field", 14, 25, 0, NO_CALLBACK };
+DateFormattedMenuItem menuMySubSub1DateField(&minfoMySubSub1DateField, DateStorage(1, 1, 2020), &menuMySubSub1RGB, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1TimeField = { "Time Field", 13, 0xffff, 0, NO_CALLBACK };
+TimeFormattedMenuItem menuMySubSub1TimeField(&minfoMySubSub1TimeField, TimeStorage(0, 0, 0, 0), (MultiEditWireType)8, &menuMySubSub1DateField, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1IPAddress = { "IP Address", 12, 21, 0, onIpChange };
+IpAddressMenuItem menuMySubSub1IPAddress(&minfoMySubSub1IPAddress, IpAddressStorage(127, 0, 0, 1), &menuMySubSub1TimeField, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1TextItem = { "Text Item", 11, 7, 0, NO_CALLBACK };
+TextMenuItem menuMySubSub1TextItem(&minfoMySubSub1TextItem, "", 14, &menuMySubSub1IPAddress, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1IntLarge = { "Int Large", 10, 0xffff, 0, NO_CALLBACK };
+EditableLargeNumberMenuItem menuMySubSub1IntLarge(&minfoMySubSub1IntLarge, LargeFixedNumber(8, 0, 0U, 0U, false), false, &menuMySubSub1TextItem, INFO_LOCATION_PGM);
+const AnyMenuInfo minfoMySubSub1DecLarge = { "Dec Large", 9, 0xffff, 0, onDecLarge };
+EditableLargeNumberMenuItem menuMySubSub1DecLarge(&minfoMySubSub1DecLarge, LargeFixedNumber(8, 3, 0U, 0U, false), true, &menuMySubSub1IntLarge, INFO_LOCATION_PGM);
 const SubMenuInfo minfoMySubSub1 = { "Sub1", 8, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackMySubSub1(&minfoMySubSub1, &menuMySubSub1DecLarge, INFO_LOCATION_PGM);
 SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuCustomAuth, INFO_LOCATION_PGM);

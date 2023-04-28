@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CurrentEditorProjectTest {
 
@@ -32,28 +34,22 @@ public class CurrentEditorProjectTest {
     private CurrentProjectEditorUI editorUI;
     private ProjectPersistor persistor;
     private BooleanMenuItem item1;
-    private BooleanMenuItem item2;
-    private SubMenuItem subMenu;
 
     @BeforeEach
     public void setUp() {
+        MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
+
         editorUI = mock(CurrentProjectEditorUI.class);
         persistor = mock(ProjectPersistor.class);
-        project = new CurrentEditorProject(editorUI, persistor, mock(ConfigurationStorage.class));
+        ConfigurationStorage configStore = mock(ConfigurationStorage.class);
+        when(configStore.getVersion()).thenReturn("3.2.0");
+        project = new CurrentEditorProject(editorUI, persistor, configStore);
 
         item1 = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(1)
                 .withEepromAddr(12)
                 .withName("name")
                 .withNaming(BooleanMenuItem.BooleanNaming.ON_OFF)
-                .menuItem();
-        item2 = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
-                .withExisting(item1)
-                .withId(2)
-                .menuItem();
-        subMenu = SubMenuItemBuilder.aSubMenuItemBuilder()
-                .withId(100)
-                .withName("abcd")
                 .menuItem();
     }
 
@@ -66,7 +62,7 @@ public class CurrentEditorProjectTest {
         project.newProject();
         assertFalse(project.isFileNameSet());
         assertFalse(project.isDirty());
-        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New - TcMenu Designer");
+        Mockito.verify(editorUI, Mockito.atLeastOnce()).setTitle("New - Embedded Menu Designer 3.2.0");
     }
 
     @Test

@@ -204,6 +204,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .addElement(programMemArgument(item))
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item),  menu));
@@ -215,6 +216,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(item.getItemWidth())
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .addElement(programMemArgument(item))
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item),  menu));
@@ -225,6 +227,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addElement(defaultValue)
                     .addElement(item.getNumEntries())
                     .addElement(nextMenuName)
+                    .addElement(programMemArgument(item))
                     .addHeaderFileRequirement("ScrollChoiceMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(makeAnyItemStruct(item), menu));
@@ -365,14 +368,13 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     }
 
     private BuildStructInitializer makeAnyItemStruct(MenuItem listItem) {
-        BuildStructInitializer info = new BuildStructInitializer(listItem, itemVar, "AnyMenuInfo")
+        return new BuildStructInitializer(listItem, itemVar, "AnyMenuInfo")
                 .addElement(getItemName(listItem, handler))
                 .addElement(listItem.getId())
                 .addEeprom(listItem.getEepromAddress())
                 .addElement(0)
                 .addPossibleFunction(listItem.getFunctionName())
                 .memInfoBlock(!listItem.isStaticDataInRAM());
-        return info;
     }
 
     @Override

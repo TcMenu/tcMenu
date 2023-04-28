@@ -19,7 +19,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <!-- production deps -->
-        <jdk.version>20</jdk.version>
+        <jdk.version>17</jdk.version>
         <jfx.version>20</jfx.version>
         <jmetro.version>11.6.16</jmetro.version>
         <google.gson.version>2.9.0</google.gson.version>
@@ -59,7 +59,11 @@
             <version>${picocli.version}</version>
         </dependency>
 
-        <!-- javafx - when not using bellsoft or manually including Open JFX include the below -->
+        <!--
+        !!!!!!!JavaFX - Special notes!!!!!!
+        If you are using BellSoft's Liberica Full JDK leave the below scopes set to "test"
+        If you are using another JDK without JavaFX, comment out the scope for each org.openjfx component.
+         -->
 
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -85,6 +89,8 @@
             <version>${jfx.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- END JavaFX notes -->
 
         <dependency>
             <groupId>org.jfxtras</groupId>
