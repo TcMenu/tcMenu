@@ -166,3 +166,7 @@ The most recent builds of TcMenu Designer include a CLI that has support for cre
 ## Loading and saving menu items
 
 tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 
+
+## Developer setup
+
+[See the developer guide](zMedia/tcmenu-java-local-dev.md)
