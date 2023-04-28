@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/tcMenuJavaApi/pom.xml" />
+        <option value="$PROJECT_DIR$/embedCONTROLCore/pom.xml" />
+        <option value="$PROJECT_DIR$/embedCONTROLFx/pom.xml" />
+        <option value="$PROJECT_DIR$/embeddedJavaExample/pom.xml" />
+        <option value="$PROJECT_DIR$/tcMenuGenerator/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_20" default="true" project-jdk-name="liberica-20" project-jdk-type="JavaSDK" />
+</project>

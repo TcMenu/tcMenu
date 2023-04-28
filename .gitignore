@@ -1,7 +1,5 @@
 .DS_Store
-**/*.iml
 target/
-**/.idea/
 **/.vscode
 **/Output
 pom.xml.tag
@@ -12,7 +10,6 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-.idea
 builtPlugins
 
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)

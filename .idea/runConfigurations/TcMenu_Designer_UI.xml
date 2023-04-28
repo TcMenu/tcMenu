@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TcMenu Designer UI" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorui.MenuEditorApp" />
+    <module name="menuEditorUI" />
+    <option name="VM_PARAMETERS" value="-Ddevlog=Y -DalwaysShowSplash=Y" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
