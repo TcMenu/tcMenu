@@ -25,7 +25,7 @@ Simply load the project directory in an editor such as VSCode that allows you to
 
 ## Running the designer locally
 
-You can add the following VM parameters:
+There are a couple of common VM parameters, they are added by default to the designer run configuration:
 
     -Ddevlog=Y -DalwaysShowSplash=Y
 
@@ -34,13 +34,22 @@ You can add the following VM parameters:
 
 Note that the starting directory is relatively unimportant for most operations.
 
-## Running the designer automation/integration tests locally
+## Standard IntelliJ run configurations:
 
-At the moment the designer tests include all the UI automation tests written in TestFX. These actually exercise the UI and take quite a lot of time to run. I usually only run these a couple of times per release cycle to check for issues, if you want to run these add the argument below, to avoid running these, don't run the tests in the `uitest` package.
+Most of the common things you'd want to run are already set up as run configurations:
 
-During or after the 3.2 release these will be moved into integration tests.
+* tcMenuJavaAPI Tests - run the tests in the Java API project
+* TcMenuDesigner Tests - run the unit tests in the designer project
+* TcMenuDesigner IntTests - run the integration / UI automation tests in the designer
+* TcMenu Designer UI - run the designer UI with the console logging option turned on.
+* EmbeddedJavaDemoApp - runs the RaspberryPI demo application build on top of the API.
+* EmbedControlApp - runs the embedCONTROL application
 
-Add the following "VM options" as this avoids JavaFX throwing an error:
+## Designer test cases
+
+The designer test cases are split into two, unit and UI integration tests. The unit tests are within the `editorui` package and run within a second or so. The UI integration tests actually start the UI components and these are located in the `editorint` package.  UI automation tests written in TestFX and exercise the UI, they take quite a lot of time to run. I usually only run these a couple of times per release cycle to check for issues, if you want to run these add the argument below, to avoid running these, don't run the tests in the `editorint` package.
+
+If you're not using the standard run configurations in IntelliJ, then add the following "VM options" as this avoids JavaFX throwing an error:
 
     -ea --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
