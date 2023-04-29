@@ -53,6 +53,57 @@ If you're not using the standard run configurations in IntelliJ, then add the fo
 
     -ea --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
+## Some notes about the API
+
+The API is broken into several features.
+
+* domain - these classes are the representation of menu items in the Java domain
+* domain/state - these classes hold the current value of a menu item
+* mgr - contain classes for embedded Java systems (IE Java being server side of connection)
+* remote - contains both classes for acting as a client, and general remote server code.
+
+Classes of note
+
+* MenuItem - the core menu item, items are immutable, they tend to be created using a builder ending in Builder 
+* MenuTree - holds all the menu items and where they fit into the structure.
+* MenuManagerServer - this is mainly for use in embedded Java applications it implements the server side of the protocol.
+* RemoteMenuController - this provides the client side of a Java API connection, handling MenuTree updates
+* RemoteConnector - this is the base class of all remote connections for the client side.
+* ConfigurableProtocolConverter - this is the starting point for TagVal protocol.
+
+## Some core classes with designer
+
+In IntelliJ classes can be found quickly by either using Ctrl-M or Ctrl-O depending on your setup. It is convenient to make your way around using find usages (Ctrl-Alt-F7) and go to implementation/definition (Ctrl-B)/(Ctrl-Alt-B).
+
+Important packages
+
+* cli - contains all the CLI commands that can be used with the tcmenu command.
+* controller - contains each of the JavaFX controller objects (MVC pattern)
+* dialog - contains a class that can create each type of form / dialog
+* generator - the code generator is under here, split into a few sub packages, for various functions
+* project - the code to handle loading, saving and processing tcmenu projects
+* simui - this simply allows for embedCONTROL to be integrated so as to show a proper prototype
+* storage - contains mainly configuration classes
+* uimodel - contains a UI editor for each menu item type
+
+Important classes
+
+* MenuEditorApp - this is the main class
+* UIMenuItem - there is one of these for each type of menu item, generally looking at this package, you'll see there is a near 1-1 mapping with MenuItem.
+* LocalMappingHandler - this is the component that is responsible for i18n of menus in the UI. It is technically in the API but shown here because of its importance.
+* AppInfoPanel - the app information that appears when root is selected
+* CoreCodeGenerator - also ArduinoCodeGenerator and MbedCodeGenerator are used to do conversions
+* ArduinoSketchFileAdjuster - is responsible for saving changes to sketches.
+* MenuItemToEmbeddedGenerator - converts the menu items into C++ code for Arduino and mbed.
+
+## How to develop plugins quicker
+
+Plugins are installed into the `~/.tcmenu/plugins` directory, each directory under this folder is treated as a plugin, and will be expected to follow the plugins format, see the `xmlPlugins` README.md file that describes the format in detail. However, from a development perspective, if you are changing plugins it is more convenient not to need to run maven to package them each time. How to locally edit them:
+
+* In the `.tcmenu/plugins` folder add an empty file `.development` which will prevent the designer trying to overwite anything.
+* Remove the three plugin directories so that the only file left is the one we created
+* Then create symlinks to each of the three plugins under the xmlPlugins directory.
+
 ## Building the API or EmbedCONTROL Core with Maven
 
 If for any reason you want to build the API with maven (IE outside of IntelliJ), you'll need to set up a GPG key. You don't need to follow the steps for broadcasting the key as you're not going to deploy the release to maven central.
