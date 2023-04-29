@@ -11,8 +11,9 @@
 #ifndef MENU_GENERATED_CODE_H
 #define MENU_GENERATED_CODE_H
 
-#include <Arduino.h>
+#include <mbed.h>
 #include <tcMenu.h>
+
 #include "Scramble.h"
 #include <JoystickSwitchInput.h>
 #include <superTheme123.h>

@@ -59,6 +59,7 @@ public class MbedGeneratorTest {
     private Path pluginDir;
     private Path rootDir;
     private CodePluginConfig pluginConfig;
+    private PluginEmbeddedPlatformsImpl embeddedPlatforms;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -68,7 +69,7 @@ public class MbedGeneratorTest {
 
         pluginDir = rootDir.resolve("plugin");
         pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, true);
-        var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+        embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.1.0");
         var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
@@ -116,8 +117,8 @@ public class MbedGeneratorTest {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
-        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(options, new PrefsConfigurationStorage());
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, MBED_RTOS);
+        embeddedPlatforms.setInstallerConfiguration(installer, new PrefsConfigurationStorage());
+        var generator = embeddedPlatforms.getCodeGeneratorFor(MBED_RTOS, options);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
