@@ -73,7 +73,7 @@ Classes of note
 
 ## Some core classes with designer
 
-In IntelliJ classes can be found quickly by either using Ctrl-M or Ctrl-O depending on your setup. It is convenient to make your way around using find usages (Ctrl-Alt-F7) and go to implementation/definition (Ctrl-B)/(Ctrl-Alt-B).
+In IntelliJ classes can be found quickly by either using Ctrl-N or Ctrl-O depending on your setup. It is convenient to make your way around using find usages (Ctrl-Alt-F7) and go to implementation/definition (Ctrl-B)/(Ctrl-Alt-B).
 
 Important packages
 
