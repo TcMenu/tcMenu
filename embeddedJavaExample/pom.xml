@@ -7,9 +7,9 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <jdk.version>17</jdk.version>
+        <jdk.version>20</jdk.version>
+        <jfx.version>20</jfx.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
-        <jfx.version>17.0.0.1</jfx.version>
         <tcmenu.api.version>3.2.0-BETA</tcmenu.api.version>
         <springframework.version>5.3.23</springframework.version>
         <timestamp>${maven.build.timestamp}</timestamp>
