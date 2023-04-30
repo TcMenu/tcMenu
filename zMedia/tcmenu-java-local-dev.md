@@ -5,7 +5,7 @@ This guide is aimed at developers wanting to build the UI locally within an IDE.
 ## Required Components
 
 * Java 20 OpenJDK runtime, you can use any that you wish. IMPORTANT you must use at least V20.
-* OpenJFX, normally included from maven, if you don't use Liberica Full JDK, then you will need to adjust the designer pom.xml to bring in OpenJFX. See comment in pom.xml.
+* OpenJFX, normally included from maven, if you don't use Liberica Full JDK, then you will need to adjust the designer pom.xml to bring in OpenJFX. See comments in pom.xml of each module.
 * IntelliJ either community or ultimate should work. Use the latest one available.
 * Local clone of the main repo from https://github.com/davetcc/tcMenu
 * If you want to build the JavaAPI via maven you will need the GPG tool installed
