@@ -50,7 +50,8 @@
     </scm>
 
     <properties>
-        <jfx.version>17.0.0.1</jfx.version>
+        <jdk.version>20</jdk.version>
+        <jfx.version>20</jfx.version>
         <gson.version>2.8.6</gson.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
         <google.gson.version>2.9.0</google.gson.version>
@@ -73,19 +74,28 @@
             <artifactId>jSerialComm</artifactId>
             <version>${jserialcomm.version}</version>
         </dependency>
-        <!-- If you're not running with a JDK including OpenJFX such as  bell-soft full JDK then add these back -->
-        <!--dependency>
+
+        <!--
+        !!!!!!!JavaFX - Special notes!!!!!!
+        If you are using BellSoft's Liberica Full JDK leave the below scopes set to "test"
+        If you are using another JDK without JavaFX, comment out the scope for each org.openjfx component.
+         -->
+
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${jfx.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${jfx.version}</version>
-            <scope>compile</scope>
-        </dependency-->
+            <scope>test</scope>
+        </dependency>
+
+        <!-- END JavaFX notes -->
+        
     </dependencies>
 
     <build>
@@ -96,8 +106,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
             <plugin>
