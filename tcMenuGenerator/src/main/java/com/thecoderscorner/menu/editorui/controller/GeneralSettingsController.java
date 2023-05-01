@@ -39,8 +39,10 @@ public class GeneralSettingsController {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final List<LocaleWithDescription> availableLocales = List.of(
             new LocaleWithDescription("Default language", Locale.getDefault(), true),
+            new LocaleWithDescription("Čeština (Czech)", Locale.of("cs"), false),
             new LocaleWithDescription("English", Locale.ENGLISH, false),
-            new LocaleWithDescription("Français (French)", Locale.FRENCH, false)
+            new LocaleWithDescription("Français (French)", Locale.FRENCH, false),
+            new LocaleWithDescription("Slovenčina (Slovak)", Locale.of("sk"), false)
     );
 
     public CheckBox usingArduinoLibsCheck;
