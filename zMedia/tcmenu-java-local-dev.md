@@ -21,7 +21,7 @@ _IMPORTANT for Liberica JDK, if you are using Liberica Full JDK, ensure that the
 
 ## Instructions for simpler changes (text editor and maven)
 
-Simply load the project directory in an editor such as VSCode that allows you to see the directory structure. Then use the packager-local-platforms.md instructions in tcMenuGenerator/scripts to build and run afterwards.
+Simply load the project directory in an editor such as VSCode that allows you to see the directory structure. Then use the [packager-local-platforms.md](/tcMenuGenerator/scripts/packager-all-platforms.md) instructions in tcMenuGenerator/scripts to build and run afterwards.
 
 ## Running the designer locally
 
