@@ -98,11 +98,24 @@ Important classes
 
 ## How to develop plugins quicker
 
-Plugins are installed into the `~/.tcmenu/plugins` directory, each directory under this folder is treated as a plugin, and will be expected to follow the plugins format, see the `xmlPlugins` README.md file that describes the format in detail. However, from a development perspective, if you are changing plugins it is more convenient not to need to run maven to package them each time. How to locally edit them:
+Plugins are installed into the `~/.tcmenu/plugins` directory, each directory under this folder is treated as a plugin, and will be expected to follow the plugins format, see the `xmlPlugins` [README.md](/xmlPlugins/README.md) file that describes the format in detail. However, from a development perspective, if you are changing plugins it is more convenient not to need to run maven to package them each time. How to locally edit them:
 
 * In the `.tcmenu/plugins` folder add an empty file `.development` which will prevent the designer trying to overwite anything.
 * Remove the three plugin directories so that the only file left is the one we created
-* Then create symlinks to each of the three plugins under the xmlPlugins directory.
+* Then for each plugin directory in the tcMenuRepo/xmlPlugins directory create a symlink to each of the three plugins under the xmlPlugins directory. 
+
+On macOS/Linux 
+
+    ln -s path-to-tcMenu/xmlPlugins/core-display
+    ln -s path-to-tcMenu/xmlPlugins/core-themes
+    ln -s path-to-tcMenu/xmlPlugins/core-remote`. 
+
+On Windows
+
+    mklink /D core-display path-to-tcMenu\xmlPlugins\core-display
+    mklink /D core-remote path-to-tcMenu\xmlPlugins\core-remote
+    mklink /D core-themes path-to-tcMenu\xmlPlugins\core-themes
+
 
 ## Building the API or EmbedCONTROL Core with Maven
 
