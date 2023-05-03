@@ -108,7 +108,7 @@ On macOS/Linux
 
     ln -s path-to-tcMenu/xmlPlugins/core-display
     ln -s path-to-tcMenu/xmlPlugins/core-themes
-    ln -s path-to-tcMenu/xmlPlugins/core-remote`. 
+    ln -s path-to-tcMenu/xmlPlugins/core-remote
 
 On Windows
 
