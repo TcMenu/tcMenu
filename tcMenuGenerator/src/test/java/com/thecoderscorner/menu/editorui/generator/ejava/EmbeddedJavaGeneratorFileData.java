@@ -315,7 +315,6 @@ public class EmbeddedJavaGeneratorFileData {
                 "type": "runtimeList",
                 "item": {
                   "initialRows": 2,
-                  "usingInfoBlock": true,
                   "name": "Abc",
                   "id": 1043,
                   "eepromAddress": 0,
@@ -397,7 +396,6 @@ public class EmbeddedJavaGeneratorFileData {
                 "type": "runtimeList",
                 "item": {
                   "initialRows": 10,
-                  "usingInfoBlock": true,
                   "name": "My List",
                   "id": 2039,
                   "eepromAddress": 0,

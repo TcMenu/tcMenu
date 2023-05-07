@@ -20,15 +20,20 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
@@ -373,6 +378,78 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return Optional.empty();
     }
 
+    protected List<String> getValueLocalizedFromUIList(ObservableList<String> items) {
+        if (localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            var itemsLocaleList = new ArrayList<String>();
+            for (int i = 0; i < items.size(); i++) {
+                String enumEntryName = getEnumEntryKey(i);
+                localHandler.setLocalSpecificEntry(enumEntryName, items.get(i));
+                itemsLocaleList.add("%" + enumEntryName);
+            }
+            return itemsLocaleList;
+        } else {
+            return items;
+        }
+    }
+
+    protected ObservableList<String> createLocalizedList(ListView<String> listView, List<String> enumEntries, ObservableList<String> list) {
+        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+            var itemsLocaleList = new ArrayList<String>();
+            for(int i = 0; i< enumEntries.size(); i++) {
+                String enumEntryName = getEnumEntryKey(i);
+                itemsLocaleList.add(localHandler.getWithLocaleInitIfNeeded("%" + enumEntryName, enumEntries.get(i)));
+            }
+            list = FXCollections.observableList(itemsLocaleList);
+        }
+        listView.setEditable(true);
+        listView.setPrefHeight(120);
+        listView.setItems(list);
+
+        listView.setCellFactory(TextFieldListCell.forListView());
+
+        final ListView<String> lv = listView;
+        listView.setOnEditCommit(t -> lv.getItems().set(t.getIndex(), t.getNewValue()));
+
+        listView.setMinHeight(100);
+        return list;
+    }
+
+    protected ControlButtons prepareAddRemoveButtons(ListView<String> listView, GridPane grid, int idx) {
+        Button addButton = new Button(bundle.getString("core.add.button"));
+        addButton.setId("addEnumEntry");
+        Button removeButton = new Button(bundle.getString("core.remove.button"));
+        removeButton.setId("removeEnumEntry");
+        removeButton.setDisable(true);
+        HBox hbox = new HBox(addButton, removeButton);
+        grid.add(hbox, 1, idx);
+
+        addButton.setOnAction(event -> {
+            listView.getItems().add("ChangeMe");
+            listView.getSelectionModel().selectLast();
+            callChangeConsumer();
+        });
+
+        removeButton.setOnAction(event -> {
+            String selectedItem = listView.getSelectionModel().getSelectedItem();
+            if(selectedItem != null) {
+                listView.getItems().remove(selectedItem);
+                callChangeConsumer();
+            }
+        });
+
+        listView.setId("enumList");
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                    removeButton.setDisable(newValue == null);
+                    callChangeConsumer();
+                });
+        listView.getSelectionModel().selectFirst();
+        return new ControlButtons(addButton, removeButton);
+    }
+
+    protected String getEnumEntryKey(int i) {
+        return "unknown" + i;
+    }
+
     @SuppressWarnings("unused")
     protected void coreValueChanged(Observable observable, String oldVal, String newVal) {
         callChangeConsumer();
@@ -568,4 +645,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
             return message;
         }
     }
+
+    public record ControlButtons(Button addButton, Button removeButton) { }
 }

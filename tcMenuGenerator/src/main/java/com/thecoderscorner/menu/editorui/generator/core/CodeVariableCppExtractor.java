@@ -249,7 +249,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
     @Override
     public String mapStructSource(BuildStructInitializer s) {
-        if(s.isStringChoices()) {
+        if(s.getStringChoiceType() != BuildStructInitializer.StringChoiceType.NO_STRING_CHOICE) {
             return doStringSource(s);
         }
 
@@ -279,12 +279,26 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         StringBuilder sb = new StringBuilder(256);
         IntStream.range(0, s.getStructElements().size()).forEach(i -> {
             String textRep = s.getStructElements().get(i);
-            sb.append(String.format("const char enumStr%s_%d[] " + progMem() + "= %s;%s", s.getStructName(), i, textRep, LINE_BREAK));
+            if(s.getStringChoiceType() == BuildStructInitializer.StringChoiceType.STRING_CHOICE_VARS) {
+                if (s.isProgMem()) {
+                    sb.append(String.format("const char enumStr%s_%d[] " + progMem() + "= %s;%s", s.getStructName(), i, textRep, LINE_BREAK));
+                } else {
+                    sb.append(String.format("char enumStr%s_%d[] = %s;%s", s.getStructName(), i, textRep, LINE_BREAK));
+                }
+            }
         });
-        sb.append(String.format("const char* const enumStr%s[] " + progMem() + " = { ", s.getStructName()));
-        sb.append(IntStream.range(0, s.getStructElements().size())
-                .mapToObj(i -> "enumStr" + s.getStructName() + "_" + i)
-                .collect(Collectors.joining(", ")));
+        if(s.isProgMem()) {
+            sb.append(String.format("const char* const enumStr%s[] " + progMem() + " = { ", s.getStructName()));
+        } else {
+            sb.append(String.format("char* enumStr%s[] = { ", s.getStructName()));
+        }
+        if(s.getStringChoiceType() == BuildStructInitializer.StringChoiceType.STRING_CHOICE_VARS) {
+            sb.append(IntStream.range(0, s.getStructElements().size())
+                    .mapToObj(i -> "enumStr" + s.getStructName() + "_" + i)
+                    .collect(Collectors.joining(", ")));
+        } else {
+            sb.append(String.join(", ", s.getStructElements()));
+        }
         sb.append(" };");
 
         return sb.toString();

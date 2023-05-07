@@ -337,7 +337,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
                                 new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild,
-                                        false, localeHandler))
+                                        false, localeHandler, menuTree))
                         .orElse(Collections.emptyList()));
                 itemsInOrder.addAll(renderMenu(menuTree, childItems));
             } else {
@@ -346,7 +346,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
                                 new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null,
-                                        toEmbeddedCppValue(item, defVal), localeHandler))
+                                        toEmbeddedCppValue(item, defVal), localeHandler, menuTree))
                         .orElse(Collections.emptyList()));
             }
         }

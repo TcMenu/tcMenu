@@ -40,7 +40,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "VarAbc", "Channel", null, "1234", NOOP_IMPLEMENTATION));
+                "VarAbc", "Channel", null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
@@ -62,7 +62,7 @@ public class ArduinoItemGeneratorTest {
         assertEquals(inProgmem, info.isProgMem());
         assertEquals(" minfo", info.getPrefix());
         assertTrue(inProgmem != info.isRequiresExtern());
-        assertFalse(info.isStringChoices());
+        assertEquals(BuildStructInitializer.StringChoiceType.NO_STRING_CHOICE, info.getStringChoiceType());
         assertEquals(name, info.getStructName());
         assertEquals(type, info.getStructType());
     }
@@ -71,7 +71,7 @@ public class ArduinoItemGeneratorTest {
         assertFalse(item.isProgMem());
         assertEquals(" menu", item.getPrefix());
         assertTrue(item.isRequiresExtern());
-        assertFalse(item.isStringChoices());
+        assertEquals(BuildStructInitializer.StringChoiceType.NO_STRING_CHOICE, item.getStringChoiceType());
         assertEquals(name, item.getStructName());
         assertEquals(type, item.getStructType());
     }
@@ -87,7 +87,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "ChannelÖôóò", null, null, "1234", NOOP_IMPLEMENTATION));
+                "ChannelÖôóò", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
         assertEquals(3, result.get().size());
         BuildStructInitializer choices = result.get().get(0);
@@ -101,7 +101,8 @@ public class ArduinoItemGeneratorTest {
 
         assertThat(choices.getStructElements()).containsExactly("\"Turntable\"", "\"Computer\"");
         assertEquals("ChannelÖôóò", choices.getStructName());
-        assertTrue(choices.isStringChoices());
+        assertEquals(BuildStructInitializer.StringChoiceType.NO_STRING_CHOICE, info.getStringChoiceType());
+        assertEquals(BuildStructInitializer.StringChoiceType.STRING_CHOICE_VARS, choices.getStringChoiceType());
         assertFalse(choices.isRequiresExtern());
     }
 
@@ -117,7 +118,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(item);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "GenState", null, null, "1234", NOOP_IMPLEMENTATION));
+                "GenState", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(2, result.orElseThrow().size());
         BuildStructInitializer info = result.orElseThrow().get(0);
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "GenState");
@@ -144,7 +145,7 @@ public class ArduinoItemGeneratorTest {
 
         req = makeCallbackRequirement(ip);
         result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(
-                "IpAddress", null, null, "IpStorage(127,0,0,1)", NOOP_IMPLEMENTATION));
+                "IpAddress", null, null, "IpStorage(127,0,0,1)", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(2, result.orElseThrow().size());
         info = result.orElseThrow().get(0);
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "IpAddress");
@@ -168,7 +169,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
         req = makeCallbackRequirement(time);
         result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(
-                "Time", null, null, "1234", NOOP_IMPLEMENTATION));
+                "Time", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -195,7 +196,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
         req = makeCallbackRequirement(date);
         result = MenuItemHelper.visitWithResult(date, new MenuItemToEmbeddedGenerator(
-                "MyDate", null, null, "1234", NOOP_IMPLEMENTATION));
+                "MyDate", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -224,7 +225,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(item);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "GenState", null, null, "1234", NOOP_IMPLEMENTATION));
+                "GenState", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
         assertEquals(1, result.get().size());
         BuildStructInitializer menu = result.get().get(0);
@@ -245,7 +246,7 @@ public class ArduinoItemGeneratorTest {
 
         req = makeCallbackRequirement(ip);
         result = MenuItemHelper.visitWithResult(ip, new MenuItemToEmbeddedGenerator(
-                "IpAddress", null, null, "1234", NOOP_IMPLEMENTATION));
+                "IpAddress", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
         assertEquals(1, result.get().size());
         menu = result.get().get(0);
@@ -267,7 +268,7 @@ public class ArduinoItemGeneratorTest {
 
         req = makeCallbackRequirement(time);
         result = MenuItemHelper.visitWithResult(time, new MenuItemToEmbeddedGenerator(
-                "Time", null, null, "1234", NOOP_IMPLEMENTATION));
+                "Time", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -285,7 +286,7 @@ public class ArduinoItemGeneratorTest {
         var rgb = new Rgb32MenuItemBuilder().withId(983).withEepromAddr(29384).withName("RGB").withFunctionName("").withAlpha(false).menuItem();
         var req = makeCallbackRequirement(rgb);
         var result = MenuItemHelper.visitWithResult(rgb, new MenuItemToEmbeddedGenerator(
-                "RGB", null, null, "1234", NOOP_IMPLEMENTATION));
+                "RGB", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(2, result.orElseThrow().size());
         var info = result.get().get(0);
         var menu = result.get().get(1);
@@ -303,7 +304,7 @@ public class ArduinoItemGeneratorTest {
         rgb = new Rgb32MenuItemBuilder().withExisting(rgb).withFunctionName("@XyzRtCall").menuItem();
         req = makeCallbackRequirement(rgb);
         result = MenuItemHelper.visitWithResult(rgb, new MenuItemToEmbeddedGenerator(
-                "RGB", null, null, "1234", NOOP_IMPLEMENTATION));
+                "RGB", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(1, result.orElseThrow().size());
         menu = result.get().get(0);
         checkTheBasicsOfItem(menu, "Rgb32MenuItem", "RGB");
@@ -320,7 +321,7 @@ public class ArduinoItemGeneratorTest {
                 .withEepromOffset(1000).withItemWidth(10).withNumEntries(30).menuItem();
         var req = makeCallbackRequirement(scroll);
         var result = MenuItemHelper.visitWithResult(scroll, new MenuItemToEmbeddedGenerator(
-                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION));
+                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(2, result.orElseThrow().size());
         var info = result.get().get(0);
         var menu = result.get().get(1);
@@ -341,7 +342,7 @@ public class ArduinoItemGeneratorTest {
                 .withVariable("ramVar").withItemWidth(10).withNumEntries(30).withStaticDataInRAM(true).menuItem();
         var req = makeCallbackRequirement(scroll);
         var result = MenuItemHelper.visitWithResult(scroll, new MenuItemToEmbeddedGenerator(
-                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION));
+                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertEquals(2, result.orElseThrow().size());
         var info = result.get().get(0);
         var menu = result.get().get(1);
@@ -362,7 +363,7 @@ public class ArduinoItemGeneratorTest {
                 .withItemWidth(10).withNumEntries(30).menuItem();
         var req = makeCallbackRequirement(scroll);
         var result = MenuItemHelper.visitWithResult(scroll, new MenuItemToEmbeddedGenerator(
-                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION));
+                "Scroll1", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
 
         assertEquals(2, result.orElseThrow().size());
         var info = result.get().get(0);
@@ -374,17 +375,17 @@ public class ArduinoItemGeneratorTest {
         assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "fnScroll1RtCall", "1234", "30", "NULL", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("int fnScroll1RtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom("fnScroll1RtCall", scroll.getFunctionName()));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(scroll, "fnScroll1RtCall", scroll.getFunctionName()));
     }
 
     @Test
-    public void testListCreation() {
+    public void testListCreationCustom() {
         var list = new RuntimeListMenuItemBuilder().withId(293).withName("hello").withFunctionName("activatedCb")
                 .withInitialRows(223).withEepromAddr(-1).menuItem();
 
         var req = makeCallbackRequirement(list);
         var result = MenuItemHelper.visitWithResult(list, new MenuItemToEmbeddedGenerator(
-                "hello", null, null, "22", NOOP_IMPLEMENTATION));
+                "hello", null, null, "22", NOOP_IMPLEMENTATION, new MenuTree()));
 
         assertEquals(2, result.orElseThrow().size());
         var info = result.get().get(0);
@@ -398,19 +399,63 @@ public class ArduinoItemGeneratorTest {
         assertEquals("""
                 void CALLBACK_FUNCTION activatedCb(int id);
                 int fnHelloRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);""", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom("fnHelloRtCall", list.getFunctionName()));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(list, "fnHelloRtCall", list.getFunctionName()));
     }
 
-    private List<String> generateListScrollCustom(String cbName, String cbfnName) {
-        var codeLines = new ArrayList<>(List.of("// This callback needs to be implemented by you, see the below docs:",
-                "//  1. List Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
-                "//  2. ScrollChoice Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",
-                "int CALLBACK_FUNCTION " + cbName+ "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
-                "    switch(mode) {",
-                "    default:",
-                "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
-                "    }",
-                "}"));
+    @Test
+    public void testListCreationFlashRam() {
+        testListVariableCreation(RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY, BuildStructInitializer.StringChoiceType.STRING_CHOICE_VARS);
+        testListVariableCreation(RuntimeListMenuItem.ListCreationMode.RAM_ARRAY, BuildStructInitializer.StringChoiceType.STRING_CHOICE_INLINE);
+    }
+
+    private void testListVariableCreation(RuntimeListMenuItem.ListCreationMode lcm, BuildStructInitializer.StringChoiceType ty) {
+        var list = new RuntimeListMenuItemBuilder().withId(293).withName("hello")
+                .withCreationMode(lcm).withInitialRows(6).withEepromAddr(-1).menuItem();
+        MenuTree tree = new MenuTree();
+        tree.addMenuItem(MenuTree.ROOT, list);
+        MenuItemHelper.setMenuState(list, List.of("Abc", "Def"), tree);
+        var req = makeCallbackRequirement(list);
+        var result = MenuItemHelper.visitWithResult(list, new MenuItemToEmbeddedGenerator(
+                "hello", null, null, "22", NOOP_IMPLEMENTATION, tree));
+
+        assertEquals(3, result.orElseThrow().size());
+        var choices = result.get().get(0);
+        var info = result.get().get(1);
+        var menu = result.get().get(2);
+
+        assertEquals("hello", choices.getStructName());
+        checkTheBasicsOfInfo(info, "AnyMenuInfo", "hello");
+        assertThat(info.getStructElements()).containsExactly("\"hello\"", "293", "0xffff", "0", "NO_CALLBACK");
+        checkTheBasicsOfItem(menu, "ListRuntimeMenuItem", "hello");
+        assertThat(menu.getStructElements()).containsExactly("&minfohello", "6", "enumStrhello", "ListRuntimeMenuItem::" + lcm, "NULL", "INFO_LOCATION_PGM");
+        assertThat(req.generateSource()).isEmpty();
+        assertEquals("", req.generateHeader());
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(list, "fnHelloRtCall", list.getFunctionName()));
+
+        assertEquals(ty, choices.getStringChoiceType());
+        assertTrue(choices.isRequiresExtern());
+        if(lcm == RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY) {
+            assertTrue(choices.isProgMem());
+            assertThat(choices.getStructElements()).containsExactly("\"Abc\"", "\"Def\"");
+        } else {
+            assertFalse(choices.isProgMem());
+            assertThat(choices.getStructElements()).containsExactly("nullptr", "nullptr", "nullptr", "nullptr", "nullptr", "nullptr");
+        }
+    }
+
+    private List<String> generateListScrollCustom(MenuItem item, String cbName, String cbfnName) {
+        List<String> codeLines = new ArrayList<>();
+        if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+            codeLines.addAll(List.of("// This callback needs to be implemented by you, see the below docs:",
+                    "//  1. List Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
+                    "//  2. ScrollChoice Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",
+                    "int CALLBACK_FUNCTION " + cbName + "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
+                    "    switch(mode) {",
+                    "    default:",
+                    "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
+                    "    }",
+                    "}"));
+        }
         if(!StringHelper.isStringEmptyOrNull(cbfnName)) {
             codeLines.add("");
             codeLines.add("void CALLBACK_FUNCTION " + cbfnName + "(int id) {");
@@ -437,7 +482,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(item);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "PressMe", null, null, "1234", NOOP_IMPLEMENTATION));
+                "PressMe", null, null, "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -467,7 +512,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(item);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "CalcVal", null, null, "12.34", NOOP_IMPLEMENTATION));
+                "CalcVal", null, null, "12.34", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -494,7 +539,7 @@ public class ArduinoItemGeneratorTest {
 
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "SubMenu", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION));
+                "SubMenu", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(3, result.get().size());
@@ -521,7 +566,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(large);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(large, new MenuItemToEmbeddedGenerator(
-                "lge", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION));
+                "lge", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(1, result.get().size());
@@ -554,7 +599,7 @@ public class ArduinoItemGeneratorTest {
 
         var req = makeCallbackRequirement(large);
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(large, new MenuItemToEmbeddedGenerator(
-                "lge", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION));
+                "lge", "NextItem", "ChildItem", "1234", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());
@@ -591,7 +636,7 @@ public class ArduinoItemGeneratorTest {
                 .menuItem();
 
         Optional<List<BuildStructInitializer>> result = MenuItemHelper.visitWithResult(item, new MenuItemToEmbeddedGenerator(
-                "Enabled", null, null, "true", NOOP_IMPLEMENTATION));
+                "Enabled", null, null, "true", NOOP_IMPLEMENTATION, new MenuTree()));
         assertTrue(result.isPresent());
 
         assertEquals(2, result.get().size());

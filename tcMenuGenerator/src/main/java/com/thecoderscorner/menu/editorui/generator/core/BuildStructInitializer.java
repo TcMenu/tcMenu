@@ -22,6 +22,7 @@ import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyO
  * the structures needed for menu items and the tree on at least all Arduino boards.
  */
 public class BuildStructInitializer {
+    public enum StringChoiceType { STRING_CHOICE_INLINE, STRING_CHOICE_VARS, NO_STRING_CHOICE }
     private final MenuItem menuItem;
     private final String structName;
     private final String structType;
@@ -29,7 +30,7 @@ public class BuildStructInitializer {
     private final List<String> structElements = new ArrayList<>();
     private boolean requiresExtern = false;
     private boolean progMem = false;
-    private boolean stringChoices = false;
+    private StringChoiceType stringChoices = StringChoiceType.NO_STRING_CHOICE;
     private String prefix = " menu";
     private boolean infoBlock = false;
 
@@ -104,8 +105,15 @@ public class BuildStructInitializer {
         return this;
     }
 
-    public BuildStructInitializer stringChoices() {
-        this.stringChoices = true;
+    public BuildStructInitializer stringChoices(boolean inPgm) {
+        this.stringChoices = StringChoiceType.STRING_CHOICE_VARS;
+        this.progMem = inPgm;
+        return this;
+    }
+
+    public BuildStructInitializer stringChoicesInline(boolean inPgm) {
+        this.stringChoices = StringChoiceType.STRING_CHOICE_INLINE;
+        this.progMem = inPgm;
         return this;
     }
 
@@ -141,7 +149,7 @@ public class BuildStructInitializer {
         return progMem;
     }
 
-    public boolean isStringChoices() {
+    public StringChoiceType getStringChoiceType() {
         return stringChoices;
     }
 

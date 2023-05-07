@@ -59,7 +59,8 @@ EditableLargeNumberMenuItem menuMySubSub1DecLarge(&minfoMySubSub1DecLarge, Large
 const SubMenuInfo minfoMySubSub1 = { "Sub1", 8, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackMySubSub1(&minfoMySubSub1, &menuMySubSub1DecLarge, INFO_LOCATION_PGM);
 SubMenuItem menuMySubSub1(&minfoMySubSub1, &menuBackMySubSub1, &menuCustomAuth, INFO_LOCATION_PGM);
-ListRuntimeMenuItem menuMySubMyList(7, 0, fnMySubMyListRtCall, &menuMySubSub1);
+const AnyMenuInfo minfoMySubMyList = { "My List", 7, 0xffff, 0, NO_CALLBACK };
+ListRuntimeMenuItem menuMySubMyList(&minfoMySubMyList, 0, fnMySubMyListRtCall, &menuMySubSub1, INFO_LOCATION_PGM);
 const AnyMenuInfo minfoMySubMyAction = { "My Action", 6, 0xffff, 0, onActionItem };
 ActionMenuItem menuMySubMyAction(&minfoMySubMyAction, &menuMySubMyList, INFO_LOCATION_PGM);
 const FloatMenuInfo minfoMySubMyFloat = { "My Float", 5, 0xffff, 3, NO_CALLBACK };

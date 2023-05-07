@@ -7,13 +7,16 @@
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
@@ -28,14 +31,16 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     private final String itemVar;
     private final Object defaultValue;
     private final LocaleMappingHandler handler;
+    private final MenuTree tree;
 
     public MenuItemToEmbeddedGenerator(String itemVar, String nextVar, String nextCh, Object defaultValue,
-                                       LocaleMappingHandler handler) {
+                                       LocaleMappingHandler handler, MenuTree tree) {
         this.handler = handler;
         this.nextMenuName = generateMenuVariable(nextVar);
         this.nextChild = generateMenuVariable(nextCh);
         this.itemVar = itemVar;
         this.defaultValue = defaultValue;
+        this.tree = tree;
     }
 
     private String generateMenuVariable(String var) {
@@ -321,7 +326,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
         }
 
         BuildStructInitializer choices = new BuildStructInitializer(item, itemVar, "")
-                .stringChoices()
+                .stringChoices(true)
                 .collectionOfElements(enumEntries, quotesNeeded);
 
         BuildStructInitializer info = new BuildStructInitializer(item, itemVar, "EnumMenuInfo")
@@ -345,8 +350,9 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     @Override
     public void visit(RuntimeListMenuItem listItem) {
-        if(listItem.isUsingInfoBlock()) {
-            BuildStructInitializer info = makeAnyItemStruct(listItem);
+        BuildStructInitializer info = makeAnyItemStruct(listItem);
+
+        if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
             BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
                     .addElement("&minfo" + itemVar)
                     .addElement(listItem.getInitialRows())
@@ -356,16 +362,47 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                     .addHeaderFileRequirement("RuntimeMenuItem.h", false)
                     .requiresExtern();
             setResult(List.of(info, listStruct));
-        } else {
-            BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
-                    .addElement(listItem.getId())
-                    .addElement(listItem.getInitialRows())
-                    .addElement(makeRtFunctionName())
-                    .addElement(nextMenuName)
-                    .addHeaderFileRequirement("RuntimeMenuItem.h", false)
-                    .requiresExtern();
-            setResult(List.of(listStruct));
+            return;
         }
+
+        BuildStructInitializer items;
+        if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY) {
+            var list = (List<String>)MenuItemHelper.getValueFor(listItem, tree, MenuItemHelper.getDefaultFor(listItem));
+            boolean quotesNeeded = true;
+            var enumEntries = list;
+            if(handler.isLocalSupportEnabled() && !list.isEmpty() && list.get(0).startsWith("%")) {
+                var tempList = new ArrayList<String>(list.size()+1);
+                for(int i=0;i<list.size();i++) {
+                    tempList.add(String.format("TC_I18N_MENU_%d_LIST_%d", listItem.getId(), i));
+                }
+                quotesNeeded = false;
+                enumEntries = tempList;
+            }
+
+            items = new BuildStructInitializer(listItem, itemVar, "const char**")
+                    .stringChoices(true)
+                    .collectionOfElements(enumEntries, quotesNeeded)
+                    .requiresExtern();
+        } else {
+            items = new BuildStructInitializer(listItem, itemVar, "char**")
+                    .stringChoicesInline(false)
+                    .collectionOfElements(Collections.nCopies(listItem.getInitialRows(), "nullptr"), false)
+                    .requiresExtern();
+        }
+        var listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
+                .addElements("&minfo" + itemVar, listItem.getInitialRows(), "enumStr" + itemVar, toEmbeddedListMode(listItem.getListCreationMode()), nextMenuName)
+                .addElement(programMemArgument(listItem))
+                .addHeaderFileRequirement("RuntimeMenuItem.h", false)
+                .requiresExtern();
+        setResult(List.of(items, info, listStruct));
+    }
+
+    private String toEmbeddedListMode(RuntimeListMenuItem.ListCreationMode listCreationMode) {
+        return switch (listCreationMode) {
+            case CUSTOM -> "ListRuntimeMenuItem::CUSTOM_RENDER";
+            case RAM_ARRAY -> "ListRuntimeMenuItem::RAM_ARRAY";
+            case FLASH_ARRAY -> "ListRuntimeMenuItem::FLASH_ARRAY";
+        };
     }
 
     private BuildStructInitializer makeAnyItemStruct(MenuItem listItem) {

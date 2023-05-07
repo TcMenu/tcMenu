@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.project;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -17,9 +18,12 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -58,6 +62,13 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
                 if (item.getDefaultValue() != null && JsonMenuItemSerializer.checkItemValueCanPersist(item)) {
                     MenuItemHelper.setMenuState(item.getItem(), item.getDefaultValue(), tree);
                 }
+                if(item.getItem() instanceof RuntimeListMenuItem rl && rl.getListCreationMode() == FLASH_ARRAY && prj.getStringLists() != null) {
+                    var items = Arrays.stream(prj.getStringLists())
+                            .filter(psl -> psl.getId() == item.getItem().getId() && psl.getListItems() != null)
+                            .map(psl -> Arrays.asList(psl.getListItems()))
+                            .findFirst().orElse(List.of());
+                    MenuItemHelper.setMenuState(rl, items, tree);
+                }
             });
             return new MenuTreeWithCodeOptions(tree, prj.getCodeOptions(), prj.getProjectName());
         }
@@ -81,9 +92,15 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
 
         List<PersistedMenu> itemsInOrder = serializer.populateListInOrder(MenuTree.ROOT, tree, true);
 
+        var persistedLists = new ArrayList<PersistableStringList>();
+        for(var fi : itemsInOrder.stream().filter(mi -> mi.getItem() instanceof RuntimeListMenuItem rl && rl.getListCreationMode() == FLASH_ARRAY).toList()) {
+            var stateItems = (List<String>)MenuItemHelper.getValueFor(fi.getItem(), tree, MenuItemHelper.getDefaultFor(fi.getItem()));
+            persistedLists.add(new PersistableStringList(fi.getItem().getId(), stateItems.toArray(new String[0])));
+        }
+
         try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
             String user = System.getProperty("user.name");
-            serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options), writer);
+            serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])), writer);
         }
     }
 

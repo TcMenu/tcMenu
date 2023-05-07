@@ -42,8 +42,6 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         List<FieldError> errors = new ArrayList<>();
 
         ObservableList<String> items = listView.getItems();
-
-
         if (items.isEmpty()) {
             errors.add(new FieldError(bundle.getString("menu.editor.enum.no.choices"), "Choices"));
         } else if (items.stream().anyMatch(str -> str.isEmpty() || str.matches(".*[\"\\\\].*$"))) {
@@ -51,19 +49,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         }
 
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem());
-
-        if (localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
-            var itemsLocaleList = new ArrayList<String>();
-            for (int i = 0; i < items.size(); i++) {
-                String enumEntryName = getEnumEntryKey(i);
-                localHandler.setLocalSpecificEntry(enumEntryName, items.get(i));
-                itemsLocaleList.add("%" + enumEntryName);
-            }
-            builder.withEnumList(itemsLocaleList);
-        } else {
-            builder.withEnumList(items);
-        }
-
+        builder.withEnumList(getValueLocalizedFromUIList(items));
         getChangedDefaults(builder, errors);
 
         var defValue = bundle.getString("menu.editor.default.value");
@@ -88,52 +74,11 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         grid.add(new Label(bundle.getString("menu.editor.enum.values")), 0, idx);
         List<String> enumEntries = getMenuItem().getEnumEntries();
         ObservableList<String> list = FXCollections.observableArrayList(enumEntries);
-        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
-            var itemsLocaleList = new ArrayList<String>();
-            for(int i=0; i<enumEntries.size(); i++) {
-                String enumEntryName = getEnumEntryKey(i);
-                itemsLocaleList.add(localHandler.getWithLocaleInitIfNeeded("%" + enumEntryName, enumEntries.get(i)));
-            }
-            list = FXCollections.observableList(itemsLocaleList);
-        }
         listView = new ListView<>(list);
-        listView.setEditable(true);
-        listView.setPrefHeight(120);
-
-        listView.setCellFactory(TextFieldListCell.forListView());
-
-        listView.setOnEditCommit(t -> listView.getItems().set(t.getIndex(), t.getNewValue()));
-
-        listView.setMinHeight(100);
+        createLocalizedList(listView, enumEntries, list);
         grid.add(listView, 1, idx, 1, 3);
         idx+=3;
-        Button addButton = new Button(bundle.getString("core.add.button"));
-        addButton.setId("addEnumEntry");
-        Button removeButton = new Button(bundle.getString("core.remove.button"));
-        removeButton.setId("removeEnumEntry");
-        removeButton.setDisable(true);
-        HBox hbox = new HBox(addButton, removeButton);
-        grid.add(hbox, 1, idx);
-
-        addButton.setOnAction(event -> {
-            listView.getItems().add("ChangeMe");
-            listView.getSelectionModel().selectLast();
-        });
-
-        removeButton.setOnAction(event -> {
-            String selectedItem = listView.getSelectionModel().getSelectedItem();
-            if(selectedItem != null) {
-                listView.getItems().remove(selectedItem);
-            }
-        });
-
-        list.addListener((ListChangeListener<? super String>) observable -> callChangeConsumer());
-
-        listView.setId("enumList");
-        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                removeButton.setDisable(newValue == null)
-        );
-        listView.getSelectionModel().selectFirst();
+        prepareAddRemoveButtons(listView, grid, idx);
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
@@ -144,10 +89,12 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         TextFormatterUtils.applyIntegerFormatToField(defaultValueField);
         grid.add(defaultValueField, 1, idx);
 
+        list.addListener((ListChangeListener<? super String>) observable -> callChangeConsumer());
+
         return idx;
     }
 
-    private String getEnumEntryKey(int i) {
+    protected String getEnumEntryKey(int i) {
         return String.format("menu.%d.enum.%d", getMenuItem().getId(), i);
     }
 }

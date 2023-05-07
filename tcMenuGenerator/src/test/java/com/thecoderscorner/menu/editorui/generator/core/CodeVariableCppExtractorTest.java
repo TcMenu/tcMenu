@@ -67,16 +67,45 @@ public class CodeVariableCppExtractorTest {
     }
 
     @Test
-    public void testRenderingEnumString() {
+    public void testRenderingEnumStringConst() {
         BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "")
                 .collectionOfElements(List.of("INPUT", "OUTPUT"), true)
-                .stringChoices();
+                .stringChoices(true);
         assertEquals("", extractor.mapStructHeader(initializer));
 
-        String expectedChoices = "const char enumStrEnums_0[] PROGMEM = \"INPUT\";" + ArduinoGenerator.LINE_BREAK +
-                "const char enumStrEnums_1[] PROGMEM = \"OUTPUT\";" + ArduinoGenerator.LINE_BREAK +
-                "const char* const enumStrEnums[] PROGMEM  = { enumStrEnums_0, enumStrEnums_1 };";
+        String expectedChoices = """
+                const char enumStrEnums_0[] PROGMEM = "INPUT";
+                const char enumStrEnums_1[] PROGMEM = "OUTPUT";
+                const char* const enumStrEnums[] PROGMEM  = { enumStrEnums_0, enumStrEnums_1 };""";
 
         assertEquals(expectedChoices, extractor.mapStructSource(initializer));
     }
+
+    @Test
+    public void testRenderingEnumStringRam() {
+        BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "char**")
+                .collectionOfElements(List.of("AAA", "BBB"), false)
+                .stringChoices(false).requiresExtern();
+        assertEquals("extern char** menuEnums;", extractor.mapStructHeader(initializer));
+
+        String expectedChoices = """
+                char enumStrEnums_0[] = AAA;
+                char enumStrEnums_1[] = BBB;
+                char* enumStrEnums[] = { enumStrEnums_0, enumStrEnums_1 };""";
+
+        assertEquals(expectedChoices, extractor.mapStructSource(initializer));
+    }
+
+    @Test
+    public void testRenderingEnumStringRamInline() {
+        BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "char**")
+                .collectionOfElements(List.of("AAA", "BBB"), false)
+                .stringChoicesInline(false).requiresExtern();
+        assertEquals("extern char** menuEnums;", extractor.mapStructHeader(initializer));
+
+        String expectedChoices = "char* enumStrEnums[] = { AAA, BBB };";
+
+        assertEquals(expectedChoices, extractor.mapStructSource(initializer));
+    }
+
 }

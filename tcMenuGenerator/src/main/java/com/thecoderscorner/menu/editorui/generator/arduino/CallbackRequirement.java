@@ -93,17 +93,19 @@ public class CallbackRequirement {
             }
 
             private void runtimeCustomCallback(MenuItem item) {
-                var customCb = List.of(
-                        "// This callback needs to be implemented by you, see the below docs:",
-                        "//  1. List Docs - " + LIST_URL,
-                        "//  2. ScrollChoice Docs - " + CHOICE_URL,
-                        "int CALLBACK_FUNCTION " + generator.makeRtFunctionName(item) + RUNTIME_CALLBACK_PARAMS + " {",
-                        "    switch(mode) {",
-                        "    default:",
-                        "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
-                        "    }",
-                        "}"
-                );
+                List<String> customCb = List.of();
+                if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+                    customCb = List.of(
+                            "// This callback needs to be implemented by you, see the below docs:",
+                            "//  1. List Docs - " + LIST_URL,
+                            "//  2. ScrollChoice Docs - " + CHOICE_URL,
+                            "int CALLBACK_FUNCTION " + generator.makeRtFunctionName(item) + RUNTIME_CALLBACK_PARAMS + " {",
+                            "    switch(mode) {",
+                            "    default:",
+                            "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
+                            "    }",
+                            "}");
+                }
 
                 if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
                     var allEntries = new ArrayList<>(customCb);
@@ -199,7 +201,11 @@ public class CallbackRequirement {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
             @Override
             public void visit(RuntimeListMenuItem listItem) {
-                standardCallbackHeader(listItem, "int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
+                String extra = "";
+                if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+                    extra = "int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";";
+                }
+                standardCallbackHeader(listItem, extra);
             }
 
             @Override
