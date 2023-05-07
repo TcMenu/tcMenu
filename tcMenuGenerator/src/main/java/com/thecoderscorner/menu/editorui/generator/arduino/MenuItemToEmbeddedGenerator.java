@@ -14,10 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.RUNTIME_FUNCTION_SUFIX;
@@ -26,6 +23,8 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequir
  * This class follows the visitor pattern to generate code for each item
  */
 public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<BuildStructInitializer>> {
+    public static final String CPP_NULL_PTR = "nullptr";
+    public static final Set<String> NULL_PTR_NAMES = Set.of("NULL", "nullptr", "null");
     private final String nextMenuName;
     private final String nextChild;
     private final String itemVar;
@@ -44,7 +43,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     }
 
     private String generateMenuVariable(String var) {
-        return (var == null || var.equals("NULL")) ? "NULL" : ("&menu" + var);
+        return (var == null || NULL_PTR_NAMES.contains(var)) ? CPP_NULL_PTR : ("&menu" + var);
     }
 
     @Override

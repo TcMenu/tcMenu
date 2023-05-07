@@ -86,7 +86,7 @@ public class CodeVariableCppExtractorTest {
         BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "char**")
                 .collectionOfElements(List.of("AAA", "BBB"), false)
                 .stringChoices(false).requiresExtern();
-        assertEquals("extern char** menuEnums;", extractor.mapStructHeader(initializer));
+        assertEquals("extern char* enumStrEnums[];", extractor.mapStructHeader(initializer));
 
         String expectedChoices = """
                 char enumStrEnums_0[] = AAA;
@@ -101,7 +101,7 @@ public class CodeVariableCppExtractorTest {
         BuildStructInitializer initializer = new BuildStructInitializer(ROOT, "Enums", "char**")
                 .collectionOfElements(List.of("AAA", "BBB"), false)
                 .stringChoicesInline(false).requiresExtern();
-        assertEquals("extern char** menuEnums;", extractor.mapStructHeader(initializer));
+        assertEquals("extern char* enumStrEnums[];", extractor.mapStructHeader(initializer));
 
         String expectedChoices = "char* enumStrEnums[] = { AAA, BBB };";
 

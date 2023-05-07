@@ -97,7 +97,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "EnumMenuInfo", "ChannelÖôóò");
         assertThat(info.getStructElements()).containsExactly("\"Channel öôóò\"", "5", "22", "1", "onChannel", "enumStrChannelÖôóò");
         checkTheBasicsOfItem(menu, "EnumMenuItem", "ChannelÖôóò");
-        assertThat(menu.getStructElements()).containsExactly("&minfoChannelÖôóò", "1234", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoChannelÖôóò", "1234", "nullptr", "INFO_LOCATION_PGM");
 
         assertThat(choices.getStructElements()).containsExactly("\"Turntable\"", "\"Computer\"");
         assertEquals("ChannelÖôóò", choices.getStructName());
@@ -126,7 +126,7 @@ public class ArduinoItemGeneratorTest {
 
         BuildStructInitializer menu = result.orElseThrow().get(1);
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
-        assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "1234", "10", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoGenState", "1234", "10", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("void CALLBACK_FUNCTION StandardCallback(int id);", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactly("",
@@ -153,7 +153,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.orElseThrow().get(1);
         checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
-        assertThat(menu.getStructElements()).containsExactly("&minfoIpAddress", "IpStorage(127,0,0,1)", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoIpAddress", "IpStorage(127,0,0,1)", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("void CALLBACK_FUNCTION ipAddrCall(int id);", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -180,7 +180,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.get().get(1);
         checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
-        assertThat(menu.getStructElements()).containsExactly("&minfoTime", "1234", "(MultiEditWireType)3", "NULL", "INFO_LOCATION_RAM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoTime", "1234", "(MultiEditWireType)3", "nullptr", "INFO_LOCATION_RAM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -207,7 +207,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.get().get(1);
         checkTheBasicsOfItem(menu, "DateFormattedMenuItem", "MyDate");
-        assertThat(menu.getStructElements()).containsExactly("&minfoMyDate", "1234", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoMyDate", "1234", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("void CALLBACK_FUNCTION DateCallback(int id);", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -230,7 +230,7 @@ public class ArduinoItemGeneratorTest {
         assertEquals(1, result.get().size());
         BuildStructInitializer menu = result.get().get(0);
         checkTheBasicsOfItem(menu, "TextMenuItem", "GenState");
-        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "1234", "11", "10", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "1234", "11", "10", "nullptr");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnGenStateRtCall, SuperRtCall, \"Gen &^%State\", 22)");
         assertEquals("int SuperRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactlyElementsOf(standardRuntimeCb("SuperRtCall", "textItemRenderFn"));
@@ -252,7 +252,7 @@ public class ArduinoItemGeneratorTest {
         menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "IpAddressMenuItem", "IpAddress");
-        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "1234", "12", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "1234", "12", "nullptr");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnIpAddressRtCall, ipAddrRtCall, \"Ip:Address\", 22)");
         assertEquals("int ipAddrRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactlyElementsOf(standardRuntimeCb("ipAddrRtCall", "ipAddressRenderFn"));
@@ -275,7 +275,7 @@ public class ArduinoItemGeneratorTest {
         menu = result.get().get(0);
 
         checkTheBasicsOfItem(menu, "TimeFormattedMenuItem", "Time");
-        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "1234", "66", "(MultiEditWireType)3", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnTimeRtCall", "1234", "66", "(MultiEditWireType)3", "nullptr");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTimeRtCall, TimeRtCall, \"Time\", 22)");
         assertEquals("int TimeRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -296,7 +296,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.get().get(1);
         checkTheBasicsOfItem(menu, "Rgb32MenuItem", "RGB");
-        assertThat(menu.getStructElements()).containsExactly("&minfoRGB", "1234", "false", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoRGB", "1234", "false", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -308,7 +308,7 @@ public class ArduinoItemGeneratorTest {
         assertEquals(1, result.orElseThrow().size());
         menu = result.get().get(0);
         checkTheBasicsOfItem(menu, "Rgb32MenuItem", "RGB");
-        assertThat(menu.getStructElements()).containsExactly("fnRGBRtCall", "1234", "983", "false", "NULL");
+        assertThat(menu.getStructElements()).containsExactly("fnRGBRtCall", "1234", "983", "false", "nullptr");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnRGBRtCall, XyzRtCall, \"RGB\", 29384)");
         assertEquals("int XyzRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -330,7 +330,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.get().get(1);
         checkTheBasicsOfItem(menu, "ScrollChoiceMenuItem", "Scroll1");
-        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "1234", "1000", "10", "30", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "1234", "1000", "10", "30", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("void CALLBACK_FUNCTION TestCb(int id);", req.generateHeader());
     }
@@ -351,7 +351,7 @@ public class ArduinoItemGeneratorTest {
 
         menu = result.get().get(1);
         checkTheBasicsOfItem(menu, "ScrollChoiceMenuItem", "Scroll1");
-        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "1234", "ramVar", "10", "30", "NULL", "INFO_LOCATION_RAM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "1234", "ramVar", "10", "30", "nullptr", "INFO_LOCATION_RAM");
         assertThat(req.generateSource()).containsExactly("extern char ramVar[];");
         assertEquals("", req.generateHeader());
     }
@@ -372,7 +372,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "Scroll1");
         assertThat(info.getStructElements()).containsExactly("\"Scroll1\"", "2045", "22", "0", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "ScrollChoiceMenuItem", "Scroll1");
-        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "fnScroll1RtCall", "1234", "30", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "fnScroll1RtCall", "1234", "30", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("int fnScroll1RtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(scroll, "fnScroll1RtCall", scroll.getFunctionName()));
@@ -394,7 +394,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "hello");
         assertThat(info.getStructElements()).containsExactly("\"hello\"", "293", "0xffff", "0", "activatedCb");
         checkTheBasicsOfItem(menu, "ListRuntimeMenuItem", "hello");
-        assertThat(menu.getStructElements()).containsExactly("&minfohello", "223", "fnhelloRtCall", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfohello", "223", "fnhelloRtCall", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("""
                 void CALLBACK_FUNCTION activatedCb(int id);
@@ -427,7 +427,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "hello");
         assertThat(info.getStructElements()).containsExactly("\"hello\"", "293", "0xffff", "0", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "ListRuntimeMenuItem", "hello");
-        assertThat(menu.getStructElements()).containsExactly("&minfohello", "6", "enumStrhello", "ListRuntimeMenuItem::" + lcm, "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfohello", "6", "enumStrhello", "ListRuntimeMenuItem::" + lcm, "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(list, "fnHelloRtCall", list.getFunctionName()));
@@ -492,7 +492,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "AnyMenuInfo", "PressMe");
         assertThat(info.getStructElements()).containsExactly("\"Press me\"", "10", "42", "0", "onPressMe");
         checkTheBasicsOfItem(menu, "ActionMenuItem", "PressMe");
-        assertThat(menu.getStructElements()).containsExactly("&minfoPressMe", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoPressMe", "nullptr", "INFO_LOCATION_PGM");
 
         assertThat(req.generateSource()).isEmpty();
         assertEquals("void CALLBACK_FUNCTION onPressMe(int id);", req.generateHeader());
@@ -522,7 +522,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "FloatMenuInfo", "CalcVal");
         assertThat(info.getStructElements()).containsExactly("\"Calc Val\"", "10", "22", "5", "NO_CALLBACK");
         checkTheBasicsOfItem(menu, "FloatMenuItem", "CalcVal");
-        assertThat(menu.getStructElements()).containsExactly("&minfoCalcVal", "12.34", "NULL", "INFO_LOCATION_PGM");
+        assertThat(menu.getStructElements()).containsExactly("&minfoCalcVal", "12.34", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("", req.generateHeader());
         assertThat(req.generateSketchCallback()).isEmpty();
@@ -646,7 +646,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfInfo(info, "BooleanMenuInfo", "Enabled", naming != BooleanMenuItem.BooleanNaming.ON_OFF);
         assertThat(info.getStructElements()).containsExactly("\"Enabled\"", "1", "2", "1", "onEnabled", embeddedNaming);
         checkTheBasicsOfItem(menu, "BooleanMenuItem", "Enabled");
-        assertThat(menu.getStructElements()).containsExactly("&minfoEnabled", "true", "NULL",
+        assertThat(menu.getStructElements()).containsExactly("&minfoEnabled", "true", "nullptr",
                 naming == BooleanMenuItem.BooleanNaming.ON_OFF ? "INFO_LOCATION_RAM" : "INFO_LOCATION_PGM");
 
     }

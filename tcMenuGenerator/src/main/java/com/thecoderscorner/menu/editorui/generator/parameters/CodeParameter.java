@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
+import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
 
@@ -38,7 +39,7 @@ public class CodeParameter {
 
     public String expandExpression(CodeConversionContext context, String text)
     {
-        if (text == null) return "NULL";
+        if (text == null) return MenuItemToEmbeddedGenerator.CPP_NULL_PTR;
         var sb = new StringBuilder();
 
         int i = 0;

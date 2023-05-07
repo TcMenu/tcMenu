@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
@@ -99,7 +100,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
             if (StringHelper.isStringEmptyOrNull(paramVal) && !StringHelper.isStringEmptyOrNull(p.getDefaultValue())) {
                 paramVal = p.expandExpression(context, p.getDefaultValue());
             }
-            if(p instanceof ReferenceCodeParameter && !paramVal.equals("NULL")) {
+            if(p instanceof ReferenceCodeParameter && !MenuItemToEmbeddedGenerator.NULL_PTR_NAMES.contains(paramVal)) {
                 paramVal = "&" + paramVal;
             }
             else if(p instanceof FontCodeParameter) {
@@ -169,7 +170,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         }
         var expanded = p.expandExpression(context, val);
         if(p instanceof ReferenceCodeParameter) {
-            return (val == null || val.equalsIgnoreCase("null")) ? "nullptr" : ("&" + expanded);
+            return (val == null || MenuItemToEmbeddedGenerator.NULL_PTR_NAMES.contains(val)) ? "nullptr" : ("&" + expanded);
         }
         else return expanded;
     }

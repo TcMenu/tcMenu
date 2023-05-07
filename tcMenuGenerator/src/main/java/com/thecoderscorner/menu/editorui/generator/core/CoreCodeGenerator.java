@@ -331,10 +331,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             MenuItem item = items.get(i);
             if (item.hasChildren()) {
                 int nextIdx = i + 1;
-                String nextSub = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
+                String nextSub = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : MenuItemToEmbeddedGenerator.CPP_NULL_PTR;
 
                 List<MenuItem> childItems = menuTree.getMenuItems(item);
-                String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : "NULL";
+                String nextChild = (!childItems.isEmpty()) ? menuNameFor(childItems.get(0)) : MenuItemToEmbeddedGenerator.CPP_NULL_PTR;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
                                 new MenuItemToEmbeddedGenerator(menuNameFor(item), nextSub, nextChild,
                                         false, localeHandler, menuTree))
@@ -343,7 +343,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             } else {
                 int nextIdx = i + 1;
                 Object defVal = MenuItemHelper.getValueFor(item, menuTree, MenuItemHelper.getDefaultFor(item));
-                String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : "NULL";
+                String next = (nextIdx < items.size()) ? menuNameFor(items.get(nextIdx)) : MenuItemToEmbeddedGenerator.CPP_NULL_PTR;
                 itemsInOrder.add(MenuItemHelper.visitWithResult(item,
                                 new MenuItemToEmbeddedGenerator(menuNameFor(item), next, null,
                                         toEmbeddedCppValue(item, defVal), localeHandler, menuTree))

@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.*;
@@ -40,7 +41,7 @@ public class VariableNameGenerator {
 
     public String makeNameToVar(MenuItem item, String newName) {
         // shortcut for null..
-        if (item == null) return "NULL";
+        if (item == null) return MenuItemToEmbeddedGenerator.CPP_NULL_PTR;
         if (newName == null && !StringHelper.isStringEmptyOrNull(item.getVariableName())) return item.getVariableName();
         var name = makeNameFromVariable((newName != null) ? newName : item.getName());
 
@@ -50,7 +51,7 @@ public class VariableNameGenerator {
             return makeNameFromVariable(name);
         }
 
-        // if the parent name is alrady overriden, then the name is parentvariable + itemName
+        // if the parent name is already overridden, then the name is parentvariable + itemName
         if(!StringHelper.isStringEmptyOrNull(parent.getVariableName())) {
             return parent.getVariableName() + name;
         }
