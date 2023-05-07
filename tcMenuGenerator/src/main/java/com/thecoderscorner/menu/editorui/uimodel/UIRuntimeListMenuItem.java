@@ -52,7 +52,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
             MenuItemHelper.setMenuState(getMenuItem(), List.of(), menuTree);
         }
 
-        if (initialRowsSpinner.getValue() == 0 && creationModeCombo.getValue() != ListCreationMode.CUSTOM) {
+        if (initialRowsSpinner.getValue() == 0 && creationModeCombo.getValue() != ListCreationMode.CUSTOM_RTCALL) {
             errors.add(new FieldError(bundle.getString("menu.editor.enum.no.choices"), "Choices"));
         } else if (creationModeCombo.getValue() == ListCreationMode.FLASH_ARRAY && items.stream().anyMatch(str -> str.isEmpty() || str.matches(".*[\"\\\\].*$"))) {
             errors.add(new FieldError(bundle.getString("menu.editor.enum.fmt.error"), "Choices"));

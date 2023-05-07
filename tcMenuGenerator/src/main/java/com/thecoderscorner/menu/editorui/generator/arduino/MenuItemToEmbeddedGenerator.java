@@ -352,7 +352,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(RuntimeListMenuItem listItem) {
         BuildStructInitializer info = makeAnyItemStruct(listItem);
 
-        if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+        if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
             BuildStructInitializer listStruct = new BuildStructInitializer(listItem, itemVar, "ListRuntimeMenuItem")
                     .addElement("&minfo" + itemVar)
                     .addElement(listItem.getInitialRows())
@@ -379,7 +379,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 enumEntries = tempList;
             }
 
-            items = new BuildStructInitializer(listItem, itemVar, "const char**")
+            items = new BuildStructInitializer(listItem, itemVar, "const char* const*")
                     .stringChoices(true)
                     .collectionOfElements(enumEntries, quotesNeeded)
                     .requiresExtern();
@@ -399,7 +399,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     private String toEmbeddedListMode(RuntimeListMenuItem.ListCreationMode listCreationMode) {
         return switch (listCreationMode) {
-            case CUSTOM -> "ListRuntimeMenuItem::CUSTOM_RENDER";
+            case CUSTOM_RTCALL -> "ListRuntimeMenuItem::CUSTOM_RENDER";
             case RAM_ARRAY -> "ListRuntimeMenuItem::RAM_ARRAY";
             case FLASH_ARRAY -> "ListRuntimeMenuItem::FLASH_ARRAY";
         };

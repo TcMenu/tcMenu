@@ -445,7 +445,7 @@ public class ArduinoItemGeneratorTest {
 
     private List<String> generateListScrollCustom(MenuItem item, String cbName, String cbfnName) {
         List<String> codeLines = new ArrayList<>();
-        if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+        if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
             codeLines.addAll(List.of("// This callback needs to be implemented by you, see the below docs:",
                     "//  1. List Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
                     "//  2. ScrollChoice Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",

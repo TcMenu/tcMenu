@@ -11,14 +11,14 @@ import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import java.util.Objects;
 
 public class RuntimeListMenuItem extends MenuItem {
-    public enum ListCreationMode { CUSTOM, RAM_ARRAY, FLASH_ARRAY }
+    public enum ListCreationMode {CUSTOM_RTCALL, RAM_ARRAY, FLASH_ARRAY }
     private final int initialRows;
     private final ListCreationMode listCreationMode;
 
     public RuntimeListMenuItem() {
         super("", null, 0, 0, "", false, false, true, false);
         initialRows = 0;
-        listCreationMode = ListCreationMode.CUSTOM;
+        listCreationMode = ListCreationMode.CUSTOM_RTCALL;
     }
 
     public RuntimeListMenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean readOnly,
@@ -29,7 +29,7 @@ public class RuntimeListMenuItem extends MenuItem {
     }
 
     public ListCreationMode getListCreationMode() {
-        return (listCreationMode != null) ? listCreationMode : ListCreationMode.CUSTOM;
+        return (listCreationMode != null) ? listCreationMode : ListCreationMode.CUSTOM_RTCALL;
     }
 
     public int getInitialRows() {

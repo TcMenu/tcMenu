@@ -305,14 +305,16 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     public String mapStructHeader(BuildStructInitializer s) {
-        String header = "";
+        if(!s.isRequiresExtern()) return "";
 
-        if(s.isRequiresExtern()) {
+        if(s.getStringChoiceType() == BuildStructInitializer.StringChoiceType.NO_STRING_CHOICE) {
             var constant = s.isProgMem() ? "const " : "";
-            header = header + "extern " + constant + s.getStructType() + s.getPrefix() + s.getStructName() + ";";
+            return  "extern " + constant + s.getStructType() + s.getPrefix() + s.getStructName() + ";";
+        } else if(s.isProgMem()) {
+            return "extern const char* const enumStr" + s.getStructName() + "[];";
+        } else {
+            return "extern char* enumStr" + s.getStructName() + "[];";
         }
-
-        return header;
     }
 
 

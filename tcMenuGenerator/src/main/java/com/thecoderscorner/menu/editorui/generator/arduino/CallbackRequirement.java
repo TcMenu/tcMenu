@@ -94,7 +94,7 @@ public class CallbackRequirement {
 
             private void runtimeCustomCallback(MenuItem item) {
                 List<String> customCb = List.of();
-                if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+                if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
                     customCb = List.of(
                             "// This callback needs to be implemented by you, see the below docs:",
                             "//  1. List Docs - " + LIST_URL,
@@ -202,7 +202,7 @@ public class CallbackRequirement {
             @Override
             public void visit(RuntimeListMenuItem listItem) {
                 String extra = "";
-                if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM) {
+                if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
                     extra = "int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";";
                 }
                 standardCallbackHeader(listItem, extra);
