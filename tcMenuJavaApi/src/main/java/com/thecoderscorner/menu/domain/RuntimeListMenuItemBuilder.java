@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.domain;
 
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.*;
+
 /**
  * Constructs a RuntimeListMenuItem using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
@@ -13,7 +15,7 @@ package com.thecoderscorner.menu.domain;
 public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuItemBuilder, RuntimeListMenuItem> {
 
     private int initialRows = 0;
-    private boolean usingInfoBlock = true;
+    private ListCreationMode creationMode;
 
     @Override
     public RuntimeListMenuItemBuilder getThis() {
@@ -22,6 +24,8 @@ public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuI
 
     public RuntimeListMenuItemBuilder withExisting(RuntimeListMenuItem item) {
         baseFromExisting(item);
+        creationMode = item.getListCreationMode();
+        initialRows = item.getInitialRows();
         return getThis();
     }
 
@@ -30,13 +34,14 @@ public class RuntimeListMenuItemBuilder extends MenuItemBuilder<RuntimeListMenuI
         return getThis();
     }
 
-    public RuntimeListMenuItemBuilder withUsingInfoBlock(boolean usingInfoBlock) {
-        this.usingInfoBlock = usingInfoBlock;
+    public RuntimeListMenuItemBuilder withCreationMode(ListCreationMode creationMode) {
+        this.creationMode = creationMode;
         return getThis();
     }
 
     public RuntimeListMenuItem menuItem() {
-        return new RuntimeListMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible, initialRows, usingInfoBlock, staticDataInRAM);
+        return new RuntimeListMenuItem(name, variableName, id, eepromAddr, functionName, readOnly, localOnly, visible,
+                initialRows, staticDataInRAM, creationMode);
     }
 
     public static RuntimeListMenuItemBuilder aRuntimeListMenuItemBuilder() {

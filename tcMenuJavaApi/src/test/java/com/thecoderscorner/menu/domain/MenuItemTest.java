@@ -139,15 +139,19 @@ public class MenuItemTest {
 
     @Test
     public void testListMenuItem() {
-        RuntimeListMenuItem ip = aRuntimeListMenuItemBuilder()
+        RuntimeListMenuItem l = aRuntimeListMenuItemBuilder()
                 .withName("runList")
                 .withId(2909)
                 .withEepromAddr(-1)
                 .withFunctionName("runListFn")
+                .withCreationMode(RuntimeListMenuItem.ListCreationMode.RAM_ARRAY)
+                .withInitialRows(100)
                 .menuItem();
-        assertBaseMenuFields(ip, "runList", 2909, -1);
-        assertEquals("runListFn", ip.getFunctionName());
-        assertEquals(ip, aRuntimeListMenuItemBuilder().withExisting(ip).menuItem());
+        assertBaseMenuFields(l, "runList", 2909, -1);
+        assertEquals(100, l.getInitialRows());
+        assertEquals(RuntimeListMenuItem.ListCreationMode.RAM_ARRAY, l.getListCreationMode());
+        assertEquals("runListFn", l.getFunctionName());
+        assertEquals(l, aRuntimeListMenuItemBuilder().withExisting(l).menuItem());
     }
 
     @Test

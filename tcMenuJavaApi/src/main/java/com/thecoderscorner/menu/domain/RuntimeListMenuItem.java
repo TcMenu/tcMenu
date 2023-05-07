@@ -11,28 +11,29 @@ import com.thecoderscorner.menu.domain.util.MenuItemVisitor;
 import java.util.Objects;
 
 public class RuntimeListMenuItem extends MenuItem {
+    public enum ListCreationMode { CUSTOM, RAM_ARRAY, FLASH_ARRAY }
     private final int initialRows;
-    private final boolean usingInfoBlock;
+    private final ListCreationMode listCreationMode;
 
     public RuntimeListMenuItem() {
         super("", null, 0, 0, "", false, false, true, false);
         initialRows = 0;
-        usingInfoBlock = false;
+        listCreationMode = ListCreationMode.CUSTOM;
     }
 
     public RuntimeListMenuItem(String name, String varName, int id, int eepromAddress, String functionName, boolean readOnly,
-                               boolean localOnly, boolean visible, int initialRows, boolean usingInfoBlock, boolean staticInRam) {
+                               boolean localOnly, boolean visible, int initialRows, boolean staticInRam, ListCreationMode creationMode) {
         super(name, varName, id, eepromAddress, functionName, readOnly, localOnly, visible, staticInRam);
         this.initialRows = initialRows;
-        this.usingInfoBlock = usingInfoBlock;
+        this.listCreationMode = creationMode;
+    }
+
+    public ListCreationMode getListCreationMode() {
+        return (listCreationMode != null) ? listCreationMode : ListCreationMode.CUSTOM;
     }
 
     public int getInitialRows() {
         return initialRows;
-    }
-
-    public boolean isUsingInfoBlock() {
-        return usingInfoBlock;
     }
 
     @Override
@@ -46,15 +47,15 @@ public class RuntimeListMenuItem extends MenuItem {
                 isReadOnly() == that.isReadOnly() &&
                 isLocalOnly() == that.isLocalOnly() &&
                 isVisible() == that.isVisible() &&
-                isUsingInfoBlock() == that.isUsingInfoBlock() &&
                 Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getListCreationMode(), that.getListCreationMode()) &&
                 Objects.equals(getFunctionName(), that.getFunctionName()) &&
                 Objects.equals(getVariableName(), that.getVariableName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName(), isUsingInfoBlock());
+        return Objects.hash(getInitialRows(), getName(), getId(), getEepromAddress(), getFunctionName(), isReadOnly(), getVariableName(), getListCreationMode());
     }
 
     @Override
