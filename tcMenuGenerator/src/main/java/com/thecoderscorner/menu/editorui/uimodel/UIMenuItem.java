@@ -6,8 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
@@ -15,7 +16,6 @@ import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -38,14 +38,14 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldType.*;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * This represents a UI editor that can edit the fields of a MenuItem, specialised for each type of menu item in a
- * similiar way to the underlying items.
- *
- * Special thanks should go to http://bekwam.blogspot.co.uk/2014/10/cut-copy-and-paste-from-javafx-menubar.html
- * for the copy paste functionality.
+ * similar way to the underlying items.
+ * Special thanks should go to <a href="http://bekwam.blogspot.co.uk/2014/10/cut-copy-and-paste-from-javafx-menubar.html">bekwam.blogspot.co.uk</a>
+ * for the copy and paste functionality.
  * @param <T>
  */
 public abstract class UIMenuItem<T extends MenuItem> {
@@ -157,7 +157,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.variable.name")), 0, idx);
         var varName = menuItem.getVariableName();
-        if(StringHelper.isStringEmptyOrNull(varName)) {
+        if(isStringEmptyOrNull(varName)) {
             varName = variableNameGenerator.makeNameToVar(getMenuItem());
         }
 
@@ -204,7 +204,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
             idx++;
             grid.add(new Label(bundle.getString("menu.editor.callback.function")), 0, idx);
             String functionName = menuItem.getFunctionName();
-            functionNameTextField = new TextField(functionName != null ? functionName : NO_FUNCTION_DEFINED);
+            functionNameTextField = new TextField(!isStringEmptyOrNull(functionName) ? functionName : NO_FUNCTION_DEFINED);
             functionNameTextField.textProperty().addListener(this::coreValueChanged);
             functionNameTextField.setId("functionNameTextField");
             functionNameTextField.setMaxWidth(9999);
@@ -319,7 +319,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     private String getFunctionName(List<FieldError> errors) {
         if(functionNameTextField == null) return "";
         String text = functionNameTextField.getText();
-        if (StringHelper.isStringEmptyOrNull(text) || NO_FUNCTION_DEFINED.equals(text)) {
+        if (isStringEmptyOrNull(text) || NO_FUNCTION_DEFINED.equals(text)) {
             return null;
         }
         return safeStringFromProperty(functionNameTextField.textProperty(), "Callback",
@@ -453,7 +453,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     protected int safeIntFromProperty(StringProperty strProp, String field, List<FieldError> errorsBuilder,
                                       int min, int max)  {
         String s = strProp.get();
-        if (StringHelper.isStringEmptyOrNull(s)) {
+        if (isStringEmptyOrNull(s)) {
             return 0;
         }
 
@@ -499,7 +499,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         if (focused == null) return false;
         String text = focused.getSelectedText();
 
-        if (!StringHelper.isStringEmptyOrNull(text)) {
+        if (!isStringEmptyOrNull(text)) {
             Clipboard systemClipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
             content.putString(text);
@@ -543,7 +543,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     public boolean canCopy() {
         TextField tf = getFocusedTextField();
-        return (tf != null && !StringHelper.isStringEmptyOrNull(tf.getSelectedText()));
+        return (tf != null && !isStringEmptyOrNull(tf.getSelectedText()));
     }
 
     public boolean canPaste() {

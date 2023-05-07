@@ -9,14 +9,12 @@ package com.thecoderscorner.menu.editorui.generator.arduino;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
 
@@ -95,7 +93,7 @@ public class CallbackRequirement {
             }
 
             private void runtimeCustomCallback(MenuItem item) {
-                setResult(List.of(
+                var customCb = List.of(
                         "// This callback needs to be implemented by you, see the below docs:",
                         "//  1. List Docs - " + LIST_URL,
                         "//  2. ScrollChoice Docs - " + CHOICE_URL,
@@ -105,7 +103,15 @@ public class CallbackRequirement {
                         "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
                         "    }",
                         "}"
-                ));
+                );
+
+                if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
+                    var allEntries = new ArrayList<>(customCb);
+                    allEntries.addAll(standardCallbackFunction());
+                    setResult(allEntries);
+                } else {
+                    setResult(customCb);
+                }
             }
 
             @Override
@@ -113,15 +119,19 @@ public class CallbackRequirement {
                 if(StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
                     setResult(List.of());
                 } else if(!item.getFunctionName().startsWith("@")){
-                    setResult(List.of(
-                            "",
-                            "void CALLBACK_FUNCTION " + callbackName + "(int id) {",
-                            "    // TODO - your menu change code",
-                            "}"
-                    ));
+                    setResult(standardCallbackFunction());
                 } else {
                     setResult(List.of());
                 }
+            }
+
+            private List<String> standardCallbackFunction() {
+                return List.of(
+                        "",
+                        "void CALLBACK_FUNCTION " + callbackName + "(int id) {",
+                        "    // TODO - your menu change code",
+                        "}"
+                );
             }
         }).orElse(Collections.emptyList());
     }
@@ -189,13 +199,13 @@ public class CallbackRequirement {
         return MenuItemHelper.visitWithResult(callbackItem, new AbstractMenuItemVisitor<String>() {
             @Override
             public void visit(RuntimeListMenuItem listItem) {
-                setResult("int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
+                standardCallbackHeader(listItem, "int " + generator.makeRtFunctionName(listItem) + RUNTIME_CALLBACK_PARAMS + ";");
             }
 
             @Override
             public void visit(ScrollChoiceMenuItem choiceMenuItem) {
                 if(choiceMenuItem.getChoiceMode() == ScrollChoiceMenuItem.ScrollChoiceMode.CUSTOM_RENDERFN) {
-                    setResult("int " + generator.makeRtFunctionName(choiceMenuItem) + RUNTIME_CALLBACK_PARAMS + ";");
+                    standardCallbackHeader(choiceMenuItem, "int " + generator.makeRtFunctionName(choiceMenuItem) + RUNTIME_CALLBACK_PARAMS + ";");
                 }
                 else anyItem(choiceMenuItem);
             }
@@ -227,8 +237,17 @@ public class CallbackRequirement {
 
             @Override
             public void anyItem(MenuItem item) {
+                standardCallbackHeader(item, "");
+            }
+
+            private void standardCallbackHeader(MenuItem item, String extra) {
+                if(extra == null) extra = "";
+
                 if(!StringHelper.isStringEmptyOrNull(item.getFunctionName())) {
-                    setResult("void CALLBACK_FUNCTION " + callbackName + "(int id);");
+                    var possibleCr = (!StringHelper.isStringEmptyOrNull(extra))  ? CoreCodeGenerator.LINE_BREAK : "";
+                    setResult("void CALLBACK_FUNCTION " + callbackName + "(int id);" + possibleCr + extra);
+                } else if(!StringHelper.isStringEmptyOrNull(extra)) {
+                    setResult(extra);
                 }
             }
         }).orElse("");

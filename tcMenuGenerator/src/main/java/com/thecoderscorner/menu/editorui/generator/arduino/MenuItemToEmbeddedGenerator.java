@@ -66,10 +66,11 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     }
 
     public static String getUnitName(AnalogMenuItem item, LocaleMappingHandler handler) {
-        if(item.getUnitName() != null && handler.isLocalSupportEnabled() && item.getUnitName().startsWith("%")) {
+        String unitName = item.getUnitName();
+        if(unitName != null && handler.isLocalSupportEnabled() && unitName.startsWith("%") && unitName.length() > 1) {
             return String.format("TC_I18N_MENU_%d_UNIT", item.getId());
         } else {
-            return "\"" + item.getUnitName() + "\""; // as before;
+            return "\"" + unitName + "\""; // as before;
         }
     }
 

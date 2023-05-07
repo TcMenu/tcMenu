@@ -76,6 +76,9 @@ public class SafeBundleLoaderTest {
                 "menu.3.enum.1=Menu 3 enum1\n" +
                 "\n" +
                 "root.only.entry=1234\n" +
+                "\n" +
+                "# and a blank entry\n" +
+                "menu.2.unit=\n" +
                 "food=pizza\n", new String(allBytes));
     }
 
@@ -184,7 +187,7 @@ public class SafeBundleLoaderTest {
         assertEquals("1234", handler.getFromLocaleWithDefault("%root.only.entry", "non"));
 
         var underlyingMap = handler.getUnderlyingMap();
-        assertEquals(6, underlyingMap.size());
+        assertEquals(7, underlyingMap.size());
         assertEquals("bonjourCA", underlyingMap.get("welcome"));
         assertEquals("Salade", underlyingMap.get("menu.3.enum.1"));
         assertEquals("Paramètres des pâtes", underlyingMap.get("menu.5.name"));
@@ -208,10 +211,11 @@ public class SafeBundleLoaderTest {
         assertEquals("bonjour", handler.getLocalSpecificEntry("welcome"));
 
         var underlyingMap = handler.getUnderlyingMap();
-        assertEquals(6, underlyingMap.size());
+        assertEquals(7, underlyingMap.size());
         assertEquals("bonjour", underlyingMap.get("welcome"));
         assertEquals("Paramètres", handler.getFromLocaleWithDefault("%menu.5.name", "non"));
         assertEquals("Pâtes", handler.getFromLocaleWithDefault("%menu.3.enum.1", "non"));
+        assertEquals("", handler.getFromLocaleWithDefault("%menu.2.unit", "non"));
 
         assertEquals(Locale.FRENCH, handler.getCurrentLocale());
 

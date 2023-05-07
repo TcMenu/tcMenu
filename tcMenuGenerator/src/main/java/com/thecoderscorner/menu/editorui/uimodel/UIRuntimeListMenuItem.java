@@ -59,9 +59,4 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
         // nothing to add
         return idx;
     }
-
-    @Override
-    protected boolean itemRequiresFunctionCallback() {
-        return false;
-    }
 }

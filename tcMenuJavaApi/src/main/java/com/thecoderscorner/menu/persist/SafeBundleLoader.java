@@ -111,7 +111,7 @@ public class SafeBundleLoader {
             if(lines.stream().noneMatch(PropertiesFileLine::isChanged)) return; // no need to save.
 
             var toWrite = lines.stream().map(PropertiesFileLine::outputLine).collect(Collectors.joining(lineSeparator)) + lineSeparator;
-            Files.write(resolvedPath, toWrite.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(resolvedPath, toWrite);
 
         } catch (IOException e) {
             logger.log(System.Logger.Level.ERROR, "Unable to save " + resolvedPath, e);
@@ -160,10 +160,17 @@ public class SafeBundleLoader {
             else {
                 var parts = line.split("\\s*=\\s*");
                 if(parts.length > 1) {
+                    // we are in the form "key = value"
                     key = parts[0].trim();
                     lineType = PropertiesLineType.HAS_KEY_AND_VALUE;
                     value = parts[1];
+                } else if(line.trim().endsWith("=")) {
+                    // we have the special case of an empty entry "key = "
+                    key = parts[0].trim();
+                    lineType = PropertiesLineType.HAS_KEY_AND_VALUE;
+                    value = "";
                 } else {
+                    // not sure what we have, probably not valid.
                     lineType = PropertiesLineType.UNKNOWN;
                 }
             }

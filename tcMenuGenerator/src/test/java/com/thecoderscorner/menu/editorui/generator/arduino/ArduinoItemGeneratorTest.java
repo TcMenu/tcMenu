@@ -11,8 +11,10 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -230,7 +232,7 @@ public class ArduinoItemGeneratorTest {
         assertThat(menu.getStructElements()).containsExactly("fnGenStateRtCall", "1234", "11", "10", "NULL");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnGenStateRtCall, SuperRtCall, \"Gen &^%State\", 22)");
         assertEquals("int SuperRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsAll(standardRuntimeCb("SuperRtCall", "textItemRenderFn"));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(standardRuntimeCb("SuperRtCall", "textItemRenderFn"));
 
         EditableTextMenuItem ip = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(12)
@@ -252,7 +254,7 @@ public class ArduinoItemGeneratorTest {
         assertThat(menu.getStructElements()).containsExactly("fnIpAddressRtCall", "1234", "12", "NULL");
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnIpAddressRtCall, ipAddrRtCall, \"Ip:Address\", 22)");
         assertEquals("int ipAddrRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsAll(standardRuntimeCb("ipAddrRtCall", "ipAddressRenderFn"));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(standardRuntimeCb("ipAddrRtCall", "ipAddressRenderFn"));
 
         EditableTextMenuItem time = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
                 .withId(66)
@@ -372,7 +374,7 @@ public class ArduinoItemGeneratorTest {
         assertThat(menu.getStructElements()).containsExactly("&minfoScroll1", "fnScroll1RtCall", "1234", "30", "NULL", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
         assertEquals("int fnScroll1RtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsAll(generateListScrollCustom("fnScroll1RtCall"));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom("fnScroll1RtCall", scroll.getFunctionName()));
     }
 
     @Test
@@ -393,12 +395,14 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfItem(menu, "ListRuntimeMenuItem", "hello");
         assertThat(menu.getStructElements()).containsExactly("&minfohello", "223", "fnhelloRtCall", "NULL", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
-        assertEquals("int fnHelloRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsAll(generateListScrollCustom("fnHelloRtCall"));
+        assertEquals("""
+                void CALLBACK_FUNCTION activatedCb(int id);
+                int fnHelloRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);""", req.generateHeader());
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom("fnHelloRtCall", list.getFunctionName()));
     }
 
-    private List<String> generateListScrollCustom(String cbName) {
-        return List.of("// This callback needs to be implemented by you, see the below docs:",
+    private List<String> generateListScrollCustom(String cbName, String cbfnName) {
+        var codeLines = new ArrayList<>(List.of("// This callback needs to be implemented by you, see the below docs:",
                 "//  1. List Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
                 "//  2. ScrollChoice Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",
                 "int CALLBACK_FUNCTION " + cbName+ "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
@@ -406,7 +410,15 @@ public class ArduinoItemGeneratorTest {
                 "    default:",
                 "        return defaultRtListCallback(item, row, mode, buffer, bufferSize);",
                 "    }",
-                "}");
+                "}"));
+        if(!StringHelper.isStringEmptyOrNull(cbfnName)) {
+            codeLines.add("");
+            codeLines.add("void CALLBACK_FUNCTION " + cbfnName + "(int id) {");
+            codeLines.add("    // TODO - your menu change code");
+            codeLines.add("}");
+
+        }
+        return codeLines;
     }
 
     private CallbackRequirement makeCallbackRequirement(MenuItem item) {
@@ -519,7 +531,7 @@ public class ArduinoItemGeneratorTest {
 
         assertThat(req.generateSource()).containsExactly("RENDERING_CALLBACK_NAME_OVERRIDDEN(fnLgeRtCall, LargeRtCall, \"lge\", 22)");
         assertEquals("int LargeRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);", req.generateHeader());
-        assertThat(req.generateSketchCallback()).containsAll(standardRuntimeCb("LargeRtCall", "largeNumItemRenderFn"));
+        assertThat(req.generateSketchCallback()).containsExactlyElementsOf(standardRuntimeCb("LargeRtCall", "largeNumItemRenderFn"));
     }
 
     private Iterable<String> standardRuntimeCb(String name, String rtFn) {

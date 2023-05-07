@@ -36,11 +36,12 @@ class ResourceBundleMappingHandlerTest {
         var bundle = ResourceBundle.getBundle("testBundle.test", Locale.FRENCH);
         var handler = new ResourceBundleMappingHandler(bundle);
         var map = handler.getUnderlyingMap();
-        assertEquals(6, map.size());
+        assertEquals(7, map.size());
         assertEquals("bonjour", map.get("welcome"));
         assertEquals("au rivoir", map.get("leave"));
         assertEquals("merci", map.get("thanks"));
         assertEquals("Paramètres", map.get("menu.5.name"));
         assertEquals("1234", map.get("root.only.entry"));
+        assertEquals("", map.get("menu.2.unit"));
     }
 }
