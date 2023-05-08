@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
@@ -210,13 +211,13 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 .filter(cb -> !StringHelper.isStringEmptyOrNull(cb.getCallbackName()) ||
                         isRuntimeStructureNeeded(cb.getCallbackItem())).toList();
 
-        var definedList = new ArrayList<>(alreadyDefined);
+        var definedList = new HashSet<>(alreadyDefined);
 
         for (var cb : filteredCb) {
             if(cb.isHeaderOnlyCallback()) {
                 logger.accept(INFO, "Callback function void " + cb.getCallbackName() + "(int id) must be implemented by you");
             }
-            else if(!definedList.contains(cb.getCallbackName())) {
+            else if(cb.isCallbackGenerationNeeded(definedList)) {
                 logger.accept(INFO, "Adding new callback to sketch for: " + cb.getCallbackItem());
                 lines.add("");
                 lines.addAll(cb.generateSketchCallback());
@@ -224,7 +225,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 changed = true;
             }
             else {
-                logger.accept(DEBUG, "Skip callback generation for " + cb.getCallbackName());
+                logger.accept(DEBUG, "Callback already generated " + cb.getCallbackName());
             }
         }
     }

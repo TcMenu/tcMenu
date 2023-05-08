@@ -346,4 +346,15 @@ public class CallbackRequirement {
     public static boolean isApplicableForOverrideRtCall(MenuItem menuItem) {
         return menuItem instanceof EditableLargeNumberMenuItem || menuItem instanceof Rgb32MenuItem || menuItem instanceof EditableTextMenuItem;
     }
+
+    public boolean isCallbackGenerationNeeded(Set<String> definedList) {
+        if(callbackItem instanceof RuntimeListMenuItem rtl) {
+            if(rtl.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
+                return !definedList.contains(callbackItem.getFunctionName()) && !definedList.contains(getCallbackName());
+            } else if(!StringHelper.isStringEmptyOrNull(callbackItem.getFunctionName())) {
+                return !definedList.contains(callbackItem.getFunctionName());
+            }
+        }
+        return !definedList.contains(getCallbackName());
+    }
 }
