@@ -18,7 +18,11 @@ public interface LocaleMappingHandler {
     Locale getCurrentLocale();
 
     default String getFromLocaleWithDefault(String localeEntry, String defText) {
-        if(!isLocalSupportEnabled() || (!localeEntry.startsWith("%") || localeEntry.length() < 2)) return defText;
+        if(!isLocalSupportEnabled()) return defText;
+
+        if((!localeEntry.startsWith("%") || localeEntry.length() < 2)) {
+            return defText.startsWith("\\%") ? defText.substring(1) : defText;
+        }
         if(getCurrentLocale().getLanguage().equals("--")) return defText;
         String ret = getLocalSpecificEntry(localeEntry.substring(1));
         return (ret == null) ? defText : ret;
@@ -27,6 +31,7 @@ public interface LocaleMappingHandler {
     default String getWithLocaleInitIfNeeded(String localeName, String existing) {
         if(isLocalSupportEnabled()) {
             if(!existing.startsWith("%") && this instanceof PropertiesLocaleEnabledHandler) {
+                if(existing.startsWith("\\%")) existing = existing.substring(1);
                 ((PropertiesLocaleEnabledHandler)this).putIntoDefaultIfNeeded(localeName.substring(1), existing);
             }
             return getFromLocaleWithDefault(localeName, existing);

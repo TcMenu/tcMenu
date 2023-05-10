@@ -187,6 +187,8 @@ public class CodeGeneratorCommand implements Callable<Integer> {
 
     public static void persistProject(MenuTree tree, CodeGeneratorOptions opts) throws IOException {
         if(persistor != null && loadedProjectFile != null) {
+            BackupManager backupManager = new BackupManager(new PrefsConfigurationStorage());
+            backupManager.backupFile(loadedProjectFile.toPath().getParent(), loadedProjectFile.toPath());
             persistor.save(loadedProjectFile.toString(), projectDescription, tree, opts, LocaleMappingHandler.NOOP_IMPLEMENTATION);
         }
     }

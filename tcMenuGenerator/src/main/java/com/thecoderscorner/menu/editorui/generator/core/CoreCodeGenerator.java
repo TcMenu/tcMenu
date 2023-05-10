@@ -571,11 +571,20 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     private String getApplicationName() {
-        if(localeHandler.isLocalSupportEnabled() && options.getApplicationName().startsWith("%")) {
+        if(localeHandler.isLocalSupportEnabled() && isFromResourceBundle(options.getApplicationName())) {
             return asDefine(options.getApplicationName().substring(1));
         } else {
             return "\"" + options.getApplicationName() + "\"";
         }
+    }
+
+    public static boolean isFromResourceBundle(String val) {
+        return val.startsWith("%");
+    }
+
+    public static String removePossibleBundleEscape(String val) {
+        if(val == null) return null;
+        return (val.startsWith("\\%")) ? val.substring(1) : val;
     }
 
     private boolean requiresGlobalServerDefinition() {

@@ -1,6 +1,8 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -24,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.cli.CodeGeneratorCommand.persistProject;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
@@ -63,6 +66,17 @@ public class CreateProjectCommand implements Callable<Integer> {
     @Option(names = {"-i", "--i18n"}, description = "enable i18n support for the following locales, comma separated")
     private String i18nLocales;
 
+    void projectTestAccess(Path location, String projectName, EmbeddedPlatform platform, boolean saveToSrc, boolean recursiveNaming, boolean cppMain, String locales) {
+        this.platform = platform.getBoardId();
+        this.cppMain = cppMain;
+        this.saveToSrcArr = new boolean[] { saveToSrc};
+        this.recursiveNamingArr = new boolean[] { recursiveNaming };
+        this.useSizedRomArr = new boolean[] { true };
+        this.i18nLocales = locales;
+        this.newProject = new String[] { projectName};
+        this.projectLocation = location.toFile();
+    }
+
     @Override
     public Integer call() throws Exception {
         var platforms = new PluginEmbeddedPlatformsImpl();
@@ -90,7 +104,7 @@ public class CreateProjectCommand implements Callable<Integer> {
 
             if(!StringHelper.isStringEmptyOrNull(i18nLocales)) {
                 var localeList = Arrays.stream(i18nLocales.split("\\s*,\\s*")).map(Locale::of).toList();
-                enableI18nSupport(projectLocation.toPath().resolve(newProject[0]), localeList, System.out::println);
+                enableI18nSupport(projectLocation.toPath().resolve(newProject[0]), localeList, System.out::println, Optional.empty());
             }
             return 0;
         }
@@ -158,11 +172,15 @@ public class CreateProjectCommand implements Callable<Integer> {
         logger.accept("Project created!");
     }
 
-    public static void enableI18nSupport(Path location, List<Locale> locales, Consumer<String> logger) throws IOException {
+    public static void enableI18nSupport(Path location, List<Locale> locales, Consumer<String> logger, Optional<Path> maybeEmf) throws IOException {
+        // if we are creating i18n support, IE we must create the directory, and then escape any existing %'s in text
+        boolean creating = false;
+
         var i18n = location.resolve("i18n");
         if(!Files.exists(i18n)) {
             Files.createDirectory(i18n);
             logger.accept("Created directory " + i18n);
+            creating = true;
         } else {
             logger.accept("Directory already exists " + i18n);
         }
@@ -172,6 +190,51 @@ public class CreateProjectCommand implements Callable<Integer> {
         for(var locale : locales) {
             safeBundleLoader.saveChangesKeepingFormatting(locale, Map.of());
             logger.accept("Created locale file " + locale);
+        }
+
+        if(creating && maybeEmf.isPresent()) {
+            logger.accept("Trying to escape any names, units or enum entries " + maybeEmf);
+
+            var prj = CodeGeneratorCommand.projectFileOrNull(maybeEmf.get().toFile(), new PrefsConfigurationStorage());
+            var menuTree = prj.getMenuTree();
+            var needsSave = false;
+
+            // Now go through all items one at a time and escape any known %'s that are likely to cause the
+            // code generator to fail because. This will deal with strings in enum items, names, and units.
+            for(var item : menuTree.getAllMenuItems()) {
+                var builder = MenuItemHelper.builderWithExisting(item);
+                boolean changed = false;
+                if(item instanceof AnalogMenuItem an && an.getUnitName() != null && an.getUnitName().startsWith("%")) {
+                    builder = new AnalogMenuItemBuilder().withExisting(an).withUnit("\\" + an.getUnitName());
+                    changed = true;
+                } else if(item instanceof EnumMenuItem en && en.getEnumEntries().stream().anyMatch(es -> es.startsWith("%"))) {
+                    builder = new EnumMenuItemBuilder().withExisting(en)
+                            .withEnumList(en.getEnumEntries().stream().map(e -> e.startsWith("%") ? "\\" + e : e).toList());
+                    changed = true;
+                } else if(item instanceof RuntimeListMenuItem rtl) {
+                    List<String> stringList = MenuItemHelper.getValueFor(rtl, menuTree, List.of());
+                    if(stringList.stream().anyMatch(s -> s.startsWith("%"))) {
+                        MenuItemHelper.setMenuState(rtl, stringList.stream().map(s -> s.startsWith("%") ? "\\" + s : s).toList(), menuTree);
+                        needsSave = true;
+                    }
+                }
+
+                if(item.getName() != null && item.getName().startsWith("%")) {
+                    builder.withName("\\" + item.getName());
+                    changed = true;
+                }
+
+                if(changed) {
+                    var par = menuTree.findParent(item);
+                    menuTree.addOrUpdateItem(par.getId(), builder.menuItem());
+                    needsSave = true;
+                }
+            }
+
+            if(needsSave) {
+                logger.accept("Saving changes to emf and taking backup " + maybeEmf.get());
+                persistProject(prj.getMenuTree(), prj.getOptions());
+            }
         }
     }
 }

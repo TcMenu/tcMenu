@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.*;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -34,6 +35,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -339,7 +341,16 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
         if(!project.getLocaleHandler().isLocalSupportEnabled()) {
             if(questionYesNo(designerBundle.getString("core.enable.locale.support.message"), designerBundle.getString("core.enable.locale.support.header"))) {
-                project.enableLocaleHandler();
+                try {
+                    // save the project back to disk, enable i18n which may modify the project, then load it back.
+                    project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+                    CreateProjectCommand.enableI18nSupport(Paths.get(project.getFileName()).getParent(), List.of(), s -> logger.log(INFO, s),
+                            Optional.of(Paths.get(project.getFileName())));
+                    project.openProject(project.getFileName());
+                }
+                catch(Exception ex) {
+                    logger.log(ERROR, "Unable to initialise locale support properly", ex);
+                }
             } else {
                 return; // do nothing
             }

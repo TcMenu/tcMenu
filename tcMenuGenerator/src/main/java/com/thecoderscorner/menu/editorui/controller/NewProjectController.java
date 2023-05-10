@@ -123,7 +123,7 @@ public class NewProjectController {
 
                 if(enableI18nSupportCheck.isSelected()) {
                     projectCreator.enableI18nSupport(Paths.get(maybeDirectory.get()).resolve(projName), List.of(Locale.FRENCH),
-                            s -> logger.log(INFO, s));
+                            s -> logger.log(INFO, s), Optional.empty());
                 }
 
                 Path emfFileName = Paths.get(maybeDirectory.get(), projName, projName + ".emf");

@@ -18,6 +18,8 @@ import java.util.*;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.RUNTIME_FUNCTION_SUFIX;
+import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.isFromResourceBundle;
+import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.removePossibleBundleEscape;
 
 /**
  * This class follows the visitor pattern to generate code for each item
@@ -71,18 +73,18 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     public static String getUnitName(AnalogMenuItem item, LocaleMappingHandler handler) {
         String unitName = item.getUnitName();
-        if(unitName != null && handler.isLocalSupportEnabled() && unitName.startsWith("%") && unitName.length() > 1) {
+        if(unitName != null && handler.isLocalSupportEnabled() && isFromResourceBundle(unitName) && unitName.length() > 1) {
             return String.format("TC_I18N_MENU_%d_UNIT", item.getId());
         } else {
-            return "\"" + unitName + "\""; // as before;
+            return "\"" + removePossibleBundleEscape(unitName) + "\""; // as before;
         }
     }
 
     public static String getItemName(MenuItem item, LocaleMappingHandler handler) {
-        if(handler.isLocalSupportEnabled() && item.getName().startsWith("%")) {
+        if(handler.isLocalSupportEnabled() && isFromResourceBundle(item.getName())) {
             return String.format("TC_I18N_MENU_%d_NAME", item.getId());
         } else {
-            return "\"" + item.getName() + "\""; // as before
+            return "\"" + removePossibleBundleEscape(item.getName()) + "\""; // as before
         }
     }
 
@@ -315,12 +317,18 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(EnumMenuItem item) {
         List<String> enumEntries = item.getEnumEntries();
         boolean quotesNeeded = true;
-        if(handler.isLocalSupportEnabled() && !enumEntries.isEmpty() && enumEntries.get(0).startsWith("%")) {
+        if(handler.isLocalSupportEnabled() && !enumEntries.isEmpty() && isFromResourceBundle(enumEntries.get(0))) {
             var tempList = new ArrayList<String>(enumEntries.size()+1);
             for(int i=0;i<enumEntries.size();i++) {
                 tempList.add(String.format("TC_I18N_MENU_%d_ENUM_%d", item.getId(), i));
             }
             quotesNeeded = false;
+            enumEntries = tempList;
+        } else {
+            var tempList = new ArrayList<String>(enumEntries.size()+1);
+            for(var it : enumEntries) {
+                tempList.add(removePossibleBundleEscape(it));
+            }
             enumEntries = tempList;
         }
 
@@ -366,15 +374,21 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
         BuildStructInitializer items;
         if(listItem.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY) {
-            var list = (List<String>)MenuItemHelper.getValueFor(listItem, tree, MenuItemHelper.getDefaultFor(listItem));
+            List<String> list = MenuItemHelper.getValueFor(listItem, tree, List.of());
             boolean quotesNeeded = true;
-            var enumEntries = list;
-            if(handler.isLocalSupportEnabled() && !list.isEmpty() && list.get(0).startsWith("%")) {
+            List<String> enumEntries;
+            if(handler.isLocalSupportEnabled() && !list.isEmpty() && isFromResourceBundle(list.get(0))) {
                 var tempList = new ArrayList<String>(list.size()+1);
                 for(int i=0;i<list.size();i++) {
                     tempList.add(String.format("TC_I18N_MENU_%d_LIST_%d", listItem.getId(), i));
                 }
                 quotesNeeded = false;
+                enumEntries = tempList;
+            } else {
+                var tempList = new ArrayList<String>(list.size()+1);
+                for(var it : list) {
+                    tempList.add(removePossibleBundleEscape(it));
+                }
                 enumEntries = tempList;
             }
 
