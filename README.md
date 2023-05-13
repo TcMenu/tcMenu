@@ -35,10 +35,6 @@ Here's a couple of screen-shots of the designer UI - runs on Windows, macOS and 
 
 ![Menu designer for Arduino](zMedia/design-menu-for-arduino.jpg)
 
-and embedCONTROL desktop that can control menu based apps - runs on Windows, macOS and Linux:
-
-![Code generator runs on many platforms](zMedia/generate-code-for-your-platform.jpg)
-
 ## Generating a menu from the UI for the impatient
 
 If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI and set up your Arduino directory in "Edit -> General Settings", then check the "Library Versions" tab to ensure the embedded libraries are installed / up to date.
@@ -138,13 +134,21 @@ This menu library provides complete IoT remote control, presently over serial an
 * Ethernet endpoint for mbed that supports the mbed socket implementation.
 * ESP8266 and ESP32 based WiFi both supported.
 
-## Ready built remote control for tcMenu - embedCONTROL
+## Ready built APIs and remote control UIs for tcMenu - embedCONTROL
 
-We are transitioning to a new IoT control UI where the core product is based on an OpenSource framework called embedCONTROL within this repository. We provide a ready-made build for Windows, ,macOS and Linux, and also a mobile friendly web-app version that can run from a Raspberry PI and serves well to iOS and Android.
+TcMenu was built from day 1 for remote control and there are a few different offerings, we'll go through each one in turn, along with their intended use case:
+
+### Java embedCONTROL UI
+
+This desktop UI can be easily built from the source here using the instructions provided, it is also packaged for desktop those who want to use it as it exists out of the box. This offering builds on top of JavaFX, it has an automated UI by default and for a simple UI may need no coding. 
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
-## Accessing TcMenu remotely using an API
+### Xamarin Forms based UI written in C#
+
+This desktop UI can be easily built from the source using the instructions provided, it is not yet packaged but provided but more of a starting point for a mobile UI. This offering builds on top of Xamarin and C#, it has an automated UI by default and for a simple UI may need little coding.
+
+Repo: https://github.com/davetcc/tcMenuController
 
 ### Java / JVM API
 
@@ -155,9 +159,17 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
             <artifactId>tcMenuJavaAPI</artifactId>
         </dependency>
 
+### C# API
+
+The C# API is relatively complete and can do most of what the Java API can do, it is well tested and stable.
+
+Repo: https://github.com/davetcc/tcMenuController
+
 ### JavaScript and TypeScript
 
 There is also an early version of a TypeScript API that can be used from any JavaScript environment. https://github.com/davetcc/embedcontrolJS. In the future, we may better package this API to a package manager.
+
+There is also a Webserver/HTML based app that you can deploy, but it only really works from a Raspberry PI with the embedded Java support. It is somewhat limited in what it offers. After careful evaluation we decided NOT to support ESP32 and STM32 for this app at the moment as it is too large for them.
 
 ## Working with menus using the CLI
 
