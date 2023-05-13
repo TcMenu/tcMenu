@@ -136,7 +136,7 @@ This menu library provides complete IoT remote control, presently over serial an
 
 ## Ready built APIs and remote control UIs for tcMenu - embedCONTROL
 
-TcMenu was built from day 1 for remote control and there are a few different offerings, we'll go through each one in turn, along with their intended use case:
+TcMenu was built from day one for remote control and there are a few different offerings, we'll go through each one in turn, along with their intended use case:
 
 ### Java embedCONTROL UI
 
