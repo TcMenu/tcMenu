@@ -146,7 +146,7 @@ This desktop UI can be easily built from the source here using the instructions 
 
 ### Xamarin Forms based UI written in C#
 
-This desktop UI can be easily built from the source using the instructions provided, it is not yet packaged but provided but more of a starting point for a mobile UI. This offering builds on top of Xamarin and C#, it has an automated UI by default and for a simple UI may need little coding.
+This UI can be easily built from the source using the instructions provided, it is not yet packaged but provided but more of a starting point for a mobile or desktop UI. This offering builds on top of Xamarin and C#, it has an automated UI by default and for a simple UI may need little coding.
 
 Repo: https://github.com/davetcc/tcMenuController
 
