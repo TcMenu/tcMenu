@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.BuildStructInitializer;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -396,7 +397,7 @@ public class ArduinoItemGeneratorTest {
         checkTheBasicsOfItem(menu, "ListRuntimeMenuItem", "hello");
         assertThat(menu.getStructElements()).containsExactly("&minfohello", "223", "fnhelloRtCall", "nullptr", "INFO_LOCATION_PGM");
         assertThat(req.generateSource()).isEmpty();
-        assertEquals("""
+        TestUtils.assertEqualsIgnoringCRLF("""
                 void CALLBACK_FUNCTION activatedCb(int id);
                 int fnHelloRtCall(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize);""", req.generateHeader());
         assertThat(req.generateSketchCallback()).containsExactlyElementsOf(generateListScrollCustom(list, "fnHelloRtCall", list.getFunctionName()));

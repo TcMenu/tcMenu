@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +79,7 @@ public class CodeVariableCppExtractorTest {
                 const char enumStrEnums_1[] PROGMEM = "OUTPUT";
                 const char* const enumStrEnums[] PROGMEM  = { enumStrEnums_0, enumStrEnums_1 };""";
 
-        assertEquals(expectedChoices, extractor.mapStructSource(initializer));
+        TestUtils.assertEqualsIgnoringCRLF(expectedChoices, extractor.mapStructSource(initializer));
     }
 
     @Test
@@ -93,7 +94,7 @@ public class CodeVariableCppExtractorTest {
                 char enumStrEnums_1[] = BBB;
                 char* enumStrEnums[] = { enumStrEnums_0, enumStrEnums_1 };""";
 
-        assertEquals(expectedChoices, extractor.mapStructSource(initializer));
+        TestUtils.assertEqualsIgnoringCRLF(expectedChoices, extractor.mapStructSource(initializer));
     }
 
     @Test
