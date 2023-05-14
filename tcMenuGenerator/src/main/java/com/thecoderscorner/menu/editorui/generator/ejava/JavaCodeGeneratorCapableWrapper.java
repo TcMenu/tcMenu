@@ -1,28 +1,21 @@
 package com.thecoderscorner.menu.editorui.generator.ejava;
 
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
-import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
-import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.METHOD_IF_MISSING;
 
 public class JavaCodeGeneratorCapableWrapper {
 
     public void addAppFields(CodeGeneratorCapable capable, JavaClassBuilder classBuilder) {
-        makeSureNotEepromForJava(capable);
-
     }
 
     public void addAppMethods(CodeGeneratorCapable capable, JavaClassBuilder classBuilder) {
-        makeSureNotEepromForJava(capable);
-
     }
 
     public void addToContext(CodeGeneratorCapable capable, JavaClassBuilder classBuilder) {
-        makeSureNotEepromForJava(capable);
         if(capable instanceof NoAuthenticatorDefinition) {
             classBuilder.addPackageImport("com.thecoderscorner.menu.auth.*");
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
@@ -42,14 +35,6 @@ public class JavaCodeGeneratorCapableWrapper {
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
                     .withParameter("@Value(\"${file.auth.storage}\") String propsPath")
                     .withStatement("return new PropertiesAuthenticator(propsPath);").withAnnotation("Bean"));
-        }
-    }
-
-    private void makeSureNotEepromForJava(CodeGeneratorCapable capable) {
-        if(capable instanceof EepromDefinition) {
-            if(!(capable instanceof NoEepromDefinition)) {
-                throw new UnsupportedOperationException("Embedded Java does not presently support EEPROM");
-            }
         }
     }
 }
