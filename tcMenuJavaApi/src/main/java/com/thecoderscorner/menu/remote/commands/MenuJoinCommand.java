@@ -17,17 +17,20 @@ public class MenuJoinCommand implements MenuCommand {
     private final int apiVer;
     private final ApiPlatform platform;
     private final UUID appUuid;
+    private final int serialNumber;
 
-    public MenuJoinCommand(UUID uuid, String myName, ApiPlatform platform, int apiVer) {
+    public MenuJoinCommand(UUID uuid, String myName, ApiPlatform platform, int apiVer, int serialNo) {
         this.myName = myName;
         this.appUuid = uuid;
         this.apiVer = apiVer;
         this.platform = platform;
+        this.serialNumber = serialNo;
     }
 
     public MenuJoinCommand(String myName, ApiPlatform platform, int apiVer) {
         this.myName = myName;
         this.appUuid = UUID.randomUUID();
+        this.serialNumber = 999999999;
         this.apiVer = apiVer;
         this.platform = platform;
     }
@@ -48,6 +51,10 @@ public class MenuJoinCommand implements MenuCommand {
         return platform;
     }
 
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+
     @Override
     public MessageField getCommandType() {
         return MenuCommandType.JOIN;
@@ -59,8 +66,7 @@ public class MenuJoinCommand implements MenuCommand {
                 "myName='" + myName + '\'' +
                 ", apiVer=" + apiVer +
                 ", platform=" + platform + '\'' +
-                ", uuid=" + appUuid +
-                '}';
+                ", uuid=" + appUuid + " (S/N=" + serialNumber + ")}";
     }
 
     @Override

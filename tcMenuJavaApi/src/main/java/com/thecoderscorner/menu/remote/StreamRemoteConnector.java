@@ -32,6 +32,8 @@ import static java.lang.System.Logger.Level.*;
  * with stream like semantics can use this as the base for building out an adapter.
  */
 public abstract class StreamRemoteConnector extends SharedStreamConnection implements RemoteConnector, RemoteConnectorContext {
+    private static final int UI_SERIAL_NO = 0;
+
     public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
 
     protected final ScheduledExecutorService executor;
@@ -213,7 +215,7 @@ public abstract class StreamRemoteConnector extends SharedStreamConnection imple
 
     @Override
     public void sendJoin() throws IOException {
-        sendMenuCommand(CommandFactory.newJoinCommand(ourLocalId.getName(), ourLocalId.getUuid()));
+        sendMenuCommand(CommandFactory.newJoinCommand(ourLocalId.getName(), ourLocalId.getUuid(), UI_SERIAL_NO));
     }
 
     @Override

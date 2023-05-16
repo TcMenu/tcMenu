@@ -35,7 +35,7 @@ public class SocketAwaitJoinState extends BaseMessageProcessingState {
             MenuJoinCommand join = (MenuJoinCommand) cmd;
             RemoteInformation remote = new RemoteInformation(
                     join.getMyName(),
-                    join.getAppUuid(),
+                    join.getAppUuid(), join.getSerialNumber(),
                     join.getApiVersion() / 100, join.getApiVersion() % 100,
                     join.getPlatform()
             );

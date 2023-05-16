@@ -22,6 +22,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
@@ -60,6 +61,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final Map<Integer, MethodWithObject> mapOfCallbacksById = new ConcurrentHashMap<>();
     private final Map<Integer, MethodWithObject> mapOfChoicePopulatorsById = new ConcurrentHashMap<>();
     private final List<MenuTreeStructureChangeListener> structureChangeListeners = new CopyOnWriteArrayList<>();
+    private final AtomicReference<Supplier<Integer>> boardSerialProvider = new AtomicReference<>(() -> 0);
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, String serverName, UUID uuid,
                              MenuAuthenticator authenticator, Clock clock) {
@@ -69,6 +71,15 @@ public class MenuManagerServer implements NewServerConnectionListener {
         this.serverUuid = uuid;
         this.authenticator = authenticator;
         this.clock = clock;
+    }
+
+    /**
+     * Allows for customization of the board serial number as a Supplier of Long. This will be called whenever the
+     * serial number is needed, and should return the value promptly to avoid connectivity issues.
+     * @param provider the function that returns the serial number when requested.
+     */
+    public void setBoardSerialProvider(Supplier<Integer> provider) {
+        boardSerialProvider.set(provider);
     }
 
     /**
@@ -283,7 +294,8 @@ public class MenuManagerServer implements NewServerConnectionListener {
             } else if (cmd.getCommandType().equals(MenuCommandType.HEARTBEAT)) {
                 var hb = (MenuHeartbeatCommand) cmd;
                 if (hb.getMode() == HeartbeatMode.START) {
-                    conn.sendCommand(new MenuJoinCommand(serverUuid, serverName, ApiPlatform.JAVA_API, 1));
+                    var serialNo = boardSerialProvider.get().get();
+                    conn.sendCommand(new MenuJoinCommand(serverUuid, serverName, ApiPlatform.JAVA_API, 1, serialNo));
                 }
             } else if (cmd.getCommandType().equals(MenuCommandType.CHANGE_INT_FIELD)) {
                 if (conn.getConnectionMode() != ServerConnectionMode.AUTHENTICATED) {

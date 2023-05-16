@@ -14,6 +14,7 @@ package com.thecoderscorner.menu.remote.protocol;
 public interface TagValMenuFields {
     String KEY_NAME_FIELD = "NM";
     String KEY_UUID_FIELD = "UU";
+    String KEY_SERIAL_NO = "US";
     String KEY_VER_FIELD = "VE";
     String HB_FREQUENCY_FIELD = "HI";
     String HB_MODE_FIELD = "HR";

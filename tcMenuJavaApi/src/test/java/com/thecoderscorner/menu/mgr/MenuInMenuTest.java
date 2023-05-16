@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
@@ -261,7 +260,7 @@ class MenuInMenuTest {
 
         @Override
         public RemoteInformation getRemoteParty() {
-            return new RemoteInformation(getConnectionName(), UUID.randomUUID(), 1, 0, ApiPlatform.JAVA_API);
+            return new RemoteInformation(getConnectionName(), UUID.randomUUID(), 0, 1, 0, ApiPlatform.JAVA_API);
         }
 
         @Override

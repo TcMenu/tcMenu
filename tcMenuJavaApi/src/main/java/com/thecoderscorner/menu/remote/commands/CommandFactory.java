@@ -39,8 +39,8 @@ public class CommandFactory {
      * @param uuid the UUID that will the remote will see for this.
      * @return join command
      */
-    public static MenuJoinCommand newJoinCommand(String name, UUID uuid) {
-        return new MenuJoinCommand(uuid, name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties());
+    public static MenuJoinCommand newJoinCommand(String name, UUID uuid, int serialNo) {
+        return new MenuJoinCommand(uuid, name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties(), serialNo);
     }
 
     /**
