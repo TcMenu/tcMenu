@@ -438,11 +438,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
         });
 
         listView.setId("enumList");
+        listView.getSelectionModel().selectFirst();
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     removeButton.setDisable(newValue == null);
                     callChangeConsumer();
                 });
-        listView.getSelectionModel().selectFirst();
         return new ControlButtons(addButton, removeButton);
     }
 
