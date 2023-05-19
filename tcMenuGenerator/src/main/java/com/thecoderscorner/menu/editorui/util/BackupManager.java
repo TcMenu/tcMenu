@@ -51,13 +51,14 @@ public class BackupManager {
         try(var filesList = Files.list(dirPath)) {
             var allFilesWithTime = filesList.map(path -> {
                 try {
-                    return new FileWithTime(dirPath, Files.getLastModifiedTime(path).toInstant());
+                    return new FileWithTime(path, Files.getLastModifiedTime(path).toInstant());
                 } catch (IOException ex) {
                     logger.log(System.Logger.Level.ERROR, "File exception while checking old backups", ex);
                     return null;
                 }
             }).filter(Objects::nonNull).toList();
             var sortedList = allFilesWithTime.stream().sorted(Comparator.comparing(FileWithTime::time))
+                    .filter(f -> f.file().toString().endsWith(".bak"))
                     .collect(Collectors.toCollection(LinkedList::new));
             while(sortedList.size() > allowedItems) {
                 var item = sortedList.removeFirst();
