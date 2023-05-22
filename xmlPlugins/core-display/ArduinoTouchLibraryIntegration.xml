@@ -32,18 +32,15 @@
                   desc="The library level touch rotation as provided to setRotation - XPT only" whenProperty="TOUCH_LIBRARY" isValue="XPT2046_Touchscreen"/>
 
         <Property id="ORIENTATION_SEPARATOR" name="%core.touch.orientation" initial="" desc="%core.touch.orientation.desc" type="separator"/>
-        <Property id="LIB_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  desc="%core.touch.swap.xy.desc" type="boolean" />
-        <Property id="LIB_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="%core.touch.x.inverted.desc"/>
-        <Property id="LIB_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
-                  type="boolean" desc="%core.touch.y.inverted.desc"/>
+        <Property id="LIB_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" desc="%core.touch.swap.xy.desc" type="boolean" />
+        <Property id="LIB_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" type="boolean" desc="%core.touch.x.inverted.desc"/>
+        <Property id="LIB_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" type="boolean" desc="%core.touch.y.inverted.desc"/>
 
         <Property id="CALIB_SEPARATOR" name="%core.touch.calibration" initial="" desc="%core.touch.calibration.desc" type="separator"/>
         <Property id="TOUCH_SCREEN_CALIBRATE" name="%core.enable.touch.calib" initial="true"
-                  desc="%core.enable.touch.calib.desc" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+                  desc="%core.enable.touch.calib.desc" type="boolean" />
         <Property id="TOUCH_CALIBRATION_STORAGE_LOC" name="%core.touch.calib.addr" initial="400" type="int"
-                  desc="%core.touch.calib.addr.desc"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
+                  desc="%core.touch.calib.addr.desc"  min="4" max="65535"  />
     </Properties>
 
     <ApplicabilityDefs/>
