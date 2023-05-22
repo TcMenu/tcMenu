@@ -8,19 +8,15 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
-
-**Commerical or Personal use**
-Are you using tcMenu for commercial or personal/community use.
+Please make sure this is an actual bug first, if not sure open a discussion.
 
 **To Reproduce**
-Steps to reproduce the behavior, if a UI issue please detail all steps and include an example project if needed.
-If a library issue provide whatever is needed in order for me to quickly identify the cause.
+Steps to reproduce the behavior, if a UI issue please detail all steps and include an example project if needed. If a library issue provide whatever is needed in order for me to quickly identify the cause.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+**Screenshots - optional**
 If applicable, add screenshots to help explain your problem.
 
 **Desktop UI issue (please complete the following information):**
@@ -29,8 +25,8 @@ If applicable, add screenshots to help explain your problem.
  - Output of diagnostics from tcMenuDesigner
  - Designer Version and any other relevant details
 
-**Embedded environment
+**Embedded environment - if applicable**
  Provide as much information as possible about the board configuration here.
 
-**Additional context**
+**Additional context - optional**
 Add any other context about the problem here.
