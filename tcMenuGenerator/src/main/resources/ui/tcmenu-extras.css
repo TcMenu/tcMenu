@@ -88,3 +88,7 @@
   -fx-background-insets: 2px;
   -fx-padding: 5px;
 }
+
+.text-field {
+  -right-button-visible: false;
+}
