@@ -30,8 +30,7 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "maxLength": 19
+                  "type": "string"
                 },
                 "variableName": {
                   "type": "string"
@@ -72,8 +71,7 @@
                   "maximum": 128
                 },
                 "unitName": {
-                  "type": "string",
-                  "maxLength": 4
+                  "type": "string"
                 },
                 "naming": {
                   "type": "string",
@@ -136,6 +134,9 @@
                   "maximum": 8
                 },
                 "negativeAllowed": {
+                  "type": "boolean"
+                },
+                "staticDataInRAM": {
                   "type": "boolean"
                 },
                 "initialRows": {
@@ -218,8 +219,9 @@
         "namingRecursive": {
           "type": "boolean"
         },
-        "saveToSrc": {
-          "type": "boolean"
+        "saveLocation": {
+          "type": "string",
+          "enum": ["ALL_TO_SRC","ALL_TO_CURRENT","PROJECT_TO_CURRENT_WITH_GENERATED", "PROJECT_TO_SRC_WITH_GENERATED"]
         },
         "useCppMain": {
           "type": "boolean"
@@ -231,7 +233,7 @@
         "applicationName",
         "lastProperties",
         "namingRecursive",
-        "saveToSrc",
+        "saveLocation",
         "useCppMain"
       ]
     }
