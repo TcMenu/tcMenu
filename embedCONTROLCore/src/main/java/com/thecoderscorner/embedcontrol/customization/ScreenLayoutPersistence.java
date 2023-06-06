@@ -272,75 +272,11 @@ public class ScreenLayoutPersistence {
         }
     }
 
-    public void serialiseAll() {
-        try(var output = new BufferedOutputStream(new FileOutputStream(layoutPath.toFile())) ) {
-            Document doc = XMLDOMHelper.newDocumentRoot("LayoutPersistence");
-            XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), GRID_SIZE_ELEMENT, gridSize);
-            XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), RECURSIVE_ELEMENT, globalRecursive);
-            XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), FONT_SIZE_ELEMENT, fontSize);
-
-            var subSettings = doc.createElement(SUB_MENU_SETTINGS_ELEMENT);
-            doc.getDocumentElement().appendChild(subSettings);
-            for(var subSetting : settingsMap.entrySet()) {
-                var subElement = doc.createElement(SUB_MENU_SETTING_ELEMENT);
-                subElement.setAttribute(ROOTID_ATTRIBUTE, Integer.toString(subSetting.getKey()));
-                subElement.setAttribute(FONT_SIZE_ATTR, Integer.toString(subSetting.getValue().fontSize()));
-                subElement.setAttribute(RECURSIVE_ATTRIBUTE, Boolean.toString(subSetting.getValue().recursive()));
-                subSettings.appendChild(subElement);
-                saveControlColor(subElement, TEXT_COLOR_ELEMENT, subSetting.getValue().textColor());
-                saveControlColor(subElement, BUTTON_COLOR_ELEMENT, subSetting.getValue().buttonColor());
-                saveControlColor(subElement, UPDATE_COLOR_ELEMENT, subSetting.getValue().updateColor());
-                saveControlColor(subElement, HIGHLIGHT_COLOR_ELEMENT, subSetting.getValue().highlightColor());
-                for(var override : subSetting.getValue().menuIdLevelOverrides()) {
-                    serializeSetting(subElement, tree.getMenuById(override.menuId()).orElseThrow(), override);
-                }
-            }
-            saveApplicationSpecific(doc.getDocumentElement());
-            XMLDOMHelper.writeXml(doc, output);
-        } catch (Exception e) {
-            logger.log(System.Logger.Level.ERROR, "Unable to save state for " + layoutPath, e);
-        }
-
-    }
-
-    private void saveControlColor(Element ele, String colorName, Optional<ControlColor> maybeColor) {
-        var colorElement = XMLDOMHelper.appendElementWithNameValue(ele, colorName, null);
-        if(maybeColor.isPresent()) {
-            colorElement.setAttribute(IS_PRESENT_ATTRIBUTE, "true");
-            colorElement.setAttribute("fg", maybeColor.get().getFg().toString());
-            colorElement.setAttribute("bg", maybeColor.get().getBg().toString());
-
-        } else {
-            colorElement.setAttribute(IS_PRESENT_ATTRIBUTE, "false");
-        }
-    }
-
-    void serializeSetting(Element element, MenuItem item, ComponentSettingsWithMenuId settings) {
-        if(settings.settings().isCustomised()) {
-            logger.log(System.Logger.Level.INFO, "Persisting settings for " + item.getId());
-            var itemEle = XMLDOMHelper.appendElementWithNameValue(element, ITEM_OVERRIDE_SETTING_ELEMENT, null);
-            saveControlColor(itemEle, TEXT_COLOR_ELEMENT, settings.textColor());
-            saveControlColor(itemEle, BUTTON_COLOR_ELEMENT, settings.buttonColor());
-            saveControlColor(itemEle, UPDATE_COLOR_ELEMENT, settings.updateColor());
-            saveControlColor(itemEle, HIGHLIGHT_COLOR_ELEMENT, settings.highlightColor());
-            itemEle.setAttribute(ROOTID_ATTRIBUTE, String.valueOf(item.getId()));
-            itemEle.setAttribute(JUSTIFICATION_ATTRIBUTE, settings.settings().getJustification().toString());
-            itemEle.setAttribute(DRAW_MODE_ATTRIBUTE, settings.settings().getDrawMode().toString());
-            itemEle.setAttribute(CONTROL_TYPE_ATTRIBUTE, settings.settings().getControlType().toString());
-            itemEle.setAttribute(FONT_SIZE_ATTR, String.valueOf(settings.settings().getFontSize()));
-            itemEle.setAttribute(COL_POSITION_ATTRIBUTE, String.valueOf(settings.settings().getPosition().getCol()));
-            itemEle.setAttribute(COL_SPAN_ATTRIBUTE, String.valueOf(settings.settings().getPosition().getColSpan()));
-            itemEle.setAttribute(ROW_POSITION_ATTRIBUTE, String.valueOf(settings.settings().getPosition().getRow()));
-        } else {
-            logger.log(System.Logger.Level.DEBUG, "Not persisting a non-custom setting for " + item.getId());
-        }
-
-    }
 
     public ColorCustomizable getColorCustomizerFor(MenuItem item, Optional<ComponentSettings> existingSettings, boolean forceItemLevel) {
         if(item instanceof SubMenuItem sub && !forceItemLevel) {
             mustContainKeyForSub(sub);
-            return new LayoutBasedSubColorCustomizable("SubMenu - " + sub.getName(), this, settingsMap.get(sub.getId()));
+            return new NamedColorCustomizable("SubMenu - " + sub.getName());
         } else {
             var par = tree.findParent(item);
             mustContainKeyForSub(par);
@@ -353,7 +289,7 @@ public class ScreenLayoutPersistence {
                     .findFirst().orElseGet(() -> new ComponentSettingsWithMenuId(item.getId(), comp,
                             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty() ));
             String itemName = "Item - " + item.getName() + " in " + par.getName();
-            return new LayoutBasedItemColorCustomizable(itemName, par, override, this);
+            return new NamedColorCustomizable(itemName);
         }
     }
 

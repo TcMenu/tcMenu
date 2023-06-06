@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.EditFormComponentController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="153.0" minWidth="10.0" prefWidth="152.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="332.0" minWidth="10.0" prefWidth="308.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="192.0" minWidth="10.0" prefWidth="105.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="129.0" minHeight="0.0" prefHeight="33.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="267.0" minHeight="0.0" prefHeight="33.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label prefHeight="17.0" prefWidth="156.0" text="Value" />
+      <Label prefHeight="17.0" prefWidth="163.0" text="Column Span" GridPane.rowIndex="1" />
+      <TextField fx:id="valueField" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+      <Spinner fx:id="colSpanSpinner" prefHeight="25.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets right="3.0" />
+         </GridPane.margin></Spinner>
+      <Spinner fx:id="fontSizeSpinner" prefHeight="25.0" prefWidth="342.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets right="3.0" />
+         </GridPane.margin></Spinner>
+      <Label prefHeight="17.0" prefWidth="155.0" text="Font Size" GridPane.rowIndex="2" />
+      <Button mnemonicParsing="false" onAction="#onManageColorSets" prefHeight="25.0" prefWidth="153.0" text="Manage..." GridPane.columnIndex="2" GridPane.rowIndex="3" />
+      <Label prefHeight="17.0" prefWidth="167.0" text="Color Name" GridPane.rowIndex="3" />
+      <ComboBox fx:id="fontMeasureCombo" prefWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <ComboBox fx:id="colorNameCombo" prefHeight="25.0" prefWidth="329.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         <GridPane.margin>
+            <Insets right="3.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <Label prefHeight="17.0" prefWidth="157.0" text="Alignment" GridPane.rowIndex="4" />
+      <Label prefHeight="17.0" prefWidth="159.0" text="Control Type" GridPane.rowIndex="5" />
+      <Label prefHeight="17.0" prefWidth="158.0" text="What to draw" GridPane.rowIndex="6" />
+      <ComboBox fx:id="controlTypeCombo" prefHeight="25.0" prefWidth="324.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+         <GridPane.margin>
+            <Insets right="4.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <ComboBox fx:id="renderModeCombo" prefHeight="25.0" prefWidth="326.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+         <GridPane.margin>
+            <Insets right="4.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <ComboBox fx:id="alignmentCombo" prefHeight="25.0" prefWidth="329.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets right="4.0" />
+         </GridPane.margin>
+      </ComboBox>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</GridPane>

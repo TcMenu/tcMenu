@@ -4,7 +4,9 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ComponentSettingsCustomizer;
 import com.thecoderscorner.embedcontrol.customization.InvalidItemChangeException;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -52,7 +54,8 @@ public class ItemSettingsController {
     }
 
     public void onColoursPressed(ActionEvent actionEvent) {
-        var csc = new ColorSettingsPresentable(globalSettings, navigator, nameText, settingsCustomizer);
+        var csc = new ColorSettingsPresentable(globalSettings, navigator, nameText,
+                new MenuItemStore(globalSettings, new MenuTree(), 0, 1, 2, false));
         navigator.pushNavigation(csc);
     }
 

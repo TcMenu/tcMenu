@@ -7,29 +7,17 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.Optional;
 
-public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustomizer {
-    private final int menuId;
-    private final String itemName;
-    private final ScreenLayoutPersistence layout;
-    private final SubMenuItem par;
-    private Optional<ControlColor> textColor;
-    private Optional<ControlColor> highlighColor;
-    private Optional<ControlColor> buttonColor;
-    private Optional<ControlColor> updateColor;
-    private int fontSize;
-    private final ComponentSettings initialSettings;
+public class NamedColorCustomizable implements ComponentSettingsCustomizer {
+    private final String colorName;
+    private Optional<ControlColor> textColor = Optional.empty();
+    private Optional<ControlColor> highlighColor = Optional.empty();
+    private Optional<ControlColor> buttonColor = Optional.empty();
+    private Optional<ControlColor> updateColor = Optional.empty();
+    private Optional<ControlColor> pendingColor = Optional.empty();
+    private Optional<ControlColor> dialogColor = Optional.empty();
 
-    public LayoutBasedItemColorCustomizable(String itemName, SubMenuItem par, ComponentSettingsWithMenuId override, ScreenLayoutPersistence layout) {
-        this.layout = layout;
-        this.itemName = itemName;
-        this.initialSettings = override.settings();
-        this.par = par;
-        this.menuId = override.menuId();
-        fontSize = override.settings().getFontSize();
-        this.textColor = override.textColor();
-        this.buttonColor = override.buttonColor();
-        this.updateColor = override.updateColor();
-        this.highlighColor = override.highlightColor();
+    public NamedColorCustomizable(String colorName) {
+        this.colorName = colorName;
     }
 
     @Override
@@ -44,6 +32,8 @@ public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustom
             case HIGHLIGHT -> highlighColor.isPresent() ? ColorStatus.AVAILABLE : ColorStatus.PROVIDED_NOT_AVAILABLE;
             case CUSTOM -> updateColor.isPresent() ? ColorStatus.AVAILABLE : ColorStatus.PROVIDED_NOT_AVAILABLE;
             case BUTTON -> buttonColor.isPresent() ? ColorStatus.AVAILABLE : ColorStatus.PROVIDED_NOT_AVAILABLE;
+            case PENDING -> pendingColor.isPresent() ? ColorStatus.AVAILABLE : ColorStatus.PROVIDED_NOT_AVAILABLE;
+            case DIALOG -> dialogColor.isPresent() ? ColorStatus.AVAILABLE : ColorStatus.PROVIDED_NOT_AVAILABLE;
             default -> ColorStatus.NOT_PROVIDED;
         };
     }
@@ -55,6 +45,8 @@ public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustom
             case BUTTON -> buttonColor.orElseThrow();
             case HIGHLIGHT -> highlighColor.orElseThrow();
             case CUSTOM -> updateColor.orElseThrow();
+            case PENDING -> pendingColor.orElseThrow();
+            case DIALOG -> dialogColor.orElseThrow();
             default -> throw new IllegalArgumentException("Invalid field selected " + componentType);
         };
     }
@@ -66,6 +58,8 @@ public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustom
             case BUTTON -> buttonColor = Optional.of(controlColor);
             case HIGHLIGHT -> highlighColor = Optional.of(controlColor);
             case CUSTOM -> updateColor = Optional.of(controlColor);
+            case DIALOG -> dialogColor = Optional.of(controlColor);
+            case PENDING -> pendingColor = Optional.of(controlColor);
             default ->  throw new IllegalArgumentException("Invalid field for set color" + componentType);
         }
     }
@@ -77,50 +71,37 @@ public class LayoutBasedItemColorCustomizable implements ComponentSettingsCustom
             case BUTTON -> buttonColor = Optional.empty();
             case HIGHLIGHT -> highlighColor = Optional.empty();
             case CUSTOM -> updateColor = Optional.empty();
+            case DIALOG -> dialogColor = Optional.empty();
+            case PENDING -> pendingColor = Optional.empty();
             default -> throw new IllegalArgumentException("Invalid field selected " + componentType);
         }
     }
 
     @Override
-    public int getFontSize() {
-        return fontSize;
-    }
-
-    @Override
-    public void setFontSize(int size) {
-        fontSize = size;
-    }
-
-    @Override
-    public boolean isRecursiveRender() {
-        return false;
-    }
-
-    @Override
-    public void setRecursiveRender(boolean recursiveRender) {
-        // ignored
-    }
-
-    @Override
     public String toString() {
-        return itemName + " settings";
+        return colorName + " settings";
+    }
+
+    @Override
+    public String getColorSchemeName() {
+        return colorName;
     }
 
     @Override
     public ComponentSettings getInitialSettings() {
-        return initialSettings;
+        return null;
     }
 
     @Override
     public void acceptSettingChange(int id, ComponentPositioning positioning, RedrawingMode drawingMode, EditorComponent.PortableAlignment alignment,
                                     ControlType controlType, int fontSize) throws InvalidItemChangeException {
-        layout.replaceItemOverride(par, menuId, new ComponentSettingsWithMenuId(menuId, new ComponentSettings(
-                layout.provideConditionalColorComponent(par, id), fontSize, alignment, positioning, drawingMode, controlType, true),
-                textColor, buttonColor, updateColor, highlighColor));
+//        layout.replaceItemOverride(par, menuId, new ComponentSettingsWithMenuId(menuId, new ComponentSettings(
+//                layout.provideConditionalColorComponent(par, id), fontSize, alignment, positioning, drawingMode, controlType, true),
+//                textColor, buttonColor, updateColor, highlighColor));
     }
 
     @Override
     public void removeOverride(int id) throws InvalidItemChangeException {
-        layout.removeItemOverride(par, menuId);
+        //layout.removeItemOverride(par, menuId);
     }
 }

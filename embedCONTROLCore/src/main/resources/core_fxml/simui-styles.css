@@ -1,0 +1,5 @@
+.menu-edit-item {
+    -fx-border-color: #777;
+    -fx-border-width: 1;
+    -fx-border-style: segments(15, 15, 15, 15);
+}

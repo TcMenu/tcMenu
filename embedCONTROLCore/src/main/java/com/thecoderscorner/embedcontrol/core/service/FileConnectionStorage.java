@@ -55,7 +55,6 @@ public abstract class FileConnectionStorage<T extends ScreenLayoutPersistence> i
     protected abstract Optional<T> createLayoutPersistence(Path file);
 
     public void savePanel(T screenSettings) {
-        screenSettings.serialiseAll();
     }
 
     public boolean deletePanel(UUID uuid) {

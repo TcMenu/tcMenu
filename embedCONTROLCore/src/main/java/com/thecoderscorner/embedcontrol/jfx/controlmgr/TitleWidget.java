@@ -19,6 +19,7 @@ public class TitleWidget<T> {
     private final int numberOfStates;
     private final AtomicInteger currentState;
     private final List<TitleWidgetListener<T>> changeListeners = new CopyOnWriteArrayList<>();
+    private final int appId;
 
     /**
      * Create a title widget given a list of images for each state, the number of states and the initial state.
@@ -30,6 +31,22 @@ public class TitleWidget<T> {
         this.images = images;
         this.numberOfStates = numberOfStates;
         this.currentState = new AtomicInteger(initialState);
+        this.appId = 0;
+    }
+
+    /**
+     * Create a title widget given a list of images for each state, the number of states and the initial state. Also
+     * allows the user to set an ID for this widget that can be used to identify it later in callbacks.
+     * @param images the list of images to use for each state
+     * @param numberOfStates the number of allowed states
+     * @param initialState the initial state to start in
+     * @param appId an ID that can be compared against later using `getAppId`
+     */
+    public TitleWidget(List<T> images, int numberOfStates, int initialState, int appId) {
+        this.images = images;
+        this.numberOfStates = numberOfStates;
+        this.currentState = new AtomicInteger(initialState);
+        this.appId = appId;
     }
 
     /**
@@ -74,5 +91,12 @@ public class TitleWidget<T> {
         if(enumState.ordinal() > numberOfStates) throw new IllegalArgumentException("Out of range");
         currentState.set(enumState.ordinal());
         valueHasChanged();
+    }
+
+    /**
+     * @return the app ID provided during construction
+     */
+    public int getAppId() {
+        return appId;
     }
 }

@@ -4,6 +4,8 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuControlGrid;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxPanelLayoutEditorPresenter;
@@ -12,6 +14,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPrese
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.embedcontrol.jfxapp.RemoteAppScreenLayoutPersistence;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
@@ -113,7 +116,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
             if(widget == saveWidget) {
-                layoutPersistence.serialiseAll();
+                //layoutPersistence.serialiseAll();
                 dialogManager.withTitle(creator.getName() + " Saved", false)
                         .withMessage("Successfully saved project", false)
                         .showDialogWithButtons(MenuButtonType.NONE, MenuButtonType.CLOSE);
@@ -124,7 +127,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private ContextMenu generateSettingsContextMenu() {
         var colorConfig = new javafx.scene.control.MenuItem("Color Settings");
         colorConfig.setOnAction(evt -> navigationManager.pushNavigation(new ColorSettingsPresentable(
-                settings, navigationManager,layoutPersistence, control.getMenuTree())
+                settings, navigationManager, GlobalColorCustomizable.KEY_NAME, new MenuItemStore(settings, new MenuTree(), 0, 1, 1, true))
         ));
         var editConfig = new javafx.scene.control.MenuItem("Edit Connection");
         editConfig.setOnAction(this::editConnection);
