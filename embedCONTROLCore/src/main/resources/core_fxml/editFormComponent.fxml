@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Spinner?>
@@ -10,7 +11,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.EditFormComponentController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="284.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.EditFormComponentController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="153.0" minWidth="10.0" prefWidth="152.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="332.0" minWidth="10.0" prefWidth="308.0" />
@@ -23,6 +24,7 @@
       <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
       <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
       <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
       <RowConstraints maxHeight="348.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
@@ -64,6 +66,11 @@
             <Insets right="4.0" />
          </GridPane.margin>
       </ComboBox>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="3" GridPane.rowIndex="7">
+        <buttons>
+          <Button mnemonicParsing="false" onAction="#onSaveAndDismiss" text="Save and Dismiss" />
+        </buttons>
+      </ButtonBar>
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

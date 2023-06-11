@@ -2,6 +2,7 @@ package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -11,10 +12,12 @@ public class EditFormComponentPresentable implements PanelPresentable<Node> {
     private EditFormComponentController formComponentController;
     private final GlobalSettings settings;
     private final FormMenuComponent component;
+    private JfxNavigationManager navMgr;
 
-    public EditFormComponentPresentable(GlobalSettings settings, FormMenuComponent component) {
+    public EditFormComponentPresentable(GlobalSettings settings, FormMenuComponent component, JfxNavigationManager navMgr) {
         this.settings = settings;
         this.component = component;
+        this.navMgr = navMgr;
     }
 
     @Override
@@ -22,7 +25,7 @@ public class EditFormComponentPresentable implements PanelPresentable<Node> {
         var loader = new FXMLLoader(EditFormComponentPresentable.class.getResource("/core_fxml/editFormComponent.fxml"));
         Pane loadedPane = loader.load();
         formComponentController = loader.getController();
-        formComponentController.initialise(settings, component);
+        formComponentController.initialise(settings, component, navMgr);
         return loadedPane;
     }
 

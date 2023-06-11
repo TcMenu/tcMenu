@@ -88,7 +88,7 @@ public class FormMenuComponent extends BorderPane {
 
     private void showEditingForm() {
         if(formItem instanceof MenuItemFormItem || formItem instanceof TextFormItem) {
-            var presentable = new EditFormComponentPresentable(settings, this);
+            var presentable = new EditFormComponentPresentable(settings, this, navMgr);
             navMgr.pushNavigation(presentable);
         }
     }

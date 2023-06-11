@@ -6,6 +6,8 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.customization.MenuItemFormItem;
 import com.thecoderscorner.embedcontrol.customization.TextFormItem;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
@@ -26,10 +28,12 @@ public class EditFormComponentController {
     public ComboBox<PortableAlignment> alignmentCombo;
     private GlobalSettings settings;
     private FormMenuComponent formMenuComponent;
+    private JfxNavigationManager navMgr;
 
-    public void initialise(GlobalSettings settings, FormMenuComponent formMenuComponent) {
+    public void initialise(GlobalSettings settings, FormMenuComponent formMenuComponent, JfxNavigationManager navMgr) {
         this.settings = settings;
         this.formMenuComponent = formMenuComponent;
+        this.navMgr = navMgr;
 
         fontMeasureCombo.setItems(FXCollections.observableArrayList(FontInformation.SizeMeasurement.values()));
         fontMeasureCombo.getSelectionModel().select(formMenuComponent.getFormItem().getFontInfo().sizeMeasurement());
@@ -86,5 +90,9 @@ public class EditFormComponentController {
     }
 
     public void onManageColorSets(ActionEvent actionEvent) {
+    }
+
+    public void onSaveAndDismiss(ActionEvent actionEvent) {
+        navMgr.popNavigation();
     }
 }
