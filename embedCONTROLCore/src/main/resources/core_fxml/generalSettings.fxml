@@ -69,7 +69,7 @@
             <buttons>
                 <Button mnemonicParsing="false" onAction="#onResetToDark" text="Dark Defaults" />
             <Button mnemonicParsing="false" onAction="#onResetToLight" text="Light Defaults" />
-            <Button mnemonicParsing="false" text="Add" onAction="#onAddNew" />
+            <Button fx:id="addButton" mnemonicParsing="false" text="Add" onAction="#onAddNew" />
             <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveOverride" text="Remove" />
                 <Button mnemonicParsing="false" onAction="#onSaveChanges" text="Save" />
             </buttons>

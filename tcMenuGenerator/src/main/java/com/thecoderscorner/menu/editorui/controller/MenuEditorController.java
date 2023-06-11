@@ -151,7 +151,22 @@ public class MenuEditorController {
 
         menuToProjectMaxLevels = storage.getMenuProjectMaxLevel();
 
+        attemptToLoadLastProject();
+
         executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
+    }
+
+    private void attemptToLoadLastProject() {
+        try {
+            var lastPrj = configStore.getLastLoadedProject();
+            if(lastPrj.isPresent()) {
+                editorProject.openProjectWithoutAlert(lastPrj.get());
+            }
+        } catch (Exception ex) {
+            logger.log(ERROR, "Last project didn't load, start fresh", ex);
+            configStore.emptyLastLoadedProject();
+            editorProject.newProject();
+        }
     }
 
     public void checkOnClipboard() {
@@ -454,12 +469,14 @@ public class MenuEditorController {
 
     public void onFileSave(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE);
+        configStore.setLastLoadedProject(editorProject.getFileName());
         redrawTreeControl();
         handleRecents();
     }
 
     public void onFileSaveAs(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE_AS);
+        configStore.setLastLoadedProject(editorProject.getFileName());
         redrawTreeControl();
         handleRecents();
     }
@@ -481,6 +498,7 @@ public class MenuEditorController {
 
             editorUI.showCodeGeneratorDialog(installer);
             editorProject.saveProject(EditorSaveMode.SAVE);
+            configStore.setLastLoadedProject(editorProject.getFileName());
             redrawTreeControl();
             handleRecents();
         }

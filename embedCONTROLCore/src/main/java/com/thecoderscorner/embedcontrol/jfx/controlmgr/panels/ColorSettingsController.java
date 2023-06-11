@@ -22,7 +22,6 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 import static com.thecoderscorner.embedcontrol.customization.ColorCustomizable.*;
 
 public class ColorSettingsController {
-    public static final String DEFAULT_COLOR_NAME = "Global Settings";
     public ColorPicker pendingFgEditor;
     public ColorPicker pendingBgEditor;
     public ColorPicker dialogFgEditor;
@@ -45,15 +44,16 @@ public class ColorSettingsController {
     public CheckBox updateCheck;
     public CheckBox errorCheck;
     public Button removeButton;
+    public Button addButton;
     public ComboBox<ColorCustomizable> colorSetCombo;
-    private Map<String, ColorCustomizable> allSettings = new HashMap<>();
+    private final Map<String, ColorCustomizable> allSettings = new HashMap<>();
     private GlobalSettings globalSettings;
     private JfxNavigationManager navigator;
     private ColorCustomizable currentColorSet;
     boolean changed;
     private MenuItemStore store;
 
-    public void initialise(JfxNavigationManager navigator, GlobalSettings settings, MenuItemStore store, String name) {
+    public void initialise(JfxNavigationManager navigator, GlobalSettings settings, MenuItemStore store, String name, boolean allowAdd) {
         this.navigator = navigator;
         this.store = store;
         globalSettings = settings;
@@ -61,9 +61,11 @@ public class ColorSettingsController {
         refreshColorSets(name);
         prepareFromSubMenuSelection();
 
+        addButton.setDisable(!allowAdd);
+
         colorSetCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue == null) return;
-            onSaveChanges(null); // save outstanding changes first.
+            save(); // save outstanding changes first.
             prepareFromSubMenuSelection();
         });
     }
@@ -136,6 +138,11 @@ public class ColorSettingsController {
     }
 
     public void onSaveChanges(ActionEvent actionEvent) {
+        save();
+        navigator.popNavigation();
+    }
+
+    private void save() {
         if(changed && currentColorSet != null) {
             setColorsFor(textFgEditor, textBgEditor, textCheck, ColorComponentType.TEXT_FIELD, currentColorSet);
             setColorsFor(buttonFgEditor, buttonBgEditor, buttonCheck, ColorComponentType.BUTTON, currentColorSet);

@@ -122,7 +122,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         var colorConfig = new javafx.scene.control.MenuItem("Color Settings");
         colorConfig.setOnAction(evt -> navigationManager.pushNavigation(new ColorSettingsPresentable(
                 settings, navigationManager, GlobalColorCustomizable.KEY_NAME,
-                new MenuItemStore(settings, new MenuTree(), "", 1, 1, true))
+                new MenuItemStore(settings, new MenuTree(), "", 1, 1, true), false)
         ));
         var editConfig = new javafx.scene.control.MenuItem("Edit Connection");
         editConfig.setOnAction(this::editConnection);

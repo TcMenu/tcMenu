@@ -174,6 +174,10 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         });
     }
 
+    public void pushNavigationIfNotOnStack(PanelPresentable<Node> settingsPanel) {
+        if(!navigationStack.contains(settingsPanel)) pushNavigation(settingsPanel);
+    }
+
     private void runNavigation(PanelPresentable<Node> navigation) {
         try {
             setTitle(navigation.getPanelName());

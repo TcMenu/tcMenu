@@ -105,7 +105,7 @@ public class FormEditorController {
     }
 
     public void onColorConfig(ActionEvent actionEvent) {
-        var colorPresentable = new ColorSettingsPresentable(settings, navMgr, GlobalColorCustomizable.KEY_NAME, itemStore);
+        var colorPresentable = new ColorSettingsPresentable(settings, navMgr, GlobalColorCustomizable.KEY_NAME, itemStore, true);
         navMgr.pushNavigation(colorPresentable);
     }
 

@@ -7,8 +7,8 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class FormBuilderPresentable implements PanelPresentable<Node> {
@@ -63,5 +63,18 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
 
     public MenuItemStore getCurrentStore() {
         return store;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FormBuilderPresentable that = (FormBuilderPresentable) o;
+        return Objects.equals(tree, that.tree) && Objects.equals(appUuid, that.appUuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tree, appUuid);
     }
 }

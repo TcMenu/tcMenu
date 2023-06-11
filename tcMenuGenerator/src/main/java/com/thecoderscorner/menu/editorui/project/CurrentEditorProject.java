@@ -6,9 +6,9 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
@@ -107,17 +107,7 @@ public class CurrentEditorProject {
     public boolean openProject(String file) {
         try {
             if(checkIfWeShouldOverwrite()) {
-                fileName = Optional.ofNullable(file);
-                MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
-                menuTree = openedProject.getMenuTree();
-                description = openedProject.getDescription();
-                generatorOptions = openedProject.getOptions();
-                if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
-                checkIfLocalesPresentAndEnable();
-                setDirty(false);
-                updateTitle();
-                changeHistory.clear();
-                uncommittedItems.clear();
+                openProjectWithoutAlert(file);
                 return true;
             }
         } catch (IOException e) {
@@ -126,6 +116,20 @@ public class CurrentEditorProject {
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
         return false;
+    }
+
+    public void openProjectWithoutAlert(String file) throws IOException {
+        fileName = Optional.ofNullable(file);
+        MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
+        menuTree = openedProject.getMenuTree();
+        description = openedProject.getDescription();
+        generatorOptions = openedProject.getOptions();
+        if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
+        checkIfLocalesPresentAndEnable();
+        setDirty(false);
+        updateTitle();
+        changeHistory.clear();
+        uncommittedItems.clear();
     }
 
     private void checkIfLocalesPresentAndEnable() {

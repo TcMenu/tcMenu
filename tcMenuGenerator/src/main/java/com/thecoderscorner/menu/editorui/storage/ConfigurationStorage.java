@@ -10,6 +10,7 @@ public interface ConfigurationStorage {
     String RECENT_DEFAULT = "Recent";
     String REGISTERED_KEY = "Registered";
     String USING_ARDUINO_IDE = "UsingArduinoIDE";
+    String LAST_LOADED_PROJ = "LastLoaded";
     String DEFAULT_SAVE_TO_SRC = "DefaultSaveToSrcOn";
     String DEFAULT_SIZED_ROM_STORAGE = "DefaultSizedEEPROMStorage";
     String DEFAULT_RECURSIVE_NAMING = "DefaultRecursiveNaming";
@@ -67,6 +68,11 @@ public interface ConfigurationStorage {
 
     int getNumBackupItems();
     void setNumBackupItems(int newNum);
+
+    Optional<String> getLastLoadedProject();
+    void setLastLoadedProject(String absolutePath);
+    void emptyLastLoadedProject();
+
 
     void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
 }

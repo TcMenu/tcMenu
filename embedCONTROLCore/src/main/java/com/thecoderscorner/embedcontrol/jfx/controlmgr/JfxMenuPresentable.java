@@ -20,6 +20,8 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.thecoderscorner.embedcontrol.customization.FontInformation.*;
+
 public class JfxMenuPresentable implements PanelPresentable<Node> {
     private final SubMenuItem subMenuItem;
     private final MenuGridComponent<Node> gridComponent;
@@ -92,6 +94,8 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
             gridPane.setMaxWidth(9999);
             gridPane.setPrefWidth(presentableWidth);
             gridPane.getChildren().clear();
+            var sizeMeasure = store.getGlobalFontInfo().sizeMeasurement() == SizeMeasurement.ABS_SIZE ? "px" : "%";
+            gridPane.setStyle("-fx-font-size: " + store.getGlobalFontInfo().fontSize() + sizeMeasure + ";");
 
             gridPane.getColumnConstraints().clear();
             gridPane.getRowConstraints().clear();
@@ -126,7 +130,7 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
         }
 
         private Font calculateFont(FontInformation fontInfo, Font current) {
-            if(fontInfo.sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
+            if(fontInfo.sizeMeasurement() == SizeMeasurement.PERCENT) {
                 return Font.font(current.getSize() * (fontInfo.fontSize() / 100.0));
             } else {
                 return Font.font(fontInfo.fontSize());

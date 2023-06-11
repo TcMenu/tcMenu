@@ -37,7 +37,6 @@ public class SimulatorUI {
 
     private JfxNavigationHeader navMgr;
     private MenuTree menuTree;
-    private JfxMenuPresentable menuPresentable;
     private Scene scene;
     private Stage dialogStage;
     private Consumer<WindowEvent> closeConsumer;
@@ -83,10 +82,10 @@ public class SimulatorUI {
 
     private void showFormEditorPanel(TitleWidget<Image> titleWidget) {
         if(titleWidget.getAppId() == WIDGET_ID_FORM) {
-            navMgr.pushNavigation(formEditorPanel);
+            navMgr.pushNavigationIfNotOnStack(formEditorPanel);
         } else if(titleWidget.getAppId() == WIDGET_ID_SETTINGS) {
-            var settingsPanel = new ColorSettingsPresentable(settings, navMgr, "Global", formEditorPanel.getCurrentStore());
-            navMgr.pushNavigation(settingsPanel);
+            var settingsPanel = new ColorSettingsPresentable(settings, navMgr, "Global", formEditorPanel.getCurrentStore(), false);
+            navMgr.pushNavigationIfNotOnStack(settingsPanel);
         }
     }
 
