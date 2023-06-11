@@ -151,8 +151,7 @@ public abstract class MenuGridComponent<T> {
         row = 0;
     }
 
-    record ScreenLayoutBasedConditionalColor(MenuItemStore store,
-                                             ComponentPositioning where) implements ConditionalColoring {
+    record ScreenLayoutBasedConditionalColor(MenuItemStore store, ComponentPositioning where) implements ConditionalColoring {
         @Override
         public PortableColor foregroundFor(EditorComponent.RenderingStatus status, ColorComponentType compType) {
             return getControlColor(status, compType).getFg();
@@ -174,7 +173,14 @@ public abstract class MenuGridComponent<T> {
             else if (status == EditorComponent.RenderingStatus.EDIT_IN_PROGRESS) compType = ColorComponentType.PENDING;
             else if (status == EditorComponent.RenderingStatus.CORRELATION_ERROR) compType = ColorComponentType.ERROR;
 
-            return findColorSet().getColorFor(compType);
+            var csSelected = findColorSet();
+            if(csSelected.getColorStatus(compType) == ColorCustomizable.ColorStatus.AVAILABLE) {
+                return csSelected.getColorFor(compType);
+            } else if(store.getTopLevelColorSet().getColorStatus(compType) == ColorCustomizable.ColorStatus.AVAILABLE) {
+                return store.getTopLevelColorSet().getColorFor(compType);
+            } else {
+                return store.getColorSet(GlobalColorCustomizable.KEY_NAME).getColorFor(compType);
+            }
         }
     }
 

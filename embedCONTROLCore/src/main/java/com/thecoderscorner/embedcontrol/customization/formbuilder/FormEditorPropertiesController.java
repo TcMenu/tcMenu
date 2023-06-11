@@ -19,7 +19,7 @@ public class FormEditorPropertiesController {
 
     public Spinner<Integer> fontSizeSpinner;
     public ComboBox<FontInformation.SizeMeasurement> fontMeasureCombo;
-    public ComboBox<MenuItem> subMenuCombo;
+    public ComboBox<MenuItemWithStatus> subMenuCombo;
     public CheckBox recurseCheck;
     public ComboBox<String> colorSetCombo;
     public Spinner<Integer> gridSizeSpinner;
@@ -35,9 +35,12 @@ public class FormEditorPropertiesController {
         this.navMgr = navMgr;
         recurseCheck.setSelected(store.isRecursive());
 
-        subMenuCombo.setItems(FXCollections.observableArrayList(store.getTree().getAllSubMenus()));
+        var itemsWithStatus = store.getTree().getAllSubMenus().stream()
+                .map(it -> new MenuItemWithStatus(it, store.hasSubConfiguration(it.getId()))).toList();
+
+        subMenuCombo.setItems(FXCollections.observableArrayList(itemsWithStatus));
         currentLevel = store.getTree().getMenuById(store.getRootItemId()).orElseThrow();
-        subMenuCombo.getSelectionModel().select(currentLevel);
+        subMenuCombo.getSelectionModel().select(new MenuItemWithStatus(currentLevel, store.hasSubConfiguration(currentLevel.getId())));
 
         fontSizeSpinner.setValueFactory(new IntegerSpinnerValueFactory(1, 300, store.getGlobalFontInfo().fontSize()));
         fontMeasureCombo.setItems(FXCollections.observableArrayList(FontInformation.SizeMeasurement.values()));
@@ -61,7 +64,7 @@ public class FormEditorPropertiesController {
         var selectedItem = store.getColorSet(colorSetCombo.getSelectionModel().getSelectedItem());
         store.setTopLevelColorSet(selectedItem);
 
-        MenuItem newItem = subMenuCombo.getSelectionModel().getSelectedItem();
+        MenuItem newItem = subMenuCombo.getSelectionModel().getSelectedItem().item();
         formEditor.setStartingPoint(newItem, recurseCheck.isSelected());
         navMgr.popNavigation();
     }
@@ -76,5 +79,11 @@ public class FormEditorPropertiesController {
 
     public void onCancel(ActionEvent actionEvent) {
         navMgr.popNavigation();
+    }
+    record MenuItemWithStatus(MenuItem item, boolean alreadyExists) {
+        @Override
+        public String toString() {
+            return item.toString() + (alreadyExists ? " - Edit" : " - Create");
+        }
     }
 }

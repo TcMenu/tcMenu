@@ -43,10 +43,7 @@ public class FormMenuComponent extends BorderPane {
         setTop(editTopBtn);
         removeButton = new Button("X");
         removeButton.setMaxHeight(999);
-        removeButton.setOnAction(event -> {
-            formItem = NO_FORM_ITEM;
-            evaluateFormItem();
-        });
+        removeButton.setOnAction(event -> setFormItem(NO_FORM_ITEM));
         setRight(removeButton);
         setBottom(editBottomLabel);
         getStyleClass().add("menu-edit-item");

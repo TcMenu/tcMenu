@@ -202,11 +202,12 @@ public class MenuItemStore {
             subMenuStores.clear();
             for(var layout : allMenuLayouts) {
                 gridSize = Integer.parseInt(XMLDOMHelper.getAttributeOrDefault(layout, "cols", "0"));
-                var globalFontInfo = FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(layout, "cols", "100%"));
+                var globalFontInfo = FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(layout, "fontInfo", "100%"));
                 var recursive = Boolean.parseBoolean(XMLDOMHelper.getAttributeOrDefault(layout, "recursive", "false"));
                 var rootItemId = Integer.parseInt(XMLDOMHelper.getAttributeOrDefault(layout, "rootId", "0"));
                 var topLevelColorSet = colorSets.get(XMLDOMHelper.getAttributeOrDefault(layout, "colorSet", GlobalColorCustomizable.KEY_NAME));
                 subMenuStores.put(rootItemId, new SubMenuStore(rootItemId, topLevelColorSet, globalFontInfo, recursive));
+                changeSubStore(rootItemId);
                 readTextElements(layout);
                 readSpaceElements(layout);
                 readMenuElements(layout);
@@ -277,15 +278,15 @@ public class MenuItemStore {
             doc.getDocumentElement().setAttribute("layoutName", layoutName);
 
             var subsSettings = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "MenuLayouts", null);
-            var subSetting = XMLDOMHelper.appendElementWithNameValue(subsSettings, "MenuLayout", null);
 
             for(var subStore : subMenuStores.values()) {
+                var subSetting = XMLDOMHelper.appendElementWithNameValue(subsSettings, "MenuLayout", null);
 
                 subSetting.setAttribute("rootId", String.valueOf(subStore.getSubId()));
                 subSetting.setAttribute("recursive", String.valueOf(subStore.isRecursive()));
                 subSetting.setAttribute("cols", String.valueOf(gridSize));
                 subSetting.setAttribute("fontInfo", subStore.getFontInfo().toWire());
-                for (var mfi : currentSubStore.allFormEntries()) {
+                for (var mfi : subStore.allFormEntries()) {
                     if (mfi instanceof MenuItemFormItem menuFormItem) {
                         serializeMenuItem(subSetting, menuFormItem);
                     } else if (mfi instanceof TextFormItem textFormItem) {
