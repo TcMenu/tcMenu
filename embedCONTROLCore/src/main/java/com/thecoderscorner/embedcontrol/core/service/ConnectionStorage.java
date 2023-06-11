@@ -1,7 +1,6 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
-import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.UUID;
  * capabilities to load, save and delete panels.
  * @param <T> the layout persistence
  */
-public interface ConnectionStorage<T extends ScreenLayoutPersistence> {
+public interface ConnectionStorage<T extends ScreenLayoutLoader> {
     /**
      * @return a list of panels loaded back from storage that represent each previously open panel
      * @throws IOException if the panels can't be loaded

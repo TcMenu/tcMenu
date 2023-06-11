@@ -1,13 +1,11 @@
 package com.thecoderscorner.embedcontrol.customization;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.Optional;
 
-public class NamedColorCustomizable implements ComponentSettingsCustomizer {
+public class NamedColorCustomizable implements ColorCustomizable {
     private final String colorName;
     private Optional<ControlColor> textColor = Optional.empty();
     private Optional<ControlColor> highlighColor = Optional.empty();
@@ -85,23 +83,5 @@ public class NamedColorCustomizable implements ComponentSettingsCustomizer {
     @Override
     public String getColorSchemeName() {
         return colorName;
-    }
-
-    @Override
-    public ComponentSettings getInitialSettings() {
-        return null;
-    }
-
-    @Override
-    public void acceptSettingChange(int id, ComponentPositioning positioning, RedrawingMode drawingMode, EditorComponent.PortableAlignment alignment,
-                                    ControlType controlType, int fontSize) throws InvalidItemChangeException {
-//        layout.replaceItemOverride(par, menuId, new ComponentSettingsWithMenuId(menuId, new ComponentSettings(
-//                layout.provideConditionalColorComponent(par, id), fontSize, alignment, positioning, drawingMode, controlType, true),
-//                textColor, buttonColor, updateColor, highlighColor));
-    }
-
-    @Override
-    public void removeOverride(int id) throws InvalidItemChangeException {
-        //layout.removeItemOverride(par, menuId);
     }
 }

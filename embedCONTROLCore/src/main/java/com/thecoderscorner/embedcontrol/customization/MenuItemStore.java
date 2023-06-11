@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
@@ -6,10 +6,6 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.FontInformation;
-import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
@@ -22,39 +18,35 @@ import java.util.*;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
-import static com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence.IS_PRESENT_ATTRIBUTE;
 
 public class MenuItemStore {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private final Map<Integer, RowEntry> rowEntries;
     private final MenuTree tree;
-    private int rootItemId;
+    private final int initialRows;
+    private String layoutName;
     private final Map<String, ColorCustomizable> colorSets = new HashMap<>();
+    private final Map<Integer, SubMenuStore> subMenuStores = new HashMap<>();
     private final GlobalSettings settings;
-    private ColorCustomizable topLevelColorSet;
-    private boolean recursive;
     private int gridSize;
-    private FontInformation globalFontInfo = MenuFormItem.FONT_100_PERCENT;
+    private SubMenuStore currentSubStore;
 
     /**
      * create a new item store of a given dimension and fill with empty slots
      * @param rows the number of rows
      * @param columns the number of columns
      */
-    public MenuItemStore(GlobalSettings settings, MenuTree tree, int rootMenuId, int rows, int columns, boolean recursive) {
+    public MenuItemStore(GlobalSettings settings, MenuTree tree, String layoutName, int rows, int columns, boolean recursive) {
         this.settings = settings;
         this.gridSize = columns;
-        this.rootItemId = rootMenuId;
-        this.recursive = recursive;
         this.tree = tree;
-        rowEntries = new HashMap<>(128);
+        this.initialRows = rows;
 
-        for(int r=0; r<rows; r++) {
-            rowEntries.put(r, new RowEntry());
-        }
+        var rootColorSet = new GlobalColorCustomizable(settings);
+        colorSets.put(GlobalColorCustomizable.KEY_NAME, rootColorSet);
 
-        colorSets.put(GlobalColorCustomizable.KEY_NAME, new GlobalColorCustomizable(settings));
-        topLevelColorSet = getColorSet(null);
+        var subStore = new SubMenuStore(MenuTree.ROOT.getId(), rootColorSet, MenuFormItem.FONT_100_PERCENT, recursive);
+        subMenuStores.put(MenuTree.ROOT.getId(), subStore);
+        currentSubStore = subStore;
     }
 
     public List<String> getAllColorSetNames() {
@@ -72,28 +64,44 @@ public class MenuItemStore {
         return colorSets.get(name);
     }
 
+    public void changeSubStore(int subId) {
+        if(!subMenuStores.containsKey(subId)) {
+            subMenuStores.put(subId, new SubMenuStore(subId, getColorSet(GlobalColorCustomizable.KEY_NAME),
+                    MenuFormItem.FONT_100_PERCENT, currentSubStore.isRecursive()));
+        }
+        currentSubStore = subMenuStores.get(subId);
+    }
+
     public ColorCustomizable getTopLevelColorSet() {
-        return topLevelColorSet;
+        return currentSubStore.getColorSet();
     }
 
     public void setTopLevelColorSet(ColorCustomizable topLevelColorSet) {
-        this.topLevelColorSet = topLevelColorSet;
+        currentSubStore.setColorSet(topLevelColorSet);
     }
 
     public int getRootItemId() {
-        return rootItemId;
+        return currentSubStore.getSubId();
     }
 
     public Map<Integer, RowEntry> getRowEntries() {
-        return rowEntries;
+        return currentSubStore.getRowEntries();
     }
 
     public boolean isRecursive() {
-        return recursive;
+        return currentSubStore.isRecursive();
     }
 
     public void setRecursive(boolean recursive) {
-        this.recursive = recursive;
+        currentSubStore.setRecursive(recursive);
+    }
+
+    public String getLayoutName() {
+        return layoutName;
+    }
+
+    public void setLayoutName(String layoutName) {
+        this.layoutName = layoutName;
     }
 
     public int getGridSize() {
@@ -102,33 +110,42 @@ public class MenuItemStore {
 
     public void setGridSize(int gridSize) {
         this.gridSize = gridSize;
-        for(var r : rowEntries.values()) {
+        for(var r : currentSubStore.getRowEntries().values()) {
             r.resizeTo(gridSize);
         }
     }
 
     public boolean hasItemAtPosition(int row, int col) {
+        Map<Integer, RowEntry> rowEntries = currentSubStore.getRowEntries();
         return row < rowEntries.size() && rowEntries.get(row).getAtPosition(col) != null;
     }
 
     public int getMaximumRow() {
-        return rowEntries.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+        return currentSubStore.getRowEntries().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
     }
 
     public void setFormItemAt(int row, int col, MenuFormItem item) {
         if(col >= gridSize) throw new IllegalArgumentException("Out of bounds " + col + " >= " + gridSize);
-        if(!rowEntries.containsKey(row)) {
-            rowEntries.put(row, new RowEntry());
+        if(!currentSubStore.getRowEntries().containsKey(row)) {
+            currentSubStore.getRowEntries().put(row, new RowEntry());
         }
-        rowEntries.get(row).setAtPosition(col, item);
+        currentSubStore.getRowEntries().get(row).setAtPosition(col, item);
     }
 
     public MenuFormItem getFormItemAt(int row, int col) {
         if(col >= gridSize) throw new IllegalArgumentException("Out of bounds " + col + " >= " + gridSize);
-        if(!rowEntries.containsKey(row)) {
+        if(!currentSubStore.getRowEntries().containsKey(row)) {
             setFormItemAt(row, col, MenuFormItem.NO_FORM_ITEM);
         }
-        return rowEntries.get(row).getAtPosition(col);
+        return currentSubStore.getRowEntries().get(row).getAtPosition(col);
+    }
+
+    public Optional<MenuFormItem> getFormItemIfPresent(int row, int col) {
+        if(col >= gridSize) return Optional.empty();
+        var r = currentSubStore.getRowEntries().get(row);
+        if(r == null) return Optional.empty();
+        var mfi =r.getAtPosition(col);
+        return (mfi instanceof MenuFormItem.NoFormItem) ? Optional.empty() : Optional.of(mfi);
     }
 
     public void removeColorSet(ColorCustomizable removal) {
@@ -143,7 +160,7 @@ public class MenuItemStore {
         }
 
         // cannot delete while item references.
-        for(var ent : rowEntries.values()) {
+        for(var ent : currentSubStore.getRowEntries().values()) {
             for(var col : ent.items) {
                 if(col.getSettings() != null && col.getSettings().equals(removal)) return true;
             }
@@ -156,11 +173,12 @@ public class MenuItemStore {
     public void loadLayout(String file, UUID uuid) {
         try(var input = new BufferedInputStream((new FileInputStream(file)))) {
             var doc = XMLDOMHelper.loadDocumentStream(input);
-            if(!doc.getDocumentElement().getNodeName().equals("EmbedControl")) throw new IOException("Not EmbedControl document");
-            if(!XMLDOMHelper.getAttributeOrDefault(doc.getDocumentElement(), "boardUuid", "").equalsIgnoreCase(uuid.toString())) throw new IOException("UUID does not match");
+            Element root = doc.getDocumentElement();
+            if(!root.getNodeName().equals("EmbedControl")) throw new IOException("Not EmbedControl document");
+            if(!XMLDOMHelper.getAttributeOrDefault(root, "boardUuid", "").equalsIgnoreCase(uuid.toString())) throw new IOException("UUID does not match");
+            layoutName = XMLDOMHelper.getAttributeOrDefault(root, "layoutName", "Unknown");
 
-
-            var csEle = XMLDOMHelper.elementWithName(doc.getDocumentElement(), "ColorSets");
+            var csEle = XMLDOMHelper.elementWithName(root, "ColorSets");
             var allSets = XMLDOMHelper.getChildElementsWithName(csEle, "ColorSet");
 
             colorSets.clear();
@@ -178,23 +196,24 @@ public class MenuItemStore {
                 colorSets.put(cc.getColorSchemeName(), cc);
             }
 
-            var mlEle = XMLDOMHelper.elementWithName(doc.getDocumentElement(), "MenuLayouts");
+            var mlEle = XMLDOMHelper.elementWithName(root, "MenuLayouts");
             var allMenuLayouts = XMLDOMHelper.getChildElementsWithName(mlEle, "MenuLayout");
 
-            rowEntries.clear();
+            subMenuStores.clear();
             for(var layout : allMenuLayouts) {
                 gridSize = Integer.parseInt(XMLDOMHelper.getAttributeOrDefault(layout, "cols", "0"));
-                globalFontInfo = FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(layout, "cols", "100%"));
-                recursive = Boolean.parseBoolean(XMLDOMHelper.getAttributeOrDefault(layout, "recursive", "false"));
-                rootItemId = Integer.parseInt(XMLDOMHelper.getAttributeOrDefault(layout, "rootId", "0"));
-                topLevelColorSet = colorSets.get(XMLDOMHelper.getAttributeOrDefault(layout, "colorSet", GlobalColorCustomizable.KEY_NAME));
+                var globalFontInfo = FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(layout, "cols", "100%"));
+                var recursive = Boolean.parseBoolean(XMLDOMHelper.getAttributeOrDefault(layout, "recursive", "false"));
+                var rootItemId = Integer.parseInt(XMLDOMHelper.getAttributeOrDefault(layout, "rootId", "0"));
+                var topLevelColorSet = colorSets.get(XMLDOMHelper.getAttributeOrDefault(layout, "colorSet", GlobalColorCustomizable.KEY_NAME));
+                subMenuStores.put(rootItemId, new SubMenuStore(rootItemId, topLevelColorSet, globalFontInfo, recursive));
                 readTextElements(layout);
                 readSpaceElements(layout);
                 readMenuElements(layout);
+
             }
-
-            //gridSize = doc.getDocumentElement().getAttribute("cols")
-
+            currentSubStore = subMenuStores.get(MenuTree.ROOT.getId());
+            if(currentSubStore == null) throw new UnsupportedOperationException("The layout did not have entries for ROOT");
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Could not load layout from " + file, e);
         }
@@ -255,22 +274,27 @@ public class MenuItemStore {
         try(var output = new BufferedOutputStream(new FileOutputStream(file)) ) {
             Document doc = XMLDOMHelper.newDocumentRoot("EmbedControl");
             doc.getDocumentElement().setAttribute("boardUuid", String.valueOf(uuid));
+            doc.getDocumentElement().setAttribute("layoutName", layoutName);
 
             var subsSettings = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "MenuLayouts", null);
             var subSetting = XMLDOMHelper.appendElementWithNameValue(subsSettings, "MenuLayout", null);
-            subSetting.setAttribute("rootId", String.valueOf(rootItemId));
-            subSetting.setAttribute("recursive", String.valueOf(recursive));
-            subSetting.setAttribute("cols", String.valueOf(gridSize));
-            subSetting.setAttribute("fontInfo", globalFontInfo.toWire());
-            for(var mfi : allFormEntries()) {
-                if(mfi instanceof MenuItemFormItem menuFormItem) {
-                    serializeMenuItem(subSetting, menuFormItem);
-                } else if(mfi instanceof TextFormItem textFormItem) {
-                    serializeTextItem(subSetting, textFormItem);
-                } else if(mfi instanceof SpaceFormItem spaceItem) {
-                    var itemEle = XMLDOMHelper.appendElementWithNameValue(subSetting, "VertSpace", null);
-                    itemEle.setAttribute("height", Integer.toString(spaceItem.getVerticalSpace()));
-                    itemEle.setAttribute("position", spaceItem.getPositioning().toWire());
+
+            for(var subStore : subMenuStores.values()) {
+
+                subSetting.setAttribute("rootId", String.valueOf(subStore.getSubId()));
+                subSetting.setAttribute("recursive", String.valueOf(subStore.isRecursive()));
+                subSetting.setAttribute("cols", String.valueOf(gridSize));
+                subSetting.setAttribute("fontInfo", subStore.getFontInfo().toWire());
+                for (var mfi : currentSubStore.allFormEntries()) {
+                    if (mfi instanceof MenuItemFormItem menuFormItem) {
+                        serializeMenuItem(subSetting, menuFormItem);
+                    } else if (mfi instanceof TextFormItem textFormItem) {
+                        serializeTextItem(subSetting, textFormItem);
+                    } else if (mfi instanceof SpaceFormItem spaceItem) {
+                        var itemEle = XMLDOMHelper.appendElementWithNameValue(subSetting, "VertSpace", null);
+                        itemEle.setAttribute("height", Integer.toString(spaceItem.getVerticalSpace()));
+                        itemEle.setAttribute("position", spaceItem.getPositioning().toWire());
+                    }
                 }
             }
 
@@ -306,11 +330,11 @@ public class MenuItemStore {
     private void saveControlColor(Element ele, String colorName, ColorCustomizable colorSet, ColorComponentType colType) {
         var colorElement = XMLDOMHelper.appendElementWithNameValue(ele, colorName, null);
         if(colorSet.getColorStatus(colType) == ColorCustomizable.ColorStatus.AVAILABLE) {
-            colorElement.setAttribute(IS_PRESENT_ATTRIBUTE, "true");
+            colorElement.setAttribute("isPresent", "true");
             colorElement.setAttribute("fg", colorSet.getColorFor(colType).getFg().toString());
             colorElement.setAttribute("bg", colorSet.getColorFor(colType).getBg().toString());
         } else {
-            colorElement.setAttribute(IS_PRESENT_ATTRIBUTE, "false");
+            colorElement.setAttribute("isPresent", "false");
         }
     }
 
@@ -326,18 +350,22 @@ public class MenuItemStore {
         itemEle.setAttribute("colorSet", String.valueOf(menuFormItem.getSettings().getColorSchemeName()));
     }
 
-    List<MenuFormItem> allFormEntries() {
-        var l = new ArrayList<MenuFormItem>(128);
-        for(var ent : rowEntries.values()) {
-            for(var it : ent.items) {
-                if(it != null && !(it instanceof MenuFormItem.NoFormItem)) {
-                    l.add(it);
-                }
-            }
-        }
-        return l.stream().sorted(Comparator.comparingInt(menuFormItem -> menuFormItem.getPositioning().getRow())).toList();
+    public FontInformation getGlobalFontInfo() {
+        return currentSubStore.getFontInfo();
     }
 
+    public void setGlobalFontInfo(FontInformation globalFontInfo) {
+        this.currentSubStore.setFontInfo(globalFontInfo);
+    }
+
+    public boolean hasSubConfiguration(int id) {
+        if(!subMenuStores.containsKey(id)) return false;
+        return (subMenuStores.get(id).allFormEntries().stream().anyMatch(mfi -> !(mfi instanceof MenuFormItem.NoFormItem)));
+    }
+
+    public List<MenuFormItem> allRowEntries() {
+        return currentSubStore.allFormEntries();
+    }
 
     protected class RowEntry {
         private MenuFormItem[] items = new MenuFormItem[gridSize];
@@ -346,8 +374,19 @@ public class MenuItemStore {
         }
 
         void resizeTo(int cols) {
+            // keep a copy of old data to copy as much as we can into new array
+            var oldData = items;
+            int oldCols = items.length;
+            int toFill = Math.min(oldCols, cols);
+
+            // create an empty array the right size
             items = new MenuFormItem[cols];
             Arrays.fill(items, MenuFormItem.NO_FORM_ITEM);
+
+            // and copy over as much as we can without overflowing either array
+            for(int i=0; i<toFill; i++) {
+                items[i] = oldData[i];
+            }
         }
 
         void setAtPosition(int pos, MenuFormItem item) {
@@ -357,5 +396,72 @@ public class MenuItemStore {
         MenuFormItem getAtPosition(int i) {
             return items[i];
         }
+    }
+
+    public MenuTree getTree() {
+        return tree;
+    }
+
+    class SubMenuStore {
+        private final int subId;
+        private final HashMap<Integer, RowEntry> rowEntries = new HashMap<>(128);
+        private ColorCustomizable colorSet;
+        private FontInformation fontInfo;
+        private boolean recursive;
+
+        public SubMenuStore(int subId, ColorCustomizable initialColorSet, FontInformation fontInfo, boolean recursive) {
+            this.subId = subId;
+            this.fontInfo = fontInfo;
+            this.colorSet = initialColorSet;
+            this.recursive = recursive;
+            for(int r=0; r<initialRows; r++) {
+                rowEntries.put(r, new RowEntry());
+            }
+        }
+
+        public ColorCustomizable getColorSet() {
+            return colorSet;
+        }
+
+        public void setColorSet(ColorCustomizable colorSet) {
+            this.colorSet = colorSet;
+        }
+
+        public FontInformation getFontInfo() {
+            return fontInfo;
+        }
+
+        public void setFontInfo(FontInformation fontInfo) {
+            this.fontInfo = fontInfo;
+        }
+
+        public int getSubId() {
+            return subId;
+        }
+
+        public HashMap<Integer, RowEntry> getRowEntries() {
+            return rowEntries;
+        }
+
+        public boolean isRecursive() {
+            return recursive;
+        }
+
+        public void setRecursive(boolean recursive) {
+            this.recursive = recursive;
+        }
+
+        public List<MenuFormItem> allFormEntries() {
+            var l = new ArrayList<MenuFormItem>(128);
+            for(var ent : rowEntries.values()) {
+                for(var it : ent.items) {
+                    if(it != null && !(it instanceof MenuFormItem.NoFormItem)) {
+                        l.add(it);
+                    }
+                }
+            }
+            return l.stream().sorted(Comparator.comparingInt(menuFormItem -> menuFormItem.getPositioning().getRow())).toList();
+        }
+
     }
 }

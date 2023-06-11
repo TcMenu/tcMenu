@@ -3,19 +3,14 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.MenuItemStore;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class ColorSettingsPresentable implements PanelPresentable<Node> {
     private final Map<String, ColorCustomizable> colorRanges = new HashMap<>();

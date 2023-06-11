@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.mgr.DialogManager;
@@ -43,9 +44,10 @@ public interface NavigationManager<T, I> {
      * Push a new menu onto the display with the option to reset the layout at the same time by passing true as the
      * second parameter.
      * @param subMenuItem the submenu to present
+     * @param store the possible layout to draw with (or default)
      * @param resetNavigation true to completely reset the navigation stack, otherwise false.
      */
-    void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation);
+    void pushMenuNavigation(SubMenuItem subMenuItem, MenuItemStore store, boolean resetNavigation);
 
     /**
      * Gets the panel that is currently being displayed
@@ -76,8 +78,9 @@ public interface NavigationManager<T, I> {
     /**
      * Push a new submenu to be displayed, a shortcut for pushNavigation that prepares a new menu panel.
      * @param subMenuItem the submenu to present.
+     * @param store the possible layout associated with the menu grid
      */
-    void pushMenuNavigation(SubMenuItem subMenuItem);
+    void pushMenuNavigation(SubMenuItem subMenuItem, MenuItemStore store);
 
     /**
      * Get hold of the dialog manager instance that can present a simple one or two button dialog on the display,

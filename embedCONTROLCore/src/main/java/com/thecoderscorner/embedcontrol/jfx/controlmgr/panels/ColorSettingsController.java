@@ -1,12 +1,11 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.MenuItemStore;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;

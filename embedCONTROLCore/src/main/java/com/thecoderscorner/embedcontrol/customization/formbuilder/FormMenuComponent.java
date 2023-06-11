@@ -2,10 +2,8 @@ package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,9 +12,8 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 
-import static com.thecoderscorner.embedcontrol.customization.formbuilder.MenuFormItem.NO_FORM_ITEM;
+import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.NO_FORM_ITEM;
 
 /**
  * This represents an item in an embedCONTROL pre-made form.

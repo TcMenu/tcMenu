@@ -1,12 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
-import com.google.gson.JsonParser;
-import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.ManualLanConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.Rs232ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.SimulatorConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 
 import java.io.IOException;
@@ -18,8 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonObjOrThrow;
-import static com.thecoderscorner.menu.persist.JsonMenuItemSerializer.getJsonStrOrThrow;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -28,7 +21,7 @@ import static java.lang.System.Logger.Level.INFO;
  * class. It is mainly a delegate to the layout persistence class that handles all files within a directory.
  * @param <T>
  */
-public abstract class FileConnectionStorage<T extends ScreenLayoutPersistence> implements ConnectionStorage<T> {
+public abstract class FileConnectionStorage<T extends ScreenLayoutLoader> implements ConnectionStorage<T> {
     protected final System.Logger logger = System.getLogger(FileConnectionStorage.class.getSimpleName());
     protected final PlatformSerialFactory serialFactory;
     protected final GlobalSettings settings;
@@ -58,13 +51,6 @@ public abstract class FileConnectionStorage<T extends ScreenLayoutPersistence> i
     }
 
     public boolean deletePanel(UUID uuid) {
-        var panelFileName = ScreenLayoutPersistence.uuidToFileName(baseDir, uuid);
-        try {
-            logger.log(INFO, "Delete panel request for " + uuid + ", file ", panelFileName);
-            return Files.deleteIfExists(panelFileName);
-        } catch (IOException e) {
-            logger.log(ERROR, "Panel File could not be deleted " + uuid);
-            return false;
-        }
+        return true;
     }
 }

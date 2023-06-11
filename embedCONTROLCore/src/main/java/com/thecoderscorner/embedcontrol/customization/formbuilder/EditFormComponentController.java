@@ -1,10 +1,11 @@
 package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
-import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
+import com.thecoderscorner.embedcontrol.customization.MenuItemFormItem;
+import com.thecoderscorner.embedcontrol.customization.TextFormItem;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
@@ -74,9 +75,8 @@ public class EditFormComponentController {
         }
 
         formMenuComponent.getFormItem().setColSpan(colSpanSpinner.getValue());
-        formMenuComponent.evaluateFormItem();
-
         formMenuComponent.getFormItem().setFontInfo(new FontInformation(fontSizeSpinner.getValue(), fontMeasureCombo.getValue()));
+        formMenuComponent.evaluateFormItem();
 
         String colorScheme = colorNameCombo.getSelectionModel().getSelectedItem();
         var sch = formMenuComponent.getStore().getColorSet(colorScheme);

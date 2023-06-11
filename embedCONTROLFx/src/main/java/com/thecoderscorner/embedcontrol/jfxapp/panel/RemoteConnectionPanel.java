@@ -5,10 +5,9 @@ import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.MenuItemStore;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuControlGrid;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxPanelLayoutEditorPresenter;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
@@ -65,7 +64,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                                  MenuItem item) {
         try {
             this.creator = layoutPersistence.getConnectionCreator();
-            this.navigationManager = new JfxNavigationHeader(layoutPersistence);
+            this.navigationManager = new JfxNavigationHeader(layoutPersistence.getExecutorService(), settings);
             this.settings = settings;
             this.context = context;
             this.layoutPersistence = layoutPersistence;
@@ -87,11 +86,6 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         generateWidgets();
 
         createNewController();
-
-        if(settings.isSetupLayoutModeEnabled()) {
-            this.navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, control.getMenuTree(),
-                    navigationManager, settings));
-        }
 
         return rootPanel;
     }
@@ -127,7 +121,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private ContextMenu generateSettingsContextMenu() {
         var colorConfig = new javafx.scene.control.MenuItem("Color Settings");
         colorConfig.setOnAction(evt -> navigationManager.pushNavigation(new ColorSettingsPresentable(
-                settings, navigationManager, GlobalColorCustomizable.KEY_NAME, new MenuItemStore(settings, new MenuTree(), 0, 1, 1, true))
+                settings, navigationManager, GlobalColorCustomizable.KEY_NAME,
+                new MenuItemStore(settings, new MenuTree(), "", 1, 1, true))
         ));
         var editConfig = new javafx.scene.control.MenuItem("Edit Connection");
         editConfig.setOnAction(this::editConnection);
@@ -241,7 +236,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             if (status == AuthStatus.CONNECTION_READY) {
                 connectStatusWidget.setCurrentState(StandardLedWidgetStates.GREEN);
                 layoutPersistence.remoteApplicationDidLoad(controller.getConnector().getRemoteParty().getUuid(), controller.getManagedMenu());
-                navigationManager.pushMenuNavigation(MenuItemHelper.asSubMenu(rootItem), true);
+                var store = new MenuItemStore(settings, control.getMenuTree(), "-", 1, 4, true);
+                navigationManager.pushMenuNavigation(MenuItemHelper.asSubMenu(rootItem), store, true);
                 notifyControlGrid(true);
             } else if (status == AuthStatus.FAILED_AUTH) {
                 connectStatusWidget.setCurrentState(StandardLedWidgetStates.RED);
@@ -267,8 +263,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     private void notifyControlGrid(boolean up) {
-        if(navigationManager.currentNavigationPanel() instanceof JfxMenuControlGrid controlGrid) {
-            controlGrid.connectionIsUp(up);
+        if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPresentable) {
+            menuPresentable.connectionIsUp(up);
         }
     }
 
@@ -299,11 +295,11 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             this.control = new RemoteMenuComponentControl(controller, navigationManager);
             this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
 
-            var remoteTreeComponentManager = new RemoteTreeComponentManager(controller, settings, dialogManager,
+            /*var panel = new RemoteJfxMenuPanelPresentable(controller, settings, dialogManager,
                     layoutPersistence.getExecutorService(), Platform::runLater, control, layoutPersistence);
-            navigationManager.initialiseUI(remoteTreeComponentManager, dialogManager, control, scrollPane);
+            navigationManager.initialiseUI(dialogManager, control, scrollPane);
             navigationManager.pushNavigation(new WaitingForConnectionPanel());
-            logger.log(INFO, "Started the connection " + creator);
+            logger.log(INFO, "Started the connection " + creator);*/
         } catch (Exception e) {
             logger.log(ERROR, "Unable to start connection " + creator.getName(), e);
         }

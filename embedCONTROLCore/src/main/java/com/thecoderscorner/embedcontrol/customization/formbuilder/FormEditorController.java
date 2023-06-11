@@ -1,9 +1,8 @@
 package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
-import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -33,16 +32,16 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 public class FormEditorController {
     public GridPane editGrid;
     public ListView<GridPositionChoice> selectionList;
-    public ComboBox<String> gridSizeCombo;
-    public CheckBox recursiveCheck;
-    public ComboBox<MenuItem> subItemCombo;
-    public ComboBox<String> colorSetCombo;
+    public Button menuButton;
+    public Label storeDetailLabel;
+    public Label subMenuLabel;
     private GlobalSettings settings;
     private JfxNavigationManager navMgr;
     private MenuItemStore itemStore;
     private MenuTree tree;
     private UUID boardUuid;
-    private boolean autosizingInProgress = false;
+    private MenuItem startingPoint = MenuTree.ROOT;
+    private Optional<Boolean> maybeRecursiveChange = Optional.empty();
 
     public void initialise(GlobalSettings settings, MenuTree tree, UUID boardUuid, JfxNavigationManager navMgr,
                            MenuItemStore itemStore) {
@@ -53,21 +52,25 @@ public class FormEditorController {
         this.boardUuid = boardUuid;
         selectionList.setCellFactory(param -> new GridPositionCell());
 
-        gridSizeCombo.setItems(FXCollections.observableArrayList("1 column", "2 Column", "3 Column", "4 Column"));
-        subItemCombo.setItems(FXCollections.observableArrayList(tree.getAllSubMenus()));
-
-        rebuildSelections();
+        itemStore.changeSubStore(startingPoint.getId());
+        maybeRecursiveChange.ifPresent(itemStore::setRecursive);
+        maybeRecursiveChange = Optional.empty();
         rebuildColumns();
-        rebuildColorSelections();
     }
 
-    private void rebuildColorSelections() {
-        colorSetCombo.setItems(FXCollections.observableArrayList(itemStore.getAllColorSetNames()));
-        colorSetCombo.getSelectionModel().select(itemStore.getTopLevelColorSet().getColorSchemeName());
+    public void setStartingPoint(MenuItem where, boolean isRecursive) {
+        startingPoint = where;
+        maybeRecursiveChange = Optional.of(isRecursive);
     }
 
-    private void rebuildSelections() {
-        var allItems = recursiveCheck.isSelected() ? tree.getAllMenuItems() : tree.getMenuItems(tree.getMenuById(itemStore.getRootItemId()).orElseThrow());
+    public void closePressed() {
+    }
+
+    public void rebuildColumns() {
+        var topLevel = itemStore.getTree().getMenuById(itemStore.getRootItemId()).orElseThrow();
+        storeDetailLabel.setText(topLevel + ", " + itemStore.getTopLevelColorSet().getColorSchemeName() + ", " + itemStore.getGlobalFontInfo().toWire());
+
+        var allItems = itemStore.isRecursive() ? tree.getAllMenuItems() : tree.getMenuItems(tree.getMenuById(itemStore.getRootItemId()).orElseThrow());
         var list = new ArrayList<GridPositionChoice>();
         for(var item : allItems) {
             list.add(new MenuItemPositionChoice(item));
@@ -76,40 +79,6 @@ public class FormEditorController {
         list.add(new SpacingGridPositionChoice());
         selectionList.setItems(FXCollections.observableArrayList(list));
 
-        recursiveCheck.setSelected(itemStore.isRecursive());
-        gridSizeCombo.getSelectionModel().select(itemStore.getGridSize() - 1);
-
-
-        subItemCombo.setDisable(itemStore.isRecursive());
-        if(!itemStore.isRecursive()) {
-            subItemCombo.getSelectionModel().select(tree.getMenuById(itemStore.getRootItemId()).orElseThrow());
-        }
-
-        colorSetCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null && itemStore.getColorSet(newValue) != null && !autosizingInProgress) {
-                itemStore.setTopLevelColorSet(itemStore.getColorSet(newValue));
-            }
-        });
-    }
-
-    public void closePressed() {
-    }
-
-    public void onGridSizeChange(ActionEvent actionEvent) {
-        int selCols = gridSizeCombo.getSelectionModel().getSelectedIndex() + 1;
-        if(itemStore.getGridSize() != selCols) {
-            var alert = new Alert(Alert.AlertType.CONFIRMATION, "Changing grid size may lose some data, select YES to continue", ButtonType.NO, ButtonType.YES);
-            alert.setTitle("Really change grid");
-            alert.setHeaderText("Really change grid");
-            if(alert.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.YES) {
-                return;
-            }
-        }
-        itemStore.setGridSize(selCols);
-        rebuildColumns();
-    }
-
-    private void rebuildColumns() {
         editGrid.getColumnConstraints().clear();
         editGrid.getRowConstraints().clear();
         editGrid.getChildren().clear();
@@ -128,6 +97,8 @@ public class FormEditorController {
                 editGrid.add(formComp, col, row);
             }
         }
+
+        
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
@@ -136,7 +107,6 @@ public class FormEditorController {
     public void onColorConfig(ActionEvent actionEvent) {
         var colorPresentable = new ColorSettingsPresentable(settings, navMgr, GlobalColorCustomizable.KEY_NAME, itemStore);
         navMgr.pushNavigation(colorPresentable);
-        rebuildColorSelections();
     }
 
     public void onAddNewRow(ActionEvent actionEvent) {
@@ -165,7 +135,7 @@ public class FormEditorController {
     }
 
     public Stage getStage() {
-        return (Stage)recursiveCheck.getScene().getWindow();
+        return (Stage)editGrid.getScene().getWindow();
     }
 
     public void onLoadLayout(ActionEvent actionEvent) {
@@ -174,14 +144,7 @@ public class FormEditorController {
         var file = maybeFile.get();
 
         itemStore.loadLayout(file, boardUuid);
-        try {
-            autosizingInProgress = true;
-            rebuildColorSelections();
-            rebuildSelections();
-            rebuildColumns();
-        } finally {
-            autosizingInProgress = false;
-        }
+        rebuildColumns();
     }
 
     public void onSaveLayout(ActionEvent actionEvent) {
@@ -192,15 +155,9 @@ public class FormEditorController {
         itemStore.saveLayout(file, boardUuid);
     }
 
-    public void onRecursiveChanged(ActionEvent actionEvent) {
-        if(autosizingInProgress) return;
-
-        itemStore.setRecursive(recursiveCheck.isSelected());
-        rebuildSelections();
-    }
-
-    public void subMenuHasChanged(ActionEvent actionEvent) {
-        if(autosizingInProgress) return;
+    public void onMenuChangeButton(ActionEvent actionEvent) {
+        var formProperties = new FormEditorPropertiesPresentable(itemStore, this, navMgr);
+        navMgr.pushNavigation(formProperties);
     }
 
     public class GridPositionCell extends ListCell<GridPositionChoice> {

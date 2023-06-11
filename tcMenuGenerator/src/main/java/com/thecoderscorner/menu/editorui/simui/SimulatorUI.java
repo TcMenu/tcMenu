@@ -1,13 +1,11 @@
 package com.thecoderscorner.menu.editorui.simui;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
 import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
@@ -19,8 +17,6 @@ import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
-import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -29,12 +25,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 public class SimulatorUI {
@@ -43,7 +37,7 @@ public class SimulatorUI {
 
     private JfxNavigationHeader navMgr;
     private MenuTree menuTree;
-    private SimTreeComponentManager treeComponentManager;
+    private JfxMenuPresentable menuPresentable;
     private Scene scene;
     private Stage dialogStage;
     private Consumer<WindowEvent> closeConsumer;
@@ -70,24 +64,21 @@ public class SimulatorUI {
 
         settings = new GlobalSettings(SimulatorUI.class);
         var dialogMgr = new DoNothingDialogManager();
-        var layoutPersistence = new ScreenLayoutPersistence(menuTree, settings, appUuid, Path.of(fileName), 18);
-        navMgr = new JfxNavigationHeader(layoutPersistence);
+        navMgr = new JfxNavigationHeader(Executors.newSingleThreadScheduledExecutor(), settings);
         var control = new SimulatorUIControl();
-
-        treeComponentManager = new SimTreeComponentManager(settings, Executors.newSingleThreadScheduledExecutor(),
-                Platform::runLater, control, layoutPersistence);
-        navMgr.initialiseUI(treeComponentManager, dialogMgr, control, scrollPane);
-        navMgr.pushMenuNavigation(MenuTree.ROOT);
+        navMgr.initialiseUI(dialogMgr, control, scrollPane);
+        var store = new MenuItemStore(settings, menuTree, "Untitled", 7, 4, true);
+        navMgr.pushMenuNavigation(MenuTree.ROOT, store);
 
         VBox vbox = new VBox(navMgr.initialiseControls());
         border.setTop(vbox);
 
-        var editorImage = new Image(Objects.requireNonNull(ScreenLayoutPersistence.class.getResourceAsStream("/img-core/layout-off.png")));
-        var settingsImage = new Image(Objects.requireNonNull(ScreenLayoutPersistence.class.getResourceAsStream("/img-core/settings-cog.png")));
+        var editorImage = new Image(Objects.requireNonNull(ScreenLayoutLoader.class.getResourceAsStream("/img-core/layout-off.png")));
+        var settingsImage = new Image(Objects.requireNonNull(ScreenLayoutLoader.class.getResourceAsStream("/img-core/settings-cog.png")));
         navMgr.addTitleWidget(new TitleWidget<>(List.of(editorImage), 1, 0, WIDGET_ID_FORM));
         navMgr.addTitleWidget(new TitleWidget<>(List.of(settingsImage), 1, 0, WIDGET_ID_SETTINGS));
         navMgr.addWidgetClickedListener((actionEvent, titleWidget) -> showFormEditorPanel(titleWidget));
-        formEditorPanel = new FormBuilderPresentable(settings, appUuid, menuTree, navMgr);
+        formEditorPanel = new FormBuilderPresentable(settings, appUuid, menuTree, navMgr, store);
     }
 
     private void showFormEditorPanel(TitleWidget<Image> titleWidget) {
@@ -104,7 +95,7 @@ public class SimulatorUI {
     }
 
     public void itemHasChanged(MenuItem item) {
-        treeComponentManager.menuItemHasChanged(item);
+
     }
 
     public class SimulatorUIControl implements MenuComponentControl {
@@ -147,23 +138,6 @@ public class SimulatorUI {
 
         @Override
         protected void dialogDidChange() {
-        }
-    }
-
-    private class SimTreeComponentManager extends TreeComponentManager<Node> {
-        public SimTreeComponentManager(GlobalSettings settings, ScheduledExecutorService scheduledExecutorService, ThreadMarshaller marshaller,
-                                       SimulatorUIControl control, ScreenLayoutPersistence layoutPersistence) {
-            super(settings, scheduledExecutorService, marshaller, control, layoutPersistence);
-        }
-
-        public void menuItemHasChanged(MenuItem item) {
-            if(item == null) {
-
-            } else if (editorComponents.containsKey(item.getId())) {
-                EditorComponent<Node> nodeEditorComponent = editorComponents.get(item.getId());
-                nodeEditorComponent.onItemUpdated(controller.getMenuTree().getMenuState(item));
-                nodeEditorComponent.structuralChange(item);
-            }
         }
     }
 }

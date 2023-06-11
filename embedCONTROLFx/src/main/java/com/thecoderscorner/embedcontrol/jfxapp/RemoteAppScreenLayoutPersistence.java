@@ -8,19 +8,21 @@ import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
+import com.thecoderscorner.embedcontrol.customization.MenuFormItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import org.w3c.dom.Element;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.System.Logger.Level.INFO;
 
-public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
+public class RemoteAppScreenLayoutPersistence extends ScreenLayoutLoader {
     private final PlatformSerialFactory serialFactory;
     private final ScheduledExecutorService executorService;
     private ConnectionCreator connectionCreator;
@@ -28,7 +30,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
 
     public RemoteAppScreenLayoutPersistence(MenuTree tree, GlobalSettings settings, UUID appUuid, Path path, int defFontSize,
                                             PlatformSerialFactory serialFactory, ScheduledExecutorService executor) {
-        super(tree, settings, appUuid, path, defFontSize);
+        super(tree, settings, appUuid, path, MenuFormItem.FONT_100_PERCENT, Optional.empty());
         this.executorService = executor;
         this.serialFactory = serialFactory;
     }
@@ -41,7 +43,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
     public void loadApplicationSpecific(Element rootElement) {
         var ecRemote = XMLDOMHelper.elementWithName(rootElement, "EcRemote");
         if (ecRemote == null) return;
-        remoteUuid = UUID.fromString(XMLDOMHelper.getAttributeOrDefault(ecRemote, "uuid", UUID.randomUUID()));
+        appUuid = UUID.fromString(XMLDOMHelper.getAttributeOrDefault(ecRemote, "uuid", UUID.randomUUID()));
         panelName = XMLDOMHelper.getAttributeOrDefault(ecRemote, "name", "Unknown");
         var creatorType = XMLDOMHelper.getAttributeOrDefault(ecRemote, "conType", ManualLanConnectionCreator.MANUAL_LAN_JSON_TYPE);
 
@@ -52,7 +54,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
             default -> throw new UnsupportedOperationException("No such creator as " + creatorType);
         };
 
-        logger.log(INFO, "Loaded panel UUID='" + remoteUuid + "' type='" + creatorType);
+        logger.log(INFO, "Loaded panel UUID='" + appUuid + "' type='" + creatorType);
 
     }
 
@@ -62,7 +64,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
         if(data != null) {
             json = data.getTextContent();
         }
-        return new SimulatorConnectionCreator(json, ecRemote.getAttribute("name"), remoteUuid, executorService,
+        return new SimulatorConnectionCreator(json, ecRemote.getAttribute("name"), appUuid, executorService,
                 new JsonMenuItemSerializer());
     }
 
@@ -104,7 +106,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
 
     public void saveApplicationSpecific(Element rootElement) {
         var ecRemote = XMLDOMHelper.appendElementWithNameValue(rootElement, "EcRemote", null);
-        ecRemote.setAttribute("uuid", remoteUuid.toString());
+        ecRemote.setAttribute("uuid", appUuid.toString());
         ecRemote.setAttribute( "name", panelName);
         if(connectionCreator instanceof SimulatorConnectionCreator sim) {
             writeSimulatorConnection(ecRemote, sim);
@@ -119,7 +121,7 @@ public class RemoteAppScreenLayoutPersistence extends ScreenLayoutPersistence {
     }
 
     public UUID getRemoteUuid() {
-        return remoteUuid;
+        return appUuid;
     }
 
     public ConnectionCreator getConnectionCreator() {

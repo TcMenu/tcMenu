@@ -2,6 +2,7 @@ package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.fxml.FXMLLoader;
@@ -17,22 +18,26 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
     private FormEditorController formEditorController;
     private final GlobalSettings settings;
     private final MenuItemStore store;
+    private Node loadedPane;
 
-    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr) {
+    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr, MenuItemStore store) {
         this.settings = settings;
         this.tree = tree;
         this.navMgr = navMgr;
         this.appUuid = uuid;
-
-        store = new MenuItemStore(settings, tree, MenuTree.ROOT.getId(), 7, 4, true);
+        this.store = store;
     }
 
     @Override
     public Node getPanelToPresent(double width) throws Exception {
         var loader = new FXMLLoader(FormBuilderPresentable.class.getResource("/core_fxml/formEditor.fxml"));
-        Pane loadedPane = loader.load();
-        formEditorController = loader.getController();
-        formEditorController.initialise(settings, tree, appUuid, navMgr, store);
+        if (loadedPane == null) {
+            loadedPane = loader.load();
+            formEditorController = loader.getController();
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store);
+        } else {
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store);
+        }
         return loadedPane;
     }
 

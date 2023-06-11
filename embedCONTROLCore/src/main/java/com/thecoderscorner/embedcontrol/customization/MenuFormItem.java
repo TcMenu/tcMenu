@@ -1,8 +1,6 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
-import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.FontInformation;
 
 /**
  * A form item represents the actual entry at a position in the row, along with its calculated drawing information and
@@ -26,7 +24,7 @@ public abstract class MenuFormItem {
     public FontInformation getFontInfo() {
         return fontInfo;
     }
-    void setFontInfo(FontInformation fontInfo) {
+    public void setFontInfo(FontInformation fontInfo) {
         this.fontInfo = fontInfo;
     }
 
@@ -37,7 +35,7 @@ public abstract class MenuFormItem {
         return positioning;
     }
 
-    void setColSpan(int newSpan) {
+    public void setColSpan(int newSpan) {
         positioning = new ComponentPositioning(positioning.getRow(), positioning.getCol(), positioning.getRowSpan(), newSpan);
     }
 

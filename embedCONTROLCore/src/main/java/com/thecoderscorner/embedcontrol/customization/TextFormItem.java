@@ -1,9 +1,6 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
-import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
-import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
-import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 import javafx.scene.image.Image;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*;

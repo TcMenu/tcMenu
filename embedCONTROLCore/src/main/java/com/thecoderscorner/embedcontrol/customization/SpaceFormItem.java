@@ -1,7 +1,6 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
-import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 
 public class SpaceFormItem extends MenuFormItem {
     private int verticalSpace;

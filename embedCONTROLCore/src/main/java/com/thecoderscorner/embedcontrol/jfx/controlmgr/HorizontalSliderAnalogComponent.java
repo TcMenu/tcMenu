@@ -3,6 +3,7 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
+import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
@@ -89,7 +90,11 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         final Text textObj = new Text(toDraw);
         gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.BUTTON)));
-        gc.setFont(Font.font(gc.getFont().getFamily(), getDrawingSettings().getFontSize()));
+        var fontSize = getDrawingSettings().getFontInfo().fontSize();
+        if(getDrawingSettings().getFontInfo().sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
+            fontSize = (int)(Font.getDefault().getSize() * (fontSize / 100.0));
+        }
+        gc.setFont(Font.font(gc.getFont().getFamily(), fontSize));
         var bounds = textObj.getLayoutBounds();
         gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (canvas.getHeight() - (bounds.getHeight() / 2.0)));
     }

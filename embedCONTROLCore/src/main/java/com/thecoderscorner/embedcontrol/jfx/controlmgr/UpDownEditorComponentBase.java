@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
+import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.application.Platform;
@@ -42,9 +43,9 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
         plusButton = new Button(">");
         minusButton.setDisable(item.isReadOnly());
         plusButton.setDisable(item.isReadOnly());
-        plusButton.setFont(Font.font(getDrawingSettings().getFontSize()));
-        minusButton.setFont(Font.font(getDrawingSettings().getFontSize()));
-        itemLabel.setFont(Font.font(getDrawingSettings().getFontSize()));
+        plusButton.setFont(toFont(getDrawingSettings().getFontInfo(), plusButton.getFont()));
+        minusButton.setFont(toFont(getDrawingSettings().getFontInfo(), minusButton.getFont()));
+        itemLabel.setFont(toFont(getDrawingSettings().getFontInfo(), itemLabel.getFont()));
 
         minusButton.setOnMousePressed(e -> {
             repeating = RepeatTypes.REPEAT_DOWN_WAIT;
