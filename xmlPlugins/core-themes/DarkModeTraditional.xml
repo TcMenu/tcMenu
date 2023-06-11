@@ -38,7 +38,7 @@
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="${SRC_DIR_OFFSET}ThemeDarkModeTraditional.h" inSource="false"/>
+        <Header name="${SRC_DIR_OFFSET}ThemeDarkModeTraditional.h" inSource="cppSrc"/>
         <Header name="tcUnicodeHelper.h" inSource="false" priority="high" whenProperty="USE_TC_UNICODE" isValue="true" />
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
