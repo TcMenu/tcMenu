@@ -31,7 +31,7 @@ public class CodeGeneratorOptionsBuilder {
     private String packageNamespace = "";
     private List<CreatorProperty> lastProperties = List.of();
     private IoExpanderDefinitionCollection expanderDefinitions = new IoExpanderDefinitionCollection();
-    private ProjectSaveLocation saveLocation = ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
+    private ProjectSaveLocation saveLocation = ProjectSaveLocation.ALL_TO_CURRENT;
     private boolean namingRecursive = false;
     private boolean appIsModular = false;
     private boolean useCppMain = false;
