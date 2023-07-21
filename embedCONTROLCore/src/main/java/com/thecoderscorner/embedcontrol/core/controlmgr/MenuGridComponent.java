@@ -100,11 +100,12 @@ public abstract class MenuGridComponent<T> {
                     }
 
                     var settings = getComponentForMenuItem(item);
-                    getComponentEditorItem(editorFactory, item, settings).ifPresent(comp -> addToGrid(settings.getPosition(), comp));
-                }
-
-                if (editorComponents.containsKey(item.getId()) && tree.getMenuState(item) != null) {
-                    editorComponents.get(item.getId()).onItemUpdated(tree.getMenuState(item));
+                    getComponentEditorItem(editorFactory, item, settings).ifPresent(comp -> {
+                        addToGrid(settings.getPosition(), comp);
+                        editorComponents.put(item.getId(), comp);
+                        MenuItemHelper.getValueFor(item, tree, MenuItemHelper.getDefaultFor(item));
+                        comp.onItemUpdated(tree.getMenuState(item));
+                    });
                 }
             }
         }
