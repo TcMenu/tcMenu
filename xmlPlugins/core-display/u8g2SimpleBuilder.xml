@@ -67,6 +67,12 @@
                 <Choice desc="IL3820 296X128 HW 4W SPI">U8G2_IL3820_296X128_F_4W_HW_SPI</Choice>
                 <Choice desc="IL3820 296X128 SW 4W SPI">U8G2_IL3820_296X128_F_4W_SW_SPI</Choice>
 
+                <Choice desc="ST7920 256x32 SW SPI">U8G2_ST7920_256X32_F_SW_SPI</Choice>
+                <Choice desc="ST7920 256x32 HW SPI">U8G2_ST7920_256X32_F_HW_SPI</Choice>
+                <Choice desc="ST7920 192x32 SW SPI">U8G2_ST7920_192X32_F_SW_SPI</Choice>
+                <Choice desc="ST7920 192x32 HW SPI">U8G2_ST7920_192X32_F_HW_SPI</Choice>
+                <Choice desc="ST7920 128x64 SW SPI">U8G2_ST7920_128X64_F_SW_SPI</Choice>
+                <Choice desc="ST7920 128x64 HW SPI">U8G2_ST7920_128X64_F_HW_SPI</Choice>
             </Choices>
         </Property>
         <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="U8G2_R0" desc="%adafruit.display.rotation.desc" type="choice" >
