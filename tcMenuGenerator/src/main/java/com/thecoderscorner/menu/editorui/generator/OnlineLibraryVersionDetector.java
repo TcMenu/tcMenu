@@ -32,7 +32,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private static final System.Logger logger = System.getLogger(OnlineLibraryVersionDetector.class.getSimpleName());
 
 
-    public final static String LIBRARY_VERSIONING_URL_APPEND = "/libraries/library-versions.xml";
+    public final static String LIBRARY_VERSIONING_URL_APPEND = "/products/arduino-libraries/libraries/library-versions.xml";
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
 
     private final String urlBase;
