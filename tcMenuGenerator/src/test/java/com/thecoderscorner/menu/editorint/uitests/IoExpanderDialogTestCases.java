@@ -75,7 +75,7 @@ public class IoExpanderDialogTestCases {
             Optional<IoExpanderDefinition> maybeItem = searchTableForItem(robot, "superExp");
             if(maybeItem.isPresent()) {
                 var io = (Pcf8574DeviceExpander) maybeItem.get();
-                return io.getI2cAddress() == 33 && io.getIntPin() == 22;
+                return io.getI2cAddress() == 33 && io.getIntPin().equals("22");
             }
             return false;
         });
@@ -87,7 +87,7 @@ public class IoExpanderDialogTestCases {
         TestUtils.selectItemInCombo(robot, "#expanderTypeCombo", (String s) -> s.contains("8575"));
         TestUtils.writeIntoField(robot, "#variableNameField", "expII", 10);
         TestUtils.writeIntoField(robot, "#i2cAddrField", "0x23", 10);
-        TestUtils.writeIntoField(robot, "#interruptPinField", "2", 10);
+        TestUtils.writeIntoField(robot, "#interruptPinField", "A2", 10);
         robot.clickOn("#invertedField");
         robot.clickOn("#setExpanderButton");
 
@@ -95,7 +95,7 @@ public class IoExpanderDialogTestCases {
             Optional<IoExpanderDefinition> maybeItem = searchTableForItem(robot, "expII");
             if(maybeItem.isPresent()) {
                 var io = (Pcf8575DeviceExpander) maybeItem.get();
-                return io.getI2cAddress() == 35 && io.getIntPin() == 2 && io.isInvertedLogic();
+                return io.getI2cAddress() == 35 && io.getIntPin().equals("A2") && io.isInvertedLogic();
             }
             return false;
         });
@@ -114,7 +114,7 @@ public class IoExpanderDialogTestCases {
             Optional<IoExpanderDefinition> maybeItem = searchTableForItem(robot, "unit123");
             if(maybeItem.isPresent()) {
                 var io = (Mcp23017DeviceExpander) maybeItem.get();
-                return io.getI2cAddress() == 34 && io.getIntPin() == -1;
+                return io.getI2cAddress() == 34 && io.getIntPin().equals("-1");
             }
             return false;
         });

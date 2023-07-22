@@ -203,7 +203,7 @@ public class MenuEditorTestCases {
                 eq(project.getGeneratorOptions()), any());
 
         pushCtrlAndKey(robot, KeyCode.L);
-        verify(editorProjectUI, atLeastOnce()).showRomLayoutDialog(project.getMenuTree());
+        verify(editorProjectUI, atLeastOnce()).showRomLayoutDialog(project.getMenuTree(), project.getLocaleHandler());
 
         pushCtrlAndKey(robot, KeyCode.B);
         verify(editorProjectUI, atLeastOnce()).showAboutDialog(installer);

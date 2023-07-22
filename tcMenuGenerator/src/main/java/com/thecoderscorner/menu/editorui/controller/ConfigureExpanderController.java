@@ -1,8 +1,10 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -46,19 +48,19 @@ public class ConfigureExpanderController {
             } else if (expanderDefinition instanceof Pcf8574DeviceExpander pcf) {
                 expanderTypeCombo.getSelectionModel().select(1);
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
-                interruptPinField.setText(Integer.toString(pcf.getIntPin()));
+                interruptPinField.setText(pcf.getIntPin());
             } else if (expanderDefinition instanceof Pcf8575DeviceExpander pcf) {
                 expanderTypeCombo.getSelectionModel().select(3);
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
-                interruptPinField.setText(Integer.toString(pcf.getIntPin()));
+                interruptPinField.setText(pcf.getIntPin());
             } else if (expanderDefinition instanceof Mcp23017DeviceExpander pcf) {
                 expanderTypeCombo.getSelectionModel().select(2);
                 i2cAddrField.setText("0x" + Integer.toString(pcf.getI2cAddress(), 16));
-                interruptPinField.setText(Integer.toString(pcf.getIntPin()));
+                interruptPinField.setText(pcf.getIntPin());
             } else if(expanderDefinition instanceof Aw9523DeviceExpander aw) {
                 expanderTypeCombo.getSelectionModel().select(4);
                 i2cAddrField.setText("0x" + Integer.toString(aw.getI2cAddress(), 16));
-                interruptPinField.setText(Integer.toString(aw.getIntPin()));
+                interruptPinField.setText(aw.getIntPin());
             }
         }
         else {
@@ -110,21 +112,50 @@ public class ConfigureExpanderController {
             return;
         }
         try {
+            if(!interruptPinField.isDisabled()) {
+                if(!CannedPropertyValidators.optPinValidator().isValueValid(interruptPinField.getText())) {
+                    alertWithLocaleText("err.pin.invalid.title", "err.pin.invalid.desc");
+                    return;
+                }
+            }
+
+            if(!variableNameField.isDisabled()) {
+                if(!CannedPropertyValidators.variableValidator().isValueValid(variableNameField.getText())) {
+                    alertWithLocaleText("err.var.name.invalid.title", "err.var.name.invalid.desc");
+                    return;
+                }
+            }
+
+            if(!i2cAddrField.isDisabled()) {
+                if(!CannedPropertyValidators.uintValidator(256).isValueValid(i2cAddrField.getText())) {
+                    alertWithLocaleText("err.var.i2c.addr.invalid.title", "err.var.i2c.addr.invalid.desc");
+                    return;
+                }
+            }
+
             result = switch (expanderTypeCombo.getSelectionModel().getSelectedIndex()) {
                 case 0 -> Optional.of(new CustomDeviceExpander(variableNameField.getText()));
-                case 1 -> Optional.of(new Pcf8574DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
-                case 2 -> Optional.of(new Mcp23017DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
-                case 3 -> Optional.of(new Pcf8575DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText()), invertedField.isSelected()));
-                case 4 -> Optional.of(new Aw9523DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), Integer.parseInt(interruptPinField.getText())));
+                case 1 -> Optional.of(new Pcf8574DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), interruptPinField.getText(), invertedField.isSelected()));
+                case 2 -> Optional.of(new Mcp23017DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), interruptPinField.getText()));
+                case 3 -> Optional.of(new Pcf8575DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), interruptPinField.getText(), invertedField.isSelected()));
+                case 4 -> Optional.of(new Aw9523DeviceExpander(variableNameField.getText(), fromHex(i2cAddrField.getText()), interruptPinField.getText()));
                 default -> Optional.empty();
             };
             ((Stage) interruptPinField.getScene().getWindow()).close();
         } catch (Exception ex) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please ensure field values such as address and interrupt pin are valid", ButtonType.CLOSE);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please check validity of all fields " + ex.getMessage(), ButtonType.CLOSE);
             alert.showAndWait();
             logger.log(ERROR, "Field validation error in configure expander", ex);
         }
 
+    }
+
+    private void alertWithLocaleText(String name, String name1) {
+        var al = new Alert(Alert.AlertType.ERROR);
+        al.setHeaderText(MenuEditorApp.getBundle().getString(name));
+        al.setTitle(MenuEditorApp.getBundle().getString("io.exp.col.name") + " " + variableNameField.getText());
+        al.setContentText(MenuEditorApp.getBundle().getString(name1));
+        al.showAndWait();
     }
 
     private int fromHex(String text) {

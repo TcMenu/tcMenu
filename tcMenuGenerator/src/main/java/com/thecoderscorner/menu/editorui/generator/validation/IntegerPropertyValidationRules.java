@@ -36,11 +36,15 @@ public class IntegerPropertyValidationRules implements PropertyValidationRules {
         if(!INT_MATCHER.matcher(value).matches()) return false;
 
         int i;
-        if(value.startsWith("0x")) {
-            i = Integer.parseInt(value.substring(2), 16);
-        }
-        else {
-            i = Integer.parseInt(value);
+        try {
+            if (value.startsWith("0x")) {
+                i = Integer.parseInt(value.substring(2), 16);
+            } else {
+                i = Integer.parseInt(value);
+            }
+        } catch(Exception ex) {
+            // How Java needs .NET's TryParse(..)
+            return false;
         }
         return i >= minVal && i <= maxVal;
     }

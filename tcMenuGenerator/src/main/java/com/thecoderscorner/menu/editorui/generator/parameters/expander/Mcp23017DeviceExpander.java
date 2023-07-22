@@ -11,10 +11,10 @@ import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.
 
 public class Mcp23017DeviceExpander extends IoExpanderDefinition {
     private final int i2cAddress;
-    private final int intPin;
+    private final String intPin;
     private final String name;
 
-    public Mcp23017DeviceExpander(String name, int i2cAddress, int intPin) {
+    public Mcp23017DeviceExpander(String name, int i2cAddress, String intPin) {
         this.i2cAddress = i2cAddress;
         this.intPin = intPin;
         this.name = name;
@@ -22,7 +22,7 @@ public class Mcp23017DeviceExpander extends IoExpanderDefinition {
 
     @Override
     public String getNicePrintableName() {
-        return String.format("MCP23017(0x%02x, %d)", i2cAddress, intPin);
+        return String.format("MCP23017(0x%02x, %s)", i2cAddress, intPin);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Mcp23017DeviceExpander extends IoExpanderDefinition {
         return i2cAddress;
     }
 
-    public int getIntPin() {
+    public String getIntPin() {
         return intPin;
     }
 
@@ -50,7 +50,7 @@ public class Mcp23017DeviceExpander extends IoExpanderDefinition {
 
     @Override
     public Optional<String> generateGlobal() {
-        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom23017(0x%02x, ACTIVE_LOW_OPEN, %d);", name, i2cAddress, intPin));
+        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom23017(0x%02x, ACTIVE_LOW_OPEN, %s);", name, i2cAddress, intPin));
     }
 
     @Override
