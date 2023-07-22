@@ -11,6 +11,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -27,11 +28,11 @@ public class RomLayoutController {
     public VBox idContainer;
     public VBox eepromContainer;
 
-    public void init(MenuTree menuTree) {
+    public void init(MenuTree menuTree, LocaleMappingHandler localeHandler) {
         menuIdChooser = new MenuIdChooserImpl(menuTree);
 
         menuIdChooser.getItemsSortedById().forEach((item)-> {
-            Label lbl = new Label(item.getId() + " - " + item.getName());
+            Label lbl = new Label(item.getId() + " - " + localeHandler.getFromLocaleOrUseSource(item.getName()));
             lbl.getStyleClass().add("idRomEntry");
             idContainer.getChildren().add(lbl);
         });
@@ -43,7 +44,7 @@ public class RomLayoutController {
                     int address = item.getEepromAddress();
                     int addrSize = MenuItemHelper.eepromSizeForItem(item);
                     int addrEnd = address + addrSize - 1;
-                    Label l = new Label(address + "-" + addrEnd + ": " + item.getName());
+                    Label l = new Label(address + "-" + addrEnd + ": " + localeHandler.getFromLocaleOrUseSource(item.getName()));
 
                     Optional<String> maybeOverlap = overlapDetails(item, sortedByEeprom);
                     if(maybeOverlap.isPresent()){

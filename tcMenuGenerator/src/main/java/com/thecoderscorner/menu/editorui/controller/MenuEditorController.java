@@ -486,7 +486,7 @@ public class MenuEditorController {
     }
 
     public void onCodeShowLayout(ActionEvent actionEvent) {
-        editorUI.showRomLayoutDialog(editorProject.getMenuTree());
+        editorUI.showRomLayoutDialog(editorProject.getMenuTree(), editorProject.getLocaleHandler());
     }
 
     public void onGenerateCode(ActionEvent event) {

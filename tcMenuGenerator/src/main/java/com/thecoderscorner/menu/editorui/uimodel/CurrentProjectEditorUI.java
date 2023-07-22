@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -83,8 +84,9 @@ public interface CurrentProjectEditorUI {
      * Shows a dialog that presents the range of ID's that are used and also the EEPROM
      * values that are in use. It will highlight any overlapping EEPROM values.
      * @param tree the tree to use to show the ranges of ID and EEPROM values.
+     * @param handler the locale handler that is responsible for menu item translations.
      */
-    void showRomLayoutDialog(MenuTree tree);
+    void showRomLayoutDialog(MenuTree tree, LocaleMappingHandler handler);
 
     /**
      * Shows a splash screen dialog as modal
