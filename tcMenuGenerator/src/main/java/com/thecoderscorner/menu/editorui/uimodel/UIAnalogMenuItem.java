@@ -199,6 +199,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
     @Override
     public void localeDidChange() {
+        super.localeDidChange();
         String unitName = getMenuItem().getUnitName();
         if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
             unitName = localHandler.getFromLocaleWithDefault(menuItemToLocale("unit"), unitName);

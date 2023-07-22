@@ -149,6 +149,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         //item.setOnAction(event -> localHasChanged(Locale.of("--")));
         notLocalizedButton = new ToggleButton(bundle.getString("locale.dialog.not.localized"));
         notLocalizedButton.setSelected(!menuItem.getName().startsWith("%") || menuItem.getName().startsWith("%%"));
+        notLocalizedButton.setDisable(localHandler.isLocalSupportEnabled());
         notLocalizedButton.setMaxWidth(9999);
         grid.add(notLocalizedButton, 2, idx++);
 
@@ -270,6 +271,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     public void localeDidChange() {
+        notLocalizedButton.setDisable(localHandler.isLocalSupportEnabled());
     }
 
     public boolean shouldAvoidLocalization() {
