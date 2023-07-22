@@ -183,7 +183,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public Optional<MenuItem> showSearchDialog(MenuTree tree) {
         logger.log(INFO, "Showing search dialog");
-        var d = new SearchMenuItemDialog(tree, mainStage, true);
+        var d = new SearchMenuItemDialog(tree, editorProject.getLocaleHandler(), mainStage, true);
         return d.getResult();
     }
 

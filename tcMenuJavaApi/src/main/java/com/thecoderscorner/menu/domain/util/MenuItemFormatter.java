@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 
 public class MenuItemFormatter {
     private static final MenuItemFormatter defaultInstance = new MenuItemFormatter();
-    private LocaleMappingHandler localHandler = null;
+    private LocaleMappingHandler localHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
 
     public MenuItemFormatter(LocaleMappingHandler handler) {
-        localHandler = handler;
+        if(handler != null) localHandler = handler;
     }
 
     private MenuItemFormatter() {
@@ -27,7 +27,6 @@ public class MenuItemFormatter {
     }
 
     public String bundleIfPossible(String s) {
-        if(localHandler == null) return s;
         return localHandler.getFromLocaleWithDefault(s, s);
     }
 
@@ -206,7 +205,8 @@ public class MenuItemFormatter {
             int fractMax = GetActualDecimalDivisor(an.getDivisor());
             int fraction = Math.abs((calcVal % divisor)) * (fractMax / divisor);
 
-            return String.format("%d.%0" + calculateRequiredDigits(divisor) + "d%s", whole, fraction, an.getUnitName());
+            return String.format("%d.%0" + calculateRequiredDigits(divisor) + "d%s", whole, fraction,
+                    localHandler.getFromLocaleOrUseSource(an.getUnitName()));
         }
     }
 
@@ -219,8 +219,6 @@ public class MenuItemFormatter {
     }
 
     public String getItemName(MenuItem item) {
-        if(localHandler == null) return item.getName();
-        
         return localHandler.getFromLocaleWithDefault(item.getName(), item.getName());
     }
 }
