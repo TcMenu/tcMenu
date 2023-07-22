@@ -7,6 +7,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public abstract class MenuGridComponent<T> {
         if (componentSettings.getDrawMode() == RedrawingMode.HIDDEN) return Optional.empty();
 
         if (item instanceof SubMenuItem sub) {
-            return Optional.of(editorFactory.createButtonWithAction(sub, sub.getName(), componentSettings,
+            return Optional.of(editorFactory.createButtonWithAction(sub, MenuItemFormatter.defaultInstance().getItemName(sub), componentSettings,
                     subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore)));
         }
 
@@ -87,7 +88,8 @@ public abstract class MenuGridComponent<T> {
             }
         } else {
             if (level != 0) {
-                addTextToGrid(getSettingsForStaticItem(defaultSpaceForItem(Optional.of(sub))), sub.getName());
+                String itemName = MenuItemFormatter.defaultInstance().getItemName(sub);
+                addTextToGrid(getSettingsForStaticItem(defaultSpaceForItem(Optional.of(sub))), itemName);
             }
             for (var item : tree.getMenuItems(sub)) {
                 if (!item.isVisible()) continue;
@@ -96,7 +98,7 @@ public abstract class MenuGridComponent<T> {
                 } else {
                     if (item instanceof RuntimeListMenuItem) {
                         var pos = defaultSpaceForItem(Optional.of(item));
-                        addTextToGrid(getSettingsForStaticItem(pos), item.getName());
+                        addTextToGrid(getSettingsForStaticItem(pos), MenuItemFormatter.defaultInstance().getItemName(item));
                     }
 
                     var settings = getComponentForMenuItem(item);

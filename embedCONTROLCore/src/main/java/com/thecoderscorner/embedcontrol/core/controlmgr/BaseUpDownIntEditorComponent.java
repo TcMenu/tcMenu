@@ -25,7 +25,7 @@ public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorCompo
     @Override
     public String getControlText() {
         String str = "";
-        if (controlTextIncludesName()) str = item.getName();
+        if (controlTextIncludesName()) str = MenuItemFormatter.defaultInstance().getItemName(item);
         if (!controlTextIncludesValue()) return str;
 
         str += " ";

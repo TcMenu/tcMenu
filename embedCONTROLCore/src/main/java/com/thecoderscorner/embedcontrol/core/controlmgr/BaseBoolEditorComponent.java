@@ -29,7 +29,7 @@ public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> 
     @Override
     public String getControlText() {
         String prefix = "";
-        if (controlTextIncludesName()) prefix = item.getName();
+        if (controlTextIncludesName()) prefix = MenuItemFormatter.defaultInstance().getItemName(item);
 
         if (!controlTextIncludesValue()) return prefix;
 

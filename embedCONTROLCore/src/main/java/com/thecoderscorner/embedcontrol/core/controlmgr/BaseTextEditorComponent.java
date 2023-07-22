@@ -43,7 +43,7 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
     @Override
     public String getControlText() {
         String str = "";
-        if (controlTextIncludesName())  str = item.getName() + " ";
+        if (controlTextIncludesName())  str = MenuItemFormatter.defaultInstance().getItemName(item) + " ";
         if (controlTextIncludesValue()) str += MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         return str;
     }

@@ -8,22 +8,19 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import java.math.BigDecimal;
 
 public class MenuItemFormatter {
-    private static final MenuItemFormatter defaultInstance = new MenuItemFormatter();
-    private LocaleMappingHandler localHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
+    private static final MenuItemFormatter INSTANCE = new MenuItemFormatter(LocaleMappingHandler.NOOP_IMPLEMENTATION);
+    private LocaleMappingHandler localHandler;
 
     public MenuItemFormatter(LocaleMappingHandler handler) {
-        if(handler != null) localHandler = handler;
-    }
-
-    private MenuItemFormatter() {
+        localHandler = (handler != null) ? handler : LocaleMappingHandler.NOOP_IMPLEMENTATION;
     }
 
     public static MenuItemFormatter defaultInstance() {
-        return defaultInstance;
+        return INSTANCE;
     }
 
     public static void setDefaultLocalHandler(LocaleMappingHandler localHandler) {
-        defaultInstance.localHandler = localHandler;
+        INSTANCE.localHandler = localHandler;
     }
 
     public String bundleIfPossible(String s) {
@@ -177,7 +174,7 @@ public class MenuItemFormatter {
 
     private String formatEnumForDisplay(EnumMenuItem en, int data) {
         if (en.getEnumEntries().size() > data) {
-            return en.getEnumEntries().get(data);
+            return localHandler.getFromLocaleOrUseSource(en.getEnumEntries().get(data));
         }
         return "";
     }
@@ -185,12 +182,12 @@ public class MenuItemFormatter {
     private String formatBoolForDisplay(BooleanMenuItem bl, boolean val) {
         switch (bl.getNaming()) {
             case ON_OFF:
-                return val ? "On" : "Off";
+                return val ? localHandler.getFromLocaleWithDefault("%bool.on", "On") : localHandler.getFromLocaleWithDefault("%bool.off", "Off");
             case YES_NO:
-                return val ? "Yes" : "No";
+                return val ? localHandler.getFromLocaleWithDefault("%bool.yes", "Yes") : localHandler.getFromLocaleWithDefault("%bool.no", "No");
             case TRUE_FALSE:
             default:
-                return val ? "True" : "False";
+                return val ? localHandler.getFromLocaleWithDefault("%bool.true", "True") : localHandler.getFromLocaleWithDefault("%bool.false", "False");
         }
     }
 
