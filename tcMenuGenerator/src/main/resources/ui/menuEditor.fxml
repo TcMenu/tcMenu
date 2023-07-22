@@ -13,6 +13,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tooltip?>
@@ -25,7 +26,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
         <menus>
@@ -76,7 +77,7 @@
                   <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree" text="%menu.menuitem.focus.tree" />
                   <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="%menu.menuitem.focus.editor" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem accelerator="F4" mnemonicParsing="false" onAction="#onSearchPressed" text="%menu.menuitem.search.items"/>
+                  <MenuItem accelerator="F4" mnemonicParsing="false" onAction="#onSearchPressed" text="%menu.menuitem.search.items" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
               </items>
@@ -198,6 +199,17 @@
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
+         <top>
+            <MenuButton fx:id="localeMenuButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="236.0" text="Locale" BorderPane.alignment="CENTER">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+                <MenuItem mnemonicParsing="false" text="Action 2" />
+              </items>
+               <BorderPane.margin>
+                  <Insets bottom="4.0" />
+               </BorderPane.margin>
+            </MenuButton>
+         </top>
       </BorderPane>
    </left>
    <center>

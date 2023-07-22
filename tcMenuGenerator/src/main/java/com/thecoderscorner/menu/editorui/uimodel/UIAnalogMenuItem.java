@@ -162,7 +162,12 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         TextFormatterUtils.applyIntegerFormatToField(stepField);
         grid.add(stepField, 1, idx, 2, 1);
 
-        String unitName = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("unit"), getMenuItem().getUnitName());
+        String unitName;
+        if(shouldAvoidLocalization()) {
+            unitName = getMenuItem().getUnitName();
+        } else {
+            unitName = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("unit"), getMenuItem().getUnitName());
+        }
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.analog.unit")), 0, idx);
@@ -193,7 +198,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     }
 
     @Override
-    protected void localeDidChange() {
+    public void localeDidChange() {
         String unitName = getMenuItem().getUnitName();
         if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
             unitName = localHandler.getFromLocaleWithDefault(menuItemToLocale("unit"), unitName);

@@ -65,6 +65,7 @@ public class MenuEditorController {
     public Label statusField;
     public CheckMenuItem darkModeMenuFlag;
     public Label currentEditLabel;
+    public MenuButton localeMenuButton;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -326,6 +327,19 @@ public class MenuEditorController {
 
         if(simulatorUI != null) simulatorUI.itemHasChanged(null);
         selectChildInTreeById(rootItem, sel);
+
+        var items = localeMenuButton.getItems();
+        items.clear();
+        items.addAll(getLocaleMenuItems());
+        if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
+            localeMenuButton.setDisable(false);
+            localeMenuButton.setMaxWidth(9999);
+            localeMenuButton.setText(bundle.getString("main.editor.lang") + " " + toLang(editorProject.getLocaleHandler().getCurrentLocale()));
+        } else {
+            localeMenuButton.setDisable(true);
+            localeMenuButton.setText(bundle.getString("main.editor.no.locale"));
+        }
+
     }
 
     private void selectChildInTreeById(TreeItem<MenuItemWithDescription> item, int id) {
@@ -771,5 +785,40 @@ public class MenuEditorController {
             // once the command is applied and the drag and drop finishes, entirely redraw the tree control.
             Platform.runLater(MenuEditorController.this::redrawTreeControl);
         }
+    }
+
+    private String toLang(Locale l) {
+        return switch(l.getLanguage()) {
+            case "" -> bundle.getString("locale.dialog.default.bundle");
+            case "--" -> "--";
+            default -> l.getDisplayLanguage() + "-" + l.getCountry();
+        };
+    }
+
+    private List<javafx.scene.control.MenuItem> getLocaleMenuItems() {
+        var list = editorProject.getLocaleHandler().getEnabledLocales().stream()
+                .map(l -> {
+                    var mi = new javafx.scene.control.MenuItem(toLang(l));
+                    mi.setOnAction(event -> localHasChanged(l));
+                    return mi;
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+        list.add(new SeparatorMenuItem());
+        var item = new javafx.scene.control.MenuItem(bundle.getString("menu.code.locale.configuration"));
+        item.setOnAction(this::onConfigureLocales);
+        list.add(item);
+        return list;
+    }
+
+    private void localHasChanged(Locale l) {
+        try {
+            if(l == null) return;
+            editorProject.getLocaleHandler().changeLocale(l);
+            currentEditor.ifPresent(UIMenuItem::localeDidChange);
+            Platform.runLater(this::redrawTreeControl);
+        } catch (IOException e) {
+            logger.log(ERROR, "Locale could not be changed to " + l, e);
+        }
+
     }
 }
