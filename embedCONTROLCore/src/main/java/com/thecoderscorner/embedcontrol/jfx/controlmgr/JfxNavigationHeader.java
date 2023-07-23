@@ -7,6 +7,8 @@ import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.ResourceBundleMappingHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -30,6 +32,8 @@ import java.util.function.BiConsumer;
 import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
+    private static ResourceBundle CORE_RESOURCES;
+
     public enum StandardLedWidgetStates { RED, ORANGE, GREEN }
     public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL }
 
@@ -290,5 +294,12 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
                 .map(i -> new Image(i.toString()))
                 .toList();
         return new TitleWidget<>(images, images.size(), 0);
+    }
+
+    public static ResourceBundle getCoreResources() {
+        if(CORE_RESOURCES == null) {
+            CORE_RESOURCES = ResourceBundle.getBundle("ec_lang.coreLanguage");
+        }
+        return CORE_RESOURCES;
     }
 }

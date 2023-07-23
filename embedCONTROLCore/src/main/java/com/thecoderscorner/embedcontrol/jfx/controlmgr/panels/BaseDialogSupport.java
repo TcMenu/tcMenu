@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -8,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -22,9 +24,11 @@ public abstract class BaseDialogSupport {
      * @param title the title for the dialog
      * @param modal if it should be modal.
      */
-     public static <T> void tryAndCreateDialog(Stage stage, String resource, String title, boolean modal, Consumer<T> controllerInitializer) {
+     public static <T> void tryAndCreateDialog(Stage stage, String resource, String title, ResourceBundle bundle,
+                                               boolean modal, Consumer<T> controllerInitializer) {
         try {
             var loader = new FXMLLoader(BaseDialogSupport.class.getResource(resource));
+            loader.setResources(JfxNavigationHeader.getCoreResources());
             Pane pane = loader.load();
             T controller = loader.getController();
             controllerInitializer.accept(controller);

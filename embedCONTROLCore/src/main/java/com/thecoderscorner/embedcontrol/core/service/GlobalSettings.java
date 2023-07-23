@@ -13,7 +13,6 @@ import java.util.prefs.Preferences;
  * as the root node for the preferences API.
  */
 public class GlobalSettings {
-    private final Class<?> preferencesNode;
     private ControlColor updateColor;
     private ControlColor pendingColor;
     private ControlColor highlightColor;
@@ -24,19 +23,30 @@ public class GlobalSettings {
     private String appUuid;
     private String appName;
     private boolean defaultRecursiveRendering;
-    private boolean setupLayoutModeEnabled;
     private int defaultFontSize;
 
     /**
-     * Create an instance of global settings that reads and stores values to preferences under the node provided
-     * @param preferencesNode this is used as the root element in the preferences API
+     * Create an instance of global settings
      */
-    public GlobalSettings(Class<?> preferencesNode) {
+    public GlobalSettings() {
         setColorsForDefault(false);
         appUuid = UUID.randomUUID().toString();
         appName = "untitled";
         defaultFontSize = 16;
-        this.preferencesNode = preferencesNode;
+    }
+
+    public void copyFrom(GlobalSettings other) {
+        this.appUuid = other.appUuid;
+        this.appName = other.appName;
+        this.defaultFontSize = other.defaultFontSize;
+        this.defaultRecursiveRendering = other.defaultRecursiveRendering;
+        this.buttonColor.copyColorsFrom(other.buttonColor);
+        this.updateColor.copyColorsFrom(other.updateColor);
+        this.updateColor.copyColorsFrom(other.highlightColor);
+        this.updateColor.copyColorsFrom(other.textColor);
+        this.updateColor.copyColorsFrom(other.errorColor);
+        this.updateColor.copyColorsFrom(other.dialogColor);
+        this.updateColor.copyColorsFrom(other.pendingColor);
     }
 
     /**
@@ -119,57 +129,6 @@ public class GlobalSettings {
     }
 
     /**
-     * Loads the previous preferences back from storage at start up
-     */
-    public void load() {
-        Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
-        populateColorIfPresent(prefs,"update", updateColor);
-        populateColorIfPresent(prefs,"error", errorColor);
-        populateColorIfPresent(prefs,"pending", pendingColor);
-        populateColorIfPresent(prefs,"button", buttonColor);
-        populateColorIfPresent(prefs,"highlight", highlightColor);
-        populateColorIfPresent(prefs,"text", textColor);
-
-        appName = prefs.get("appName", "unknown");
-        appUuid = prefs.get("appUUID", UUID.randomUUID().toString());
-        defaultFontSize = prefs.getInt("defaultFontSize", 16);
-        defaultRecursiveRendering = prefs.getBoolean("defaultRecursiveRender", false);
-        setupLayoutModeEnabled = prefs.getBoolean("setupLayoutModeEnabled", false);
-    }
-
-    private void populateColorIfPresent(Preferences prefs, String colorName, ControlColor colorInfo) {
-        var fg = prefs.get(colorName + "FgColor", "");
-        var bg = prefs.get(colorName + "BgColor", "");
-        if(StringHelper.isStringEmptyOrNull(fg) || StringHelper.isStringEmptyOrNull(bg)) return;
-        colorInfo.setFg(new PortableColor(fg));
-        colorInfo.setBg(new PortableColor(bg));
-    }
-
-    /**
-     * Saves all preferences back to storage
-     */
-    public void save() {
-        Preferences prefs = Preferences.userNodeForPackage(preferencesNode);
-        saveColor(prefs, "update", updateColor);
-        saveColor(prefs, "error", errorColor);
-        saveColor(prefs, "pending", pendingColor);
-        saveColor(prefs, "button", buttonColor);
-        saveColor(prefs, "highlight", highlightColor);
-        saveColor(prefs, "text", textColor);
-
-        prefs.put("appUUID", appUuid);
-        prefs.put("appName", appName);
-        prefs.putBoolean("defaultRecursiveRender", defaultRecursiveRendering);
-        prefs.putInt("defaultFontSize", defaultFontSize);
-        prefs.putBoolean("setupLayoutModeEnabled", setupLayoutModeEnabled);
-    }
-
-    private void saveColor(Preferences prefs, String name, ControlColor colorData) {
-        prefs.put(name + "FgColor", colorData.getFg().toString());
-        prefs.put(name + "BgColor", colorData.getBg().toString());
-    }
-
-    /**
      * This is used to reset colorschemes back to the default settings.
      * @param darkMode if dark background colors should be used
      */
@@ -223,20 +182,5 @@ public class GlobalSettings {
      */
     public void setDefaultRecursiveRendering(boolean recursiveRender) {
         defaultRecursiveRendering = recursiveRender;
-    }
-
-    /**
-     * @return indicates if setup layout mode is enabled for editing screen layouts
-     */
-    public boolean isSetupLayoutModeEnabled() {
-        return setupLayoutModeEnabled;
-    }
-
-    /**
-     * Set screen layout editing on or off
-     * @param setupLayoutModeEnabled the new state
-     */
-    public void setSetupLayoutModeEnabled(boolean setupLayoutModeEnabled) {
-        this.setupLayoutModeEnabled = setupLayoutModeEnabled;
     }
 }

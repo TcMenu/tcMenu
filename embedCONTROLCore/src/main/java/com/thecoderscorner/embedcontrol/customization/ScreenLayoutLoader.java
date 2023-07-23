@@ -20,7 +20,7 @@ public class ScreenLayoutLoader {
         this.tree = tree;
         this.appUuid = appUuid;
         this.layoutPath = layoutPath;
-        store = new MenuItemStore(settings, tree, "Untitled",  1, 4, true);
+        store = new MenuItemStore(settings, tree, "Untitled",  1, 4, settings.isDefaultRecursiveRendering());
         store.setGlobalFontInfo(defFont);
     }
 

@@ -813,8 +813,8 @@ public class MenuEditorController {
     private void localHasChanged(Locale l) {
         try {
             if(l == null) return;
+            menuTree.getSelectionModel().select(0);
             editorProject.getLocaleHandler().changeLocale(l);
-            currentEditor.ifPresent(UIMenuItem::localeDidChange);
             Platform.runLater(this::redrawTreeControl);
         } catch (IOException e) {
             logger.log(ERROR, "Locale could not be changed to " + l, e);

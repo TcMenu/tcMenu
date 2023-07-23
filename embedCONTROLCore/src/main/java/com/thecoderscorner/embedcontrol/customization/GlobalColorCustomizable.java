@@ -38,7 +38,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setColorFor(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
         getColorFor(componentType).copyColorsFrom(controlColor);
-        globalSettings.save();
+        //globalSettings.save();
     }
 
     @Override

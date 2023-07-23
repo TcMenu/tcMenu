@@ -42,7 +42,6 @@
             <Label text="App UUID" GridPane.rowIndex="1" />
             <TextField fx:id="appNameField" GridPane.columnIndex="1" GridPane.columnSpan="2" />
             <TextField fx:id="appUuidField" editable="false" prefHeight="25.0" prefWidth="243.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <CheckBox fx:id="enableLayoutCustomizationCheck" mnemonicParsing="false" onAction="#onLayoutCustomizableChange" prefHeight="17.0" prefWidth="376.0" text="Enable layout customization (only useful during setup)" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
             <Button mnemonicParsing="false" onAction="#onChangeUUID" prefHeight="25.0" prefWidth="119.0" text="Change UUID" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets left="3.0" />

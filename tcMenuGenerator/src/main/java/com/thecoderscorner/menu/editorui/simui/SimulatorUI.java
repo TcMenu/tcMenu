@@ -61,7 +61,7 @@ public class SimulatorUI {
         dialogStage.show();
         dialogStage.setOnCloseRequest(event -> closeConsumer.accept(event));
 
-        settings = new GlobalSettings(SimulatorUI.class);
+        settings = new GlobalSettings();
         var dialogMgr = new DoNothingDialogManager();
         navMgr = new JfxNavigationHeader(Executors.newSingleThreadScheduledExecutor(), settings);
         var control = new SimulatorUIControl();

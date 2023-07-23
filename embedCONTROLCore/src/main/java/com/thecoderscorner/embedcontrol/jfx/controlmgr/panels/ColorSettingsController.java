@@ -6,6 +6,7 @@ import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -172,7 +173,7 @@ public class ColorSettingsController {
         AtomicReference<NewColorSetDialogController> controllerRef = new AtomicReference<>(null);
 
         BaseDialogSupport.tryAndCreateDialog((Stage)dialogBgEditor.getScene().getWindow(),
-                "/core_fxml/newColorSetDialog.fxml", "Add Color Set", true,
+                "/core_fxml/newColorSetDialog.fxml", "Add Color Set", JfxNavigationHeader.getCoreResources(), true,
                 controllerRef::set);
         var result = controllerRef.get().getResult();
         if(result.isPresent()) {

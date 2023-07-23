@@ -60,14 +60,12 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private boolean pairingInProgress = false;
     private RemoteMenuController controller;
 
-    public RemoteConnectionPanel(GlobalSettings settings, EmbedControlContext context, RemoteAppScreenLayoutPersistence layoutPersistence,
-                                 MenuItem item) {
+    public RemoteConnectionPanel(GlobalSettings settings, EmbedControlContext context, MenuItem item) {
         try {
             this.creator = layoutPersistence.getConnectionCreator();
             this.navigationManager = new JfxNavigationHeader(layoutPersistence.getExecutorService(), settings);
             this.settings = settings;
             this.context = context;
-            this.layoutPersistence = layoutPersistence;
             this.rootItem = item;
             dialogManager = new RemoteDialogManager();
         } catch (Exception e) {

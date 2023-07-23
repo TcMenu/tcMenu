@@ -14,7 +14,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="143.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AddAuthEntryController">
    <top>
-      <Label text="Add authentication" BorderPane.alignment="CENTER">
+      <Label text="%auth.dlg.title" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -23,8 +23,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelWasPressed" text="Cancel" />
-            <Button fx:id="addAuthenticationButton" defaultButton="true" mnemonicParsing="false" onAction="#addAuthenticationWasPressed" text="Add Authentication" />
+          <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelWasPressed" text="%core.cancel" />
+            <Button fx:id="addAuthenticationButton" defaultButton="true" mnemonicParsing="false" onAction="#addAuthenticationWasPressed" text="%auth.dlg.ok.button" />
         </buttons>
       </ButtonBar>
    </bottom>
@@ -42,8 +42,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="App Name" />
-            <Label text="UUID" GridPane.rowIndex="1" />
+            <Label text="%auth.dlg.name" />
+            <Label text="%auth.dlg.uuid" GridPane.rowIndex="1" />
             <TextField fx:id="appNameField" GridPane.columnIndex="1" />
             <TextField fx:id="uuidField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>

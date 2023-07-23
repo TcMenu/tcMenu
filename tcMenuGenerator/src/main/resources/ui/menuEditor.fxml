@@ -201,10 +201,6 @@
          </padding>
          <top>
             <MenuButton fx:id="localeMenuButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="236.0" text="Locale" BorderPane.alignment="CENTER">
-              <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
-                <MenuItem mnemonicParsing="false" text="Action 2" />
-              </items>
                <BorderPane.margin>
                   <Insets bottom="4.0" />
                </BorderPane.margin>

@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.mgr.ServerConnection;
@@ -56,8 +57,10 @@ public class AuthIoTMonitorController {
         logger.log(INFO, "Add authentication pressed");
         Stage stage = (Stage) authenticatedUsersList.getScene().getWindow();
         AtomicReference<AddAuthEntryController> controllerRef = new AtomicReference<>(null);
-        BaseDialogSupport.tryAndCreateDialog(stage, "/core_fxml/addAuthEntry.fxml", "Add Authentication", true,
-                controllerRef::set);
+
+        var theTitle = JfxNavigationHeader.getCoreResources().getString("auth.dlg.title");
+        BaseDialogSupport.tryAndCreateDialog(stage, "/core_fxml/addAuthEntry.fxml", theTitle,
+                JfxNavigationHeader.getCoreResources(), true, controllerRef::set);
         if(controllerRef.get() != null && controllerRef.get().getUserName() != null) {
             logger.log(INFO, "Added new authentication for " + controllerRef.get().getUserName());
             authenticator.addAuthentication(controllerRef.get().getUserName(), controllerRef.get().getUuid(), false)
