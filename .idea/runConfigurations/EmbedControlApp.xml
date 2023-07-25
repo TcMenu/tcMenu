@@ -2,6 +2,7 @@
   <configuration default="false" name="EmbedControlApp" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp" />
     <module name="embedCONTROLFx" />
+    <option name="VM_PARAMETERS" value="-Ddevlog" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.thecoderscorner.embedcontrol.jfxapp.*" />

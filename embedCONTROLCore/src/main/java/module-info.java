@@ -16,6 +16,8 @@ module com.thecoderscorner.embedcontrol.core {
     requires spring.jdbc;
     requires spring.beans;
 
+    opens com.thecoderscorner.embedcontrol.core.service;
+
     exports com.thecoderscorner.embedcontrol.core.controlmgr;
     exports com.thecoderscorner.embedcontrol.core.serial;
     exports com.thecoderscorner.embedcontrol.core.service;

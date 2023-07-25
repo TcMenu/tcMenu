@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -12,7 +13,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="161.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="231.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController">
    <top>
       <Label text="General Settings" BorderPane.alignment="TOP_LEFT">
          <BorderPane.margin>
@@ -36,6 +37,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="App Name" />
@@ -46,6 +49,9 @@
                <GridPane.margin>
                   <Insets left="3.0" />
                </GridPane.margin></Button>
+            <Label text="Default Font Size" GridPane.rowIndex="2" />
+            <Spinner fx:id="fontSizeSpinner" prefHeight="26.0" prefWidth="261.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <CheckBox fx:id="showSubRecursive" mnemonicParsing="false" prefHeight="18.0" prefWidth="259.0" text="Show all submenus recursively" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>
       </GridPane>
    </center>

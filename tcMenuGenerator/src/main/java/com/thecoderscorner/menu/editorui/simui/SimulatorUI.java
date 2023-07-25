@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.simui;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
+import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
 import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
@@ -13,10 +13,13 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPrese
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -42,19 +45,24 @@ public class SimulatorUI {
     private Consumer<WindowEvent> closeConsumer;
     private GlobalSettings settings;
     private FormBuilderPresentable formEditorPanel;
+    private CurrentEditorProject project;
 
-    public void presentSimulator(MenuTree menuTree, String fileName, UUID appUuid, Stage stage, LocaleMappingHandler handler) {
+    public void presentSimulator(MenuTree menuTree, CurrentEditorProject project, Stage stage) {
         this.menuTree = menuTree;
-        MenuItemFormatter.setDefaultLocalHandler(handler);
+        this.project = project;
+        MenuItemFormatter.setDefaultLocalHandler(project.getLocaleHandler());
 
         ScrollPane scrollPane = new ScrollPane();
         var border = new BorderPane();
         border.setCenter(scrollPane);
         border.setMaxSize(9999,9999);
-        border.setPrefSize(920, 738);
+        border.setPrefSize(600, 738);
+        scrollPane.setMaxSize(9999,9999);
+        scrollPane.setFitToWidth(true);
 
         dialogStage = new Stage();
-        dialogStage.setTitle("Preview for " + appUuid.toString());
+        CodeGeneratorOptions opts = project.getGeneratorOptions();
+        dialogStage.setTitle("Preview for " + opts.getApplicationName() + " (" + opts.getApplicationUUID() + ")");
         dialogStage.initOwner(stage);
         scene = new Scene(border);
         dialogStage.setScene(scene);
@@ -72,12 +80,12 @@ public class SimulatorUI {
         VBox vbox = new VBox(navMgr.initialiseControls());
         border.setTop(vbox);
 
-        var editorImage = new Image(Objects.requireNonNull(ScreenLayoutLoader.class.getResourceAsStream("/img-core/layout-off.png")));
-        var settingsImage = new Image(Objects.requireNonNull(ScreenLayoutLoader.class.getResourceAsStream("/img-core/settings-cog.png")));
+        var editorImage = new Image(Objects.requireNonNull(AppDataStore.class.getResourceAsStream("/img-core/layout-off.png")));
+        var settingsImage = new Image(Objects.requireNonNull(AppDataStore.class.getResourceAsStream("/img-core/settings-cog.png")));
         navMgr.addTitleWidget(new TitleWidget<>(List.of(editorImage), 1, 0, WIDGET_ID_FORM));
         navMgr.addTitleWidget(new TitleWidget<>(List.of(settingsImage), 1, 0, WIDGET_ID_SETTINGS));
         navMgr.addWidgetClickedListener((actionEvent, titleWidget) -> showFormEditorPanel(titleWidget));
-        formEditorPanel = new FormBuilderPresentable(settings, appUuid, menuTree, navMgr, store);
+        formEditorPanel = new FormBuilderPresentable(settings, opts.getApplicationUUID(), menuTree, navMgr, store);
     }
 
     private void showFormEditorPanel(TitleWidget<Image> titleWidget) {
@@ -94,7 +102,19 @@ public class SimulatorUI {
     }
 
     public void itemHasChanged(MenuItem item) {
+        Platform.runLater(() -> {
+            if(navMgr.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
+                if(item == null) {
+                    menuPanel.entirelyRebuildGrid();
+                } else {
+                    menuPanel.getGridComponent().itemHasUpdated(item);
+                }
+            }
+        });
+    }
 
+    public void closeWindow() {
+        Platform.runLater(() -> dialogStage.close());
     }
 
     public class SimulatorUIControl implements MenuComponentControl {
@@ -120,7 +140,7 @@ public class SimulatorUI {
 
         @Override
         public String getConnectionName() {
-            return "Simulator";
+            return "Simulator " + project.getGeneratorOptions().getApplicationName();
         }
 
         @Override

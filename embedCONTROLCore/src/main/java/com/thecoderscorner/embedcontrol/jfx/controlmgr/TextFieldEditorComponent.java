@@ -42,7 +42,10 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
         actionButton.setFont(toFont(getDrawingSettings().getFontInfo(), textField.getFont()));
         setNodeConditionalColours(textField, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.TEXT_FIELD);
         setNodeConditionalColours(actionButton, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.BUTTON);
-        borderPane.setCenter(textField);
+        switch (getDrawingSettings().getJustification()) {
+            case LEFT ->  borderPane.setLeft(textField);
+            case CENTER,RIGHT -> borderPane.setCenter(textField);
+        }
         if(isItemEditable(item)) borderPane.setRight(actionButton);
         editorComponent = Optional.empty();
         return borderPane;

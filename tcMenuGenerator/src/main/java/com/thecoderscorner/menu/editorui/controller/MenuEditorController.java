@@ -233,6 +233,7 @@ public class MenuEditorController {
 
     private void openFirstEMF(Path path) {
         try {
+            stopSimulatorIfNeeded();
             handleRecents();
             Files.list(path)
                     .filter(p -> p.toString().toUpperCase().endsWith(".EMF"))
@@ -459,13 +460,19 @@ public class MenuEditorController {
     }
 
     public void onFileNew(ActionEvent event) {
+        stopSimulatorIfNeeded();
         editorUI.showCreateProjectDialog();
         redrawTreeControl();
         handleRecents();
     }
 
+    private void stopSimulatorIfNeeded() {
+        if(simulatorUI != null) simulatorUI.closeWindow();
+    }
+
     public void onFileOpen(ActionEvent event) {
         handleRecents();
+        stopSimulatorIfNeeded();
         if (editorProject.openProject()) {
             redrawTreeControl();
             handleRecents();
@@ -473,6 +480,7 @@ public class MenuEditorController {
     }
 
     public void onRecent(ActionEvent event) {
+        stopSimulatorIfNeeded();
         javafx.scene.control.MenuItem item = (javafx.scene.control.MenuItem) event.getSource();
         String recent = item.getText();
         if (!PrefsConfigurationStorage.RECENT_DEFAULT.equals(recent)) {
@@ -624,6 +632,7 @@ public class MenuEditorController {
         recentItems.forEach(recentlyUsedItem -> {
             var item = new javafx.scene.control.MenuItem(recentlyUsedItem.name());
             item.setOnAction(e-> {
+                stopSimulatorIfNeeded();
                 editorProject.openProject(recentlyUsedItem.path());
                 redrawTreeControl();
             });
@@ -708,10 +717,7 @@ public class MenuEditorController {
         }
 
         simulatorUI = new SimulatorUI();
-        simulatorUI.presentSimulator(editorProject.getMenuTree(), editorProject.getFileName(),
-                editorProject.getGeneratorOptions().getApplicationUUID(),
-                (Stage)menuTree.getScene().getWindow(),
-                editorProject.getLocaleHandler());
+        simulatorUI.presentSimulator(editorProject.getMenuTree(), editorProject, (Stage)menuTree.getScene().getWindow());
         simulatorUI.setCloseConsumer(windowEvent -> simulatorUI = null);
     }
 

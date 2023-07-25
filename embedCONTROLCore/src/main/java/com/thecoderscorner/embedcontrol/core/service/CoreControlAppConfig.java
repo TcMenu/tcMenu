@@ -18,7 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Configuration
-
 public class CoreControlAppConfig {
     private final Path tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
 
@@ -33,21 +32,10 @@ public class CoreControlAppConfig {
     }
 
     @Bean
-    public Path databasePath(@Value("root.app.name") String appName) {
-        var path = tcMenuHome.resolve(appName).resolve("tcAppStore.db");
-        try {
-            Files.createDirectory(path);
-        } catch(IOException ex) {
-            System.getLogger("Context").log(System.Logger.Level.ERROR, "Could not create app directory " + path);
-        }
-        return path;
-    }
-
-    @Bean
-    public DataSource dataSource(Path databasePath) {
+    public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.sqlite.JDBC");
-        dataSource.setUrl("jdbc:sqlite:" + databasePath);
+        dataSource.setUrl("jdbc:sqlite:" + tcMenuHome.resolve("tcDataStore.db"));
         return dataSource;
     }
 

@@ -52,11 +52,6 @@ public class ManualLanConnectionCreator implements ConnectionCreator {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public AuthStatus currentState() {
         return controller != null ? controller.getConnector().getAuthenticationStatus() : AuthStatus.NOT_STARTED;
     }

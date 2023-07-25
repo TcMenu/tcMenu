@@ -13,6 +13,8 @@ import java.util.UUID;
 public class GeneralSettingsController {
     public TextField appNameField;
     public TextField appUuidField;
+    public Spinner<Integer> fontSizeSpinner;
+    public CheckBox showSubRecursive;
     private GlobalSettings settings;
     private AppDataStore dataStore;
 
@@ -21,6 +23,8 @@ public class GeneralSettingsController {
         this.dataStore = dataStore;
         appNameField.setText(settings.getAppName());
         appUuidField.setText(settings.getAppUuid());
+        fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 100, settings.getDefaultFontSize()));
+        showSubRecursive.setSelected(settings.isDefaultRecursiveRendering());
     }
 
 
@@ -35,6 +39,8 @@ public class GeneralSettingsController {
     public void onSaveChanges(ActionEvent actionEvent) {
         settings.setAppName(appNameField.getText());
         settings.setAppUuid(appUuidField.getText());
+        settings.setDefaultRecursiveRendering(showSubRecursive.isSelected());
+        settings.setDefaultFontSize(fontSizeSpinner.getValue());
         dataStore.updateGlobalSettings(settings);
     }
 

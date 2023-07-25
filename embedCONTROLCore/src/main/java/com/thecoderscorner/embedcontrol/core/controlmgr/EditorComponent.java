@@ -26,7 +26,7 @@ public interface EditorComponent<T> {
      * The item has been updated to a new value and that value needs to be presented
      * @param newValue the menu state containing the update
      */
-    void onItemUpdated(MenuState<?> newValue);
+    void onItemUpdated(MenuItem item, MenuState<?> newValue);
 
     /**
      * There has been a structural change that requires the item to be recalculated.

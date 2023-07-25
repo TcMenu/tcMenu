@@ -32,7 +32,7 @@ public class LocalTreeComponentManager extends TreeComponentManager<Node> implem
                     .filter(item -> !(item instanceof SubMenuItem))
                     .filter(item -> editorComponents.containsKey(item.getId()))
                     .forEach(item -> {
-                        editorComponents.get(item.getId()).onItemUpdated(controller.getMenuTree().getMenuState(item));
+                        editorComponents.get(item.getId()).onItemUpdated(item, controller.getMenuTree().getMenuState(item));
                     });
         });
     }

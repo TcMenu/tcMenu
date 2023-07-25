@@ -3,7 +3,6 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.NullConditionalColoring;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutLoader;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
@@ -13,7 +12,6 @@ import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
  * this class. It can either be auto-generated on the fly, or selected by a user and serialized by the layout persister
  * for later reloading. This is essentially a value class.
  *
- * @see ScreenLayoutLoader
  */
 public class ComponentSettings {
     public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), FONT_100_PERCENT, PortableAlignment.LEFT, new ComponentPositioning(0, 0), RedrawingMode.SHOW_NAME_VALUE, ControlType.TEXT_CONTROL, false);

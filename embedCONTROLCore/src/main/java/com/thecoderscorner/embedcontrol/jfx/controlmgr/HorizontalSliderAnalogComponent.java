@@ -50,7 +50,7 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         var value = Math.max(0, Math.min(analog.getMaxValue(), newPositionInControl / oneTick));
         AnyMenuState newState = MenuItemHelper.stateForMenuItem(item, value, true, menuState.isActive());
         tree.changeItem(item, newState);
-        onItemUpdated((MenuState<?>) newState);
+        onItemUpdated(item, (MenuState<?>) newState);
         currentVal = (int)value;
 
         onPaintSurface(canvas.getGraphicsContext2D());

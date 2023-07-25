@@ -31,7 +31,8 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onItemUpdated(MenuState<?> newValue) {
+    public void onItemUpdated(MenuItem item, MenuState<?> newValue) {
+        this.item = item;
         if (newValue.getValue() != null)
         {
             MenuState<T> actualState = (MenuState<T>) newValue;

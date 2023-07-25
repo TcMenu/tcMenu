@@ -24,12 +24,13 @@ import static com.thecoderscorner.embedcontrol.customization.FontInformation.*;
 
 public class JfxMenuPresentable implements PanelPresentable<Node> {
     private final SubMenuItem subMenuItem;
-    private final MenuGridComponent<Node> gridComponent;
+    protected final MenuGridComponent<Node> gridComponent;
     private final MenuEditorFactory<Node> editorFactory;
     private final MenuItemStore store;
     private final MenuComponentControl componentControl;
     private double presentableWidth = 999;
     private GridPane gridPane;
+    private double lastWidth = 999;
 
     public JfxMenuPresentable(SubMenuItem subMenuItem, MenuItemStore store, JfxNavigationManager navMgr,
                               ScheduledExecutorService executor, ThreadMarshaller marshaller,
@@ -41,8 +42,11 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
         this.gridComponent = new JfxGridComponent(store, navMgr, executor, marshaller);
     }
 
+    public MenuGridComponent<Node> getGridComponent() { return gridComponent; }
+
     @Override
     public Node getPanelToPresent(double width) throws Exception {
+        lastWidth = width;
         if(gridPane != null) {
             // empty it if it already exists to make GC easier
             gridPane.getChildren().clear();
@@ -54,6 +58,11 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
         gridComponent.clearGrid();
         gridComponent.renderMenuRecursive(editorFactory, subMenuItem, store.isRecursive(), 0);
         return gridPane;
+    }
+
+    public void entirelyRebuildGrid() {
+        gridComponent.clearGrid();
+        gridComponent.renderMenuRecursive(editorFactory, subMenuItem, store.isRecursive(), 0);
     }
 
     @Override

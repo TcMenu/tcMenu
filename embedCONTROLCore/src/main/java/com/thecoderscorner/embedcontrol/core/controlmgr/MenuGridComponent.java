@@ -9,6 +9,8 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
 public abstract class MenuGridComponent<T> {
@@ -44,7 +47,7 @@ public abstract class MenuGridComponent<T> {
 
         if (componentSettings.getDrawMode() == RedrawingMode.HIDDEN) return Optional.empty();
 
-        if (item instanceof SubMenuItem sub) {
+        if (item instanceof SubMenuItem sub && componentSettings.getControlType() != ControlType.TEXT_CONTROL) {
             return Optional.of(editorFactory.createButtonWithAction(sub, MenuItemFormatter.defaultInstance().getItemName(sub), componentSettings,
                     subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore)));
         }
@@ -88,28 +91,45 @@ public abstract class MenuGridComponent<T> {
             }
         } else {
             if (level != 0) {
-                String itemName = MenuItemFormatter.defaultInstance().getItemName(sub);
-                addTextToGrid(getSettingsForStaticItem(defaultSpaceForItem(Optional.of(sub))), itemName);
+                var position = defaultSpaceForItem(Optional.of(sub));
+                var settings = new ComponentSettings(new ScreenLayoutBasedConditionalColor(menuItemStore, position),
+                        new FontInformation(150, PERCENT), EditorComponent.PortableAlignment.LEFT,
+                        position, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, false);
+
+                getComponentEditorItem(editorFactory, sub, settings).ifPresent(comp -> {
+                    addToGrid(settings.getPosition(), comp);
+                    editorComponents.put(sub.getId(), comp);
+                    MenuItemHelper.getValueFor(sub, tree);
+                    comp.onItemUpdated(sub, tree.getMenuState(sub));
+                });
+
             }
             for (var item : tree.getMenuItems(sub)) {
                 if (!item.isVisible()) continue;
                 if (item instanceof SubMenuItem && recurse) {
                     renderMenuRecursive(editorFactory, (SubMenuItem) item, recurse, level + 1);
                 } else {
-                    if (item instanceof RuntimeListMenuItem) {
-                        var pos = defaultSpaceForItem(Optional.of(item));
-                        addTextToGrid(getSettingsForStaticItem(pos), MenuItemFormatter.defaultInstance().getItemName(item));
-                    }
-
                     var settings = getComponentForMenuItem(item);
                     getComponentEditorItem(editorFactory, item, settings).ifPresent(comp -> {
                         addToGrid(settings.getPosition(), comp);
                         editorComponents.put(item.getId(), comp);
                         MenuItemHelper.getValueFor(item, tree, MenuItemHelper.getDefaultFor(item));
-                        comp.onItemUpdated(tree.getMenuState(item));
+                        comp.onItemUpdated(item, tree.getMenuState(item));
                     });
                 }
             }
+        }
+    }
+
+    public void itemHasUpdated(MenuItem item) {
+        if(editorComponents.containsKey(item.getId())) {
+            editorComponents.get(item.getId()).onItemUpdated(item, tree.getMenuState(item));
+        }
+    }
+
+    public void tickAll() {
+        for(var component : editorComponents.values()) {
+            component.tick();
         }
     }
 
@@ -154,6 +174,12 @@ public abstract class MenuGridComponent<T> {
         row = 0;
     }
 
+    public void acknowledgementReceived(CorrelationId key, AckStatus status) {
+        for(var comp : editorComponents.values()) {
+            comp.onCorrelation(key, status);
+        }
+    }
+
     record ScreenLayoutBasedConditionalColor(MenuItemStore store, ComponentPositioning where) implements ConditionalColoring {
         @Override
         public PortableColor foregroundFor(EditorComponent.RenderingStatus status, ColorComponentType compType) {
@@ -191,11 +217,7 @@ public abstract class MenuGridComponent<T> {
      * Called frequently by the executor to update the UI components.
      */
     public void timerTick() {
-        marshaller.runOnUiThread(() -> {
-            for (var component : editorComponents.values()) {
-                component.tick();
-            }
-        });
+        marshaller.runOnUiThread(this::tickAll);
     }
 
     /**

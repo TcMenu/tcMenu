@@ -7,7 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.*;
 
 public class DatabaseAppDataStore implements AppDataStore {
     private static System.Logger logger = System.getLogger(DatabaseAppDataStore.class.getSimpleName());
@@ -30,7 +35,7 @@ public class DatabaseAppDataStore implements AppDataStore {
             ERROR_FG VARCHAR(16),
             ERROR_BG VARCHAR(16),
             DIALOG_FG VARCHAR(16),
-            DIALOG_BG VARCHAR(16),
+            DIALOG_BG VARCHAR(16)
         )
     """;
     private static final String CREATE_CONNECTIONS_TABLE = """
@@ -48,7 +53,7 @@ public class DatabaseAppDataStore implements AppDataStore {
         """;
     private static final String CREATE_FORM_STORE_TABLE = """
             CREATE TABLE TC_FORM(
-                LOCAL_ID INT PRIMARY KEY,
+                UUID VARCHAR(64) PRIMARY KEY,
                 FORM_NAME VARCHAR(128) PRIMARY KEY,
                 XML_DATA BLOB
             """;
@@ -63,25 +68,65 @@ public class DatabaseAppDataStore implements AppDataStore {
     }
 
     private TcMenuPersistedConnection mapConnectionObject(ResultSet resultSet, int i) throws SQLException {
-        /*return new TcMenuPersistedConnection(
+        return new TcMenuPersistedConnection(
                 resultSet.getInt("LOCAL_ID"),
                 resultSet.getString("CONNECTION_NAME"),
                 resultSet.getString("CONNECTION_UUID"),
-                resultSet.getString("CONNECTION_TYPE")
-        );*/ throw new UnsupportedOperationException();
+                resultSet.getString("SELECTED_FORM"),
+                StoreConnectionType.valueOf(resultSet.getString("CONNECTION_TYPE")),
+                resultSet.getString("HOST_OR_SERIAL_ID"),
+                resultSet.getString("PORT_OR_BAUD"),
+                resultSet.getString("EXTRA_DATA"),
+                resultSet.getString("LAST_MODIFIED"),
+                this
+        );
     }
 
-    public TcMenuPersistedConnection getAllConnections() {
+    public List<TcMenuPersistedConnection> getAllConnections() {
         ensureTableExists("TC_CONNECTION", CREATE_CONNECTIONS_TABLE);
-        throw new UnsupportedOperationException();
+        return template.query("SELECT * FROM TC_CONNECTION", this::mapConnectionObject);
     }
 
-    public void updateConnection(TcMenuPersistedConnection connection) {
+    public int updateConnection(TcMenuPersistedConnection connection) {
+        int localId = connection.getLocalId() == -1 ? findNextConnectionId() : connection.getLocalId();
+        var params = new Object[]{
+                connection.getName(),
+                connection.getFormName(),
+                connection.getUuid(),
+                connection.getConnectionType(),
+                connection.getHostOrSerialId(),
+                connection.getPortOrBaud(),
+                connection.getExtraData(),
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                localId
+        };
 
+        var count = template.queryForObject("SELECT COUNT(*) from TC_CONNECTION where LOCAL_ID = ?", Integer.class, connection.getLocalId());
+        if(count == null || count == 0) {
+            template.update("""
+                INSERT INTO TC_CONNECTION(
+                    CONNECTION_NAME, SELECTED_FORM, CONNECTION_UUID, CONNECTION_TYPE, 
+                    HOST_OR_SERIAL_ID, PORT_OR_BAUD, EXTRA_DATA, LAST_MODIFIED, LOCAL_ID) 
+                values(?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, params);
+        } else {
+            template.update("""
+                UPDATE TC_CONNECTION
+                SET CONNECTION_NAME = ?, SELECTED_FORM = ?, CONNECTION_UUID = ?, CONNECTION_TYPE = ?, 
+                    HOST_OR_SERIAL_ID = ?, PORT_OR_BAUD = ?, EXTRA_DATA = ?, LAST_MODIFIED = ?
+                WHERE LOCAL_ID = ?
+                """, params);
+        }
+        return localId;
+    }
+
+    private int findNextConnectionId() {
+        var res = template.queryForObject("SELECT MAX(LOCAL_ID) from TC_CONNECTION", Integer.class);
+        return (res == null || res == 0) ? 1 : res;
     }
 
     public void deleteConnection(TcMenuPersistedConnection connection) {
-
+        template.update("DELETE FROM TC_CONNECTION WHERE LOCAL_ID = ?", connection.getLocalId());
     }
 
     public GlobalSettings getGlobalSettings() {
@@ -95,7 +140,7 @@ public class DatabaseAppDataStore implements AppDataStore {
             logger.log(System.Logger.Level.INFO, "Reading settings from table");
             return template.queryForObject("SELECT * FROM GLOBAL_SETTINGS where SETTING_ID=0", this::settingsMapper);
         } catch(Exception ex) {
-            logger.log(System.Logger.Level.ERROR, "Unable to query global settings");
+            logger.log(System.Logger.Level.ERROR, "Unable to query global settings", ex);
             return new GlobalSettings();
         }
     }
@@ -139,7 +184,7 @@ public class DatabaseAppDataStore implements AppDataStore {
                 settings.getDialogColor().getBg().toString()
         };
 
-        var res = template.queryForObject("SELECT COUNT(*) FROM GLOBAL_SETTINGS WHERE SETTING_ID=1", Integer.class);
+        var res = template.queryForObject("SELECT COUNT(*) FROM GLOBAL_SETTINGS WHERE SETTING_ID=0", Integer.class);
         if(res == null || res ==0) {
             template.update("""
                    INSERT INTO GLOBAL_SETTINGS(
@@ -193,8 +238,8 @@ public class DatabaseAppDataStore implements AppDataStore {
 
     private boolean ensureTableExists(String table, String ddlToCreate) {
         logger.log(System.Logger.Level.DEBUG, "Checking for table " + table);
-        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='?'";
-        var res = template.queryForObject(sql, Integer.class, ddlToCreate);
+        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
+        var res = template.queryForObject(sql, Integer.class, table);
         if(res == null || res == 0) {
             logger.log(System.Logger.Level.DEBUG, "Creating table " + table);
             template.execute(ddlToCreate);

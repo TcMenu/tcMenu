@@ -1,5 +1,9 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,6 +20,22 @@ public final class TcMenuPersistedConnection {
     private final String extraData;
     private final AppDataStore dataStore;
     private List<TcMenuFormPersistence> attachedForms = null;
+    private final LocalDateTime lastModified;
+
+    public TcMenuPersistedConnection(int localId, String name, String uuid, String formName, StoreConnectionType conType,
+                                     String hostOrSerialId, String portOrBaud, String extraData, String lastModified,
+                                     AppDataStore dataStore) {
+        this.localId = localId;
+        this.name = name;
+        this.uuid = uuid;
+        this.formName = formName;
+        this.connectionType = conType;
+        this.hostOrSerialId = hostOrSerialId;
+        this.portOrBaud = portOrBaud;
+        this.extraData = extraData;
+        this.dataStore = dataStore;
+        this.lastModified = LocalDateTime.parse(lastModified, DateTimeFormatter.ISO_DATE_TIME);
+    }
 
     public TcMenuPersistedConnection(int localId, String name, String uuid, String formName, StoreConnectionType conType,
                                      String hostOrSerialId, String portOrBaud, String extraData, AppDataStore dataStore) {
@@ -28,6 +48,11 @@ public final class TcMenuPersistedConnection {
         this.portOrBaud = portOrBaud;
         this.extraData = extraData;
         this.dataStore = dataStore;
+        this.lastModified = LocalDateTime.now();
+    }
+
+    public TcMenuPersistedConnection withNewLocalId(int localId) {
+        return new TcMenuPersistedConnection(localId, name, uuid, formName, connectionType, hostOrSerialId, portOrBaud, extraData, dataStore);
     }
 
     public int getLocalId() {
@@ -74,6 +99,14 @@ public final class TcMenuPersistedConnection {
 
     public String getExtraData() {
         return extraData;
+    }
+
+    public String getLastModifiedText() {
+        return lastModified.format(DateTimeFormatter.ISO_DATE_TIME);
+    }
+
+    public LocalDateTime getLastModified() {
+        return lastModified;
     }
 
     public List<TcMenuFormPersistence> getAttachedForms() {
