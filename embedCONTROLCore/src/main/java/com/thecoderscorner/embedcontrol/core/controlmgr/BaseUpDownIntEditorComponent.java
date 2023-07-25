@@ -9,7 +9,7 @@ public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorCompo
 
     protected BaseUpDownIntEditorComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
-        onItemUpdated(controller.getMenuTree().getMenuState(item));
+        onItemUpdated(item, controller.getMenuTree().getMenuState(item));
     }
 
     protected void bumpCount(int delta) {
@@ -25,7 +25,7 @@ public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorCompo
     @Override
     public String getControlText() {
         String str = "";
-        if (controlTextIncludesName()) str = item.getName();
+        if (controlTextIncludesName()) str = MenuItemFormatter.defaultInstance().getItemName(item);
         if (!controlTextIncludesValue()) return str;
 
         str += " ";
@@ -36,7 +36,8 @@ public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorCompo
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onItemUpdated(MenuState<?> newValue) {
+    public void onItemUpdated(MenuItem item, MenuState<?> newValue) {
+        this.item = item;
         if (newValue != null && newValue.getValue() != null) {
             MenuState<T> state = (MenuState<T>) newValue;
             currentVal = state.getValue();

@@ -48,4 +48,23 @@ public class ComponentPositioning {
     public int getColSpan() {
         return colSpan;
     }
+
+    public String toWire() {
+        if(colSpan <= 1 && rowSpan <=1) {
+            return String.format("%d,%d", row, col);
+        } else {
+            return String.format("%d,%d,%d,%d", row, col, rowSpan, colSpan);
+        }
+    }
+
+    public static ComponentPositioning fromWire(String in) {
+        var parts = in.split(",\\s*");
+        if(parts.length == 2) {
+            return new ComponentPositioning(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), 1, 1);
+        } else if(parts.length == 4) {
+            return new ComponentPositioning(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]),
+                    Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+        }
+        throw new IllegalArgumentException("Position not in the right format " + in);
+    }
 }

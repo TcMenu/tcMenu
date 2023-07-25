@@ -20,8 +20,10 @@ public class RgbFieldEditHandler implements FieldEditHandler {
         if(currentValue instanceof PortableColor pc) {
             startingColor = asFxColor(pc);
         }
-        else {
+        else if(currentValue != null) {
             startingColor = asFxColor(new PortableColor(currentValue.toString()));
+        } else {
+            startingColor = new Color(0, 0, 0, 0);
         }
         this.rgbPicker = new ColorPicker(startingColor);
     }

@@ -1,12 +1,9 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
-import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.ManualLanConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.Rs232ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.creators.SimulatorConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortInfo;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortType;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import javafx.application.Platform;
@@ -15,7 +12,13 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType;
+import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType.*;
 
 public class NewConnectionController {
     public static final List<Integer> BAUD_RATES = List.of(1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000);
@@ -30,19 +33,15 @@ public class NewConnectionController {
     public TextArea jsonDataField;
     public RadioButton simulatorRadio;
     private final Set<SerialPortInfo> allPorts = new HashSet<>();
-    private GlobalSettings settings;
     private EmbedControlContext context;
-    private Optional<ConnectionCreator> result = Optional.empty();
-    private boolean newConnectionPanel;
+    private TcMenuPersistedConnection existingPersistence = null;
 
-    public void initialise(GlobalSettings settings, EmbedControlContext context, Optional<ConnectionCreator> existingCreator) {
-        this.settings = settings;
+    public void initialise(GlobalSettings settings, EmbedControlContext context, Optional<TcMenuPersistedConnection> existingCreator) {
         this.context = context;
         baudCombo.getItems().addAll(BAUD_RATES);
         context.getSerialFactory().startPortScan(SerialPortType.ALL_PORTS, this::portChange);
         baudCombo.getSelectionModel().select(0);
 
-        newConnectionPanel = true;
         existingCreator.ifPresent(this::fillInFromExisting);
 
         onRadioChange(null);
@@ -53,24 +52,24 @@ public class NewConnectionController {
         baudCombo.getSelectionModel().selectedItemProperty().addListener((ov, o, n) -> validateFields());
     }
 
-    private void fillInFromExisting(ConnectionCreator connectionCreator) {
-        newConnectionPanel = false;
+    private void fillInFromExisting(TcMenuPersistedConnection existing) {
+        existingPersistence = existing;
         createButton.setText("Save Changes");
-        connectionNameField.setText(connectionCreator.getName());
-        if(connectionCreator instanceof SimulatorConnectionCreator simCreator) {
+        connectionNameField.setText(existing.getName());
+        if(existing.getConnectionType() == SIMULATOR) {
             simulatorRadio.setSelected(true);
-            jsonDataField.setText(simCreator.getJsonForTree());
+            jsonDataField.setText(existing.getExtraData());
         }
-        else if(connectionCreator instanceof Rs232ConnectionCreator serCreator) {
+        else if(existing.getConnectionType() == SERIAL_CONNECTION) {
             createSerialRadio.setSelected(true);
-            var thePort = allPorts.stream().filter(sp -> sp.getId().equals(serCreator.getPortId())).findFirst();
+            var thePort = allPorts.stream().filter(sp -> sp.getId().equals(existing.getHostOrSerialId())).findFirst();
             thePort.ifPresent(serialPortInfo -> serialPortCombo.getSelectionModel().select(serialPortInfo));
-            baudCombo.getSelectionModel().select((Integer) serCreator.getBaudRate());
+            baudCombo.getSelectionModel().select((Integer.parseInt(existing.getPortOrBaud())));
         }
-        else if(connectionCreator instanceof ManualLanConnectionCreator lanCreator) {
+        else if(existing.getConnectionType() == MANUAL_SOCKET) {
             createLanRadio.setSelected(true);
-            hostNameField.setText(lanCreator.getIpAddr());
-            portNumberField.setText(Integer.toString(lanCreator.getPort()));
+            hostNameField.setText(existing.getHostOrSerialId());
+            portNumberField.setText(existing.getPortOrBaud());
         }
     }
 
@@ -114,29 +113,37 @@ public class NewConnectionController {
     }
 
     public void onCreate(ActionEvent actionEvent) {
-        ConnectionCreator creator;
+        StoreConnectionType ty;
+        String hostOrPort;
+        String baudOrPort;
+        String extra;
         if(createSerialRadio.isSelected()) {
-            creator = new Rs232ConnectionCreator(context.getSerialFactory(), connectionNameField.getText(),
-                    serialPortCombo.getSelectionModel().getSelectedItem().getId(),
-                    baudCombo.getSelectionModel().getSelectedItem());
+            ty = SERIAL_CONNECTION;
+            hostOrPort = serialPortCombo.getSelectionModel().getSelectedItem().getId();
+            baudOrPort = String.valueOf(baudCombo.getSelectionModel().getSelectedItem());
+            extra = "";
         }
         else if(simulatorRadio.isSelected()) {
-            creator = new SimulatorConnectionCreator(jsonDataField.getText(), connectionNameField.getText(), UUID.randomUUID(),
-                    context.getExecutorService(), context.getSerializer());
+            ty = SIMULATOR;
+            hostOrPort = "";
+            baudOrPort = "";
+            extra = jsonDataField.getText();
         }
         else {
-            var portNum = Integer.parseInt(portNumberField.getText());
-            creator = new ManualLanConnectionCreator(settings, context.getExecutorService(),
-                    connectionNameField.getText(), hostNameField.getText(), portNum);
+            ty = MANUAL_SOCKET;
+            hostOrPort = hostNameField.getText();
+            baudOrPort = portNumberField.getText();
+            extra = "";
         }
 
-        result = Optional.of(creator);
-
-        if(newConnectionPanel) {
-            context.createConnection(creator);
-        }
-        else {
+        if(existingPersistence != null) {
             ((Stage)connectionNameField.getScene().getWindow()).close();
+            // todo send back update..
+        }
+        else {
+            context.createConnection(new TcMenuPersistedConnection(
+                    -1, connectionNameField.getText(), "", "",
+                    ty, hostOrPort, baudOrPort, extra, context.getDataStore()));
         }
 
         connectionNameField.setText("");
@@ -146,9 +153,5 @@ public class NewConnectionController {
         jsonDataField.setText("");
         validateFields();
         onRadioChange(null);
-    }
-
-    public Optional<ConnectionCreator> getResult() {
-        return result;
     }
 }

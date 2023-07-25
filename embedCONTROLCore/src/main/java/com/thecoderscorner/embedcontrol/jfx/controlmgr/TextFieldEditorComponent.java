@@ -17,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
 
 import java.util.Optional;
 
@@ -37,13 +36,16 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     public Node createComponent() {
         borderPane = new BorderPane();
         textField = new Label(getControlText());
-        textField.setFont(Font.font(getDrawingSettings().getFontSize()));
+        textField.setFont(toFont(getDrawingSettings().getFontInfo(), textField.getFont()));
         actionButton = new Button("Edit");
         actionButton.setOnAction(this::onButtonPressed);
-        actionButton.setFont(Font.font(getDrawingSettings().getFontSize()));
+        actionButton.setFont(toFont(getDrawingSettings().getFontInfo(), textField.getFont()));
         setNodeConditionalColours(textField, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.TEXT_FIELD);
         setNodeConditionalColours(actionButton, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.BUTTON);
-        borderPane.setCenter(textField);
+        switch (getDrawingSettings().getJustification()) {
+            case LEFT ->  borderPane.setLeft(textField);
+            case CENTER,RIGHT -> borderPane.setCenter(textField);
+        }
         if(isItemEditable(item)) borderPane.setRight(actionButton);
         editorComponent = Optional.empty();
         return borderPane;

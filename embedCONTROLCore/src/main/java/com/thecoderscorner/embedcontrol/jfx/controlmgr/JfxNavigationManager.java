@@ -13,13 +13,6 @@ import javafx.scene.image.Image;
  */
 public interface JfxNavigationManager extends NavigationManager<Node, Image> {
     /**
-     * When set puts any menus that are created into editable mode, so that the settings of each item can be overridden.
-     * Caution - calling this will completely reset navigation and reload the ROOT panel.
-     * @param editorPresenter the editor presenter
-     */
-    void setItemEditorPresenter(JfxPanelLayoutEditorPresenter editorPresenter);
-
-    /**
      * Allows the overriding of display panels on a per sub menu basis, for example you could provide custom UIs for
      * a few panels and use the standard UIs for all the others. You provide a {@link PanelPresentable} implementation
      * that will be called upon to be displayed when the submenu is on display. Associated UIs will be lazy created

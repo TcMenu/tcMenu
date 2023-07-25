@@ -1,6 +1,6 @@
 <TcMenuPlugin name="Serve up embedCONTROL JS from webserver" id="36f98a10-7ffc-468c-8b6b-3961b5c87cbe" subsystem="REMOTE"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>RASPBERRY_PIJ</Platform>
     </SupportedPlatforms>

@@ -12,7 +12,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.text.Font;
 
 import java.util.function.Consumer;
 
@@ -36,7 +35,7 @@ public class MenuSelectButtonEditorComponent extends BaseBoolEditorComponent<Nod
     public Node createComponent() {
         button = new Button(text);
         button.setMaxWidth(9999);
-        button.setFont(Font.font(getDrawingSettings().getFontSize()));
+        button.setFont(toFont(getDrawingSettings().getFontInfo(), button.getFont()));
         setNodeConditionalColours(button, getDrawingSettings().getColors(), ColorComponentType.BUTTON);
         button.setOnAction(evt -> itemConsumer.accept(item));
 

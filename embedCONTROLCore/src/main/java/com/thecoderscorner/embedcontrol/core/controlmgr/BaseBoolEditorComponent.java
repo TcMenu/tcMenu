@@ -18,7 +18,8 @@ public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> 
     }
 
     @Override
-    public void onItemUpdated(MenuState<?> newState) {
+    public void onItemUpdated(MenuItem item, MenuState<?> newState) {
+        this.item = item;
         if (newState.getValue() != null && newState.getValue() instanceof Boolean)
         {
             currentVal = (boolean) newState.getValue();
@@ -29,7 +30,7 @@ public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> 
     @Override
     public String getControlText() {
         String prefix = "";
-        if (controlTextIncludesName()) prefix = item.getName();
+        if (controlTextIncludesName()) prefix = MenuItemFormatter.defaultInstance().getItemName(item);
 
         if (!controlTextIncludesValue()) return prefix;
 

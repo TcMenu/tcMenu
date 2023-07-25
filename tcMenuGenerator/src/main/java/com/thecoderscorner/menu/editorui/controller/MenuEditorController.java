@@ -65,6 +65,7 @@ public class MenuEditorController {
     public Label statusField;
     public CheckMenuItem darkModeMenuFlag;
     public Label currentEditLabel;
+    public MenuButton localeMenuButton;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -151,7 +152,22 @@ public class MenuEditorController {
 
         menuToProjectMaxLevels = storage.getMenuProjectMaxLevel();
 
+        attemptToLoadLastProject();
+
         executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
+    }
+
+    private void attemptToLoadLastProject() {
+        try {
+            var lastPrj = configStore.getLastLoadedProject();
+            if(lastPrj.isPresent()) {
+                editorProject.openProjectWithoutAlert(lastPrj.get());
+            }
+        } catch (Exception ex) {
+            logger.log(ERROR, "Last project didn't load, start fresh", ex);
+            configStore.emptyLastLoadedProject();
+            editorProject.newProject();
+        }
     }
 
     public void checkOnClipboard() {
@@ -217,6 +233,7 @@ public class MenuEditorController {
 
     private void openFirstEMF(Path path) {
         try {
+            stopSimulatorIfNeeded();
             handleRecents();
             Files.list(path)
                     .filter(p -> p.toString().toUpperCase().endsWith(".EMF"))
@@ -311,6 +328,19 @@ public class MenuEditorController {
 
         if(simulatorUI != null) simulatorUI.itemHasChanged(null);
         selectChildInTreeById(rootItem, sel);
+
+        var items = localeMenuButton.getItems();
+        items.clear();
+        items.addAll(getLocaleMenuItems());
+        if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
+            localeMenuButton.setDisable(false);
+            localeMenuButton.setMaxWidth(9999);
+            localeMenuButton.setText(bundle.getString("main.editor.lang") + " " + toLang(editorProject.getLocaleHandler().getCurrentLocale()));
+        } else {
+            localeMenuButton.setDisable(true);
+            localeMenuButton.setText(bundle.getString("main.editor.no.locale"));
+        }
+
     }
 
     private void selectChildInTreeById(TreeItem<MenuItemWithDescription> item, int id) {
@@ -430,13 +460,19 @@ public class MenuEditorController {
     }
 
     public void onFileNew(ActionEvent event) {
+        stopSimulatorIfNeeded();
         editorUI.showCreateProjectDialog();
         redrawTreeControl();
         handleRecents();
     }
 
+    private void stopSimulatorIfNeeded() {
+        if(simulatorUI != null) simulatorUI.closeWindow();
+    }
+
     public void onFileOpen(ActionEvent event) {
         handleRecents();
+        stopSimulatorIfNeeded();
         if (editorProject.openProject()) {
             redrawTreeControl();
             handleRecents();
@@ -444,6 +480,7 @@ public class MenuEditorController {
     }
 
     public void onRecent(ActionEvent event) {
+        stopSimulatorIfNeeded();
         javafx.scene.control.MenuItem item = (javafx.scene.control.MenuItem) event.getSource();
         String recent = item.getText();
         if (!PrefsConfigurationStorage.RECENT_DEFAULT.equals(recent)) {
@@ -454,12 +491,14 @@ public class MenuEditorController {
 
     public void onFileSave(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE);
+        configStore.setLastLoadedProject(editorProject.getFileName());
         redrawTreeControl();
         handleRecents();
     }
 
     public void onFileSaveAs(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE_AS);
+        configStore.setLastLoadedProject(editorProject.getFileName());
         redrawTreeControl();
         handleRecents();
     }
@@ -469,7 +508,7 @@ public class MenuEditorController {
     }
 
     public void onCodeShowLayout(ActionEvent actionEvent) {
-        editorUI.showRomLayoutDialog(editorProject.getMenuTree());
+        editorUI.showRomLayoutDialog(editorProject.getMenuTree(), editorProject.getLocaleHandler());
     }
 
     public void onGenerateCode(ActionEvent event) {
@@ -481,6 +520,7 @@ public class MenuEditorController {
 
             editorUI.showCodeGeneratorDialog(installer);
             editorProject.saveProject(EditorSaveMode.SAVE);
+            configStore.setLastLoadedProject(editorProject.getFileName());
             redrawTreeControl();
             handleRecents();
         }
@@ -592,6 +632,7 @@ public class MenuEditorController {
         recentItems.forEach(recentlyUsedItem -> {
             var item = new javafx.scene.control.MenuItem(recentlyUsedItem.name());
             item.setOnAction(e-> {
+                stopSimulatorIfNeeded();
                 editorProject.openProject(recentlyUsedItem.path());
                 redrawTreeControl();
             });
@@ -676,10 +717,7 @@ public class MenuEditorController {
         }
 
         simulatorUI = new SimulatorUI();
-        simulatorUI.presentSimulator(editorProject.getMenuTree(), editorProject.getFileName(),
-                editorProject.getGeneratorOptions().getApplicationUUID(),
-                (Stage)menuTree.getScene().getWindow(),
-                editorProject.getLocaleHandler());
+        simulatorUI.presentSimulator(editorProject.getMenuTree(), editorProject, (Stage)menuTree.getScene().getWindow());
         simulatorUI.setCloseConsumer(windowEvent -> simulatorUI = null);
     }
 
@@ -753,5 +791,40 @@ public class MenuEditorController {
             // once the command is applied and the drag and drop finishes, entirely redraw the tree control.
             Platform.runLater(MenuEditorController.this::redrawTreeControl);
         }
+    }
+
+    private String toLang(Locale l) {
+        return switch(l.getLanguage()) {
+            case "" -> bundle.getString("locale.dialog.default.bundle");
+            case "--" -> "--";
+            default -> l.getDisplayLanguage() + "-" + l.getCountry();
+        };
+    }
+
+    private List<javafx.scene.control.MenuItem> getLocaleMenuItems() {
+        var list = editorProject.getLocaleHandler().getEnabledLocales().stream()
+                .map(l -> {
+                    var mi = new javafx.scene.control.MenuItem(toLang(l));
+                    mi.setOnAction(event -> localHasChanged(l));
+                    return mi;
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+        list.add(new SeparatorMenuItem());
+        var item = new javafx.scene.control.MenuItem(bundle.getString("menu.code.locale.configuration"));
+        item.setOnAction(this::onConfigureLocales);
+        list.add(item);
+        return list;
+    }
+
+    private void localHasChanged(Locale l) {
+        try {
+            if(l == null) return;
+            menuTree.getSelectionModel().select(0);
+            editorProject.getLocaleHandler().changeLocale(l);
+            Platform.runLater(this::redrawTreeControl);
+        } catch (IOException e) {
+            logger.log(ERROR, "Locale could not be changed to " + l, e);
+        }
+
     }
 }

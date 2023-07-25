@@ -31,7 +31,8 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onItemUpdated(MenuState<?> newValue) {
+    public void onItemUpdated(MenuItem item, MenuState<?> newValue) {
+        this.item = item;
         if (newValue.getValue() != null)
         {
             MenuState<T> actualState = (MenuState<T>) newValue;
@@ -43,7 +44,7 @@ public abstract class BaseTextEditorComponent<T, W> extends BaseEditorComponent<
     @Override
     public String getControlText() {
         String str = "";
-        if (controlTextIncludesName())  str = item.getName() + " ";
+        if (controlTextIncludesName())  str = MenuItemFormatter.defaultInstance().getItemName(item) + " ";
         if (controlTextIncludesValue()) str += MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
         return str;
     }

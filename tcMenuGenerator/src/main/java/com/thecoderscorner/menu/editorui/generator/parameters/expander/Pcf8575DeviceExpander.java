@@ -11,11 +11,11 @@ import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.
 
 public class Pcf8575DeviceExpander extends IoExpanderDefinition {
     private final int i2cAddress;
-    private final int intPin;
+    private final String intPin;
     private final String name;
     private final boolean invertedLogic;
 
-    public Pcf8575DeviceExpander(String name, int i2cAddress, int intPin, boolean inverted) {
+    public Pcf8575DeviceExpander(String name, int i2cAddress, String intPin, boolean inverted) {
         this.i2cAddress = i2cAddress;
         this.intPin = intPin;
         this.name = name;
@@ -25,7 +25,7 @@ public class Pcf8575DeviceExpander extends IoExpanderDefinition {
     @Override
     public String getNicePrintableName() {
         var inv = invertedLogic ? "!" : "";
-        return String.format("%sPCF8575(0x%02x, %d)", inv, i2cAddress, intPin);
+        return String.format("%sPCF8575(0x%02x, %s)", inv, i2cAddress, intPin);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Pcf8575DeviceExpander extends IoExpanderDefinition {
         return i2cAddress;
     }
 
-    public int getIntPin() {
+    public String getIntPin() {
         return intPin;
     }
 
@@ -63,7 +63,7 @@ public class Pcf8575DeviceExpander extends IoExpanderDefinition {
     @Override
     public Optional<String> generateGlobal() {
         var invertedCode = invertedLogic ? ", true" : "";
-        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom8575(0x%02x, %d%s);", name, i2cAddress, intPin, invertedCode));
+        return Optional.of(String.format("IoAbstractionRef ioexp_%s = ioFrom8575(0x%02x, %s%s);", name, i2cAddress, intPin, invertedCode));
     }
 
     @Override

@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorint.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -32,7 +33,7 @@ public class RomLayoutDialogTestCases {
 
     @Start
     public void onStart(Stage stage) {
-        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree(), false);
+        romDialog = new RomLayoutDialog(stage, TestUtils.buildSimpleTree(), LocaleMappingHandler.NOOP_IMPLEMENTATION, false);
 
         this.stage = stage;
     }

@@ -8,19 +8,22 @@ package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.RomLayoutController;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.stage.Stage;
 
 public class RomLayoutDialog extends BaseDialogSupport<RomLayoutController> {
 
     private final MenuTree menuTree;
+    private final LocaleMappingHandler localeHandler;
 
-    public RomLayoutDialog(Stage stage, MenuTree menuTree, boolean modal) {
+    public RomLayoutDialog(Stage stage, MenuTree menuTree, LocaleMappingHandler localeHandler, boolean modal) {
         this.menuTree = menuTree;
+        this.localeHandler = localeHandler;
         tryAndCreateDialog(stage, "/ui/romLayoutDialog.fxml", bundle.getString("rom.layout.title"), modal);
     }
 
     @Override
     protected void initialiseController(RomLayoutController controller) {
-        controller.init(menuTree);
+        controller.init(menuTree, localeHandler);
     }
 }

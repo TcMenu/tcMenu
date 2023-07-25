@@ -12,9 +12,10 @@ public interface ColorCustomizable {
     ControlColor getColorFor(ColorComponentType componentType);
     void setColorFor(ColorComponentType componentType, ControlColor controlColor);
     void clearColorFor(ColorComponentType componentType);
-    int getFontSize();
-    void setFontSize(int size);
-    boolean isRecursiveRender();
-    void setRecursiveRender(boolean recursiveRender);
 
+    /**
+     * Get the name of this color scheme for saving and loading.
+     * @return the name of the scheme
+     */
+    String getColorSchemeName();
 }

@@ -2,7 +2,7 @@
               id="20409bb8-b8a1-4d1d-b632-2cf9b5739888" subsystem="DISPLAY"
               requiresDesigner="1.3"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
 
     <SupportedPlatforms>
        <Platform>ARDUINO_UNO</Platform>

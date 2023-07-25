@@ -27,8 +27,9 @@ public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorCompon
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onItemUpdated(MenuState<?> newValue)
+    public void onItemUpdated(MenuItem item, MenuState<?> newValue)
     {
+        this.item = item;
         var state = (MenuState<T>) newValue;
         {
             currentVal = state.getValue();

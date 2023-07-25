@@ -2,6 +2,9 @@ package com.thecoderscorner.embedcontrol.jfxapp;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
+import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 
 import java.util.UUID;
@@ -33,11 +36,19 @@ public interface EmbedControlContext {
      * Create a new connection from the creator provided.
      * @param connectionCreator the creator object to create the underlying connection
      */
-    void createConnection(ConnectionCreator connectionCreator);
+    void createConnection(TcMenuPersistedConnection connectionCreator);
 
     /**
      * Delete the connection WITHOUT any user interaction. Must be called on UI thread.
-     * @param identifier the connection to completely delete
+     * @param connection the connection to completely delete
      */
-    void deleteConnection(UUID identifier);
+    void deleteConnection(TcMenuPersistedConnection connection);
+
+    ConnectionCreator connectionFromDescription(TcMenuPersistedConnection connection);
+
+    GlobalSettings getSettings();
+
+    AppDataStore getDataStore();
+
+    void updateConnection(TcMenuPersistedConnection newConnection);
 }

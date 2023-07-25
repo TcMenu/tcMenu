@@ -1,14 +1,12 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.BaseEditorComponent;
-import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
-import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
+import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -18,6 +16,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 
 import java.util.List;
@@ -29,6 +28,7 @@ import static com.thecoderscorner.menu.domain.state.ListResponse.ResponseType.SE
 public class ListEditorComponent extends BaseEditorComponent<Node> {
     private final ObservableList<String> actualData = FXCollections.observableArrayList();
     private ListView<String> listView;
+    private Label titleLabel;
 
     public ListEditorComponent(MenuComponentControl remote, ComponentSettings settings, MenuItem item, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
@@ -58,7 +58,18 @@ public class ListEditorComponent extends BaseEditorComponent<Node> {
                     }
                 });
             }
-            return listView;
+            RedrawingMode drawMode = getDrawingSettings().getDrawMode();
+            if(drawMode == RedrawingMode.SHOW_NAME || drawMode == RedrawingMode.SHOW_NAME_VALUE) {
+                var border = new BorderPane();
+                titleLabel = new Label(MenuItemFormatter.defaultInstance().getItemName(item));
+                border.setTop(titleLabel);
+                border.setCenter(listView);
+                return listView;
+
+            } else {
+                titleLabel = null;
+                return listView;
+            }
         } else {
             return new Label("item not a list");
         }
@@ -71,7 +82,8 @@ public class ListEditorComponent extends BaseEditorComponent<Node> {
 
     @SuppressWarnings({"unchecked"})
     @Override
-    public void onItemUpdated(MenuState<?> state) {
+    public void onItemUpdated(MenuItem item, MenuState<?> state) {
+        this.item = item;
         if (state.getValue() instanceof List) {
             updateAll((List<String>) state.getValue());
         }
@@ -79,6 +91,7 @@ public class ListEditorComponent extends BaseEditorComponent<Node> {
 
     private void updateAll(List<String> values) {
         threadMarshaller.runOnUiThread(() -> {
+            if(titleLabel != null) titleLabel.setText(MenuItemFormatter.defaultInstance().getItemName(item));
             actualData.clear();
             actualData.addAll(values);
         });

@@ -28,17 +28,17 @@ public abstract class IoExpanderDefinition implements CodeGeneratorCapable {
             } else if (currentSel.startsWith("pcf8574:")) {
                 var parts = currentSel.split(":");
                 var invert = parts.length > 4 && Boolean.parseBoolean(parts[4]);
-                return Optional.of(new Pcf8574DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), invert));
+                return Optional.of(new Pcf8574DeviceExpander(parts[1], Integer.parseInt(parts[2]), parts[3], invert));
             } else if(currentSel.startsWith("pcf8575:")) {
                 var parts = currentSel.split(":");
                 var invert = parts.length > 4 && Boolean.parseBoolean(parts[4]);
-                return Optional.of(new Pcf8575DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), invert));
+                return Optional.of(new Pcf8575DeviceExpander(parts[1], Integer.parseInt(parts[2]), parts[3], invert));
             } else if (currentSel.startsWith("mcp23017:")) {
                 var parts = currentSel.split(":");
-                return Optional.of(new Mcp23017DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
+                return Optional.of(new Mcp23017DeviceExpander(parts[1], Integer.parseInt(parts[2]), parts[3]));
             } else if(currentSel.startsWith("aw9523:")) {
                 var parts = currentSel.split(":");
-                return Optional.of(new Aw9523DeviceExpander(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
+                return Optional.of(new Aw9523DeviceExpander(parts[1], Integer.parseInt(parts[2]), parts[3]));
             }
             else if(!currentSel.contains(":")){
                 return Optional.of(new CustomDeviceExpander(currentSel));

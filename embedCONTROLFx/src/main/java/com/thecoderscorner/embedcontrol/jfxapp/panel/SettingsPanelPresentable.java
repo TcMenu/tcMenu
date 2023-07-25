@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfxapp.panel;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
+import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.BaseDialogSupport;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.GeneralSettingsController;
@@ -10,9 +11,11 @@ import javafx.scene.layout.Pane;
 
 public class SettingsPanelPresentable implements PanelPresentable<Node> {
     private final GlobalSettings settings;
+    private final AppDataStore dataStore;
 
-    public SettingsPanelPresentable(GlobalSettings settings) {
+    public SettingsPanelPresentable(GlobalSettings settings, AppDataStore dataStore) {
         this.settings = settings;
+        this.dataStore = dataStore;
     }
 
     @Override
@@ -20,7 +23,7 @@ public class SettingsPanelPresentable implements PanelPresentable<Node> {
         var loader = new FXMLLoader(SettingsPanelPresentable.class.getResource("/generalSettings.fxml"));
         Pane loadedPane = loader.load();
         GeneralSettingsController controller = loader.getController();
-        controller.initialise(settings);
+        controller.initialise(settings, dataStore);
         return loadedPane;
     }
 

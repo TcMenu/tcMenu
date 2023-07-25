@@ -1,29 +1,30 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
+import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 
-import java.awt.*;
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.fromFxColor;
 
 public class GeneralSettingsController {
     public TextField appNameField;
     public TextField appUuidField;
-    public CheckBox enableLayoutCustomizationCheck;
+    public Spinner<Integer> fontSizeSpinner;
+    public CheckBox showSubRecursive;
     private GlobalSettings settings;
+    private AppDataStore dataStore;
 
-    public void initialise(GlobalSettings settings) {
+    public void initialise(GlobalSettings settings, AppDataStore dataStore) {
         this.settings = settings;
+        this.dataStore = dataStore;
         appNameField.setText(settings.getAppName());
         appUuidField.setText(settings.getAppUuid());
-        enableLayoutCustomizationCheck.setSelected(settings.isSetupLayoutModeEnabled());
+        fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 100, settings.getDefaultFontSize()));
+        showSubRecursive.setSelected(settings.isDefaultRecursiveRendering());
     }
 
 
@@ -38,10 +39,11 @@ public class GeneralSettingsController {
     public void onSaveChanges(ActionEvent actionEvent) {
         settings.setAppName(appNameField.getText());
         settings.setAppUuid(appUuidField.getText());
-        settings.save();
+        settings.setDefaultRecursiveRendering(showSubRecursive.isSelected());
+        settings.setDefaultFontSize(fontSizeSpinner.getValue());
+        dataStore.updateGlobalSettings(settings);
     }
 
     public void onLayoutCustomizableChange(ActionEvent actionEvent) {
-        settings.setSetupLayoutModeEnabled(enableLayoutCustomizationCheck.isSelected());
     }
 }

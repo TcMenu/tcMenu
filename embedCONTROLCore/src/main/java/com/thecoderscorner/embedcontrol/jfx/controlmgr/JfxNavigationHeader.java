@@ -2,12 +2,13 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
-import com.thecoderscorner.embedcontrol.core.controlmgr.TreeComponentManager;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.mgr.DialogManager;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.ResourceBundleMappingHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -25,39 +26,40 @@ import javafx.scene.layout.Priority;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 
 import static javafx.scene.control.Alert.AlertType;
 
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
-    private final Map<MenuItem, PanelPresentable<Node>> customPanelsByMenu = new HashMap<>();
+    private static ResourceBundle CORE_RESOURCES;
 
     public enum StandardLedWidgetStates { RED, ORANGE, GREEN }
     public enum StandardWifiWidgetStates { NOT_CONNECTED, LOW_SIGNAL, FAIR_SIGNAL, MEDIUM_SIGNAL, GOOD_SIGNAL }
 
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    private final Map<MenuItem, PanelPresentable<Node>> customPanelsByMenu = new HashMap<>();
     private final Map<TitleWidget<Image>, Button> widgetButtonMap = new HashMap<>();
     private final List<BiConsumer<ActionEvent, TitleWidget<Image>>> widgetClickListeners = new CopyOnWriteArrayList<>();
     private final LinkedList<PanelPresentable<Node>> navigationStack = new LinkedList<>();
-    private final ScreenLayoutPersistence layoutPersistence;
-    private TreeComponentManager<Node> treeComponentManager;
+    private final ScheduledExecutorService executorService;
+    private final GlobalSettings settings;
     private ScrollPane managedNavArea;
     private Label titleArea;
     private Button leftButton;
     private HBox widgetPane;
-    private MenuComponentControl controller;
+    private MenuComponentControl componentControl;
     private DialogManager dialogManager;
-    private JfxPanelLayoutEditorPresenter itemEditorPresenter;
 
-    public JfxNavigationHeader(ScreenLayoutPersistence persistence) {
-        this.layoutPersistence = persistence;
+    public JfxNavigationHeader(ScheduledExecutorService executorService, GlobalSettings settings) {
+        this.executorService = executorService;
+        this.settings = settings;
     }
 
-    public void initialiseUI(TreeComponentManager<Node> treeComponentManager, DialogManager dialogManager, MenuComponentControl control, ScrollPane managedNavArea) {
+    public void initialiseUI(DialogManager dialogManager, MenuComponentControl control, ScrollPane managedNavArea) {
         this.dialogManager = dialogManager;
         this.managedNavArea = managedNavArea;
-        this.controller = control;
-        this.treeComponentManager = treeComponentManager;
+        this.componentControl = control;
     }
 
     public Node initialiseControls() {
@@ -145,18 +147,19 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     }
 
     @Override
-    public void pushMenuNavigation(SubMenuItem subMenuItem, boolean resetNavigation) {
+    public void pushMenuNavigation(SubMenuItem subMenuItem, MenuItemStore store, boolean resetNavigation) {
         Platform.runLater(() -> {
             PanelPresentable<Node> presentable;
             if(customPanelsByMenu.containsKey(subMenuItem)) {
                 presentable = customPanelsByMenu.get(subMenuItem);
             } else {
-                var controlGrid = new JfxMenuControlGrid(controller, Platform::runLater, treeComponentManager, dialogManager, layoutPersistence, subMenuItem);
-                if (itemEditorPresenter != null) controlGrid.setLayoutEditor(itemEditorPresenter);
+                var editorFactory = new JfxMenuEditorFactory(componentControl, Platform::runLater, dialogManager);
+                var menuPresentable = new JfxMenuPresentable(subMenuItem, store, this, executorService,
+                        Platform::runLater, editorFactory, componentControl);
                 if (resetNavigation) {
                     navigationStack.clear();
                 }
-                presentable = controlGrid;
+                presentable = menuPresentable;
             }
             runNavigation(presentable);
             navigationStack.push(presentable);
@@ -164,8 +167,8 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     }
 
     @Override
-    public void pushMenuNavigation(SubMenuItem asSubMenu) {
-        pushMenuNavigation(asSubMenu, false);
+    public void pushMenuNavigation(SubMenuItem asSubMenu, MenuItemStore store) {
+        pushMenuNavigation(asSubMenu, store, false);
     }
 
     public void pushNavigation(PanelPresentable<Node> navigation) {
@@ -175,6 +178,10 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         });
     }
 
+    public void pushNavigationIfNotOnStack(PanelPresentable<Node> settingsPanel) {
+        if(!navigationStack.contains(settingsPanel)) pushNavigation(settingsPanel);
+    }
+
     private void runNavigation(PanelPresentable<Node> navigation) {
         try {
             setTitle(navigation.getPanelName());
@@ -182,7 +189,6 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
             leftButton.setVisible(navigation.canClose());
             leftButton.setManaged(navigation.canClose());
             leftButton.setText("<");
-
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Did not navigate to panel " + navigation.getPanelName(), e);
             Alert alert = new Alert(AlertType.ERROR, "Navigation failed to " + navigation.getPanelName(), ButtonType.CLOSE);
@@ -209,15 +215,6 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
     @Override
     public PanelPresentable<Node> currentNavigationPanel() {
         return navigationStack.peek();
-    }
-
-    @Override
-    public void setItemEditorPresenter(JfxPanelLayoutEditorPresenter panelPresenter) {
-        this.itemEditorPresenter = panelPresenter;
-        if(!navigationStack.isEmpty()) {
-            navigationStack.clear();
-            pushMenuNavigation(MenuTree.ROOT);
-        }
     }
 
     @Override
@@ -297,5 +294,12 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
                 .map(i -> new Image(i.toString()))
                 .toList();
         return new TitleWidget<>(images, images.size(), 0);
+    }
+
+    public static ResourceBundle getCoreResources() {
+        if(CORE_RESOURCES == null) {
+            CORE_RESOURCES = ResourceBundle.getBundle("ec_lang.coreLanguage");
+        }
+        return CORE_RESOURCES;
     }
 }

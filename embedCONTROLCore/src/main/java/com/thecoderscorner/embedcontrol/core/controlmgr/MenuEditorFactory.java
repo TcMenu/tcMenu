@@ -1,8 +1,6 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
-import com.thecoderscorner.embedcontrol.customization.LayoutEditorSettingsPresenter;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.function.Consumer;
 
@@ -12,32 +10,8 @@ import java.util.function.Consumer;
  * cases where recursive menu rendering is used to give visual clues such as indentation.
  * @param <T>
  */
-public interface MenuControlGrid<T>
+public interface MenuEditorFactory<T>
 {
-    /**
-     * Completely clear down the UI so that any controls that have been added are removed.
-     */
-    void clear();
-
-    /**
-     * This is generally used in recursive mode, as we go into another submenu to tell the UI that a visual clue
-     * is needed to represent the nesting.
-     */
-    void startNesting();
-
-    /**
-     * This is generally used in recursive mode to go back a level of nesting.
-     */
-    void endNesting();
-
-    /**
-     * Add a static label that is not representing a menu item, purely for display purposes
-     * @param label the text of the label
-     * @param position the settings to use for the rendering
-     * @param isHeader if the item is a header item or regular item
-     */
-    void addStaticLabel(String label, ComponentSettings position, boolean isHeader);
-
     /**
      * Creates a control that acts somewhat like a spinner, where there is an up and a down button, and somewhere to
      * present the current value. It is normally used for items with a finite set of values like Analog, Enum and Scroll
@@ -46,7 +20,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it.
      * @return the created component
      */
-    EditorComponent<T> addUpDownControl(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createUpDownControl(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates a button item that can either represent an action or boolean menu item, in the case of boolean items it
@@ -55,7 +29,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component
      */
-    EditorComponent<T> addBooleanButton(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createBooleanButton(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates a text item that can represent nearly every menu item. It can also edit most editable item types by
@@ -66,7 +40,7 @@ public interface MenuControlGrid<T>
      * @param <P> the type for editing, will normally be inferred from the default.
      * @return the created component.
      */
-    <P> EditorComponent<T> addTextEditor(MenuItem item, ComponentSettings settings, P prototype);
+    <P> EditorComponent<T> createTextEditor(MenuItem item, ComponentSettings settings, P prototype);
 
     /**
      * Creates a list item that represents a list of values, at the moment only String values are possible
@@ -74,7 +48,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component.
      */
-    EditorComponent<T> addListEditor(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createListEditor(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates an editable date item that represents a gregorian date, a suitable date editor is provided during editing.
@@ -82,7 +56,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component.
      */
-    EditorComponent<T> addDateEditorComponent(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createDateEditorComponent(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates an editable time item that represents a time or duration, with an editor if needed for edit operations
@@ -90,7 +64,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component.
      */
-    EditorComponent<T> addTimeEditorComponent(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createTimeEditorComponent(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates a horizontal slider that presents the percentage of the value graphically along with as text. The user can
@@ -99,7 +73,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component.
      */
-    EditorComponent<T> addHorizontalSlider(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createHorizontalSlider(MenuItem item, ComponentSettings settings, double presentableWidth);
 
     /**
      * Creates a rgb color item that can be edited using a color picker.
@@ -107,7 +81,7 @@ public interface MenuControlGrid<T>
      * @param settings the settings to use to display it
      * @return the created component.
      */
-    EditorComponent<T> addRgbColorControl(MenuItem item, ComponentSettings settings);
+    EditorComponent<T> createRgbColorControl(MenuItem item, ComponentSettings settings);
 
     /**
      * Creates a button that will run the actionConsumer upon being activated. This allows for custom actions to be
@@ -118,7 +92,7 @@ public interface MenuControlGrid<T>
      * @param actionConsumer the consumer to be called upon activation of the button
      * @return the created component.
      */
-    EditorComponent<T> addButtonWithAction(MenuItem item, String text, ComponentSettings settings,
+    EditorComponent<T> createButtonWithAction(MenuItem item, String text, ComponentSettings settings,
                                            Consumer<MenuItem> actionConsumer);
 
     /**
@@ -128,14 +102,5 @@ public interface MenuControlGrid<T>
      * @param componentSettings the component settings
      * @return the created component
      */
-    EditorComponent<T> addIoTMonitor(MenuItem item, ComponentSettings componentSettings);
-
-    /**
-     * A layout editor allows us to redefine the layout of a menu item, or even an entire submenu. When a layout editor
-     * exists, an extra button is added to each item that can bring up an editor panel to edit
-     * the settings for the item
-     * @param editorPresenter the editor presenter
-     */
-    void setLayoutEditor(LayoutEditorSettingsPresenter editorPresenter);
-
+    EditorComponent<T> createIoTMonitor(MenuItem item, ComponentSettings componentSettings);
 }

@@ -1,15 +1,21 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
@@ -17,7 +23,6 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 import static com.thecoderscorner.embedcontrol.customization.ColorCustomizable.*;
 
 public class ColorSettingsController {
-    public static final String DEFAULT_COLOR_NAME = "Global Settings";
     public ColorPicker pendingFgEditor;
     public ColorPicker pendingBgEditor;
     public ColorPicker dialogFgEditor;
@@ -32,8 +37,6 @@ public class ColorSettingsController {
     public ColorPicker textBgEditor;
     public ColorPicker updateFgEditor;
     public ColorPicker updateBgEditor;
-    public ComboBox<ColorCustomizable> subMenuCombo;
-    public CheckBox recursiveCheck;
     public CheckBox pendingCheck;
     public CheckBox dialogCheck;
     public CheckBox highlightCheck;
@@ -41,39 +44,52 @@ public class ColorSettingsController {
     public CheckBox textCheck;
     public CheckBox updateCheck;
     public CheckBox errorCheck;
-    public Spinner<Integer> fontSizeSpinner;
     public Button removeButton;
-    private Map<String, ColorCustomizable> allSettings = Map.of();
+    public Button addButton;
+    public ComboBox<ColorCustomizable> colorSetCombo;
+    private final Map<String, ColorCustomizable> allSettings = new HashMap<>();
     private GlobalSettings globalSettings;
     private JfxNavigationManager navigator;
     private ColorCustomizable currentColorSet;
     boolean changed;
+    private MenuItemStore store;
 
-    public void initialise(JfxNavigationManager navigator, GlobalSettings settings, Map<String, ColorCustomizable> allColorSettings) {
+    public void initialise(JfxNavigationManager navigator, GlobalSettings settings, MenuItemStore store, String name, boolean allowAdd) {
         this.navigator = navigator;
-        allSettings = allColorSettings;
+        this.store = store;
         globalSettings = settings;
-        subMenuCombo.setItems(FXCollections.observableArrayList(allColorSettings.values()));
-        var global = allColorSettings.values().stream()
-                .filter(ColorCustomizable::isRepresentingGlobal)
-                .findFirst().orElseThrow();
-        subMenuCombo.getSelectionModel().select(global);
+
+        refreshColorSets(name);
         prepareFromSubMenuSelection();
+
+        addButton.setDisable(!allowAdd);
+
+        colorSetCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null) return;
+            save(); // save outstanding changes first.
+            prepareFromSubMenuSelection();
+        });
     }
 
-    public void initialise(JfxNavigationManager navigator, GlobalSettings settings, String name, ColorCustomizable colorToAdjust) {
-        this.navigator = navigator;
-        globalSettings = settings;
-        allSettings = Map.of(name, colorToAdjust);
-        subMenuCombo.setItems(FXCollections.observableArrayList(allSettings.values()));
-        subMenuCombo.getSelectionModel().select(0);
-        fontSizeSpinner.setDisable(true);
-        recursiveCheck.setDisable(true);
-        prepareFromSubMenuSelection();
+    private void refreshColorSets(String name) {
+        allSettings.clear();
+        for (var s : store.getAllColorSetNames()) {
+            allSettings.put(s, store.getColorSet(s));
+        }
+        colorSetCombo.setItems(FXCollections.observableArrayList(allSettings.values()));
+        for(var cbxEnt : colorSetCombo.getItems()) {
+            if (cbxEnt.getColorSchemeName().equals(name)) {
+                colorSetCombo.getSelectionModel().select(cbxEnt);
+                currentColorSet = cbxEnt;
+                return;
+            }
+        }
+        colorSetCombo.getSelectionModel().select(0);
+        currentColorSet = colorSetCombo.getSelectionModel().getSelectedItem();
     }
 
     private void prepareFromSubMenuSelection() {
-        var colorSet = subMenuCombo.getSelectionModel().getSelectedItem();
+        var colorSet = colorSetCombo.getSelectionModel().getSelectedItem();
         currentColorSet = colorSet;
         updateEditorPairFromColor(buttonFgEditor, buttonBgEditor, buttonCheck, ColorComponentType.BUTTON, colorSet);
         updateEditorPairFromColor(textFgEditor, textBgEditor, textCheck, ColorComponentType.TEXT_FIELD, colorSet);
@@ -82,12 +98,7 @@ public class ColorSettingsController {
         updateEditorPairFromColor(highlightFgEditor, highlightBgEditor, highlightCheck, ColorComponentType.HIGHLIGHT, colorSet);
         updateEditorPairFromColor(dialogFgEditor, dialogBgEditor, dialogCheck, ColorComponentType.DIALOG, colorSet);
         updateEditorPairFromColor(errorFgEditor, errorBgEditor, errorCheck, ColorComponentType.ERROR, colorSet);
-        fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 128, colorSet.getFontSize()));
-        recursiveCheck.setSelected(colorSet.isRecursiveRender());
         removeButton.setDisable(colorSet.isRepresentingGlobal());
-
-        recursiveCheck.setOnAction(event -> changed = true);
-        fontSizeSpinner.getValueFactory().valueProperty().addListener((observable, oldValue, newValue) -> changed = true);
 
         changed = false;
     }
@@ -117,11 +128,6 @@ public class ColorSettingsController {
 
     }
 
-    public void onSubMenuChanged(ActionEvent actionEvent) {
-        onSaveChanges(actionEvent); // save outstanding changes first.
-        prepareFromSubMenuSelection();
-    }
-
     public void onResetToDark(ActionEvent actionEvent) {
         globalSettings.setColorsForDefault(true);
         prepareFromSubMenuSelection();
@@ -133,11 +139,12 @@ public class ColorSettingsController {
     }
 
     public void onSaveChanges(ActionEvent actionEvent) {
-        if(changed) {
+        save();
+        navigator.popNavigation();
+    }
 
-            currentColorSet.setFontSize(fontSizeSpinner.getValue());
-            currentColorSet.setRecursiveRender(recursiveCheck.isSelected());
-
+    private void save() {
+        if(changed && currentColorSet != null) {
             setColorsFor(textFgEditor, textBgEditor, textCheck, ColorComponentType.TEXT_FIELD, currentColorSet);
             setColorsFor(buttonFgEditor, buttonBgEditor, buttonCheck, ColorComponentType.BUTTON, currentColorSet);
             setColorsFor(updateFgEditor, updateBgEditor, updateCheck, ColorComponentType.CUSTOM, currentColorSet);
@@ -158,5 +165,21 @@ public class ColorSettingsController {
     }
 
     public void onRemoveOverride(ActionEvent actionEvent) {
+        store.removeColorSet(currentColorSet);
+        refreshColorSets(GlobalColorCustomizable.KEY_NAME);
+    }
+
+    public void onAddNew(ActionEvent actionEvent) {
+        AtomicReference<NewColorSetDialogController> controllerRef = new AtomicReference<>(null);
+
+        BaseDialogSupport.tryAndCreateDialog((Stage)dialogBgEditor.getScene().getWindow(),
+                "/core_fxml/newColorSetDialog.fxml", "Add Color Set", JfxNavigationHeader.getCoreResources(), true,
+                controllerRef::set);
+        var result = controllerRef.get().getResult();
+        if(result.isPresent()) {
+            var newCustom = new NamedColorCustomizable(result.get());
+            store.addColorSet(newCustom);
+            refreshColorSets(newCustom.getColorSchemeName());
+        }
     }
 }

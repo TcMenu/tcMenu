@@ -17,11 +17,13 @@ public class ConnectionPairingPresentable implements PanelPresentable<Node> {
     private final EmbedControlContext context;
     private final Consumer<Boolean> pairingHasFinished;
     private final JfxNavigationManager navigationManager;
+    private final String name;
 
     public ConnectionPairingPresentable(JfxNavigationManager navigationManager, ConnectionCreator creator,
-                                        EmbedControlContext context, Consumer<Boolean> pairingHasFinished) {
+                                        EmbedControlContext context, String name, Consumer<Boolean> pairingHasFinished) {
         this.creator = creator;
         this.context = context;
+        this.name = name;
         this.pairingHasFinished = pairingHasFinished;
         this.navigationManager = navigationManager;
     }
@@ -37,7 +39,7 @@ public class ConnectionPairingPresentable implements PanelPresentable<Node> {
 
     @Override
     public String getPanelName() {
-        return "Pair with " + creator.getName();
+        return "Pair with " + name;
     }
 
     @Override

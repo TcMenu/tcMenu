@@ -2,20 +2,21 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.NullConditionalColoring;
+import com.thecoderscorner.embedcontrol.customization.FontInformation;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
+import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
 
 /**
  * When automatic menu layout is used, the layout is described in terms of font, color, position and justification using
  * this class. It can either be auto-generated on the fly, or selected by a user and serialized by the layout persister
  * for later reloading. This is essentially a value class.
  *
- * @see com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence
  */
 public class ComponentSettings {
-    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), 0, PortableAlignment.LEFT, new ComponentPositioning(0, 0), RedrawingMode.SHOW_NAME_VALUE, ControlType.TEXT_CONTROL, false);
+    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), FONT_100_PERCENT, PortableAlignment.LEFT, new ComponentPositioning(0, 0), RedrawingMode.SHOW_NAME_VALUE, ControlType.TEXT_CONTROL, false);
 
-    private final int fontSize;
+    private final FontInformation fontInfo;
     private final ConditionalColoring colors;
     private final PortableAlignment justification;
     private final ComponentPositioning position;
@@ -23,10 +24,10 @@ public class ComponentSettings {
     private final RedrawingMode drawMode;
     private final boolean customised;
 
-    public ComponentSettings(ConditionalColoring colors, int fontSize, PortableAlignment justification,
-        ComponentPositioning position, RedrawingMode mode, ControlType controlType, boolean custom)
+    public ComponentSettings(ConditionalColoring colors, FontInformation fontInfo, PortableAlignment justification,
+                             ComponentPositioning position, RedrawingMode mode, ControlType controlType, boolean custom)
     {
-        this.fontSize = fontSize;
+        this.fontInfo = fontInfo;
         this.colors = colors;
         this.justification = justification;
         this.position = position;
@@ -38,8 +39,8 @@ public class ComponentSettings {
     /**
      * @return the font size for any text in the control
      */
-    public int getFontSize() {
-        return fontSize;
+    public FontInformation getFontInfo() {
+        return fontInfo;
     }
 
     /**

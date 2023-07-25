@@ -277,4 +277,22 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         prefs.putInt(NUM_BACKUP_ITEMS, newNum);
         numBackupItems = newNum;
     }
+
+    @Override
+    public Optional<String> getLastLoadedProject() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        return Optional.ofNullable(prefs.get(LAST_LOADED_PROJ, null));
+    }
+
+    @Override
+    public void setLastLoadedProject(String absolutePath) {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.put(LAST_LOADED_PROJ, absolutePath);
+    }
+
+    @Override
+    public void emptyLastLoadedProject() {
+        Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
+        prefs.remove(LAST_LOADED_PROJ);
+    }
 }

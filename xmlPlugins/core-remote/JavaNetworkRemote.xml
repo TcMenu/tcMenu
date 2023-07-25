@@ -1,6 +1,6 @@
 <TcMenuPlugin name="Control device over LAN using embedCONTROL" id="814334f5-fa50-43b1-9fcb-f34c6c5c4e40" subsystem="REMOTE"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>RASPBERRY_PIJ</Platform>
     </SupportedPlatforms>

@@ -27,6 +27,7 @@ import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -156,9 +157,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     }
 
     @Override
-    public void showRomLayoutDialog(MenuTree tree) {
+    public void showRomLayoutDialog(MenuTree tree, LocaleMappingHandler localeHandler) {
         logger.log(INFO, "Showing rom layout dialog");
-        new RomLayoutDialog(mainStage, tree, false);
+        new RomLayoutDialog(mainStage, tree, localeHandler,false);
     }
 
     @Override
@@ -182,7 +183,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public Optional<MenuItem> showSearchDialog(MenuTree tree) {
         logger.log(INFO, "Showing search dialog");
-        var d = new SearchMenuItemDialog(tree, mainStage, true);
+        var d = new SearchMenuItemDialog(tree, editorProject.getLocaleHandler(), mainStage, true);
         return d.getResult();
     }
 

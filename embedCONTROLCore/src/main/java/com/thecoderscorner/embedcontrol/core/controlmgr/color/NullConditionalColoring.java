@@ -11,10 +11,12 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*
  * Any empty implementation of conditional coloring that returns WHITE background, BLACK text always.
  */
 public class NullConditionalColoring implements ConditionalColoring {
+    @Override
     public PortableColor backgroundFor(RenderingStatus status, ColorComponentType ty) {
         return ControlColor.WHITE;
     }
 
+    @Override
     public PortableColor foregroundFor(RenderingStatus status, ColorComponentType ty) {
         return ControlColor.BLACK;
     }

@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 
 public class GlobalColorCustomizable implements ColorCustomizable {
+    public static final String KEY_NAME = "Global";
     private final GlobalSettings globalSettings;
 
     public GlobalColorCustomizable(GlobalSettings globalSettings) {
@@ -37,7 +38,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setColorFor(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
         getColorFor(componentType).copyColorsFrom(controlColor);
-        globalSettings.save();
+        //globalSettings.save();
     }
 
     @Override
@@ -46,25 +47,8 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     }
 
     @Override
-    public int getFontSize() {
-        return globalSettings.getDefaultFontSize();
-    }
-
-    @Override
-    public void setFontSize(int size) {
-        globalSettings.setDefaultFontSize(size);
-        globalSettings.save();
-    }
-
-    @Override
-    public boolean isRecursiveRender() {
-        return globalSettings.isDefaultRecursiveRendering();
-    }
-
-    @Override
-    public void setRecursiveRender(boolean recursiveRender) {
-        globalSettings.setDefaultRecursiveRendering(recursiveRender);
-        globalSettings.save();
+    public String getColorSchemeName() {
+        return KEY_NAME;
     }
 
     @Override

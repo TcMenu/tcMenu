@@ -1,8 +1,10 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
+import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import javafx.scene.text.Font;
 
 import java.util.Set;
 
@@ -115,9 +117,8 @@ public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
     }
 
     /**
-     * Called frequently by TreeComponentManager to allow the control to determine if any momentary state such as
+     * Called frequently by grid control to allow the control to determine if any momentary state such as
      * recently updated, error, or pending needs to be cleared.
-     * @see TreeComponentManager
      */
     @Override
     public void tick() {
@@ -200,5 +201,14 @@ public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
      */
     public boolean isItemEditable(MenuItem item) {
         return userEditableMenuTypes.contains(item.getClass()) && !item.isReadOnly() && !locallyReadOnly;
+    }
+
+    protected Font toFont(FontInformation fontInfo, Font font) {
+        if(fontInfo.sizeMeasurement() == FontInformation.SizeMeasurement.ABS_SIZE) {
+            return Font.font(fontInfo.fontSize());
+        } else {
+            var size = font.getSize() * (fontInfo.fontSize() / 100.0);
+            return Font.font(size);
+        }
     }
 }

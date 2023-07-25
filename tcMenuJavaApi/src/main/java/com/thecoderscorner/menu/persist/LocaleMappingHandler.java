@@ -39,4 +39,8 @@ public interface LocaleMappingHandler {
             return existing;
         }
     }
+
+    default String getFromLocaleOrUseSource(String name) {
+        return getFromLocaleWithDefault(name, name);
+    }
 }

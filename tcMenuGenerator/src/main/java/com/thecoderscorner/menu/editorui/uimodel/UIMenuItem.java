@@ -69,7 +69,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     private TextField idField;
     protected TextField nameField;
-    private MenuButton localeMenuButton;
+    private ToggleButton notLocalizedButton;
     protected TextField variableField;
     protected TextField functionNameTextField;
     private Button functionBtn;
@@ -138,18 +138,20 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idField.setEditable(false);
         grid.add(idField, 1, idx++, 2, 1);
 
-        localeMenuButton = new MenuButton(toLang(localHandler.getCurrentLocale()));
-        localeMenuButton.getItems().addAll(getLocaleMenuItems());
-        localeMenuButton.setDisable(!localHandler.isLocalSupportEnabled());
-        localeMenuButton.setId("localeMenuItems");
-        localeMenuButton.setMaxWidth(9999);
-        grid.add(localeMenuButton, 2, idx, 1, 1);
-
         grid.add(new Label(bundle.getString("menu.editor.name.field")), 0, idx);
         String text = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("name"), menuItem.getName());
         nameField = new TextField(text);
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
+        grid.add(nameField, 1, idx);
+
+        //var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
+        //item.setOnAction(event -> localHasChanged(Locale.of("--")));
+        notLocalizedButton = new ToggleButton(bundle.getString("locale.dialog.not.localized"));
+        notLocalizedButton.setSelected(!menuItem.getName().startsWith("%") || menuItem.getName().startsWith("%%"));
+        notLocalizedButton.setDisable(!localHandler.isLocalSupportEnabled());
+        notLocalizedButton.setMaxWidth(9999);
+        grid.add(notLocalizedButton, 2, idx++);
 
         nameField.textProperty().addListener((observableValue, s, t1) -> {
             if(variableNameGenerator.getUncommittedItems().contains(getMenuItem().getId())) {
@@ -157,7 +159,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
             }
             callChangeConsumer();
         });
-        grid.add(nameField, 1, idx, 1, 1);
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.variable.name")), 0, idx);
@@ -269,43 +270,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return grid;
     }
 
-    private void localHasChanged(Locale l) {
-        try {
-            if(l == null) return;
-            localHandler.changeLocale(l);
-            nameField.setText(localHandler.getFromLocaleWithDefault(menuItemToLocale("name"), menuItem.getName()));
-            localeMenuButton.setText(toLang(l));
-            localeDidChange();
-        } catch (IOException e) {
-            logger.log(ERROR, "Locale could not be changed to " + l, e);
-        }
-
+    public void localeDidChange() {
+        notLocalizedButton.setDisable(localHandler.isLocalSupportEnabled());
     }
 
-    protected void localeDidChange() {
-    }
-
-    private List<javafx.scene.control.MenuItem> getLocaleMenuItems() {
-        var list = localHandler.getEnabledLocales().stream()
-                .map(l -> {
-                    var mi = new javafx.scene.control.MenuItem(toLang(l));
-                    mi.setOnAction(event -> localHasChanged(l));
-                    return mi;
-                })
-                .collect(Collectors.toCollection(ArrayList::new));
-        list.add(new SeparatorMenuItem());
-        var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
-        item.setOnAction(event -> localHasChanged(Locale.of("--")));
-        list.add(item);
-        return list;
-    }
-
-    private String toLang(Locale l) {
-        return switch(l.getLanguage()) {
-            case "" -> bundle.getString("locale.dialog.default.bundle");
-            case "--" -> "--";
-            default -> l.getDisplayLanguage() + "-" + l.getCountry();
-        };
+    public boolean shouldAvoidLocalization() {
+        return !localHandler.isLocalSupportEnabled() || notLocalizedButton.isSelected();
     }
 
     protected String menuItemToLocale(String name) {
@@ -341,7 +311,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
                 errorsBuilder, 19, MANDATORY);
 
-        if(localHandler.isLocalSupportEnabled()) {
+        if(!shouldAvoidLocalization()) {
             String localeEntry = menuItemToLocale("name");
             localHandler.setLocalSpecificEntry(localeEntry.substring(1), name);
             name = localeEntry;
@@ -379,7 +349,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected List<String> getValueLocalizedFromUIList(ObservableList<String> items) {
-        if (localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+        if (!shouldAvoidLocalization()) {
             var itemsLocaleList = new ArrayList<String>();
             for (int i = 0; i < items.size(); i++) {
                 String enumEntryName = getEnumEntryKey(i);
@@ -393,7 +363,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected ObservableList<String> createLocalizedList(ListView<String> listView, List<String> enumEntries, ObservableList<String> list) {
-        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
+        if(!shouldAvoidLocalization()) {
             var itemsLocaleList = new ArrayList<String>();
             for(int i = 0; i< enumEntries.size(); i++) {
                 String enumEntryName = getEnumEntryKey(i);

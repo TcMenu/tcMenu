@@ -11,10 +11,10 @@ import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.
 
 public class Aw9523DeviceExpander extends IoExpanderDefinition  {
     private final int i2cAddress;
-    private final int intPin;
+    private final String intPin;
     private final String name;
 
-    public Aw9523DeviceExpander(String name, int i2cAddress, int intPin) {
+    public Aw9523DeviceExpander(String name, int i2cAddress, String intPin) {
         this.i2cAddress = i2cAddress;
         this.intPin = intPin;
         this.name = name;
@@ -22,7 +22,7 @@ public class Aw9523DeviceExpander extends IoExpanderDefinition  {
 
     @Override
     public String getNicePrintableName() {
-        return String.format("AW9523(0x%02x, %d)", i2cAddress, intPin);
+        return String.format("AW9523(0x%02x, %s)", i2cAddress, intPin);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Aw9523DeviceExpander extends IoExpanderDefinition  {
         return i2cAddress;
     }
 
-    public int getIntPin() {
+    public String getIntPin() {
         return intPin;
     }
 
@@ -51,7 +51,7 @@ public class Aw9523DeviceExpander extends IoExpanderDefinition  {
     @Override
     public Optional<String> generateGlobal() {
         return Optional.of(String.format("""
-                AW9523IoAbstraction iodev_%s(0x%02x, %d);
+                AW9523IoAbstraction iodev_%s(0x%02x, %s);
                 IoAbstractionRef ioexp_%1$s = &iodev_%1$s;""", name, i2cAddress, intPin));
     }
 

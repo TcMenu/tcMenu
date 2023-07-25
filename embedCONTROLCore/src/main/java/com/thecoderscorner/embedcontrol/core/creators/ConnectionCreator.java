@@ -15,11 +15,6 @@ import java.util.function.Consumer;
  */
 public interface ConnectionCreator {
     /**
-     * @return the name of this connection
-     */
-    String getName();
-
-    /**
      * @return the current status of the connection
      */
     AuthStatus currentState();

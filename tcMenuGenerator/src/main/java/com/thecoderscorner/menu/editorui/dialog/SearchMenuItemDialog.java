@@ -9,6 +9,7 @@ package com.thecoderscorner.menu.editorui.dialog;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.SearchMenuItemController;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.stage.Stage;
 
 import java.util.Optional;
@@ -18,15 +19,17 @@ import java.util.Optional;
 public class SearchMenuItemDialog extends BaseDialogSupport<SearchMenuItemController> {
 
     private final MenuTree tree;
+    private final LocaleMappingHandler localeHandler;
 
-    public SearchMenuItemDialog(MenuTree tree, Stage stage, boolean modal) {
+    public SearchMenuItemDialog(MenuTree tree, LocaleMappingHandler localeHandler, Stage stage, boolean modal) {
         this.tree = tree;
+        this.localeHandler = localeHandler;
         tryAndCreateDialog(stage, "/ui/searchItems.fxml", bundle.getString("menu.menuitem.search.items"), modal);
     }
 
     @Override
     protected void initialiseController(SearchMenuItemController controller) throws Exception {
-        controller.init(tree);
+        controller.init(tree, localeHandler);
     }
 
     public Optional<MenuItem> getResult() {

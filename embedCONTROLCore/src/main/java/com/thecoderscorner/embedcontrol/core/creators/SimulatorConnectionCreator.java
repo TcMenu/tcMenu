@@ -384,29 +384,15 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
 
     private String jsonForTree;
     private final String name;
-    private final UUID uuid;
     private final ScheduledExecutorService executorService;
     private final JsonMenuItemSerializer serializer;
 
-    public SimulatorConnectionCreator(String jsonForTree, String name, UUID uuid, ScheduledExecutorService executorService,
+    public SimulatorConnectionCreator(String jsonForTree, String name, ScheduledExecutorService executorService,
                                       JsonMenuItemSerializer serializer) {
         this.jsonForTree = jsonForTree;
         this.name = name;
-        this.uuid = uuid;
         this.executorService = executorService;
         this.serializer = serializer;
-    }
-
-    public SimulatorConnectionCreator(ScheduledExecutorService executorService, JsonMenuItemSerializer serializer) {
-        this.name = "";
-        this.uuid = UUID.randomUUID();
-        this.executorService = executorService;
-        this.serializer = serializer;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     public String getJsonForTree() {
@@ -432,7 +418,7 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
             // ignore for now
         }
 
-        SimulatedRemoteConnection remoteConnection = new SimulatedRemoteConnection(menuTree, name, uuid, 100, new HashMap<>(), executorService);
+        SimulatedRemoteConnection remoteConnection = new SimulatedRemoteConnection(menuTree, name, UUID.randomUUID(), 100, new HashMap<>(), executorService);
         var controller = new RemoteMenuController(remoteConnection, menuTree);
         controller.start();
         return controller;
@@ -447,7 +433,6 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
     public String toString() {
         return "SimulatorConnectionCreator{" +
                 "name='" + name + '\'' +
-                ", uuid=" + uuid +
                 '}';
     }
 }
