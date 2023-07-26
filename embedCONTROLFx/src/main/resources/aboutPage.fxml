@@ -19,7 +19,7 @@
             <Font size="24.0" />
          </font>
       </Label>
-      <Label text="Release Candidate version, please report any issues!">
+      <Label fx:id="versionLabel" text="version">
          <font>
             <Font size="16.0" />
          </font>

@@ -2,20 +2,20 @@ package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortInfo;
 import com.thecoderscorner.embedcontrol.core.serial.SerialPortType;
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType;
 import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType.*;
@@ -34,10 +34,15 @@ public class NewConnectionController {
     public RadioButton simulatorRadio;
     private final Set<SerialPortInfo> allPorts = new HashSet<>();
     private EmbedControlContext context;
+    private Consumer<TcMenuPersistedConnection> onUpdate;
     private TcMenuPersistedConnection existingPersistence = null;
+    private JfxNavigationManager navigationManager;
 
-    public void initialise(GlobalSettings settings, EmbedControlContext context, Optional<TcMenuPersistedConnection> existingCreator) {
+    public void initialise(JfxNavigationManager navigationManager, EmbedControlContext context,
+                           Optional<TcMenuPersistedConnection> existingCreator, Consumer<TcMenuPersistedConnection> onUpdate) {
+        this.navigationManager = navigationManager;
         this.context = context;
+        this.onUpdate = onUpdate;
         baudCombo.getItems().addAll(BAUD_RATES);
         context.getSerialFactory().startPortScan(SerialPortType.ALL_PORTS, this::portChange);
         baudCombo.getSelectionModel().select(0);
@@ -88,7 +93,7 @@ public class NewConnectionController {
 
         }
         else {
-            createButton.setDisable(false);
+            createButton.setDisable(!nameOk);
         }
     }
 
@@ -136,9 +141,11 @@ public class NewConnectionController {
             extra = "";
         }
 
-        if(existingPersistence != null) {
-            ((Stage)connectionNameField.getScene().getWindow()).close();
-            // todo send back update..
+        if(existingPersistence != null && navigationManager != null && onUpdate != null) {
+            navigationManager.popNavigation();
+            onUpdate.accept(new TcMenuPersistedConnection(
+                    existingPersistence.getLocalId(), connectionNameField.getText(), existingPersistence.getUuid(),
+                    existingPersistence.getFormName(), ty, hostOrPort, baudOrPort, extra, context.getDataStore()));
         }
         else {
             context.createConnection(new TcMenuPersistedConnection(

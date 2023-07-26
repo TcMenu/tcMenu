@@ -30,6 +30,7 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
     private final System.Logger logger = System.getLogger(RemoteUiEmbedControlContext.class.getSimpleName());
     private ObservableList<PanelPresentable<Node>> allPresentableViews;
 
+    private final VersionHelper versionHelper;
     private final ScheduledExecutorService executorService;
     private final JsonMenuItemSerializer serializer;
     private final PlatformSerialFactory serialFactory;
@@ -39,21 +40,23 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
 
 
     public RemoteUiEmbedControlContext(ScheduledExecutorService executorService, JsonMenuItemSerializer serializer,
-                                       PlatformSerialFactory serialFactory, AppDataStore dataStore, GlobalSettings settings) {
+                                       PlatformSerialFactory serialFactory, AppDataStore dataStore,
+                                       GlobalSettings settings, VersionHelper helper) {
         this.executorService = executorService;
         this.serializer = serializer;
         this.serialFactory = serialFactory;
         this.dataStore = dataStore;
         this.settings = settings;
+        this.versionHelper = helper;
     }
 
     public void initialize(MainWindowController controller) {
         this.controller = controller;
 
         var defaultViews = List.of(
-                new AboutPanelPresentable(),
+                new AboutPanelPresentable(versionHelper),
                 new SettingsPanelPresentable(getSettings(), dataStore),
-                new NewConnectionPanelPresentable(getSettings(), this)
+                new NewConnectionPanelPresentable(this)
         );
 
         var loadedLayouts = dataStore.getAllConnections();
@@ -63,7 +66,7 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
         allPresentableViews.addAll(defaultViews);
         allPresentableViews.addAll(loadedPanels);
 
-        controller.initialise(getSettings(), allPresentableViews);
+        controller.initialise(getSettings(), allPresentableViews, versionHelper);
     }
 
 

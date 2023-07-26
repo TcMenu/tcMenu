@@ -8,6 +8,7 @@ package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
+import com.thecoderscorner.embedcontrol.jfxapp.VersionHelper;
 import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -47,18 +48,10 @@ public class MainWindowController {
     private GlobalSettings settings;
     private PanelPresentable currentlyDisplayed;
 
-    public void initialise(GlobalSettings settings, ObservableList<PanelPresentable<Node>> initialPanels) {
+    public void initialise(GlobalSettings settings, ObservableList<PanelPresentable<Node>> initialPanels, VersionHelper versionHelper) {
         this.settings = settings;
 
-        try {
-            InputStream resourceAsStream = getClass().getResourceAsStream("/version.properties");
-            Properties props = new Properties();
-            props.load( resourceAsStream );
-            versionField.setText("Version " + props.getProperty("build.version"));
-        } catch (IOException e) {
-            versionField.setText("Version ???");
-        }
-
+        versionField.setText("Version " + versionHelper.getVersion());
 
         connectionList.setCellFactory(list -> new PanelPresentableListCell());
         connectionList.setItems(initialPanels);

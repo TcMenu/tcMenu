@@ -143,7 +143,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     private void editConnection(ActionEvent actionEvent) {
-        navigationManager.pushNavigation(new NewConnectionPanelPresentable(settings, context, persistedConnection, this::connectionWasEdited));
+        navigationManager.pushNavigation(new NewConnectionPanelPresentable(navigationManager, context, persistedConnection, this::connectionWasEdited));
     }
 
     private void restartConnection(ActionEvent actionEvent) {
