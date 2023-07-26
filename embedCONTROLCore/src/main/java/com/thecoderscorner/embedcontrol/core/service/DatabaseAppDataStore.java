@@ -10,9 +10,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.*;
+import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType;
 
 public class DatabaseAppDataStore implements AppDataStore {
     private static System.Logger logger = System.getLogger(DatabaseAppDataStore.class.getSimpleName());
@@ -103,6 +102,7 @@ public class DatabaseAppDataStore implements AppDataStore {
 
         var count = template.queryForObject("SELECT COUNT(*) from TC_CONNECTION where LOCAL_ID = ?", Integer.class, connection.getLocalId());
         if(count == null || count == 0) {
+            logger.log(System.Logger.Level.INFO, "Insert tc connection " + connection);
             template.update("""
                 INSERT INTO TC_CONNECTION(
                     CONNECTION_NAME, SELECTED_FORM, CONNECTION_UUID, CONNECTION_TYPE, 
@@ -110,6 +110,7 @@ public class DatabaseAppDataStore implements AppDataStore {
                 values(?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, params);
         } else {
+            logger.log(System.Logger.Level.INFO, "Update tc connection " + connection);
             template.update("""
                 UPDATE TC_CONNECTION
                 SET CONNECTION_NAME = ?, SELECTED_FORM = ?, CONNECTION_UUID = ?, CONNECTION_TYPE = ?, 
@@ -122,7 +123,7 @@ public class DatabaseAppDataStore implements AppDataStore {
 
     private int findNextConnectionId() {
         var res = template.queryForObject("SELECT MAX(LOCAL_ID) from TC_CONNECTION", Integer.class);
-        return (res == null || res == 0) ? 1 : res;
+        return (res == null || res == 0) ? 1 : (res + 1);
     }
 
     public void deleteConnection(TcMenuPersistedConnection connection) {
@@ -186,6 +187,8 @@ public class DatabaseAppDataStore implements AppDataStore {
 
         var res = template.queryForObject("SELECT COUNT(*) FROM GLOBAL_SETTINGS WHERE SETTING_ID=0", Integer.class);
         if(res == null || res ==0) {
+            logger.log(System.Logger.Level.INFO, "Insert ec global settings " + settings);
+
             template.update("""
                    INSERT INTO GLOBAL_SETTINGS(
                         SETTING_ID, LOCAL_NAME, LOCAL_UUID, RECURSE_SUB, FONT_SIZE, BUTTON_FG, BUTTON_BG,
@@ -194,6 +197,7 @@ public class DatabaseAppDataStore implements AppDataStore {
                    values(0, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                    """, parameterList);
         } else {
+            logger.log(System.Logger.Level.INFO, "Update ec global settings " + settings);
             template.update("""
                     UPDATE GLOBAL_SETTINGS
                     SET LOCAL_NAME = ?, LOCAL_UUID = ?, RECURSE_SUB = ?, FONT_SIZE = ?,

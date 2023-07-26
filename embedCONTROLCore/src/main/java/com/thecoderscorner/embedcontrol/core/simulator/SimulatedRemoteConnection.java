@@ -21,10 +21,11 @@ import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class SimulatedRemoteConnection implements RemoteConnector {
+    private static final UUID uuid = UUID.fromString("D5F0C35F-AF43-4CB6-BA79-512DF536B558");
     private final System.Logger logger = System.getLogger(SimulatedRemoteConnection.class.getSimpleName());
+
     private final ScheduledExecutorService executor;
     private final MenuTree tree;
-    private final UUID uuid;
     private final String simName;
     private final int latencyMillis;
     private final Map<Integer, Object> valuesById;
@@ -35,14 +36,13 @@ public class SimulatedRemoteConnection implements RemoteConnector {
     private RemoteConnectorListener connectorListener;
     private ConnectionChangeListener connectionChangeListener;
 
-    public SimulatedRemoteConnection(MenuTree tree, String simName, UUID uuid, int latencyMillis,
-                                     Map<Integer, Object> valuesById, ScheduledExecutorService executor) {
+    public SimulatedRemoteConnection(MenuTree tree, String simName, int latencyMillis, Map<Integer, Object> valuesById,
+                                     ScheduledExecutorService executor) {
         this.tree = tree;
         this.executor = executor;
         this.simName = simName;
         this.latencyMillis = latencyMillis;
         this.valuesById = valuesById;
-        this.uuid = uuid;
         this.remoteInfo = new RemoteInformation(simName, uuid, 1234, 1, 1, ApiPlatform.JAVA_API);
         var simulatorMenu = new SubMenuItemBuilder()
                 .withId(60001)
@@ -134,14 +134,12 @@ public class SimulatedRemoteConnection implements RemoteConnector {
                 var prevVal = state.getValue() != null ? state.getValue() : 0;
                 int newVal = prevVal + Integer.parseInt(ch.getValue());
 
-                if (item instanceof AnalogMenuItem) {
-                    AnalogMenuItem analog = (AnalogMenuItem) item;
+                if (item instanceof AnalogMenuItem analog) {
                     if (newVal < 0 || newVal > analog.getMaxValue()) {
                         acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING);
                         return;
                     }
-                } else if (item instanceof EnumMenuItem) {
-                    EnumMenuItem en = (EnumMenuItem) item;
+                } else if (item instanceof EnumMenuItem en) {
                     if (newVal < 0 || newVal >= en.getEnumEntries().size()) {
                         acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.VALUE_RANGE_WARNING);
                         return;
@@ -152,7 +150,6 @@ public class SimulatedRemoteConnection implements RemoteConnector {
                 acknowledgeChange(item, ch.getValue(), ch.getCorrelationId(), AckStatus.SUCCESS);
             } else if (ch.getChangeType() == ChangeType.ABSOLUTE) {
                 if (item instanceof AnalogMenuItem) {
-                    AnalogMenuItem analog = (AnalogMenuItem) item;
                     logger.log(DEBUG, "Analog absolute update on id " + item.getId());
                     var state = (MenuState<Integer>) tree.getMenuState(item);
                     tree.changeItem(item, MenuItemHelper.stateForMenuItem(state, item, ch.getValue(), true));

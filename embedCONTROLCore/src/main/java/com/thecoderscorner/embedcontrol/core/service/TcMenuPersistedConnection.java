@@ -1,12 +1,11 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class TcMenuPersistedConnection {
     public enum StoreConnectionType { MANUAL_SOCKET, SERIAL_CONNECTION, SIMULATOR }
@@ -50,6 +49,11 @@ public final class TcMenuPersistedConnection {
         this.dataStore = dataStore;
         this.lastModified = LocalDateTime.now();
     }
+
+    public TcMenuPersistedConnection withUuid(UUID uuid) {
+        return new TcMenuPersistedConnection(localId, name, uuid.toString(), formName, connectionType, hostOrSerialId, portOrBaud, extraData, dataStore);
+    }
+
 
     public TcMenuPersistedConnection withNewLocalId(int localId) {
         return new TcMenuPersistedConnection(localId, name, uuid, formName, connectionType, hostOrSerialId, portOrBaud, extraData, dataStore);
@@ -109,10 +113,6 @@ public final class TcMenuPersistedConnection {
         return lastModified;
     }
 
-    public List<TcMenuFormPersistence> getAttachedForms() {
-        return attachedForms;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -140,10 +140,10 @@ public final class TcMenuPersistedConnection {
                 "name=" + name + ", " +
                 "uuid=" + uuid + ", " +
                 "formName=" + formName + ", " +
+                "connectionType=" + connectionType + ", " +
                 "hostOrSerialId=" + hostOrSerialId + ", " +
                 "portOrBaud=" + portOrBaud + ", " +
-                "extraData=" + extraData + ", " +
-                "attachedForms=" + attachedForms + ']';
+                "LastModified=" + lastModified + ']';
     }
 
 }

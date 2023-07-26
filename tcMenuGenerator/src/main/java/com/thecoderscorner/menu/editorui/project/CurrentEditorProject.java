@@ -25,8 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
@@ -333,7 +332,7 @@ public class CurrentEditorProject {
     public CodeGeneratorOptions makeBlankGeneratorOptions() {
         return new CodeGeneratorOptionsBuilder()
                 .withRecursiveNaming(configStore.isDefaultRecursiveNamingOn())
-                .withSaveLocation(configStore.isDefaultSaveToSrcOn() ? PROJECT_TO_SRC_WITH_GENERATED : PROJECT_TO_CURRENT_WITH_GENERATED)
+                .withSaveLocation(configStore.isDefaultSaveToSrcOn() ? ALL_TO_SRC : ALL_TO_CURRENT)
                 .withUseSizedEEPROMStorage(configStore.isDefaultSizedEEPROMStorage())
                 .codeOptions();
     }

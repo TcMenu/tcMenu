@@ -6,21 +6,18 @@
 
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfxapp.VersionHelper;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.Optional;
 
-import static java.lang.System.Logger.Level.*;
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 /**
  * This is the window controller, responsible for all actions to do the main window. It listens to change
@@ -83,13 +80,17 @@ public class MainWindowController {
         detailPane.setRight(null);
     }
 
-    public void createdConnection(RemoteConnectionPanel panel) {
-        connectionList.getItems().add(panel);
-        connectionList.getSelectionModel().select(panel);
+    public void panelsChanged(ObservableList<PanelPresentable<Node>> panels, Optional<PanelPresentable<Node>> maybePanelForSelect) {
+        connectionList.setItems(panels);
+        if(maybePanelForSelect.isPresent()) {
+            connectionList.getSelectionModel().select(maybePanelForSelect.get());
+        } else {
+            connectionList.getSelectionModel().select(0);
+        }
     }
 
-    public void selectPanel(PanelPresentable panelPresentable) {
-        connectionList.getSelectionModel().select(panelPresentable);
+    public void refreshAllPanels() {
+        connectionList.refresh();
     }
 
     private static class PanelPresentableListCell extends ListCell<PanelPresentable<Node>> {

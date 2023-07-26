@@ -27,8 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.cli.CodeGeneratorCommand.persistProject;
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_CURRENT_WITH_GENERATED;
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static picocli.CommandLine.*;
@@ -151,7 +150,7 @@ public class CreateProjectCommand implements Callable<Integer> {
                 .withPlatform(platform)
                 .withAppName(newProject).withNewId(UUID.randomUUID())
                 .withCppMain(cppMain)
-                .withSaveLocation(saveToSrc ? PROJECT_TO_SRC_WITH_GENERATED : PROJECT_TO_CURRENT_WITH_GENERATED)
+                .withSaveLocation(saveToSrc ? ALL_TO_SRC : ALL_TO_CURRENT)
                 .withRecursiveNaming(recursiveNaming)
                 .withUseSizedEEPROMStorage(sizedRom)
                 .withPackageNamespace(packageOrNamespace)

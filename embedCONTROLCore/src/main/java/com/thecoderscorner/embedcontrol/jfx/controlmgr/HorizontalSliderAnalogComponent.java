@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -23,8 +24,8 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<Integer> {
     private RenderingStatus lastStatus = RenderingStatus.NORMAL;
     private final MenuTree tree;
-    private double displayWidth;
-    private Canvas canvas;
+    private ResizableCanvas canvas;
+    private BorderPane borderPane;
 
     public HorizontalSliderAnalogComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
@@ -33,12 +34,18 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
 
     @Override
     public Node createComponent() {
-        canvas = new Canvas();
+        canvas = new ResizableCanvas();
         if(isItemEditable(item)) {
             canvas.setOnMouseReleased(mouseEvent -> sendItemAbsolute());
             canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted(mouseEvent.getX()));
         }
-        return canvas;
+        borderPane = new BorderPane(canvas);
+        borderPane.setMaxSize(9999, 9999);
+
+        canvas.widthProperty().bind(borderPane.widthProperty());
+        canvas.heightProperty().bind(borderPane.heightProperty());
+
+        return borderPane;
     }
 
 
@@ -46,14 +53,14 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         AnyMenuState menuState = tree.getMenuState(item);
         if ((menuState == null) || !(item instanceof AnalogMenuItem analog))return;
 
-        var oneTick = displayWidth / (double)analog.getMaxValue();
+        var oneTick = borderPane.getWidth() / (double)analog.getMaxValue();
         var value = Math.max(0, Math.min(analog.getMaxValue(), newPositionInControl / oneTick));
         AnyMenuState newState = MenuItemHelper.stateForMenuItem(item, value, true, menuState.isActive());
         tree.changeItem(item, newState);
         onItemUpdated(item, (MenuState<?>) newState);
         currentVal = (int)value;
 
-        onPaintSurface(canvas.getGraphicsContext2D());
+        canvas.onPaintSurface(canvas.getGraphicsContext2D());
     }
 
     private void sendItemAbsolute() {
@@ -69,39 +76,47 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         }
     }
 
-    protected void onPaintSurface(GraphicsContext gc) {
-
-        var analog = (AnalogMenuItem) item;
-
-        displayWidth = (int) canvas.getWidth();
-
-        var currentPercentage = currentVal / (float) analog.getMaxValue();
-
-        gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(RenderingStatus.NORMAL, ColorComponentType.HIGHLIGHT)));
-        gc.fillRect(0, 0, displayWidth * currentPercentage, canvas.getHeight());
-
-        gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.BUTTON)));
-        gc.fillRect(displayWidth * currentPercentage, 0, displayWidth, canvas.getHeight());
-
-        gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.HIGHLIGHT)));
-
-        String toDraw = "";
-        if(controlTextIncludesName()) toDraw = MenuItemFormatter.defaultInstance().getItemName(item);
-        if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
-        final Text textObj = new Text(toDraw);
-        gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.BUTTON)));
-        var fontSize = getDrawingSettings().getFontInfo().fontSize();
-        if(getDrawingSettings().getFontInfo().sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
-            fontSize = (int)(Font.getDefault().getSize() * (fontSize / 100.0));
-        }
-        gc.setFont(Font.font(gc.getFont().getFamily(), fontSize));
-        var bounds = textObj.getLayoutBounds();
-        gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (canvas.getHeight() - (bounds.getHeight() / 2.0)));
-    }
-
     @Override
     public void changeControlSettings(RenderingStatus status, String text) {
         lastStatus = status;
-        onPaintSurface(canvas.getGraphicsContext2D());
+        canvas.onPaintSurface(canvas.getGraphicsContext2D());
+    }
+
+    private class ResizableCanvas extends Canvas {
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        protected void onPaintSurface(GraphicsContext gc) {
+
+            var analog = (AnalogMenuItem) item;
+
+            int displayWidth = (int) borderPane.getWidth();
+            int displayHeight = (int) borderPane.getHeight();
+
+            var currentPercentage = currentVal / (float) analog.getMaxValue();
+
+            gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(RenderingStatus.NORMAL, ColorComponentType.HIGHLIGHT)));
+            gc.fillRect(0, 0, displayWidth * currentPercentage, displayHeight);
+
+            gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.BUTTON)));
+            gc.fillRect(displayWidth * currentPercentage, 0, displayWidth, displayHeight);
+
+            gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.HIGHLIGHT)));
+
+            String toDraw = "";
+            if(controlTextIncludesName()) toDraw = MenuItemFormatter.defaultInstance().getItemName(item);
+            if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
+            final Text textObj = new Text(toDraw);
+            gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.BUTTON)));
+            var fontSize = getDrawingSettings().getFontInfo().fontSize();
+            if(getDrawingSettings().getFontInfo().sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
+                fontSize = (int)(Font.getDefault().getSize() * (fontSize / 100.0));
+            }
+            gc.setFont(Font.font(gc.getFont().getFamily(), fontSize));
+            var bounds = textObj.getLayoutBounds();
+            gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (displayHeight - (bounds.getHeight() / 2.0)));
+        }
     }
 }

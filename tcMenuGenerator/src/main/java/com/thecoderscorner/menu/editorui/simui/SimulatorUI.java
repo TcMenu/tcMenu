@@ -16,7 +16,6 @@ import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.mgr.DialogManager;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
@@ -30,7 +29,6 @@ import javafx.stage.WindowEvent;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
@@ -140,7 +138,7 @@ public class SimulatorUI {
 
         @Override
         public String getConnectionName() {
-            return "Simulator " + project.getGeneratorOptions().getApplicationName();
+            return "Simulator " + project.getLocaleHandler().getFromLocaleOrUseSource(project.getGeneratorOptions().getApplicationName());
         }
 
         @Override

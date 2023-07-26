@@ -1,12 +1,14 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.EditableTextMenuItem;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -96,10 +98,6 @@ public class JfxMenuEditorFactory implements MenuEditorFactory<Node> {
     @Override
     public EditorComponent<Node> createHorizontalSlider(MenuItem item, ComponentSettings settings, double presentableWidth) {
         var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
-
-        Canvas component = (Canvas) slider.createComponent();
-        component.setWidth(presentableWidth - 30);
-        component.setHeight(25);
         return slider;
     }
 }

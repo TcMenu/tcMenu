@@ -5,9 +5,13 @@ import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
+import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -37,14 +41,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 
 public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePanelDisplayable {
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
@@ -69,6 +71,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private JfxMenuEditorFactory editorFactory;
     private MenuItemStore itemStore;
     private RemoteControllerListener remoteListener;
+    private RemoteInformation remoteInformation = RemoteInformation.NOT_CONNECTED;
 
     public RemoteConnectionPanel(EmbedControlContext context, MenuItem item,
                                  ScheduledExecutorService executorService, TcMenuPersistedConnection connection) {
@@ -99,13 +102,12 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         createNewController();
 
-        context.updateConnection(persistedConnection);
-
         return rootPanel;
     }
 
     private void initialiseConnectionComponents() {
         scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
         rootPanel.setCenter(scrollPane);
         scrollPane.setContent(new Label("Waiting for connection"));
         dialogManager = new RemoteDialogManager();
@@ -320,10 +322,26 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 @Override
                 public void treeFullyPopulated() {
                     navigationManager.pushMenuNavigation(MenuTree.ROOT, itemStore, true);
+                    if(!StringHelper.isStringEmptyOrNull(persistedConnection.getUuid()) &&
+                            !persistedConnection.getUuid().equals(remoteInformation.getUuid().toString())) {
+                        logger.log(WARNING, "The UUID stored does not match the remote" + persistedConnection.getName());
+                        Platform.runLater(() -> {
+                            var alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Warning UUID mismatch");
+                            alert.setHeaderText("The UUID stored does not match the remote UUID");
+                            alert.setContentText("The UUID of the remote has changed from last time and could cause problems");
+                            alert.showAndWait();
+                        });
+                    }
+                    persistedConnection = persistedConnection.withUuid(remoteInformation.getUuid());
+                    context.updateConnection(persistedConnection);
                 }
 
                 @Override
                 public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
+                    if(remoteInformation != null) {
+                        RemoteConnectionPanel.this.remoteInformation = remoteInformation;
+                    }
                     statusHasChanged(connected);
                 }
 

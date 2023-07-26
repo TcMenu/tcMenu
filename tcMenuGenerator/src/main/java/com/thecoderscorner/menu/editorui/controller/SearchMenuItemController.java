@@ -64,11 +64,13 @@ public class SearchMenuItemController {
         if(s.matches("^\\d+$")) {
             var id = Integer.parseInt(s);
             var maybeItem = tree.getMenuById(id);
-            maybeItem.ifPresent(item -> resultsTable.setItems(FXCollections.singletonObservableList(item)));
+            maybeItem.ifPresentOrElse(
+                    item -> resultsTable.setItems(FXCollections.singletonObservableList(item)),
+                    () -> resultsTable.setItems(FXCollections.emptyObservableList()));
 
         } else {
             var filteredItems = tree.getAllMenuItems().stream()
-                    .filter(it -> it.getName().toLowerCase().contains(s.toLowerCase()))
+                    .filter(it -> handler.getFromLocaleOrUseSource(it.getName()).toLowerCase().contains(s.toLowerCase()))
                     .toList();
             resultsTable.setItems(FXCollections.observableArrayList(filteredItems));
         }

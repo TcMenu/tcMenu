@@ -2,6 +2,8 @@ package com.thecoderscorner.embedcontrol.jfxapp;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.creators.ManualLanConnectionCreator;
+import com.thecoderscorner.embedcontrol.core.creators.Rs232ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.SimulatorConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
@@ -18,10 +20,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 
-import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.System.Logger.Level.*;
@@ -60,8 +61,10 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
         );
 
         var loadedLayouts = dataStore.getAllConnections();
-        var loadedPanels = loadedLayouts.stream().map(layout ->
-                new RemoteConnectionPanel(this, MenuTree.ROOT, executorService, layout)).toList();
+        var loadedPanels = loadedLayouts.stream()
+                .sorted(Comparator.comparing(TcMenuPersistedConnection::getLastModified).reversed())
+                .map(layout ->new RemoteConnectionPanel(this, MenuTree.ROOT, executorService, layout))
+                .toList();
         allPresentableViews = FXCollections.observableArrayList();
         allPresentableViews.addAll(defaultViews);
         allPresentableViews.addAll(loadedPanels);
@@ -92,7 +95,8 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
             var localId = dataStore.updateConnection(connectionInfo);
             connectionInfo = connectionInfo.withNewLocalId(localId);
             var panel = new RemoteConnectionPanel(this, MenuTree.ROOT, executorService, connectionInfo);
-            controller.createdConnection(panel);
+            allPresentableViews.add(panel);
+            controller.panelsChanged(allPresentableViews, Optional.of(panel));
             logger.log(INFO, "Created new panel " + panel.getPanelName());
         } catch (Exception e) {
             logger.log(ERROR, "Panel creation failure", e);
@@ -107,7 +111,7 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
                 .findFirst();
         if (panel.isPresent()) {
             allPresentableViews.remove(panel.get());
-            controller.selectPanel(allPresentableViews.get(0));
+            controller.panelsChanged(allPresentableViews, Optional.empty());
             logger.log(INFO, "Deleted panel from storage and location " + connection.getName());
         } else {
             logger.log(WARNING, "Request to delete non existing panel from UI " + connection.getName());
@@ -116,7 +120,11 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
 
     @Override
     public ConnectionCreator connectionFromDescription(TcMenuPersistedConnection connection) {
-        return new SimulatorConnectionCreator("", connection.getName(), executorService, serializer);
+        return switch(connection.getConnectionType()) {
+            case SIMULATOR -> new SimulatorConnectionCreator(connection.getExtraData(), connection.getName(), executorService, serializer);
+            case MANUAL_SOCKET -> new ManualLanConnectionCreator(settings, executorService, connection.getName(), connection.getHostOrSerialId(), Integer.parseInt(connection.getPortOrBaud()));
+            case SERIAL_CONNECTION -> new Rs232ConnectionCreator(serialFactory, connection.getHostOrSerialId(), Integer.parseInt(connection.getPortOrBaud()));
+        };
     }
 
     @Override
@@ -132,5 +140,6 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
     @Override
     public void updateConnection(TcMenuPersistedConnection newConnection) {
         dataStore.updateConnection(newConnection);
+        controller.refreshAllPanels();
     }
 }

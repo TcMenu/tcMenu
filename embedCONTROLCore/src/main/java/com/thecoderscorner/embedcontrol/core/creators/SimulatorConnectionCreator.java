@@ -9,7 +9,6 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
@@ -418,7 +417,7 @@ public class SimulatorConnectionCreator implements ConnectionCreator {
             // ignore for now
         }
 
-        SimulatedRemoteConnection remoteConnection = new SimulatedRemoteConnection(menuTree, name, UUID.randomUUID(), 100, new HashMap<>(), executorService);
+        SimulatedRemoteConnection remoteConnection = new SimulatedRemoteConnection(menuTree, name, 100, new HashMap<>(), executorService);
         var controller = new RemoteMenuController(remoteConnection, menuTree);
         controller.start();
         return controller;
