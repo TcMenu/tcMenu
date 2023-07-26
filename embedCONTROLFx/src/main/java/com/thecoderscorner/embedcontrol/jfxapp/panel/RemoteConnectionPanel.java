@@ -324,7 +324,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
                 @Override
                 public void connectionState(RemoteInformation remoteInformation, AuthStatus connected) {
-                    //TODO navigationManager.resetNavigationTo(new WaitingForConnectionPanel());
+                    statusHasChanged(connected);
                 }
 
                 @Override
@@ -345,7 +345,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             // handle the case where it's already connected really quick!
             if (controller.getConnector().getAuthenticationStatus() == AuthStatus.CONNECTION_READY) {
                 if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
-                    //TODO menuPanel.connectionStatusChanged(AuthStatus.CONNECTION_READY);
+                    statusHasChanged(AuthStatus.CONNECTION_READY);
                 }
             }
         } catch (Exception e) {
