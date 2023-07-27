@@ -1,0 +1,57 @@
+<TcMenuPlugin name="%two.button.name"
+              id="560E5382-52C6-4641-BB2B-5C9A9DE06785" subsystem="INPUT"
+              requiresDesigner="2.2"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+       <Platform>ARDUINO_UNO</Platform>
+       <Platform>ARDUINO_AVR</Platform>
+       <Platform>ARDUINO_32</Platform>
+       <Platform>ARDUINO_ESP8266</Platform>
+       <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
+        <Platform>MBED_RTOS</Platform>
+    </SupportedPlatforms>
+    <Description>%two.button.desc</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>up-down-encoder.jpg</ImageFile>
+
+    <Properties>
+        <Property id="SW_POLLING_MODE" name="%core.input.polling" initial="SWITCHES_POLL_EVERYTHING" desc="%core.input.polling.desc" type="choice">
+            <Choices>
+                <Choice desc="%core.input.polling.none">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="%core.input.polling.all">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="%core.input.polling.keys">SWITCHES_POLL_KEYS_ONLY</Choice>
+            </Choices>
+        </Property>
+        <Property id="SWITCH_IODEVICE" name="%core.switch.io.device" initial="devicePins" desc="%core.switch.io.device.desc" type="io-device"/>
+        <Property id="ENCODER_UP_PIN" name="%updown.encoder.up.pin" initial="2" desc="%updown.encoder.up.pin.desc" type="pin"/>
+        <Property id="ENCODER_DOWN_PIN" name="%updown.encoder.down.pin" initial="3" desc="%updown.encoder.down.pin.desc" type="pin"/>
+        <Property id="PULLUP_LOGIC" name="%core.pullup.logic" initial="true" desc="%core.pullup.logic.desc" type="boolean"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles/>
+
+    <IncludeFiles/>
+
+    <GlobalVariables/>
+
+    <SetupFunctions>
+        <Function name="init" object="switches">
+            <Param ioDevice="${SWITCH_IODEVICE}" />
+            <Param value="${SW_POLLING_MODE}" />
+            <Param value="${PULLUP_LOGIC}"/>
+        </Function>
+
+        <Function name="initForTwoButton" object="menuMgr" >
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${ENCODER_UP_PIN}"/>
+            <Param value="${ENCODER_DOWN_PIN}"/>
+        </Function>
+
+    </SetupFunctions>
+</TcMenuPlugin>
