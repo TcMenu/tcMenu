@@ -2,6 +2,7 @@
   <configuration default="false" name="EmbeddedJavaDemoApp" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menuexample.tcmenu.EmbeddedJavaDemoApp" />
     <module name="EmbeddedJavaDemo" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/embeddedJavaExample" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.thecoderscorner.menuexample.tcmenu.*" />

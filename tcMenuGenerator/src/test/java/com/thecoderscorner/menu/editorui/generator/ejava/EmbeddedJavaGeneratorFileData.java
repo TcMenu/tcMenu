@@ -209,16 +209,16 @@ public class EmbeddedJavaGeneratorFileData {
                 
                 @Bean
                 public GlobalSettings globalSettings() {
-                    var settings = new GlobalSettings(UnitTestMenu.class);
-                    settings.load();
+                    var settings = new GlobalSettings();
+                    // load or adjust the settings as needed here
+                    settings.setDefaultFontSize(14);
+                    settings.setDefaultRecursiveRendering(false);
                     return settings;
                 }
-                        
+            
                 @Bean
-                public ScreenLayoutPersistence menuLayoutPersistence(UnitTestMenu menuDef, GlobalSettings settings, MenuManagerServer manager, @Value("${file.menu.storage}") String filePath, @Value("${default.font.size}") int fontSize) {
-                    var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
-                    layout.loadApplicationData();
-                    return layout;
+                public MenuItemStore itemStore(UnitTestMenu menuDef, GlobalSettings settings) {
+                    return new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering());
                 }
                         
                 @Bean
@@ -227,10 +227,10 @@ public class EmbeddedJavaGeneratorFileData {
                 }
 
                 @Bean
-                public JfxNavigationHeader navigationManager(ScreenLayoutPersistence layoutPersistence) {
-                    return new JfxNavigationHeader(layoutPersistence);
+                public JfxNavigationHeader navigationManager(ScheduledExecutorService executorService, GlobalSettings settings) {
+                    return new JfxNavigationHeader(executorService, settings);
                 }
-
+                
                 @Bean
                 public MenuAppVersion versionInfo(@Value("${build.version}") String version, @Value("${build.timestamp}") String timestamp, @Value("${build.groupId}") String groupId, @Value("${build.artifactId}") String artifact) {
                     return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
@@ -475,7 +475,7 @@ public class EmbeddedJavaGeneratorFileData {
                     <jserialcomm.version>2.9.2</jserialcomm.version>
                     <jfx.version>17.0.0.1</jfx.version>
                     <tcmenu.api.version>1.2.3</tcmenu.api.version>
-                    <springframework.version>5.3.23</springframework.version>
+                    <springframework.version>6.0.11</springframework.version>
                     <timestamp>${maven.build.timestamp}</timestamp>
                 </properties>
                         
