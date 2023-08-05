@@ -99,7 +99,7 @@ public abstract class BaseDialogSupport<T> {
      * @return the current theme name
      */
     public static String getTheme() {
-        return MenuEditorApp.getInstance().getCurrentTheme();
+        return MenuEditorApp.getCurrentTheme();
     }
 
     /**

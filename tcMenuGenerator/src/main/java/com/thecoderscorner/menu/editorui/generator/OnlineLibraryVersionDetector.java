@@ -6,10 +6,10 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
-import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
-import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -22,12 +22,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.INFO;
 
 public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private static final System.Logger logger = System.getLogger(OnlineLibraryVersionDetector.class.getSimpleName());
@@ -37,7 +39,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
 
     private final String urlBase;
-    private final JdbcTcMenuConfigurationStore configurationStore;
+    private final ConfigurationStorage configurationStore;
     private final IHttpClient client;
 
     private final Object cacheLock = new Object();
@@ -45,7 +47,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private Map<String, VersionInfo> versionCache;
     private ReleaseType cachedReleaseType;
 
-    public OnlineLibraryVersionDetector(String urlBase, IHttpClient client, JdbcTcMenuConfigurationStore configurationStore) {
+    public OnlineLibraryVersionDetector(String urlBase, IHttpClient client, ConfigurationStorage configurationStore) {
         this.client = client;
         this.urlBase = urlBase;
         this.configurationStore = configurationStore;

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -42,7 +43,8 @@ public class DefaultXmlPluginLoaderTest {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.6.0");
-        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
+        var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
+        loader = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

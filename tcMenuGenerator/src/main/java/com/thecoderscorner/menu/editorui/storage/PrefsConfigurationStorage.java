@@ -296,4 +296,14 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.remove(LAST_LOADED_PROJ);
     }
+
+    @Override
+    public ReleaseType getReleaseStream() {
+        return ReleaseType.STABLE;
+    }
+
+    @Override
+    public void setReleaseStream(ReleaseType releaseStream) {
+        // ignored in this implementation
+    }
 }

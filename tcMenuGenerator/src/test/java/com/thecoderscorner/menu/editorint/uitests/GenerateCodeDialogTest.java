@@ -1,7 +1,9 @@
 package com.thecoderscorner.menu.editorint.uitests;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
+import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
@@ -14,6 +16,7 @@ import com.thecoderscorner.menu.editorui.generator.validation.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
@@ -37,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -55,6 +59,7 @@ public class GenerateCodeDialogTest {
     private static PluginEmbeddedPlatformsImpl embeddedPlatforms;
     private static CodePluginItem displayPlugin;
     private static CodePluginItem remotePlugin;
+    private static CodeGeneratorSupplier codeGeneratorSupplier;
     private GenerateCodeDialog genDialog;
     private Stage stage;
     private static CodeGeneratorRunner generatorRunner;
@@ -66,13 +71,16 @@ public class GenerateCodeDialogTest {
     @BeforeAll
     public static void initialiseProjectFiles() throws IOException {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+        var confStore = new PrefsConfigurationStorage();
+        codeGeneratorSupplier = new CodeGeneratorSupplier(confStore, mock(ArduinoLibraryInstaller.class));
 
         pluginTemp = Files.createTempDirectory("gennyTest");
         DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginTemp, true);
         var storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.2.0");
         when(storage.getAdditionalPluginPaths()).thenReturn(Collections.singletonList(pluginTemp.toString()));
-        pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
+        var homeDir = Paths.get(System.getProperty("user.home"), ".tcmenu");
+        pluginManager = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
         pluginManager.reload();
 
         displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();
@@ -102,7 +110,7 @@ public class GenerateCodeDialogTest {
 
         assertEquals(1, pluginManager.getLoadedPlugins().size());
 
-        genDialog = new GenerateCodeDialog(pluginManager, editorUI, project, generatorRunner, embeddedPlatforms);
+        genDialog = new GenerateCodeDialog(pluginManager, editorUI, project, generatorRunner, embeddedPlatforms, codeGeneratorSupplier);
         genDialog.showCodeGenerator(stage, false);
     }
 
@@ -164,7 +172,7 @@ public class GenerateCodeDialogTest {
         verify(generatorRunner).startCodeGeneration(
                 eq(stage), eq(EmbeddedPlatform.ARDUINO_AVR), eq(pluginTemp.resolve("myProject").toString()),
                 argThat(pl -> pl.containsAll(expectedPlugins)),
-                argThat(strings -> strings.containsAll(previousPluinFiles)), eq(true));
+                argThat(strings -> strings.containsAll(previousPluinFiles)), eq(codeGeneratorSupplier), eq(true));
     }
 
     private CodePluginItem getPlugin(String id, SubSystem ty) {

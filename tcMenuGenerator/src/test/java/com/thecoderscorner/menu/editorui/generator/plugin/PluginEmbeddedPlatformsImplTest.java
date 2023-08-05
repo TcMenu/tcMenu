@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
@@ -22,7 +23,7 @@ class PluginEmbeddedPlatformsImplTest {
     @Test
     void testEmbeddedPlatforms() {
         PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-        platforms.setInstallerConfiguration(mock(ArduinoLibraryInstaller.class), mock(ConfigurationStorage.class));
+        var codeGenSupplier = new CodeGeneratorSupplier(mock(ConfigurationStorage.class), mock(ArduinoLibraryInstaller.class));
         assertThat(platforms.getEmbeddedPlatforms()).containsExactly(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS);
 
         assertEquals(ARDUINO_AVR, platforms.getEmbeddedPlatformFromId(ARDUINO_AVR.getBoardId()));
@@ -52,12 +53,12 @@ class PluginEmbeddedPlatformsImplTest {
         assertTrue(platforms.isMbed(MBED_RTOS));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions();
-        var generator = platforms.getCodeGeneratorFor(ARDUINO_AVR, standardOptions);
+        var generator = codeGenSupplier.getCodeGeneratorFor(ARDUINO_AVR, standardOptions);
         assertThat(generator).isOfAnyClassIn(ArduinoGenerator.class);
 
         assertThrows(IllegalArgumentException.class, () -> {
             EmbeddedPlatform invalidPlatform = new EmbeddedPlatform("", "Invalid", false);
-            platforms.getCodeGeneratorFor(invalidPlatform, standardOptions);
+            codeGenSupplier.getCodeGeneratorFor(invalidPlatform, standardOptions);
         });
     }
 }

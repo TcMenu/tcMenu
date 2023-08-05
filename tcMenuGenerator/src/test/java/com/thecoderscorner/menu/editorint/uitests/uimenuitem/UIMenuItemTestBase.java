@@ -9,12 +9,12 @@ package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -44,7 +44,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 public abstract class UIMenuItemTestBase {
 
-    protected CurrentProjectEditorUI editorUI;
+    protected CurrentProjectEditorUIImpl editorUI;
     protected MenuTree menuTree;
     protected BiConsumer<MenuItem, MenuItem> mockedConsumer;
     protected Stage stage;
@@ -56,10 +56,10 @@ public abstract class UIMenuItemTestBase {
         manager = mock(CodePluginManager.class);
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         var bundle = MenuEditorApp.configureBundle(EMPTY_LOCALE);
-        editorUI = new CurrentProjectEditorUIImpl(manager, stage, mock(EmbeddedPlatforms.class),
-                mock(ArduinoLibraryInstaller.class), storage,
-                mock(LibraryVersionDetector.class), System.getProperty("user.home"),
-                bundle);
+        editorUI = new CurrentProjectEditorUIImpl(manager, new PluginEmbeddedPlatformsImpl(),
+                mock(ArduinoLibraryInstaller.class), storage, mock(LibraryVersionDetector.class),
+                mock(CodeGeneratorSupplier.class), System.getProperty("user.home"));
+        editorUI.setStage(stage, bundle);
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);
         this.stage = stage;

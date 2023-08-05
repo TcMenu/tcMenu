@@ -12,10 +12,9 @@ import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.BspStm32EepromDefinition;
@@ -37,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -72,7 +72,8 @@ public class MbedGeneratorTest {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.1.0");
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
+        var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
+        var loader = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
     }
 
@@ -117,8 +118,8 @@ public class MbedGeneratorTest {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
-        embeddedPlatforms.setInstallerConfiguration(installer, new PrefsConfigurationStorage());
-        var generator = embeddedPlatforms.getCodeGeneratorFor(MBED_RTOS, options);
+        var codeGenSupplier = new CodeGeneratorSupplier(new PrefsConfigurationStorage(), installer);
+        var generator = codeGenSupplier.getCodeGeneratorFor(MBED_RTOS, options);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()

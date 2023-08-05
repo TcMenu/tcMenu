@@ -3,7 +3,6 @@ package com.thecoderscorner.embedcontrol.core.service;
 import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;

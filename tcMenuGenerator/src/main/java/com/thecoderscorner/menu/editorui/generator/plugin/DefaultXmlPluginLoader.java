@@ -74,7 +74,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var allPluginsPathsToLoad = new ArrayList<Path>();
 
             if(includeDefaultDir) {
-                var defPluginPath = Paths.get(System.getProperty("user.home"), ".tcmenu", "plugins");
+                var defPluginPath = homeDir.resolve("plugins");
                 allPluginsPathsToLoad.add(defPluginPath);
             }
 

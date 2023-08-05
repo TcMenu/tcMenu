@@ -1,9 +1,11 @@
 package com.thecoderscorner.menu.editorint.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.NewProjectDialog;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -41,11 +43,12 @@ public class NewProjectDialogTestCases {
         tempDir = Files.createTempDirectory("test");
 
         platforms = new PluginEmbeddedPlatformsImpl();
-        platforms.setInstallerConfiguration(mock(ArduinoLibraryInstaller.class), mock(ConfigurationStorage.class));
         storage = mock(ConfigurationStorage.class);
         when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.of(tempDir.toString()));
         project = mock(CurrentEditorProject.class);
-        dialog = new NewProjectDialog(stage, storage, platforms, project, false);
+        var codeGenSupplier = new CodeGeneratorSupplier(storage, mock(ArduinoLibraryInstaller.class));
+        dialog = new NewProjectDialog(stage, storage, platforms, project, codeGenSupplier,
+                new FileBasedProjectPersistor(platforms), false);
     }
 
     @AfterEach

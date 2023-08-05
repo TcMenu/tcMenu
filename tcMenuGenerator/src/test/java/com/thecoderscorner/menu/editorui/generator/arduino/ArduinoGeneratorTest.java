@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
@@ -61,7 +62,8 @@ public class ArduinoGeneratorTest {
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.7.0");
-        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
+        var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
+        var loader = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
 
     }

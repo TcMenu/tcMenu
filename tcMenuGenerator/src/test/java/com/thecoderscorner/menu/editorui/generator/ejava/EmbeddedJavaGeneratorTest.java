@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,8 @@ class EmbeddedJavaGeneratorTest {
                 .withId(2039).withName("My List").withFunctionName("listHasChanged").withInitialRows(10).menuItem());
         when(storage.getVersion()).thenReturn("1.2.3");
 
-        var pluginMgr = new DefaultXmlPluginLoader(new PluginEmbeddedPlatformsImpl(), storage, true);
+        var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
+        var pluginMgr = new DefaultXmlPluginLoader(homeDir, new PluginEmbeddedPlatformsImpl(), storage, true);
         var data = Objects.requireNonNull(getClass().getResourceAsStream("/plugins/java-test-plugin.xml")).readAllBytes();
         plugin = pluginMgr.loadPlugin(new String(data));
     }

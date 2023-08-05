@@ -74,6 +74,8 @@ public interface ConfigurationStorage {
     void setLastLoadedProject(String absolutePath);
     void emptyLastLoadedProject();
 
+    ReleaseType getReleaseStream();
+    void setReleaseStream(ReleaseType releaseStream);
 
     void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
 }

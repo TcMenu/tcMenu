@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import static com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector.LIBRARY_VERSIONING_URL_APPEND;
 import static com.thecoderscorner.menu.editorui.util.IHttpClient.HttpDataType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class OnlineLibraryVersionDetectorTest {
@@ -89,7 +91,9 @@ public class OnlineLibraryVersionDetectorTest {
     public void setup() throws IOException, InterruptedException {
         var mockHttp = Mockito.mock(IHttpClient.class);
         when(mockHttp.postRequestForString("https://mockAddr" + LIBRARY_VERSIONING_URL_APPEND, "", HttpDataType.FORM)).thenReturn(xmlData);
-        verDet = new OnlineLibraryVersionDetector("https://mockAddr", mockHttp, ReleaseType.STABLE);
+        var store = mock(ConfigurationStorage.class);
+        when(store.getReleaseStream()).thenReturn(ReleaseType.STABLE);
+        verDet = new OnlineLibraryVersionDetector("https://mockAddr", mockHttp, store);
     }
 
     @Test

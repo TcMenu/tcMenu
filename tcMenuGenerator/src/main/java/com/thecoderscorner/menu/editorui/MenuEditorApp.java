@@ -58,7 +58,7 @@ public class MenuEditorApp extends Application {
     }
 
     private ApplicationContext appContext;
-    private JdbcTcMenuConfigurationStore configStore;
+    private static JdbcTcMenuConfigurationStore CONFIG_STORE;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -88,11 +88,11 @@ public class MenuEditorApp extends Application {
             }
         });
 
-        configStore = appContext.getBean(JdbcTcMenuConfigurationStore.class);
+        CONFIG_STORE = appContext.getBean(JdbcTcMenuConfigurationStore.class);
 
         // if the chosen locale is not the default then force the locale.
-        if(!configStore.getChosenLocale().equals(Locale.getDefault())) {
-            configureBundle(configStore.getChosenLocale());
+        if(!CONFIG_STORE.getChosenLocale().equals(Locale.getDefault())) {
+            configureBundle(CONFIG_STORE.getChosenLocale());
         }
 
         // load the main form
@@ -113,7 +113,7 @@ public class MenuEditorApp extends Application {
         editorUI.setEditorProject(project);
 
         controller.initialise(project, appContext.getBean(ArduinoLibraryInstaller.class),
-                editorUI, appContext.getBean(DefaultXmlPluginLoader.class), configStore, libraryVersionDetector);
+                editorUI, appContext.getBean(DefaultXmlPluginLoader.class), CONFIG_STORE, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
         BaseDialogSupport.getJMetro().setScene(myScene);
@@ -183,11 +183,13 @@ public class MenuEditorApp extends Application {
     }
 
     public void setCurrentTheme(String mode) {
-        configStore.setCurrentTheme(mode);
+        if(CONFIG_STORE != null) {
+            CONFIG_STORE.setCurrentTheme(mode);
+        }
     }
 
-    public String getCurrentTheme() {
-        return configStore.getCurrentTheme();
+    public static String getCurrentTheme() {
+        return CONFIG_STORE != null ? CONFIG_STORE.getCurrentTheme() : "darkMode";
     }
 
     /**

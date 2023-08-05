@@ -6,26 +6,10 @@
 
 package com.thecoderscorner.embedcontrol.jfxapp;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
-import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
-import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
-import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.MainWindowController;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.AboutPanelPresentable;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.NewConnectionPanelPresentable;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.SettingsPanelPresentable;
-import com.thecoderscorner.embedcontrol.core.service.CoreControlAppConfig;
-import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -34,11 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
