@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.*;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -50,25 +51,32 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final LibraryVersionDetector versionDetector;
     private final String homeDirectory;
-    private final Stage mainStage;
+    private final CodeGeneratorSupplier codeGeneratorSupplier;
+    private Stage mainStage;
     private final CodePluginManager manager;
     private final EmbeddedPlatforms platforms;
     private final ArduinoLibraryInstaller installer;
     private final ConfigurationStorage configStore;
-    private final ResourceBundle designerBundle;
+    private ResourceBundle designerBundle;
     private CurrentEditorProject editorProject;
+    private CodeGeneratorSupplier codeSupplier;
 
-    public CurrentProjectEditorUIImpl(CodePluginManager manager, Stage mainStage, EmbeddedPlatforms platforms,
+    public CurrentProjectEditorUIImpl(CodePluginManager manager, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
-                                      LibraryVersionDetector versionDetector, String home, ResourceBundle designerBundle) {
+                                      LibraryVersionDetector versionDetector, CodeGeneratorSupplier codeGenSupplier,
+                                      String home) {
         this.manager = manager;
-        this.mainStage = mainStage;
+        this.codeGeneratorSupplier = codeGenSupplier;
         this.platforms = platforms;
         this.installer = installer;
         this.configStore = storage;
         this.versionDetector = versionDetector;
         this.homeDirectory = home;
-        this.designerBundle = designerBundle;
+    }
+
+    public void setStage(Stage stage, ResourceBundle bundle) {
+        this.mainStage = stage;
+        this.designerBundle = bundle;
     }
 
     public void setEditorProject(CurrentEditorProject project) {
@@ -146,7 +154,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void setTitle(String s) {
-        mainStage.setTitle(s);
+        if(mainStage != null) {
+            mainStage.setTitle(s);
+        }
     }
 
     @Override
@@ -171,7 +181,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showCreateProjectDialog() {
         logger.log(INFO, "Create project dialog show");
-        new NewProjectDialog(mainStage, configStore, platforms, editorProject, true);
+        new NewProjectDialog(mainStage, configStore, platforms, editorProject, codeSupplier, editorProject.getProjectPersistor(), true);
     }
 
     @Override
@@ -197,7 +207,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
         try {
             DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms, manager);
-            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms);
+            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms, codeGeneratorSupplier);
             dialog.showCodeGenerator(mainStage, true);
         }
         catch (Exception ex) {

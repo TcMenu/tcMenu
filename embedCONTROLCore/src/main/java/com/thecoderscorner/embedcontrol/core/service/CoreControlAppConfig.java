@@ -32,6 +32,11 @@ public class CoreControlAppConfig {
     }
 
     @Bean
+    public Path tcMenuHome() {
+        return tcMenuHome;
+    }
+
+    @Bean
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.sqlite.JDBC");

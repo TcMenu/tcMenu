@@ -1,16 +1,12 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
-import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.menu.domain.state.PortableColor;
 
 import java.util.UUID;
-import java.util.prefs.Preferences;
 
 /**
  * This class stores all the global settings for both local and remote versions of embedCONTROL. This includes default
- * font sizes, control colors, and other setup values. When creating an instance provide a class that you'd like to use
- * as the root node for the preferences API.
+ * font sizes, control colors, and other setup values.
  */
 public class GlobalSettings {
     private ControlColor updateColor;

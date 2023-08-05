@@ -19,13 +19,15 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
     private final GlobalSettings settings;
     private final MenuItemStore store;
     private Node loadedPane;
+    private TcMenuFormSaveConsumer saveConsumer;
 
-    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr, MenuItemStore store) {
+    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr, MenuItemStore store, TcMenuFormSaveConsumer saveConsumer) {
         this.settings = settings;
         this.tree = tree;
         this.navMgr = navMgr;
         this.appUuid = uuid;
         this.store = store;
+        this.saveConsumer = saveConsumer;
     }
 
     @Override
@@ -34,9 +36,9 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
         if (loadedPane == null) {
             loadedPane = loader.load();
             formEditorController = loader.getController();
-            formEditorController.initialise(settings, tree, appUuid, navMgr, store);
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer);
         } else {
-            formEditorController.initialise(settings, tree, appUuid, navMgr, store);
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer);
         }
         return loadedPane;
     }

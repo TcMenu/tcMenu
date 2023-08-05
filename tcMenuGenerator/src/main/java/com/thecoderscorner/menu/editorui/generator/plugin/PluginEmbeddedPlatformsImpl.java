@@ -29,11 +29,9 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS);
-    private final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
-    private final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS);
-    private final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
-    private ArduinoLibraryInstaller installer;
-    private ConfigurationStorage configStorage;
+    public static final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
+    public static final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS);
+    public static final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
 
     public PluginEmbeddedPlatformsImpl() {
     }
@@ -41,20 +39,6 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
     @Override
     public List<EmbeddedPlatform> getEmbeddedPlatforms() {
         return platforms;
-    }
-
-    @Override
-    public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
-        if (installer == null) throw new IllegalArgumentException("Please call setInstaller first");
-        if (arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options, configStorage), installer, platform);
-        } else if (mbedPlatforms.contains(platform)) {
-            return new MbedGenerator(new MbedSketchFileAdjuster(options, configStorage), installer, platform);
-        } else if(javaPlatforms.contains(platform)) {
-            return new EmbeddedJavaGenerator(configStorage, platform);
-        } else {
-            throw new IllegalArgumentException("No such board type: " + platform);
-        }
     }
 
     public boolean isArduino(EmbeddedPlatform platform) {
@@ -99,10 +83,5 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         else {
             throw new IllegalArgumentException("No such board type: " + id);
         }
-    }
-
-    public void setInstallerConfiguration(ArduinoLibraryInstaller installer, ConfigurationStorage storage) {
-        this.installer = installer;
-        this.configStorage = storage;
     }
 }

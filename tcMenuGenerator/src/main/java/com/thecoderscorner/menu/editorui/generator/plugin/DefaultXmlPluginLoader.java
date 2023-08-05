@@ -7,6 +7,8 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -46,12 +48,14 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final ConfigurationStorage configStorage;
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
     private final boolean includeDefaultDir;
+    private final Path homeDir;
     private ResourceBundle resourceBundle;
 
-    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
+    public DefaultXmlPluginLoader(Path homeDir, EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
         this.configStorage = storage;
         this.includeDefaultDir = includeDefaultDir;
+        this.homeDir = homeDir;
     }
 
     @Override
@@ -526,5 +530,36 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setRequiredLibraries(transformElements(root, "RequiredLibraries", "Library", Node::getTextContent));
         var docs = elementWithName(root, "Documentation");
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
+    }
+
+    public static boolean isDirectoryPresentAndPopulated(Path path) throws IOException {
+        if(!Files.exists(path)) return false;
+        if (Files.isDirectory(path)) {
+            return Files.find(path, 1, (p, a) -> p.getFileName().toString().startsWith("core-"))
+                    .findFirst().isPresent();
+        }
+        return false;
+    }
+
+    public void ensurePluginsAreValid() {
+        Path pluginDir = homeDir.resolve(".tcmenu").resolve("plugins");
+        var current = new VersionInfo(configStorage.getVersion());
+        try {
+            var noPluginDir = !isDirectoryPresentAndPopulated(pluginDir);
+            if(!configStorage.getLastRunVersion().equals(current) || noPluginDir) {
+                if (noPluginDir) Files.createDirectories(pluginDir);
+
+                if (Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
+                    System.getLogger("Main").log(WARNING, "Not upgrading core plugins, this is a development system");
+                    return;
+                }
+
+                try (var resourceAsStream = MenuEditorApp.class.getResourceAsStream("/plugins/InitialPlugins.zip")) {
+                    OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
+                }
+            }
+        } catch(Exception ex) {
+            System.getLogger("Main").log(ERROR, "failed to prepare directory structure", ex);
+        }
     }
 }

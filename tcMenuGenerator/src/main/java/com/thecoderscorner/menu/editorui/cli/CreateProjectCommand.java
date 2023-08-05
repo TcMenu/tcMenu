@@ -5,16 +5,20 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
+import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +31,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.cli.CodeGeneratorCommand.persistProject;
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_CURRENT;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_SRC;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
 import static picocli.CommandLine.*;
@@ -78,12 +83,11 @@ public class CreateProjectCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        var platforms = new PluginEmbeddedPlatformsImpl();
-        var prefsStore = new PrefsConfigurationStorage();
-        DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
+        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+        DefaultXmlPluginLoader loader = appContext.getBean(DefaultXmlPluginLoader.class);
+        loader.ensurePluginsAreValid();
         loader.loadPlugins();
-        var versionDetector = MenuEditorApp.createLibraryVersionDetector();
-        platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(versionDetector, loader, prefsStore), prefsStore);
+        var platforms = appContext.getBean(EmbeddedPlatforms.class);
 
         if(projectLocation == null) projectLocation = new File(System.getProperty("user.dir"));
 
@@ -99,7 +103,9 @@ public class CreateProjectCommand implements Callable<Integer> {
 
         try {
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(platform);
-            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform, platforms, System.out::println, namespace);
+            createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform,
+                    System.out::println, namespace, appContext.getBean(CodeGeneratorSupplier.class),
+                    appContext.getBean(ProjectPersistor.class));
 
             if(!StringHelper.isStringEmptyOrNull(i18nLocales)) {
                 var localeList = Arrays.stream(i18nLocales.split("\\s*,\\s*")).map(Locale::of).toList();
@@ -126,7 +132,9 @@ public class CreateProjectCommand implements Callable<Integer> {
      * @throws IOException when the directory and files are not properly created
      */
     public void createNewProject(Path location, String newProject, boolean cppMain, EmbeddedPlatform platform,
-                                 EmbeddedPlatforms platforms, Consumer<String> logger, String packageOrNamespace) throws IOException {
+                                 Consumer<String> logger, String packageOrNamespace,
+                                 CodeGeneratorSupplier codeGeneratorSupplier,
+                                 ProjectPersistor projectPersistor) throws IOException {
         var configurationStorage = new PrefsConfigurationStorage();
         logger.accept(String.format("Creating directory %s in %s", newProject, location));
         var dir = Paths.get(location.toString(), newProject);
@@ -140,11 +148,11 @@ public class CreateProjectCommand implements Callable<Integer> {
             Files.createDirectory(dir.resolve("src"));
         }
 
-        if(platforms.isJava(platform) && StringHelper.isStringEmptyOrNull(packageOrNamespace)) {
+        boolean isJava = PluginEmbeddedPlatformsImpl.javaPlatforms.contains(platform);
+        if(isJava && StringHelper.isStringEmptyOrNull(packageOrNamespace)) {
             throw new IllegalArgumentException("For Java platforms you must provide a package name");
         }
 
-        var persistor = new FileBasedProjectPersistor(platforms);
         var  tree = new MenuTree();
         var generator = new CodeGeneratorOptionsBuilder()
                 .withPlatform(platform)
@@ -157,12 +165,12 @@ public class CreateProjectCommand implements Callable<Integer> {
                 .codeOptions();
 
         var projectEmf = dir.resolve(newProject + ".emf");
-        persistor.save(projectEmf.toString(), "Project description", tree, generator, LocaleMappingHandler.NOOP_IMPLEMENTATION);
+        projectPersistor.save(projectEmf.toString(), "Project description", tree, generator, LocaleMappingHandler.NOOP_IMPLEMENTATION);
 
-        if(platforms.isJava(platform)) {
+        if(isJava) {
             logger.accept("Java project, all files will be created on first generate");
         } else{
-            var codeGen = platforms.getCodeGeneratorFor(platform, generator);
+            var codeGen = codeGeneratorSupplier.getCodeGeneratorFor(platform, generator);
             BiConsumer<System.Logger.Level, String> l = (level, s) -> logger.accept(level + ": " + s);
             codeGen.setLoggerFunction(l);
             codeGen.getSketchFileAdjuster().createFileIfNeeded(l, dir, generator);

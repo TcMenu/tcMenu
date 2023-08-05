@@ -12,6 +12,7 @@ import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
@@ -66,6 +67,7 @@ public class GenerateCodeDialog {
     private final List<CodePluginItem> themesSupported = new ArrayList<>();
     private final List<String> initialPlugins = new ArrayList<>();
     private final List<UICodePluginItem> currentRemotes = new ArrayList<>();
+    private final CodeGeneratorSupplier generatorSupplier;
 
     private UICodePluginItem currentDisplay;
     private UICodePluginItem currentTheme;
@@ -84,12 +86,13 @@ public class GenerateCodeDialog {
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
-                              EmbeddedPlatforms platforms) {
+                              EmbeddedPlatforms platforms, CodeGeneratorSupplier generatorSupplier) {
         this.manager = manager;
         this.editorUI = editorUI;
         this.project = project;
         this.runner = runner;
         this.platforms = platforms;
+        this.generatorSupplier = generatorSupplier;
 
     }
 
@@ -458,6 +461,7 @@ public class GenerateCodeDialog {
                                    Paths.get(project.getFileName()).getParent().toString(),
                                    getAllPluginsForConversion(),
                                    initialPlugins,
+                                   generatorSupplier,
                                    true);
 
         var stage = (Stage)(currentInput.getScene().getWindow());

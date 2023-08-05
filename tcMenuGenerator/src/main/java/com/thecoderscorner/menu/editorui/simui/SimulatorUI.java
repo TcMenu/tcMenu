@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.simui;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
@@ -13,6 +14,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPrese
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.mgr.DialogManager;
@@ -20,7 +22,9 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -29,7 +33,8 @@ import javafx.stage.WindowEvent;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executors;
+import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 public class SimulatorUI {
@@ -41,13 +46,19 @@ public class SimulatorUI {
     private Scene scene;
     private Stage dialogStage;
     private Consumer<WindowEvent> closeConsumer;
-    private GlobalSettings settings;
     private FormBuilderPresentable formEditorPanel;
     private CurrentEditorProject project;
+    private GlobalSettings settings;
+    private AppDataStore dataStore;
+    private ContextMenu contextMenu;
+    private String uuid;
+    private TcMenuFormPersistence currentLayout;
+    private MenuItemStore itemStore;
 
     public void presentSimulator(MenuTree menuTree, CurrentEditorProject project, Stage stage) {
         this.menuTree = menuTree;
         this.project = project;
+        this.uuid = project.getGeneratorOptions().getApplicationUUID().toString();
         MenuItemFormatter.setDefaultLocalHandler(project.getLocaleHandler());
 
         ScrollPane scrollPane = new ScrollPane();
@@ -67,29 +78,85 @@ public class SimulatorUI {
         dialogStage.show();
         dialogStage.setOnCloseRequest(event -> closeConsumer.accept(event));
 
-        settings = new GlobalSettings();
+        var appContext = MenuEditorApp.getInstance().getAppContext();
+        settings = appContext.getBean(GlobalSettings.class);
+        dataStore = appContext.getBean(AppDataStore.class);
         var dialogMgr = new DoNothingDialogManager();
-        navMgr = new JfxNavigationHeader(Executors.newSingleThreadScheduledExecutor(), settings);
+        navMgr = new JfxNavigationHeader(appContext.getBean(ScheduledExecutorService.class), settings);
         var control = new SimulatorUIControl();
         navMgr.initialiseUI(dialogMgr, control, scrollPane);
-        var store = new MenuItemStore(settings, menuTree, "Untitled", 7, 4, true);
-        navMgr.pushMenuNavigation(MenuTree.ROOT, store);
+        itemStore = new MenuItemStore(settings, menuTree, "Untitled", 7, 4, true);
+        navMgr.pushMenuNavigation(MenuTree.ROOT, itemStore);
 
         VBox vbox = new VBox(navMgr.initialiseControls());
         border.setTop(vbox);
 
         var editorImage = new Image(Objects.requireNonNull(AppDataStore.class.getResourceAsStream("/img-core/layout-off.png")));
         var settingsImage = new Image(Objects.requireNonNull(AppDataStore.class.getResourceAsStream("/img-core/settings-cog.png")));
-        navMgr.addTitleWidget(new TitleWidget<>(List.of(editorImage), 1, 0, WIDGET_ID_FORM));
+        TitleWidget<Image> formWidget = new TitleWidget<>(List.of(editorImage), 1, 0, WIDGET_ID_FORM);
+        navMgr.addTitleWidget(formWidget);
         navMgr.addTitleWidget(new TitleWidget<>(List.of(settingsImage), 1, 0, WIDGET_ID_SETTINGS));
-        navMgr.addWidgetClickedListener((actionEvent, titleWidget) -> showFormEditorPanel(titleWidget));
-        formEditorPanel = new FormBuilderPresentable(settings, opts.getApplicationUUID(), menuTree, navMgr, store);
+        navMgr.addWidgetClickedListener((actionEvent, titleWidget) -> widgetClickListener(titleWidget));
+        navMgr.getButtonFor(formWidget).ifPresent(button -> button.setContextMenu(contextMenuForLayout()));
+        formEditorPanel = new FormBuilderPresentable(settings, opts.getApplicationUUID(), menuTree, navMgr, itemStore, this::saveFormConsumer);
     }
 
-    private void showFormEditorPanel(TitleWidget<Image> titleWidget) {
-        if(titleWidget.getAppId() == WIDGET_ID_FORM) {
-            navMgr.pushNavigationIfNotOnStack(formEditorPanel);
-        } else if(titleWidget.getAppId() == WIDGET_ID_SETTINGS) {
+    private void saveFormConsumer(String xml) {
+        if(currentLayout == null) return;
+        currentLayout = new TcMenuFormPersistence(currentLayout.getFormId(), currentLayout.getUuid(), currentLayout.getFormName(), xml);
+        dataStore.updateForm(currentLayout);
+        rebuildGrid();
+    }
+
+    private ContextMenu contextMenuForLayout() {
+        if(contextMenu == null) {
+            contextMenu = new ContextMenu();
+        }
+
+        contextMenu.getItems().clear();
+
+        for(var form : dataStore.getAllFormsForUuid(uuid)) {
+            var selText = currentLayout != null && currentLayout.getFormId() == form.getFormId() ? " *" : "";
+            var itemLayout = new javafx.scene.control.MenuItem(form.getFormName() + " [" +form.getFormId() + "]" + selText);
+            itemLayout.setOnAction(event -> {
+                currentLayout = form;
+                itemStore.loadLayout(currentLayout.getXmlData(), UUID.fromString(uuid));
+                rebuildGrid();
+                contextMenuForLayout();
+            });
+            contextMenu.getItems().add(itemLayout);
+        }
+
+        contextMenu.getItems().add(new SeparatorMenuItem());
+        var createNew = new javafx.scene.control.MenuItem("Create New Layout");
+        createNew.setOnAction(event -> createActivateNewLayout());
+        contextMenu.getItems().add(createNew);
+
+        if(currentLayout != null) {
+            var editLayout = new javafx.scene.control.MenuItem("Edit " + currentLayout.getFormName());
+            editLayout.setOnAction(event -> navMgr.pushNavigationIfNotOnStack(formEditorPanel));
+            contextMenu.getItems().add(editLayout);
+        }
+
+        return contextMenu;
+    }
+
+    private void createActivateNewLayout() {
+        var form = TcMenuFormPersistence.anEmptyFormPersistence(uuid);
+        dataStore.updateForm(form);
+        currentLayout = form;
+        rebuildGrid();
+        contextMenuForLayout();
+    }
+
+    private void rebuildGrid() {
+        if (navMgr.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
+            menuPanel.entirelyRebuildGrid();
+        }
+    }
+
+    private void widgetClickListener(TitleWidget<Image> titleWidget) {
+        if(titleWidget.getAppId() == WIDGET_ID_SETTINGS) {
             var settingsPanel = new ColorSettingsPresentable(settings, navMgr, "Global", formEditorPanel.getCurrentStore(), false);
             navMgr.pushNavigationIfNotOnStack(settingsPanel);
         }

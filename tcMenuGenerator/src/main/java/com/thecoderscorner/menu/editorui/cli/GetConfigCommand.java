@@ -4,7 +4,9 @@ import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.concurrent.Callable;
 
@@ -27,20 +29,20 @@ public class GetConfigCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        var storage = new PrefsConfigurationStorage();
+        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+        var storage = appContext.getBean(ConfigurationStorage.class);
         switch (param) {
             case EXTRA_PLUGIN_PATHS -> System.out.println("Paths: " + storage.getAdditionalPluginPaths());
             case ARDUINO_DIR -> System.out.println("Arduino directory: " + storage.getArduinoOverrideDirectory().orElse("Not Set"));
             case LIBS_DIR -> System.out.println("Arduino libraries directory: " + storage.getArduinoLibrariesOverrideDirectory().orElse("Not Set"));
             case RECURSIVE_NAMING -> System.out.println("Recursive naming by default: " + storage.isDefaultRecursiveNamingOn());
             case SAVE_TO_SRC -> System.out.println("Save to src folder by default: " + storage.isDefaultSaveToSrcOn());
-            case PLUGIN_VERSIONS -> printAllPluginVersions(storage);
+            case PLUGIN_VERSIONS -> printAllPluginVersions(storage, appContext.getBean(DefaultXmlPluginLoader.class));
         }
         return 0;
     }
 
-    static void printAllPluginVersions(ConfigurationStorage storage) {
-        var loader = new DefaultXmlPluginLoader(new PluginEmbeddedPlatformsImpl(), storage, true);
+    static void printAllPluginVersions(ConfigurationStorage storage, DefaultXmlPluginLoader loader) {
         loader.loadPlugins();
         if(loader.getLoadErrors().isEmpty()) {
             loader.getLoadedPlugins().forEach(pl ->

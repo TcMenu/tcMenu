@@ -93,6 +93,22 @@ public class VersionInfo {
                 releaseType == that.releaseType;
     }
 
+    public int getMajor() {
+        return major;
+    }
+
+    public int getMinor() {
+        return minor;
+    }
+
+    public int getPatch() {
+        return patch;
+    }
+
+    public ReleaseType getReleaseType() {
+        return releaseType;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(major, minor, patch, releaseType);

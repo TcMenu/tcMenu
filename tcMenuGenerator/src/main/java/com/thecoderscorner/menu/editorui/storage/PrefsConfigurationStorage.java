@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -102,10 +103,10 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
         prefs.put(REGISTERED_KEY, registeredKey);
     }
 
-    public TcMenuReleaseType getReleaseType() {
+    public ReleaseType getReleaseType() {
         String version = props.getProperty(BUILD_VERSION_KEY, "0.0");
         boolean beta = version.contains("SNAPSHOT") || version.contains("BETA") || version.contains("ALPHA");
-        return beta ? TcMenuReleaseType.BETA : TcMenuReleaseType.REGULAR;
+        return beta ? ReleaseType.BETA : ReleaseType.STABLE;
     }
 
     public String getVersion() {

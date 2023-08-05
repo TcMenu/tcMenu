@@ -9,19 +9,13 @@ package com.thecoderscorner.menu.editorui;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
-import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
+import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
-import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
-import com.thecoderscorner.menu.persist.ReleaseType;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -33,6 +27,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
@@ -45,23 +41,43 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * The application starting point for the JavaFX version of the application
  */
 public class MenuEditorApp extends Application {
-
+    private static MenuEditorApp INSTANCE = null;
     private volatile MenuEditorController controller;
     private static ResourceBundle designerBundle;
-    public static final Locale EMPTY_LOCALE = new Locale("");
+    public static final Locale EMPTY_LOCALE = Locale.of("");
+
+    public ApplicationContext getAppContext() {
+        return appContext;
+    }
+
+    private ApplicationContext appContext;
+    private JdbcTcMenuConfigurationStore configStore;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        INSTANCE = this;
         startUpLogging();
+
+        try {
+            configureBundle(Locale.getDefault());
+            appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+        } catch(Exception ex) {
+            System.getLogger(MenuEditorApp.class.getSimpleName()).log(ERROR, "Failed loading config", ex);
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Could not load designer");
+            alert.setContentText("App did not start due to " + ex.getMessage() + ". See log for more details.");
+            alert.setTitle("TcMenu Designer did not start");
+            alert.showAndWait();
+            primaryStage.close(); // make sure the app closes here.
+            return;
+        }
 
         Platform.runLater(() -> {
             final String os = System.getProperty("os.name");
@@ -72,54 +88,42 @@ public class MenuEditorApp extends Application {
             }
         });
 
-        ConfigurationStorage prefsStore = new PrefsConfigurationStorage();
+        configStore = appContext.getBean(JdbcTcMenuConfigurationStore.class);
 
-        configureBundle(prefsStore.getChosenLocale());
+        // if the chosen locale is not the default then force the locale.
+        if(!configStore.getChosenLocale().equals(Locale.getDefault())) {
+            configureBundle(configStore.getChosenLocale());
+        }
 
-        createOrUpdateDirectoriesAsNeeded(prefsStore);
-
+        // load the main form
         primaryStage.setTitle(designerBundle.getString("main.editor.title"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         loader.setResources(designerBundle);
         Pane myPane = loader.load();
-
         controller = loader.getController();
 
-        LibraryVersionDetector libraryVersionDetector = createLibraryVersionDetector();
+        var libraryVersionDetector = appContext.getBean(LibraryVersionDetector.class);
+        var pluginLoader = appContext.getBean(DefaultXmlPluginLoader.class);
+        pluginLoader.ensurePluginsAreValid();
+        pluginLoader.loadPlugins();
 
-        PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
-
-        DefaultXmlPluginLoader manager = new DefaultXmlPluginLoader(platforms, prefsStore, true);
-
-        ArduinoLibraryInstaller installer = new ArduinoLibraryInstaller(libraryVersionDetector, manager, prefsStore);
-
-        platforms.setInstallerConfiguration(installer, prefsStore);
-
-        manager.loadPlugins();
-
-        var homeDirectory = System.getProperty("homeDirectoryOverride", System.getProperty("user.home"));
-        var editorUI = new CurrentProjectEditorUIImpl(manager, primaryStage, platforms, installer, prefsStore, libraryVersionDetector, homeDirectory, designerBundle);
-
-        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(platforms);
-
-        CurrentEditorProject project = new CurrentEditorProject(editorUI, persistor, prefsStore);
+        var editorUI = appContext.getBean(CurrentProjectEditorUIImpl.class);
+        editorUI.setStage(primaryStage, designerBundle);
+        CurrentEditorProject project = appContext.getBean(CurrentEditorProject.class);
         editorUI.setEditorProject(project);
 
-        controller.initialise(project, installer, editorUI, manager, prefsStore, libraryVersionDetector);
+        controller.initialise(project, appContext.getBean(ArduinoLibraryInstaller.class),
+                editorUI, appContext.getBean(DefaultXmlPluginLoader.class), configStore, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
         BaseDialogSupport.getJMetro().setScene(myScene);
-
         primaryStage.setScene(myScene);
         primaryStage.show();
-
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon-sm.png"))));
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon.png"))));
 
         primaryStage.setOnCloseRequest((evt)-> {
             try {
-                var streamStr = libraryVersionDetector.getReleaseType().toString();
-                Preferences.userNodeForPackage(MenuEditorApp.class).put("ReleaseStream", streamStr);
                 controller.persistPreferences();
                 if(project.isDirty()) {
                     evt.consume();
@@ -142,86 +146,48 @@ public class MenuEditorApp extends Application {
         });
     }
 
-    public static LibraryVersionDetector createLibraryVersionDetector() {
-        var stream = Preferences.userNodeForPackage(MenuEditorApp.class).get("ReleaseStream", ReleaseType.STABLE.toString());
-        var httpClient = new SimpleHttpClient();
-
-        var urlBase = "https://www.thecoderscorner.com";
-
-        if(System.getProperty("localTccService") != null) {
-            urlBase = System.getProperty("localTccService");
-            System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
-        }
-
-        LibraryVersionDetector libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, ReleaseType.valueOf(stream));
-        return libraryVersionDetector;
-    }
-
     public static ResourceBundle getBundle() {
         return designerBundle;
     }
 
-    public static void createOrUpdateDirectoriesAsNeeded(ConfigurationStorage storage) {
-        var homeDir = Paths.get(System.getProperty("user.home"));
-        try {
-            Path menuDir = homeDir.resolve(".tcmenu/logs");
-            if(!Files.exists(menuDir)) {
-                Files.createDirectories(menuDir);
-            }
-            Path pluginDir = homeDir.resolve(".tcmenu/plugins");
-            var current = new VersionInfo(storage.getVersion());
-            var noPluginDir = !isDirectoryPresentAndPopulated(pluginDir);
-            if(!storage.getLastRunVersion().equals(current) || noPluginDir) {
-                try {
-                    if(noPluginDir) Files.createDirectories(pluginDir);
-
-                    if(Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
-                        System.getLogger("Main").log(WARNING, "Not upgrading core plugins, this is a development system");
-                        return;
-                    }
-
-                    try(var resourceAsStream = MenuEditorApp.class.getResourceAsStream("/plugins/InitialPlugins.zip")) {
-                        OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
-                    }
-                }
-                catch(Exception ex) {
-                    System.getLogger("Main").log(ERROR, "failed to prepare directory structure", ex);
-                }
-            }
-
-        } catch (IOException e) {
-            Alert alert = new Alert(AlertType.ERROR, "Error creating user directory", ButtonType.CLOSE);
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.setContentText("Couldn't create user directory: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
-
-    public static boolean isDirectoryPresentAndPopulated(Path path) throws IOException {
-        if(!Files.exists(path)) return false;
-        if (Files.isDirectory(path)) {
-            return Files.find(path, 1, (p, a) -> p.getFileName().toString().startsWith("core-"))
-                    .findFirst().isPresent();
-        }
-        return false;
+    public void createOrUpdateDirectoriesAsNeeded() {
+        appContext.getBean(DefaultXmlPluginLoader.class).ensurePluginsAreValid();
     }
 
     private void startUpLogging() {
+        var tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
         var logName = System.getProperty("devlog") != null ? "dev-logging" : "logging";
         var inputStream = MenuEditorApp.class.getResourceAsStream("/logconf/" + logName + ".properties");
         try
         {
+            Path menuDir = tcMenuHome.resolve(".tcmenu/logs");
+            if(!Files.exists(menuDir)) {
+                Files.createDirectories(menuDir);
+            }
+
             LogManager.getLogManager().readConfiguration(inputStream);
         }
-        catch (final IOException e)
+        catch (Exception e)
         {
             Logger.getAnonymousLogger().severe("Could not load default logger:" + e.getMessage());
         }
     }
 
+    public static MenuEditorApp getInstance() {
+        return INSTANCE;
+    }
+
     public static ResourceBundle configureBundle(Locale locale) {
         designerBundle = ResourceBundle.getBundle("i18n.TcMenuUIText", locale);
         return designerBundle;
+    }
+
+    public void setCurrentTheme(String mode) {
+        configStore.setCurrentTheme(mode);
+    }
+
+    public String getCurrentTheme() {
+        return configStore.getCurrentTheme();
     }
 
     /**

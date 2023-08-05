@@ -1,5 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
+import com.thecoderscorner.embedcontrol.core.util.StringHelper;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -59,6 +61,10 @@ public final class TcMenuPersistedConnection {
         return new TcMenuPersistedConnection(localId, name, uuid, formName, connectionType, hostOrSerialId, portOrBaud, extraData, dataStore);
     }
 
+    public TcMenuPersistedConnection withFormChange(String formName) {
+        return new TcMenuPersistedConnection(localId, name, uuid, formName, connectionType, hostOrSerialId, portOrBaud, extraData, dataStore);
+    }
+
     public int getLocalId() {
         return localId;
     }
@@ -81,7 +87,7 @@ public final class TcMenuPersistedConnection {
 
     public Optional<TcMenuFormPersistence> getSelectedForm() {
         ensurePopulated();
-        return attachedForms.stream().filter(form -> form.formName().equals(formName)).findFirst();
+        return attachedForms.stream().filter(form -> form.getFormName().equals(formName)).findFirst();
     }
 
     public List<TcMenuFormPersistence> getAllForms() {
@@ -90,7 +96,11 @@ public final class TcMenuPersistedConnection {
     }
 
     private void ensurePopulated() {
-        if(attachedForms == null) attachedForms = List.copyOf(dataStore.getAllFormsForConnection(localId));
+        if(StringHelper.isStringEmptyOrNull(uuid)) {
+            attachedForms = List.of();
+        } else if(attachedForms == null || attachedForms.isEmpty()) {
+            attachedForms = List.copyOf(dataStore.getAllFormsForUuid(uuid));
+        }
     }
 
     public String getHostOrSerialId() {

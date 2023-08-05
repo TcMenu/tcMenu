@@ -13,9 +13,16 @@ import java.util.List;
 
 import static com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection.StoreConnectionType;
 
+/**
+ * Creates a connection with the local SQLITE database stored in the .tcmenu directory and provides the core config
+ * for both embedControl and other key tables.
+ */
 public class DatabaseAppDataStore implements AppDataStore {
     private static System.Logger logger = System.getLogger(DatabaseAppDataStore.class.getSimpleName());
     private final JdbcTemplate template;
+    private static final String CREATE_SCHEMA_VERSION = """
+        CREATE TABLE TC_SCHEMA_VERSION(SCHEMA_VERSION INT)
+        """;
     private static final String CREATE_GLOBAL_SETTINGS_TABLE = """
         CREATE TABLE GLOBAL_SETTINGS(
             SETTING_ID INT PRIMARY KEY,
@@ -52,17 +59,26 @@ public class DatabaseAppDataStore implements AppDataStore {
         """;
     private static final String CREATE_FORM_STORE_TABLE = """
             CREATE TABLE TC_FORM(
-                UUID VARCHAR(64) PRIMARY KEY,
-                FORM_NAME VARCHAR(128) PRIMARY KEY,
+                FORM_ID INT PRIMARY KEY,
+                FORM_UUID VARCHAR(64),
+                FORM_NAME VARCHAR(128),
                 XML_DATA BLOB
+            )
             """;
+
+    private final static int EXPECTED_SCHEMA = 1;
 
     public DatabaseAppDataStore(JdbcTemplate template) {
         this.template = template;
+
+        int schemaVersion = getSchemaVersion();
+        if(schemaVersion < EXPECTED_SCHEMA) {
+           throw new IllegalArgumentException("Schema version of database is less than " + EXPECTED_SCHEMA);
+        }
     }
 
     public TcMenuPersistedConnection getConnectionById(int id) {
-        ensureTableExists("TC_CONNECTION", CREATE_CONNECTIONS_TABLE);
+        ensureTableExists(template, "TC_CONNECTION", CREATE_CONNECTIONS_TABLE);
         return template.queryForObject("SELECT * from TC_CONNECTION where LOCAL_ID = ?", this::mapConnectionObject, id);
     }
 
@@ -82,7 +98,7 @@ public class DatabaseAppDataStore implements AppDataStore {
     }
 
     public List<TcMenuPersistedConnection> getAllConnections() {
-        ensureTableExists("TC_CONNECTION", CREATE_CONNECTIONS_TABLE);
+        ensureTableExists(template, "TC_CONNECTION", CREATE_CONNECTIONS_TABLE);
         return template.query("SELECT * FROM TC_CONNECTION", this::mapConnectionObject);
     }
 
@@ -132,9 +148,8 @@ public class DatabaseAppDataStore implements AppDataStore {
 
     public GlobalSettings getGlobalSettings() {
         logger.log(System.Logger.Level.INFO, "Get global settings from store");
-        var settings = new GlobalSettings();
         try {
-            if(!ensureTableExists("GLOBAL_SETTINGS", CREATE_GLOBAL_SETTINGS_TABLE)) {
+            if(!ensureTableExists(template, "GLOBAL_SETTINGS", CREATE_GLOBAL_SETTINGS_TABLE)) {
                 logger.log(System.Logger.Level.INFO, "Setting up global setting table with defaults");
                 updateGlobalSettings(new GlobalSettings());
             }
@@ -209,38 +224,64 @@ public class DatabaseAppDataStore implements AppDataStore {
         }
     }
 
+    public int getSchemaVersion() {
+        if(!ensureTableExists(template, "TC_SCHEMA_VERSION", CREATE_SCHEMA_VERSION)) {
+            template.update("INSERT INTO TC_SCHEMA_VERSION(SCHEMA_VERSION) VALUES(" + EXPECTED_SCHEMA + ")");
+        }
+
+        var ret = template.queryForObject("SELECT SCHEMA_VERSION FROM TC_SCHEMA_VERSION", Integer.class);
+        if(ret == null) throw new IllegalArgumentException("Schema could not be queried");
+        return ret;
+    }
+
     @Override
-    public List<TcMenuFormPersistence> getAllFormsForConnection(int localId) {
-        return template.query("SELECT * from TC_FORM where LOCAL_ID = ?", this::mapSqlToForm, localId);
+    public List<TcMenuFormPersistence> getAllForms() {
+        ensureTableExists(template, "TC_FORM", CREATE_FORM_STORE_TABLE);
+        return template.query("SELECT FORM_ID, FORM_UUID, FORM_NAME from TC_FORM", this::mapSqlToForm);
+    }
+
+    @Override
+    public List<TcMenuFormPersistence> getAllFormsForUuid(String uuid) {
+        ensureTableExists(template, "TC_FORM", CREATE_FORM_STORE_TABLE);
+        return template.query("SELECT FORM_ID, FORM_UUID, FORM_NAME from TC_FORM where FORM_UUID = ?", this::mapSqlToForm, uuid);
     }
 
     @Override
     public void updateForm(TcMenuFormPersistence form) {
-        var formVars = new Object[] { form.localId(), form.formName(), form.xmlData().getBytes(StandardCharsets.UTF_8) };
-        var res = template.queryForObject("SELECT COUNT(*) FROM TC_FORM WHERE LOCAL_ID=? AND FORM_NAME=?", Integer.class, form.localId(), form.formName());
-        if(res == null || res == 0) {
-            // insert
+        ensureTableExists(template, "TC_FORM", CREATE_FORM_STORE_TABLE);
+        if(form.getFormId() == -1) {
+            var res = template.queryForObject("SELECT MAX(FORM_ID) FROM TC_FORM", Integer.class);
+            if(res == null) res = 0;
+            template.update("INSERT INTO TC_FORM(FORM_ID, FORM_UUID, FORM_NAME, XML_DATA) values(?,?,?,?)",
+                    res + 1, form.getUuid(), form.getFormName(), form.getXmlData());
         } else {
-            // update
+            template.update("UPDATE TC_FORM set XML_DATA=?, FORM_UUID=?, FORM_NAME=? where FORM_ID=?",
+                    form.getXmlData(), form.getUuid(), form.getFormName(), form.getFormId());
         }
-
     }
 
     @Override
     public void deleteForm(TcMenuFormPersistence form) {
-        template.update("DELETE FROM TC_FORM WHERE LOCAL_ID=? AND FORM_NAME=?", form.localId(), form.formName());
+        ensureTableExists(template, "TC_FORM", CREATE_FORM_STORE_TABLE);
+        template.update("DELETE FROM TC_FORM WHERE FORM_ID=?", form.getFormId());
+    }
+
+    @Override
+    public String getUniqueFormData(int formId) {
+        return template.queryForObject("SELECT XML_DATA FROM TC_FORM WHERE FORM_ID=?",
+                String.class, formId);
     }
 
     private TcMenuFormPersistence mapSqlToForm(ResultSet resultSet, int i) throws SQLException {
-        Blob xmlData = resultSet.getBlob("XML_DATA");
         return new TcMenuFormPersistence(
-                resultSet.getInt("LOCAL_ID"),
+                resultSet.getInt("FORM_ID"),
+                resultSet.getString("FORM_UUID"),
                 resultSet.getString("FORM_NAME"),
-                new String(xmlData.getBytes(0, (int)xmlData.length()))
+                this
         );
     }
 
-    private boolean ensureTableExists(String table, String ddlToCreate) {
+    public static boolean ensureTableExists(JdbcTemplate template, String table, String ddlToCreate) {
         logger.log(System.Logger.Level.DEBUG, "Checking for table " + table);
         var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
         var res = template.queryForObject(sql, Integer.class, table);
@@ -251,6 +292,4 @@ public class DatabaseAppDataStore implements AppDataStore {
         }
         return true;
     }
-
-
 }

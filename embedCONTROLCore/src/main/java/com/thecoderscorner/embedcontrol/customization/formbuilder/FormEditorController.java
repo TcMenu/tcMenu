@@ -1,12 +1,16 @@
 package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
+import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -23,7 +27,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,16 +46,18 @@ public class FormEditorController {
     private MenuItemStore itemStore;
     private MenuTree tree;
     private UUID boardUuid;
+    private TcMenuFormSaveConsumer saveConsumer;
     private MenuItem startingPoint = MenuTree.ROOT;
     private Optional<Boolean> maybeRecursiveChange = Optional.empty();
 
     public void initialise(GlobalSettings settings, MenuTree tree, UUID boardUuid, JfxNavigationManager navMgr,
-                           MenuItemStore itemStore) {
+                           MenuItemStore itemStore, TcMenuFormSaveConsumer saveConsumer) {
         this.settings = settings;
         this.itemStore = itemStore;
         this.navMgr = navMgr;
         this.tree = tree;
         this.boardUuid = boardUuid;
+        this.saveConsumer = saveConsumer;
         selectionList.setCellFactory(param -> new GridPositionCell());
 
         itemStore.changeSubStore(startingPoint.getId());
@@ -70,11 +78,7 @@ public class FormEditorController {
         var topLevel = itemStore.getTree().getMenuById(itemStore.getRootItemId()).orElseThrow();
         storeDetailLabel.setText(topLevel + ", " + itemStore.getTopLevelColorSet().getColorSchemeName() + ", " + itemStore.getGlobalFontInfo().toWire());
 
-        var allItems = itemStore.isRecursive() ? tree.getAllMenuItems() : tree.getMenuItems(tree.getMenuById(itemStore.getRootItemId()).orElseThrow());
-        var list = new ArrayList<GridPositionChoice>();
-        for(var item : allItems) {
-            list.add(new MenuItemPositionChoice(item));
-        }
+        var list = itemStore.isRecursive() ? getAllMenuItemsInOrder(topLevel, new ArrayList<>(), 0) : getItemsInSingleMenu(new ArrayList<>());
         list.add(new TextGridPositionChoice());
         list.add(new SpacingGridPositionChoice());
         selectionList.setItems(FXCollections.observableArrayList(list));
@@ -99,6 +103,24 @@ public class FormEditorController {
         }
 
         
+    }
+
+    private ArrayList<GridPositionChoice> getItemsInSingleMenu(ArrayList<GridPositionChoice> list) {
+        MenuItem currentItem = tree.getMenuById(itemStore.getRootItemId()).orElseThrow();
+        list.addAll(tree.getMenuItems(currentItem).stream()
+                .map(it -> new MenuItemPositionChoice(it, 0))
+                .toList());
+        return list;
+    }
+
+    private ArrayList<GridPositionChoice> getAllMenuItemsInOrder(MenuItem root, ArrayList<GridPositionChoice> list, int level) {
+        list.add(new MenuItemPositionChoice(root, level));
+        for(var it : tree.getMenuItems(root)) {
+            if(it instanceof SubMenuItem) getAllMenuItemsInOrder(it, list, level + 1);
+            else list.add(new MenuItemPositionChoice(it, level + 1));
+        }
+
+        return list;
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
@@ -148,11 +170,14 @@ public class FormEditorController {
     }
 
     public void onSaveLayout(ActionEvent actionEvent) {
-        var maybeFile = showFileChooser(false);
-        if(maybeFile.isEmpty()) return;
-        var file = maybeFile.get();
+        try {
+            var xml = itemStore.getLayoutXmlString(boardUuid);
+            saveConsumer.formEditorClosing(xml);
+        } catch (IOException e) {
+            var alert = new Alert(Alert.AlertType.ERROR, "Failed to persist " + e, ButtonType.CLOSE);
+            alert.showAndWait();
+        }
 
-        itemStore.saveLayout(file, boardUuid);
     }
 
     public void onMenuChangeButton(ActionEvent actionEvent) {
@@ -240,9 +265,11 @@ public class FormEditorController {
 
     public class MenuItemPositionChoice implements GridPositionChoice {
         private final MenuItem item;
+        private final int indentLevel;
 
-        public MenuItemPositionChoice(MenuItem item) {
+        public MenuItemPositionChoice(MenuItem item, int indentLevel) {
             this.item = item;
+            this.indentLevel = indentLevel;
         }
 
         @Override
@@ -252,7 +279,10 @@ public class FormEditorController {
 
         @Override
         public String getName() {
-            return "Add " + item;
+            var itemType = item.getClass().getSimpleName().replace("MenuItem", "");
+            var indentation = " ".repeat(indentLevel);
+            return indentation + item + "   " + itemType;
         }
+
     }
 }

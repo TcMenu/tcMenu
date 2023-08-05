@@ -3,7 +3,7 @@
     <module name="menuEditorUI" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.thecoderscorner.menu.editorui.*" />
+        <option name="PATTERN" value="com.thecoderscorner.menu.editorui.storage.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

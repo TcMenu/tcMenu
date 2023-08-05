@@ -14,7 +14,7 @@ class MenuItemStoreTest {
 
     @BeforeEach
     void setUp() {
-        unitGlobalSettings = new GlobalSettings(MenuItemStoreTest.class);
+        unitGlobalSettings = new GlobalSettings();
         tree = new MenuTree();
         store = new MenuItemStore(unitGlobalSettings, tree, "layout1", 1, 2, true);
     }

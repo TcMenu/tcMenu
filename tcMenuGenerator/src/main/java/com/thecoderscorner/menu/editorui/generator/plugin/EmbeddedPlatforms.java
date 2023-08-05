@@ -21,13 +21,6 @@ public interface EmbeddedPlatforms {
     List<EmbeddedPlatform> getEmbeddedPlatforms();
 
     /**
-     * Given a platform this method will return a ready configured code generator.
-     * @param platform the platform
-     * @return the generator ready for use.
-     */
-    CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options);
-
-    /**
      * @param id the to be found
      * @return the embedded platform for the given id
      */

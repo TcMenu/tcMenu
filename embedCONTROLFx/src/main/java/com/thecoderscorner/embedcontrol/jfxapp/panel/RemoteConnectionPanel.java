@@ -4,10 +4,12 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
@@ -72,6 +74,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private MenuItemStore itemStore;
     private RemoteControllerListener remoteListener;
     private RemoteInformation remoteInformation = RemoteInformation.NOT_CONNECTED;
+    private ContextMenu layoutContextMenu = null;
+    private TcMenuFormPersistence selectedForm;
+    private FormBuilderPresentable formEditorPanel;
+
 
     public RemoteConnectionPanel(EmbedControlContext context, MenuItem item,
                                  ScheduledExecutorService executorService, TcMenuPersistedConnection connection) {
@@ -121,6 +127,73 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         ContextMenu settingsMenu = generateSettingsContextMenu();
         navigationManager.getButtonFor(settingsWidget).ifPresent(b -> b.setContextMenu(settingsMenu));
+
+        if(getUuid() != null) {
+            var formWidget = standardLayoutWidget();
+            navigationManager.addTitleWidget(formWidget);
+            ContextMenu layoutMenu = generateLayoutMenu();
+            navigationManager.getButtonFor(formWidget).ifPresent(b -> b.setContextMenu(layoutMenu));
+        }
+    }
+
+    private ContextMenu generateLayoutMenu() {
+        layoutContextMenu = new ContextMenu();
+        buildLayoutItems();
+        return layoutContextMenu;
+    }
+
+    private void buildLayoutItems() {
+        var forms = context.getDataStore().getAllFormsForUuid(getUuid().toString());
+        var items = forms.stream()
+                .map(f -> {
+                    var selIndiciator = selectedForm != null && selectedForm.getFormId() == f.getFormId() ? " *" : "";
+                    var it = new javafx.scene.control.MenuItem(f.getFormName() + " [" + f.getFormId() + "]" + selIndiciator);
+                    it.setOnAction(event -> changeSelectedForm(f));
+                    return it;
+                })
+                .toList();
+
+        layoutContextMenu.getItems().clear();
+        layoutContextMenu.getItems().addAll(items);
+        layoutContextMenu.getItems().add(new javafx.scene.control.SeparatorMenuItem());
+
+        if(selectedForm != null) {
+           var editExisiting = new javafx.scene.control.MenuItem("Edit " + selectedForm.getFormName() + " [" + selectedForm.getFormId() + ']');
+           editExisiting.setOnAction(event -> onEditExisting());
+           layoutContextMenu.getItems().add(editExisiting);
+        }
+
+        var createNewForm = new javafx.scene.control.MenuItem("Create New Form");
+        createNewForm.setOnAction(event -> onCreateNewForm());
+        layoutContextMenu.getItems().add(createNewForm);
+    }
+
+    private void onEditExisting() {
+        if(formEditorPanel == null) {
+            formEditorPanel = new FormBuilderPresentable(settings, UUID.fromString(persistedConnection.getUuid()), control.getMenuTree(), navigationManager, itemStore, this::formSaveConsumer);
+        }
+        navigationManager.pushNavigationIfNotOnStack(formEditorPanel);
+    }
+
+    private void formSaveConsumer(String xml) {
+        if(selectedForm == null) return;
+        selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), selectedForm.getFormName(), xml);
+        context.getDataStore().updateForm(selectedForm);
+        restartConnection(null);
+    }
+
+    private void changeSelectedForm(TcMenuFormPersistence form) {
+        selectedForm = form;
+        itemStore.loadLayout(form.getXmlData(), getUuid());
+        buildLayoutItems();
+        persistedConnection = persistedConnection.withFormChange(selectedForm.getFormName());
+        context.getDataStore().updateConnection(persistedConnection);
+        restartConnection(null);
+    }
+
+    private void onCreateNewForm() {
+        context.getDataStore().updateForm(TcMenuFormPersistence.anEmptyFormPersistence(getUuid().toString()));
+        buildLayoutItems();
     }
 
     private ContextMenu generateSettingsContextMenu() {
@@ -306,6 +379,18 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
 
             itemStore = new MenuItemStore(settings, control.getMenuTree(), "-", 1, 4, true);
+            if(!StringHelper.isStringEmptyOrNull(persistedConnection.getFormName())) {
+                try {
+                    logger.log(INFO, "Trying to reload form " + persistedConnection.getFormName());
+                    selectedForm = persistedConnection.getSelectedForm().orElseThrow();
+                    itemStore.loadLayout(selectedForm.getXmlData(), UUID.fromString(persistedConnection.getUuid()));
+                    buildLayoutItems();
+                } catch (Exception ex) {
+                    logger.log(ERROR, "Reload of existing form failed with exception", ex);
+                    selectedForm = null;
+                }
+            }
+
             navigationManager.initialiseUI(dialogManager, control, scrollPane);
             navigationManager.pushNavigation(new WaitingForConnectionPanel());
             logger.log(INFO, "Started the connection " + creator);
@@ -362,7 +447,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
             // handle the case where it's already connected really quick!
             if (controller.getConnector().getAuthenticationStatus() == AuthStatus.CONNECTION_READY) {
-                if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
+                if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable) {
                     statusHasChanged(AuthStatus.CONNECTION_READY);
                 }
             }

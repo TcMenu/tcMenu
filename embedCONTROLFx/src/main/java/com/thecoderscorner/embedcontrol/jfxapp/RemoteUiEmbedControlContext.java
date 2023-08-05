@@ -10,10 +10,7 @@ import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.MainWindowController;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.AboutPanelPresentable;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.NewConnectionPanelPresentable;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.RemoteConnectionPanel;
-import com.thecoderscorner.embedcontrol.jfxapp.panel.SettingsPanelPresentable;
+import com.thecoderscorner.embedcontrol.jfxapp.panel.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import javafx.collections.FXCollections;
@@ -39,7 +36,6 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
     private final GlobalSettings settings;
     private MainWindowController controller;
 
-
     public RemoteUiEmbedControlContext(ScheduledExecutorService executorService, JsonMenuItemSerializer serializer,
                                        PlatformSerialFactory serialFactory, AppDataStore dataStore,
                                        GlobalSettings settings, VersionHelper helper) {
@@ -57,7 +53,8 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
         var defaultViews = List.of(
                 new AboutPanelPresentable(versionHelper),
                 new SettingsPanelPresentable(getSettings(), dataStore),
-                new NewConnectionPanelPresentable(this)
+                new NewConnectionPanelPresentable(this),
+                new FormManagerPanelPresentable(null, this)
         );
 
         var loadedLayouts = dataStore.getAllConnections();

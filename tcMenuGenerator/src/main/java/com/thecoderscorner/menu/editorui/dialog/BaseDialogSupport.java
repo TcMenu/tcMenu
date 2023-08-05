@@ -12,7 +12,6 @@ import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
 
 import java.util.ResourceBundle;
-import java.util.prefs.Preferences;
 
 import static java.lang.System.Logger.Level.ERROR;
 
@@ -100,8 +99,7 @@ public abstract class BaseDialogSupport<T> {
      * @return the current theme name
      */
     public static String getTheme() {
-        var prefs = Preferences.userNodeForPackage(BaseDialogSupport.class);
-        return prefs.get("uiTheme", "lightMode");
+        return MenuEditorApp.getInstance().getCurrentTheme();
     }
 
     /**
@@ -116,10 +114,10 @@ public abstract class BaseDialogSupport<T> {
      * @param theme the new theme.
      */
     public static void setTheme(String theme) {
-        var prefs = Preferences.userNodeForPackage(BaseDialogSupport.class);
-        prefs.put("uiTheme", theme.equals("lightMode") ? "lightMode" : "darkMode");
+        var mode = theme.equals("lightMode") ? "lightMode" : "darkMode";
         synchronized (metroLock) {
             jMetro = null;
+            MenuEditorApp.getInstance().setCurrentTheme(mode);
         }
     }
 }

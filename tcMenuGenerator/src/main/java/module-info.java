@@ -15,6 +15,9 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires info.picocli;
     requires org.jfxtras.styles.jmetro;
     requires com.thecoderscorner.embedcontrol.core;
+    requires spring.beans;
+    requires spring.context;
+    requires spring.jdbc;
 
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.controller;
@@ -44,5 +47,5 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     opens com.thecoderscorner.menu.editorui.controller to com.google.gson;
     opens com.thecoderscorner.menu.editorui.cli to info.picocli;
     opens com.thecoderscorner.menu.editorui.project to com.google.gson;
-    opens com.thecoderscorner.menu.editorui.storage to com.google.gson;
+    opens com.thecoderscorner.menu.editorui.storage;
 }

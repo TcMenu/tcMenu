@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.storage;
 
+import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public interface ConfigurationStorage {
     String getRegisteredKey();
     void setRegisteredKey(String registeredKey);
 
-    TcMenuReleaseType getReleaseType();
+    ReleaseType getReleaseType();
 
     String getVersion();
     String getBuildTimestamp();

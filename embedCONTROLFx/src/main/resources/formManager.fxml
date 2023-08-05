@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfxapp.dialog.FormManagerController">
+   <center>
+      <TableView fx:id="formTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="formNameCol" prefWidth="247.0" text="Form Name" />
+          <TableColumn fx:id="formUuidCol" prefWidth="279.0" text="Form UUID" />
+        </columns>
+      </TableView>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <MenuButton mnemonicParsing="false" text="Import/Export">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onImportFile" text="Import Layout from File" />
+                <MenuItem mnemonicParsing="false" onAction="#onImportClipboard" text="Import Layout from Clipboard" />
+                  <MenuItem mnemonicParsing="false" onAction="#onExportFile" fx:id="exportFileMenu" text="Export Layout to File" />
+                  <MenuItem mnemonicParsing="false" onAction="#onExportClipboard" fx:id="exportClipMenu" text="Export Layout to Clipboard" />
+              </items>
+            </MenuButton>
+          <Button fx:id="editFormButton" mnemonicParsing="false" onAction="#onFormEdit" text="Edit Form" />
+            <Button fx:id="removeFormButton" mnemonicParsing="false" onAction="#onFormRemove" text="Remove Form" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</BorderPane>

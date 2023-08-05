@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
@@ -13,9 +14,11 @@ import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.MenuTreeWithCodeOptions;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.BackupManager;
 import com.thecoderscorner.menu.persist.*;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -54,21 +57,20 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            var prefsStore = new PrefsConfigurationStorage();
-            var project = projectFileOrNull(projectFile, prefsStore);
+            var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+            ConfigurationStorage configStore = appContext.getBean(ConfigurationStorage.class);
+            var project = projectFileOrNull(projectFile, configStore);
 
             System.out.format("Starting code generator for %s\n", project.getOptions().getApplicationName());
 
-            MenuEditorApp.createOrUpdateDirectoriesAsNeeded(prefsStore);
-            prefsStore.setLastRunVersion(new VersionInfo(prefsStore.getVersion()));
+            configStore.setLastRunVersion(new VersionInfo(configStore.getVersion()));
 
-            var platforms = new PluginEmbeddedPlatformsImpl();
-            DefaultXmlPluginLoader loader = new DefaultXmlPluginLoader(platforms, prefsStore, true);
+            DefaultXmlPluginLoader loader = appContext.getBean(DefaultXmlPluginLoader.class);
+            loader.ensurePluginsAreValid();
             loader.loadPlugins();
-            var versionDetector = MenuEditorApp.createLibraryVersionDetector();
-            platforms.setInstallerConfiguration(new ArduinoLibraryInstaller(versionDetector, loader, prefsStore), prefsStore);
             var embeddedPlatform = project.getOptions().getEmbeddedPlatform();
-            var codeGen = platforms.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
+            var generatorSupplier = appContext.getBean(CodeGeneratorSupplier.class);
+            var codeGen = generatorSupplier.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
 
             List<CodePluginItem> allPlugins = loader.getLoadedPlugins().stream()
                     .flatMap(pluginLib -> pluginLib.getPlugins().stream())
@@ -150,7 +152,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         if(Files.exists(i18nDir)) {
             var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
             if(Files.exists(rootProperties))
-            return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+                return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
         }
 
         return LocaleMappingHandler.NOOP_IMPLEMENTATION;

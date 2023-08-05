@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.NameAndKey;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -42,10 +43,10 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
     @Override
     public void startCodeGeneration(Stage stage, EmbeddedPlatform platform, String path,
                                     List<CodePluginItem> creators, List<String> previousPlugins,
-                                    boolean modal) {
+                                    CodeGeneratorSupplier generatorSupplier, boolean modal) {
         try {
             logger.log(INFO, "Starting conversion for [" + platform + "] in path [" + path + "]");
-            CodeGenerator gen = platforms.getCodeGeneratorFor(platform, project.getGeneratorOptions());
+            CodeGenerator gen = generatorSupplier.getCodeGeneratorFor(platform, project.getGeneratorOptions());
             if(gen != null) {
                 FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/generatorLog.fxml"));
                 loader.setResources(MenuEditorApp.getBundle());

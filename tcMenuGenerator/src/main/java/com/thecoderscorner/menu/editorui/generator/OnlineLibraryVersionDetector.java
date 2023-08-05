@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator;
 
+import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
@@ -36,6 +37,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private static final long REFRESH_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(2);
 
     private final String urlBase;
+    private final JdbcTcMenuConfigurationStore configurationStore;
     private final IHttpClient client;
 
     private final Object cacheLock = new Object();
@@ -43,10 +45,11 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
     private Map<String, VersionInfo> versionCache;
     private ReleaseType cachedReleaseType;
 
-    public OnlineLibraryVersionDetector(String urlBase, IHttpClient client, ReleaseType initialReleaseType) {
+    public OnlineLibraryVersionDetector(String urlBase, IHttpClient client, JdbcTcMenuConfigurationStore configurationStore) {
         this.client = client;
         this.urlBase = urlBase;
-        changeReleaseType(initialReleaseType);
+        this.configurationStore = configurationStore;
+        changeReleaseType(configurationStore.getReleaseStream());
     }
 
     public void changeReleaseType(ReleaseType relType) {
@@ -54,6 +57,7 @@ public class OnlineLibraryVersionDetector implements LibraryVersionDetector {
             lastAccess = 0;
             versionCache = Map.of();
             cachedReleaseType = relType;
+            configurationStore.setReleaseStream(relType);
         }
     }
 

@@ -3,9 +3,11 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
+import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
@@ -42,12 +44,14 @@ public class NewProjectController {
     private Optional<String> maybeDirectory;
     private CurrentEditorProject project;
     private ConfigurationStorage storage;
-    private EmbeddedPlatforms platforms;
+    private CodeGeneratorSupplier codeGeneratorSupplier;
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
+    private ProjectPersistor projectPersistor;
 
-    public void initialise(ConfigurationStorage storage, EmbeddedPlatforms platforms, CurrentEditorProject project) {
+    public void initialise(ConfigurationStorage storage, CurrentEditorProject project, CodeGeneratorSupplier codeGeneratorSupplier,
+                           ProjectPersistor projectPersistor, EmbeddedPlatforms platforms){
         this.storage = storage;
-        this.platforms = platforms;
+        this.codeGeneratorSupplier = codeGeneratorSupplier;
         maybeDirectory = storage.getArduinoOverrideDirectory();
         this.project = project;
         maybeDirectory.ifPresentOrElse(
@@ -116,9 +120,9 @@ public class NewProjectController {
                         Paths.get(maybeDirectory.get()), projName,
                         cppMainCheckbox.isSelected(),
                         platformCombo.getSelectionModel().getSelectedItem(),
-                        platforms,
                         s -> logger.log(INFO, s),
-                        namespaceField.getText()
+                        namespaceField.getText(),
+                        codeGeneratorSupplier, projectPersistor
                 );
 
                 if(enableI18nSupportCheck.isSelected()) {

@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -93,7 +94,7 @@ public class AppInformationPanel {
         VBox vbox = new VBox();
         vbox.setSpacing(5);
 
-        if (storage.getReleaseType() == ConfigurationStorage.TcMenuReleaseType.BETA) {
+        if (storage.getReleaseType() == ReleaseType.BETA) {
             Label docsLbl = new Label(" " + bundle.getString("core.beta.version.warning"));
             docsLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 110%;");
             vbox.getChildren().add(docsLbl);
@@ -302,7 +303,7 @@ public class AppInformationPanel {
                     alert.setHeaderText(bundle.getString("app.info.plugin.updater.fail.header"));
                     alert.setContentText(bundle.getString("app.info.plugin.updater.fail.message"));
                     alert.showAndWait();
-                    MenuEditorApp.createOrUpdateDirectoriesAsNeeded(storage);
+                    MenuEditorApp.getInstance().createOrUpdateDirectoriesAsNeeded();
                     controller.presentInfoPanel();
                 });
                 vbox.getChildren().add(pluginLabel);
