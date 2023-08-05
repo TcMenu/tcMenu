@@ -3,10 +3,9 @@ package com.thecoderscorner.menuexample.tcmenu.plugins;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorController;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorPresentable;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
@@ -18,7 +17,6 @@ import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Application;
@@ -46,7 +44,7 @@ public class JfxLocalAutoUI extends Application {
     private JfxNavigationHeader navigationHeader;
     private LocalDialogManager dlgMgr;
     private MenuAppVersion versionData;
-    private ScreenLayoutPersistence layoutPersistence;
+    private LocalTreeComponentManager localTree;
 
     public static void setAppContext(ApplicationContext context) {
         GLOBAL_CONTEXT.set(context);
@@ -65,23 +63,20 @@ public class JfxLocalAutoUI extends Application {
 
         stage.setTitle(mgr.getServerName());
         var scroller = new ScrollPane();
-        var settings = ctx.getBean(GlobalSettings.class);
-        layoutPersistence = ctx.getBean(ScreenLayoutPersistence.class);
 
         stage.setOnCloseRequest(event -> {
-            layoutPersistence.serialiseAll();
             executor.shutdown();
             Platform.exit();
             System.exit(0);
         });
 
         var localController = new LocalMenuController();
-        var localTree = new LocalTreeComponentManager(settings, executor, Platform::runLater, localController, mgr, layoutPersistence);
         navigationHeader = ctx.getBean(JfxNavigationHeader.class);
-        navigationHeader.initialiseUI(localTree, dlgMgr, localController, scroller);
+        navigationHeader.initialiseUI(dlgMgr, localController, scroller);
 
+        localTree = new LocalTreeComponentManager(mgr, navigationHeader);
         mgr.start();
-        navigationHeader.pushMenuNavigation(MenuTree.ROOT);
+        navigationHeader.pushMenuNavigation(MenuTree.ROOT, ctx.getBean(MenuItemStore.class));
 
         var dialogComponents = dlgMgr.initialiseControls();
         var border = new BorderPane();

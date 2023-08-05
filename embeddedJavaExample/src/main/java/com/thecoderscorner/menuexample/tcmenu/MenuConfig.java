@@ -2,7 +2,7 @@ package com.thecoderscorner.menuexample.tcmenu;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
 import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
+import com.thecoderscorner.menuexample.tcmenu.plugins.TcJettyWebServer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,6 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.Executors;
-import com.thecoderscorner.menuexample.tcmenu.plugins.*;
-import javafx.application.Application;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -46,20 +45,8 @@ public class MenuConfig {
     }
 
     @Bean
-    public ScreenLayoutPersistence menuLayoutPersistence(
-            EmbeddedJavaDemoMenu menuDef,
-            GlobalSettings settings,
-            MenuManagerServer manager,
-            @Value("${file.menu.storage}") String filePath,
-            @Value("${default.font.size}") int fontSize) {
-        var layout = new ScreenLayoutPersistence(menuDef.getMenuTree(), settings, manager.getServerUuid(), Path.of(filePath), fontSize);
-        layout.loadApplicationData();
-        return layout;
-    }
-
-    @Bean
-    public JfxNavigationHeader navigationManager(ScreenLayoutPersistence layoutPersistence) {
-        return new JfxNavigationHeader(layoutPersistence);
+    public JfxNavigationHeader navigationManager(ScheduledExecutorService executorService, GlobalSettings settings) {
+        return new JfxNavigationHeader(executorService, settings);
     }
 
     @Bean
@@ -68,8 +55,10 @@ public class MenuConfig {
     }
 
     @Bean
-    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationMgr, ScheduledExecutorService executor, GlobalSettings settings, ScreenLayoutPersistence layoutPersistence) {
-        return new EmbeddedJavaDemoController(menuDef, navigationMgr, executor, settings, layoutPersistence);
+    public EmbeddedJavaDemoController menuController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationMgr,
+                                                     ScheduledExecutorService executor, GlobalSettings settings,
+                                                     MenuItemStore itemStore) {
+        return new EmbeddedJavaDemoController(menuDef, navigationMgr, executor, settings, itemStore);
     }
 
     @Bean
@@ -100,9 +89,16 @@ public class MenuConfig {
 
     @Bean
     public GlobalSettings globalSettings() {
-        var settings = new GlobalSettings(EmbeddedJavaDemoMenu.class);
-        settings.load();
+        var settings = new GlobalSettings();
+        // load or adjust the settings as needed here. You can see
+        settings.setDefaultFontSize(14);
+        settings.setDefaultRecursiveRendering(false);
         return settings;
+    }
+
+    @Bean
+    public MenuItemStore itemStore(GlobalSettings settings,  EmbeddedJavaDemoMenu menuDef) {
+        return new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering());
     }
 
     @Bean

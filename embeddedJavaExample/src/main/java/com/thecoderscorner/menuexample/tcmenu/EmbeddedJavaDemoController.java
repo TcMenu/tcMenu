@@ -1,10 +1,9 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.ScreenLayoutPersistence;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxPanelLayoutEditorPresenter;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
@@ -31,16 +30,16 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
     private final JfxNavigationManager navigationManager;
     private final ScheduledExecutorService executorService;
     private final GlobalSettings globalSettings;
-    private final ScreenLayoutPersistence layoutPersistence;
+    private final MenuItemStore itemStore;
 
     public EmbeddedJavaDemoController(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navigationManager,
                                       ScheduledExecutorService executorService, GlobalSettings settings,
-                                      ScreenLayoutPersistence layoutPersistence) {
+                                      MenuItemStore itemStore) {
         this.menuDef = menuDef;
         this.navigationManager = navigationManager;
         this.executorService = executorService;
         this.globalSettings = settings;
-        this.layoutPersistence = layoutPersistence;
+        this.itemStore = itemStore;
     }
 
     @MenuCallback(id=15, listResult=true)
@@ -75,29 +74,16 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
     @Override
     public void managerWillStart() {
         Platform.runLater(() -> {
-            if(globalSettings.isSetupLayoutModeEnabled()) {
-                navigationManager.setItemEditorPresenter(new JfxPanelLayoutEditorPresenter(layoutPersistence, menuDef.getMenuTree(), navigationManager, globalSettings));
-            }
-
             TitleWidget<Image> wifiWidget = JfxNavigationHeader.standardWifiWidget();
             navigationManager.addTitleWidget(wifiWidget);
             executorService.scheduleAtFixedRate(() -> wifiWidget.setCurrentState((int) (Math.random() * 5)), 1000, 100, TimeUnit.MILLISECONDS);
-
-            TitleWidget<Image> layoutWidget = JfxNavigationHeader.standardLayoutWidget();
-            layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
-            navigationManager.addTitleWidget(layoutWidget);
 
             TitleWidget<Image> settingsWidget = JfxNavigationHeader.standardSettingsWidget();
             navigationManager.addTitleWidget(settingsWidget);
 
             navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
                     if(widget == settingsWidget) {
-                        navigationManager.pushNavigation(new ColorSettingsPresentable(globalSettings, navigationManager, layoutPersistence, menuDef.getMenuTree()));
-                    }
-                    else if(widget == layoutWidget) {
-                        globalSettings.setSetupLayoutModeEnabled(!globalSettings.isSetupLayoutModeEnabled());
-                        globalSettings.save();
-                        layoutWidget.setCurrentState(globalSettings.isSetupLayoutModeEnabled() ? 1 : 0);
+                        navigationManager.pushNavigation(new ColorSettingsPresentable(globalSettings, navigationManager, "Global", itemStore, false));
                     }
             });
 

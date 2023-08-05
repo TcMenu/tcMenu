@@ -28,8 +28,8 @@
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="mvn:org.eclipse.jetty/jetty-server@10.0.10" inSource="false"/>
-        <Header name="mvn:org.eclipse.jetty.websocket/websocket-javax-server@10.0.10" inSource="false"/>
+        <Header name="mvn:org.eclipse.jetty/jetty-server@10.0.14" inSource="false"/>
+        <Header name="mvn:org.eclipse.jetty.websocket/websocket-javax-server@10.0.14" inSource="false"/>
         <Header name="mvn:org.slf4j/slf4j-jdk14@1.7.36" inSource="false"/>
 
         <Header name="mod:requires:org.eclipse.jetty.server" inSource="false"/>

@@ -64,10 +64,9 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     public JdbcTcMenuConfigurationStore(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         LoadedConfiguration loaded;
-        try {
+        try(var resourceAsStream = getClass().getResourceAsStream("/version.properties")) {
             createIfNeeded();
             loaded = jdbcTemplate.queryForObject("SELECT * FROM TC_MENU_SETTINGS", this::mapSettings);
-            InputStream resourceAsStream = getClass().getResourceAsStream("/version.properties");
             props.load( resourceAsStream );
         } catch(Exception ex) {
             loaded = new LoadedConfiguration();
@@ -154,6 +153,7 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     @Override
     public void saveUniqueRecents(List<String> recents) {
         try {
+            DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_RECENTS", CREATE_RECENTS_SQL);
             jdbcTemplate.update("DELETE FROM TC_MENU_RECENTS");
             int i = 0;
             for (var recent : recents) {
