@@ -50,7 +50,7 @@ public:
 
     void drawingCommand(RenderDrawingCommand command) override;
     void drawWidget(Coord where, TitleWidget* widget, color_t colorFg, color_t colorBg) override;
-    void drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, bool drawAll) override;
+    void drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, const DrawingFlags& drawAll) override;
     void fillWithBackgroundTo(int endPoint) override;
 
     ItemDisplayPropertiesFactory &getDisplayPropertiesFactory() override { return propertiesFactory; }

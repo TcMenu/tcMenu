@@ -79,25 +79,25 @@ int calculateOffset(GridPosition::GridJustification just, int totalLen, const ch
 void copyIntoBuffer(char* buffer, const char* source, int offset, int bufferLen) {
     auto len = strlen(source);
     for(size_t i=0; i<len; i++) {
-        auto pos = offset+i;
-        if(pos >= bufferLen) return;
+        size_t pos = offset+i;
+        if(pos >= (size_t)bufferLen) return;
         buffer[pos] = source[i];
     }
 }
 
-void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, bool /*ignored*/) {
+void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, const DrawingFlags& drawingFlags) {
     auto* theItem = entry->getMenuItem();
     theItem->setChanged(false);
     char sz[21];
 
     if(entry->getPosition().getJustification() == GridPosition::JUSTIFY_TITLE_LEFT_VALUE_RIGHT) {
-        buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
+        buffer[0] = drawingFlags.isEditing() ? editChar : (drawingFlags.isActive() ? forwardChar : ' ');
         lcd->setCursor(where.x, where.y);
         int offs = 1;
         uint8_t finalPos = theItem->copyNameToBuffer(buffer, offs, bufferSize);
         for(uint8_t i = finalPos; i < uint8_t(areaSize.x); ++i)  buffer[i] = 32;
         buffer[bufferSize] = 0;
-        copyMenuItemValue(theItem, sz, sizeof sz);
+        copyMenuItemValue(theItem, sz, sizeof sz, drawingFlags.isActive());
         uint8_t count = strlen(sz);
         int cpy = bufferSize - count;
         strcpy(buffer + cpy, sz);
@@ -116,12 +116,12 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
         if(itemNeedsValue(entry->getPosition().getJustification())) {
             sz[valueStart] = 32;
             valueStart++;
-            copyMenuItemValue(entry->getMenuItem(), sz + valueStart, sizeof(sz) - valueStart);
+            copyMenuItemValue(entry->getMenuItem(), sz + valueStart, sizeof(sz) - valueStart, drawingFlags.isActive());
             serlogF2(SER_TCMENU_DEBUG, "Value ", sz);
         }
         int position = calculateOffset(entry->getPosition().getJustification(), int(areaSize.x) + 1, sz);
         copyIntoBuffer(&buffer[1], sz, position, bufferSize);
-        buffer[0] = theItem->isEditing() ? editChar : (theItem->isActive() ? forwardChar : ' ');
+        buffer[0] = drawingFlags.isEditing() ? editChar : (drawingFlags.isActive() ? forwardChar : ' ');
         buffer[min(uint8_t(areaSize.x + 1), bufferSize)] = 0;
         lcd->setCursor(where.x, where.y);
         if(theItem == menuMgr.getCurrentEditor() && menuMgr.getEditorHints().getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR) {
