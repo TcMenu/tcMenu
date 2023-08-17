@@ -87,7 +87,7 @@ void copyIntoBuffer(char* buffer, const char* source, int offset, int bufferLen)
 
 void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord where, Coord areaSize, const DrawingFlags& drawingFlags) {
     auto* theItem = entry->getMenuItem();
-    theItem->setChanged(false);
+    theItem->setChanged(displayNumber, false);
     char sz[21];
 
     if(entry->getPosition().getJustification() == GridPosition::JUSTIFY_TITLE_LEFT_VALUE_RIGHT) {
