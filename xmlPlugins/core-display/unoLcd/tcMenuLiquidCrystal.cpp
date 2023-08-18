@@ -191,12 +191,12 @@ void LiquidCrystalRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
 
     int offs;
     if (item->getMenuType() == MENUTYPE_BACK_VALUE) {
-        buffer[0] = item->isActive() ? backChar : ' ';
+        buffer[0] = getActiveItem() == item ? backChar : ' ';
         buffer[1] = backChar;
         offs = 2;
     }
     else {
-        buffer[0] = item->isEditing() ? editChar : (item->isActive() ? forwardChar : ' ');
+        buffer[0] = menuMgr.getCurrentEditor() == item ? editChar : (activeItem == item ? forwardChar : ' ');
         offs = 1;
     }
     uint8_t finalPos = item->copyNameToBuffer(buffer, offs, bufferSize);

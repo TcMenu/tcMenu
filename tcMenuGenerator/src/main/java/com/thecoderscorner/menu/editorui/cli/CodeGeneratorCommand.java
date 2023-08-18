@@ -27,10 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -57,6 +54,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
+            MenuEditorApp.configureBundle(Locale.getDefault());
             var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
             ConfigurationStorage configStore = appContext.getBean(ConfigurationStorage.class);
             var project = projectFileOrNull(projectFile, configStore);

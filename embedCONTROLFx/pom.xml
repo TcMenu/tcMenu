@@ -11,7 +11,7 @@
     <artifactId>embedCONTROLFx</artifactId>
     <name>embedCONTROLFx</name>
     <description>TcMenu embedCONTROL JavaFX UI components for embedded menu apps</description>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.1.0-BETA</version>
 
     <properties>
         <jdk.version>20</jdk.version>

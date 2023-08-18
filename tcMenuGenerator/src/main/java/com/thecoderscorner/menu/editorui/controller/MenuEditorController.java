@@ -127,10 +127,6 @@ public class MenuEditorController {
             }
         });
 
-        if(StartUICommand.didUserSelectProject()) {
-            editorProject.openProject(StartUICommand.userSelectedProject());
-        }
-
         menuTree.setCellFactory(param -> new MenuItemTreeCell(new MenuItemTreeController()));
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
             if (newItem != null) {
@@ -159,9 +155,13 @@ public class MenuEditorController {
 
     private void attemptToLoadLastProject() {
         try {
-            var lastPrj = configStore.getLastLoadedProject();
-            if(lastPrj.isPresent()) {
-                editorProject.openProjectWithoutAlert(lastPrj.get());
+            if(StartUICommand.didUserSelectProject()) {
+                editorProject.openProject(StartUICommand.userSelectedProject());
+            } else {
+                var lastPrj = configStore.getLastLoadedProject();
+                if (lastPrj.isPresent()) {
+                    editorProject.openProjectWithoutAlert(lastPrj.get());
+                }
             }
         } catch (Exception ex) {
             logger.log(ERROR, "Last project didn't load, start fresh", ex);

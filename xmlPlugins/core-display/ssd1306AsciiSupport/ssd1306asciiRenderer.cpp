@@ -148,12 +148,12 @@ void SSD1306AsciiRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
 
 	int offs;
 	if (item->getMenuType() == MENUTYPE_BACK_VALUE) {
-		buffer[0] = item->isActive() ? (char)backChar : ' ';
+		buffer[0] = item == activeItem ? (char)backChar : ' ';
 		buffer[1] = (char)backChar;
 		offs = 2;
 	}
 	else {
-		buffer[0] = item->isEditing() ? editChar : (item->isActive() ? forwardChar : ' ');
+		buffer[0] = char(item == menuMgr.getCurrentEditor() ? editChar : (item == activeItem ? forwardChar : ' '));
 		offs = 1;
 	}
     uint8_t finalPos = item->copyNameToBuffer(buffer, offs, bufferSize);
@@ -177,7 +177,7 @@ void SSD1306AsciiRenderer::renderMenuItem(uint8_t row, MenuItem* item) {
         int cpy = (bufferSize - count) - 1;
 
         auto hints = menuMgr.getEditorHints();
-        if(menuMgr.getCurrentEditor() && hints.getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR && item->isEditing()) {
+        if(menuMgr.getCurrentEditor() && hints.getEditorRenderingType() != CurrentEditorRenderingHints::EDITOR_REGULAR && item==menuMgr.getCurrentEditor()) {
             int startIndex = min(count, hints.getStartIndex());
             int endIndex = min(count, hints.getEndIndex());
             Serial.print("0");

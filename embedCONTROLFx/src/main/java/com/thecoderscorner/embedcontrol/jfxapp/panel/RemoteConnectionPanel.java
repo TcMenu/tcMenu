@@ -457,6 +457,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     public UUID getUuid() {
+        if(StringHelper.isStringEmptyOrNull(persistedConnection.getUuid())) return null;
         return UUID.fromString(persistedConnection.getUuid());
     }
 
