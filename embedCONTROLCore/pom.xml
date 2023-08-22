@@ -13,7 +13,7 @@
     <artifactId>embedCONTROLCore</artifactId>
     <name>embedCONTROLCore</name>
     <description>TcMenu embedCONTROL shared core</description>
-    <version>4.1.0-BETA</version>
+    <version>4.1.0</version>
     <url>https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/</url>
 
     <licenses>

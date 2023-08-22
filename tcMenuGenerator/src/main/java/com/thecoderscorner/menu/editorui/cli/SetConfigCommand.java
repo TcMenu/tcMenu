@@ -1,10 +1,15 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.Command;
@@ -21,7 +26,11 @@ public class SetConfigCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        var storage = new PrefsConfigurationStorage();
+        MenuEditorApp.configureBundle(Locale.getDefault());
+
+        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+        var storage = appContext.getBean(ConfigurationStorage.class);
+
         switch (param) {
             case EXTRA_PLUGIN_PATHS -> {
                 storage.setAdditionalPluginPaths(Arrays.asList(value.split("\\s[,;]\\s")));

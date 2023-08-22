@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
@@ -8,6 +9,7 @@ import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.Command;
@@ -29,6 +31,7 @@ public class GetConfigCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        MenuEditorApp.configureBundle(Locale.getDefault());
         var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
         var storage = appContext.getBean(ConfigurationStorage.class);
         switch (param) {

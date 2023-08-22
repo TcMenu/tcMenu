@@ -83,6 +83,8 @@ public class CreateProjectCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        MenuEditorApp.configureBundle(Locale.getDefault());
+
         var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
         DefaultXmlPluginLoader loader = appContext.getBean(DefaultXmlPluginLoader.class);
         loader.ensurePluginsAreValid();
