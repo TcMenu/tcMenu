@@ -9,6 +9,7 @@ import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.jfxapp.dialog.MainWindowController;
 import com.thecoderscorner.embedcontrol.jfxapp.panel.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -102,16 +103,20 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
 
     @Override
     public void deleteConnection(TcMenuPersistedConnection connection) {
-        dataStore.deleteConnection(connection);
-        var panel = allPresentableViews.stream()
-                .filter(pp -> pp instanceof RemoteConnectionPanel rcp && rcp.getPersistence().getLocalId() == connection.getLocalId())
-                .findFirst();
-        if (panel.isPresent()) {
-            allPresentableViews.remove(panel.get());
-            controller.panelsChanged(allPresentableViews, Optional.empty());
-            logger.log(INFO, "Deleted panel from storage and location " + connection.getName());
-        } else {
-            logger.log(WARNING, "Request to delete non existing panel from UI " + connection.getName());
+        try {
+            dataStore.deleteConnection(connection);
+            var panel = allPresentableViews.stream()
+                    .filter(pp -> pp instanceof RemoteConnectionPanel rcp && rcp.getPersistence().getLocalId() == connection.getLocalId())
+                    .findFirst();
+            if (panel.isPresent()) {
+                allPresentableViews.remove(panel.get());
+                controller.panelsChanged(allPresentableViews, Optional.empty());
+                logger.log(INFO, "Deleted panel from storage and location " + connection.getName());
+            } else {
+                logger.log(WARNING, "Request to delete non existing panel from UI " + connection.getName());
+            }
+        } catch(Exception ex) {
+            logger.log(ERROR, "Delete operation failed", ex);
         }
     }
 
@@ -136,7 +141,11 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
 
     @Override
     public void updateConnection(TcMenuPersistedConnection newConnection) {
-        dataStore.updateConnection(newConnection);
-        controller.refreshAllPanels();
+        try {
+            dataStore.updateConnection(newConnection);
+            controller.refreshAllPanels();
+        } catch (DataException e) {
+            logger.log(ERROR, "Update operation failed", e);
+        }
     }
 }

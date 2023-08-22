@@ -2,25 +2,30 @@ package com.thecoderscorner.embedcontrol.core.service;
 
 import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-@Configuration
 public class CoreControlAppConfig {
-    private final Path tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
+    protected final Path tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
+    protected final SQLiteDataSource dataSource;
+    protected final PlatformSerialFactory serialFactory;
+    protected final TccDatabaseUtilities databaseUtils;
+    protected DatabaseAppDataStore ecDataStore;
+    protected JsonMenuItemSerializer serializer;
+    protected GlobalSettings globalSettings;
+    protected ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
 
-    public CoreControlAppConfig() {
+    public CoreControlAppConfig() throws Exception {
         if(!Files.exists(tcMenuHome)) {
             try {
                 Files.createDirectory(tcMenuHome);
@@ -28,49 +33,46 @@ public class CoreControlAppConfig {
                 System.getLogger("Context").log(System.Logger.Level.ERROR, "Could not create ~/.tcmenu directory");
             }
         }
+
+        dataSource = new SQLiteDataSource();
+        dataSource.setUrl("jdbc:sqlite:" + tcMenuHome.resolve("tcDataStore.db"));
+
+        globalSettings = new GlobalSettings();
+
+        serializer = new JsonMenuItemSerializer();
+
+        databaseUtils = new TccDatabaseUtilities(dataSource);
+
+        ecDataStore = new DatabaseAppDataStore(databaseUtils);
+        ecDataStore.getGlobalSettings().ifPresent(ps -> ps.populateGlobalSettings(globalSettings));
+
+        serialFactory = new Rs232SerialFactory(globalSettings, executor);
+
     }
 
-    @Bean
-    public Path tcMenuHome() {
+    public Path getHomeDir() {
         return tcMenuHome;
     }
 
-    @Bean
-    public DataSource dataSource() {
-        final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.sqlite.JDBC");
-        dataSource.setUrl("jdbc:sqlite:" + tcMenuHome.resolve("tcDataStore.db"));
+    public DataSource getDataSource() {
         return dataSource;
     }
 
-    @Bean
-    public JdbcTemplate template(DataSource source) {
-        return new JdbcTemplate(source);
+    public DatabaseAppDataStore getEcDataStore() {
+        return ecDataStore;
     }
 
-    @Bean
-    public DatabaseAppDataStore dataStore(JdbcTemplate template, GlobalSettings settings) {
-        var dbStore = new DatabaseAppDataStore(template);
-        settings.copyFrom(dbStore.getGlobalSettings());
-        return dbStore;
+    public ScheduledExecutorService getExecutorService() {
+        return executor;
     }
 
-    @Bean
-    public ScheduledExecutorService executorService() {
-        return Executors.newScheduledThreadPool(4);
+    public PlatformSerialFactory getSerialFactory() { return serialFactory; }
+
+    public GlobalSettings getGlobalSettings() {
+        return globalSettings;
     }
 
-    @Bean
-    public PlatformSerialFactory serialFactory(GlobalSettings settings, ScheduledExecutorService executorService) {
-        return new Rs232SerialFactory(settings, executorService);
-    }
-
-    @Bean
-    public GlobalSettings settings() {
-        return new GlobalSettings();
-    }
-
-    @Bean JsonMenuItemSerializer serializer() {
-        return new JsonMenuItemSerializer();
+    JsonMenuItemSerializer getSerializer() {
+        return serializer;
     }
 }

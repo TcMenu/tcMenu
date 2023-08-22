@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
@@ -63,7 +64,15 @@ public class FormManagerController {
         alert.setTitle("Remove form");
         alert.setHeaderText("Remove form " + item.getFormName());
         if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-            context.getDataStore().deleteForm(item);
+            try {
+                context.getDataStore().deleteForm(item);
+            } catch (DataException e) {
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Delete failed " + e.getMessage());
+                alert.setHeaderText("Delete form " + formUuidCol.getText());
+                alert.setTitle("Delete Form");
+                alert.showAndWait();
+            }
             reloadPage();
         }
     }
@@ -116,7 +125,16 @@ public class FormManagerController {
             return;
         }
         var form = new TcMenuFormPersistence(-1, uuid, name, txt);
-        context.getDataStore().updateForm(form);
+        try {
+            context.getDataStore().updateForm(form);
+        } catch (DataException e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Saving failed " + e.getMessage());
+            alert.setHeaderText("Save Form " + uuid);
+            alert.setTitle("Save Changes Error");
+            alert.showAndWait();
+
+        }
         reloadPage();
     }
 

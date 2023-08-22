@@ -6,6 +6,7 @@ import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
@@ -177,9 +178,13 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     private void formSaveConsumer(String xml) {
         if(selectedForm == null) return;
-        selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), selectedForm.getFormName(), xml);
-        context.getDataStore().updateForm(selectedForm);
-        restartConnection(null);
+        try {
+            selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), selectedForm.getFormName(), xml);
+            context.getDataStore().updateForm(selectedForm);
+            restartConnection(null);
+        } catch (DataException e) {
+            logger.log(ERROR, "Save consumer failed", e);
+        }
     }
 
     private void changeSelectedForm(TcMenuFormPersistence form) {
@@ -187,13 +192,21 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         itemStore.loadLayout(form.getXmlData(), getUuid());
         buildLayoutItems();
         persistedConnection = persistedConnection.withFormChange(selectedForm.getFormName());
-        context.getDataStore().updateConnection(persistedConnection);
-        restartConnection(null);
+        try {
+            context.getDataStore().updateConnection(persistedConnection);
+            restartConnection(null);
+        } catch (DataException e) {
+            logger.log(ERROR, "Save form failed", e);
+        }
     }
 
     private void onCreateNewForm() {
-        context.getDataStore().updateForm(TcMenuFormPersistence.anEmptyFormPersistence(getUuid().toString()));
-        buildLayoutItems();
+        try {
+            context.getDataStore().updateForm(TcMenuFormPersistence.anEmptyFormPersistence(getUuid().toString()));
+            buildLayoutItems();
+        } catch (DataException e) {
+            logger.log(ERROR, "Create form failed", e);
+        }
     }
 
     private ContextMenu generateSettingsContextMenu() {

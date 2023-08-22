@@ -9,12 +9,9 @@ module com.thecoderscorner.embedcontrol.core {
     requires java.prefs;
     requires java.desktop;
     requires javafx.fxml;
-    requires java.sql;
 
-    requires spring.core;
-    requires spring.context;
-    requires spring.jdbc;
-    requires spring.beans;
+    requires java.sql;
+    requires org.xerial.sqlitejdbc;
 
     opens com.thecoderscorner.embedcontrol.core.service;
 

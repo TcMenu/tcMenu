@@ -1,6 +1,10 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
+import com.thecoderscorner.embedcontrol.core.util.DataException;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * THe app store stores all connection and form information, the default implementation is backed by an SQLite database
@@ -25,30 +29,32 @@ public interface AppDataStore {
      * @param connection the connection to update
      * @return the localID of the updated/inserted item
      */
-    int updateConnection(TcMenuPersistedConnection connection);
+    int updateConnection(TcMenuPersistedConnection connection) throws DataException;
 
     /**
      * Deletes a connection from the database
      * @param connection the connection to delete
      */
-    void deleteConnection(TcMenuPersistedConnection connection);
+    void deleteConnection(TcMenuPersistedConnection connection) throws DataException;
 
     /**
      * Gets the global embedControl settings from the database
      * @return global settings
      */
-    GlobalSettings getGlobalSettings();
+    Optional<TcPreferencesPersistence> getGlobalSettings();
 
     /**
      * Updates the global settings in the database, or inserts if not present.
      * @param settings the settings to update
      */
-    void updateGlobalSettings(GlobalSettings settings);
+    void updateGlobalSettings(TcPreferencesPersistence settings) throws DataException;
 
     List<TcMenuFormPersistence> getAllForms();
     List<TcMenuFormPersistence> getAllFormsForUuid(String uuid);
-    void updateForm(TcMenuFormPersistence form);
-    void deleteForm(TcMenuFormPersistence form);
+    void updateForm(TcMenuFormPersistence form) throws DataException;
+    void deleteForm(TcMenuFormPersistence form) throws DataException;
 
     String getUniqueFormData(int formId);
+
+    TccDatabaseUtilities getUtilities();
 }

@@ -11,9 +11,6 @@ module com.thecoderscorner.tcmenu.embedcontrolfx {
     requires com.thecoderscorner.embedcontrol.core;
     requires com.thecoderscorner.tcmenu.javaapi;
 
-    requires spring.context;
-    requires spring.beans;
-
     opens com.thecoderscorner.embedcontrol.jfxapp;
 
     exports com.thecoderscorner.embedcontrol.jfxapp.dialog;

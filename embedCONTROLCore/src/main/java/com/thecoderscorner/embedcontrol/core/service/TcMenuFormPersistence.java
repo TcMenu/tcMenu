@@ -1,18 +1,22 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
+import com.thecoderscorner.embedcontrol.core.util.FieldMapping;
+import com.thecoderscorner.embedcontrol.core.util.FieldType;
+import com.thecoderscorner.embedcontrol.core.util.TableMapping;
+
+@TableMapping(tableName = "TC_FORM", uniqueKeyField = "FORM_ID")
 public class TcMenuFormPersistence {
-    private final int formId;
-    private final String uuid;
-    private final String formName;
-    private final AppDataStore dataStore;
+    @FieldMapping(fieldName = "FORM_ID", fieldType = FieldType.INTEGER)
+    private int formId;
+    @FieldMapping(fieldName = "FORM_UUID", fieldType = FieldType.INTEGER)
+    private String uuid;
+    @FieldMapping(fieldName = "FORM_NAME", fieldType = FieldType.INTEGER)
+    private String formName;
+    @FieldMapping(fieldName = "XML_DATA", fieldType = FieldType.INTEGER)
     private String xmlData;
 
+    public TcMenuFormPersistence() {
 
-    public TcMenuFormPersistence(int formId, String uuid, String formName, AppDataStore dataStore) {
-        this.formId = formId;
-        this.uuid = uuid;
-        this.formName = formName;
-        this.dataStore = dataStore;
     }
 
     public TcMenuFormPersistence(int formId, String uuid, String name, String txt) {
@@ -20,7 +24,6 @@ public class TcMenuFormPersistence {
         this.uuid = uuid;
         this.formName = name;
         this.xmlData = txt;
-        this.dataStore = null;
     }
 
     public static TcMenuFormPersistence anEmptyFormPersistence(String uuid) {
@@ -42,9 +45,6 @@ public class TcMenuFormPersistence {
     }
 
     public String getXmlData() {
-        if(xmlData == null) {
-            xmlData = dataStore.getUniqueFormData(formId);
-        }
         return xmlData;
     }
 }

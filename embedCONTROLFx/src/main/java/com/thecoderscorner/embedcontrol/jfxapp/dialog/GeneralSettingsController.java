@@ -3,6 +3,8 @@ package com.thecoderscorner.embedcontrol.jfxapp.dialog;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
+import com.thecoderscorner.embedcontrol.core.service.TcPreferencesPersistence;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
@@ -41,7 +43,15 @@ public class GeneralSettingsController {
         settings.setAppUuid(appUuidField.getText());
         settings.setDefaultRecursiveRendering(showSubRecursive.isSelected());
         settings.setDefaultFontSize(fontSizeSpinner.getValue());
-        dataStore.updateGlobalSettings(settings);
+        try {
+            dataStore.updateGlobalSettings(new TcPreferencesPersistence(settings));
+        } catch (DataException e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Saving failed " + e.getMessage());
+            alert.setHeaderText("Save Changes to configuration");
+            alert.setTitle("Save Changes Error");
+            alert.showAndWait();
+        }
     }
 
     public void onLayoutCustomizableChange(ActionEvent actionEvent) {

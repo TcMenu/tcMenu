@@ -145,12 +145,12 @@ public class NewConnectionController {
             navigationManager.popNavigation();
             onUpdate.accept(new TcMenuPersistedConnection(
                     existingPersistence.getLocalId(), connectionNameField.getText(), existingPersistence.getUuid(),
-                    existingPersistence.getFormName(), ty, hostOrPort, baudOrPort, extra, context.getDataStore()));
+                    existingPersistence.getFormName(), ty, hostOrPort, baudOrPort, extra, context.getDataStore().getUtilities()));
         }
         else {
             context.createConnection(new TcMenuPersistedConnection(
                     -1, connectionNameField.getText(), "", "",
-                    ty, hostOrPort, baudOrPort, extra, context.getDataStore()));
+                    ty, hostOrPort, baudOrPort, extra, context.getDataStore().getUtilities()));
         }
 
         connectionNameField.setText("");

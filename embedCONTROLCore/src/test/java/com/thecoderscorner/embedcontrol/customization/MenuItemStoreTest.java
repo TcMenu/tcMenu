@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MenuItemStoreTest {
+public class MenuItemStoreTest {
     private MenuItemStore store;
     private GlobalSettings unitGlobalSettings;
     private MenuTree tree;

@@ -14,8 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -26,7 +24,7 @@ public class EmbedControlApp extends Application {
     private MainWindowController controller;
     private final System.Logger logger = System.getLogger(EmbedControlApp.class.getSimpleName());
     private Stage primaryStage;
-    private ApplicationContext applicationContext;
+    private RemoteUiEmbedControlContext controlContext;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -34,7 +32,8 @@ public class EmbedControlApp extends Application {
 
         startUpLogging();
 
-        applicationContext = new AnnotationConfigApplicationContext(EmbedControlAppConfig.class);
+        var applicationContext = new EmbedControlAppConfig();
+        controlContext = applicationContext.getRemoteContext();
 
         // At this point we build a JavaFX stage and load up our main window
         primaryStage.getIcons().add(new Image(
@@ -45,8 +44,7 @@ public class EmbedControlApp extends Application {
 
         // then we pass the menuTree and remoteControl to the Windows controller.
         controller = loader.getController();
-        var context = applicationContext.getBean(RemoteUiEmbedControlContext.class);
-        context.initialize(controller);
+        controlContext.initialize(controller);
 
         // display the main window.
         Scene myScene = new Scene(myPane);
