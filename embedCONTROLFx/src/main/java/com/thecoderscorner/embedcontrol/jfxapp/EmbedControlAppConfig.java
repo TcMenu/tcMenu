@@ -7,7 +7,7 @@ public class EmbedControlAppConfig extends CoreControlAppConfig {
     private final VersionHelper helper;
     private final RemoteUiEmbedControlContext remoteContext;
 
-    public EmbedControlAppConfig() {
+    public EmbedControlAppConfig() throws Exception {
         helper = new VersionHelper();
         remoteContext = new RemoteUiEmbedControlContext(executor, serializer, serialFactory, ecDataStore, globalSettings, helper);
     }

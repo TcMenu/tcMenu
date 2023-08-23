@@ -16,84 +16,78 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * The application configuration for the JavaFX version of the application
  */
-@Configuration
-@Import(CoreControlAppConfig.class)
-public class MenuEditorConfig {
-    @Bean
-    JdbcTcMenuConfigurationStore configurationStorage(JdbcTemplate jdbcTemplate) {
-        return new JdbcTcMenuConfigurationStore(jdbcTemplate);
-    }
+public class MenuEditorConfig extends CoreControlAppConfig {
+    private final JdbcTcMenuConfigurationStore configStore;
+    private final OnlineLibraryVersionDetector libraryVersionDetector;
+    private final ArduinoLibraryInstaller installer;
+    private final DefaultXmlPluginLoader pluginLoader;
+    private final FileBasedProjectPersistor persistor;
+    private final CurrentEditorProject editorProject;
+    private final CurrentProjectEditorUIImpl editorUI;
+    private final CodeGeneratorSupplier codeGenSupplier;
+    private final EmbeddedPlatforms platforms;
 
-    @Bean
-    LibraryVersionDetector libraryVersionDetector(JdbcTcMenuConfigurationStore config) {
+    public MenuEditorConfig() throws Exception {
+        super();
+        configStore = new JdbcTcMenuConfigurationStore(databaseUtils);
+
         var httpClient = new SimpleHttpClient();
-
         var urlBase = "https://www.thecoderscorner.com";
         if(System.getProperty("localTccService") != null) {
             urlBase = System.getProperty("localTccService");
             System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
         }
+        libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, configStore);
+        platforms = new PluginEmbeddedPlatformsImpl();
+        pluginLoader = new DefaultXmlPluginLoader(tcMenuHome, platforms, configStore, true);
+        installer = new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configStore);
+        codeGenSupplier = new CodeGeneratorSupplier(configStore, installer);
+        persistor = new FileBasedProjectPersistor(platforms);
+        editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector, codeGenSupplier, tcMenuHome.toString());
 
-        return new OnlineLibraryVersionDetector(urlBase, httpClient, config);
+        editorProject = new CurrentEditorProject(editorUI, persistor, configStore);
+    }
+    public JdbcTcMenuConfigurationStore getConfigStore() {
+        return configStore;
     }
 
-    @Bean
-    ArduinoLibraryInstaller installer(LibraryVersionDetector libraryVersionDetector,
-                                      ConfigurationStorage configurationStorage,
-                                      DefaultXmlPluginLoader pluginLoader) {
-        return new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configurationStorage);
+    public LibraryVersionDetector getLibraryVersionDetector() {
+        return libraryVersionDetector;
     }
 
-    @Bean
-    DefaultXmlPluginLoader pluginLoader(Path tcMenuHome,
-                                        ConfigurationStorage configurationStorage,
-                                        EmbeddedPlatforms platforms) throws IOException {
-        return new DefaultXmlPluginLoader(tcMenuHome, platforms, configurationStorage, true);
+    public ArduinoLibraryInstaller getInstaller() {
+        return installer;
     }
 
-    @Bean
-    EmbeddedPlatforms embeddedPlatforms() {
-         return new PluginEmbeddedPlatformsImpl();
+    public DefaultXmlPluginLoader getPluginLoader() {
+        return pluginLoader;
     }
 
-    @Bean
-    FileBasedProjectPersistor projectPersistor(EmbeddedPlatforms platforms) {
-        return new FileBasedProjectPersistor(platforms);
+    public FileBasedProjectPersistor getProjectPersistor() {
+        return persistor;
     }
 
-    @Bean
-    CurrentEditorProject editorProject(FileBasedProjectPersistor projectPersistor,
-                                       CurrentProjectEditorUI editorUI,
-                                       ConfigurationStorage configStore) {
-        return new CurrentEditorProject(editorUI, projectPersistor, configStore);
+    public CurrentEditorProject getEditorProject() {
+        return editorProject;
     }
 
-    @Bean
-    CurrentProjectEditorUI editorUI(DefaultXmlPluginLoader loader, EmbeddedPlatforms platforms,
-                                    ArduinoLibraryInstaller installer, ConfigurationStorage storage,
-                                    LibraryVersionDetector versionDetector, CodeGeneratorSupplier codeGeneratorSupplier,
-                                    Path tcMenuHome) {
-        return new CurrentProjectEditorUIImpl(loader, platforms, installer, storage, versionDetector, codeGeneratorSupplier, tcMenuHome.toString());
+    public CurrentProjectEditorUIImpl getEditorUI() {
+        return editorUI;
     }
 
-    @Bean
-    CodeGeneratorSupplier codeGeneratorSupplier(ArduinoLibraryInstaller installer, ConfigurationStorage storage) {
-        return new CodeGeneratorSupplier(storage, installer);
+    public CodeGeneratorSupplier getCodeGeneratorSupplier() {
+        return codeGenSupplier;
+    }
+
+    public EmbeddedPlatforms getPlatforms() {
+        return platforms;
     }
 }

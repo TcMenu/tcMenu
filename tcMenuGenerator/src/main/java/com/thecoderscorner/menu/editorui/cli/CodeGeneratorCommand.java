@@ -3,8 +3,6 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
@@ -17,8 +15,10 @@ import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.BackupManager;
-import com.thecoderscorner.menu.persist.*;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -55,19 +54,19 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     public Integer call() {
         try {
             MenuEditorApp.configureBundle(Locale.getDefault());
-            var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
-            ConfigurationStorage configStore = appContext.getBean(ConfigurationStorage.class);
+            var appContext = new MenuEditorConfig();
+            ConfigurationStorage configStore = appContext.getConfigStore();
             var project = projectFileOrNull(projectFile, configStore);
 
             System.out.format("Starting code generator for %s\n", project.getOptions().getApplicationName());
 
             configStore.setLastRunVersion(new VersionInfo(configStore.getVersion()));
 
-            DefaultXmlPluginLoader loader = appContext.getBean(DefaultXmlPluginLoader.class);
+            DefaultXmlPluginLoader loader = appContext.getPluginLoader();
             loader.ensurePluginsAreValid();
             loader.loadPlugins();
             var embeddedPlatform = project.getOptions().getEmbeddedPlatform();
-            var generatorSupplier = appContext.getBean(CodeGeneratorSupplier.class);
+            var generatorSupplier = appContext.getCodeGeneratorSupplier();
             var codeGen = generatorSupplier.getCodeGeneratorFor(embeddedPlatform, project.getOptions());
 
             List<CodePluginItem> allPlugins = loader.getLoadedPlugins().stream()

@@ -1,15 +1,11 @@
 package com.thecoderscorner.menu.editorui.storage;
 
-import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
+import com.thecoderscorner.embedcontrol.core.util.*;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.InputStream;
 import java.lang.System.Logger.Level;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -56,18 +52,23 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             )
             """;
     private final System.Logger logger = System.getLogger(JdbcTcMenuConfigurationStore.class.getSimpleName());
-    private final JdbcTemplate jdbcTemplate;
     private final LoadedConfiguration loadedConfig;
+    private final TccDatabaseUtilities databaseUtilities;
     private boolean autoCommit = true;
     private ArduinoDirectoryChangeListener arduinoChangeListener = null;
 
-    public JdbcTcMenuConfigurationStore(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JdbcTcMenuConfigurationStore(TccDatabaseUtilities databaseUtilities) {
+        this.databaseUtilities = databaseUtilities;
         LoadedConfiguration loaded;
         try(var resourceAsStream = getClass().getResourceAsStream("/version.properties")) {
-            createIfNeeded();
-            loaded = jdbcTemplate.queryForObject("SELECT * FROM TC_MENU_SETTINGS", this::mapSettings);
             props.load( resourceAsStream );
+            var maybeLoaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0);
+            if(maybeLoaded.isEmpty()) {
+                createIfNeeded();
+                loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElseThrow();
+            } else {
+                loaded = maybeLoaded.get();
+            }
         } catch(Exception ex) {
             loaded = new LoadedConfiguration();
         }
@@ -75,89 +76,61 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         logger.log(INFO, "Loaded initial designer settings as" + loadedConfig);
     }
 
-    private LoadedConfiguration mapSettings(ResultSet resultSet, int i) throws SQLException {
-        var loadedConfig = new LoadedConfiguration();
-        loadedConfig.setRecursiveNaming(resultSet.getInt("DEFAULT_RECURSIVE") != 0);
-        loadedConfig.setLocale(resultSet.getString("CHOSEN_LOCALE"));
-        loadedConfig.setArduinoOverrideDirectory(resultSet.getString("ARDUINO_OVERRIDE"));
-        loadedConfig.setLibraryOverrideDirectory(resultSet.getString("LIBRARIES_OVERRIDE"));
-        loadedConfig.setSaveToSrc(resultSet.getInt("DEFAULT_SAVE_LOCATION") !=0 );
-        loadedConfig.setEEPROMSized(resultSet.getInt("DEFAULT_SIZED_EEPROM") !=0 );
-        loadedConfig.setUsingArduinoIDE(resultSet.getInt("USING_ARDUINO_IDE") !=0 );
-        loadedConfig.setLastLoadedProject(resultSet.getString("LAST_LOADED_PROJECT"));
-        loadedConfig.setLastRunVersion(resultSet.getString("LAST_RUN_VERSION"));
-        loadedConfig.setProjectMaxLevel(resultSet.getInt("MAX_SCAN_PROJECT_LEVEL"));
-        loadedConfig.setNumberBackups(resultSet.getInt("NUM_BACKUPS"));
-        loadedConfig.setRegisteredKey(resultSet.getString("REGISTERED_KEY"));
-        loadedConfig.setReleaseStream(ReleaseType.valueOf(resultSet.getString("RELEASE_STREAM")));
-        loadedConfig.setCurrentTheme(resultSet.getString("CURRENT_THEME"));
-        return loadedConfig;
-    }
-
     private void createIfNeeded() {
-        if(!DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_SETTINGS", CREATE_SETTINGS_SQL)) {
-            logger.log(INFO, "Created table for designer settings");
-            // we are creating a new instance, let us try and copy from preferences.
-            Preferences prefsNode = Preferences.userNodeForPackage(BaseDialogSupport.class);
-            var prefs = new PrefsConfigurationStorage();
-            var lastTheme = prefsNode.get("uiTheme", "lightMode");
-            logger.log(INFO, "Read preferences from legacy to update");
+        logger.log(INFO, "Created table for designer settings");
+        // we are creating a new instance, let us try and copy from preferences.
+        Preferences prefsNode = Preferences.userNodeForPackage(BaseDialogSupport.class);
+        var prefs = new PrefsConfigurationStorage();
+        var lastTheme = prefsNode.get("uiTheme", "lightMode");
+        logger.log(INFO, "Read preferences from legacy to update");
 
-            saveUniqueRecents(prefs.loadRecents());
-            setAdditionalPluginPaths(prefs.getAdditionalPluginPaths());
+        saveUniqueRecents(prefs.loadRecents());
+        setAdditionalPluginPaths(prefs.getAdditionalPluginPaths());
 
-            jdbcTemplate.update("""
-                        INSERT INTO TC_MENU_SETTINGS(
-                            DEFAULT_RECURSIVE, CHOSEN_LOCALE, ARDUINO_OVERRIDE, LIBRARIES_OVERRIDE,
-                            DEFAULT_SAVE_LOCATION, DEFAULT_SIZED_EEPROM, LAST_LOADED_PROJECT, LAST_RUN_VERSION,
-                            USING_ARDUINO_IDE, MAX_SCAN_PROJECT_LEVEL, NUM_BACKUPS, REGISTERED_KEY, RELEASE_STREAM,
-                            CURRENT_THEME, SETTING_ID
-                        ) values(
-                            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,0
-                        )
-                        """,
-                    prefs.isDefaultRecursiveNamingOn(),
-                    prefs.getChosenLocale(),
-                    prefs.getArduinoOverrideDirectory().orElse(null),
-                    prefs.getArduinoLibrariesOverrideDirectory().orElse(null),
-                    prefs.isDefaultSaveToSrcOn(),
-                    prefs.isDefaultSizedEEPROMStorage(),
-                    prefs.getLastLoadedProject().orElse(null),
-                    prefs.getLastRunVersion(),
-                    prefs.isUsingArduinoIDE(),
-                    prefs.getMenuProjectMaxLevel(),
-                    prefs.getNumBackupItems(),
-                    prefs.getRegisteredKey(),
-                    ReleaseType.STABLE,
-                    lastTheme
-            );
+        LoadedConfiguration lc = new LoadedConfiguration();
+        lc.setRecursiveNaming(prefs.isDefaultRecursiveNamingOn());
+        lc.setLocale(prefs.getChosenLocale().toString());
+        lc.setArduinoOverrideDirectory(prefs.getArduinoOverrideDirectory().orElse(null));
+        lc.setLibraryOverrideDirectory(prefs.getArduinoLibrariesOverrideDirectory().orElse(null));
+        lc.setSaveToSrc(prefs.isDefaultSaveToSrcOn());
+        lc.setEEPROMSized(prefs.isDefaultSizedEEPROMStorage());
+        lc.setLastLoadedProject(prefs.getLastLoadedProject().orElse(null));
+        lc.setLastRunVersion(prefs.getLastRunVersion().toString());
+        lc.setUsingArduinoIDE(prefs.isUsingArduinoIDE());
+        lc.setProjectMaxLevel(prefs.getMenuProjectMaxLevel());
+        lc.setNumberBackups(prefs.getNumBackupItems());
+        lc.setRegisteredKey(prefs.getRegisteredKey());
+        lc.setReleaseStream(ReleaseType.STABLE);
+        lc.setCurrentTheme(lastTheme);
+        try {
+            databaseUtilities.updateRecord(LoadedConfiguration.class, lc);
             logger.log(INFO, "Initial state of designer settings persisted");
-
-        } else {
-            logger.log(INFO, "Designer settings table existed");
+        } catch (DataException e) {
+            logger.log(ERROR, "Migrating settings from props failed", e);
         }
     }
 
     @Override
     public List<String> loadRecents() {
-        DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_RECENTS", CREATE_RECENTS_SQL);
-        var r = jdbcTemplate.query("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX", this::mapRecent);
-        logger.log(INFO, "Loaded recents as" + r);
-        return r;
-    }
-
-    private String mapRecent(ResultSet resultSet, int i) throws SQLException {
-        return resultSet.getString("RECENT_FILE");
+        databaseUtilities.ensureTableExists("TC_MENU_RECENTS", CREATE_RECENTS_SQL);
+        try {
+            var r = databaseUtilities.queryStrings("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX");
+            logger.log(INFO, "Loaded recents as" + r);
+            return r;
+        } catch (DataException e) {
+            logger.log(ERROR, "Recents not loaded", e);
+            return List.of();
+        }
     }
 
     @Override
     public void saveUniqueRecents(List<String> recents) {
         try {
-            DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_RECENTS", CREATE_RECENTS_SQL);
-            jdbcTemplate.update("DELETE FROM TC_MENU_RECENTS");
+            databaseUtilities.ensureTableExists("TC_MENU_RECENTS", CREATE_RECENTS_SQL);
+            databaseUtilities.executeRaw("DELETE FROM TC_MENU_RECENTS");
             int i = 0;
             for (var recent : recents) {
-                jdbcTemplate.update("INSERT INTO TC_MENU_RECENTS(RECENT_FILE, RECENT_IDX) values(?,?)",
+                databaseUtilities.executeRaw("INSERT INTO TC_MENU_RECENTS(RECENT_FILE, RECENT_IDX) values(?,?)",
                         recent, i++);
             }
             logger.log(INFO, "Saved recents as" + recents);
@@ -181,40 +154,11 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     private void saveIfNeeded() {
         if(autoCommit && loadedConfig.isChanged()) {
             logger.log(INFO, "Saving designer settings" + loadedConfig);
-            jdbcTemplate.update("""
-                UPDATE TC_MENU_SETTINGS
-                SET DEFAULT_RECURSIVE=?,
-                    CHOSEN_LOCALE = ?,
-                    ARDUINO_OVERRIDE = ?, 
-                    LIBRARIES_OVERRIDE = ?,
-                    DEFAULT_SAVE_LOCATION = ?, 
-                    DEFAULT_SIZED_EEPROM = ?, 
-                    LAST_LOADED_PROJECT = ?, 
-                    LAST_RUN_VERSION = ?,
-                    USING_ARDUINO_IDE = ?,
-                    MAX_SCAN_PROJECT_LEVEL = ?, 
-                    NUM_BACKUPS = ?, 
-                    REGISTERED_KEY = ?,
-                    RELEASE_STREAM = ?,
-                    CURRENT_THEME = ?
-                WHERE SETTING_ID = 0
-                """,
-                    loadedConfig.isRecursiveNaming() ? 1 : 0,
-                    loadedConfig.getLocale(),
-                    loadedConfig.getArduinoOverrideDirectory(),
-                    loadedConfig.getLibraryOverrideDirectory(),
-                    loadedConfig.isSaveToSrc() ? 1 : 0,
-                    loadedConfig.isEEPROMSized() ? 1 : 0,
-                    loadedConfig.getLastLoadedProject(),
-                    loadedConfig.getLastRunVersion(),
-                    loadedConfig.isUsingArduinoIDE() ? 1 : 0,
-                    loadedConfig.getProjectMaxLevel(),
-                    loadedConfig.getNumberBackups(),
-                    loadedConfig.getRegisteredKey(),
-                    loadedConfig.getReleaseStream(),
-                    loadedConfig.getCurrentTheme()
-            );
-            loadedConfig.setChanged(false);
+            try {
+                databaseUtilities.updateRecord(LoadedConfiguration.class, loadedConfig);
+            } catch (DataException e) {
+                logger.log(ERROR, "Could not save configuration", e);
+            }
         } else {
             logger.log(DEBUG, "Not saving settings this time, changed=" + loadedConfig.isChanged() + ", autoCommit=" + autoCommit);
         }
@@ -359,23 +303,28 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     @Override
     public List<String> getAdditionalPluginPaths() {
         logger.log(INFO, "Getting extra plugins");
-        DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_EXTRA_PLUGINS", CREATE_ADD_PLUGIN_SQL);
-        return jdbcTemplate.query("SELECT PLUGIN_PATH FROM TC_MENU_EXTRA_PLUGINS ORDER BY PLUGIN_IDX", this::mapPlugin);
-    }
-
-    private String mapPlugin(ResultSet resultSet, int i) throws SQLException {
-        return resultSet.getString("PLUGIN_PATH");
+        databaseUtilities.ensureTableExists("TC_MENU_EXTRA_PLUGINS", CREATE_ADD_PLUGIN_SQL);
+        try {
+            return databaseUtilities.queryStrings("SELECT PLUGIN_PATH FROM TC_MENU_EXTRA_PLUGINS ORDER BY PLUGIN_IDX");
+        } catch (DataException e) {
+            logger.log(ERROR, "Additional plugins not loaded", e);
+            return List.of();
+        }
     }
 
     @Override
     public void setAdditionalPluginPaths(List<String> path) {
         logger.log(INFO, "Setting extra plugins" + path);
 
-        DatabaseAppDataStore.ensureTableExists(jdbcTemplate, "TC_MENU_EXTRA_PLUGINS", CREATE_ADD_PLUGIN_SQL);
-        jdbcTemplate.update("DELETE FROM TC_MENU_EXTRA_PLUGINS");
-        int i = 0;
-        for(var p : path) {
-            jdbcTemplate.update("INSERT INTO TC_MENU_EXTRA_PLUGINS(PLUGIN_IDX,PLUGIN_PATH) values(?,?)", i++, p);
+        try {
+            databaseUtilities.ensureTableExists("TC_MENU_EXTRA_PLUGINS", CREATE_ADD_PLUGIN_SQL);
+            databaseUtilities.executeRaw("DELETE FROM TC_MENU_EXTRA_PLUGINS");
+            int i = 0;
+            for(var p : path) {
+                databaseUtilities.executeRaw("INSERT INTO TC_MENU_EXTRA_PLUGINS(PLUGIN_IDX,PLUGIN_PATH) values(?,?)", i++, p);
+            }
+        } catch (DataException e) {
+            logger.log(ERROR, "Could not update plugin paths", e);
         }
     }
 
@@ -439,24 +388,41 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         return loadedConfig.getCurrentTheme();
     }
 
-    static class LoadedConfiguration {
+    @TableMapping(tableName = "TC_MENU_SETTINGS", uniqueKeyField = "SETTING_ID")
+    public static class LoadedConfiguration {
         private boolean changed;
+        @FieldMapping(fieldName = "SETTING_ID", fieldType = FieldType.INTEGER, primaryKey = true)
+        private int settingId;
+        @FieldMapping(fieldName = "MAX_SCAN_PROJECT_LEVEL", fieldType = FieldType.INTEGER)
         private int projectMaxLevel;
+        @FieldMapping(fieldName = "NUM_BACKUPS", fieldType = FieldType.INTEGER)
         private int numberBackups;
+        @FieldMapping(fieldName = "REGISTERED_KEY", fieldType = FieldType.VARCHAR)
         private String registeredKey;
+        @FieldMapping(fieldName = "LAST_LOADED_PROJECT", fieldType = FieldType.VARCHAR)
         private String lastLoadedProject;
+        @FieldMapping(fieldName = "LAST_RUN_VERSION", fieldType = FieldType.VARCHAR)
         private String lastRunVersion;
+        @FieldMapping(fieldName = "ARDUINO_OVERRIDE", fieldType = FieldType.VARCHAR)
         private String arduinoOverrideDirectory;
+        @FieldMapping(fieldName = "LIBRARIES_OVERRIDE", fieldType = FieldType.VARCHAR)
         private String libraryOverrideDirectory;
+        @FieldMapping(fieldName = "CHOSEN_LOCALE", fieldType = FieldType.VARCHAR)
         private String locale;
+        @FieldMapping(fieldName = "DEFAULT_RECURSIVE", fieldType = FieldType.BOOLEAN)
         private boolean recursiveNaming;
+        @FieldMapping(fieldName = "DEFAULT_SAVE_LOCATION", fieldType = FieldType.BOOLEAN)
         private boolean saveToSrc;
+        @FieldMapping(fieldName = "DEFAULT_SIZED_EEPROM", fieldType = FieldType.BOOLEAN)
         private boolean eepromSized;
+        @FieldMapping(fieldName = "USING_ARDUINO_IDE", fieldType = FieldType.BOOLEAN)
         private boolean usingArduinoIDE;
+        @FieldMapping(fieldName = "RELEASE_STREAM", fieldType = FieldType.ENUM)
         private ReleaseType releaseStream;
+        @FieldMapping(fieldName = "CURRENT_THEME", fieldType = FieldType.VARCHAR)
         private String currentTheme;
 
-        LoadedConfiguration() {
+        public LoadedConfiguration() {
             changed = false;
             registeredKey = null;
             locale = null;

@@ -1,9 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.persist.ReleaseType;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.concurrent.Callable;
 
@@ -13,8 +11,8 @@ import static picocli.CommandLine.Command;
 public class VersionCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
-        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
-        var storage = appContext.getBean(ConfigurationStorage.class);
+        var appContext = new MenuEditorConfig();
+        var storage = appContext.getConfigStore();
         System.out.println("TcMenu Designer V" + storage.getVersion() + " - " + storage.getReleaseType());
         System.out.println("Built on " + storage.getBuildTimestamp());
 

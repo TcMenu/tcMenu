@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +73,7 @@ public class TccDatabaseUtilities {
                 case BOOLEAN -> field.setBoolean(item, rs.getInt(fm.fieldName()) == 1);
                 case INTEGER -> field.setInt(item, rs.getInt(fm.fieldName()));
                 case ISO_DATE -> field.set(item, LocalDateTime.parse(rs.getString(fm.fieldName()), DateTimeFormatter.ISO_DATE_TIME));
-                case VARCHAR -> field.set(item, rs.getString(fm.fieldName()));
+                case VARCHAR, BLOB -> field.set(item, rs.getString(fm.fieldName()));
                 case ENUM -> field.set(item, Enum.valueOf((Class<Enum>) field.getType(), rs.getString(fm.fieldName())));
             }
         }
@@ -249,6 +248,7 @@ public class TccDatabaseUtilities {
         var strTy = switch (fm.fieldType()) {
             case ENUM, VARCHAR, ISO_DATE -> "VARCHAR(255)";
             case INTEGER, BOOLEAN -> "INTEGER";
+            case BLOB -> "BLOB";
         };
         return fm.primaryKey() ? strTy + " PRIMARY KEY" : strTy;
     }
@@ -270,7 +270,11 @@ public class TccDatabaseUtilities {
     private static void addParamsToStmt(Object[] data, PreparedStatement stmt) throws SQLException {
         int i=1;
         for(var d : data) {
-            stmt.setObject(i++, d);;
+            if(d instanceof LocalDateTime ldt) {
+                stmt.setObject(i++, ldt.format(DateTimeFormatter.ISO_DATE_TIME));
+            } else {
+                stmt.setObject(i++, d);
+            }
         }
     }
 
@@ -278,6 +282,33 @@ public class TccDatabaseUtilities {
         try (var stmt = connection.createStatement()) {
             var rs = stmt.executeQuery(s);
             resultConsumer.processResults(rs);
+        }
+    }
+
+    public List<String> queryStrings(String sql, Object... params) throws DataException {
+        logger.log(System.Logger.Level.DEBUG, "Query for strings " + sql);
+        try (var stmt = connection.prepareStatement(sql)) {
+            addParamsToStmt(params, stmt);
+            var rs = stmt.executeQuery();
+            var list = new ArrayList<String>();
+            while(rs.next()) {
+                 list.add(rs.getString(1));
+            }
+            return list;
+        } catch (Exception ex) {
+            throw new DataException("Query raw SQL single " + sql, ex);
+        }
+    }
+
+    public void ensureTableExists(String tableToCheck, String sqlForCreate) {
+        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
+        try {
+            int res = queryRawSqlSingleInt(sql, tableToCheck);
+            if (res == 0) {
+                executeRaw(sqlForCreate);
+            }
+        } catch (DataException e) {
+            logger.log(System.Logger.Level.ERROR, "Could not check table exists", e);
         }
     }
 }

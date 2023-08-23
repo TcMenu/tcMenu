@@ -8,11 +8,11 @@ import com.thecoderscorner.embedcontrol.core.util.TableMapping;
 public class TcMenuFormPersistence {
     @FieldMapping(fieldName = "FORM_ID", fieldType = FieldType.INTEGER)
     private int formId;
-    @FieldMapping(fieldName = "FORM_UUID", fieldType = FieldType.INTEGER)
+    @FieldMapping(fieldName = "FORM_UUID", fieldType = FieldType.VARCHAR)
     private String uuid;
-    @FieldMapping(fieldName = "FORM_NAME", fieldType = FieldType.INTEGER)
+    @FieldMapping(fieldName = "FORM_NAME", fieldType = FieldType.VARCHAR)
     private String formName;
-    @FieldMapping(fieldName = "XML_DATA", fieldType = FieldType.INTEGER)
+    @FieldMapping(fieldName = "XML_DATA", fieldType = FieldType.BLOB)
     private String xmlData;
 
     public TcMenuFormPersistence() {

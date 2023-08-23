@@ -8,17 +8,13 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
-import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.project.ProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,11 +81,11 @@ public class CreateProjectCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         MenuEditorApp.configureBundle(Locale.getDefault());
 
-        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
-        DefaultXmlPluginLoader loader = appContext.getBean(DefaultXmlPluginLoader.class);
+        var appContext = new MenuEditorConfig();
+        DefaultXmlPluginLoader loader = appContext.getPluginLoader();
         loader.ensurePluginsAreValid();
         loader.loadPlugins();
-        var platforms = appContext.getBean(EmbeddedPlatforms.class);
+        var platforms = appContext.getPlatforms();
 
         if(projectLocation == null) projectLocation = new File(System.getProperty("user.dir"));
 
@@ -106,8 +102,8 @@ public class CreateProjectCommand implements Callable<Integer> {
         try {
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(platform);
             createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform,
-                    System.out::println, namespace, appContext.getBean(CodeGeneratorSupplier.class),
-                    appContext.getBean(ProjectPersistor.class));
+                    System.out::println, namespace, appContext.getCodeGeneratorSupplier(),
+                    appContext.getProjectPersistor());
 
             if(!StringHelper.isStringEmptyOrNull(i18nLocales)) {
                 var localeList = Arrays.stream(i18nLocales.split("\\s*,\\s*")).map(Locale::of).toList();

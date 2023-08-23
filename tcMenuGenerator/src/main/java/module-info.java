@@ -15,9 +15,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires info.picocli;
     requires org.jfxtras.styles.jmetro;
     requires com.thecoderscorner.embedcontrol.core;
-    requires spring.beans;
-    requires spring.context;
-    requires spring.jdbc;
 
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.controller;

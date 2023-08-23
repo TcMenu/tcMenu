@@ -8,13 +8,9 @@ package com.thecoderscorner.menu.editorui;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -27,8 +23,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
@@ -53,11 +47,11 @@ public class MenuEditorApp extends Application {
     private static ResourceBundle designerBundle;
     public static final Locale EMPTY_LOCALE = Locale.of("");
 
-    public ApplicationContext getAppContext() {
+    public MenuEditorConfig getAppContext() {
         return appContext;
     }
 
-    private ApplicationContext appContext;
+    private MenuEditorConfig appContext;
     private static JdbcTcMenuConfigurationStore CONFIG_STORE;
 
     @Override
@@ -67,7 +61,7 @@ public class MenuEditorApp extends Application {
 
         try {
             configureBundle(Locale.getDefault());
-            appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
+            appContext = new MenuEditorConfig();
         } catch(Exception ex) {
             System.getLogger(MenuEditorApp.class.getSimpleName()).log(ERROR, "Failed loading config", ex);
             Alert alert = new Alert(AlertType.ERROR);
@@ -88,7 +82,7 @@ public class MenuEditorApp extends Application {
             }
         });
 
-        CONFIG_STORE = appContext.getBean(JdbcTcMenuConfigurationStore.class);
+        CONFIG_STORE = appContext.getConfigStore();
 
         // if the chosen locale is not the default then force the locale.
         if(!CONFIG_STORE.getChosenLocale().equals(Locale.getDefault())) {
@@ -102,18 +96,18 @@ public class MenuEditorApp extends Application {
         Pane myPane = loader.load();
         controller = loader.getController();
 
-        var libraryVersionDetector = appContext.getBean(LibraryVersionDetector.class);
-        var pluginLoader = appContext.getBean(DefaultXmlPluginLoader.class);
+        var libraryVersionDetector = appContext.getLibraryVersionDetector();
+        var pluginLoader = appContext.getPluginLoader();
         pluginLoader.ensurePluginsAreValid();
         pluginLoader.loadPlugins();
 
-        var editorUI = appContext.getBean(CurrentProjectEditorUIImpl.class);
+        var editorUI = appContext.getEditorUI();
         editorUI.setStage(primaryStage, designerBundle);
-        CurrentEditorProject project = appContext.getBean(CurrentEditorProject.class);
+        CurrentEditorProject project = appContext.getEditorProject();
         editorUI.setEditorProject(project);
 
-        controller.initialise(project, appContext.getBean(ArduinoLibraryInstaller.class),
-                editorUI, appContext.getBean(DefaultXmlPluginLoader.class), CONFIG_STORE, libraryVersionDetector);
+        controller.initialise(project, appContext.getInstaller(),
+                editorUI, appContext.getPluginLoader(), CONFIG_STORE, libraryVersionDetector);
 
         Scene myScene = new Scene(myPane);
         BaseDialogSupport.getJMetro().setScene(myScene);
@@ -151,7 +145,7 @@ public class MenuEditorApp extends Application {
     }
 
     public void createOrUpdateDirectoriesAsNeeded() {
-        appContext.getBean(DefaultXmlPluginLoader.class).ensurePluginsAreValid();
+        appContext.getPluginLoader().ensurePluginsAreValid();
     }
 
     private void startUpLogging() {

@@ -1,10 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,8 +25,8 @@ public class SetConfigCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         MenuEditorApp.configureBundle(Locale.getDefault());
 
-        var appContext = new AnnotationConfigApplicationContext(MenuEditorConfig.class);
-        var storage = appContext.getBean(ConfigurationStorage.class);
+        var appContext = new MenuEditorConfig();
+        var storage = appContext.getConfigStore();
 
         switch (param) {
             case EXTRA_PLUGIN_PATHS -> {
