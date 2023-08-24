@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.embedcontrol.core.util.PersistenceTestObj.PersistType.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TccDatabaseUtilitiesTest {
     private TccDatabaseUtilities dbUtilities;
@@ -116,6 +118,20 @@ class TccDatabaseUtilitiesTest {
         Assertions.assertEquals(2, count);
     }
 
+    @Test
+    public void testTableExists() throws DataException {
+        dbUtilities.ensureTableExists("STR_CHECK", "CREATE TABLE STR_CHECK(STR_COL VARCHAR(255))");
+        assertTrue(dbUtilities.checkTableExists("STR_CHECK"));
+        dbUtilities.ensureTableExists("STR_CHECK", "CREATE TABLE STR_CHECK(STR_COL VARCHAR(255))");
+        assertTrue(dbUtilities.checkTableExists("STR_CHECK"));
+    }
+
+    @Test
+    public void testTryExecutingBadStatement() throws DataException {
+        var sql = "INSERT INTO WRONG WHERE BAD SYNTAX";
+        assertThrows(DataException.class, () -> dbUtilities.executeRaw(sql));
+    }
+
     private void checkTableHasColumns(Class<PersistenceTestObj> persistedType) throws Exception {
         var tableMapping = persistedType.getAnnotation(TableMapping.class);
         var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
@@ -135,7 +151,7 @@ class TccDatabaseUtilitiesTest {
                         break;
                     }
                 }
-                Assertions.assertTrue(found, "Field " + field.fieldName());
+                assertTrue(found, "Field " + field.fieldName());
             }
         });
     }

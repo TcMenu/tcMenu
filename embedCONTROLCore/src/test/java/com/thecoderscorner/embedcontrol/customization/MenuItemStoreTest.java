@@ -26,7 +26,7 @@ public class MenuItemStoreTest {
         tree.addMenuItem(MenuTree.ROOT, aBooleanMenuItemBuilder().withName("abc").withId(1).menuItem());
         var sub = aSubMenuItemBuilder().withName("sub").withId(9).menuItem();
         tree.addMenuItem(sub, anAnalogMenuItemBuilder().withName("def").withId(10).menuItem());
-        tree.addMenuItem(sub, anAnalogMenuItemBuilder().withName("def").withId(11).menuItem());
+        tree.addMenuItem(sub, anAnalogMenuItemBuilder().withName("xyz").withId(11).menuItem());
         store = new MenuItemStore(unitGlobalSettings, tree, "layout1", 1, 2, true);
     }
 
@@ -56,6 +56,18 @@ public class MenuItemStoreTest {
         var staticItem = store.getFormItemAt(0, 1);
         assertThat(staticItem).isInstanceOf(TextFormItem.class);
         assertEquals("Edit Text", staticItem.getDescription());
+
+        store.changeSubStore(9);
+        formItem = store.getFormItemAt(0, 0);
+        assertThat(formItem).isInstanceOf(MenuItemFormItem.class);
+        assertEquals("Edit def id(10)", formItem.getDescription());
+        formItem = store.getFormItemAt(0, 1);
+        assertThat(formItem).isInstanceOf(MenuItemFormItem.class);
+        assertEquals("Edit xyz id(11)", formItem.getDescription());
+        staticItem = store.getFormItemAt(1, 0);
+        assertThat(staticItem).isInstanceOf(TextFormItem.class);
+        assertEquals("Edit Text", staticItem.getDescription());
+
     }
 
     private final static String EXAMPLE_FORM_XML = """

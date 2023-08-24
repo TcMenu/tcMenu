@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.embedcontrol.core.util.*;
+import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import static com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage.BUILD_TIMESTAMP_KEY;
@@ -32,25 +34,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
                 PLUGIN_IDX INT
             )
             """;
-    private final static String CREATE_SETTINGS_SQL = """
-            CREATE TABLE TC_MENU_SETTINGS(
-                SETTING_ID INT PRIMARY KEY,
-                DEFAULT_RECURSIVE INT,
-                CHOSEN_LOCALE VARCHAR(32),
-                ARDUINO_OVERRIDE VARCHAR(255),
-                LIBRARIES_OVERRIDE VARCHAR(255),
-                DEFAULT_SAVE_LOCATION INT,
-                DEFAULT_SIZED_EEPROM INT,
-                LAST_LOADED_PROJECT VARCHAR(255),
-                LAST_RUN_VERSION VARCHAR(20),
-                USING_ARDUINO_IDE INT,
-                MAX_SCAN_PROJECT_LEVEL INT,
-                NUM_BACKUPS INT,
-                REGISTERED_KEY VARCHAR(256),
-                RELEASE_STREAM INT,
-                CURRENT_THEME VARCHAR(32)
-            )
-            """;
     private final System.Logger logger = System.getLogger(JdbcTcMenuConfigurationStore.class.getSimpleName());
     private final LoadedConfiguration loadedConfig;
     private final TccDatabaseUtilities databaseUtilities;
@@ -62,13 +45,14 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         LoadedConfiguration loaded;
         try(var resourceAsStream = getClass().getResourceAsStream("/version.properties")) {
             props.load( resourceAsStream );
-            var maybeLoaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0);
-            if(maybeLoaded.isEmpty()) {
-                createIfNeeded();
-                loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElseThrow();
-            } else {
-                loaded = maybeLoaded.get();
-            }
+            // if the table doesn't exist, we are probably on first start
+            boolean firstStart = !databaseUtilities.checkTableExists("TC_MENU_SETTINGS");
+            // once we've determined that, let the database utilities get the DB in the right state
+            databaseUtilities.ensureTableFormatCorrect(LoadedConfiguration.class);
+            // and if not started before, on the first attempt, we try and copy from preferences or default.
+            if(firstStart) createIfNeeded();
+            // and lastly load the configuration
+            loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElseThrow();
         } catch(Exception ex) {
             loaded = new LoadedConfiguration();
         }
@@ -77,31 +61,52 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     }
 
     private void createIfNeeded() {
-        logger.log(INFO, "Created table for designer settings");
+        logger.log(INFO, "First startup on database config.");
         // we are creating a new instance, let us try and copy from preferences.
-        Preferences prefsNode = Preferences.userNodeForPackage(BaseDialogSupport.class);
-        var prefs = new PrefsConfigurationStorage();
-        var lastTheme = prefsNode.get("uiTheme", "lightMode");
-        logger.log(INFO, "Read preferences from legacy to update");
-
-        saveUniqueRecents(prefs.loadRecents());
-        setAdditionalPluginPaths(prefs.getAdditionalPluginPaths());
+        boolean nodeExists = false;
+        try {
+            nodeExists = Preferences.userNodeForPackage(MenuEditorController.class).nodeExists("");
+        } catch (BackingStoreException e) {
+            nodeExists = false;
+        }
 
         LoadedConfiguration lc = new LoadedConfiguration();
-        lc.setRecursiveNaming(prefs.isDefaultRecursiveNamingOn());
-        lc.setLocale(prefs.getChosenLocale().toString());
-        lc.setArduinoOverrideDirectory(prefs.getArduinoOverrideDirectory().orElse(null));
-        lc.setLibraryOverrideDirectory(prefs.getArduinoLibrariesOverrideDirectory().orElse(null));
-        lc.setSaveToSrc(prefs.isDefaultSaveToSrcOn());
-        lc.setEEPROMSized(prefs.isDefaultSizedEEPROMStorage());
-        lc.setLastLoadedProject(prefs.getLastLoadedProject().orElse(null));
-        lc.setLastRunVersion(prefs.getLastRunVersion().toString());
-        lc.setUsingArduinoIDE(prefs.isUsingArduinoIDE());
-        lc.setProjectMaxLevel(prefs.getMenuProjectMaxLevel());
-        lc.setNumberBackups(prefs.getNumBackupItems());
-        lc.setRegisteredKey(prefs.getRegisteredKey());
-        lc.setReleaseStream(ReleaseType.STABLE);
-        lc.setCurrentTheme(lastTheme);
+        if(!nodeExists) {
+            lc.setUsingArduinoIDE(true);
+            lc.setSaveToSrc(false);
+            lc.setEEPROMSized(true);
+            lc.setRecursiveNaming(false);
+            lc.setNumberBackups(DEFAULT_NUM_BACKUPS);
+            lc.setLocale("DEFAULT");
+            lc.setArduinoOverrideDirectory("");
+            lc.setLibraryOverrideDirectory("");
+            lc.setProjectMaxLevel(1);
+            lc.setCurrentTheme("lightMode");
+        } else {
+            Preferences prefsNode = Preferences.userNodeForPackage(BaseDialogSupport.class);
+            var prefs = new PrefsConfigurationStorage();
+            var lastTheme = prefsNode.get("uiTheme", "lightMode");
+            logger.log(INFO, "Read preferences from legacy to update");
+
+            saveUniqueRecents(prefs.loadRecents());
+            setAdditionalPluginPaths(prefs.getAdditionalPluginPaths());
+
+            lc.setRecursiveNaming(prefs.isDefaultRecursiveNamingOn());
+            lc.setLocale(prefs.getChosenLocale().toString());
+            lc.setArduinoOverrideDirectory(prefs.getArduinoOverrideDirectory().orElse(null));
+            lc.setLibraryOverrideDirectory(prefs.getArduinoLibrariesOverrideDirectory().orElse(null));
+            lc.setSaveToSrc(prefs.isDefaultSaveToSrcOn());
+            lc.setEEPROMSized(prefs.isDefaultSizedEEPROMStorage());
+            lc.setLastLoadedProject(prefs.getLastLoadedProject().orElse(null));
+            lc.setLastRunVersion(prefs.getLastRunVersion().toString());
+            lc.setUsingArduinoIDE(prefs.isUsingArduinoIDE());
+            lc.setProjectMaxLevel(prefs.getMenuProjectMaxLevel());
+            lc.setNumberBackups(prefs.getNumBackupItems());
+            lc.setRegisteredKey(prefs.getRegisteredKey());
+            lc.setReleaseStream(ReleaseType.STABLE);
+            lc.setCurrentTheme(lastTheme);
+        }
+
         try {
             databaseUtilities.updateRecord(LoadedConfiguration.class, lc);
             logger.log(INFO, "Initial state of designer settings persisted");

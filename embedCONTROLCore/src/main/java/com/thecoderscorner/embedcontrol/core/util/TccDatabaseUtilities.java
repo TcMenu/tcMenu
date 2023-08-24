@@ -300,6 +300,11 @@ public class TccDatabaseUtilities {
         }
     }
 
+    public boolean checkTableExists(String table) throws DataException {
+        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
+        return queryRawSqlSingleInt(sql, table) != 0;
+    }
+
     public void ensureTableExists(String tableToCheck, String sqlForCreate) {
         var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
         try {
