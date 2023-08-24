@@ -2,7 +2,6 @@ package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
-import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +10,9 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.NO_FORM_ITEM;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MenuFormItemTest {
 
@@ -32,6 +31,7 @@ public class MenuFormItemTest {
         assertEquals("Empty", sfi.getDescription());
         assertEquals(MenuFormItem.FONT_100_PERCENT, sfi.getFontInfo());
     }
+
     @Test
     public void testSpaceItem() {
         var sfi = new SpaceFormItem(mockedColorSet, TEST_POSITIONING, 10);

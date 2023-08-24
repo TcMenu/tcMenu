@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.embedcontrol.core.util.PersistenceTestObj.PersistType.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TccDatabaseUtilitiesTest {
     private TccDatabaseUtilities dbUtilities;
@@ -35,6 +36,16 @@ class TccDatabaseUtilitiesTest {
     void testCreateTableFromScratch() throws Exception {
         dbUtilities.ensureTableFormatCorrect(PersistenceTestObj.class);
         checkTableHasColumns(PersistenceTestObj.class);
+
+        LocalDateTime then = LocalDateTime.now();
+        var id = dbUtilities.updateRecord(PersistenceTestObj.class,
+                new PersistenceTestObj(-1, "hello world", DISK_PERSIST, then));
+
+        var persisted = dbUtilities.queryPrimaryKey(PersistenceTestObj.class, id).orElseThrow();
+        Assertions.assertEquals(id, persisted.getPersistId());
+        Assertions.assertEquals("hello world", persisted.getPersistName());
+        Assertions.assertEquals(DISK_PERSIST, persisted.getPersistType());
+        Assertions.assertEquals(then, persisted.getLastModified());
     }
 
     @Test
@@ -88,6 +99,21 @@ class TccDatabaseUtilitiesTest {
         Assertions.assertEquals(1, util.getPersistId());
         Assertions.assertEquals(MEMORY_PERSIST, util.getPersistType());
         Assertions.assertEquals(LocalDateTime.parse("2023-08-22T19:16:01.2562814", DateTimeFormatter.ISO_DATE_TIME), util.getLastModified());
+    }
+
+    @Test
+    public void testStringAndIntQuery() throws DataException {
+        dbUtilities.executeRaw("CREATE TABLE STR_CHECK(STR_COL VARCHAR(255))");
+
+        String sql = "SELECT STR_COL FROM STR_CHECK";
+        assertThat(dbUtilities.queryStrings(sql)).isEmpty();
+        dbUtilities.executeRaw("INSERT INTO STR_CHECK VALUES(?)", "ABC");
+        assertThat(dbUtilities.queryStrings(sql)).containsExactlyInAnyOrder("ABC");
+        dbUtilities.executeRaw("INSERT INTO STR_CHECK VALUES(?)", "DEF");
+        assertThat(dbUtilities.queryStrings(sql)).containsExactlyInAnyOrder("ABC", "DEF");
+
+        var count = dbUtilities.queryRawSqlSingleInt("SELECT COUNT(STR_COL) FROM STR_CHECK");
+        Assertions.assertEquals(2, count);
     }
 
     private void checkTableHasColumns(Class<PersistenceTestObj> persistedType) throws Exception {
