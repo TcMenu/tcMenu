@@ -2,6 +2,7 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -103,4 +104,13 @@ public interface MenuEditorFactory<T>
      * @return the created component
      */
     EditorComponent<T> createIoTMonitor(MenuItem item, ComponentSettings componentSettings);
+
+    /**
+     * Create a component based on the settings provided, IE it will be of a component type and style of that provided
+     * @param item the item to create
+     * @param componentSettings the component settings to use
+     * @param subMenuAction the action to take on submenu being clicked
+     * @return the created component
+     */
+    Optional<EditorComponent<T>> getComponentEditorItem(MenuItem item,ComponentSettings componentSettings, Consumer<MenuItem> subMenuAction);
 }

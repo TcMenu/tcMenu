@@ -7,10 +7,7 @@ import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -100,18 +97,20 @@ public class SimulatorUI {
         navMgr.addTitleWidget(new TitleWidget<>(List.of(settingsImage), 1, 0, WIDGET_ID_SETTINGS));
         navMgr.addWidgetClickedListener((actionEvent, titleWidget) -> widgetClickListener(titleWidget));
         navMgr.getButtonFor(formWidget).ifPresent(button -> button.setContextMenu(contextMenuForLayout()));
-        formEditorPanel = new FormBuilderPresentable(settings, opts.getApplicationUUID(), menuTree, navMgr, itemStore, this::saveFormConsumer);
+        formEditorPanel = new FormBuilderPresentable(settings, opts.getApplicationUUID(), menuTree, navMgr, itemStore,
+                this::saveFormConsumer, new JfxMenuEditorFactory(control, Platform::runLater, dialogMgr));
     }
 
     private void saveFormConsumer(String xml) {
         if(currentLayout == null) return;
-        currentLayout = new TcMenuFormPersistence(currentLayout.getFormId(), currentLayout.getUuid(), currentLayout.getFormName(), xml);
+        currentLayout = currentLayout.withNewNameAndXml(currentLayout.getFormName(), xml);
         try {
             dataStore.updateForm(currentLayout);
         } catch (DataException e) {
             System.getLogger("Simulator").log(ERROR, "Form Save failed");
         }
         rebuildGrid();
+        contextMenuForLayout();
     }
 
     private ContextMenu contextMenuForLayout() {
@@ -149,14 +148,9 @@ public class SimulatorUI {
 
     private void createActivateNewLayout() {
         var form = TcMenuFormPersistence.anEmptyFormPersistence(uuid);
-        try {
-            dataStore.updateForm(form);
-        } catch (DataException e) {
-            System.getLogger("Simulator").log(ERROR, "Create form failed", e);
-        }
         currentLayout = form;
-        rebuildGrid();
-        contextMenuForLayout();
+        itemStore.loadLayout(currentLayout.getXmlData(), UUID.fromString(uuid));
+        navMgr.pushNavigationIfNotOnStack(formEditorPanel);
     }
 
     private void rebuildGrid() {

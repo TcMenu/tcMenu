@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
@@ -43,32 +44,10 @@ public abstract class MenuGridComponent<T> {
         remoteTickTask = executor.scheduleAtFixedRate(this::timerTick, 100, 100, TimeUnit.MILLISECONDS);
     }
 
-    public Optional<EditorComponent<T>> getComponentEditorItem(MenuEditorFactory<T> editorFactory, MenuItem item, ComponentSettings componentSettings) {
 
-        if (componentSettings.getDrawMode() == RedrawingMode.HIDDEN) return Optional.empty();
-
-        if (item instanceof SubMenuItem sub && componentSettings.getControlType() != ControlType.TEXT_CONTROL) {
-            return Optional.of(editorFactory.createButtonWithAction(sub, MenuItemFormatter.defaultInstance().getItemName(sub), componentSettings,
-                    subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore)));
-        }
-
-        return Optional.ofNullable(switch (componentSettings.getControlType()) {
-            case HORIZONTAL_SLIDER -> editorFactory.createHorizontalSlider(item, componentSettings, 999);
-            case UP_DOWN_CONTROL -> editorFactory.createUpDownControl(item, componentSettings);
-            case TEXT_CONTROL ->
-                    editorFactory.createTextEditor(item, componentSettings, MenuItemHelper.getDefaultFor(item));
-            case BUTTON_CONTROL -> editorFactory.createBooleanButton(item, componentSettings);
-            case VU_METER -> throw new UnsupportedOperationException("create TODO");
-            case DATE_CONTROL -> editorFactory.createDateEditorComponent(item, componentSettings);
-            case TIME_CONTROL -> editorFactory.createTimeEditorComponent(item, componentSettings);
-            case RGB_CONTROL -> editorFactory.createRgbColorControl(item, componentSettings);
-            case LIST_CONTROL -> editorFactory.createListEditor(item, componentSettings);
-            case AUTH_IOT_CONTROL -> editorFactory.createIoTMonitor(item, componentSettings);
-            case CANT_RENDER -> null;
-        });
-    }
 
     public void renderMenuRecursive(MenuEditorFactory<T> editorFactory, SubMenuItem sub, boolean recurse, int level) {
+        Consumer<MenuItem> subRenderer = subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore);
         if (menuItemStore.hasSubConfiguration(sub.getId())) {
             menuItemStore.changeSubStore(sub.getId());
             for (var entry : menuItemStore.allRowEntries()) {
@@ -77,7 +56,7 @@ public abstract class MenuGridComponent<T> {
                             new ScreenLayoutBasedConditionalColor(menuItemStore, entry.getPositioning()),
                             entry.getFontInfo(), mfi.getAlignment(), entry.getPositioning(),
                             mfi.getRedrawingMode(), mfi.getControlType(), true);
-                    var comp = getComponentEditorItem(editorFactory, mfi.getItem(), settings);
+                    var comp = editorFactory.getComponentEditorItem(mfi.getItem(), settings, subRenderer);
                     comp.ifPresent(tEditorComponent -> addToGrid(entry.getPositioning(), tEditorComponent));
                 } else if (entry instanceof SpaceFormItem sfi) {
                     addSpaceToGrid(sfi.getPositioning(), sfi.getVerticalSpace());
@@ -96,7 +75,7 @@ public abstract class MenuGridComponent<T> {
                         new FontInformation(150, PERCENT), EditorComponent.PortableAlignment.LEFT,
                         position, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, false);
 
-                getComponentEditorItem(editorFactory, sub, settings).ifPresent(comp -> {
+                editorFactory.getComponentEditorItem(sub, settings, subRenderer).ifPresent(comp -> {
                     addToGrid(settings.getPosition(), comp);
                     editorComponents.put(sub.getId(), comp);
                     MenuItemHelper.getValueFor(sub, tree);
@@ -110,7 +89,7 @@ public abstract class MenuGridComponent<T> {
                     renderMenuRecursive(editorFactory, (SubMenuItem) item, recurse, level + 1);
                 } else {
                     var settings = getComponentForMenuItem(item);
-                    getComponentEditorItem(editorFactory, item, settings).ifPresent(comp -> {
+                    editorFactory.getComponentEditorItem(item, settings, subRenderer).ifPresent(comp -> {
                         addToGrid(settings.getPosition(), comp);
                         editorComponents.put(item.getId(), comp);
                         MenuItemHelper.getValueFor(item, tree, MenuItemHelper.getDefaultFor(item));
@@ -139,14 +118,6 @@ public abstract class MenuGridComponent<T> {
         return new ComponentSettings(new ScreenLayoutBasedConditionalColor(menuItemStore, position),
                 MenuFormItem.FONT_100_PERCENT, defaultJustificationForItem(Optional.of(item)),
                 position, defaultRedrawModeForItem(Optional.of(item)), defaultControlForType(item), false);
-    }
-
-    private ComponentSettings getSettingsForStaticItem(ComponentPositioning positioning) {
-        return new ComponentSettings(
-                new ScreenLayoutBasedConditionalColor(menuItemStore, positioning),
-                MenuFormItem.FONT_100_PERCENT, EditorComponent.PortableAlignment.LEFT,
-                positioning, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, false
-        );
     }
 
     protected RedrawingMode defaultRedrawModeForItem(Optional<MenuItem> item) {
@@ -180,7 +151,7 @@ public abstract class MenuGridComponent<T> {
         }
     }
 
-    record ScreenLayoutBasedConditionalColor(MenuItemStore store, ComponentPositioning where) implements ConditionalColoring {
+    public record ScreenLayoutBasedConditionalColor(MenuItemStore store, ComponentPositioning where) implements ConditionalColoring {
         @Override
         public PortableColor foregroundFor(EditorComponent.RenderingStatus status, ColorComponentType compType) {
             return getControlColor(status, compType).getFg();

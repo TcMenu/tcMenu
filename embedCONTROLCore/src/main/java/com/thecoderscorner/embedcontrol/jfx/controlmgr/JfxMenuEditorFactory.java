@@ -1,15 +1,14 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
-import com.thecoderscorner.menu.domain.EditItemType;
-import com.thecoderscorner.menu.domain.EditableTextMenuItem;
-import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import javafx.scene.Node;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -99,5 +98,31 @@ public class JfxMenuEditorFactory implements MenuEditorFactory<Node> {
     public EditorComponent<Node> createHorizontalSlider(MenuItem item, ComponentSettings settings, double presentableWidth) {
         var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
         return slider;
+    }
+
+    public Optional<EditorComponent<Node>> getComponentEditorItem(MenuItem item,
+                                                               ComponentSettings componentSettings,
+                                                               Consumer<MenuItem> subMenuAction) {
+
+        if (componentSettings.getDrawMode() == RedrawingMode.HIDDEN) return Optional.empty();
+
+        if (item instanceof SubMenuItem sub && componentSettings.getControlType() != ControlType.TEXT_CONTROL) {
+            return Optional.of(createButtonWithAction(sub, MenuItemFormatter.defaultInstance().getItemName(sub), componentSettings, subMenuAction));
+        }
+
+        return Optional.ofNullable(switch (componentSettings.getControlType()) {
+            case HORIZONTAL_SLIDER -> createHorizontalSlider(item, componentSettings, 999);
+            case UP_DOWN_CONTROL -> createUpDownControl(item, componentSettings);
+            case TEXT_CONTROL ->
+                    createTextEditor(item, componentSettings, MenuItemHelper.getDefaultFor(item));
+            case BUTTON_CONTROL -> createBooleanButton(item, componentSettings);
+            case VU_METER -> throw new UnsupportedOperationException("create TODO");
+            case DATE_CONTROL -> createDateEditorComponent(item, componentSettings);
+            case TIME_CONTROL -> createTimeEditorComponent(item, componentSettings);
+            case RGB_CONTROL -> createRgbColorControl(item, componentSettings);
+            case LIST_CONTROL -> createListEditor(item, componentSettings);
+            case AUTH_IOT_CONTROL -> createIoTMonitor(item, componentSettings);
+            case CANT_RENDER -> null;
+        });
     }
 }

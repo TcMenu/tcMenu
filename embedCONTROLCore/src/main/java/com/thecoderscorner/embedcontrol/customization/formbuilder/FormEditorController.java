@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.customization.*;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -49,10 +50,13 @@ public class FormEditorController {
     private TcMenuFormSaveConsumer saveConsumer;
     private MenuItem startingPoint = MenuTree.ROOT;
     private Optional<Boolean> maybeRecursiveChange = Optional.empty();
+    private JfxMenuEditorFactory editorFactory;
 
     public void initialise(GlobalSettings settings, MenuTree tree, UUID boardUuid, JfxNavigationManager navMgr,
-                           MenuItemStore itemStore, TcMenuFormSaveConsumer saveConsumer) {
+                           MenuItemStore itemStore, TcMenuFormSaveConsumer saveConsumer,
+                           JfxMenuEditorFactory editorFactory) {
         this.settings = settings;
+        this.editorFactory = editorFactory;
         this.itemStore = itemStore;
         this.navMgr = navMgr;
         this.tree = tree;
@@ -97,7 +101,7 @@ public class FormEditorController {
         for(int row = 0; row < editGrid.getRowConstraints().size(); row++) {
             for(int col = 0; col < itemStore.getGridSize(); col++) {
                 var formComp = new FormMenuComponent(itemStore.getFormItemAt(row, col), settings,
-                        new ComponentPositioning(row, col), navMgr, itemStore);
+                        new ComponentPositioning(row, col), navMgr, editorFactory,itemStore);
                 editGrid.add(formComp, col, row);
             }
         }
@@ -136,7 +140,7 @@ public class FormEditorController {
         for(int col = 0; col < editGrid.getColumnCount(); col++) {
             int row = editGrid.getRowConstraints().size() - 1;
             var formComp = new FormMenuComponent(itemStore.getFormItemAt(row, col), settings,
-                    new ComponentPositioning(row, col), navMgr, itemStore);
+                    new ComponentPositioning(row, col), navMgr, editorFactory, itemStore);
             editGrid.add(formComp, col, row);
         }
     }

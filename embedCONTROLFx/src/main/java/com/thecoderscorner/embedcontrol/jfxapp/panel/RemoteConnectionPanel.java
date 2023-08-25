@@ -171,7 +171,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     private void onEditExisting() {
         if(formEditorPanel == null) {
-            formEditorPanel = new FormBuilderPresentable(settings, UUID.fromString(persistedConnection.getUuid()), control.getMenuTree(), navigationManager, itemStore, this::formSaveConsumer);
+            formEditorPanel = new FormBuilderPresentable(settings, UUID.fromString(persistedConnection.getUuid()),
+                    control.getMenuTree(), navigationManager, itemStore, this::formSaveConsumer, editorFactory);
         }
         navigationManager.pushNavigationIfNotOnStack(formEditorPanel);
     }

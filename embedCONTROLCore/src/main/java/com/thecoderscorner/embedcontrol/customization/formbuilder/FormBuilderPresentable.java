@@ -3,6 +3,7 @@ package com.thecoderscorner.embedcontrol.customization.formbuilder;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.fxml.FXMLLoader;
@@ -18,11 +19,15 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
     private FormEditorController formEditorController;
     private final GlobalSettings settings;
     private final MenuItemStore store;
+    private final JfxMenuEditorFactory editorFactory;
     private Node loadedPane;
     private TcMenuFormSaveConsumer saveConsumer;
 
-    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr, MenuItemStore store, TcMenuFormSaveConsumer saveConsumer) {
+    public FormBuilderPresentable(GlobalSettings settings, UUID uuid, MenuTree tree, JfxNavigationManager navMgr,
+                                  MenuItemStore store, TcMenuFormSaveConsumer saveConsumer,
+                                  JfxMenuEditorFactory editorFactory) {
         this.settings = settings;
+        this.editorFactory = editorFactory;
         this.tree = tree;
         this.navMgr = navMgr;
         this.appUuid = uuid;
@@ -36,16 +41,16 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
         if (loadedPane == null) {
             loadedPane = loader.load();
             formEditorController = loader.getController();
-            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer);
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer, editorFactory);
         } else {
-            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer);
+            formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer, editorFactory);
         }
         return loadedPane;
     }
 
     @Override
     public String getPanelName() {
-        return "Form Editor for " + tree.getMenuById(store.getRootItemId()).orElseThrow();
+        return "*BETA* Form Editor: " + tree.getMenuById(store.getRootItemId()).orElseThrow();
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.thecoderscorner.embedcontrol.core.util.TableMapping;
 
 @TableMapping(tableName = "TC_FORM", uniqueKeyField = "FORM_ID")
 public class TcMenuFormPersistence {
-    @FieldMapping(fieldName = "FORM_ID", fieldType = FieldType.INTEGER)
+    @FieldMapping(fieldName = "FORM_ID", fieldType = FieldType.INTEGER, primaryKey = true)
     private int formId;
     @FieldMapping(fieldName = "FORM_UUID", fieldType = FieldType.VARCHAR)
     private String uuid;
@@ -16,7 +16,6 @@ public class TcMenuFormPersistence {
     private String xmlData;
 
     public TcMenuFormPersistence() {
-
     }
 
     public TcMenuFormPersistence(int formId, String uuid, String name, String txt) {
@@ -30,6 +29,10 @@ public class TcMenuFormPersistence {
         var formData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
                 "<EmbedControl boardUuid=\""+ uuid + "\" layoutName=\"Untitled\"><MenuLayouts/><ColorSets/></EmbedControl>";
         return new TcMenuFormPersistence(-1, uuid, "Untitled", formData);
+    }
+
+    public TcMenuFormPersistence withNewNameAndXml(String formName, String xml) {
+        return new TcMenuFormPersistence(formId, uuid, formName, xml);
     }
 
     public int getFormId() {

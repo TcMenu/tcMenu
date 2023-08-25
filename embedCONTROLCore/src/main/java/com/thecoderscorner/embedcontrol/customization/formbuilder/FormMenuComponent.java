@@ -1,9 +1,13 @@
 package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuGridComponent;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.*;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -27,10 +31,12 @@ public class FormMenuComponent extends BorderPane {
     private final ComponentPositioning myPosition;
     private final Label editBottomLabel;
     private MenuFormItem formItem;
+    private JfxMenuEditorFactory controlFactory;
 
     public FormMenuComponent(MenuFormItem item, GlobalSettings settings, ComponentPositioning positioning,
-                             JfxNavigationManager navMgr, MenuItemStore store) {
+                             JfxNavigationManager navMgr, JfxMenuEditorFactory controlFactory, MenuItemStore store) {
         this.navMgr = navMgr;
+        this.controlFactory = controlFactory;
         this.myPosition = positioning;
         this.settings = settings;
         this.store = store;
@@ -50,6 +56,10 @@ public class FormMenuComponent extends BorderPane {
         setPadding(new Insets(2));
 
         evaluateFormItem();
+
+        // do not allow drag and drop other than for NoFormItem cases.
+        if(!(formItem instanceof MenuFormItem.NoFormItem)) return;
+
         setOnDragDropped(event -> {
             var dragged = FormEditorController.GridPositionCell.getCurrentDragItem();
             if(dragged != null) {
@@ -112,11 +122,19 @@ public class FormMenuComponent extends BorderPane {
             spinner.valueProperty().addListener((observable, oldValue, newValue) -> sfi.setVerticalSpace(newValue));
             setCenter(spinner);
         } else if(formItem instanceof MenuItemFormItem mfi) {
-            setCenter(new Label("Fmt: " + mfi.getControlType() + " - " + mfi.getAlignment() + " - " + mfi.getRedrawingMode()));
+            var settings = new ComponentSettings(
+                    new MenuGridComponent.ScreenLayoutBasedConditionalColor(store, myPosition),
+                    mfi.getFontInfo(), mfi.getAlignment(), mfi.getPositioning(), mfi.getRedrawingMode(),
+                    mfi.getControlType(), true);
+            controlFactory.getComponentEditorItem(mfi.getItem(), settings, this::emptyConsumer)
+                    .ifPresentOrElse(control -> setCenter(control.createComponent()), ()->setCenter(new Label("Empty")));
         } else {
             setCenter(new Label(""));
         }
 
+    }
+
+    private void emptyConsumer(MenuItem menuItem) {
     }
 
     public ColorCustomizable getColorCustomizable() {
