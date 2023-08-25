@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "embedCONTROL"
-#define MyAppVersion "3.1.0"
+#define MyAppVersion "4.1.1"
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "embedCONTROL.exe"
-#define MyEmbedControlDir "C:\Users\dave\IdeaProjects\tcMenu\embedCONTROLFx\target"
+#define MyEmbedControlDir "C:\Users\dave\source\tcMenu\embedCONTROLFx\target"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
