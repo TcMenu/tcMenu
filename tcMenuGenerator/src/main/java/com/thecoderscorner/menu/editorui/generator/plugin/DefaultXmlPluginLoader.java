@@ -65,6 +65,9 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     @Override
     public void reload() {
+        // before doing anything make sure the plugins are in a valid state
+        ensurePluginsAreValid();
+
         synchronized (allPlugins) {
             allPlugins.clear();
         }
