@@ -6,7 +6,7 @@
 #define MyAppPublisher "The coders corner"
 #define MyAppURL "https://www.thecoderscorner.com"
 #define MyAppExeName "tcMenuDesigner.exe"
-#define MyTcMenuDesignerDir "C:\Users\dave\IdeaProjects\tcMenu\tcMenuGenerator\target"
+#define MyTcMenuDesignerDir "C:\Users\dave\source\tcMenu\tcMenuGenerator\target"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.

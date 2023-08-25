@@ -98,7 +98,6 @@ public class MenuEditorApp extends Application {
 
         var libraryVersionDetector = appContext.getLibraryVersionDetector();
         var pluginLoader = appContext.getPluginLoader();
-        pluginLoader.ensurePluginsAreValid();
         pluginLoader.loadPlugins();
 
         var editorUI = appContext.getEditorUI();

@@ -545,7 +545,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     public void ensurePluginsAreValid() {
-        Path pluginDir = homeDir.resolve(".tcmenu").resolve("plugins");
+        Path pluginDir = homeDir.resolve("plugins");
         var current = new VersionInfo(configStorage.getVersion());
         try {
             var noPluginDir = !isDirectoryPresentAndPopulated(pluginDir);
