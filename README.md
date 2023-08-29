@@ -14,6 +14,8 @@ In any fork, please ensure all text up to here is left unaltered.
 
 [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
 
+[YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
+
 ## Questions, community forum and support
 
 You can ask questions either in the discussions section of this repo, or using the Arduino forum. We generally answer most questions, but the rules of engagement are: **this is my hobby, I make it available because it helps others**. Don't expect immediate answers, make sure you've recreated the problem in a simple sketch that you can send to me. Please consider making at least a one time donation using the sponsor link if we do help you out.
