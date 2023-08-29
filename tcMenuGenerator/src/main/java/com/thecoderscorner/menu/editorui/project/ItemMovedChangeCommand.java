@@ -26,6 +26,10 @@ public class ItemMovedChangeCommand extends MenuItemChange {
             originalLocation = menuItems.get(1);
             originalInsertIdx = 0;
             originalWhere = MenuInsertionPoint.BEFORE;
+        } else if(menuItems.size() < 2) {
+            originalLocation = parent;
+            originalInsertIdx = 0;
+            originalWhere = MenuInsertionPoint.AFTER;
         } else {
             originalInsertIdx = idx - 1;
             originalLocation = menuItems.get(Math.min(originalInsertIdx, menuItems.size() -1));
