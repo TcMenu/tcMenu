@@ -59,7 +59,6 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final ConfigurationStorage configStore;
     private ResourceBundle designerBundle;
     private CurrentEditorProject editorProject;
-    private CodeGeneratorSupplier codeSupplier;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
@@ -181,7 +180,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void showCreateProjectDialog() {
         logger.log(INFO, "Create project dialog show");
-        new NewProjectDialog(mainStage, configStore, platforms, editorProject, codeSupplier, editorProject.getProjectPersistor(), true);
+        new NewProjectDialog(mainStage, configStore, platforms, editorProject, codeGeneratorSupplier, editorProject.getProjectPersistor(), true);
     }
 
     @Override

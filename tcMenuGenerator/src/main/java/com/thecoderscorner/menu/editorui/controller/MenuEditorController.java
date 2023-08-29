@@ -760,7 +760,7 @@ public class MenuEditorController {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            MenuItemWithDescription that = (MenuItemWithDescription) o;
+            var that = (MenuItemWithDescription) o;
             return Objects.equals(item, that.item);
         }
 

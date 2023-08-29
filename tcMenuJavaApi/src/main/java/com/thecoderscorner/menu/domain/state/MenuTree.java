@@ -189,7 +189,7 @@ public class MenuTree {
             // now locate where we are to add it
             SubMenuItem newSub;
             int idxToAdd = -1; // end
-            if(newLocation instanceof SubMenuItem) {
+            if(newLocation instanceof SubMenuItem && !before) {
                 newSub = (SubMenuItem) newLocation;
             } else {
                 newSub = findParent(newLocation);

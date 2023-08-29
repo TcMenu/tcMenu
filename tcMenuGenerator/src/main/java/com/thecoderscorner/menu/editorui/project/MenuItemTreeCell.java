@@ -36,11 +36,7 @@ public class MenuItemTreeCell extends TreeCell<MenuItemWithDescription> {
                 double y = event.getSceneY() - (sceneCoordinates.getY());
 
                 // dropping into a submenu is always in after mode, otherwise we determine top or bottom.
-                if(getItem().item() instanceof SubMenuItem) {
-                    menuInsertionPoint = MenuInsertionPoint.AFTER;
-                } else {
-                    menuInsertionPoint = (y > (height / 2)) ? MenuInsertionPoint.AFTER : MenuInsertionPoint.BEFORE;
-                }
+                menuInsertionPoint = (y > (height / 2)) ? MenuInsertionPoint.AFTER : MenuInsertionPoint.BEFORE;
 
                 event.acceptTransferModes(TransferMode.MOVE);
                 InnerShadow shadow = new InnerShadow();

@@ -54,6 +54,7 @@ public class NewProjectController {
         this.codeGeneratorSupplier = codeGeneratorSupplier;
         maybeDirectory = storage.getArduinoOverrideDirectory();
         this.project = project;
+        this.projectPersistor = projectPersistor;
         maybeDirectory.ifPresentOrElse(
                 dir -> locationTextField.setText(dir),
                 () -> locationTextField.setText("No directory")
