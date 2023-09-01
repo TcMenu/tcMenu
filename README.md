@@ -142,7 +142,7 @@ TcMenu was built from day one for remote control and there are a few different o
 
 ### Java embedCONTROL UI
 
-This desktop UI can be easily built from the source here using the instructions provided, it is also packaged for desktop those who want to use it as it exists out of the box. This offering builds on top of JavaFX, it has an automated UI by default and for a simple UI may need no coding. 
+This desktop UI can be easily built from the source here using the instructions provided, it is also packaged for desktop those who want to use it as it exists out of the box. This offering builds on top of JavaFX, it has an automated UI that builds automatically for any menu app with form support for more advanced cases.
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
@@ -166,6 +166,10 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
 The C# API is relatively complete and can do most of what the Java API can do, it is well tested and stable.
 
 Repo: https://github.com/davetcc/tcMenuController
+
+### Python API
+
+There is now a Python API thanks to @vzahradnik - https://github.com/davetcc/tcmenu-python
 
 ### JavaScript and TypeScript
 
