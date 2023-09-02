@@ -412,7 +412,7 @@ public class TagValMenuCommandProtocolTest {
     public void testWritingJoin() throws TcProtocolException {
         var uuid = UUID.fromString("07cd8bc6-734d-43da-84e7-6084990becfc");
         protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101, 999999999));
-        testBufferAgainstExpected(JOIN, "NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|\u0002");
+        testBufferAgainstExpected(JOIN, "NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|US=999999999|\u0002");
     }
 
     @Test

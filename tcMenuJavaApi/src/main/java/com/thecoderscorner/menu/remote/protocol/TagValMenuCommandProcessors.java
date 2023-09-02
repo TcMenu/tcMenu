@@ -575,6 +575,7 @@ public class TagValMenuCommandProcessors {
         appendField(sb, KEY_UUID_FIELD, cmd.getAppUuid());
         appendField(sb, KEY_VER_FIELD, cmd.getApiVersion());
         appendField(sb, KEY_PLATFORM_ID, cmd.getPlatform().getKey());
+        appendField(sb, KEY_SERIAL_NO, cmd.getSerialNumber());
     }
 
     public static void appendField(StringBuilder sb, String key, Object value) {
