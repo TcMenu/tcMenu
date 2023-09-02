@@ -708,6 +708,9 @@ public class MenuEditorController {
 
     public void onConfigureLocales(ActionEvent actionEvent) {
         editorUI.showLocaleConfiguration(editorProject);
+        if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
+            redrawTreeControl();
+        }
     }
 
     public void OnShowPreviewWindow(ActionEvent actionEvent) {

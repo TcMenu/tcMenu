@@ -16,6 +16,7 @@ import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -147,10 +148,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         //var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
         //item.setOnAction(event -> localHasChanged(Locale.of("--")));
-        notLocalizedButton = new ToggleButton(bundle.getString("locale.dialog.not.localized"));
+        notLocalizedButton = new ToggleButton();
+        notLocalizedButton.setOnAction(event -> notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected())));
         notLocalizedButton.setSelected(!menuItem.getName().startsWith("%") || menuItem.getName().startsWith("%%"));
         notLocalizedButton.setDisable(!localHandler.isLocalSupportEnabled());
         notLocalizedButton.setMaxWidth(9999);
+        notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected()));
         grid.add(notLocalizedButton, 2, idx++);
 
         nameField.textProperty().addListener((observableValue, s, t1) -> {
@@ -270,6 +273,18 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return grid;
     }
 
+    private String calculateNotLocalizedButtonText(boolean selected) {
+         if(!selected) {
+             String currLocale = localHandler.getCurrentLocale().toString();
+             if(StringHelper.isStringEmptyOrNull(currLocale)) {
+                 currLocale = "Def";
+             }
+             return bundle.getString("locale.dialog.localized.to") + ": " + currLocale;
+         } else {
+             return bundle.getString("locale.dialog.not.localized");
+         }
+    }
+
     public void localeDidChange() {
         notLocalizedButton.setDisable(localHandler.isLocalSupportEnabled());
     }
@@ -302,6 +317,14 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected void getChangedDefaults(MenuItemBuilder<?,?> builder, List<FieldError> errorsBuilder) {
+        if(!nameField.getText().equals(menuItem.getName()) && localHandler.isLocalSupportEnabled() &&
+                !StringHelper.isStringEmptyOrNull(localHandler.getCurrentLocale().toString()) && notLocalizedButton.isSelected()) {
+            // we are editing the name field with a locale other than default when locale support enabled,
+            // in this case we turn locale support on for this item automatically as its most likely wanted
+            notLocalizedButton.setSelected(false);
+            notLocalizedButton.setText(calculateNotLocalizedButtonText(false));
+        }
+
         int eeprom = -1;
         if (eepromField != null) {
             eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
