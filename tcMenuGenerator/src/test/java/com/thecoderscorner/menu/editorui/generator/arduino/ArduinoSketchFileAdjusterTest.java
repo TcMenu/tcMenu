@@ -117,7 +117,7 @@ public class ArduinoSketchFileAdjusterTest {
                 "taskManager.runLoop();",
                 "}");
 
-        ensureLinesContaining(lines, "char* helloWorldScrollVar = \"1\\0        2\\0        3\\0        4\\0        5\\0        6\\0        7\\0        8\\0        9\\0        10\\0       ~\";");
+        ensureLinesContaining(lines, "char helloWorldScrollVar[] = \"1\\0        2\\0        3\\0        4\\0        5\\0        6\\0        7\\0        8\\0        9\\0        10\\0       ~\";");
 
         // we should have both callbacks created.
         ensureLinesContaining(lines,

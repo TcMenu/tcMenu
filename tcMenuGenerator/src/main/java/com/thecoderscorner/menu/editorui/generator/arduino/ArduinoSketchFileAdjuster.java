@@ -182,7 +182,7 @@ public class ArduinoSketchFileAdjuster implements SketchFileAdjuster {
                 sb.append('~');
 
                 lines.add(l++, "// This variable is the RAM data for scroll choice item " + sc.getName());
-                lines.add(l++, "char* " + sc.getVariable() + " = \"" + sb + "\";");
+                lines.add(l++, "char " + sc.getVariable() + "[] = \"" + sb + "\";");
                 lines.add(l, CoreCodeGenerator.LINE_BREAK);
                 changed = true;
             }
