@@ -239,6 +239,15 @@
                                     <directory>${project.basedir}/src/main/deploy</directory>
                                     <filtering>false</filtering>
                                 </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../xmlPlugins</directory>
+                                    <includes>
+                                        <include>core-display/**</include>
+                                        <include>core-remote/**</include>
+                                        <include>core-themes/**</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>

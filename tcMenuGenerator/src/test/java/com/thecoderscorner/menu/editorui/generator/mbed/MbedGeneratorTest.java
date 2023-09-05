@@ -72,8 +72,7 @@ public class MbedGeneratorTest {
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
         var storage = Mockito.mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.1.0");
-        var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
-        var loader = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
     }
 

@@ -48,14 +48,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final ConfigurationStorage configStorage;
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
     private final boolean includeDefaultDir;
-    private final Path homeDir;
     private ResourceBundle resourceBundle;
 
-    public DefaultXmlPluginLoader(Path homeDir, EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
+    public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
         this.configStorage = storage;
         this.includeDefaultDir = includeDefaultDir;
-        this.homeDir = homeDir;
     }
 
     @Override
@@ -65,9 +63,6 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     @Override
     public void reload() {
-        // before doing anything make sure the plugins are in a valid state
-        ensurePluginsAreValid();
-
         synchronized (allPlugins) {
             allPlugins.clear();
         }
@@ -77,8 +72,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             var allPluginsPathsToLoad = new ArrayList<Path>();
 
             if(includeDefaultDir) {
-                var defPluginPath = homeDir.resolve("plugins");
-                allPluginsPathsToLoad.add(defPluginPath);
+                allPluginsPathsToLoad.add(findPluginDir());
             }
 
             var storageAllPluginPaths = configStorage.getAdditionalPluginPaths();
@@ -103,7 +97,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                             loadErrors.add(dir + " did not contain valid plugin");
                         }
                     } else {
-                        loadErrors.add(dir + " was not a plugin, no tcmenu-plugin.xml");
+                        logger.log(WARNING, "Non plugin directory was skipped (no tcmenu-plugin.xml) " + dir);
                     }
                 }
             }
@@ -111,6 +105,16 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         } catch (Exception ex) {
             logger.log(ERROR, "Plugins not loaded!", ex);
             loadErrors.add("Exception processing plugins, see log");
+        }
+    }
+
+    private Path findPluginDir() {
+        if("Y".equals(System.getProperty("devlog"))) {
+            // Developer mode assume home directory is the tcMenuGenerator directory.
+            return Path.of(System.getProperty("user.dir")).getParent().resolve("xmlPlugins");
+        } else {
+            // packaged mode, plugins are stored within the application itself, in the ../app directory.
+            return Path.of(System.getProperty("java.home")).getParent().resolve("app");
         }
     }
 
@@ -542,27 +546,5 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                     .findFirst().isPresent();
         }
         return false;
-    }
-
-    public void ensurePluginsAreValid() {
-        Path pluginDir = homeDir.resolve("plugins");
-        var current = new VersionInfo(configStorage.getVersion());
-        try {
-            var noPluginDir = !isDirectoryPresentAndPopulated(pluginDir);
-            if(!configStorage.getLastRunVersion().equals(current) || noPluginDir) {
-                if (noPluginDir) Files.createDirectories(pluginDir);
-
-                if (Files.find(pluginDir, 2, (path, basicFileAttributes) -> path.endsWith(".git") || path.endsWith(".development")).findFirst().isPresent()) {
-                    System.getLogger("Main").log(WARNING, "Not upgrading core plugins, this is a development system");
-                    return;
-                }
-
-                try (var resourceAsStream = MenuEditorApp.class.getResourceAsStream("/plugins/InitialPlugins.zip")) {
-                    OnlineLibraryVersionDetector.extractFilesFromZip(pluginDir, resourceAsStream);
-                }
-            }
-        } catch(Exception ex) {
-            System.getLogger("Main").log(ERROR, "failed to prepare directory structure", ex);
-        }
     }
 }

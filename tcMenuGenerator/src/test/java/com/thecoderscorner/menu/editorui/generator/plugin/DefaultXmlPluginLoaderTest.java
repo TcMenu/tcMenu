@@ -44,7 +44,7 @@ public class DefaultXmlPluginLoaderTest {
         storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.6.0");
         var homeDir = Paths.get(System.getProperty("user.home")).resolve(".tcmenu");
-        loader = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
+        loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

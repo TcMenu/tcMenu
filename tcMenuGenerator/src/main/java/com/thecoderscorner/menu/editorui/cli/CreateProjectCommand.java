@@ -83,7 +83,6 @@ public class CreateProjectCommand implements Callable<Integer> {
 
         var appContext = new MenuEditorConfig();
         DefaultXmlPluginLoader loader = appContext.getPluginLoader();
-        loader.ensurePluginsAreValid();
         loader.loadPlugins();
         var platforms = appContext.getPlatforms();
 

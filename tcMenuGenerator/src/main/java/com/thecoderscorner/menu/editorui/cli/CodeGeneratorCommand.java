@@ -63,7 +63,6 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             configStore.setLastRunVersion(new VersionInfo(configStore.getVersion()));
 
             DefaultXmlPluginLoader loader = appContext.getPluginLoader();
-            loader.ensurePluginsAreValid();
             loader.loadPlugins();
             var embeddedPlatform = project.getOptions().getEmbeddedPlatform();
             var generatorSupplier = appContext.getCodeGeneratorSupplier();

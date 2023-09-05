@@ -3,6 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorui.MenuEditorApp" />
     <module name="menuEditorUI" />
     <option name="VM_PARAMETERS" value="-Ddevlog=Y -DalwaysShowSplash=Y" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tcMenuGenerator/" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

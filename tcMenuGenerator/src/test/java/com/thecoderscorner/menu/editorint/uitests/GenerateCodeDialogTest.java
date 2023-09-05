@@ -79,8 +79,7 @@ public class GenerateCodeDialogTest {
         var storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("2.2.0");
         when(storage.getAdditionalPluginPaths()).thenReturn(Collections.singletonList(pluginTemp.toString()));
-        var homeDir = Paths.get(System.getProperty("user.home"), ".tcmenu");
-        pluginManager = new DefaultXmlPluginLoader(homeDir, embeddedPlatforms, storage, false);
+        pluginManager = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginManager.reload();
 
         displayPlugin = pluginManager.getPluginById(UNITTEST_DEFAULT_DISPLAY_UUID).orElseThrow();

@@ -303,7 +303,6 @@ public class AppInformationPanel {
                     alert.setHeaderText(bundle.getString("app.info.plugin.updater.fail.header"));
                     alert.setContentText(bundle.getString("app.info.plugin.updater.fail.message"));
                     alert.showAndWait();
-                    MenuEditorApp.getInstance().createOrUpdateDirectoriesAsNeeded();
                     controller.presentInfoPanel();
                 });
                 vbox.getChildren().add(pluginLabel);

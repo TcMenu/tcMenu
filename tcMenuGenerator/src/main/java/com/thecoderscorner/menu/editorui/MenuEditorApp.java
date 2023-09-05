@@ -143,10 +143,6 @@ public class MenuEditorApp extends Application {
         return designerBundle;
     }
 
-    public void createOrUpdateDirectoriesAsNeeded() {
-        appContext.getPluginLoader().ensurePluginsAreValid();
-    }
-
     private void startUpLogging() {
         var tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
         var logName = System.getProperty("devlog") != null ? "dev-logging" : "logging";

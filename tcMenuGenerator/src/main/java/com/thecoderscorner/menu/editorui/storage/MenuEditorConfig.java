@@ -47,7 +47,7 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         }
         libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, configStore);
         platforms = new PluginEmbeddedPlatformsImpl();
-        pluginLoader = new DefaultXmlPluginLoader(tcMenuHome, platforms, configStore, true);
+        pluginLoader = new DefaultXmlPluginLoader(platforms, configStore, true);
         installer = new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configStore);
         codeGenSupplier = new CodeGeneratorSupplier(configStore, installer);
         persistor = new FileBasedProjectPersistor(platforms);
