@@ -6,16 +6,24 @@
 
 package com.thecoderscorner.menu.editorui;
 
+import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
+import com.thecoderscorner.menu.editorui.embed.EditConnectionDialog;
+import com.thecoderscorner.menu.editorui.embed.RemoteConnectionPanel;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
+import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -30,9 +38,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.List;
+import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -43,7 +50,6 @@ import static java.lang.System.Logger.Level.ERROR;
  */
 public class MenuEditorApp extends Application {
     private static MenuEditorApp INSTANCE = null;
-    private volatile MenuEditorController controller;
     private static ResourceBundle designerBundle;
     public static final Locale EMPTY_LOCALE = Locale.of("");
 
@@ -52,6 +58,9 @@ public class MenuEditorApp extends Application {
     }
 
     private MenuEditorConfig appContext;
+    private List<MenuEditorController> activeMainWindows = new ArrayList<>();
+    private List<RemoteConnectionPanel> remoteConnectionWindows = new ArrayList<>();
+
     private static JdbcTcMenuConfigurationStore CONFIG_STORE;
 
     @Override
@@ -77,7 +86,7 @@ public class MenuEditorApp extends Application {
             final String os = System.getProperty("os.name");
             if (os != null && os.startsWith("Mac")) {
                 Desktop desktop = Desktop.getDesktop();
-                desktop.setAboutHandler(e -> Platform.runLater(() -> controller.aboutMenuPressed(new ActionEvent())));
+                desktop.setAboutHandler(e -> Platform.runLater(() -> lastActiveController().aboutMenuPressed(new ActionEvent())));
                 desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
             }
         });
@@ -89,24 +98,33 @@ public class MenuEditorApp extends Application {
             configureBundle(CONFIG_STORE.getChosenLocale());
         }
 
+        var pluginLoader = appContext.getPluginLoader();
+        pluginLoader.loadPlugins();
+
+        createPrimaryWindow(primaryStage);
+    }
+
+    public MenuEditorController createPrimaryWindow(Stage primaryStage) throws IOException {
+        boolean initialWindow = true;
+        if(primaryStage == null) {
+            primaryStage = new Stage();
+            initialWindow = false;
+        }
         // load the main form
         primaryStage.setTitle(designerBundle.getString("main.editor.title"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         loader.setResources(designerBundle);
         Pane myPane = loader.load();
-        controller = loader.getController();
+        MenuEditorController controller = loader.getController();
 
-        var libraryVersionDetector = appContext.getLibraryVersionDetector();
-        var pluginLoader = appContext.getPluginLoader();
-        pluginLoader.loadPlugins();
-
-        var editorUI = appContext.getEditorUI();
+        var editorProject = appContext.newProject();
+        var editorUI = editorProject.getEditorUI();
         editorUI.setStage(primaryStage, designerBundle);
-        CurrentEditorProject project = appContext.getEditorProject();
-        editorUI.setEditorProject(project);
+        editorUI.setEditorProject(editorProject);
 
-        controller.initialise(project, appContext.getInstaller(),
-                editorUI, appContext.getPluginLoader(), CONFIG_STORE, libraryVersionDetector);
+        controller.initialise(editorProject, appContext.getInstaller(),
+                editorUI, appContext.getPluginLoader(), CONFIG_STORE,
+                appContext.getLibraryVersionDetector(), initialWindow);
 
         Scene myScene = new Scene(myPane);
         BaseDialogSupport.getJMetro().setScene(myScene);
@@ -115,10 +133,15 @@ public class MenuEditorApp extends Application {
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon-sm.png"))));
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/menu-icon.png"))));
 
+        activeMainWindows.add(controller);
+
+        if(initialWindow) {
+            showSplashIfNeeded(editorUI);
+        }
+
         primaryStage.setOnCloseRequest((evt)-> {
             try {
-                controller.persistPreferences();
-                if(project.isDirty()) {
+                if(editorProject.isDirty()) {
                     evt.consume();
                     Alert alert = new Alert(AlertType.CONFIRMATION, "There are unsaved changes, save first?",
                             ButtonType.YES, ButtonType.NO);
@@ -127,16 +150,41 @@ public class MenuEditorApp extends Application {
                     alert.setTitle("Are you sure");
                     alert.setHeaderText("");
                     if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-                        project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+                        editorProject.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
                     }
                 }
+                activeMainWindows.remove(controller);
             }
             catch(Exception ex) {
                 // ignored, we are trying to shutdown so just proceeed anyway.
             }
-            Platform.exit();
-            System.exit(0);
+
+            if(activeMainWindows.isEmpty()) {
+                Platform.exit();
+                System.exit(0);
+            }
         });
+        return controller;
+    }
+
+    private void showSplashIfNeeded(CurrentProjectEditorUI editorUI) {
+        var configStore = appContext.getConfigStore();
+        var current = new VersionInfo(configStore.getVersion());
+        if(!configStore.getLastRunVersion().equals(current) || System.getProperty("alwaysShowSplash", "N").equals("Y")) {
+            Platform.runLater(()-> {
+                configStore.setLastRunVersion(current);
+                editorUI.showSplashScreen(themeName -> {
+                    for(var controller : activeMainWindows) {
+                        controller.themeDidChange(themeName);
+                    }
+                });
+            });
+        }
+
+    }
+
+    private MenuEditorController lastActiveController() {
+        return activeMainWindows.stream().findFirst().orElseThrow();
     }
 
     public static ResourceBundle getBundle() {
@@ -179,6 +227,57 @@ public class MenuEditorApp extends Application {
 
     public static String getCurrentTheme() {
         return CONFIG_STORE != null ? CONFIG_STORE.getCurrentTheme() : "darkMode";
+    }
+
+    public List<MenuEditorController> getAllMenuEditors() {
+        return activeMainWindows;
+    }
+
+    public void embedControlRefresh() {
+        for(var controller : getAllMenuEditors()) {
+            controller.refreshEmbedControlMenu();
+        }
+    }
+
+    public List<RemoteConnectionPanel> getAllActiveConnections() {
+        return remoteConnectionWindows;
+    }
+
+    public List<TcMenuPersistedConnection> getAvailableConnections() {
+        return appContext.getEcDataStore().getAllConnections();
+    }
+
+    public void createEmbedControlPanel(TcMenuPersistedConnection con) {
+        var panel = new RemoteConnectionPanel(appContext.getRemoteContext(), MenuTree.ROOT,
+                appContext.getExecutorService(), con);
+        MenuEditorApp.getInstance().embedControlRefresh();
+        Stage stage = new Stage();
+        stage.setWidth(800);
+        stage.setHeight(600);
+        stage.setTitle("EmbedControl " + con.getName() + " [" + con.getUuid() + "]");
+        Scene myScene = new Scene((Parent) panel.getPanelToPresent(stage.getWidth()));
+        stage.setScene(myScene);
+        stage.show();
+
+        stage.setOnCloseRequest(event -> {
+            panel.closePanel();
+            remoteConnectionWindows.remove(panel);
+            embedControlRefresh();
+        });
+        remoteConnectionWindows.add(panel);
+    }
+
+    public void handleCreatingConnection(Stage stage) {
+        var dlg = new EditConnectionDialog(stage, MenuEditorApp.getInstance().getAppContext().getRemoteContext(), true);
+        dlg.checkResult().ifPresent(tcMenuPersistedConnection -> {
+            try {
+                appContext.getEcDataStore().updateConnection(tcMenuPersistedConnection);
+                embedControlRefresh();
+            } catch (DataException e) {
+                System.getLogger("main").log(ERROR, "Exception creating connection", e);
+            }
+        });
+
     }
 
     /**

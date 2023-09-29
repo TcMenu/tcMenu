@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
@@ -9,7 +9,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;

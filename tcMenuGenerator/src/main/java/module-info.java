@@ -23,6 +23,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.util;
     exports com.thecoderscorner.menu.editorui.uimodel;
     exports com.thecoderscorner.menu.editorui.generator;
+    exports com.thecoderscorner.menu.editorui.embed;
     exports com.thecoderscorner.menu.editorui.generator.ui;
     exports com.thecoderscorner.menu.editorui.generator.font;
     exports com.thecoderscorner.menu.editorui.generator.core;

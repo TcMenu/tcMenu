@@ -148,7 +148,7 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
 
         private TextAlignment toTextAlign(EditorComponent.PortableAlignment justification) {
             return switch (justification) {
-                case LEFT -> TextAlignment.LEFT;
+                case LEFT, LEFT_VAL_RIGHT -> TextAlignment.LEFT;
                 case RIGHT -> TextAlignment.RIGHT;
                 case CENTER -> TextAlignment.CENTER;
             };

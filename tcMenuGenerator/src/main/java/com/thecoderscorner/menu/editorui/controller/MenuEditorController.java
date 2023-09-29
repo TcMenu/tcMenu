@@ -23,11 +23,10 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject.EditorSaveMode;
 import com.thecoderscorner.menu.editorui.simui.SimulatorUI;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
-import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -66,6 +65,9 @@ public class MenuEditorController {
     public CheckMenuItem darkModeMenuFlag;
     public Label currentEditLabel;
     public MenuButton localeMenuButton;
+    public Menu embedConnections;
+    public Menu menuWindow;
+    public Menu menuEmbedWindow;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -94,8 +96,7 @@ public class MenuEditorController {
     private ArduinoLibraryInstaller installer;
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
-    private ConfigurationStorage configStore;
-    private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
+    private JdbcTcMenuConfigurationStore configStore;
     private LibraryVersionDetector libVerDetector;
     private int menuToProjectMaxLevels = 1;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -104,8 +105,8 @@ public class MenuEditorController {
 
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
-                           ConfigurationStorage storage,
-                           LibraryVersionDetector libraryVersionDetector) {
+                           JdbcTcMenuConfigurationStore storage,
+                           LibraryVersionDetector libraryVersionDetector, boolean initialWindow) {
         this.editorProject = editorProject;
         this.installer = installer;
         this.editorUI = editorUI;
@@ -148,7 +149,9 @@ public class MenuEditorController {
 
         menuToProjectMaxLevels = storage.getMenuProjectMaxLevel();
 
-        attemptToLoadLastProject();
+        if(initialWindow) {
+            attemptToLoadLastProject();
+        }
 
         executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
     }
@@ -265,7 +268,8 @@ public class MenuEditorController {
 
     public void presentInfoPanel() {
         currentEditLabel.setText(bundle.getString("main.editor.edit.settings"));
-        AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI, libVerDetector, configStore);
+        AppInformationPanel panel = new AppInformationPanel(installer, this, pluginManager, editorUI,
+                libVerDetector, configStore);
         editorBorderPane.setCenter(panel.showEmptyInfoPanel());
         currentEditor = Optional.empty();
         appInfoPanel = Optional.of(panel);
@@ -460,7 +464,15 @@ public class MenuEditorController {
     }
 
     public void onFileNew(ActionEvent event) {
-        stopSimulatorIfNeeded();
+        try {
+            var controller = MenuEditorApp.getInstance().createPrimaryWindow(null);
+            controller.createNew();
+        } catch (IOException e) {
+            logger.log(ERROR, "Did not create panel");
+        }
+    }
+
+    private void createNew() {
         editorUI.showCreateProjectDialog();
         redrawTreeControl();
         handleRecents();
@@ -530,30 +542,10 @@ public class MenuEditorController {
     }
 
     public void loadPreferences() {
-        recentItems.clear();
-        List<String> recentPaths = configStore.loadRecents();
-
-        var recentList = recentPaths.stream()
-                .map(recentPath -> new RecentlyUsedItem(Paths.get(recentPath).getFileName().toString(), recentPath)).toList();
-
-        recentItems.addAll(recentList);
-
-        Platform.runLater(this::handleRecents);
-
-        var current = new VersionInfo(configStore.getVersion());
-        if(!configStore.getLastRunVersion().equals(current) || System.getProperty("alwaysShowSplash", "N").equals("Y")) {
-            Platform.runLater(()-> {
-                configStore.setLastRunVersion(current);
-                editorUI.showSplashScreen(themeName -> {
-                    darkModeMenuFlag.setSelected(themeName.equals("darkMode"));
-                    BaseDialogSupport.getJMetro().setScene(menuTree.getScene());
-                });
-                var item = menuTree.getSelectionModel().getSelectedItem();
-                if(item != null) {
-                    onTreeChangeSelection(item.getValue().item());
-                }
-            });
-        }
+        Platform.runLater(()-> {
+            handleRecents();
+            refreshEmbedControlMenu();
+        });
     }
 
     public void onUndo(ActionEvent event) {
@@ -564,11 +556,6 @@ public class MenuEditorController {
     public void onRedo(ActionEvent event) {
         editorProject.redoChange();
         redrawTreeControl();
-    }
-
-    public void persistPreferences() {
-        var recentFiles = recentItems.stream().map(RecentlyUsedItem::path).collect(Collectors.toList());
-        configStore.saveUniqueRecents(recentFiles);
     }
 
     public void onCut(ActionEvent event) {
@@ -619,17 +606,11 @@ public class MenuEditorController {
     private void handleRecents() {
         if (editorProject.isFileNameSet()) {
             var path = Paths.get(editorProject.getFileName());
-            recentItems.addFirst(new RecentlyUsedItem(path.getFileName().toString(), path.toString()));
+            configStore.addToRecents(new JdbcTcMenuConfigurationStore.RecentlyUsedItem(path.getFileName().toString(), path.toString()));
         }
 
-        recentItems = recentItems.stream()
-                .filter(recent -> Files.exists(Paths.get(recent.path)))
-                .filter(recent -> !recent.name().equals(ConfigurationStorage.RECENT_DEFAULT))
-                .distinct()
-                .collect(Collectors.toCollection(LinkedList::new));
-
         menuRecents.getItems().clear();
-        recentItems.forEach(recentlyUsedItem -> {
+        configStore.getRecents().forEach(recentlyUsedItem -> {
             var item = new javafx.scene.control.MenuItem(recentlyUsedItem.name());
             item.setOnAction(e-> {
                 stopSimulatorIfNeeded();
@@ -729,10 +710,64 @@ public class MenuEditorController {
         selected.ifPresent(item -> selectChildInTreeById(menuTree.getRoot(), item.getId()));
     }
 
-    private record RecentlyUsedItem(String name, String path) {
-        public String toString() {
-            return name;
+    public void onFileClose(ActionEvent actionEvent) {
+        getStage().close();
+    }
+
+    public void onCreateConnection(ActionEvent actionEvent) {
+        MenuEditorApp.getInstance().handleCreatingConnection(getStage());
+    }
+
+    public void themeDidChange(String themeName) {
+            darkModeMenuFlag.setSelected(themeName.equals("darkMode"));
+            BaseDialogSupport.getJMetro().setScene(menuTree.getScene());
+    }
+
+    public void windowMenuWillShow(Event event) {
+        var menuItems = MenuEditorApp.getInstance().getAllMenuEditors().stream()
+                .map(controller -> {
+                    var item = new javafx.scene.control.MenuItem(controller.getProject().getFileName());
+                    item.setOnAction(evt -> controller.makeWindowActive());
+                    return item;
+                }).toList();
+        menuWindow.getItems().setAll(menuItems);
+    }
+
+    private void makeWindowActive() {
+        getStage().toFront();
+    }
+
+    public void onAllToFront(ActionEvent actionEvent) {
+        for(var controller : MenuEditorApp.getInstance().getAllMenuEditors()) {
+            controller.makeWindowActive();
         }
+    }
+
+    public void refreshEmbedControlMenu() {
+        var items = MenuEditorApp.getInstance().getAllActiveConnections().stream()
+                .map(con -> {
+                    var item = new javafx.scene.control.MenuItem(con.getPanelName());
+                    item.setOnAction(event -> con.toFront());
+                    return item;
+                }).toList();
+        menuEmbedWindow.getItems().setAll(items);
+
+        var connections = MenuEditorApp.getInstance().getAvailableConnections().stream()
+                .map(con -> {
+                    boolean open = MenuEditorApp.getInstance( ).getAllActiveConnections().stream()
+                            .anyMatch(rcp -> rcp.getPersistence().equals(con));
+                    var namePostfix = open ? " open" : "";
+                    var item = new javafx.scene.control.MenuItem(con.getName() + namePostfix);
+                    if(open) {
+                        var panel = MenuEditorApp.getInstance().getAllActiveConnections().stream()
+                                .findFirst().orElseThrow();
+                        item.setOnAction(event -> panel.toFront());
+                    } else {
+                        item.setOnAction(event -> MenuEditorApp.getInstance().createEmbedControlPanel(con));
+                    }
+                    return item;
+                }).toList();
+        embedConnections.getItems().setAll(connections);
     }
 
     public class MenuItemWithDescription {

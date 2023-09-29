@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.embedcontrol.core.service.CoreControlAppConfig;
+import com.thecoderscorner.menu.editorui.embed.RemoteUiEmbedControlContext;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
@@ -30,14 +31,14 @@ public class MenuEditorConfig extends CoreControlAppConfig {
     private final ArduinoLibraryInstaller installer;
     private final DefaultXmlPluginLoader pluginLoader;
     private final FileBasedProjectPersistor persistor;
-    private final CurrentEditorProject editorProject;
-    private final CurrentProjectEditorUIImpl editorUI;
     private final CodeGeneratorSupplier codeGenSupplier;
     private final EmbeddedPlatforms platforms;
+    private final RemoteUiEmbedControlContext remoteContext;
 
     public MenuEditorConfig() throws Exception {
         super();
         configStore = new JdbcTcMenuConfigurationStore(databaseUtils);
+        remoteContext = new RemoteUiEmbedControlContext(executor, serializer, serialFactory, ecDataStore, globalSettings);
 
         var httpClient = new SimpleHttpClient();
         var urlBase = "https://www.thecoderscorner.com";
@@ -51,9 +52,6 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         installer = new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configStore);
         codeGenSupplier = new CodeGeneratorSupplier(configStore, installer);
         persistor = new FileBasedProjectPersistor(platforms);
-        editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector, codeGenSupplier, tcMenuHome.toString());
-
-        editorProject = new CurrentEditorProject(editorUI, persistor, configStore);
     }
     public JdbcTcMenuConfigurationStore getConfigStore() {
         return configStore;
@@ -61,6 +59,10 @@ public class MenuEditorConfig extends CoreControlAppConfig {
 
     public LibraryVersionDetector getLibraryVersionDetector() {
         return libraryVersionDetector;
+    }
+
+    public RemoteUiEmbedControlContext getRemoteContext() {
+        return remoteContext;
     }
 
     public ArduinoLibraryInstaller getInstaller() {
@@ -75,12 +77,10 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         return persistor;
     }
 
-    public CurrentEditorProject getEditorProject() {
+    public CurrentEditorProject newProject() {
+        var editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector, codeGenSupplier, tcMenuHome.toString());
+        var editorProject = new CurrentEditorProject(editorUI, persistor, configStore);
         return editorProject;
-    }
-
-    public CurrentProjectEditorUIImpl getEditorUI() {
-        return editorUI;
     }
 
     public CodeGeneratorSupplier getCodeGeneratorSupplier() {

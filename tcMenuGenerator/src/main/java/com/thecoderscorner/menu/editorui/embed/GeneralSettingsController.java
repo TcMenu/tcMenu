@@ -1,13 +1,11 @@
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.TcPreferencesPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.control.TextField;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +26,6 @@ public class GeneralSettingsController {
         fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 100, settings.getDefaultFontSize()));
         showSubRecursive.setSelected(settings.isDefaultRecursiveRendering());
     }
-
 
     public void onChangeUUID(ActionEvent actionEvent) {
         var alert = new Alert(Alert.AlertType.CONFIRMATION, "Really change UUID, all saved authentications will be lost?", ButtonType.YES, ButtonType.NO);

@@ -13,7 +13,7 @@ import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.BackupManager;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
@@ -25,7 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_CURRENT;
+import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_SRC;
 import static java.lang.System.Logger.Level.ERROR;
 
 /**
@@ -42,7 +43,7 @@ public class CurrentEditorProject {
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
     private static final int UNDO_BUFFER_SIZE = 200;
-    private final CurrentProjectEditorUI editorUI;
+    private final CurrentProjectEditorUIImpl editorUI;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final ProjectPersistor projectPersistor;
     private final ConfigurationStorage configStore;
@@ -58,11 +59,15 @@ public class CurrentEditorProject {
     private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
-    public CurrentEditorProject(CurrentProjectEditorUI editorUI, ProjectPersistor persistor, ConfigurationStorage storage) {
+    public CurrentEditorProject(CurrentProjectEditorUIImpl editorUI, ProjectPersistor persistor, ConfigurationStorage storage) {
         this.editorUI = editorUI;
         projectPersistor = persistor;
         configStore = storage;
         cleanDown();
+    }
+
+    public CurrentProjectEditorUIImpl getEditorUI() {
+        return editorUI;
     }
 
     private void cleanDown() {

@@ -5,7 +5,7 @@
     <option name="VM_PARAMETERS" value="-Ddevlog" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.thecoderscorner.embedcontrol.jfxapp.*" />
+        <option name="PATTERN" value="com.thecoderscorner.menu.editorui.embed.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

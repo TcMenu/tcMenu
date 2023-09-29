@@ -15,7 +15,7 @@ public interface EditorComponent<T> {
     /**
      * The possible alignments for the items within the control
      */
-    enum PortableAlignment { LEFT, RIGHT, CENTER }
+    enum PortableAlignment { LEFT, RIGHT, CENTER, LEFT_VAL_RIGHT }
 
     /**
      * The rendering statuses that the control can be in, to indicate in progress, recent updates or even an error

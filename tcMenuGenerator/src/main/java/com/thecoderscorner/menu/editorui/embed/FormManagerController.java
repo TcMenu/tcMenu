@@ -1,10 +1,9 @@
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;

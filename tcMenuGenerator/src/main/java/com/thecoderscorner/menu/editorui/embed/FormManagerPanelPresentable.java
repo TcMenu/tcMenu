@@ -1,13 +1,10 @@
-package com.thecoderscorner.embedcontrol.jfxapp.panel;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
-import com.thecoderscorner.embedcontrol.jfxapp.dialog.FormManagerController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 
 public class FormManagerPanelPresentable implements PanelPresentable<Node> {
     private final EmbedControlContext context;

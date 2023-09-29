@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfxapp.panel;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.NavigationManager;

@@ -10,9 +10,11 @@
         <module name="EmbeddedJavaDemo" />
         <module name="embedCONTROLCore" />
         <module name="tcMenuJavaAPI" />
-        <module name="embedCONTROLFx" />
         <module name="menuEditorUI" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="embedCONTROLFx" target="20" />
+    </bytecodeTargetLevel>
   </component>
 </project>

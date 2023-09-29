@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfxapp;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
@@ -7,7 +7,6 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -31,12 +30,6 @@ public interface EmbedControlContext {
      * @return a serial factory for creating connections
      */
     PlatformSerialFactory getSerialFactory();
-
-    /**
-     * Create a new connection from the creator provided.
-     * @param connectionCreator the creator object to create the underlying connection
-     */
-    void createConnection(TcMenuPersistedConnection connectionCreator);
 
     /**
      * Delete the connection WITHOUT any user interaction. Must be called on UI thread.

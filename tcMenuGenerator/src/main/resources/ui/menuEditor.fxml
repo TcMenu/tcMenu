@@ -44,6 +44,7 @@
                           <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                       </accelerator>
                   </MenuItem>
+                  <MenuItem accelerator="Shortcut+W" mnemonicParsing="false" onAction="#onFileClose" text="%edit.file.close.project" />
                   <MenuItem mnemonicParsing="false" onAction="#onFileNew" text="%edit.file.close.project" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onFileExit" text="%menu.file.exit" />
@@ -95,6 +96,18 @@
                   <MenuItem accelerator="F6" mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="%menu.embed.control">
+                <MenuItem mnemonicParsing="false" onAction="#onCreateConnection" text="%menu.embed.create" />
+                <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
+                <Menu fx:id="embedConnections" mnemonicParsing="false" text="%menu.embed.connections" />
+            </Menu>
+            <Menu mnemonicParsing="false" text="Window" onShowing="#windowMenuWillShow" >
+                <MenuItem mnemonicParsing="false" onAction="#onAllToFront" text="All To Front" />
+                <Menu mnemonicParsing="false" text="Active Editors" fx:id="menuWindow">
+                </Menu>
+                <Menu mnemonicParsing="false" text="Active Connections" fx:id="menuEmbedWindow">
+                </Menu>
+            </Menu>
           <Menu mnemonicParsing="false" text="%menu.help">
             <items>
               <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="%menu.help.about" />
@@ -105,6 +118,7 @@
                   <MenuItem mnemonicParsing="false" onAction="#onMenuDiscussions" text="%menu.help.discussions" />
                   <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics" text="%menu.help.prepare.diagnotics" />
             </items>
+
           </Menu>
         </menus>
       </MenuBar>

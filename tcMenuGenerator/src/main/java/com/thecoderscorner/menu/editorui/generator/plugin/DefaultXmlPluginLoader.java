@@ -7,8 +7,6 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.applicability.*;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
@@ -418,40 +416,28 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private PropertyValidationRules validatorFor(Element elem, String initialValue) {
 
-        switch (elem.getAttribute("type")) {
-            case "header":
-            case "variable":
-                return CannedPropertyValidators.variableValidator();
-            case "int":
-                int min = Integer.parseInt(getAttributeOrDefault(elem, "min", 0));
-                int max = Integer.parseInt(getAttributeOrDefault(elem, "max", 65535));
-                return new IntegerPropertyValidationRules(min, max);
-            case "boolean":
-                return CannedPropertyValidators.boolValidator();
-            case "font":
-                return CannedPropertyValidators.fontValidator();
-            case "choice":
-                return makeChoices(elem, initialValue);
-            case "pin":
-                return CannedPropertyValidators.optPinValidator();
-            case "io-device":
-                return CannedPropertyValidators.ioExpanderValidator();
-            case "separator":
-                return CannedPropertyValidators.SEPARATOR_VALIDATION_RULES;
-
-            case "MenuItem": return CannedPropertyValidators.menuItemValidatorForAllItems();
-            case "BooleanMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(BooleanMenuItem.class);
-            case "TextMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableTextMenuItem.class);
-            case "AnalogMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(AnalogMenuItem.class);
-            case "SubMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(SubMenuItem.class);
-            case "EnumMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EnumMenuItem.class);
-            case "FloatMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(FloatMenuItem.class);
-            case "RuntimeMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(RuntimeListMenuItem.class);
-            case "LargeNumberMenuItem": return CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableLargeNumberMenuItem.class);
-            case "text":
-            default:
-                return CannedPropertyValidators.textValidator();
-        }
+        return switch (elem.getAttribute("type")) {
+            case "header", "variable" -> CannedPropertyValidators.variableValidator();
+            case "int" -> new IntegerPropertyValidationRules(
+                                Integer.parseInt(getAttributeOrDefault(elem, "min", 0)),
+                                Integer.parseInt(getAttributeOrDefault(elem, "max", 65535)));
+            case "boolean" -> CannedPropertyValidators.boolValidator();
+            case "font" -> CannedPropertyValidators.fontValidator();
+            case "choice" -> makeChoices(elem, initialValue);
+            case "pin" -> CannedPropertyValidators.optPinValidator();
+            case "io-device" -> CannedPropertyValidators.ioExpanderValidator();
+            case "separator" -> CannedPropertyValidators.SEPARATOR_VALIDATION_RULES;
+            case "MenuItem" -> CannedPropertyValidators.menuItemValidatorForAllItems();
+            case "BooleanMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(BooleanMenuItem.class);
+            case "TextMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableTextMenuItem.class);
+            case "AnalogMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(AnalogMenuItem.class);
+            case "SubMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(SubMenuItem.class);
+            case "EnumMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(EnumMenuItem.class);
+            case "FloatMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(FloatMenuItem.class);
+            case "RuntimeMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(RuntimeListMenuItem.class);
+            case "LargeNumberMenuItem" -> CannedPropertyValidators.menuItemValidatorForSpecifcType(EditableLargeNumberMenuItem.class);
+            default -> CannedPropertyValidators.textValidator();
+        };
     }
 
     private PropertyValidationRules makeChoices(Element elem, String initialValue) {
@@ -537,14 +523,5 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setRequiredLibraries(transformElements(root, "RequiredLibraries", "Library", Node::getTextContent));
         var docs = elementWithName(root, "Documentation");
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
-    }
-
-    public static boolean isDirectoryPresentAndPopulated(Path path) throws IOException {
-        if(!Files.exists(path)) return false;
-        if (Files.isDirectory(path)) {
-            return Files.find(path, 1, (p, a) -> p.getFileName().toString().startsWith("core-"))
-                    .findFirst().isPresent();
-        }
-        return false;
     }
 }

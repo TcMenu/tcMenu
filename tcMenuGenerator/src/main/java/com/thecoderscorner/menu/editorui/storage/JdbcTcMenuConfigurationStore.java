@@ -7,12 +7,12 @@ import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.lang.System.Logger.Level;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage.BUILD_TIMESTAMP_KEY;
 import static com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage.BUILD_VERSION_KEY;
@@ -39,6 +39,7 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     private final TccDatabaseUtilities databaseUtilities;
     private boolean autoCommit = true;
     private ArduinoDirectoryChangeListener arduinoChangeListener = null;
+    private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
 
     public JdbcTcMenuConfigurationStore(TccDatabaseUtilities databaseUtilities) {
         this.databaseUtilities = databaseUtilities;
@@ -53,7 +54,13 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             if(firstStart) createIfNeeded();
             // and lastly load the configuration
             loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElseThrow();
+
+            var r = databaseUtilities.queryStrings("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX");
+            recentItems = r.stream().map(rec -> new RecentlyUsedItem(Paths.get(rec).getFileName().toString(), rec))
+                    .collect(Collectors.toCollection(LinkedList::new));
+            logger.log(INFO, "Loaded all configuration");
         } catch(Exception ex) {
+            logger.log(ERROR, "Unable to initialise from database store", ex);
             loaded = new LoadedConfiguration();
         }
         loadedConfig = loaded;
@@ -117,15 +124,11 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
 
     @Override
     public List<String> loadRecents() {
-        databaseUtilities.ensureTableExists("TC_MENU_RECENTS", CREATE_RECENTS_SQL);
-        try {
-            var r = databaseUtilities.queryStrings("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX");
-            logger.log(INFO, "Loaded recents as" + r);
-            return r;
-        } catch (DataException e) {
-            logger.log(ERROR, "Recents not loaded", e);
-            return List.of();
-        }
+        throw new UnsupportedOperationException();
+    }
+
+    public List<RecentlyUsedItem> getRecents() {
+        return recentItems;
     }
 
     @Override
@@ -393,6 +396,18 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         return loadedConfig.getCurrentTheme();
     }
 
+    public void addToRecents(RecentlyUsedItem recentlyUsedItem) {
+        recentItems.addFirst(recentlyUsedItem);
+
+        recentItems = recentItems.stream()
+                .filter(recent -> Files.exists(Paths.get(recent.path)))
+                .filter(recent -> !recent.name().equals(ConfigurationStorage.RECENT_DEFAULT))
+                .distinct()
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        saveUniqueRecents(recentItems.stream().map(RecentlyUsedItem::path).toList());
+    }
+
     @TableMapping(tableName = "TC_MENU_SETTINGS", uniqueKeyField = "SETTING_ID")
     public static class LoadedConfiguration {
         private boolean changed;
@@ -597,6 +612,12 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
                     ", releaseStream=" + releaseStream +
                     ", currentTheme='" + currentTheme + '\'' +
                     '}';
+        }
+    }
+
+    public record RecentlyUsedItem(String name, String path) {
+        public String toString() {
+            return name;
         }
     }
 }

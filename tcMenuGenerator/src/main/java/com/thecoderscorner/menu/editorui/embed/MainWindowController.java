@@ -4,20 +4,7 @@
  *
  */
 
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
-
-import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.jfxapp.VersionHelper;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-
-import java.util.Optional;
-
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+package com.thecoderscorner.menu.editorui.embed;
 
 /**
  * This is the window controller, responsible for all actions to do the main window. It listens to change
@@ -33,7 +20,7 @@ import static java.lang.System.Logger.Level.INFO;
  * allows you to use most of the API objects on any thread.
  */
 public class MainWindowController {
-    private final System.Logger logger = System.getLogger(MainWindowController.class.getSimpleName());
+   /* private final System.Logger logger = System.getLogger(MainWindowController.class.getSimpleName());
     //
     // Begin JavaFX field bindings.
     //
@@ -104,6 +91,6 @@ public class MainWindowController {
                 setText(item.getPanelName());
             }
         }
-    }
+    }*/
 }
 

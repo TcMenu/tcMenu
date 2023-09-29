@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.jfxapp.panel;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
@@ -16,7 +16,6 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
-import com.thecoderscorner.embedcontrol.jfxapp.EmbedControlContext;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
@@ -43,6 +42,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
@@ -232,7 +232,9 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     private void editConnection(ActionEvent actionEvent) {
-        navigationManager.pushNavigation(new NewConnectionPanelPresentable(navigationManager, context, persistedConnection, this::connectionWasEdited));
+        var dlg = new EditConnectionDialog((Stage)headerLabel.getScene().getWindow(), this.context, persistedConnection, true);
+        dlg.checkResult().ifPresent(this::connectionWasEdited);
+
     }
 
     private void restartConnection(ActionEvent actionEvent) {
@@ -486,6 +488,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     public TcMenuPersistedConnection getPersistence() {
         return persistedConnection;
+    }
+
+    public void toFront() {
+        ((Stage)dialogPane.getScene().getWindow()).toFront();
     }
 
     class RemoteDialogManager extends DialogManager {

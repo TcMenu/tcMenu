@@ -7,11 +7,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="321.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfxapp.dialog.AboutController">
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="321.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.embed.AboutController">
    <children>
       <ImageView fitHeight="84.0" fitWidth="175.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@fximg/ethernet-connection.jpg" />
+            <Image url="@../fximg/ethernet-connection.jpg" />
          </image>
       </ImageView>
       <Label text="embedCONTROL">

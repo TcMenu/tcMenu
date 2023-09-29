@@ -1,15 +1,11 @@
-package com.thecoderscorner.embedcontrol.jfxapp.dialog;
+package com.thecoderscorner.menu.editorui.embed;
 
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.SafeNavigator;
-import com.thecoderscorner.embedcontrol.jfxapp.VersionHelper;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Label;
 
 public class AboutController {
-    public Label versionLabel;
 
-    public void initialise(VersionHelper versionHelper) {
-        versionLabel.setText("Version " + versionHelper.getVersion() + " built on " + versionHelper.getBuildTimestamp());
+    public void initialise() {
     }
 
     public void onVisitDocs(ActionEvent actionEvent) {
