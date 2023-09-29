@@ -1,1 +1,0 @@
-See the tcMenuGenerator directory for all shared deployment instructions.
