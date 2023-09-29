@@ -12,10 +12,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.TextField?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
    <right>
       <VBox prefWidth="250.0" BorderPane.alignment="CENTER">
          <children>
+            <Label prefHeight="17.0" prefWidth="252.0" text="Form Name">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+             <TextField fx:id="nameField"/>
             <Label fx:id="subMenuLabel" prefHeight="17.0" prefWidth="252.0" text="Sub Menu Options">
                <font>
                   <Font name="System Bold" size="12.0" />

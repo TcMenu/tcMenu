@@ -98,8 +98,11 @@
           </Menu>
             <Menu mnemonicParsing="false" text="%menu.embed.control">
                 <MenuItem mnemonicParsing="false" onAction="#onCreateConnection" text="%menu.embed.create" />
-                <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
                 <Menu fx:id="embedConnections" mnemonicParsing="false" text="%menu.embed.connections" />
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" onAction="#onFormManager" text="Form Manager"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
             </Menu>
             <Menu mnemonicParsing="false" text="Window" onShowing="#windowMenuWillShow" >
                 <MenuItem mnemonicParsing="false" onAction="#onAllToFront" text="All To Front" />

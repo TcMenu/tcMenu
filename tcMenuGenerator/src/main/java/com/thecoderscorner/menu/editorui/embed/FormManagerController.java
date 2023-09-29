@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.stage.FileChooser;
 import org.w3c.dom.Document;
@@ -27,7 +28,7 @@ public class FormManagerController {
     public MenuItem exportFileMenu;
     private EmbedControlContext context;
 
-    public void initialise(JfxNavigationManager navigationManager, EmbedControlContext context) {
+    public void initialise(EmbedControlContext context) {
         this.context = context;
         formNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getFormName() + " [" + cell.getValue().getFormId() + "]"));
         formUuidCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getUuid()));
@@ -159,5 +160,10 @@ public class FormManagerController {
     }
 
     public void onExportClipboard(ActionEvent actionEvent) {
+        var item = formTable.getSelectionModel().getSelectedItem();
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(item.getXmlData());
+        systemClipboard.setContent(content);
     }
 }

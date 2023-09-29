@@ -101,9 +101,9 @@ public class SimulatorUI {
                 this::saveFormConsumer, new JfxMenuEditorFactory(control, Platform::runLater, dialogMgr));
     }
 
-    private void saveFormConsumer(String xml) {
+    private void saveFormConsumer(String xml, String newName) {
         if(currentLayout == null) return;
-        currentLayout = currentLayout.withNewNameAndXml(currentLayout.getFormName(), xml);
+        currentLayout = currentLayout.withNewNameAndXml(newName, xml);
         try {
             dataStore.updateForm(currentLayout);
         } catch (DataException e) {

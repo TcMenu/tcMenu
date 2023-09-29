@@ -99,16 +99,17 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     @Override
     public Node getPanelToPresent(double width) {
-        rootPanel = new BorderPane();
-        initialiseConnectionComponents();
-        VBox topLayout = new VBox();
-        topLayout.getChildren().add(getDialogComponents(rootPanel));
-        topLayout.getChildren().add(navigationManager.initialiseControls());
-        rootPanel.setTop(topLayout);
-        generateWidgets();
+        if(rootPanel == null) {
+            rootPanel = new BorderPane();
+            initialiseConnectionComponents();
+            VBox topLayout = new VBox();
+            topLayout.getChildren().add(getDialogComponents(rootPanel));
+            topLayout.getChildren().add(navigationManager.initialiseControls());
+            rootPanel.setTop(topLayout);
+            generateWidgets();
 
-        createNewController();
-
+            createNewController();
+        }
         return rootPanel;
     }
 
@@ -177,10 +178,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         navigationManager.pushNavigationIfNotOnStack(formEditorPanel);
     }
 
-    private void formSaveConsumer(String xml) {
+    private void formSaveConsumer(String xml, String newName) {
         if(selectedForm == null) return;
         try {
-            selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), selectedForm.getFormName(), xml);
+            selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), newName, xml);
             context.getDataStore().updateForm(selectedForm);
             restartConnection(null);
         } catch (DataException e) {
