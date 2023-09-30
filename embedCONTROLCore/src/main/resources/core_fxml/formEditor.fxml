@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -12,8 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.TextField?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
+<BorderPane maxHeight="9999.0" maxWidth="9999.0" minHeight="480.0" minWidth="640.0" prefHeight="700.0" prefWidth="900.0" stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
    <right>
       <VBox prefWidth="250.0" BorderPane.alignment="CENTER">
          <children>
@@ -22,7 +22,7 @@
                   <Font name="System Bold" size="12.0" />
                </font>
             </Label>
-             <TextField fx:id="nameField"/>
+             <TextField fx:id="nameField" />
             <Label fx:id="subMenuLabel" prefHeight="17.0" prefWidth="252.0" text="Sub Menu Options">
                <font>
                   <Font name="System Bold" size="12.0" />

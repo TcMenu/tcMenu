@@ -1,9 +1,7 @@
 package com.thecoderscorner.embedcontrol.customization.formbuilder;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
-import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
@@ -11,7 +9,6 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPrese
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -30,11 +27,10 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment.LEFT;
 
 public class FormEditorController {
     public GridPane editGrid;
@@ -103,10 +99,18 @@ public class FormEditorController {
         }
 
         for(int row = 0; row < editGrid.getRowConstraints().size(); row++) {
+            int invisibleCount = 0;
             for(int col = 0; col < itemStore.getGridSize(); col++) {
-                var formComp = new FormMenuComponent(itemStore.getFormItemAt(row, col), settings,
+                MenuFormItem itemAt = itemStore.getFormItemAt(row, col);
+                var formComp = new FormMenuComponent(itemAt, settings,
                         new ComponentPositioning(row, col), navMgr, editorFactory,itemStore);
-                editGrid.add(formComp, col, row);
+                editGrid.add(formComp, col, row, itemAt.getPositioning().getColSpan(), 1);
+                if(invisibleCount > 0) {
+                    invisibleCount--;
+                    formComp.setVisible(false);
+                } else if(itemAt.getPositioning().getColSpan() > 1) {
+                    invisibleCount = itemAt.getPositioning().getColSpan() - 1;
+                }
             }
         }
 

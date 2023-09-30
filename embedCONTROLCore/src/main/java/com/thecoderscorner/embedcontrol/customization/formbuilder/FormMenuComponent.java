@@ -15,6 +15,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.NO_FORM_ITEM;
@@ -43,7 +44,7 @@ public class FormMenuComponent extends BorderPane {
         this.formItem = item;
         editTopBtn = new Button("Empty");
         editTopBtn.setMaxWidth(999);
-        editTopBtn.setOnAction(event -> showEditingForm());
+        editTopBtn.setOnAction(event -> showEditingForm(store));
         editBottomLabel = new Label("");
         editTopBtn.setMaxWidth(999);
         setTop(editTopBtn);
@@ -96,9 +97,16 @@ public class FormMenuComponent extends BorderPane {
         evaluateFormItem();
     }
 
-    private void showEditingForm() {
+    private void showEditingForm(MenuItemStore store) {
         if(formItem instanceof MenuItemFormItem || formItem instanceof TextFormItem) {
-            var presentable = new EditFormComponentPresentable(settings, this, navMgr);
+            int maxColsLeft = (store.getGridSize() - myPosition.getCol());
+            for(int i = 1; i < maxColsLeft; i++) {
+                if(!(store.getFormItemAt(myPosition.getRow(), i + myPosition.getCol()) instanceof MenuFormItem.NoFormItem)) {
+                    maxColsLeft = Math.max(1, i);
+                    break;
+                }
+            }
+            var presentable = new EditFormComponentPresentable(settings, this, navMgr, maxColsLeft);
             navMgr.pushNavigation(presentable);
         }
     }
@@ -114,6 +122,7 @@ public class FormMenuComponent extends BorderPane {
             colorScheme = formItem.getSettings().getColorSchemeName();
         }
         editBottomLabel.setText("Font: " + formItem.getFontInfo().toWire() + ", Col: " + colorScheme);
+        GridPane.setColumnSpan(this, formItem.getPositioning().getColSpan());
 
         if(formItem instanceof TextFormItem tfi){
             setCenter(new Label(tfi.getText()));

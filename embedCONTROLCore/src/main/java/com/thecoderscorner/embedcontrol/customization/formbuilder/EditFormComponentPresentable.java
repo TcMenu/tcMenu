@@ -13,11 +13,14 @@ public class EditFormComponentPresentable implements PanelPresentable<Node> {
     private final GlobalSettings settings;
     private final FormMenuComponent component;
     private JfxNavigationManager navMgr;
+    private final int maxColSpan;
 
-    public EditFormComponentPresentable(GlobalSettings settings, FormMenuComponent component, JfxNavigationManager navMgr) {
+    public EditFormComponentPresentable(GlobalSettings settings, FormMenuComponent component, JfxNavigationManager navMgr,
+                                        int maxColSpan) {
         this.settings = settings;
         this.component = component;
         this.navMgr = navMgr;
+        this.maxColSpan = maxColSpan;
     }
 
     @Override
@@ -25,7 +28,7 @@ public class EditFormComponentPresentable implements PanelPresentable<Node> {
         var loader = new FXMLLoader(EditFormComponentPresentable.class.getResource("/core_fxml/editFormComponent.fxml"));
         Pane loadedPane = loader.load();
         formComponentController = loader.getController();
-        formComponentController.initialise(settings, component, navMgr);
+        formComponentController.initialise(settings, component, navMgr, maxColSpan);
         return loadedPane;
     }
 

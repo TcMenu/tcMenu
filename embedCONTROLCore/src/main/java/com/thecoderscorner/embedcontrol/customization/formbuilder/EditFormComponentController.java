@@ -30,7 +30,8 @@ public class EditFormComponentController {
     private FormMenuComponent formMenuComponent;
     private JfxNavigationManager navMgr;
 
-    public void initialise(GlobalSettings settings, FormMenuComponent formMenuComponent, JfxNavigationManager navMgr) {
+    public void initialise(GlobalSettings settings, FormMenuComponent formMenuComponent, JfxNavigationManager navMgr,
+                           int maxColSpan) {
         this.settings = settings;
         this.formMenuComponent = formMenuComponent;
         this.navMgr = navMgr;
@@ -63,7 +64,7 @@ public class EditFormComponentController {
             alignmentCombo.setDisable(true);
         }
 
-        colSpanSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, formMenuComponent.getFormItem().getPositioning().getColSpan()));
+        colSpanSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxColSpan, formMenuComponent.getFormItem().getPositioning().getColSpan()));
         var initialFontSize = formMenuComponent.getFormItem().getFontInfo().fontSize();
         fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 300, initialFontSize));
     }
