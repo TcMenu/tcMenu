@@ -1,20 +1,28 @@
 package com.thecoderscorner.embedcontrol.customization;
 
-import com.thecoderscorner.embedcontrol.core.controlmgr.*;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
+import com.thecoderscorner.embedcontrol.core.controlmgr.MenuGridComponent;
+import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
+import com.thecoderscorner.menu.domain.ActionMenuItem;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 
 public class MenuItemFormItem extends MenuFormItem {
     private final MenuItem item;
     private PortableAlignment alignment;
     private ControlType controlType;
     private RedrawingMode redrawingMode;
+    private CustomDrawingConfiguration<?> customDrawing;
 
     public MenuItemFormItem(MenuItem mi, ColorCustomizable settings, ComponentPositioning positioning, ControlType ty,
-                            PortableAlignment alignment, RedrawingMode redrawingMode) {
+                            PortableAlignment alignment, RedrawingMode redrawingMode, CustomDrawingConfiguration<?> customDrawing) {
         super(settings, positioning);
         this.item = mi;
+        this.customDrawing = customDrawing;
         this.controlType = ty;
         this.alignment = alignment;
         this.redrawingMode = redrawingMode;
@@ -24,6 +32,7 @@ public class MenuItemFormItem extends MenuFormItem {
     public MenuItemFormItem(MenuItem mi, ColorCustomizable settings, ComponentPositioning positioning) {
         super(settings, positioning);
         this.item = mi;
+        this.customDrawing = CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
         this.controlType = MenuGridComponent.defaultControlForType(mi);
         this.alignment = defaultAlignForType(mi, controlType);
         this.redrawingMode = defaultDrawingModeForType(mi);
@@ -74,5 +83,13 @@ public class MenuItemFormItem extends MenuFormItem {
 
     public void setRedrawingMode(RedrawingMode redrawingMode) {
         this.redrawingMode = redrawingMode;
+    }
+
+    public CustomDrawingConfiguration<?> getCustomDrawing() {
+        return customDrawing;
+    }
+
+    public void setCustomDrawing(CustomDrawingConfiguration<?> customDrawing) {
+        this.customDrawing = customDrawing;
     }
 }

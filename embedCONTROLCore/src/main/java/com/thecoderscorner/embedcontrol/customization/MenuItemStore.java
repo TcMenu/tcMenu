@@ -6,15 +6,20 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.BooleanCustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.NumberCustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.StringCustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -22,6 +27,8 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
+import static com.thecoderscorner.embedcontrol.customization.formbuilder.BooleanCustomDrawingConfiguration.*;
+import static com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration.NoOpCustomDrawingConfiguration.CUSTOM_DRAW_NONE;
 
 public class MenuItemStore {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -33,6 +40,8 @@ public class MenuItemStore {
     private final GlobalSettings settings;
     private int gridSize;
     private SubMenuStore currentSubStore;
+    private Map<String, CustomDrawingConfiguration> customDrawingMap = new HashMap<>();
+    private Map<String, byte[]> imageDataMap = new HashMap<>();
 
     /**
      * create a new item store of a given dimension and fill with empty slots
@@ -48,6 +57,7 @@ public class MenuItemStore {
 
         var rootColorSet = new GlobalColorCustomizable(settings);
         colorSets.put(GlobalColorCustomizable.KEY_NAME, rootColorSet);
+        customDrawingMap.put(CUSTOM_DRAW_NONE, NO_CUSTOM_DRAWING);
 
         var subStore = new SubMenuStore(MenuTree.ROOT.getId(), rootColorSet, FONT_100_PERCENT, recursive);
         subMenuStores.put(MenuTree.ROOT.getId(), subStore);
@@ -219,6 +229,22 @@ public class MenuItemStore {
             colorSets.put(cc.getColorSchemeName(), cc);
         }
 
+        customDrawingMap.clear();
+        customDrawingMap.put(CUSTOM_DRAW_NONE, NO_CUSTOM_DRAWING);
+        var cdEle = XMLDOMHelper.elementWithName(root, "CustomDrawings");
+        if(cdEle != null) {
+            var decoder = Base64.getDecoder();
+            var allImages = XMLDOMHelper.getChildElementsWithName(cdEle, "ImageData");
+            for (var imgData : allImages) {
+                imageDataMap.put(imgData.getAttribute("name"), decoder.decode(imgData.getTextContent()));
+            }
+
+            var allCustomDraw = XMLDOMHelper.getChildElementsWithName(cdEle, "CustomDrawing");
+            for (var custom : allCustomDraw) {
+                var customDrawingConfiguration = processCustomDrawing(custom);
+                customDrawingMap.put(customDrawingConfiguration.getName(), customDrawingConfiguration);
+            }
+        }
         var mlEle = XMLDOMHelper.elementWithName(root, "MenuLayouts");
         var allMenuLayouts = XMLDOMHelper.getChildElementsWithName(mlEle, "MenuLayout");
 
@@ -246,6 +272,62 @@ public class MenuItemStore {
             subMenuStores.put(rootId, currentSubStore);
             gridSize = 4;
         }
+    }
+
+    private CustomDrawingConfiguration<?> processCustomDrawing(Element custom) {
+        String ty = custom.getAttribute("type");
+        if(ty.equals("number")) {
+            var ranges = XMLDOMHelper.transformElements(custom, "NumRange", element -> new NumericColorRange(
+                    Double.parseDouble(element.getAttribute("start")), Double.parseDouble(element.getAttribute("end")),
+                    new PortableColor(element.getAttribute("fg")), new PortableColor(element.getAttribute("bg")))
+            );
+            return new NumberCustomDrawingConfiguration(ranges, custom.getAttribute("name"));
+        } else if(ty.equals("string")) {
+            var map = new HashMap<String, ControlColor>();
+            var strMap = XMLDOMHelper.getChildElementsWithName(custom, "StrMapping");
+            for(var ele : strMap) {
+                map.put(ele.getAttribute("value"), new ControlColor(
+                        new PortableColor(ele.getAttribute("fg")), new PortableColor(ele.getAttribute("bg"))
+                ));
+            }
+            return new StringCustomDrawingConfiguration(map, custom.getAttribute("name"));
+        } else if(ty.equals("boolean")) {
+            return new BooleanCustomDrawingConfiguration(
+                    custom.getAttribute("name"),
+                    new ControlColor(new PortableColor(custom.getAttribute("yesFgColor")), new PortableColor(custom.getAttribute("yesBgColor"))),
+                    new ControlColor(new PortableColor(custom.getAttribute("noFgColor")), new PortableColor(custom.getAttribute("noBgColor")))
+            );
+        } else if(ty.equals("boolImg")) {
+            return new BooleanCustomDrawingConfiguration(
+                    custom.getAttribute("name"),
+                    new ControlColor(new PortableColor(custom.getAttribute("yesFgColor")), new PortableColor(custom.getAttribute("yesBgColor"))),
+                    new ControlColor(new PortableColor(custom.getAttribute("noFgColor")), new PortableColor(custom.getAttribute("noBgColor"))),
+                    processImage(XMLDOMHelper.elementWithName(custom, "yesImg")),
+                    processImage(XMLDOMHelper.elementWithName(custom, "noImg"))
+            );
+        } else return NO_CUSTOM_DRAWING;
+    }
+
+    private ImageDefinition processImage(Element imgEle) {
+        if(imgEle == null) return new ImageDefinition(ImageLocation.NO_IMAGE, "");
+        if(imgEle.getAttribute("type").equals("net")) {
+            return new ImageDefinition(ImageLocation.NETWORK_URL, imgEle.getAttribute("ref"));
+        } else if(imgEle.getAttribute("type").equals("png")) {
+            return new ImageDefinition(ImageLocation.PNG_EMBEDDED_BASE64, imgEle.getAttribute("ref"));
+        } else if(imgEle.getAttribute("type").equals("svg")) {
+            return new ImageDefinition(ImageLocation.SVG_EMBEDDED_BASE64, imgEle.getAttribute("ref"));
+        } else {
+            return new ImageDefinition(ImageLocation.NO_IMAGE, "");
+        }
+    }
+
+    private byte[] getEmbeddedImageData(ImageDefinition definition) {
+        if(definition.imageType() == ImageLocation.NETWORK_URL) throw new IllegalArgumentException("wrong image type");
+        return imageDataMap.get(definition.urlOrName());
+    }
+
+    private Collection<String> getAllEmbeddedImageNames() {
+        return imageDataMap.keySet();
     }
 
     private void readTextElements(Element layout) {
@@ -281,7 +363,8 @@ public class MenuItemStore {
                     ComponentPositioning.fromWire(XMLDOMHelper.getAttributeOrDefault(text, "position", "0,0")),
                     ControlType.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "controlType", "TEXT_CONTROL")),
                     PortableAlignment.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "alignment", "LEFT")),
-                    RedrawingMode.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "drawMode", "SHOW_NAME_VALUE"))
+                    RedrawingMode.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "drawMode", "SHOW_NAME_VALUE")),
+                    customDrawingMap.get(XMLDOMHelper.getAttributeOrDefault(text, "customDrawing", "none"))
             );
 
             menuForm.setFontInfo(FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(text, "fontInfo", "100%")));
@@ -342,6 +425,18 @@ public class MenuItemStore {
                 saveControlColor(colEle, "dialog", colorSet, DIALOG);
                 saveControlColor(colEle, "pending", colorSet, PENDING);
             }
+
+            var customEles = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "CustomDrawings", null);
+            for(var custom : customDrawingMap.values()) {
+                saveCustomDrawing(custom, customEles);
+            }
+
+            var encoder = Base64.getEncoder();
+            for(var imgData : imageDataMap.entrySet()) {
+                var img = XMLDOMHelper.appendElementWithNameValue(customEles, "CustomDrawings", encoder.encode(imgData.getValue()));
+                img.setAttribute("name", imgData.getKey());
+            }
+
             XMLDOMHelper.writeXml(doc, output, true);
             return output.toString();
         } catch (Exception e) {
@@ -349,6 +444,60 @@ public class MenuItemStore {
             throw new IOException("Failed to write XML structure", e);
         }
     }
+
+    private void saveCustomDrawing(CustomDrawingConfiguration custom, Element el) {
+        var cd = XMLDOMHelper.appendElementWithNameValue(el, "CustomDrawing", null);
+        cd.setAttribute("name", custom.getName());
+        if(custom instanceof StringCustomDrawingConfiguration strCustom) {
+            cd.setAttribute("type", "string");
+            for(var mapping : strCustom.getAllMappings().entrySet()) {
+                var sr = XMLDOMHelper.appendElementWithNameValue(cd, "StrMapping", null);
+                sr.setAttribute("value", mapping.getKey());
+                sr.setAttribute("fg", mapping.getValue().getFg().toString());
+                sr.setAttribute("bg", mapping.getValue().getBg().toString());
+            }
+        } else if(custom instanceof NumberCustomDrawingConfiguration numCustom) {
+            cd.setAttribute("type", "number");
+            for(var ranges : numCustom.getColorRanges()) {
+                var sr = XMLDOMHelper.appendElementWithNameValue(cd, "NumRange", null);
+                sr.setAttribute("start", String.valueOf(ranges.start()));
+                sr.setAttribute("end", String.valueOf(ranges.end()));
+                sr.setAttribute("fg", ranges.fg().toString());
+                sr.setAttribute("bg", ranges.bg().toString());
+            }
+        } else if(custom instanceof BooleanCustomDrawingConfiguration boolCustom) {
+            var yesCol = boolCustom.getColorFor(true).orElseThrow();
+            var noCol = boolCustom.getColorFor(false).orElseThrow();
+            cd.setAttribute("type", boolCustom.hasImages() ? "boolImg" : "boolean");
+            cd.setAttribute("yesFgColor", yesCol.getFg().toString());
+            cd.setAttribute("yesBgColor", yesCol.getBg().toString());
+            cd.setAttribute("noFgColor", noCol.getFg().toString());
+            cd.setAttribute("noBgColor", noCol.getBg().toString());
+
+            var yesImg = boolCustom.getImageFor(true);
+            if(yesImg.imageType() != ImageLocation.NO_IMAGE) {
+                var cdy = XMLDOMHelper.appendElementWithNameValue(cd, "yesImg", null);
+                cdy.setAttribute("type", toImgTypeWire(yesImg));
+                cdy.setAttribute("ref", yesImg.urlOrName());
+            }
+            var noImg = boolCustom.getImageFor(false);
+            if(noImg.imageType() != ImageLocation.NO_IMAGE) {
+                var cdn = XMLDOMHelper.appendElementWithNameValue(cd, "noImg", null);
+                cdn.setAttribute("type", toImgTypeWire(yesImg));
+                cdn.setAttribute("ref", yesImg.urlOrName());
+            }
+        }
+    }
+
+    private String toImgTypeWire(ImageDefinition yesImg) {
+        return switch(yesImg.imageType()) {
+            case NO_IMAGE -> throw new UnsupportedOperationException("NO_IMAGE cannot be written");
+            case NETWORK_URL -> "url";
+            case PNG_EMBEDDED_BASE64 -> "svg";
+            case SVG_EMBEDDED_BASE64 -> "png";
+        };
+    }
+
 
     private void serializeTextItem(Element subSetting, TextFormItem textFormItem) {
         var itemEle = XMLDOMHelper.appendElementWithNameValue(subSetting, "StaticText", textFormItem.getText());
@@ -395,6 +544,10 @@ public class MenuItemStore {
 
     public List<MenuFormItem> allRowEntries() {
         return currentSubStore.allFormEntries();
+    }
+
+    public Collection<CustomDrawingConfiguration> getCustomDrawingElements() {
+        return customDrawingMap.values();
     }
 
     protected class RowEntry {

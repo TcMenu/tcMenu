@@ -3,9 +3,11 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.NullConditionalColoring;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
+import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
-import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode.SHOW_NAME_VALUE;
+import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.FONT_100_PERCENT;
 
 /**
  * When automatic menu layout is used, the layout is described in terms of font, color, position and justification using
@@ -14,7 +16,9 @@ import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
  *
  */
 public class ComponentSettings {
-    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(), FONT_100_PERCENT, PortableAlignment.LEFT, new ComponentPositioning(0, 0), RedrawingMode.SHOW_NAME_VALUE, ControlType.TEXT_CONTROL, false);
+    public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(),
+            FONT_100_PERCENT, PortableAlignment.LEFT, new ComponentPositioning(0, 0), SHOW_NAME_VALUE,
+            ControlType.TEXT_CONTROL, CustomDrawingConfiguration.NO_CUSTOM_DRAWING, false);
 
     private final FontInformation fontInfo;
     private final ConditionalColoring colors;
@@ -22,10 +26,12 @@ public class ComponentSettings {
     private final ComponentPositioning position;
     private final ControlType controlType;
     private final RedrawingMode drawMode;
+    private final CustomDrawingConfiguration<?> customDrawing;
     private final boolean customised;
 
     public ComponentSettings(ConditionalColoring colors, FontInformation fontInfo, PortableAlignment justification,
-                             ComponentPositioning position, RedrawingMode mode, ControlType controlType, boolean custom)
+                             ComponentPositioning position, RedrawingMode mode, ControlType controlType,
+                             CustomDrawingConfiguration<?> customDrawing, boolean custom)
     {
         this.fontInfo = fontInfo;
         this.colors = colors;
@@ -34,6 +40,11 @@ public class ComponentSettings {
         this.drawMode = mode;
         this.customised = custom;
         this.controlType = controlType;
+        this.customDrawing = customDrawing;
+    }
+
+    public CustomDrawingConfiguration<?> getCustomDrawing() {
+        return customDrawing;
     }
 
     /**

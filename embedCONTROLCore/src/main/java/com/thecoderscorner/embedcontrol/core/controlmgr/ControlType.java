@@ -38,7 +38,7 @@ public enum ControlType {
         supportedTypes = List.of(menuItemTypes);
     }
 
-    boolean isSupportedFor(MenuItem item) {
+    public boolean isSupportedFor(MenuItem item) {
         return supportedTypes.stream().anyMatch(ty -> ty.isAssignableFrom(item.getClass()));
     }
 }

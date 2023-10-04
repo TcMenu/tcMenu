@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ColorSettingsPresentable implements PanelPresentable<Node> {
     private final MenuItemStore store;
@@ -17,6 +18,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
     private final JfxNavigationManager manager;
     private final String name;
     private final boolean allowAdd;
+    private Consumer<Boolean> closeListener = null;
 
     public ColorSettingsPresentable(GlobalSettings settings, JfxNavigationManager manager, String name,
                                     MenuItemStore store, boolean allowAdd) {
@@ -25,6 +27,10 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         this.settings = settings;
         this.name = name;
         this.allowAdd = allowAdd;
+    }
+
+    public void addPanelCloseListener(Consumer<Boolean> closeListener) {
+        this.closeListener = closeListener;
     }
 
     @Override
@@ -54,6 +60,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
     @Override
     public void closePanel() {
         colorSettingsController.closePressed();
+        if(closeListener != null) closeListener.accept(true);
     }
 
     @Override

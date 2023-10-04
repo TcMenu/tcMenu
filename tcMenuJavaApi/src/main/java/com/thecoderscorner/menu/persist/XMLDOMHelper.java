@@ -134,7 +134,7 @@ public class XMLDOMHelper {
      */
     public static Element elementWithName(Element elem, String child) {
         var ch = getChildElementsWithName(elem, child);
-        if (ch == null || ch.size() == 0) return null;
+        if (ch == null || ch.isEmpty()) return null;
         return ch.get(0);
     }
 

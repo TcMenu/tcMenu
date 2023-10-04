@@ -134,7 +134,7 @@ public class FormMenuComponent extends BorderPane {
             var settings = new ComponentSettings(
                     new MenuGridComponent.ScreenLayoutBasedConditionalColor(store, myPosition),
                     mfi.getFontInfo(), mfi.getAlignment(), mfi.getPositioning(), mfi.getRedrawingMode(),
-                    mfi.getControlType(), true);
+                    mfi.getControlType(), mfi.getCustomDrawing(), true);
             controlFactory.getComponentEditorItem(mfi.getItem(), settings, this::emptyConsumer)
                     .ifPresentOrElse(control -> setCenter(control.createComponent()), ()->setCenter(new Label("Empty")));
         } else {

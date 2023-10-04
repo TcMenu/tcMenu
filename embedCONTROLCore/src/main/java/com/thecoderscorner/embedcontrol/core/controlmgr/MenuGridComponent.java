@@ -7,7 +7,6 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -20,7 +19,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.*;
+import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.PERCENT;
+import static com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
 public abstract class MenuGridComponent<T> {
@@ -55,7 +55,7 @@ public abstract class MenuGridComponent<T> {
                     ComponentSettings settings = new ComponentSettings(
                             new ScreenLayoutBasedConditionalColor(menuItemStore, entry.getPositioning()),
                             entry.getFontInfo(), mfi.getAlignment(), entry.getPositioning(),
-                            mfi.getRedrawingMode(), mfi.getControlType(), true);
+                            mfi.getRedrawingMode(), mfi.getControlType(), mfi.getCustomDrawing(),  true);
                     var comp = editorFactory.getComponentEditorItem(mfi.getItem(), settings, subRenderer);
                     comp.ifPresent(tEditorComponent -> addToGrid(entry.getPositioning(), tEditorComponent));
                 } else if (entry instanceof SpaceFormItem sfi) {
@@ -64,7 +64,7 @@ public abstract class MenuGridComponent<T> {
                     ComponentSettings settings = new ComponentSettings(
                             new ScreenLayoutBasedConditionalColor(menuItemStore, entry.getPositioning()),
                             entry.getFontInfo(), tfi.getAlignment(), entry.getPositioning(),
-                            RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, true);
+                            RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, NO_CUSTOM_DRAWING, true);
                     addTextToGrid(settings, tfi.getText());
                 }
             }
@@ -73,7 +73,7 @@ public abstract class MenuGridComponent<T> {
                 var position = defaultSpaceForItem(Optional.of(sub));
                 var settings = new ComponentSettings(new ScreenLayoutBasedConditionalColor(menuItemStore, position),
                         new FontInformation(150, PERCENT), EditorComponent.PortableAlignment.LEFT,
-                        position, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, false);
+                        position, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, NO_CUSTOM_DRAWING, false);
 
                 editorFactory.getComponentEditorItem(sub, settings, subRenderer).ifPresent(comp -> {
                     addToGrid(settings.getPosition(), comp);
@@ -117,7 +117,8 @@ public abstract class MenuGridComponent<T> {
 
         return new ComponentSettings(new ScreenLayoutBasedConditionalColor(menuItemStore, position),
                 MenuFormItem.FONT_100_PERCENT, defaultJustificationForItem(Optional.of(item)),
-                position, defaultRedrawModeForItem(Optional.of(item)), defaultControlForType(item), false);
+                position, defaultRedrawModeForItem(Optional.of(item)), defaultControlForType(item),
+                NO_CUSTOM_DRAWING, false);
     }
 
     protected RedrawingMode defaultRedrawModeForItem(Optional<MenuItem> item) {
