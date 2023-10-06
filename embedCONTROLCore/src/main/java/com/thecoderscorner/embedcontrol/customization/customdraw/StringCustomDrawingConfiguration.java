@@ -1,19 +1,27 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization.customdraw;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import javafx.util.Pair;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StringCustomDrawingConfiguration implements CustomDrawingConfiguration<String> {
-    private Map<String, ControlColor> colorMappings;
-    private String name;
+    private final Map<String, ControlColor> colorMappings;
+    private final String name;
 
     public StringCustomDrawingConfiguration(Map<String, ControlColor> colorMappings, String name) {
         this.colorMappings = colorMappings;
         this.name = name;
+    }
+
+    public StringCustomDrawingConfiguration(List<Pair<String, ControlColor>> ranges, String text) {
+        this.colorMappings = ranges.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        this.name = text;
     }
 
     @Override
@@ -37,9 +45,8 @@ public class StringCustomDrawingConfiguration implements CustomDrawingConfigurat
 
     @Override
     public String toString() {
-        return "String Custom " + name;
+        return name + " string map";
     }
-
     public Map<String, ControlColor> getAllMappings() {
         return colorMappings;
     }

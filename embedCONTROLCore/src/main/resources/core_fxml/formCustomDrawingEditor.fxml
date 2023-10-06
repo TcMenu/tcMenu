@@ -40,7 +40,7 @@
         <buttons>
           <Button fx:id="deleteRangeButton" mnemonicParsing="false" onAction="#onDeleteRange" text="Delete Range" />
             <Button mnemonicParsing="false" onAction="#onAddRange" text="Add Range" />
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="Cancel" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel" />
             <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save" />
         </buttons>
       </ButtonBar>

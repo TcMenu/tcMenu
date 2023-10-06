@@ -3,7 +3,7 @@ package com.thecoderscorner.embedcontrol.core.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.NullConditionalColoring;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode.SHOW_NAME_VALUE;

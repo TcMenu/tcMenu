@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization.customdraw;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.ActionMenuItem;
@@ -54,7 +54,7 @@ public class BooleanCustomDrawingConfiguration implements CustomDrawingConfigura
 
     @Override
     public String toString() {
-        return "Bool Custom " + name;
+        return name + " for boolean";
     }
 
     public enum ImageLocation { NO_IMAGE, SVG_EMBEDDED_BASE64, PNG_EMBEDDED_BASE64, NETWORK_URL}

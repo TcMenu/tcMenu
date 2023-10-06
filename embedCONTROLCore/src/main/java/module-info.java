@@ -26,4 +26,5 @@ module com.thecoderscorner.embedcontrol.core {
     exports com.thecoderscorner.embedcontrol.customization;
     exports com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
     exports com.thecoderscorner.embedcontrol.customization.formbuilder;
+    exports com.thecoderscorner.embedcontrol.customization.customdraw;
 }

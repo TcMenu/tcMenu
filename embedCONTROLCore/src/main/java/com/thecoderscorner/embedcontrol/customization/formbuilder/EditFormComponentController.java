@@ -6,6 +6,8 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.customization.MenuItemFormItem;
 import com.thecoderscorner.embedcontrol.customization.TextFormItem;
+import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.SelectCustomDrawablesPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import javafx.collections.FXCollections;
@@ -119,7 +121,7 @@ public class EditFormComponentController {
     }
 
     public void manageCustomDrawing(ActionEvent actionEvent) {
-        var custPanel = new EditCustomDrawablesPresentable(settings, formMenuComponent, navMgr);
+        var custPanel = new SelectCustomDrawablesPresentable(settings, formMenuComponent, navMgr);
         custPanel.addPanelCloseListener(unused -> repopulateColorSets());
         navMgr.pushNavigation(custPanel);
     }

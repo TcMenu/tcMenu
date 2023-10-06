@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.PERCENT;
-import static com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
+import static com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
 public abstract class MenuGridComponent<T> {

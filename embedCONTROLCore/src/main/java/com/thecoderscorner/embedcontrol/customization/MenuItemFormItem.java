@@ -4,7 +4,7 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuGridComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;

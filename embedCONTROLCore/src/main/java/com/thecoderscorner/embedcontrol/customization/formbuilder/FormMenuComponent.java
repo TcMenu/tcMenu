@@ -5,10 +5,12 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuGridComponent;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.*;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.HorizontalSliderAnalogComponent;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.MenuItem;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -136,7 +138,13 @@ public class FormMenuComponent extends BorderPane {
                     mfi.getFontInfo(), mfi.getAlignment(), mfi.getPositioning(), mfi.getRedrawingMode(),
                     mfi.getControlType(), mfi.getCustomDrawing(), true);
             controlFactory.getComponentEditorItem(mfi.getItem(), settings, this::emptyConsumer)
-                    .ifPresentOrElse(control -> setCenter(control.createComponent()), ()->setCenter(new Label("Empty")));
+                    .ifPresentOrElse(control -> {
+                        if(control instanceof HorizontalSliderAnalogComponent horiz) {
+                            setCenter(new Label("Horizontal slider " + mfi.getItem().getName()));
+                        } else {
+                            setCenter(control.createComponent());
+                        }
+                    }, ()->setCenter(new Label("Empty")));
         } else {
             setCenter(new Label(""));
         }

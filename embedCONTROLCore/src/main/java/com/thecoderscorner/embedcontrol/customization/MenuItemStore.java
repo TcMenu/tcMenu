@@ -6,10 +6,10 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.BooleanCustomDrawingConfiguration;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.NumberCustomDrawingConfiguration;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.StringCustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.BooleanCustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.NumberCustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.StringCustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
@@ -27,8 +27,8 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.*;
-import static com.thecoderscorner.embedcontrol.customization.formbuilder.BooleanCustomDrawingConfiguration.*;
-import static com.thecoderscorner.embedcontrol.customization.formbuilder.CustomDrawingConfiguration.NoOpCustomDrawingConfiguration.CUSTOM_DRAW_NONE;
+import static com.thecoderscorner.embedcontrol.customization.customdraw.BooleanCustomDrawingConfiguration.*;
+import static com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration.NoOpCustomDrawingConfiguration.CUSTOM_DRAW_NONE;
 
 public class MenuItemStore {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -548,6 +548,10 @@ public class MenuItemStore {
 
     public Collection<CustomDrawingConfiguration> getCustomDrawingElements() {
         return customDrawingMap.values();
+    }
+
+    public void addUpdateCustomDrawing(CustomDrawingConfiguration<?> customDrawingConfiguration) {
+        customDrawingMap.put(customDrawingConfiguration.getName(), customDrawingConfiguration);
     }
 
     protected class RowEntry {

@@ -1,4 +1,4 @@
-package com.thecoderscorner.embedcontrol.customization.formbuilder;
+package com.thecoderscorner.embedcontrol.customization.customdraw;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.*;
@@ -27,7 +27,7 @@ public class NumberCustomDrawingConfiguration implements CustomDrawingConfigurat
 
     @Override
     public String toString() {
-        return "Range Custom " + name;
+        return name + " number range";
     }
 
 

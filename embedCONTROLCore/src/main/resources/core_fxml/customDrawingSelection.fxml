@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+
+
+<BorderPane fx:controller="com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawablesSelectionController" maxHeight="9999.0" maxWidth="9999.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <TableView fx:id="drawingTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="drawingNameCol" prefWidth="314.0" text="Custom Drawing Name" />
+          <TableColumn fx:id="drawingTypeCol" prefWidth="232.0" text="Drawing Type" />
+        </columns>
+      </TableView>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+          <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeletePressed" text="Delete" />
+            <Button mnemonicParsing="false" onAction="#onAddPressed" text="Add" />
+            <Button fx:id="selectButton" mnemonicParsing="false" onAction="#onSelectPressed" text="Select" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</BorderPane>
