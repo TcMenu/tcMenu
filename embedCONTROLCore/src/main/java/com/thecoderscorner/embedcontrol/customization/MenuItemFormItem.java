@@ -16,13 +16,13 @@ public class MenuItemFormItem extends MenuFormItem {
     private PortableAlignment alignment;
     private ControlType controlType;
     private RedrawingMode redrawingMode;
-    private CustomDrawingConfiguration<?> customDrawing;
+    private CustomDrawingConfiguration customDrawing;
 
     public MenuItemFormItem(MenuItem mi, ColorCustomizable settings, ComponentPositioning positioning, ControlType ty,
-                            PortableAlignment alignment, RedrawingMode redrawingMode, CustomDrawingConfiguration<?> customDrawing) {
+                            PortableAlignment alignment, RedrawingMode redrawingMode, CustomDrawingConfiguration customDrawing) {
         super(settings, positioning);
         this.item = mi;
-        this.customDrawing = customDrawing;
+        this.setCustomDrawing(customDrawing);
         this.controlType = ty;
         this.alignment = alignment;
         this.redrawingMode = redrawingMode;
@@ -85,11 +85,11 @@ public class MenuItemFormItem extends MenuFormItem {
         this.redrawingMode = redrawingMode;
     }
 
-    public CustomDrawingConfiguration<?> getCustomDrawing() {
+    public CustomDrawingConfiguration getCustomDrawing() {
         return customDrawing;
     }
 
-    public void setCustomDrawing(CustomDrawingConfiguration<?> customDrawing) {
-        this.customDrawing = customDrawing;
+    public void setCustomDrawing(CustomDrawingConfiguration customDrawing) {
+        this.customDrawing = customDrawing != null ? customDrawing : CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
     }
 }

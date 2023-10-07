@@ -10,14 +10,14 @@ import java.util.Optional;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 
-public interface CustomDrawingConfiguration<T> {
+public interface CustomDrawingConfiguration {
     NoOpCustomDrawingConfiguration NO_CUSTOM_DRAWING = new NoOpCustomDrawingConfiguration();
 
     boolean isSupportedFor(MenuItem item);
     String getName();
-    Optional<ControlColor> getColorFor(T value);
+    Optional<ControlColor> getColorFor(Object value);
 
-    default ControlColor getColorFor(T value, ConditionalColoring colorSet, RenderingStatus status,
+    default ControlColor getColorFor(Object value, ConditionalColoring colorSet, RenderingStatus status,
                                      ColorComponentType componentType) {
         return getColorFor(value).orElseGet(() -> new ControlColor(
                 colorSet.foregroundFor(status, componentType),
@@ -27,7 +27,7 @@ public interface CustomDrawingConfiguration<T> {
 
     record NumericColorRange(double start, double end, PortableColor fg, PortableColor bg) { }
 
-    public class NoOpCustomDrawingConfiguration implements CustomDrawingConfiguration<Boolean> {
+    public class NoOpCustomDrawingConfiguration implements CustomDrawingConfiguration {
         public static final String CUSTOM_DRAW_NONE = "none";
 
         @Override
@@ -37,7 +37,7 @@ public interface CustomDrawingConfiguration<T> {
 
         @Override
         public String getName() {
-            return "default";
+            return CUSTOM_DRAW_NONE;
         }
 
         @Override
@@ -46,7 +46,7 @@ public interface CustomDrawingConfiguration<T> {
         }
 
         @Override
-        public Optional<ControlColor> getColorFor(Boolean value) {
+        public Optional<ControlColor> getColorFor(Object value) {
             return Optional.empty();
         }
     }

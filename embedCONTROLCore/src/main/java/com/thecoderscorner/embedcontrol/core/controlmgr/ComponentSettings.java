@@ -26,12 +26,12 @@ public class ComponentSettings {
     private final ComponentPositioning position;
     private final ControlType controlType;
     private final RedrawingMode drawMode;
-    private final CustomDrawingConfiguration<?> customDrawing;
+    private final CustomDrawingConfiguration customDrawing;
     private final boolean customised;
 
     public ComponentSettings(ConditionalColoring colors, FontInformation fontInfo, PortableAlignment justification,
                              ComponentPositioning position, RedrawingMode mode, ControlType controlType,
-                             CustomDrawingConfiguration<?> customDrawing, boolean custom)
+                             CustomDrawingConfiguration customDrawing, boolean custom)
     {
         this.fontInfo = fontInfo;
         this.colors = colors;
@@ -40,10 +40,10 @@ public class ComponentSettings {
         this.drawMode = mode;
         this.customised = custom;
         this.controlType = controlType;
-        this.customDrawing = customDrawing;
+        this.customDrawing = customDrawing != null ? customDrawing : CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
     }
 
-    public CustomDrawingConfiguration<?> getCustomDrawing() {
+    public CustomDrawingConfiguration getCustomDrawing() {
         return customDrawing;
     }
 

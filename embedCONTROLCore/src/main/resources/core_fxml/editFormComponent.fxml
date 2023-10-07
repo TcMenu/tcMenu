@@ -34,16 +34,16 @@
          </GridPane.margin></Spinner>
       <Label prefHeight="17.0" prefWidth="155.0" text="Font Size" GridPane.rowIndex="2" />
       <Button mnemonicParsing="false" onAction="#onManageColorSets" prefHeight="25.0" prefWidth="153.0" text="Manage..." GridPane.columnIndex="2" GridPane.rowIndex="3" />
-      <Label prefHeight="17.0" prefWidth="167.0" text="Color Name" GridPane.rowIndex="3" />
+      <Label prefHeight="17.0" prefWidth="167.0" text="Color Scheme" GridPane.rowIndex="3" />
       <ComboBox fx:id="fontMeasureCombo" prefWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
       <ComboBox fx:id="colorNameCombo" prefHeight="25.0" prefWidth="329.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets right="3.0" />
          </GridPane.margin>
       </ComboBox>
-      <Label prefHeight="17.0" prefWidth="157.0" text="Alignment" GridPane.rowIndex="4" />
+      <Label prefHeight="17.0" prefWidth="157.0" text="Horizontal Alignment" GridPane.rowIndex="4" />
       <Label prefHeight="17.0" prefWidth="159.0" text="Control Type" GridPane.rowIndex="5" />
-      <Label prefHeight="17.0" prefWidth="158.0" text="What to draw" GridPane.rowIndex="6" />
+      <Label prefHeight="17.0" prefWidth="158.0" text="Text Content" GridPane.rowIndex="6" />
       <ComboBox fx:id="controlTypeCombo" prefHeight="25.0" prefWidth="324.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets right="4.0" />
@@ -64,7 +64,7 @@
           <Button mnemonicParsing="false" onAction="#onSaveAndDismiss" text="Save and Dismiss" />
         </buttons>
       </ButtonBar>
-      <Label prefHeight="17.0" prefWidth="156.0" text="Custom Drawing" GridPane.rowIndex="7" />
+      <Label prefHeight="17.0" prefWidth="156.0" text="Customize Drawing" GridPane.rowIndex="7" />
       <ComboBox fx:id="customDrawingCombo" prefHeight="25.0" prefWidth="321.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets right="4.0" />

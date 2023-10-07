@@ -274,7 +274,7 @@ public class MenuItemStore {
         }
     }
 
-    private CustomDrawingConfiguration<?> processCustomDrawing(Element custom) {
+    private CustomDrawingConfiguration processCustomDrawing(Element custom) {
         String ty = custom.getAttribute("type");
         if(ty.equals("number")) {
             var ranges = XMLDOMHelper.transformElements(custom, "NumRange", element -> new NumericColorRange(
@@ -364,7 +364,7 @@ public class MenuItemStore {
                     ControlType.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "controlType", "TEXT_CONTROL")),
                     PortableAlignment.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "alignment", "LEFT")),
                     RedrawingMode.valueOf(XMLDOMHelper.getAttributeOrDefault(text, "drawMode", "SHOW_NAME_VALUE")),
-                    customDrawingMap.get(XMLDOMHelper.getAttributeOrDefault(text, "customDrawing", "none"))
+                    customDrawingMap.get(XMLDOMHelper.getAttributeOrDefault(text, "customDraw", "none"))
             );
 
             menuForm.setFontInfo(FontInformation.fromWire(XMLDOMHelper.getAttributeOrDefault(text, "fontInfo", "100%")));
@@ -428,6 +428,7 @@ public class MenuItemStore {
 
             var customEles = XMLDOMHelper.appendElementWithNameValue(doc.getDocumentElement(), "CustomDrawings", null);
             for(var custom : customDrawingMap.values()) {
+                if(custom instanceof NoOpCustomDrawingConfiguration) continue; // do not save NoOp entry.
                 saveCustomDrawing(custom, customEles);
             }
 
@@ -527,6 +528,7 @@ public class MenuItemStore {
         itemEle.setAttribute("controlType", menuFormItem.getControlType().toString());
         itemEle.setAttribute("fontInfo", menuFormItem.getFontInfo().toWire());
         itemEle.setAttribute("colorSet", String.valueOf(menuFormItem.getSettings().getColorSchemeName()));
+        itemEle.setAttribute("customDraw", String.valueOf(menuFormItem.getCustomDrawing().getName()));
     }
 
     public FontInformation getGlobalFontInfo() {
@@ -550,7 +552,7 @@ public class MenuItemStore {
         return customDrawingMap.values();
     }
 
-    public void addUpdateCustomDrawing(CustomDrawingConfiguration<?> customDrawingConfiguration) {
+    public void addUpdateCustomDrawing(CustomDrawingConfiguration customDrawingConfiguration) {
         customDrawingMap.put(customDrawingConfiguration.getName(), customDrawingConfiguration);
     }
 

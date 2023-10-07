@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
 import com.thecoderscorner.menu.domain.MenuItem;
+import javafx.scene.Node;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -77,11 +78,20 @@ public interface MenuEditorFactory<T>
     EditorComponent<T> createHorizontalSlider(MenuItem item, ComponentSettings settings, double presentableWidth);
 
     /**
-     * Creates a rgb color item that can be edited using a color picker.
+     * Create an analog meeter component that meets the requirements in the component settings.
      * @param item the item to present
-     * @param settings the settings to use to display it
-     * @return the created component.
+     * @param settings the settings for the item
+     * @param presentableWidth the width to sue
+     * @return the analog meter
      */
+    public EditorComponent<Node> createAnalogMeter(MenuItem item, ComponentSettings settings, double presentableWidth);
+
+    /**
+         * Creates a rgb color item that can be edited using a color picker.
+         * @param item the item to present
+         * @param settings the settings to use to display it
+         * @return the created component.
+         */
     EditorComponent<T> createRgbColorControl(MenuItem item, ComponentSettings settings);
 
     /**

@@ -116,13 +116,16 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
 
         @Override
         protected void addToGrid(ComponentPositioning where, EditorComponent<Node> item) {
-            if(where.getRow() >= gridPane.getRowConstraints().size()) {
+            while(where.getRow() >= gridPane.getRowConstraints().size()) {
                 gridPane.getRowConstraints().add(new RowConstraints(10, 30, 999, Priority.SOMETIMES, VPos.CENTER, true));
             }
             var comp = item.createComponent();
             GridPane.setColumnIndex(comp, where.getCol());
             GridPane.setRowIndex(comp, where.getRow());
             GridPane.setColumnSpan(comp, where.getColSpan());
+            if(item instanceof AnalogMeterComponent) {
+                gridPane.getRowConstraints().get(where.getRow()).setPrefHeight(100);
+            }
             gridPane.getChildren().add(comp);
         }
 

@@ -20,9 +20,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CustomDrawablesSelectionController {
     public Button deleteButton;
     public Button selectButton;
-    public TableView<CustomDrawingConfiguration<?>> drawingTable;
-    public TableColumn<CustomDrawingConfiguration<?>, String> drawingNameCol;
-    public TableColumn<CustomDrawingConfiguration<?>, String> drawingTypeCol;
+    public TableView<CustomDrawingConfiguration> drawingTable;
+    public TableColumn<CustomDrawingConfiguration, String> drawingNameCol;
+    public TableColumn<CustomDrawingConfiguration, String> drawingTypeCol;
     private GlobalSettings settings;
     private FormMenuComponent component;
     private JfxNavigationManager navMgr;
@@ -36,6 +36,8 @@ public class CustomDrawablesSelectionController {
         this.navMgr = navMgr;
         this.store = component.getStore();
 
+        drawingNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getName()));
+        drawingTypeCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getClass().getSimpleName()));
         drawingTable.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> reEvaluateButtons());
         refreshTable();
     }
@@ -61,7 +63,7 @@ public class CustomDrawablesSelectionController {
         editItem(sel);
     }
 
-    private void editItem(CustomDrawingConfiguration<?> toEdit) {
+    private void editItem(CustomDrawingConfiguration toEdit) {
         Stage stage = (Stage) (drawingTable.getScene().getWindow());
         BaseDialogSupport.tryAndCreateDialog(stage, "/core_fxml/formCustomDrawingEditor.fxml", "Drawing " + toEdit.getName(),
                 JfxNavigationHeader.getCoreResources(), true, (EditCustomDrawablesController controller) -> {
@@ -79,8 +81,6 @@ public class CustomDrawablesSelectionController {
     private void refreshTable() {
         drawingTable.getItems().clear();
         drawingTable.getItems().addAll(component.getStore().getCustomDrawingElements().toArray(new CustomDrawingConfiguration[0]));
-        drawingNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getName()));
-        drawingTypeCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getClass().getSimpleName()));
         drawingTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         drawingTable.getSelectionModel().select(0);
     }

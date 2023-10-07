@@ -30,4 +30,13 @@ public interface ConditionalColoring
      * @return the color associated with the state for background
      */
     PortableColor backgroundFor(RenderingStatus status, ColorComponentType compType);
+
+    /**
+     * Gets the background and foreground color at the same time for the given state and component.
+     * @param status the current rendering status
+     * @param ty the type of value
+     * @return the color pair
+     */
+    ControlColor colorFor(RenderingStatus status, ColorComponentType ty);
+
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class StringCustomDrawingConfiguration implements CustomDrawingConfiguration<String> {
+public class StringCustomDrawingConfiguration implements CustomDrawingConfiguration {
     private final Map<String, ControlColor> colorMappings;
     private final String name;
 
@@ -35,9 +35,9 @@ public class StringCustomDrawingConfiguration implements CustomDrawingConfigurat
     }
 
     @Override
-    public Optional<ControlColor> getColorFor(String value) {
-        if(colorMappings.containsKey(value)) {
-            return Optional.ofNullable(colorMappings.get(value));
+    public Optional<ControlColor> getColorFor(Object value) {
+        if(colorMappings.containsKey(value.toString())) {
+            return Optional.ofNullable(colorMappings.get(value.toString()));
         } else {
             return Optional.empty();
         }

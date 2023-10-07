@@ -3,7 +3,6 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.texted.*;
 import com.thecoderscorner.menu.domain.EditableTextMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -19,6 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 import java.util.Optional;
+
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 
 public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private Label textField;
@@ -40,8 +41,8 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
         actionButton = new Button("Edit");
         actionButton.setOnAction(this::onButtonPressed);
         actionButton.setFont(toFont(getDrawingSettings().getFontInfo(), textField.getFont()));
-        setNodeConditionalColours(textField, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.TEXT_FIELD);
-        setNodeConditionalColours(actionButton, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.BUTTON);
+        drawingColorHandler.setPaintFor(textField, currentVal, ColorComponentType.TEXT_FIELD, status);
+        drawingColorHandler.setPaintFor(actionButton, false, ColorComponentType.BUTTON, status);
         switch (getDrawingSettings().getJustification()) {
             case LEFT ->  borderPane.setLeft(textField);
             case CENTER,RIGHT -> borderPane.setCenter(textField);
@@ -94,7 +95,7 @@ public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     @Override
     public void changeControlSettings(RenderingStatus status, String str) {
         textField.setText(str);
-        setNodeConditionalColours(textField, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.TEXT_FIELD, status);
-        setNodeConditionalColours(actionButton, getDrawingSettings().getColors(), ConditionalColoring.ColorComponentType.BUTTON, status);
+        drawingColorHandler.setPaintFor(textField, currentVal, ColorComponentType.TEXT_FIELD, status);
+        drawingColorHandler.setPaintFor(actionButton, false, ColorComponentType.BUTTON, status);
     }
 }

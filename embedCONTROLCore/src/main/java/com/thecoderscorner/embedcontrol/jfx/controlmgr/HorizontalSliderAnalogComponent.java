@@ -4,7 +4,10 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
+import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
+import com.thecoderscorner.embedcontrol.customization.customdraw.NumberCustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
+import com.thecoderscorner.menu.domain.FloatMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
@@ -21,10 +24,10 @@ import javafx.scene.text.Text;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
-public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<Integer> {
+public abstract class HorizontalSliderAnalogComponent<T extends Number> extends JfxTextEditorComponentBase<T> implements CanvasDrawableContext {
     private RenderingStatus lastStatus = RenderingStatus.NORMAL;
     private final MenuTree tree;
-    private ResizableCanvas canvas;
+    private HorizScrollCanvas canvas;
     private BorderPane borderPane;
 
     public HorizontalSliderAnalogComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
@@ -34,7 +37,7 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
 
     @Override
     public Node createComponent() {
-        canvas = new ResizableCanvas();
+        canvas = new HorizScrollCanvas();
         if(isItemEditable(item)) {
             canvas.setOnMouseReleased(mouseEvent -> sendItemAbsolute());
             canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted(mouseEvent.getX()));
@@ -58,10 +61,12 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         AnyMenuState newState = MenuItemHelper.stateForMenuItem(item, value, true, menuState.isActive());
         tree.changeItem(item, newState);
         onItemUpdated(item, (MenuState<?>) newState);
-        currentVal = (int)value;
+        setCurrentVal(value);
 
         canvas.onPaintSurface(canvas.getGraphicsContext2D());
     }
+
+    protected abstract void setCurrentVal(double value);
 
     private void sendItemAbsolute() {
         if (status == RenderingStatus.EDIT_IN_PROGRESS) return;
@@ -82,7 +87,26 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
         canvas.onPaintSurface(canvas.getGraphicsContext2D());
     }
 
-    private class ResizableCanvas extends Canvas {
+    @Override
+    public MenuItem getItem() {
+        return item;
+    }
+
+    @Override
+    public RenderingStatus getStatus() {
+        return status;
+    }
+
+    @Override
+    public Object getValue() {
+        return currentVal;
+    }
+
+    private class HorizScrollCanvas extends ResizableCanvas {
+        HorizScrollCanvas() {
+            super(HorizontalSliderAnalogComponent.this);
+        }
+
         @Override
         public boolean isResizable() {
             return true;
@@ -90,33 +114,70 @@ public class HorizontalSliderAnalogComponent extends JfxTextEditorComponentBase<
 
         protected void onPaintSurface(GraphicsContext gc) {
 
-            var analog = (AnalogMenuItem) item;
-
             int displayWidth = (int) borderPane.getWidth();
             int displayHeight = (int) borderPane.getHeight();
 
-            var currentPercentage = currentVal / (float) analog.getMaxValue();
+            double protectedCurrent;
+            double screenPercentage;
+            double currentPercentage;
+            CustomDrawingConfiguration customDrawing = getDrawingSettings().getCustomDrawing();
+            if(item instanceof AnalogMenuItem analog) {
+                protectedCurrent = currentVal.doubleValue();
+                screenPercentage = displayWidth / (double) analog.getMaxValue();
+                currentPercentage = protectedCurrent / (double) analog.getMaxValue();
+            } else if(item instanceof FloatMenuItem flt) {
+                double max = 100.0;
+                if(customDrawing instanceof NumberCustomDrawingConfiguration numCust) {
+                    var ranges = numCust.getColorRanges();
+                    max = ranges.get(ranges.size() - 1).end();
+                }
+                protectedCurrent = currentVal.doubleValue();
+                currentPercentage = protectedCurrent / max;
+                screenPercentage = displayWidth / max;
+            } else {
+                throw new UnsupportedOperationException("Not able to show meter for " + item.getClass().getSimpleName());
+            }
 
-            gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(RenderingStatus.NORMAL, ColorComponentType.HIGHLIGHT)));
-            gc.fillRect(0, 0, displayWidth * currentPercentage, displayHeight);
+            if(getDrawingSettings().getCustomDrawing() instanceof NumberCustomDrawingConfiguration numCust) {
+                for (CustomDrawingConfiguration.NumericColorRange r : numCust.getColorRanges()) {
+                    if (r.start() < protectedCurrent) {
+                        gc.setFill(asFxColor(r.bg()));
+                        gc.fillRect(r.start() * screenPercentage, 0, Math.min(r.end(), protectedCurrent) * screenPercentage, displayHeight);
+                    }
+                }
+            } else {
+                gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(status, ColorComponentType.CUSTOM)));
+                gc.fillRect(0, 0, displayWidth * currentPercentage, displayHeight);
+            }
 
-            gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.BUTTON)));
+            gc.setFill(asFxColor(getDrawingSettings().getColors().backgroundFor(lastStatus, ColorComponentType.TEXT_FIELD)));
             gc.fillRect(displayWidth * currentPercentage, 0, displayWidth, displayHeight);
 
             gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.HIGHLIGHT)));
 
-            String toDraw = "";
-            if(controlTextIncludesName()) toDraw = MenuItemFormatter.defaultInstance().getItemName(item);
-            if(controlTextIncludesValue()) toDraw += " " + MenuItemFormatter.defaultInstance().formatForDisplay(item, currentVal);
-            final Text textObj = new Text(toDraw);
-            gc.setFill(asFxColor(getDrawingSettings().getColors().foregroundFor(lastStatus, ColorComponentType.BUTTON)));
-            var fontSize = getDrawingSettings().getFontInfo().fontSize();
-            if(getDrawingSettings().getFontInfo().sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
-                fontSize = (int)(Font.getDefault().getSize() * (fontSize / 100.0));
-            }
-            gc.setFont(Font.font(gc.getFont().getFamily(), fontSize));
-            var bounds = textObj.getLayoutBounds();
-            gc.fillText(toDraw, (displayWidth - bounds.getWidth()) / 2.0, (displayHeight - (bounds.getHeight() / 2.0)));
+            drawTextUsingSettings(gc, protectedCurrent, displayWidth, displayHeight, false);
+        }
+    }
+
+    public static class IntHorizontalSliderComponent extends HorizontalSliderAnalogComponent<Integer> {
+        public IntHorizontalSliderComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
+            super(controller, settings, item, tree, marshaller);
+        }
+
+        @Override
+        protected void setCurrentVal(double value) {
+            currentVal = (int) value;
+        }
+    }
+
+    public static class FloatHorizontalSliderComponent extends HorizontalSliderAnalogComponent<Float> {
+        public FloatHorizontalSliderComponent(MenuComponentControl controller, ComponentSettings settings, MenuItem item, MenuTree tree, ThreadMarshaller marshaller) {
+            super(controller, settings, item, tree, marshaller);
+        }
+
+        @Override
+        protected void setCurrentVal(double value) {
+            throw new UnsupportedOperationException("Float not editable");
         }
     }
 }

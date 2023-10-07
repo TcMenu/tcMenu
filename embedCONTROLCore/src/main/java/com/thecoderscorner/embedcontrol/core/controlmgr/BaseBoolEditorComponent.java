@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
@@ -11,10 +12,12 @@ import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
  */
 public abstract class BaseBoolEditorComponent<W> extends BaseEditorComponent<W> {
     protected boolean currentVal = false;
+    protected final JfxTextEditorComponentBase.DrawingColorHandler drawingColorHandler;
 
     protected BaseBoolEditorComponent(MenuComponentControl controller, ComponentSettings settings,
                                       MenuItem item, ThreadMarshaller marshaller) {
         super(controller, settings, item, marshaller);
+        drawingColorHandler = new JfxTextEditorComponentBase.DrawingColorHandler(settings);
     }
 
     @Override

@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.embedcontrol.jfx.controlmgr.HorizontalSliderAnalogComponent.*;
+
 /**
  * The menu control grid is the JavaFX component that renders menu items into a GridPanel. It creates instances of
  * the editor components and places them into the panel. To place them into the panel, each item that is added  takes
@@ -96,8 +98,19 @@ public class JfxMenuEditorFactory implements MenuEditorFactory<Node> {
 
     @Override
     public EditorComponent<Node> createHorizontalSlider(MenuItem item, ComponentSettings settings, double presentableWidth) {
-        var slider = new HorizontalSliderAnalogComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
-        return slider;
+        if(item instanceof FloatMenuItem) {
+            return new FloatHorizontalSliderComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
+        } else if(item instanceof AnalogMenuItem) {
+            return new IntHorizontalSliderComponent(controller, settings, item, controller.getMenuTree(), threadMarshaller);
+        } else throw new UnsupportedOperationException();
+    }
+
+    public EditorComponent<Node> createAnalogMeter(MenuItem item, ComponentSettings settings, double presentableWidth) {
+        if(item instanceof FloatMenuItem)
+            return new AnalogMeterComponent<Float>(controller, settings, item, controller.getMenuTree(), threadMarshaller);
+        else if(item instanceof AnalogMenuItem)
+            return new AnalogMeterComponent<Integer>(controller, settings, item, controller.getMenuTree(), threadMarshaller);
+        else throw new UnsupportedOperationException("Not supported for " + item);
     }
 
     public Optional<EditorComponent<Node>> getComponentEditorItem(MenuItem item,
@@ -116,7 +129,7 @@ public class JfxMenuEditorFactory implements MenuEditorFactory<Node> {
             case TEXT_CONTROL ->
                     createTextEditor(item, componentSettings, MenuItemHelper.getDefaultFor(item));
             case BUTTON_CONTROL -> createBooleanButton(item, componentSettings);
-            case VU_METER -> throw new UnsupportedOperationException("create TODO");
+            case VU_METER, ROTARY_METER -> createAnalogMeter(item, componentSettings, 999);
             case DATE_CONTROL -> createDateEditorComponent(item, componentSettings);
             case TIME_CONTROL -> createTimeEditorComponent(item, componentSettings);
             case RGB_CONTROL -> createRgbColorControl(item, componentSettings);

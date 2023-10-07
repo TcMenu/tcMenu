@@ -56,8 +56,14 @@ public abstract class MenuGridComponent<T> {
                             new ScreenLayoutBasedConditionalColor(menuItemStore, entry.getPositioning()),
                             entry.getFontInfo(), mfi.getAlignment(), entry.getPositioning(),
                             mfi.getRedrawingMode(), mfi.getControlType(), mfi.getCustomDrawing(),  true);
-                    var comp = editorFactory.getComponentEditorItem(mfi.getItem(), settings, subRenderer);
-                    comp.ifPresent(tEditorComponent -> addToGrid(entry.getPositioning(), tEditorComponent));
+                    var editorComponent = editorFactory.getComponentEditorItem(mfi.getItem(), settings, subRenderer);
+                    editorComponent.ifPresent(comp -> {
+                        addToGrid(entry.getPositioning(), comp);
+                        editorComponents.put(mfi.getItem().getId(), comp);
+                        MenuItemHelper.getValueFor(mfi.getItem(), tree, MenuItemHelper.getDefaultFor(mfi.getItem()));
+                        comp.onItemUpdated(mfi.getItem(), tree.getMenuState(mfi.getItem()));
+
+                    });
                 } else if (entry instanceof SpaceFormItem sfi) {
                     addSpaceToGrid(sfi.getPositioning(), sfi.getVerticalSpace());
                 } else if (entry instanceof TextFormItem tfi) {
@@ -161,6 +167,11 @@ public abstract class MenuGridComponent<T> {
         @Override
         public PortableColor backgroundFor(EditorComponent.RenderingStatus status, ColorComponentType compType) {
             return getControlColor(status, compType).getBg();
+        }
+
+        @Override
+        public ControlColor colorFor(EditorComponent.RenderingStatus status, ColorComponentType ty) {
+            return getControlColor(status, ty);
         }
 
         private ColorCustomizable findColorSet() {

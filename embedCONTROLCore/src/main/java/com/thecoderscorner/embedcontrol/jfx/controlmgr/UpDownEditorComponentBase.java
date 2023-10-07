@@ -5,18 +5,19 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
-import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
 
-import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxTextEditorComponentBase.setNodeConditionalColours;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.*;
+
 
 public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorComponent<T, Node> {
     private static final int REDUCE = -1;
@@ -25,6 +26,7 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
     private Button minusButton = new Button();
     private Button plusButton = new Button();
     private Label itemLabel;
+    private final JfxTextEditorComponentBase.DrawingColorHandler drawingColorHandler;
 
     enum RepeatTypes {REPEAT_NONE, REPEAT_UP, REPEAT_DOWN, REPEAT_UP_WAIT, REPEAT_DOWN_WAIT}
 
@@ -32,6 +34,7 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
 
     public UpDownEditorComponentBase(MenuItem item, MenuComponentControl remote, ComponentSettings settings, ThreadMarshaller marshaller) {
         super(remote, settings, item, marshaller);
+        drawingColorHandler = new JfxTextEditorComponentBase.DrawingColorHandler(settings);
     }
 
     @Override
@@ -75,12 +78,18 @@ public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorCo
 
     @Override
     public void changeControlSettings(RenderingStatus status, String str) {
-        var condCol = getDrawingSettings().getColors();
-
-        setNodeConditionalColours(minusButton, condCol, ConditionalColoring.ColorComponentType.BUTTON, status);
-        setNodeConditionalColours(plusButton, condCol, ConditionalColoring.ColorComponentType.BUTTON, status);
-        setNodeConditionalColours(itemLabel, condCol, ConditionalColoring.ColorComponentType.TEXT_FIELD, status);
+        drawingColorHandler.setPaintFor(minusButton, false, ColorComponentType.BUTTON, status);
+        drawingColorHandler.setPaintFor(plusButton, false, ColorComponentType.BUTTON, status);
+        drawingColorHandler.setPaintFor(itemLabel, ensureNumeric(currentVal), ColorComponentType.TEXT_FIELD, status);
         itemLabel.setText(str);
+    }
+
+    private Number ensureNumeric(T currentVal) {
+        if(currentVal instanceof Number n) {
+            return n;
+        } else if(currentVal instanceof CurrentScrollPosition sc) {
+            return sc.getPosition();
+        } else return 0;
     }
 
     @Override

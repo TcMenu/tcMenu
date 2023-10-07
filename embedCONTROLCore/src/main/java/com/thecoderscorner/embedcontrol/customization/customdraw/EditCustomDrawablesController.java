@@ -32,10 +32,10 @@ public class EditCustomDrawablesController {
     private GlobalSettings settings;
     private FormMenuComponent component;
     private MenuItemStore store;
-    private CustomDrawingConfiguration<?> customDrawIn;
-    private Optional<CustomDrawingConfiguration<?>> result = Optional.empty();
+    private CustomDrawingConfiguration customDrawIn;
+    private Optional<CustomDrawingConfiguration> result = Optional.empty();
 
-    public void initialise(GlobalSettings settings, FormMenuComponent component, CustomDrawingConfiguration<?> custom) {
+    public void initialise(GlobalSettings settings, FormMenuComponent component, CustomDrawingConfiguration custom) {
         this.settings = settings;
         this.component = component;
         this.customDrawIn = custom;
@@ -89,7 +89,7 @@ public class EditCustomDrawablesController {
         else return 2;
     }
 
-    public Optional<CustomDrawingConfiguration<?>> getResult() {
+    public Optional<CustomDrawingConfiguration> getResult() {
         return result;
     }
 

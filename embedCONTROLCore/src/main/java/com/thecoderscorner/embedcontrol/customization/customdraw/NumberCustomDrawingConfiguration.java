@@ -6,7 +6,7 @@ import com.thecoderscorner.menu.domain.*;
 import java.util.List;
 import java.util.Optional;
 
-public class NumberCustomDrawingConfiguration implements CustomDrawingConfiguration<Number> {
+public class NumberCustomDrawingConfiguration implements CustomDrawingConfiguration {
     List<NumericColorRange> colorRanges;
     private String name;
 
@@ -32,8 +32,9 @@ public class NumberCustomDrawingConfiguration implements CustomDrawingConfigurat
 
 
     @Override
-    public Optional<ControlColor> getColorFor(Number value) {
-        double v = value.doubleValue();
+    public Optional<ControlColor> getColorFor(Object value) {
+        if(!(value instanceof  Number num)) return Optional.empty();
+        double v = num.doubleValue();
         for(var range : colorRanges) {
             if(v > range.start() && v < range.end()) {
                 return Optional.of(new ControlColor(range.fg(), range.bg()));

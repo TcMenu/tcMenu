@@ -76,6 +76,7 @@ public class FormEditorController {
     }
 
     public void closePressed() {
+        onSaveLayout(new ActionEvent(this, null));
     }
 
     public void rebuildColumns() {
@@ -293,8 +294,8 @@ public class FormEditorController {
         @Override
         public String getName() {
             var itemType = item.getClass().getSimpleName().replace("MenuItem", "");
-            var indentation = " ".repeat(indentLevel);
-            return indentation + item + "   " + itemType;
+            var indentation = "-> ".repeat(indentLevel);
+            return indentation + item + " [" + itemType + "]";
         }
 
     }

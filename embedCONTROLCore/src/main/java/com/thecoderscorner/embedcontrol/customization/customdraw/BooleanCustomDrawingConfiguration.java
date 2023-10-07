@@ -8,7 +8,7 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.Optional;
 
-public class BooleanCustomDrawingConfiguration implements CustomDrawingConfiguration<Boolean> {
+public class BooleanCustomDrawingConfiguration implements CustomDrawingConfiguration {
     private String name;
     private ControlColor yesColor;
     private ControlColor noColor;
@@ -19,14 +19,16 @@ public class BooleanCustomDrawingConfiguration implements CustomDrawingConfigura
         this.name = name;
         this.yesColor = yesColor;
         this.noColor = noColor;
+        this.yesImage = ImageDefinition.NO_IMAGE;
+        this.noImage = ImageDefinition.NO_IMAGE;
     }
 
     public BooleanCustomDrawingConfiguration(String name, ControlColor yesColor, ControlColor noColor, ImageDefinition yesImage, ImageDefinition noImage) {
         this.name = name;
         this.yesColor = yesColor;
         this.noColor = noColor;
-        this.yesImage = yesImage;
-        this.noImage = noImage;
+        this.yesImage = yesImage != null ? yesImage : ImageDefinition.NO_IMAGE;
+        this.noImage = noImage != null ? noImage : ImageDefinition.NO_IMAGE;
     }
 
     @Override
@@ -40,8 +42,9 @@ public class BooleanCustomDrawingConfiguration implements CustomDrawingConfigura
     }
 
     @Override
-    public Optional<ControlColor> getColorFor(Boolean val) {
-        return Optional.ofNullable(val ? yesColor : noColor);
+    public Optional<ControlColor> getColorFor(Object val) {
+        if(!(val instanceof Boolean boolVal)) return Optional.empty();
+        return Optional.ofNullable(boolVal ? yesColor : noColor);
     }
 
     public ImageDefinition getImageFor(boolean val) {
@@ -58,5 +61,7 @@ public class BooleanCustomDrawingConfiguration implements CustomDrawingConfigura
     }
 
     public enum ImageLocation { NO_IMAGE, SVG_EMBEDDED_BASE64, PNG_EMBEDDED_BASE64, NETWORK_URL}
-    public record ImageDefinition(ImageLocation imageType, String urlOrName) { }
+    public record ImageDefinition(ImageLocation imageType, String urlOrName) {
+        public static final ImageDefinition NO_IMAGE = new ImageDefinition(ImageLocation.NO_IMAGE, "");
+    }
 }

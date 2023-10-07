@@ -27,8 +27,8 @@ public class GlobalColorCustomizable implements ColorCustomizable {
         return switch (componentType) {
             case BUTTON -> globalSettings.getButtonColor();
             case TEXT_FIELD -> globalSettings.getTextColor();
-            case HIGHLIGHT -> globalSettings.getHighlightColor();
-            case CUSTOM -> globalSettings.getUpdateColor();
+            case HIGHLIGHT -> globalSettings.getUpdateColor();
+            case CUSTOM -> globalSettings.getHighlightColor();
             case DIALOG -> globalSettings.getDialogColor();
             case ERROR -> globalSettings.getErrorColor();
             case PENDING -> globalSettings.getPendingColor();

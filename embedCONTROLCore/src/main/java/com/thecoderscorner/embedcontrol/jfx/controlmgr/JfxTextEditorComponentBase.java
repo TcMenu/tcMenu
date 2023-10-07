@@ -5,8 +5,10 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
+import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -20,9 +22,10 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 
 
 public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorComponent<T, Node> {
-
+    protected final DrawingColorHandler drawingColorHandler;
     protected JfxTextEditorComponentBase(MenuComponentControl controller, ComponentSettings settings, MenuItem item, ThreadMarshaller threadMarshaller) {
         super(controller, settings, item, threadMarshaller);
+        drawingColorHandler = new DrawingColorHandler(settings);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,15 +49,25 @@ public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorCompon
         return str;
     }
 
-    public static void setNodeConditionalColours(Node node, ConditionalColoring condColor, ConditionalColoring.ColorComponentType ty) {
-        setNodeConditionalColours(node, condColor, ty, RenderingStatus.NORMAL);
-    }
+    public static class DrawingColorHandler {
+        private final ComponentSettings settings;
 
-    public static void setNodeConditionalColours(Node node, ConditionalColoring condColor, ConditionalColoring.ColorComponentType ty, RenderingStatus status) {
-        var bgPaint = asFxColor(condColor.backgroundFor(status, ty));
-        var fgPaint = asFxColor(condColor.foregroundFor(status, ty));
-        if(node instanceof Region r) r.setBackground(new Background(new BackgroundFill(bgPaint, new CornerRadii(0.0), new Insets(0))));
-        if(node instanceof Labeled l) l.setTextFill(fgPaint);
+        public DrawingColorHandler(ComponentSettings settings) {
+            this.settings = settings;
+        }
+
+        void setPaintFor(Node node, Object value, ConditionalColoring.ColorComponentType ty, RenderingStatus status) {
+            ControlColor colors;
+            if(status == RenderingStatus.NORMAL) {
+                colors = settings.getCustomDrawing().getColorFor(value, settings.getColors(), status, ty);
+            } else {
+                colors = settings.getColors().colorFor(status, ty);
+            }
+            var fg = asFxColor(colors.getFg());
+            var bg = asFxColor(colors.getBg());
+            if(node instanceof Region r) r.setBackground(new Background(new BackgroundFill(bg, new CornerRadii(0.0), new Insets(0))));
+            if(node instanceof Labeled l) l.setTextFill(fg);
+        }
     }
 
 }

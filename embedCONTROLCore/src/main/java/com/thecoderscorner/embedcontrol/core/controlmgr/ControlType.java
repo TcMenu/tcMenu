@@ -10,15 +10,17 @@ import java.util.List;
  */
 public enum ControlType {
     /** a horizontal slider or progress style control that can present text in the middle */
-    HORIZONTAL_SLIDER(AnalogMenuItem.class),
+    HORIZONTAL_SLIDER(AnalogMenuItem.class, FloatMenuItem.class),
     /** use up down buttons to control items have a range that can be moved through */
     UP_DOWN_CONTROL(AnalogMenuItem.class, ScrollChoiceMenuItem.class, EnumMenuItem.class),
     /** Use a text control for more or less any item, it shows the value in a label with an optional edit button */
     TEXT_CONTROL(MenuItem.class),
     /** Show the control as a button, in the case of boolean items, it will toggle */
     BUTTON_CONTROL(ActionMenuItem.class, SubMenuItem.class, BooleanMenuItem.class),
-    /** Show the control as a VU meter style control for analog items only */
-    VU_METER(AnalogMenuItem.class),
+    /** Show the control as a VU meter style control for analog and float items only */
+    VU_METER(AnalogMenuItem.class, FloatMenuItem.class),
+    /** Show the control as a circular meter style control for analog and float items only */
+    ROTARY_METER(AnalogMenuItem.class, FloatMenuItem.class),
     /** Show the control as a date that can be picked if editable */
     DATE_CONTROL(EditableTextMenuItem.class),
     /** Show the control as time, that can be edited if allowed */
