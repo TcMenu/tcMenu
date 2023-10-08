@@ -36,7 +36,7 @@ public class NumberCustomDrawingConfiguration implements CustomDrawingConfigurat
         if(!(value instanceof  Number num)) return Optional.empty();
         double v = num.doubleValue();
         for(var range : colorRanges) {
-            if(v > range.start() && v < range.end()) {
+            if(v > range.start() && v <= range.end()) {
                 return Optional.of(new ControlColor(range.fg(), range.bg()));
             }
         }

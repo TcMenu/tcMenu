@@ -505,6 +505,7 @@ public class MenuItemStore {
         itemEle.setAttribute("position", String.valueOf(textFormItem.getPositioning().toWire()));
         itemEle.setAttribute("alignment", String.valueOf(textFormItem.getAlignment()));
         itemEle.setAttribute("colorSet", String.valueOf(textFormItem.getSettings().getColorSchemeName()));
+        itemEle.setAttribute("fontInfo", textFormItem.getFontInfo().toWire());
     }
 
     private void saveControlColor(Element ele, String colorName, ColorCustomizable colorSet, ColorComponentType colType) {

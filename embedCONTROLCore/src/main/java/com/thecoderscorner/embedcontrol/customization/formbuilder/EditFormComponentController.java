@@ -42,8 +42,8 @@ public class EditFormComponentController {
             .add("Hidden", RedrawingMode.HIDDEN);
     private final EnumWithValueList<PortableAlignment> portableAlignments = new EnumWithValueList<PortableAlignment>()
             .add("All Left Aligned", PortableAlignment.LEFT)
-            .add("All Right Aligned", PortableAlignment.CENTER)
-            .add("All Centre Aligned", PortableAlignment.RIGHT)
+            .add("All Right Aligned", PortableAlignment.RIGHT)
+            .add("All Centre Aligned", PortableAlignment.CENTER)
             .add("Name Left, Value Right", PortableAlignment.LEFT_VAL_RIGHT);
     private final EnumWithValueList<ControlType> controlTypes = new EnumWithValueList<ControlType>()
             .add("Text Editor", ControlType.TEXT_CONTROL)
