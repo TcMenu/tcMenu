@@ -277,6 +277,27 @@ public class FormEditorController {
         }
     }
 
+    public static class ExistingGridPositionChoice implements GridPositionChoice {
+        private final FormMenuComponent existingMenuComponent;
+
+        public ExistingGridPositionChoice(FormMenuComponent component) {
+            existingMenuComponent = component;
+        }
+
+        @Override
+        public MenuFormItem createComponent(ComponentPositioning myPosition) {
+            var existing = existingMenuComponent.getFormItem();
+            existingMenuComponent.clearDown();
+            return existing;
+
+        }
+
+        @Override
+        public String getName() {
+            return "Existing " + existingMenuComponent;
+        }
+    }
+
     public class MenuItemPositionChoice implements GridPositionChoice {
         private final MenuItem item;
         private final int indentLevel;

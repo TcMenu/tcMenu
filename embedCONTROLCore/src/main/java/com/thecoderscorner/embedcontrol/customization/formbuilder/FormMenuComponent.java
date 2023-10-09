@@ -15,12 +15,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.NO_FORM_ITEM;
+import static com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController.GridPositionCell.setCurrentDragItem;
 
 /**
  * This represents an item in an embedCONTROL pre-made form.
@@ -52,45 +55,68 @@ public class FormMenuComponent extends BorderPane {
         setTop(editTopBtn);
         removeButton = new Button("X");
         removeButton.setMaxHeight(999);
-        removeButton.setOnAction(event -> setFormItem(NO_FORM_ITEM));
+        removeButton.setOnAction(event -> clearDown());
         setRight(removeButton);
         setBottom(editBottomLabel);
         getStyleClass().add("menu-edit-item");
         setPadding(new Insets(2));
 
         evaluateFormItem();
-
+        workOutIfDragDropNeeded();
+    }
+    void workOutIfDragDropNeeded() {
         // do not allow drag and drop other than for NoFormItem cases.
-        if(!(formItem instanceof MenuFormItem.NoFormItem)) return;
-
-        setOnDragDropped(event -> {
-            var dragged = FormEditorController.GridPositionCell.getCurrentDragItem();
-            if(dragged != null) {
-                setFormItem( dragged.createComponent(myPosition));
-            }
-            event.consume();
-            event.setDropCompleted(true);
-            setEffect(null);
-        });
-
-        setOnDragExited(event -> {
-            event.consume();
-            setEffect(null);
-        });
-
-        setOnDragOver(event -> {
-            var dragged = FormEditorController.GridPositionCell.getCurrentDragItem();
-            if(dragged != null) {
-                event.acceptTransferModes(TransferMode.MOVE);
-                InnerShadow shadow = new InnerShadow();
-                shadow.setColor(Color.web("#888888"));
-                shadow.setOffsetX(1.0);
-                shadow.setOffsetY(1.0);
-                setEffect(shadow);
+        if(formItem instanceof MenuFormItem.NoFormItem) {
+            setOnDragDropped(event -> {
+                var dragged = FormEditorController.GridPositionCell.getCurrentDragItem();
+                if (dragged != null) {
+                    setFormItem(dragged.createComponent(myPosition));
+                    workOutIfDragDropNeeded();
+                }
                 event.consume();
-            }
-        });
+                event.setDropCompleted(true);
+                setEffect(null);
+            });
 
+            setOnDragExited(event -> {
+                event.consume();
+                setEffect(null);
+            });
+
+            setOnDragOver(event -> {
+                var dragged = FormEditorController.GridPositionCell.getCurrentDragItem();
+                if (dragged != null) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                    InnerShadow shadow = new InnerShadow();
+                    shadow.setColor(Color.web("#888888"));
+                    shadow.setOffsetX(1.0);
+                    shadow.setOffsetY(1.0);
+                    setEffect(shadow);
+                    event.consume();
+                }
+            });
+            editTopBtn.setOnDragDetected(null);
+        } else {
+            setOnDragDropped(null);
+            setOnDragExited(null);
+            setOnDragOver(null);
+            editTopBtn.setOnDragDetected(event -> {
+                ClipboardContent content = new ClipboardContent();
+                content.putString("FormEditComponent");
+
+                Dragboard dragboard = this.startDragAndDrop(TransferMode.MOVE);
+                dragboard.setContent(content);
+
+                setCurrentDragItem(new FormEditorController.ExistingGridPositionChoice(this));
+                event.consume();
+            });
+        }
+    }
+
+    public void clearDown() {
+        setFormItem(NO_FORM_ITEM);
+        evaluateFormItem();
+        workOutIfDragDropNeeded();
     }
 
     private void setFormItem(MenuFormItem component) {
