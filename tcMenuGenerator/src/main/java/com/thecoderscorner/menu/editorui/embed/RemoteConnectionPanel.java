@@ -10,8 +10,6 @@ import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
@@ -71,13 +69,12 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private TitleWidget<Image> connectStatusWidget;
     private boolean pairingInProgress = false;
     private RemoteMenuController controller;
-    private JfxMenuEditorFactory editorFactory;
     private MenuItemStore itemStore;
     private RemoteControllerListener remoteListener;
     private RemoteInformation remoteInformation = RemoteInformation.NOT_CONNECTED;
     private ContextMenu layoutContextMenu = null;
     private TcMenuFormPersistence selectedForm;
-    private FormBuilderPresentable formEditorPanel;
+    private Button formWidgetButton = null;
 
 
     public RemoteConnectionPanel(EmbedControlContext context, MenuItem item,
@@ -91,7 +88,6 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             this.rootItem = item;
             control = new RemoteMenuComponentControl(controller, navigationManager);
             dialogManager = new RemoteDialogManager();
-            editorFactory = new JfxMenuEditorFactory(control, Platform::runLater, dialogManager);
         } catch (Exception e) {
             logger.log(ERROR, "Failed to start controller " + persistedConnection.getName(), e);
         }
@@ -134,7 +130,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             var formWidget = standardLayoutWidget();
             navigationManager.addTitleWidget(formWidget);
             ContextMenu layoutMenu = generateLayoutMenu();
-            navigationManager.getButtonFor(formWidget).ifPresent(b -> b.setContextMenu(layoutMenu));
+            navigationManager.getButtonFor(formWidget).ifPresent(b -> {
+                b.setContextMenu(layoutMenu);
+                formWidgetButton = b;
+            });
         }
     }
 
@@ -157,57 +156,31 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         layoutContextMenu.getItems().clear();
         layoutContextMenu.getItems().addAll(items);
-        layoutContextMenu.getItems().add(new javafx.scene.control.SeparatorMenuItem());
 
         if(selectedForm != null) {
-           var editExisiting = new javafx.scene.control.MenuItem("Edit " + selectedForm.getFormName() + " [" + selectedForm.getFormId() + ']');
-           editExisiting.setOnAction(event -> onEditExisting());
+           var editExisiting = new javafx.scene.control.MenuItem("Clear Form");
+           editExisiting.setOnAction(event -> changeSelectedForm(null));
            layoutContextMenu.getItems().add(editExisiting);
         }
-
-        var createNewForm = new javafx.scene.control.MenuItem("Create New Form");
-        createNewForm.setOnAction(event -> onCreateNewForm());
-        layoutContextMenu.getItems().add(createNewForm);
-    }
-
-    private void onEditExisting() {
-        if(formEditorPanel == null) {
-            formEditorPanel = new FormBuilderPresentable(settings, UUID.fromString(persistedConnection.getUuid()),
-                    control.getMenuTree(), navigationManager, itemStore, this::formSaveConsumer, editorFactory);
-        }
-        navigationManager.pushNavigationIfNotOnStack(formEditorPanel);
-    }
-
-    private void formSaveConsumer(String xml, String newName) {
-        if(selectedForm == null) return;
-        try {
-            selectedForm = new TcMenuFormPersistence(selectedForm.getFormId(), selectedForm.getUuid(), newName, xml);
-            context.getDataStore().updateForm(selectedForm);
-            restartConnection(null);
-        } catch (DataException e) {
-            logger.log(ERROR, "Save consumer failed", e);
-        }
+        if(formWidgetButton != null) formWidgetButton.setDisable(layoutContextMenu.getItems().isEmpty());
     }
 
     private void changeSelectedForm(TcMenuFormPersistence form) {
         selectedForm = form;
-        itemStore.loadLayout(form.getXmlData(), getUuid());
-        buildLayoutItems();
-        persistedConnection = persistedConnection.withFormChange(selectedForm.getFormName());
+        if(selectedForm != null) {
+            itemStore.loadLayout(form.getXmlData(), getUuid());
+            buildLayoutItems();
+            persistedConnection = persistedConnection.withFormChange(selectedForm.getFormName());
+        } else {
+            itemStore.reset("Empty");
+            buildLayoutItems();
+            persistedConnection = persistedConnection.withFormChange("");
+        }
         try {
             context.getDataStore().updateConnection(persistedConnection);
             restartConnection(null);
         } catch (DataException e) {
             logger.log(ERROR, "Save form failed", e);
-        }
-    }
-
-    private void onCreateNewForm() {
-        try {
-            context.getDataStore().updateForm(TcMenuFormPersistence.anEmptyFormPersistence(getUuid().toString()));
-            buildLayoutItems();
-        } catch (DataException e) {
-            logger.log(ERROR, "Create form failed", e);
         }
     }
 
@@ -399,8 +372,10 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             if(!StringHelper.isStringEmptyOrNull(persistedConnection.getFormName())) {
                 try {
                     logger.log(INFO, "Trying to reload form " + persistedConnection.getFormName());
-                    selectedForm = persistedConnection.getSelectedForm().orElseThrow();
-                    itemStore.loadLayout(selectedForm.getXmlData(), UUID.fromString(persistedConnection.getUuid()));
+                    selectedForm = persistedConnection.getSelectedForm().orElse(null);
+                    if(selectedForm != null) {
+                        itemStore.loadLayout(selectedForm.getXmlData(), UUID.fromString(persistedConnection.getUuid()));
+                    }
                     buildLayoutItems();
                 } catch (Exception ex) {
                     logger.log(ERROR, "Reload of existing form failed with exception", ex);

@@ -34,6 +34,8 @@ public class MenuItemStore {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final MenuTree tree;
     private final int initialRows;
+    private final int initalCols;
+    private final boolean recursiveDefault;
     private String layoutName;
     private final Map<String, ColorCustomizable> colorSets = new HashMap<>();
     private final Map<Integer, SubMenuStore> subMenuStores = new HashMap<>();
@@ -52,18 +54,30 @@ public class MenuItemStore {
     public MenuItemStore(GlobalSettings settings, MenuTree tree, String layoutName, int rows, int columns, boolean recursive) {
         this.settings = settings;
         this.gridSize = columns;
+        this.initalCols = columns;
         this.tree = tree;
         this.initialRows = rows;
+        this.recursiveDefault = recursive;
+
+        reset(layoutName);
+    }
+
+    public void reset(String name) {
+        this.gridSize = initalCols;
 
         var rootColorSet = new GlobalColorCustomizable(settings);
         colorSets.put(GlobalColorCustomizable.KEY_NAME, rootColorSet);
         customDrawingMap.put(CUSTOM_DRAW_NONE, NO_CUSTOM_DRAWING);
 
-        var subStore = new SubMenuStore(MenuTree.ROOT.getId(), rootColorSet, FONT_100_PERCENT, recursive);
+        subMenuStores.clear();
+        var subStore = new SubMenuStore(MenuTree.ROOT.getId(), rootColorSet, FONT_100_PERCENT, recursiveDefault);
         subMenuStores.put(MenuTree.ROOT.getId(), subStore);
         currentSubStore = subStore;
-    }
 
+        imageDataMap.clear();
+
+        layoutName = name;
+    }
     public List<String> getAllColorSetNames() {
         return colorSets.keySet().stream().toList();
     }
