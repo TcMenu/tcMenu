@@ -96,7 +96,7 @@ public class FormEditorController {
         }
 
         for(int i=0; i < itemStore.getMaximumRow(); i++) {
-            editGrid.getRowConstraints().add(new RowConstraints(10, 30, 999, Priority.SOMETIMES, VPos.CENTER, true));
+            editGrid.getRowConstraints().add(new RowConstraints(100, 100, 999, Priority.SOMETIMES, VPos.CENTER, true));
         }
 
         for(int row = 0; row < editGrid.getRowConstraints().size(); row++) {
@@ -145,7 +145,7 @@ public class FormEditorController {
     }
 
     public void onAddNewRow(ActionEvent actionEvent) {
-        editGrid.getRowConstraints().add(new RowConstraints(10, 30, 999, Priority.SOMETIMES, VPos.CENTER, true));
+        editGrid.getRowConstraints().add(new RowConstraints(10, 100, 999, Priority.SOMETIMES, VPos.CENTER, true));
         for(int col = 0; col < editGrid.getColumnCount(); col++) {
             int row = editGrid.getRowConstraints().size() - 1;
             var formComp = new FormMenuComponent(itemStore.getFormItemAt(row, col), settings,

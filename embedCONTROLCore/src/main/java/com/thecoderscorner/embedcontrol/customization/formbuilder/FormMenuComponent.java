@@ -9,6 +9,7 @@ import com.thecoderscorner.embedcontrol.jfx.controlmgr.HorizontalSliderAnalogCom
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.domain.MenuItem;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -20,6 +21,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.NO_FORM_ITEM;
@@ -164,13 +166,7 @@ public class FormMenuComponent extends BorderPane {
                     mfi.getFontInfo(), mfi.getAlignment(), mfi.getPositioning(), mfi.getRedrawingMode(),
                     mfi.getControlType(), mfi.getCustomDrawing(), true);
             controlFactory.getComponentEditorItem(mfi.getItem(), settings, this::emptyConsumer)
-                    .ifPresentOrElse(control -> {
-                        if(control instanceof HorizontalSliderAnalogComponent horiz) {
-                            setCenter(new Label("Horizontal slider " + mfi.getItem().getName()));
-                        } else {
-                            setCenter(control.createComponent());
-                        }
-                    }, ()->setCenter(new Label("Empty")));
+                    .ifPresentOrElse(control -> setCenter(control.createComponent()), ()->setCenter(new Label("Empty")));
         } else {
             setCenter(new Label(""));
         }

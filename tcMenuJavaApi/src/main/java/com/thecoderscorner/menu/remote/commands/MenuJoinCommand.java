@@ -27,14 +27,6 @@ public class MenuJoinCommand implements MenuCommand {
         this.serialNumber = serialNo;
     }
 
-    public MenuJoinCommand(String myName, ApiPlatform platform, int apiVer) {
-        this.myName = myName;
-        this.appUuid = UUID.randomUUID();
-        this.serialNumber = 999999999;
-        this.apiVer = apiVer;
-        this.platform = platform;
-    }
-
     public String getMyName() {
         return myName;
     }

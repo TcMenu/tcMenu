@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
@@ -39,10 +40,12 @@ public class AnalogMeterComponent<T extends Number> extends JfxTextEditorCompone
         }
         borderPane = new BorderPane(canvas);
         borderPane.setMaxSize(9999, 9999);
-        borderPane.setPrefSize(150, 150);
 
         canvas.widthProperty().bind(borderPane.widthProperty());
         canvas.heightProperty().bind(borderPane.heightProperty());
+
+        borderPane.widthProperty().addListener((e) -> canvas.onPaintSurface(canvas.getGraphicsContext2D()));
+        borderPane.heightProperty().addListener((e) -> canvas.onPaintSurface(canvas.getGraphicsContext2D()));
 
         return borderPane;
     }
@@ -76,12 +79,12 @@ public class AnalogMeterComponent<T extends Number> extends JfxTextEditorCompone
         protected void onPaintSurface(GraphicsContext gc) {
             double protectedCurrent;
             double max;
-            double displayWidth = borderPane.getWidth();
-            double displayHeight = borderPane.getHeight();
+            double displayWidth = canvas.getWidth();
+            double displayHeight = canvas.getHeight();
 
             CustomDrawingConfiguration customDrawing = getDrawingSettings().getCustomDrawing();
             if (item instanceof AnalogMenuItem analog) {
-                protectedCurrent = currentVal.doubleValue();
+                protectedCurrent = currentVal != null ? currentVal.doubleValue() : 0.0;
                 max = analog.getMaxValue();
             } else if (item instanceof FloatMenuItem) {
                 max = 100.0;
@@ -89,7 +92,7 @@ public class AnalogMeterComponent<T extends Number> extends JfxTextEditorCompone
                     var ranges = numCust.getColorRanges();
                     max = ranges.get(ranges.size() - 1).end();
                 }
-                protectedCurrent = currentVal.doubleValue();
+                protectedCurrent = currentVal != null ? currentVal.doubleValue() : 0.0;
             } else {
                 throw new UnsupportedOperationException("Not able to show meter for " + item.getClass().getSimpleName());
             }

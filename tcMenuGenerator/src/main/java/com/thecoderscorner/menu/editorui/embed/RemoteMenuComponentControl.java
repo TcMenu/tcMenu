@@ -50,7 +50,7 @@ public class RemoteMenuComponentControl implements MenuComponentControl {
         public String getConnectionName() {
             var rp = controller.getConnector().getRemoteParty();
             if(rp != null) {
-                return rp.getName() + " - " + rp.getPlatform().getDescription() + " V" + rp.getMajorVersion() + "." + rp.getMinorVersion();
+                return String.format("%s, %s %s. S/N %s", rp.getName(), rp.getPlatform().getDescription(), rp.getVersionNum(), rp.getSerialNumber());
             }
             else return controller.getConnector().getConnectionName();
         }

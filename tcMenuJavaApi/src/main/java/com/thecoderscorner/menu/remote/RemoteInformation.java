@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.remote;
 
+import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.remote.protocol.ApiPlatform;
 
 import java.util.UUID;
@@ -71,5 +72,9 @@ public class RemoteInformation {
                 ", major=" + major +
                 ", minor=" + minor +
                 '}';
+    }
+
+    public VersionInfo getVersionNum() {
+        return new VersionInfo(major, minor);
     }
 }

@@ -280,14 +280,14 @@ public class TagValMenuCommandProcessors {
     }
 
     private BooleanMenuItem.BooleanNaming toNaming(int i) {
-        if(i==0) {
+        if (i == 0) {
             return BooleanMenuItem.BooleanNaming.TRUE_FALSE;
-        }
-        else if(i==1) {
+        } else if (i == 1) {
             return BooleanMenuItem.BooleanNaming.ON_OFF;
-        }
-        else {
+        } else if (i == 2) {
             return BooleanMenuItem.BooleanNaming.YES_NO;
+        } else {
+            return BooleanMenuItem.BooleanNaming.CHECKBOX;
         }
     }
 
@@ -541,6 +541,8 @@ public class TagValMenuCommandProcessors {
                 return 1;
             case YES_NO:
                 return 2;
+            case CHECKBOX:
+                return 3;
             case TRUE_FALSE:
             default:
                 return 0;

@@ -30,7 +30,8 @@ public class CommandFactory {
      * @return join command.
      */
     public static MenuJoinCommand newJoinCommand(String name) {
-        return new MenuJoinCommand(name, ApiPlatform.JAVA_API, ProtocolUtil.getVersionFromProperties());
+        return new MenuJoinCommand(UUID.randomUUID(), name, ApiPlatform.JAVA_API,
+                ProtocolUtil.getVersionFromProperties(), 0);
     }
 
     /**

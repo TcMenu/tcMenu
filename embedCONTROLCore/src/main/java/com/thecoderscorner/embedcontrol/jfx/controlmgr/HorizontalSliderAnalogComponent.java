@@ -3,7 +3,6 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
 import com.thecoderscorner.embedcontrol.customization.customdraw.NumberCustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
@@ -12,14 +11,11 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+import javafx.scene.layout.StackPane;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
@@ -47,6 +43,8 @@ public abstract class HorizontalSliderAnalogComponent<T extends Number> extends 
 
         canvas.widthProperty().bind(borderPane.widthProperty());
         canvas.heightProperty().bind(borderPane.heightProperty());
+        borderPane.widthProperty().addListener((e) -> canvas.onPaintSurface(canvas.getGraphicsContext2D()));
+        borderPane.heightProperty().addListener((e) -> canvas.onPaintSurface(canvas.getGraphicsContext2D()));
 
         return borderPane;
     }
@@ -114,15 +112,15 @@ public abstract class HorizontalSliderAnalogComponent<T extends Number> extends 
 
         protected void onPaintSurface(GraphicsContext gc) {
 
-            int displayWidth = (int) borderPane.getWidth();
-            int displayHeight = (int) borderPane.getHeight();
+            int displayWidth = (int) canvas.getWidth();
+            int displayHeight = (int) canvas.getHeight();
 
             double protectedCurrent;
             double screenPercentage;
             double currentPercentage;
             CustomDrawingConfiguration customDrawing = getDrawingSettings().getCustomDrawing();
             if(item instanceof AnalogMenuItem analog) {
-                protectedCurrent = currentVal.doubleValue();
+                protectedCurrent = currentVal != null ? currentVal.doubleValue() : 0.0;
                 screenPercentage = displayWidth / (double) analog.getMaxValue();
                 currentPercentage = protectedCurrent / (double) analog.getMaxValue();
             } else if(item instanceof FloatMenuItem flt) {
@@ -131,7 +129,7 @@ public abstract class HorizontalSliderAnalogComponent<T extends Number> extends 
                     var ranges = numCust.getColorRanges();
                     max = ranges.get(ranges.size() - 1).end();
                 }
-                protectedCurrent = currentVal.doubleValue();
+                protectedCurrent = currentVal != null ? currentVal.doubleValue() : 0.0;
                 currentPercentage = protectedCurrent / max;
                 screenPercentage = displayWidth / max;
             } else {

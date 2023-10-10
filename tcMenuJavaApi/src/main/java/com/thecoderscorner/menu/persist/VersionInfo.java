@@ -18,6 +18,14 @@ public class VersionInfo {
     private final int minor;
     private final int patch;
     private final ReleaseType releaseType;
+
+    public VersionInfo(int major, int minor) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = 0;
+        this.releaseType = ReleaseType.STABLE;
+    }
+
     public VersionInfo(String ver) {
         String[] verSplit = ver.split("[-.]");
         if(verSplit.length < 2) {
