@@ -131,11 +131,13 @@ public class ColorSettingsController {
     public void onResetToDark(ActionEvent actionEvent) {
         globalSettings.setColorsForDefault(true);
         prepareFromSubMenuSelection();
+        changed = true;
     }
 
     public void onResetToLight(ActionEvent actionEvent) {
         globalSettings.setColorsForDefault(false);
         prepareFromSubMenuSelection();
+        changed = true;
     }
 
     public void onSaveChanges(ActionEvent actionEvent) {
