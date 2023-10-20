@@ -19,10 +19,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.mgr.DialogShowMode;
-import com.thecoderscorner.menu.remote.AuthStatus;
-import com.thecoderscorner.menu.remote.RemoteControllerListener;
-import com.thecoderscorner.menu.remote.RemoteInformation;
-import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
@@ -452,6 +449,18 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         if(StringHelper.isStringEmptyOrNull(persistedConnection.getUuid())) return null;
         return UUID.fromString(persistedConnection.getUuid());
     }
+
+
+    public String getWindowDescription() {
+        var connector = controller.getConnector();
+        var party = connector.getRemoteParty();
+        int serNo = 0;
+        if(connector != null && party != null) {
+            serNo = connector.getRemoteParty().getSerialNumber();
+        }
+        return String.format("%s [%s] S/N %d", persistedConnection.getName(), persistedConnection.getUuid(), serNo);
+    }
+
 
     public ConnectionCreator getCreator() {
         return creator;

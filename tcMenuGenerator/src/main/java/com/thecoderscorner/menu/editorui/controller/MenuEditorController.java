@@ -747,7 +747,7 @@ public class MenuEditorController {
     public void refreshEmbedControlMenu() {
         var items = MenuEditorApp.getInstance().getAllActiveConnections().stream()
                 .map(con -> {
-                    var item = new javafx.scene.control.MenuItem(con.getPanelName());
+                    var item = new javafx.scene.control.MenuItem(con.getWindowDescription());
                     item.setOnAction(event -> con.toFront());
                     return item;
                 }).toList();
