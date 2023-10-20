@@ -1,10 +1,14 @@
 #ifndef CUSTOM_DISPLAY_DRAWABLE
 #define CUSTOM_DISPLAY_DRAWABLE
 
+#include <graphics/GraphicsDeviceRenderer.h>
+
+using namespace tcgfx;
+
 /**
  * Here you should implement your own drawable that will be constructed by setup to draw onto the screen
  */
-class CustomScreenDrawable : DeviceDrawable {
+class CustomScreenDrawable : public DeviceDrawable {
     /**
      * @return the dimensions of the display (x, y)
      */
@@ -33,7 +37,7 @@ class CustomScreenDrawable : DeviceDrawable {
      * @param mag the magnification or font number.
      * @param text text to be drawn
      */
-    void drawText(const Coord &where, const void *font, int mag, const char *text) override {
+    virtual void internalDrawText(const Coord &where, const void *font, int mag, const char *text) override {
 
     }
 
@@ -106,8 +110,18 @@ class CustomScreenDrawable : DeviceDrawable {
      * @param baseline the baseline below the starting point
      * @return the text extents
      */
-    Coord textExtents(const void *font, int mag, const char *text, int *baseline) override {
+    Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override {
         return Coord();
+    }
+
+    /**
+     * Draw a pixel in the current draw color at the location provided. This should be implemented in the most
+     * optimal way possible for the platform
+     * @param x the x location
+     * @param y the y location
+     */
+    void drawPixel(uint16_t x, uint16_t y) override {
+
     }
 };
 

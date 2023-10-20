@@ -19,16 +19,18 @@
 
     <Properties>
         <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="%core.screen.updates.sec.desc" type="int" min="1" max="30"/>
+        <Property id="CLASS_NAME" name="%complete.custom.class.name" initial="MyCustomDrawing" desc="%complete.custom.class.name.desc" type="variable"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <Replacement find="CustomDrawableType" replace="${CLASS_NAME}Drawable" />
+        <Replacement find="CustomScreenDrawable" replace="${CLASS_NAME}Drawable" />
         <SourceFile name="emptyDrawable/CustomDisplayDrawable.h" overwrite="false" />
     </SourceFiles>
 
     <IncludeFiles>
+        <Header name="graphics/GraphicsDeviceRenderer.h" inSource="false"/>
         <Header name="${SRC_DIR_OFFSET}CustomDisplayDrawable.h" inSource="cppSrc"/>
     </IncludeFiles>
 
@@ -36,7 +38,7 @@
         <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
             <Param value="30"/>
             <Param value="applicationInfo.name"/>
-            <Param ref="customDrawable"/>
+            <Param value="new ${CLASS_NAME}Drawable()"/>
         </Variable>
     </GlobalVariables>
 

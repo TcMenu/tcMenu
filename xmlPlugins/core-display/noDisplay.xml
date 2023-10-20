@@ -23,7 +23,7 @@
     <SourceFiles/>
 
     <IncludeFiles>
-        <Header name="BaseRenderer.h" inSource="false" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ"/>
+        <Header name="BaseRenderers.h" inSource="false" whenProperty="TARGET" isNotValue="RASPBERRY_PIJ"/>
     </IncludeFiles>
 
     <GlobalVariables>
