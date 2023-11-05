@@ -22,7 +22,7 @@ public class ListPlatformsCommand implements Callable<Integer> {
     }
 
     private String getBoardInfo(EmbeddedPlatform pl) {
-        if(platforms.isMbed(pl)) return "mbedOS";
+        if(platforms.isNativeCpp(pl)) return "mbedOS";
         else if(platforms.isArduino(pl)) return "Arduino";
         else if(platforms.isJava(pl)) return "Java";
         else return "Unknown";

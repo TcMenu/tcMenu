@@ -6,12 +6,14 @@
 
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.BooleanMenuItem;
+import com.thecoderscorner.menu.domain.BooleanMenuItemBuilder;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +22,8 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
 import static com.thecoderscorner.menu.editorint.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
+import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class CurrentEditorProjectTest {
 
     CurrentEditorProject project;
-    private CurrentProjectEditorUI editorUI;
+    private CurrentProjectEditorUIImpl editorUI;
     private ProjectPersistor persistor;
     private BooleanMenuItem item1;
 
@@ -39,7 +41,7 @@ public class CurrentEditorProjectTest {
     public void setUp() {
         MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
 
-        editorUI = mock(CurrentProjectEditorUI.class);
+        editorUI = mock(CurrentProjectEditorUIImpl.class);
         persistor = mock(ProjectPersistor.class);
         ConfigurationStorage configStore = mock(ConfigurationStorage.class);
         when(configStore.getVersion()).thenReturn("3.2.0");

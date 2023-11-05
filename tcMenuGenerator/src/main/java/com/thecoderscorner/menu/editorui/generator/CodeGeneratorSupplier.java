@@ -25,7 +25,7 @@ public class CodeGeneratorSupplier {
         if (installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if (arduinoPlatforms.contains(platform)) {
             return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options, configStorage), installer, platform);
-        } else if (mbedPlatforms.contains(platform)) {
+        } else if (trueCppPlatform.contains(platform)) {
             return new MbedGenerator(new MbedSketchFileAdjuster(options, configStorage), installer, platform);
         } else if (javaPlatforms.contains(platform)) {
             return new EmbeddedJavaGenerator(configStorage, platform);

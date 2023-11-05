@@ -453,9 +453,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     public String getWindowDescription() {
         var connector = controller.getConnector();
-        var party = connector.getRemoteParty();
         int serNo = 0;
-        if(connector != null && party != null) {
+        if(connector != null && connector.getRemoteParty() != null) {
             serNo = connector.getRemoteParty().getSerialNumber();
         }
         return String.format("%s [%s] S/N %d", persistedConnection.getName(), persistedConnection.getUuid(), serNo);

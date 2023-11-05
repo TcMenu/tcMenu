@@ -4,13 +4,8 @@
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
-       <Platform>ARDUINO_UNO</Platform>
-       <Platform>ARDUINO_AVR</Platform>
-       <Platform>ARDUINO_32</Platform>
-        <Platform>STM32DUINO</Platform>
-        <Platform>ARDUINO_ESP8266</Platform>
-       <Platform>ARDUINO_ESP32</Platform>
-       <Platform>MBED_RTOS</Platform>
+        <PlatformGroup>Arduino</PlatformGroup>
+        <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>LiquidCrystal based display driver that is setup out of the box to work with the two main choices of i2c backpack. Just choose the pin arrangement for your backpack. If your display has an unusual arrangement use the general version.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/liquidcrystalio-hd44780-renderer-plugin/"/>
@@ -28,7 +23,7 @@
             </Choices>
         </Property>
         <Property id="WIRE_VARIABLE" name="%lcd.wire.variable" initial="Wire" desc="%lcd.wire.variable.desc" type="variable"/>
-        <Property id="UNO_OR_FULL" name="%dfrobot.uno.full" initial="unoLcd" desc="%dfrobot.uno.full.desc" type="choice">
+        <Property id="UNO_OR_FULL" name="%dfrobot.uno.full" initial="fullLcd" desc="%dfrobot.uno.full.desc" type="choice">
             <Choices>
                 <Choice desc="Uno - Low Memory">unoLcd</Choice>
                 <Choice desc="Full - More Configurable">fullLcd</Choice>
@@ -45,7 +40,7 @@
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="Wire.h" inSource="false" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+        <Header name="Wire.h" inSource="false" whenProperty="TARGET_TYPE" isValue="Arduino"/>
         <Header name="LiquidCrystalIO.h" inSource="false"/>
         <Header name="tcMenuLiquidCrystal.h" inSource="true" priority="low"/>
         <Header name="IoAbstractionWire.h" inSource="false"/>
@@ -81,10 +76,14 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="begin" object="Wire" whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+        <Function name="begin" object="Wire" whenProperty="TARGET_TYPE" isValue="Arduino"/>
 
-        <Function name="setIoAbstraction" object="lcd" >
+        <Function name="setIoAbstraction" object="lcd" whenProperty="TARGET_TYPE" isValue="Arduino">
             <Param value="ioFrom8574(${I2C_ADDRESS}, 0xff, &amp;${WIRE_VARIABLE})"/>
+        </Function>
+
+        <Function name="setIoAbstraction" object="lcd" whenProperty="TARGET_TYPE" isNotValue="Arduino">
+            <Param value="ioFrom8574(${I2C_ADDRESS}, 0xff, ${WIRE_VARIABLE})"/>
         </Function>
 
         <Function name="begin" object="lcd">

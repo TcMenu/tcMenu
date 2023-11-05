@@ -40,14 +40,23 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
     }
 
     @Override
-    public String mapFunctions(List<FunctionDefinition> functions) {
-        return functions.stream()
+    public String mapFunctions(List<FunctionDefinition> functions, List<CodeVariable> variables) {
+        String functionsUsingNew = variables.stream()
+                .filter(CodeVariable::isUseNew)
+                .filter(fn -> fn.getApplicability().isApplicable(context.getProperties()))
+                .map(this::variableNewToCode)
+                .collect(Collectors.joining(LINE_BREAK));
+        String rawFunctions = functions.stream()
                 .filter(fn -> fn.getApplicability().isApplicable(context.getProperties()))
                 .map(this::functionToCode)
                 .collect(Collectors.joining(LINE_BREAK));
-
+        if(functionsUsingNew.isEmpty()) {
+            return rawFunctions;
+        } else {
+            return functionsUsingNew + LINE_BREAK + rawFunctions;
+        }
     }
-
+    
     private String functionToCode(FunctionDefinition func) {
         var memberAccessor = (func.isObjectPointer()) ? "->" : ".";
 
@@ -83,7 +92,7 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         );
         builder.append(") {").append(LINE_BREAK);
         levels+=2;
-        builder.append(mapFunctions(lambda.getLambda().getFunctionDefinitions()));
+        builder.append(mapFunctions(lambda.getLambda().getFunctionDefinitions(), List.of()));
         levels--;
         builder.append(LINE_BREAK).append(indentCode()).append("}");
         levels--;
@@ -147,6 +156,9 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
 
         String objectName = expando.expandExpression(context, var.getObjectName());
         String varName = expando.expandExpression(context, var.getVariableName());
+        if(var.isUseNew()) {
+            return objectName + "* " + varName + ";";
+        }
         if(var.isProgMem() && var.getObjectName().equals("char") && var.getVariableName().endsWith("[]")) {
             // progmem strings need special handling and can only have one param.
             var firstParam = params.stream().findFirst().map(this::paramOrDefaultValue).orElseThrow();
@@ -154,9 +166,21 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
         } else if(var.isProgMem()) {
             return "const " + objectName + " " + progMem() + varName + paramList + ";";
         } else {
-                return objectName + " " + varName + paramList + ";";
+            return objectName + " " + varName + paramList + ";";
         }
     }
+
+    private String variableNewToCode(CodeVariable var) {
+        String varName = expando.expandExpression(context, var.getVariableName());
+        String objectName = expando.expandExpression(context, var.getObjectName());
+
+        List<CodeParameter> params = var.getParameterList();
+        var paramList = "(" + params.stream()
+                .map(this::paramOrDefaultValue)
+                .collect(Collectors.joining(", ")) + ")";
+        return indentCode() + varName + " = new " + objectName + paramList + ";";
+    }
+
 
     private boolean isTcUnicode() {
         return context.getProperties().stream()
@@ -197,8 +221,11 @@ public class CodeVariableCppExtractor implements CodeVariableExtractor {
                 }
             } else return "";
         } else {
-            return "extern " + (exp.isProgMem() ? "const " : "") + expando.expandExpression(context, exp.getObjectName())
-                    + " " + varName + ";";
+            String varType = expando.expandExpression(context, exp.getObjectName());
+            if(exp.isUseNew()) {
+                varType += "*";
+            }
+            return "extern " + (exp.isProgMem() ? "const " : "") + varType + " " + varName + ";";
         }
     }
 

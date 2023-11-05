@@ -23,8 +23,7 @@
 #include <BaseRenderers.h>
 #include <tcUnicodeHelper.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
-#include <gfxfont.h>
+#include <Adafruit_Header.h>
 #include <graphics/GfxMenuConfig.h>
 #include <BaseDialog.h>
 #include <graphics/BaseGraphicalRenderer.h>
@@ -93,6 +92,7 @@ private:
     int16_t computedBaseline = 0;
     int16_t computedHeight = 0;
 public:
+    explicit AdafruitDrawable() : graphics(nullptr) {}
     explicit AdafruitDrawable(Adafruit_GFX* graphics, int spriteHeight = 0) : graphics(graphics) {
         setSubDeviceType(NO_SUB_DEVICE);
     }
@@ -113,11 +113,9 @@ public:
     Coord internalTextExtents(const void *font, int mag, const char *text, int *baseline) override;
     void drawPixel(uint16_t x, uint16_t y) override;
     Adafruit_GFX* getGfx() { return graphics; }
+    void setGraphics(Adafruit_GFX* gfx) { graphics = gfx; }
 protected:
     void computeBaselineIfNeeded(const GFXfont* font);
-    explicit AdafruitDrawable() : graphics(nullptr) {}
-    void setGraphics(Adafruit_GFX* gfx) { graphics = gfx; }
-
     UnicodeFontHandler *createFontHandler() override;
 };
 

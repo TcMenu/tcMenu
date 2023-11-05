@@ -18,7 +18,7 @@ public class MbedGenerator extends CoreCodeGenerator {
 
     private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
             "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
-            "#include <mbed.h>" + LINE_BREAK +
+            "#include <PlatformDetermination.h>" + LINE_BREAK +
             "#include <tcMenu.h>" + LINE_BREAK + LINE_BREAK;
 
 

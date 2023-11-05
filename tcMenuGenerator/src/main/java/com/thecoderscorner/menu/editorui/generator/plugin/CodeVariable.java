@@ -17,12 +17,13 @@ public class CodeVariable {
     private final String objectName;
     private final VariableDefinitionMode definitionMode;
     private final boolean progMem;
+    private final boolean useNew;
     private final boolean inContext;
     private final List<CodeParameter> parameterList;
     private final CodeApplicability applicability;
 
     public CodeVariable(String variableName, String objectName, VariableDefinitionMode definitionMode,
-                        boolean progMem, boolean inContext, List<CodeParameter> parameterList,
+                        boolean progMem, boolean inContext, boolean isUseNew, List<CodeParameter> parameterList,
                         CodeApplicability applicability) {
         this.variableName = variableName;
         this.objectName = objectName;
@@ -31,6 +32,7 @@ public class CodeVariable {
         this.inContext = inContext;
         this.parameterList = parameterList;
         this.applicability = applicability;
+        this.useNew = isUseNew;
     }
 
     @Override
@@ -39,12 +41,12 @@ public class CodeVariable {
         if (o == null || getClass() != o.getClass()) return false;
         CodeVariable that = (CodeVariable) o;
         return progMem == that.progMem && inContext == that.inContext && Objects.equals(variableName, that.variableName) &&
-                Objects.equals(objectName, that.objectName) && definitionMode == that.definitionMode;
+                Objects.equals(objectName, that.objectName) && definitionMode == that.definitionMode && useNew == that.useNew;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(variableName, objectName, definitionMode, progMem, inContext);
+        return Objects.hash(variableName, objectName, definitionMode, progMem, inContext, useNew);
     }
 
     public String getVariableName() {
@@ -65,6 +67,10 @@ public class CodeVariable {
 
     public boolean isInContext() { return inContext; }
 
+    public boolean isUseNew() {
+        return useNew;
+    }
+
     public List<CodeParameter> getParameterList() {
         return parameterList;
     }
@@ -79,6 +85,7 @@ public class CodeVariable {
                 "variableName='" + variableName + '\'' +
                 ", objectName='" + objectName + '\'' +
                 ", definitionMode=" + definitionMode +
+                ", isUseNew=" + useNew +
                 ", progMem=" + progMem +
                 ", parameterList=" + parameterList +
                 ", applicability=" + applicability +

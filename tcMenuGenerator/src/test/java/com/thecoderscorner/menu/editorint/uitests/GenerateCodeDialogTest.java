@@ -18,6 +18,7 @@ import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
@@ -66,7 +67,7 @@ public class GenerateCodeDialogTest {
     private static CurrentEditorProject project;
     private static CodePluginManager pluginManager;
     private static Path pluginTemp;
-    private static CurrentProjectEditorUI editorUI;
+    private static CurrentProjectEditorUIImpl editorUI;
 
     @BeforeAll
     public static void initialiseProjectFiles() throws IOException {
@@ -93,7 +94,7 @@ public class GenerateCodeDialogTest {
         inputPlugin.setProperties(myList);
 
         generatorRunner = mock(CodeGeneratorRunner.class);
-        editorUI = mock(CurrentProjectEditorUI.class);
+        editorUI = mock(CurrentProjectEditorUIImpl.class);
         var prjDir = pluginTemp.resolve("myProject");
         project = createTheProject(Files.createDirectory(prjDir), editorUI);
         when(editorUI.getCurrentProject()).thenReturn(project);
@@ -113,7 +114,7 @@ public class GenerateCodeDialogTest {
         genDialog.showCodeGenerator(stage, false);
     }
 
-    public static CurrentEditorProject createTheProject(Path prjDir, CurrentProjectEditorUI editorUI) throws IOException {
+    public static CurrentEditorProject createTheProject(Path prjDir, CurrentProjectEditorUIImpl editorUI) throws IOException {
         var projectFile = prjDir.resolve("myProject.emf");
         var prj = Objects.requireNonNull(GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf")).readAllBytes();
         Files.write(projectFile, prj);

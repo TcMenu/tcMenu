@@ -2,10 +2,14 @@ package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import javafx.application.Application;
+import javafx.application.Platform;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.editorui.cli.CodeGeneratorCommand.locateProjectFile;
@@ -19,6 +23,9 @@ public class StartUICommand implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-c", "--create"}, description = "create emf if needed")
     private boolean createIfNeeded;
+
+    @CommandLine.Option(names = {"-p", "--preview"}, description = "start preview window for form editing etc")
+    private boolean previewAtStart;
 
     public static AtomicReference<String> userSelectedProject = new AtomicReference<>(null);
 
@@ -36,7 +43,13 @@ public class StartUICommand implements Callable<Integer> {
             projectFile = locateProjectFile(projectFile, createIfNeeded);
             userSelectedProject.set(projectFile.getAbsolutePath());
             System.out.println("Designer is starting with project " + userSelectedProject.get());
+            if(previewAtStart) {
+                Executors.newSingleThreadScheduledExecutor().schedule(() ->
+                    Platform.runLater(() -> MenuEditorApp.getInstance().previewOnProject(projectFile.toPath()))
+                    ,2, TimeUnit.SECONDS);
+            }
             Application.launch(MenuEditorApp.class, "");
+
         }
         catch (Exception ex) {
             System.out.format("There does not seem to be a valid EMF project: %s - %s\n",

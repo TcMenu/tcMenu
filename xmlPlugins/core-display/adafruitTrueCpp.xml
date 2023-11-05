@@ -1,0 +1,123 @@
+<TcMenuPlugin name="Adafruit OLED Fork for True C++ (PicoSDK/Mbed)"
+              id="61159C5B-F23A-4050-980F-A8FE114E2965" subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="true"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <PlatformGroup>TrueCpp</PlatformGroup>
+    </SupportedPlatforms>
+    <Description>A fork of AdafruitGFX that we maintain supporting various OLED displays on PicoSDK, mbed6 and other native environments based on IoAbstraction.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed_oled_plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>oled-display.jpg</ImageFile>
+    <Properties>
+        <Property id="BUS_TYPE" name="%adafruit.mbed.bus.type" initial="I2C" desc="%adafruit.mbed.bus.type.desc" type="choice">
+            <Choices>
+                <Choice>I2C</Choice>
+                <Choice>SPI</Choice>
+            </Choices>
+        </Property>
+        <Property id="SERIAL_BUS" name="The serial bus (WireType or SPI instance)" initial="defaultWireTypePtr" desc="A serial bus variable name, either a WireType for I2C, or an SPI instance for SPIWithSettings"  type="variable" />
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="SSD_1306" desc="%core.display.variable.type.desc" type="choice">
+            <Choices>
+                <Choice desc="SH1106">SH_1106</Choice>
+                <Choice desc="SSD1306">SSD_1306</Choice>
+            </Choices>
+        </Property>
+        <Property id="DISPLAY_WIDTH" name="%core.display.width" initial="128" desc="%core.display.width.desc" type="choice">
+            <Choices>
+                <Choice>132</Choice>
+                <Choice>128</Choice>
+            </Choices>
+        </Property>
+        <Property id="DISPLAY_HEIGHT" name="%core.display.height" initial="64" desc="%core.display.height.desc" type="choice">
+            <Choices>
+                <Choice>32</Choice>
+                <Choice>64</Choice>
+            </Choices>
+        </Property>
+        <Property id="DISPLAY_I2C_ADDR" name="I2C Address" initial="0xFF" desc="The I2C address in native format" type="int" whenProperty="BUS_TYPE" isValue="I2C" />
+        <Property id="DISPLAY_RESET_PIN" name="%core.reset.pin" initial="0xFF" desc="%core.reset.pin.desc" type="pin"  whenProperty="BUS_TYPE" isValue="SPI" />
+        <Property id="DISPLAY_CS_PIN" name="%core.cs.pin" initial="0xFF" desc="%core.cs.pin.desc" type="pin" whenProperty="BUS_TYPE" isValue="SPI" />
+        <Property id="DISPLAY_RS_PIN" name="%core.rs.pin" initial="0xFF" desc="%core.rs.pin.desc" type="pin" whenProperty="BUS_TYPE" isValue="SPI" />
+        <Property id="DISPLAY_SPI_FREQ" name="Display SPI Frequency" initial="10000000" desc="Display SPI Frequency (nearest valid value  will be used)" type="int" whenProperty="BUS_TYPE" isValue="SPI" />
+        <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="0" desc="%adafruit.display.rotation.desc" type="int" min="0" max="3"/>
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="%core.screen.updates.sec.desc" type="int" min="1" max="30"/>
+        <Property id="TEXT_ENCODING" name="How your text is encoded" initial="ENCMODE_UTF8" desc="Set how your text is encoded, either UTF8/Unicode or Extended-ASCII" type="choice">
+            <Choices>
+                <Choice desc="UTF8 / Unicode">ENCMODE_UTF8</Choice>
+                <Choice desc="Extended ASCII">ENCMODE_EXT_ASCII</Choice>
+            </Choices>
+        </Property>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="Adafruit_Header" replace="oled/AdafruitSSD1306I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
+        <Replacement find="Adafruit_Driver" replace="AdafruitSSD1306I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
+        <Replacement find="Adafruit_Header" replace="oled/AdafruitSSD1306Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
+        <Replacement find="Adafruit_Driver" replace="AdafruitSSD1306Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp"/>
+        <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="Adafruit_SSD1306.h" inSource="true"/>
+        <Header name="tcMenuAdaFruitGfxMono.h" inSource="true" />
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${SERIAL_BUS}" type="WireType" export="only" whenProperty="BUS_TYPE" isValue="I2C"/>
+
+        <Variable name="${DISPLAY_VARIABLE}" type="AdafruitSSD1306Spi" export="true" whenProperty="BUS_TYPE" isValue="SPI" useNew="true">
+            <Param value="SPIWithSettings(${SERIAL_BUS}, ${DISPLAY_CS_PIN}, ${DISPLAY_SPI_FREQ})" />
+            <Param value="${DISPLAY_RS_PIN}"/>
+            <Param value="${DISPLAY_RESET_PIN}"/>
+            <Param value="${DISPLAY_HEIGHT}"/>
+            <Param value="${DISPLAY_WIDTH}"/>
+            <Param value="${TEXT_ENCODING}"/>
+            <Param value="${DISPLAY_TYPE}"/>
+        </Variable>
+        <Variable name="${DISPLAY_VARIABLE}" type="AdafruitSSD1306I2c" export="true" whenProperty="BUS_TYPE" isValue="I2C" useNew="true">
+            <Param value="${SERIAL_BUS}" />
+            <Param value="${DISPLAY_RESET_PIN}"/>
+            <Param value="${DISPLAY_I2C_ADDR}"/>
+            <Param value="${DISPLAY_HEIGHT}"/>
+            <Param value="${DISPLAY_WIDTH}"/>
+            <Param value="${TEXT_ENCODING}"/>
+            <Param value="${DISPLAY_TYPE}"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="AdafruitDrawable" export="true">
+        </Variable>
+
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="setRotation" object="${DISPLAY_VARIABLE}" pointer="true">
+            <Param value="${DISPLAY_ROTATION"/>
+        </Function>
+
+        <Function name="begin" object="${DISPLAY_VARIABLE}" pointer="true"/>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="setGraphics" object="${DISPLAY_VARIABLE}Drawable">
+            <Param value="${DISPLAY_VARIABLE}"/>
+        </Function>
+        <Function name="setFontHandler" object="${DISPLAY_VARIABLE}Drawable">
+            <Param value="${DISPLAY_VARIABLE}->getFontHandler()"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

@@ -6,16 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
-import com.thecoderscorner.menu.editorui.generator.ejava.EmbeddedJavaGenerator;
-import com.thecoderscorner.menu.editorui.generator.mbed.MbedGenerator;
-import com.thecoderscorner.menu.editorui.generator.mbed.MbedSketchFileAdjuster;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-
 import java.util.List;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.*;
@@ -28,9 +18,9 @@ import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatfor
  *
  */
 public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
-    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS);
+    private final List<EmbeddedPlatform> platforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO, RASPBERRY_PIJ, MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> arduinoPlatforms = List.of(ARDUINO_AVR, ARDUINO32, ARDUINO_ESP8266, ARDUINO_ESP32, STM32DUINO);
-    public static final List<EmbeddedPlatform> mbedPlatforms = List.of(MBED_RTOS);
+    public static final List<EmbeddedPlatform> trueCppPlatform = List.of(MBED_RTOS, PICO_SDK_CMAKE);
     public static final List<EmbeddedPlatform> javaPlatforms = List.of(RASPBERRY_PIJ);
 
     public PluginEmbeddedPlatformsImpl() {
@@ -45,12 +35,21 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         return arduinoPlatforms.contains(platform);
     }
 
-    public boolean isMbed(EmbeddedPlatform platform) {
-        return mbedPlatforms.contains(platform);
+    public boolean isNativeCpp(EmbeddedPlatform platform) {
+        return trueCppPlatform.contains(platform);
     }
 
     public boolean isJava(EmbeddedPlatform platform) {
         return javaPlatforms.contains(platform);
+    }
+
+    @Override
+    public List<EmbeddedPlatform> getEmbeddedPlatformsFromGroup(String group) {
+        return switch (group) {
+            case JAVA_PLATFORM_GROUP_STR -> javaPlatforms;
+            case CPP_PLATFORM_GROUP_STR -> trueCppPlatform;
+            default -> arduinoPlatforms;
+        };
     }
 
     @Override
@@ -79,6 +78,9 @@ public class PluginEmbeddedPlatformsImpl implements EmbeddedPlatforms {
         }
         else if(id.equals(RASPBERRY_PIJ.getBoardId())) {
             return RASPBERRY_PIJ;
+        }
+        else if(id.equals(PICO_SDK_CMAKE.getBoardId())) {
+            return PICO_SDK_CMAKE;
         }
         else {
             throw new IllegalArgumentException("No such board type: " + id);

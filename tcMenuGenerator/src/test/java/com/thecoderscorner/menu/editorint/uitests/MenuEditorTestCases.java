@@ -22,7 +22,9 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.PersistedMenu;
@@ -74,7 +76,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 public class MenuEditorTestCases {
 
     public static final String FILE_NAME_SIMULATED = "/var/tmp/fileName.emf";
-    private CurrentProjectEditorUI editorProjectUI;
+    private CurrentProjectEditorUIImpl editorProjectUI;
     private ProjectPersistor persistor;
     private ArduinoLibraryInstaller installer;
     private CurrentEditorProject project;
@@ -100,7 +102,7 @@ public class MenuEditorTestCases {
         Pane myPane = loader.load();
 
         // we need to mock a few things around the edges to make testing easier.
-        editorProjectUI = mock(CurrentProjectEditorUI.class);
+        editorProjectUI = mock(CurrentProjectEditorUIImpl.class);
         when(editorProjectUI.createPanelForMenuItem(any(), any(), any(), any())).thenReturn(Optional.empty());
         when(editorProjectUI.getEmbeddedPlatforms()).thenReturn(new PluginEmbeddedPlatformsImpl().getEmbeddedPlatforms());
 
@@ -119,7 +121,7 @@ public class MenuEditorTestCases {
                 mock(ConfigurationStorage.class)
         );
 
-        ConfigurationStorage storage = mock(ConfigurationStorage.class);
+        JdbcTcMenuConfigurationStore storage = mock(JdbcTcMenuConfigurationStore.class);
         when(storage.loadRecents()).thenReturn(List.of(sketch1.orElseThrow(), sketch2.orElseThrow(), "filesDoesNotExistRemove.emf"));
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.isUsingArduinoIDE()).thenReturn(true);
@@ -132,7 +134,7 @@ public class MenuEditorTestCases {
         MenuEditorController controller = loader.getController();
         libDetector = mock(LibraryVersionDetector.class);
         when(libDetector.getReleaseType()).thenReturn(ReleaseType.STABLE);
-        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, libDetector);
+        controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, libDetector, true);
         this.stage = stage;
 
         when(libDetector.availableVersionsAreValid(anyBoolean())).thenReturn(true);

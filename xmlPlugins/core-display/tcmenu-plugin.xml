@@ -39,8 +39,9 @@
         <!-- embedded java plugins -->
         <Plugin>EmbeddedJFX.xml</Plugin>
 
-        <!-- mbed specific displays -->
+        <!-- True CPP (PicoSDK/Mbed) specific displays -->
         <Plugin>adaMbedOled.xml</Plugin>
+        <Plugin>adafruitTrueCpp.xml</Plugin>
         <Plugin>stm32BspFrameBuffer.xml</Plugin>
 
         <!-- custom cases -->

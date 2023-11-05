@@ -2,13 +2,8 @@
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
-        <Platform>ARDUINO_UNO</Platform>
-        <Platform>ARDUINO_AVR</Platform>
-        <Platform>ARDUINO_32</Platform>
-        <Platform>STM32DUINO</Platform>
-        <Platform>ARDUINO_ESP8266</Platform>
-        <Platform>ARDUINO_ESP32</Platform>
-        <Platform>MBED_RTOS</Platform>
+        <PlatformGroup>Arduino</PlatformGroup>
+        <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>Use this option to fully control a menu using a matrix keyboard and optionally also a rotary encoder.</Description>
     <Documentation link="http://thecoderscorner.com/products/arduino-libraries/tc-menu/menu-control-using-matrix-keyboard/"/>

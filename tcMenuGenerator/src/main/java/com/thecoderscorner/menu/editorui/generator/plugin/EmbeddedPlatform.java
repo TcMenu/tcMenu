@@ -25,6 +25,7 @@ public class EmbeddedPlatform {
     public final static EmbeddedPlatform STM32DUINO = new EmbeddedPlatform("STM32Duino", "STM32DUINO", false);
     public final static EmbeddedPlatform RASPBERRY_PIJ = new EmbeddedPlatform("RaspberryPI-Java", "RASPBERRY_PIJ", false);
     public final static EmbeddedPlatform MBED_RTOS = new EmbeddedPlatform("mbed RTOS", "MBED_RTOS", false);
+    public final static EmbeddedPlatform PICO_SDK_CMAKE = new EmbeddedPlatform("PicoSDK CMake", "PICO_SDK", false);
 
     private final String friendlyName;
     private final String boardId;

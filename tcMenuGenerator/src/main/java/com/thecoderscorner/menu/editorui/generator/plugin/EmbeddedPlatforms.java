@@ -6,9 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
-import com.thecoderscorner.menu.editorui.generator.core.CodeGenerator;
-
 import java.util.List;
 
 /**
@@ -16,6 +13,9 @@ import java.util.List;
  * a code generator for a given platform.
  */
 public interface EmbeddedPlatforms {
+    String CPP_PLATFORM_GROUP_STR = "TrueCpp";
+    String JAVA_PLATFORM_GROUP_STR = "EmbJava";
+    String ARDUINO_PLATFORM_GROUP_STR = "Arduino";
 
     /** @return the list of available platforms */
     List<EmbeddedPlatform> getEmbeddedPlatforms();
@@ -30,7 +30,7 @@ public interface EmbeddedPlatforms {
      * @param platform the platform to check
      * @return true if it is an mbed platform
      */
-    boolean isMbed(EmbeddedPlatform platform);
+    boolean isNativeCpp(EmbeddedPlatform platform);
 
     /**
      * @param platform the platform to check
@@ -43,4 +43,6 @@ public interface EmbeddedPlatforms {
      * @return true if it is a Java platform such as Raspberry PI
      */
     boolean isJava(EmbeddedPlatform platform);
+
+    List<EmbeddedPlatform> getEmbeddedPlatformsFromGroup(String group);
 }

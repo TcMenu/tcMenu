@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thecoderscorner.menu.persist.XMLDOMHelper.*;
 import static java.lang.System.Logger.Level.*;
@@ -110,6 +111,8 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         if("Y".equals(System.getProperty("devlog"))) {
             // Developer mode assume home directory is the tcMenuGenerator directory.
             return Path.of(System.getProperty("user.dir")).getParent().resolve("xmlPlugins");
+        } else if(System.getProperty("override.core.plugin.dir") != null) {
+            return Path.of(System.getProperty("override.core.plugin.dir"));
         } else {
             // packaged mode, plugins are stored within the application itself, in the ../app directory.
             return Path.of(System.getProperty("java.home")).getParent().resolve("app");
@@ -281,6 +284,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
                             toDefinitionMode(ele.getAttribute("export")),
                             Boolean.parseBoolean(getAttributeOrDefault(ele, "progmem", "false")),
                             Boolean.parseBoolean(getAttributeOrDefault(ele, "inContext", "false")),
+                            Boolean.parseBoolean(getAttributeOrDefault(ele, "useNew", "false")),
                             toCodeParameters(ele, new HashMap<>()),
                             toApplicability(ele, applicabilityByKey)
                     )
@@ -518,10 +522,26 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setDescription(withBundle(root.getAttribute("name")));
         config.setExtendedDescription(withBundle(textOfElementByName(root, "Description")));
         config.setImageFileName(textOfElementByName(root, "ImageFile"));
-        config.setSupportedPlatforms(transformElements(root, "SupportedPlatforms", "Platform",
-                (ele) -> embeddedPlatforms.getEmbeddedPlatformFromId(ele.getTextContent())));
+        config.setSupportedPlatforms(supportedPlatformsFromElement(XMLDOMHelper.elementWithName(root, "SupportedPlatforms")));
         config.setRequiredLibraries(transformElements(root, "RequiredLibraries", "Library", Node::getTextContent));
         var docs = elementWithName(root, "Documentation");
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
+    }
+
+    private List<EmbeddedPlatform> supportedPlatformsFromElement(Element sp) {
+        var allWildcard = XMLDOMHelper.elementWithName(sp, "All");
+        if(allWildcard != null) {
+            var all = new ArrayList<>(PluginEmbeddedPlatformsImpl.arduinoPlatforms);
+            all.addAll(PluginEmbeddedPlatformsImpl.javaPlatforms);
+            all.addAll(PluginEmbeddedPlatformsImpl.trueCppPlatform);
+            return all;
+        } else {
+            var allPlatforms = transformElements(sp, "Platform",
+                    (ele) -> embeddedPlatforms.getEmbeddedPlatformFromId(ele.getTextContent()));
+            var allGroups = transformElements(sp, "PlatformGroup",
+                    (ele) -> embeddedPlatforms.getEmbeddedPlatformsFromGroup(ele.getTextContent()))
+                    .stream().flatMap(Collection::stream);
+            return Stream.concat(allPlatforms.stream(), allGroups).toList();
+        }
     }
 }

@@ -33,7 +33,7 @@
         <buttons>
             <Button fx:id="includeDebugButton" mnemonicParsing="false" onAction="#onIncludeDebug" text="%code.gen.include.debug" />
           <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyToClipboard" text="%code.gen.copy.clipboard" />
-            <Button fx:id="closeButton" defaultButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
+            <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
         </buttons>
          <opaqueInsets>
             <Insets top="5.0" />

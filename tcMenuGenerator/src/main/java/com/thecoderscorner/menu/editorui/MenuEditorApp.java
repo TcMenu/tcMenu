@@ -280,6 +280,14 @@ public class MenuEditorApp extends Application {
 
     }
 
+    public void previewOnProject(Path path) {
+        for(var editor : getAllMenuEditors()) {
+            if(editor.getProject().getFileName().startsWith(path.toString())) {
+                editor.OnShowPreviewWindow(null);
+            }
+        }
+    }
+
     /**
      * This mock client is used during test to fail every single web call, to ensure the UI works in
      * this scenario

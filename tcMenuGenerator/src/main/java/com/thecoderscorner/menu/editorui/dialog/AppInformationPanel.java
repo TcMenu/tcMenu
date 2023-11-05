@@ -121,7 +121,7 @@ public class AppInformationPanel {
                     .withExisting(options)
                     .withPlatform(platformCombo.getSelectionModel().getSelectedItem())
                     .codeOptions());
-            useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
+            useCppMainCheck.setDisable(platforms.isNativeCpp(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
             useSizedEepromStorage.setDisable(platforms.isJava(platformCombo.getValue()));
         });
         ++row;
@@ -197,7 +197,7 @@ public class AppInformationPanel {
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withCppMain(useCppMainCheck.isSelected())
                 .codeOptions()));
-        useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
+        useCppMainCheck.setDisable(platforms.isNativeCpp(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
         gridPane.add(useCppMainCheck, 1, row++, 2, 1);
 
         useSizedEepromStorage = new CheckBox(bundle.getString("app.info.check.use.size.based.eeprom"));
@@ -208,7 +208,7 @@ public class AppInformationPanel {
                         .withExisting(controller.getProject().getGeneratorOptions())
                         .withUseSizedEEPROMStorage(useSizedEepromStorage.isSelected())
                         .codeOptions()));
-        useCppMainCheck.setDisable(platforms.isMbed(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
+        useCppMainCheck.setDisable(platforms.isNativeCpp(platformCombo.getValue()) || platforms.isJava(platformCombo.getValue()));
         gridPane.add(useSizedEepromStorage, 1, row, 2, 1);
 
         vbox.getChildren().add(gridPane);

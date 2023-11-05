@@ -6,6 +6,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefiniti
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
 import javafx.scene.control.TableView;
@@ -39,7 +40,7 @@ public class IoExpanderDialogTestCases {
         MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
         this.stage = stage;
         randomPath = Files.createTempDirectory("prj");
-        project = GenerateCodeDialogTest.createTheProject(randomPath, mock(CurrentProjectEditorUI.class));
+        project = GenerateCodeDialogTest.createTheProject(randomPath, mock(CurrentProjectEditorUIImpl.class));
         new ChooseIoExpanderDialog(stage, Optional.empty(), project, false);
     }
 

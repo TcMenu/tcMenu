@@ -32,6 +32,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -40,11 +45,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -773,6 +780,22 @@ public class MenuEditorController {
 
     public void onFormManager(ActionEvent actionEvent) {
         new FormManagerDialog(getStage(), MenuEditorApp.getInstance().getAppContext().getRemoteContext());
+    }
+
+    public void onFileExplorer(ActionEvent actionEvent) {
+        if(editorProject.isFileNameSet()) {
+            var dir = Paths.get(editorProject.getFileName()).getParent();
+            try {
+                Desktop.getDesktop().browse(dir.toUri());
+            } catch (IOException e) {
+                var alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Browse failed");
+                alert.setHeaderText("Could not browse to file");
+                alert.setContentText("File was " + dir);
+                alert.getButtonTypes().add(ButtonType.CLOSE);
+                alert.showAndWait();
+            }
+        }
     }
 
     public class MenuItemWithDescription {

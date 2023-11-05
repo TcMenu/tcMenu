@@ -50,7 +50,7 @@ class PluginEmbeddedPlatformsImplTest {
         assertTrue(platforms.isArduino(STM32DUINO));
         assertTrue(platforms.isArduino(ARDUINO_AVR));
         assertFalse(platforms.isArduino(MBED_RTOS));
-        assertTrue(platforms.isMbed(MBED_RTOS));
+        assertTrue(platforms.isNativeCpp(MBED_RTOS));
 
         CodeGeneratorOptions standardOptions = new CodeGeneratorOptions();
         var generator = codeGenSupplier.getCodeGeneratorFor(ARDUINO_AVR, standardOptions);

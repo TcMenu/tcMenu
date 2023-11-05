@@ -17,7 +17,7 @@ import java.util.List;
  * that can convert the below structures into C++ code.
  */
 public interface CodeVariableExtractor {
-    String mapFunctions(List<FunctionDefinition> functions);
+    String mapFunctions(List<FunctionDefinition> functions, List<CodeVariable> variables);
     String mapVariables(List<CodeVariable> variables);
     String mapExports(List<CodeVariable> variables);
     String mapDefines();

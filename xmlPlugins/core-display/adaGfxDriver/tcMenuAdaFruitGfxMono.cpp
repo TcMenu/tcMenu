@@ -21,12 +21,11 @@ using namespace tcgfx;
 
 void AdafruitDrawable::transaction(bool isStarting, bool redrawNeeded) {
     if(!isStarting && redrawNeeded) {
-        reinterpret_cast<Adafruit_ILI9341*>(graphics)->display();
+        reinterpret_cast<Adafruit_Driver*>(graphics)->display();
     }
 }
 
 void AdafruitDrawable::internalDrawText(const Coord &where, const void *font, int mag, const char *sz) {
-    graphics->setTextWrap(false);
     int baseline=0;
     Coord exts = textExtents(font, mag, "(;y", &baseline);
     int yCursor = font ? (where.y + (exts.y - baseline)) : where.y;

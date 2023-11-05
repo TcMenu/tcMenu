@@ -50,8 +50,10 @@
     </ApplicabilityDefs>
 
     <SourceFiles>
-        <Replacement find="Adafruit_ILI9341" replace="Adafruit_SSD1306_I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
-        <Replacement find="Adafruit_ILI9341" replace="Adafruit_SSD1306_Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
+        <Replacement find="Adafruit_Driver" replace="Adafruit_SSD1306_I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
+        <Replacement find="Adafruit_Driver" replace="Adafruit_SSD1306_Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
+        <Replacement find="Adafruit_Header" replace="Adafruit_SSD1306_I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
+        <Replacement find="Adafruit_Header" replace="Adafruit_SSD1306_Spi" whenProperty="BUS_TYPE" isValue="SPI"/>
         <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp"/>
         <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h"/>
     </SourceFiles>

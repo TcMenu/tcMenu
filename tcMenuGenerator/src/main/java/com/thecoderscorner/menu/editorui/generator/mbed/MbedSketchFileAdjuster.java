@@ -22,7 +22,8 @@ public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
     @Override
     protected String emptyFileContents() {
         return """
-                #include <mbed.h>
+                #include <PlatformDetermination.h>
+                #include <TaskManagerIO.h>
 
                 void setup() {
 

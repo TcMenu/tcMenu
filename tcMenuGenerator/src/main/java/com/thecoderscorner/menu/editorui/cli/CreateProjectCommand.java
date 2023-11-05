@@ -135,7 +135,7 @@ public class CreateProjectCommand implements Callable<Integer> {
         var configurationStorage = new PrefsConfigurationStorage();
         logger.accept(String.format("Creating directory %s in %s", newProject, location));
         var dir = Paths.get(location.toString(), newProject);
-        Files.createDirectory(dir);
+        Files.createDirectories(dir);
 
         var recursiveNaming = recursiveNamingArr != null && recursiveNamingArr.length > 0 ? recursiveNamingArr[0] : configurationStorage.isDefaultRecursiveNamingOn();
         var saveToSrc = saveToSrcArr != null && saveToSrcArr.length > 0 ? saveToSrcArr[0] : configurationStorage.isDefaultSaveToSrcOn();

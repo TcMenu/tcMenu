@@ -5,12 +5,7 @@
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
-        <Platform>ARDUINO_UNO</Platform>
-        <Platform>ARDUINO_AVR</Platform>
-        <Platform>ARDUINO_32</Platform>
-        <Platform>STM32DUINO</Platform>
-        <Platform>ARDUINO_ESP8266</Platform>
-        <Platform>ARDUINO_ESP32</Platform>
+        <PlatformGroup>Arduino</PlatformGroup>
     </SupportedPlatforms>
     <Description>%adafruit.manual.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/"/>
@@ -30,8 +25,10 @@
 
     <SourceFiles>
         <Replacement find="#define DISPLAY_HAS_MEMBUFFER (true|false)" replace="#define DISPLAY_HAS_MEMBUFFER ${DISPLAY_BUFFERED}"/>
-        <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
-        <Replacement find="Adafruit_ILI9341" replace="${DISPLAY_TYPE}"/>
+        <Replacement find="Adafruit_Driver" replace="${DISPLAY_TYPE}"/>
+        <Replacement find="Adafruit_Driver" replace="${DISPLAY_TYPE}"/>
+        <Replacement find="Adafruit_Header" replace="${DISPLAY_TYPE}"/>
+        <Replacement find="Adafruit_Header" replace="${DISPLAY_TYPE}"/>
         <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.cpp" whenProperty="DISPLAY_BUFFERED" isValue="true"/>
         <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfxMono.h" whenProperty="DISPLAY_BUFFERED" isValue="true"/>
         <SourceFile name="adaGfxDriver/tcMenuAdaFruitGfx.cpp" whenProperty="DISPLAY_BUFFERED" isValue="false"/>

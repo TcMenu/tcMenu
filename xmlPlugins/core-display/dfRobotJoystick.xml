@@ -1,9 +1,9 @@
 <TcMenuPlugin name="%dfrobot.keys.name" id="7daa6a81-dd09-422e-b83c-bda5045abaef" subsystem="INPUT"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
-<SupportedPlatforms>
-       <Platform>ARDUINO_UNO</Platform>
-       <Platform>ARDUINO_AVR</Platform>
+    <SupportedPlatforms>
+        <PlatformGroup>Arduino</PlatformGroup>
+        <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>%dfrobot.keys.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/dfrobot-input-display-plugin/"/>

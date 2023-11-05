@@ -47,6 +47,7 @@ public class NewProjectController {
     private CodeGeneratorSupplier codeGeneratorSupplier;
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
     private ProjectPersistor projectPersistor;
+    private EmbeddedPlatforms platforms;
 
     public void initialise(ConfigurationStorage storage, CurrentEditorProject project, CodeGeneratorSupplier codeGeneratorSupplier,
                            ProjectPersistor projectPersistor, EmbeddedPlatforms platforms){
@@ -62,6 +63,7 @@ public class NewProjectController {
 
         platformCombo.setItems(FXCollections.observableList(platforms.getEmbeddedPlatforms()));
         platformCombo.getSelectionModel().select(0);
+        this.platforms = platforms;
         reEvaluteAll();
     }
 
@@ -74,14 +76,18 @@ public class NewProjectController {
         projectNameField.setDisable(newOnlyMode);
         dirChooseButton.setDisable(newOnlyMode);
         platformCombo.setDisable(newOnlyMode);
-        var isJavaPlatform = EmbeddedPlatform.RASPBERRY_PIJ.equals(platformCombo.getSelectionModel().getSelectedItem());
-        cppMainCheckbox.setDisable(newOnlyMode && !isJavaPlatform);
-        enableI18nSupportCheck.setDisable(newOnlyMode && !isJavaPlatform);
-
         if(newOnlyMode) {
+            cppMainCheckbox.setDisable(true);
+            enableI18nSupportCheck.setDisable(true);
             createButton.setDisable(false);
-        }
-        else {
+        } else {
+            var isJavaPlatform = platforms.isJava(platformCombo.getSelectionModel().getSelectedItem());
+            var isNativeCpp = platforms.isNativeCpp(platformCombo.getSelectionModel().getSelectedItem());
+            cppMainCheckbox.setDisable(isJavaPlatform || isNativeCpp);
+            if (isNativeCpp) {
+                cppMainCheckbox.setSelected(true);
+            }
+            enableI18nSupportCheck.setDisable(isJavaPlatform);
             var ok = (!StringHelper.isStringEmptyOrNull(projectNameField.getText()) && maybeDirectory.isPresent());
             if(isJavaPlatform && namespaceField.getText().isEmpty()) ok = false;
             createButton.setDisable(!ok);
