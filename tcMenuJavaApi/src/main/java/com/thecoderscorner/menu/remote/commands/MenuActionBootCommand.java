@@ -8,12 +8,10 @@ package com.thecoderscorner.menu.remote.commands;
 
 import com.thecoderscorner.menu.domain.ActionMenuItem;
 import com.thecoderscorner.menu.domain.state.AnyMenuState;
-import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.protocol.MessageField;
 
 public class MenuActionBootCommand extends BootItemMenuCommand<ActionMenuItem, Boolean> {
-
     public MenuActionBootCommand(int subMenuId, ActionMenuItem menuItem, Boolean currentVal) {
         super(subMenuId, menuItem, currentVal);
     }

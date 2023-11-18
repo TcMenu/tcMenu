@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
@@ -59,12 +60,14 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final ConfigurationStorage configStore;
     private ResourceBundle designerBundle;
     private CurrentEditorProject editorProject;
+    private final TccDatabaseUtilities dbUtilities;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
                                       LibraryVersionDetector versionDetector, CodeGeneratorSupplier codeGenSupplier,
-                                      String home) {
+                                      TccDatabaseUtilities dbUtilities, String home) {
         this.manager = manager;
+        this.dbUtilities = dbUtilities;
         this.codeGeneratorSupplier = codeGenSupplier;
         this.platforms = platforms;
         this.installer = installer;
@@ -205,8 +208,8 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         }
 
         try {
-            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms, manager);
-            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms, codeGeneratorSupplier);
+            DefaultCodeGeneratorRunner codeGeneratorRunner = new DefaultCodeGeneratorRunner(editorProject, platforms, manager, dbUtilities);
+            GenerateCodeDialog dialog = new GenerateCodeDialog(manager, this, editorProject, codeGeneratorRunner, platforms, codeGeneratorSupplier, dbUtilities);
             dialog.showCodeGenerator(mainStage, true);
         }
         catch (Exception ex) {

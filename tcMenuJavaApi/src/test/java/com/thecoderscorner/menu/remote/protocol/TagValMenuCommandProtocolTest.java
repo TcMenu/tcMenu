@@ -32,6 +32,22 @@ public class TagValMenuCommandProtocolTest {
     private ConfigurableProtocolConverter protocol;
     private byte[] msgData;
     private ByteBuffer bb;
+    private String XML_DATA_FOR_SIM = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+            "<EmbedControl boardUuid=\"29a725c3-0619-488e-b3bf-0f778dc9ef81\" layoutName=\"Untitled\">\n" +
+            "  <MenuLayouts>\n" +
+            "    <MenuLayout cols=\"2\" fontInfo=\"100%\" recursive=\"false\" rootId=\"0\">\n" +
+            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"HORIZONTAL_SLIDER\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"1\" position=\"0,0\"/>\n" +
+            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"UP_DOWN_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"2\" position=\"0,1\"/>\n" +
+            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"UP_DOWN_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"2\" position=\"1,0\"/>\n" +
+            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"3\" position=\"1,1\"/>\n" +
+            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"TEXT_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"4\" position=\"2,0\"/>\n" +
+            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME\" fontInfo=\"100%\" menuId=\"5\" position=\"2,1\"/>\n" +
+            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME\" fontInfo=\"100%\" menuId=\"6\" position=\"3,0\"/>\n" +
+            "      <StaticText alignment=\"LEFT\" colorSet=\"Global\" position=\"3,1\">Hello world</StaticText>\n" +
+            "    </MenuLayout>\n" +
+            "  </MenuLayouts>\n" +
+            "  <ColorSets/>\n" +
+            "</EmbedControl>\n";
 
     @Before
     public void setUp() {
@@ -49,7 +65,7 @@ public class TagValMenuCommandProtocolTest {
             return new BinaryDataCommand(data);
         });
         protocol.addRawOutProcessor(BinaryDataCommand.BIN_DATA_COMMAND, (buffer, cmd) -> {
-            buffer.putInt(cmd.getBinData().length);
+            TagValMenuCommandProcessors.putRawLengthInBuffer(buffer, cmd.getBinData().length);
             buffer.put(cmd.getBinData());
         }, BinaryDataCommand.class);
 
@@ -558,6 +574,38 @@ public class TagValMenuCommandProtocolTest {
         testBufferAgainstExpected(DIALOG_UPDATE, "MO=S|HF=Hello|BU=Buffer|B1=4|B2=3|IC=00000000|\u0002");
     }
 
+    @Test
+    public void testSendingAndReceivingFormNamesRequest() throws IOException {
+        protocol.toChannel(bb, new FormGetNamesRequestCommand());
+        testBufferAgainstExpected(FORM_GET_NAMES_REQUEST, "NM=*|\u0002");
+
+        var cmd = protocol.fromChannel(toBuffer(FORM_GET_NAMES_REQUEST, "NM=*|\u0002"));
+        assertTrue(cmd instanceof FormGetNamesRequestCommand);
+        var pairing = (FormGetNamesRequestCommand) cmd;
+        assertEquals("*", pairing.getCriteria());
+    }
+
+    @Test
+    public void testSendingAndReceivingFormNamesResponse() throws IOException {
+        protocol.toChannel(bb, new FormGetNamesResponseCommand(List.of("Form 1", "Form 2", "Form 3")));
+        testBufferAgainstExpected(FORM_GET_NAMES_RESPONSE, "NC=3|CA=Form 1|CB=Form 2|CC=Form 3|\u0002");
+
+        var cmd = protocol.fromChannel(toBuffer(FORM_GET_NAMES_RESPONSE, "NC=3|CA=Form 1|CB=Form 2|CC=Form 3|\u0002"));
+        assertTrue(cmd instanceof FormGetNamesResponseCommand);
+        var formNames = (FormGetNamesResponseCommand) cmd;
+        Assertions.assertThat(formNames.getFormNames()).containsExactly("Form 1", "Form 2", "Form 3");
+    }
+
+    @Test
+    public void testSendingAndReceivingFormDataRequest() throws IOException {
+        protocol.toChannel(bb, new FormDataRequestCommand("Form 1"));
+        testBufferAgainstExpected(FORM_DATA_REQUEST, "ID=Form 1|\u0002");
+
+        var cmd = protocol.fromChannel(toBuffer(FORM_DATA_REQUEST, "ID=Form 1|\u0002"));
+        assertTrue(cmd instanceof FormDataRequestCommand);
+        var formNames = (FormDataRequestCommand) cmd;
+        assertEquals("Form 1", formNames.getFormName());
+    }
 
     private void testBufferAgainstExpected(MessageField expectedMsg, String expectedData) {
         bb.flip();
@@ -598,5 +646,19 @@ public class TagValMenuCommandProtocolTest {
         var msg = (BinaryDataCommand) protocol.fromChannel(bb);
         assertEquals(BinaryDataCommand.BIN_DATA_COMMAND, msg.getCommandType());
         Assertions.assertThat(msg.getBinData()).containsExactly(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+    }
+
+    @Test
+    public void testSendingAndReceivingFormDataResponse() throws IOException {
+        protocol.toChannel(bb, new FormDataResponseCommand(XML_DATA_FOR_SIM));
+        bb.flip();
+        assertEquals(MenuCommandProtocol.PROTO_START_OF_MSG, bb.get());
+        ByteBuffer bbCopy = bb.slice();
+        assertEquals(CommandProtocol.RAW_BIN_PROTOCOL.getProtoNum(), bbCopy.get());
+
+        var cmd = (FormDataResponseCommand) protocol.fromChannel(bb);
+        assertTrue(cmd instanceof FormDataResponseCommand);
+        var formNames = (FormDataResponseCommand) cmd;
+        assertEquals(XML_DATA_FOR_SIM, formNames.getFormData());
     }
 }

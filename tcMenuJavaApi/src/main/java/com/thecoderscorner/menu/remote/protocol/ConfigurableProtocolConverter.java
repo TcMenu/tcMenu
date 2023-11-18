@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.remote.commands.MenuCommand;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +96,8 @@ public class ConfigurableProtocolConverter implements MenuCommandProtocol {
             return tagValIncomingParsers.get(cmdType).apply(parser);
 
         } else if(protocol == CommandProtocol.RAW_BIN_PROTOCOL && rawIncomingParsers.containsKey(cmdType)){
-            int len = buffer.getInt();
+            buffer.order(ByteOrder.BIG_ENDIAN);
+            int len = buffer.getShort();
             return rawIncomingParsers.get(cmdType).apply(buffer, len);
         } else {
             throw new TcProtocolException("Unknown protocol used in message" + protocol);

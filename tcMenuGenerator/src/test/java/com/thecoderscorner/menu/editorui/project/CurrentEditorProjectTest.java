@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.thecoderscorner.menu.editorint.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
@@ -45,7 +46,7 @@ public class CurrentEditorProjectTest {
         persistor = mock(ProjectPersistor.class);
         ConfigurationStorage configStore = mock(ConfigurationStorage.class);
         when(configStore.getVersion()).thenReturn("3.2.0");
-        project = new CurrentEditorProject(editorUI, persistor, configStore);
+        project = new CurrentEditorProject(editorUI, persistor, configStore, mock(ScheduledExecutorService.class), mock(TccProjectWatcher.class));
 
         item1 = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
                 .withId(1)

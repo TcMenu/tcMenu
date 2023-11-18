@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
 
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
@@ -58,7 +59,7 @@ public abstract class UIMenuItemTestBase {
         var bundle = MenuEditorApp.configureBundle(EMPTY_LOCALE);
         editorUI = new CurrentProjectEditorUIImpl(manager, new PluginEmbeddedPlatformsImpl(),
                 mock(ArduinoLibraryInstaller.class), storage, mock(LibraryVersionDetector.class),
-                mock(CodeGeneratorSupplier.class), System.getProperty("user.home"));
+                mock(CodeGeneratorSupplier.class), mock(TccDatabaseUtilities.class), System.getProperty("user.home"));
         editorUI.setStage(stage, bundle);
         menuTree = TestUtils.buildCompleteTree();
         mockedConsumer = mock(BiConsumer.class);

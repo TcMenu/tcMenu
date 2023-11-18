@@ -1,5 +1,7 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -93,7 +95,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             codeGen.setLoggerFunction((level, s) -> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
-            codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(), getLocaleHandler(location));
+            var enabledFormObjects = project.getOptions().getListOfEmbeddedForms().stream()
+                    .map(form -> getFirstByNameAndUuid(project, form)).toList();
+
+            codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(),
+                    getLocaleHandler(location), enabledFormObjects);
             return 0;
         }
         catch (Exception ex) {
@@ -104,6 +110,18 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             return -1;
         }
     }
+
+    private TcMenuFormPersistence getFirstByNameAndUuid(MenuTreeWithCodeOptions project, String formName) {
+        var uuid = project.getOptions().getApplicationUUID().toString();
+        try {
+            return MenuEditorApp.getInstance().getAppContext().getEcDataStore().getUtilities()
+                    .queryRecords(TcMenuFormPersistence.class, "FORM_UUID=? and FORM_NAME=?", uuid, formName)
+                    .stream().findFirst().orElseThrow();
+        } catch (DataException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private CodePluginItem getPluginOrDefault(List<CodePluginItem> plugins, String lastPlugin, String defaultPlugin, Map<String, CreatorProperty> propertiesMap) {
 

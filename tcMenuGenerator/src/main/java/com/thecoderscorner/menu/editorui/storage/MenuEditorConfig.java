@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.project.TccProjectWatcherImpl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 
@@ -78,8 +79,9 @@ public class MenuEditorConfig extends CoreControlAppConfig {
     }
 
     public CurrentEditorProject newProject() {
-        var editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector, codeGenSupplier, tcMenuHome.toString());
-        var editorProject = new CurrentEditorProject(editorUI, persistor, configStore);
+        var editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector,
+                codeGenSupplier, databaseUtils, tcMenuHome.toString());
+        var editorProject = new CurrentEditorProject(editorUI, persistor, configStore, executor, new TccProjectWatcherImpl());
         return editorProject;
     }
 

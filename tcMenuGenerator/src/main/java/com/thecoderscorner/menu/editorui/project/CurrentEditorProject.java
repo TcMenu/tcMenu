@@ -24,10 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_CURRENT;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.ALL_TO_SRC;
 import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 /**
  * {@link CurrentEditorProject} represents the current project that is being edited by the UI. It supports the controller
@@ -42,6 +44,8 @@ public class CurrentEditorProject {
 
     public enum EditorSaveMode { SAVE_AS, SAVE}
 
+    private final ScheduledExecutorService executorService;
+    private final TccProjectWatcher watcher;
     private static final int UNDO_BUFFER_SIZE = 200;
     private final CurrentProjectEditorUIImpl editorUI;
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
@@ -55,15 +59,48 @@ public class CurrentEditorProject {
     private boolean dirty = true; // always assume dirty at first..
     private CodeGeneratorOptions generatorOptions;
     private LocaleMappingHandler localeHandler = null;
+    private Runnable externalProjectChangeListener;
 
     private final Deque<MenuItemChange> changeHistory = new LinkedList<>();
     private final Deque<MenuItemChange> redoHistory = new LinkedList<>();
 
-    public CurrentEditorProject(CurrentProjectEditorUIImpl editorUI, ProjectPersistor persistor, ConfigurationStorage storage) {
+    public CurrentEditorProject(CurrentProjectEditorUIImpl editorUI, ProjectPersistor persistor, ConfigurationStorage storage,
+                                ScheduledExecutorService executorService, TccProjectWatcher watcher) {
         this.editorUI = editorUI;
         projectPersistor = persistor;
         configStore = storage;
+        this.executorService = executorService;
+        this.watcher = watcher;
         cleanDown();
+    }
+
+    public void close() {
+        watcher.close();
+    }
+
+    private void emfFileHasChanged() {
+        try {
+            String file = null;
+            if (isDirty() && isFileNameSet()) {
+                file = fileName.orElseThrow();
+                Path path = Paths.get(file);
+                logger.log(INFO, "External change conflict for " + path.getFileName());
+                if (editorUI.questionYesNo(
+                        "External change conflict for " + path.getFileName(),
+                        "File " + path.getFileName() + " has changed both inside and outside the editor, should designer reload?")) {
+                    logger.log(INFO, "Reload losing local changes " + file);
+                    openProjectWithoutAlert(file);
+                    externalProjectChangeListener.run();
+                } else {
+                    logger.log(INFO, "Change on FS ignored");
+                }
+            } else {
+                openProjectWithoutAlert(fileName.orElseThrow());
+                externalProjectChangeListener.run();
+            }
+        } catch (IOException e) {
+            logger.log(ERROR, "Could not reopen file " + fileName, e);
+        }
     }
 
     public CurrentProjectEditorUIImpl getEditorUI() {
@@ -77,11 +114,16 @@ public class CurrentEditorProject {
         uncommittedItems.clear();
         generatorOptions = makeBlankGeneratorOptions();
         localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
+        watcher.clear();
         setDirty(false);
         updateTitle();
     }
 
     public ProjectPersistor getProjectPersistor() { return projectPersistor; }
+
+    public void setExternalProjectChangedListener(Runnable runnable) {
+        this.externalProjectChangeListener = runnable;
+    }
 
     public void newProject() {
         if(checkIfWeShouldOverwrite()) {
@@ -116,6 +158,7 @@ public class CurrentEditorProject {
             }
         } catch (IOException e) {
             fileName = Optional.empty();
+            watcher.clear();
             logger.log(ERROR, "open operation failed on " + file, e);
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
@@ -123,7 +166,6 @@ public class CurrentEditorProject {
     }
 
     public void openProjectWithoutAlert(String file) throws IOException {
-        fileName = Optional.ofNullable(file);
         MenuTreeWithCodeOptions openedProject = projectPersistor.open(file);
         menuTree = openedProject.getMenuTree();
         description = openedProject.getDescription();
@@ -132,6 +174,7 @@ public class CurrentEditorProject {
         checkIfLocalesPresentAndEnable();
         setDirty(false);
         updateTitle();
+        setFileName(file);
         changeHistory.clear();
         uncommittedItems.clear();
     }
@@ -150,7 +193,10 @@ public class CurrentEditorProject {
 
     public boolean openProject() {
         if (checkIfWeShouldOverwrite()) {
-            fileName = editorUI.findFileNameFromUser(true);
+            var possibleFileName = editorUI.findFileNameFromUser(true);
+            if(possibleFileName.isPresent()) {
+                setFileName(possibleFileName.get());
+            }
             fileName.ifPresent(this::openProject);
             return true;
         }
@@ -164,7 +210,8 @@ public class CurrentEditorProject {
                 editorUI.alertOnError("No selected file", "No file was selected so project has not been saved.");
                 return;
             } else {
-                fileName = name;
+                setFileName(name.get());
+
             }
         } else {
             var backupManager = new BackupManager(configStore);
@@ -189,6 +236,12 @@ public class CurrentEditorProject {
         });
     }
 
+    private void setFileName(String name) {
+        watcher.setProjectName(Paths.get(name));
+        watcher.registerNotifiers(emf -> emfFileHasChanged(), localeHandler);
+        fileName = Optional.ofNullable(name);
+    }
+
     public String getDescription() {
         return description;
     }
@@ -211,7 +264,7 @@ public class CurrentEditorProject {
     }
 
     public boolean isDirty() {
-        return dirty;
+        return dirty || localeHandler.isDirty(Optional.empty());
     }
 
     public void setDirty(boolean dirty) {

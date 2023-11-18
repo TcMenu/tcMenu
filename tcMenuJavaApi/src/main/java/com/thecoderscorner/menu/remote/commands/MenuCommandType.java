@@ -31,4 +31,8 @@ public interface MenuCommandType {
     MessageField ACKNOWLEDGEMENT = new MessageField('A', 'K');
     MessageField CHANGE_INT_FIELD = new MessageField('V', 'C');
     MessageField DIALOG_UPDATE = new MessageField('D', 'M');
+    MessageField FORM_GET_NAMES_REQUEST = new MessageField('F', 'G');
+    MessageField FORM_GET_NAMES_RESPONSE = new MessageField('F', 'N');
+    MessageField FORM_DATA_REQUEST = new MessageField('F', 'R');
+    MessageField FORM_DATA_RESPONSE = new MessageField('F', 'D');
 }

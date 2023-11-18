@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorint.uitests;
 
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
@@ -15,9 +16,9 @@ import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
 import com.thecoderscorner.menu.editorui.generator.validation.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+import com.thecoderscorner.menu.editorui.project.TccProjectWatcher;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import javafx.application.Platform;
 import javafx.geometry.VerticalDirection;
@@ -41,8 +42,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
 import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
@@ -110,7 +111,7 @@ public class GenerateCodeDialogTest {
 
         assertEquals(1, pluginManager.getLoadedPlugins().size());
 
-        genDialog = new GenerateCodeDialog(pluginManager, editorUI, project, generatorRunner, embeddedPlatforms, codeGeneratorSupplier);
+        genDialog = new GenerateCodeDialog(pluginManager, editorUI, project, generatorRunner, embeddedPlatforms, codeGeneratorSupplier, mock(TccDatabaseUtilities.class));
         genDialog.showCodeGenerator(stage, false);
     }
 
@@ -119,7 +120,7 @@ public class GenerateCodeDialogTest {
         var prj = Objects.requireNonNull(GenerateCodeDialogTest.class.getResourceAsStream("/cannedProject/unitTestProject.emf")).readAllBytes();
         Files.write(projectFile, prj);
         var project = new CurrentEditorProject(editorUI, new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl()),
-                mock(ConfigurationStorage.class));
+                mock(ConfigurationStorage.class), mock(ScheduledExecutorService.class), mock(TccProjectWatcher.class));
         project.openProject(projectFile.toString());
         return project;
     }

@@ -153,6 +153,7 @@ public class MenuEditorApp extends Application {
                         editorProject.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
                     }
                 }
+                editorProject.close();
                 activeMainWindows.remove(controller);
             }
             catch(Exception ex) {

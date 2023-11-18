@@ -7,6 +7,9 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
@@ -27,10 +30,14 @@ import com.thecoderscorner.menu.editorui.generator.validation.IoExpanderProperty
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
@@ -47,6 +54,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
+import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -60,6 +68,7 @@ public class GenerateCodeDialog {
     private final CurrentEditorProject project;
     private final CodeGeneratorRunner runner;
     private final EmbeddedPlatforms platforms;
+    private final TccDatabaseUtilities dbUtilities;
 
     private final List<CodePluginItem> displaysSupported = new ArrayList<>();
     private final List<CodePluginItem> inputsSupported = new ArrayList<>();
@@ -83,16 +92,19 @@ public class GenerateCodeDialog {
     private Label authModeLabel;
     private TextField namespaceField;
     private ToggleButton useModuleButton;
+    private TableView<TcMenuFormPersistenceWithOptionality> formTable;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
-                              EmbeddedPlatforms platforms, CodeGeneratorSupplier generatorSupplier) {
+                              EmbeddedPlatforms platforms, CodeGeneratorSupplier generatorSupplier,
+                              TccDatabaseUtilities dbUtilities) {
         this.manager = manager;
         this.editorUI = editorUI;
         this.project = project;
         this.runner = runner;
         this.platforms = platforms;
         this.generatorSupplier = generatorSupplier;
+        this.dbUtilities = dbUtilities;
 
     }
 
@@ -143,15 +155,9 @@ public class GenerateCodeDialog {
         }
         else currentTheme = null;
 
-        BorderPane remoteLabelPane = new BorderPane();
         Label titleLbl = new Label(MenuEditorApp.getBundle().getString("code.gen.remote.type"));
-        titleLbl.setStyle("-fx-font-size: 16px; -fx-opacity: 0.6; -fx-font-weight: bold;");
-        remoteLabelPane.setLeft(titleLbl);
-
-        Button addRemoteCapabilityButton = new Button(MenuEditorApp.getBundle().getString("code.gen.remote.add"));
-        remoteLabelPane.setRight(addRemoteCapabilityButton);
-        addRemoteCapabilityButton.setOnAction(this::produceAnotherRemoteCapability);
-        centerPane.getChildren().add(remoteLabelPane);
+        titleLbl.setStyle("-fx-font-size: 140%; -fx-opacity: 0.6; -fx-font-weight: bold;");
+        centerPane.getChildren().add(titleLbl);
 
         List<String> remoteIds = genOptions.getLastRemoteCapabilitiesUuids();
         if(remoteIds != null && !remoteIds.isEmpty()) {
@@ -176,6 +182,16 @@ public class GenerateCodeDialog {
             currentRemote.getStyleClass().add("uiCodeGen");
             centerPane.getChildren().add(currentRemote);
         }
+
+        Button addRemoteCapabilityButton = new Button(MenuEditorApp.getBundle().getString("code.gen.remote.add"));
+        addRemoteCapabilityButton.setOnAction(this::produceAnotherRemoteCapability);
+        centerPane.getChildren().add(addRemoteCapabilityButton);
+
+
+        Label formsInFlashLabel = new Label(MenuEditorApp.getBundle().getString("code.gen.choose.remote.forms"));
+        formsInFlashLabel.setStyle("-fx-font-size: 140%; -fx-opacity: 0.6; -fx-font-weight: bold;-fx-padding: 10 0;");
+        centerPane.getChildren().add(formsInFlashLabel);
+        centerPane.getChildren().add(generateTheFormSelectionTable());
 
         filterChoicesByPlatform(platformCombo.getValue());
 
@@ -206,6 +222,58 @@ public class GenerateCodeDialog {
         createDialogStateAndShow(stage, pane, title, modal);
     }
 
+    private Node generateTheFormSelectionTable()  {
+        var uuid = project.getGeneratorOptions().getApplicationUUID();
+        var enabledForms = new HashSet<>(project.getGeneratorOptions().getListOfEmbeddedForms());
+        List<TcMenuFormPersistenceWithOptionality> forms;
+        try {
+            forms = dbUtilities.queryRecords(TcMenuFormPersistence.class, "FORM_UUID=?", uuid).stream()
+                    .map(form -> new TcMenuFormPersistenceWithOptionality(enabledForms.contains(form.getFormName()), form))
+                    .toList();
+        } catch (DataException e) {
+            logger.log(ERROR, "Failed to read forms", e);
+            return new Label("Failure in database, forms not available");
+        }
+
+        if(forms.isEmpty()) {
+            return new Label("There are no forms within your application");
+        }
+
+        formTable = new TableView<>(FXCollections.observableArrayList(forms));
+        formTable.setEditable(true);
+
+        var availabilityCol = new TableColumn<TcMenuFormPersistenceWithOptionality, String>("Availability");
+        availabilityCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.23));
+        formTable.getColumns().add(availabilityCol);
+        availabilityCol.setCellFactory(ComboBoxTableCell.forTableColumn("Not included", "In FLASH"));
+        availabilityCol.setOnEditCommit(event -> {
+            TcMenuFormPersistenceWithOptionality dataRow = event.getRowValue();
+            dataRow.setEnabled(event.getNewValue().equals("In FLASH"));
+        });
+        availabilityCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().isEnabled() ? "In FLASH":"Not included"));
+
+        var nameCol = new TableColumn<TcMenuFormPersistenceWithOptionality, String>("Form Name");
+        nameCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.5));
+        formTable.getColumns().add(nameCol);
+
+        var sizeUncompressedCol = new TableColumn<TcMenuFormPersistenceWithOptionality, String>("Size (estimated)");
+        sizeUncompressedCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.23));
+        formTable.getColumns().add(sizeUncompressedCol);
+
+        nameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getForm().getFormName()));
+        sizeUncompressedCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(nicelyPrintSize(cell.getValue().getForm().getXmlData().length())));
+
+        return formTable;
+    }
+
+    String nicelyPrintSize(int len) {
+        if(len < 1024) {
+            return String.format("%d bytes (%s bytes)", len, len / 5);
+        } else {
+            return String.format("%.2f KB (%s bytes)", len / 1024.0, len / 5);
+        }
+    }
+
     private void produceAnotherRemoteCapability(ActionEvent actionEvent) {
         var itemRemote = findItemByUuidOrDefault(remotesSupported, CoreCodeGenerator.NO_REMOTE_ID, Optional.empty());
         setAllPropertiesToLastValues(itemRemote);
@@ -221,13 +289,13 @@ public class GenerateCodeDialog {
 
     private Label addTitleLabel(Pane vbox, String text) {
         Label titleLbl = new Label(text);
-        titleLbl.setStyle("-fx-font-size: 16px; -fx-opacity: 0.6; -fx-font-weight: bold;");
+        titleLbl.setStyle("-fx-font-size: 140%; -fx-opacity: 0.6; -fx-font-weight: bold;");
         vbox.getChildren().add(titleLbl);
         return titleLbl;
     }
 
     private CodePluginItem findItemByUuidOrDefault(List<CodePluginItem> items, String uuid, Optional<String> maybeDefault) {
-        if(items.size() == 0) throw new IllegalStateException("No plugins have been loaded");
+        if(items.isEmpty()) throw new IllegalStateException("No plugins have been loaded");
         var toReturn = items.stream().filter(item -> item.getId().equals(uuid)).findFirst().orElseGet(() -> {
             CodePluginItem ret;
             if(maybeDefault.isPresent()) {
@@ -270,7 +338,6 @@ public class GenerateCodeDialog {
         eepromTypeLabel.setId("eepromTypeLabel");
         eepromTypeButton = new Button("Change EEPROM");
         eepromTypeButton.setOnAction(this::onEepromButtonPressed);
-        eepromTypeButton.setPrefWidth(120);
         eepromTypeButton.setId("eepromTypeButton");
         embeddedPane.add(eepromTypeLabel, 1, 3);
         embeddedPane.add(eepromTypeButton, 2, 3);
@@ -279,7 +346,6 @@ public class GenerateCodeDialog {
         authModeLabel.setId("authModeLabel");
         var authModeButton = new Button("Change Auth");
         authModeButton.setId("authModeButton");
-        authModeButton.setPrefWidth(120);
         authModeButton.setOnAction(this::onAuthenticatorButtonPressed);
         embeddedPane.add(authModeLabel, 1, 4);
         embeddedPane.add(authModeButton, 2, 4);
@@ -291,12 +357,13 @@ public class GenerateCodeDialog {
         embeddedPane.add(namespaceField, 1, 5);
         useModuleButton = new ToggleButton("Modular App");
         useModuleButton.setSelected(project.getGeneratorOptions().isModularApp());
-        useModuleButton.setPrefWidth(120);
         embeddedPane.add(useModuleButton, 2, 5);
 
-        ColumnConstraints column1 = new ColumnConstraints(120);
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setHgrow(Priority.SOMETIMES);
         ColumnConstraints column2 = new ColumnConstraints(400, 500, 999, Priority.ALWAYS, HPos.LEFT, true);
-        ColumnConstraints column3 = new ColumnConstraints(120);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setHgrow(Priority.SOMETIMES);
         embeddedPane.getColumnConstraints().add(column1);
         embeddedPane.getColumnConstraints().add(column2);
         embeddedPane.getColumnConstraints().add(column3);
@@ -462,6 +529,7 @@ public class GenerateCodeDialog {
                                    getAllPluginsForConversion(),
                                    initialPlugins,
                                    generatorSupplier,
+
                                    true);
 
         var stage = (Stage)(currentInput.getScene().getWindow());
@@ -479,6 +547,12 @@ public class GenerateCodeDialog {
             allProps.addAll(currentTheme.getItem().getProperties());
         }
 
+        List<String> formNames = List.of();
+        if(formTable != null) {
+            var enabledForms = formTable.getItems().stream().filter(TcMenuFormPersistenceWithOptionality::isEnabled).toList();
+            formNames = enabledForms.stream().map(form -> form.getForm().getFormName()).toList();
+        }
+
         String themeId = currentTheme != null ? currentTheme.getItem().getId() : "";
         var opts = project.getGeneratorOptions();
         project.setGeneratorOptions(new CodeGeneratorOptionsBuilder().withExisting(opts)
@@ -488,6 +562,7 @@ public class GenerateCodeDialog {
                 .withRemotes(currentRemotes.stream().map(r-> r.getItem().getId()).collect(Collectors.toList()))
                 .withPackageNamespace(namespaceField.getText())
                 .withModularApp(useModuleButton.isSelected())
+                .withEmbeddedFormsList(formNames)
                 .withTheme(themeId)
                 .withProperties(allProps)
                 .codeOptions()
@@ -525,7 +600,7 @@ public class GenerateCodeDialog {
         List<CodePluginItem> creators = getAllPluginsForConversion();
 
         creators.stream()
-                .filter(p -> p != null && p.getProperties().size() > 0)
+                .filter(p -> p != null && !p.getProperties().isEmpty())
                 .forEach(this::setAllPropertiesToLastValues);
     }
 
@@ -599,5 +674,27 @@ public class GenerateCodeDialog {
         popup.setHideOnEscape(true);
         var stage = (Stage)(currentInput.getScene().getWindow());
         popup.show(stage);
+    }
+
+    private static class TcMenuFormPersistenceWithOptionality {
+        private boolean isEnabled;
+        private TcMenuFormPersistence form;
+
+        public TcMenuFormPersistenceWithOptionality(boolean isEnabled, TcMenuFormPersistence form) {
+            this.isEnabled = isEnabled;
+            this.form = form;
+        }
+
+        public boolean isEnabled() {
+            return isEnabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            isEnabled = enabled;
+        }
+
+        public TcMenuFormPersistence getForm() {
+            return form;
+        }
     }
 }

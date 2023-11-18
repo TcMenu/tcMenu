@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public interface LocaleMappingHandler {
     LocaleMappingHandler NOOP_IMPLEMENTATION = new NoLocaleEnabledLocalHandler();
@@ -43,4 +44,12 @@ public interface LocaleMappingHandler {
     default String getFromLocaleOrUseSource(String name) {
         return getFromLocaleWithDefault(name, name);
     }
+
+    /**
+     * Report a change in the file system that has occurred in the directory this locale represents, ignored by no
+     * locale handler.
+     */
+    default void reportLocaleChange(String propertiesFile) {}
+
+    default boolean isDirty(Optional<String> fileName) { return false; }
 }

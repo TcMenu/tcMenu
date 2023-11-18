@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.persist;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,6 +114,31 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     }
 
     @Override
+    public void reportLocaleChange(String propertiesFile) {
+        synchronized (localeLock) {
+            var currentPath = bundleLoader.getPathForLocale(currentLocale).getFileName();
+            boolean fileBeingEdited = Paths.get(propertiesFile).equals(currentPath);
+            if(defaultNeedsSave || (needsSave && fileBeingEdited)) {
+                // reload the default entries and then the selected locale
+                // TODO determine all files involved again and reload.
+
+            }
+        }
+    }
+
+    @Override
+    public boolean isDirty(Optional<String> propertiesFile) {
+        var currentPath = bundleLoader.getPathForLocale(currentLocale).getFileName();
+        if(propertiesFile.isPresent()) {
+            // TODO what about the intermediate level
+            boolean fileBeingEdited = Paths.get(propertiesFile.get()).equals(currentPath);
+            return (defaultNeedsSave || (needsSave && fileBeingEdited));
+        } else {
+            return needsSave || defaultNeedsSave;
+        }
+    }
+
+    @Override
     public void saveChanges() {
         synchronized (localeLock) {
             if(defaultNeedsSave) {
@@ -130,7 +156,7 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     public Map<String, String> getUnderlyingMap() {
         synchronized (localeLock) {
             // lowest priority is the default locale.
-            var underlyingAll = new HashMap<String, String>(defaultCachedEntries);
+            var underlyingAll = new HashMap<>(defaultCachedEntries);
             // followed by the parent (IE language level)
             if(parentCachedEntries != null) {
                 underlyingAll.putAll(parentCachedEntries);

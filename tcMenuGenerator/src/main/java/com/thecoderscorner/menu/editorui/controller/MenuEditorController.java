@@ -31,12 +31,12 @@ import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -50,8 +50,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -122,6 +122,8 @@ public class MenuEditorController {
         this.configStore = storage;
         this.libVerDetector = libraryVersionDetector;
 
+        editorProject.setExternalProjectChangedListener(this::externalChangeHasOccurred);
+
         this.menuTree.setOnKeyPressed(event -> {
             if(event.isShortcutDown() && !event.isShiftDown() && !event.isAltDown()) {
                 if(event.getCode() == KeyCode.C) {
@@ -149,6 +151,12 @@ public class MenuEditorController {
             sortOutMenuForMac();
             redrawTreeControl();
             populateAllMenus();
+            getStage().focusedProperty().addListener((observable, lastFocus, focusNow) -> {
+                // if we are losing focus, save the document, quite likely to end up editing outside
+                if(!focusNow && editorProject.isDirty() && editorProject.isFileNameSet()) {
+                    onFileSave(null);
+                }
+            });
         });
 
         storage.addArduinoDirectoryChangeListener((ard, lib, libsChanged) -> {
@@ -162,6 +170,10 @@ public class MenuEditorController {
         }
 
         executor.scheduleAtFixedRate(this::checkOnClipboard, 3000, 3000, TimeUnit.MILLISECONDS);
+    }
+
+    private void externalChangeHasOccurred() {
+        redrawTreeControl();
     }
 
     private void attemptToLoadLastProject() {

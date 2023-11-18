@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -89,7 +90,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
                                    List<String> previousPluginFiles, CodeGeneratorOptions options,
-                                   LocaleMappingHandler handler) {
+                                   LocaleMappingHandler handler, List<TcMenuFormPersistence> embeddedForms) {
         this.menuTree = menuTree;
         this.options = options;
         this.localeHandler = handler;

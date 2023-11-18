@@ -23,7 +23,6 @@ import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatform
 import com.thecoderscorner.menu.editorui.project.*;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
@@ -56,6 +55,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -118,7 +118,7 @@ public class MenuEditorTestCases {
         project = new CurrentEditorProject(
                 editorProjectUI,
                 persistor,
-                mock(ConfigurationStorage.class)
+                mock(ConfigurationStorage.class), mock(ScheduledExecutorService.class), mock(TccProjectWatcher.class)
         );
 
         JdbcTcMenuConfigurationStore storage = mock(JdbcTcMenuConfigurationStore.class);

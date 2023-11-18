@@ -5,12 +5,14 @@
   <xs:element name="TcMenuPlugin" type="TcMenuPluginType"/>
   <xs:complexType name="SupportedPlatformsType">
     <xs:sequence>
-      <xs:element name="All" maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="All" maxOccurs="unbounded" minOccurs="0"/>
       <xs:element name="PlatformGroup" maxOccurs="unbounded" minOccurs="0">
         <xs:simpleType>
-          <xs:enumeration value="TrueCpp"/>
-          <xs:enumeration value="EmbJava"/>
-          <xs:enumeration value="Arduino"/>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="TrueCpp"/>
+            <xs:enumeration value="EmbJava"/>
+            <xs:enumeration value="Arduino"/>
+          </xs:restriction>
         </xs:simpleType>
       </xs:element>
       <xs:element name="Platform" maxOccurs="unbounded" minOccurs="0">
@@ -177,7 +179,7 @@
     <xs:attribute type="xs:string" name="isValue"/>
     <xs:attribute type="xs:string" name="isNotValue"/>
     <xs:attribute type="xs:string" name="applicabilityRef"/>
-    <xs:attribute type="xs:boolean" name="useNew"/>
+    <xs:attribute type="xs:string" name="useNew"/>
   </xs:complexType>
   <xs:complexType name="GlobalVariablesType">
     <xs:sequence>

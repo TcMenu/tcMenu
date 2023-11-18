@@ -12,12 +12,19 @@ import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.remote.commands.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
@@ -73,6 +80,43 @@ public class TagValMenuCommandProcessors {
         proto.addTagValOutProcessor(MenuCommandType.DIALOG_UPDATE, this::writeDialogUpdate, MenuDialogCommand.class);
         proto.addTagValOutProcessor(MenuCommandType.BOOT_RGB_COLOR, this::writeRgbBoot, MenuRgb32BootCommand.class);
         proto.addTagValOutProcessor(MenuCommandType.BOOT_SCROLL_CHOICE, this::writeScrollBoot, MenuScrollChoiceBootCommand.class);
+
+        // form handlers
+        proto.addTagValOutProcessor(MenuCommandType.FORM_GET_NAMES_REQUEST, this::writeFormGetNamesRequest, FormGetNamesRequestCommand.class);
+        proto.addTagValInProcessor(MenuCommandType.FORM_GET_NAMES_REQUEST, this::processFormGetNamesRequest);
+        proto.addTagValOutProcessor(MenuCommandType.FORM_GET_NAMES_RESPONSE, this::writeFormGetNamesResponse, FormGetNamesResponseCommand.class);
+        proto.addTagValInProcessor(MenuCommandType.FORM_GET_NAMES_RESPONSE, this::processFormGetNamesResponse);
+        proto.addTagValOutProcessor(MenuCommandType.FORM_DATA_REQUEST, this::writeFormDataRequest, FormDataRequestCommand.class);
+        proto.addTagValInProcessor(MenuCommandType.FORM_DATA_REQUEST, this::processFormDataRequest);
+        proto.addRawOutProcessor(MenuCommandType.FORM_DATA_RESPONSE, this::writeFormDataResponse, FormDataResponseCommand.class);
+        proto.addRawInProcessor(MenuCommandType.FORM_DATA_RESPONSE, this::processFormDataResponse);
+    }
+    
+    private void writeFormDataResponse(ByteBuffer buffer, FormDataResponseCommand cmd) throws TcProtocolException {
+        try(var byteStream = new ByteArrayOutputStream(); var zipper = new GZIPOutputStream(byteStream)) {
+            zipper.write(cmd.getFormData().getBytes(StandardCharsets.UTF_8));
+            zipper.finish();
+            byte[] data = byteStream.toByteArray();
+            putRawLengthInBuffer(buffer, data.length);
+            buffer.put(data);
+        } catch (IOException e) {
+            throw new TcProtocolException("Could not create bin msg " + cmd, e);
+        }
+    }
+
+    private MenuCommand processFormDataResponse(ByteBuffer byteBuffer, int len) throws TcProtocolException {
+        byte[] data = new byte[len];
+        byteBuffer.get(data);
+        try(var byteStream = new ByteArrayInputStream(data); var zipper = new GZIPInputStream(byteStream)) {
+            return new FormDataResponseCommand(new String(zipper.readAllBytes()));
+        } catch(IOException err) {
+            throw new TcProtocolException("Could not process bin msg", err);
+        }
+    }
+
+    public static void putRawLengthInBuffer(ByteBuffer buffer, int len) {
+        buffer.put((byte) (len >> 8));
+        buffer.put((byte) (len & 0xFF));
     }
 
     private MenuCommand processDialogUpdate(TagValTextParser parser) throws TcProtocolException {
@@ -87,6 +131,10 @@ public class TagValMenuCommandProcessors {
                 asButton(parser.getValueAsIntWithDefault(KEY_BUTTON2_FIELD, 0)),
                 correlationId
         );
+    }
+
+    private MenuCommand processFormGetNamesRequest(TagValTextParser tagValTextParser) {
+        return new FormGetNamesRequestCommand();
     }
 
     private DialogMode asDialogMode(String mode) {
@@ -418,6 +466,36 @@ public class TagValMenuCommandProcessors {
     private void writePairingRequest(StringBuilder sb, MenuPairingCommand cmd) {
         appendField(sb, KEY_NAME_FIELD, cmd.getName());
         appendField(sb, KEY_UUID_FIELD, cmd.getUuid());
+    }
+
+    private void writeFormGetNamesRequest(StringBuilder sb, FormGetNamesRequestCommand cmd) {
+        appendField(sb, KEY_NAME_FIELD, cmd.getCriteria());
+    }
+
+    private void writeFormGetNamesResponse(StringBuilder sb, FormGetNamesResponseCommand cmd) {
+        appendField(sb, KEY_NO_OF_CHOICES, cmd.getFormNames().size());
+
+        for(int i=0;i<cmd.getFormNames().size();i++) {
+            char ch = (char) (i + 'A');
+            appendField(sb, KEY_PREPEND_CHOICE + ch, cmd.getFormNames().get(i));
+        }
+    }
+
+    private MenuCommand processFormGetNamesResponse(TagValTextParser tvp) throws TcProtocolException {
+        var l = new ArrayList<String>();
+        int numForms = tvp.getValueAsIntWithDefault(KEY_NO_OF_CHOICES, 0);
+        for(char ch='A'; ch < ('A' + numForms); ch++) {
+            l.add(tvp.getValueWithDefault(KEY_PREPEND_CHOICE + ch, ""));
+        }
+        return new FormGetNamesResponseCommand(l);
+    }
+
+    private MenuCommand processFormDataRequest(TagValTextParser tvp) throws TcProtocolException {
+        return new FormDataRequestCommand(tvp.getValue(KEY_ID_FIELD));
+    }
+
+    private void writeFormDataRequest(StringBuilder sb, FormDataRequestCommand cmd) {
+        appendField(sb, KEY_ID_FIELD, cmd.getFormName());
     }
 
     private void writeAcknowledgement(StringBuilder sb, MenuAcknowledgementCommand cmd) {

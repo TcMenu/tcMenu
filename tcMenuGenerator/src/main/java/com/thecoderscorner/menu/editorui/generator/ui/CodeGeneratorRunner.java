@@ -7,9 +7,8 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
-import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
-import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import javafx.stage.Stage;
 
 import java.util.List;

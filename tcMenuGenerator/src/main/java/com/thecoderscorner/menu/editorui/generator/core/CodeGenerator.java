@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
+import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
@@ -33,7 +34,8 @@ public interface CodeGenerator {
      * @return true if conversion successful
      */
     boolean startConversion(Path directory, List<CodePluginItem> generators, MenuTree menuTree,
-                            List<String> prevPluginFiles, CodeGeneratorOptions options, LocaleMappingHandler handler);
+                            List<String> prevPluginFiles, CodeGeneratorOptions options, LocaleMappingHandler handler,
+                            List<TcMenuFormPersistence> embeddedForms);
 
     /**
      * Called before the conversion starts to set the logger to use for the rest of the conversion.
