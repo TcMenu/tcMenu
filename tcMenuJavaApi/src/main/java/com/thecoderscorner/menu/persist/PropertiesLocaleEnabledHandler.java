@@ -7,8 +7,13 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+
 public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     public static final Locale DEFAULT_LOCALE = new Locale("");
+
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     private final SafeBundleLoader bundleLoader;
     private final Object localeLock = new Object();
@@ -61,9 +66,9 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
 
     @Override
     public List<Locale> getEnabledLocales() {
-        try {
-            return Files.walk(bundleLoader.getLocation(), 2, FileVisitOption.FOLLOW_LINKS)
-                    .filter(p -> p.toString().endsWith(".properties"))
+        try(var filesStream = Files.walk(bundleLoader.getLocation(), 2, FileVisitOption.FOLLOW_LINKS)) {
+            return
+                    filesStream.filter(p -> p.toString().endsWith(".properties"))
                     .map(p -> p.getFileName().toString().replace(bundleLoader.getBaseName(), ""))
                     .map(s -> s.replace(".properties", ""))
                     .map(s -> s.startsWith("_") ? s.substring(1) : s)
@@ -90,12 +95,13 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     public void changeLocale(Locale locale) throws IOException {
         synchronized (localeLock) {
             // if we haven't yet loaded the defaults, load them now
-            if(defaultCachedEntries == null) {
-                defaultCachedEntries = bundleLoader.loadResourceBundleAsMap(DEFAULT_LOCALE);
+            if(defaultCachedEntries != null) {
+                saveChanges();
             }
-            saveChanges();
-            currentLocale = locale;
 
+            // reload the main bundle every time, to be sure we have the latest.
+            defaultCachedEntries = bundleLoader.loadResourceBundleAsMap(DEFAULT_LOCALE);
+            currentLocale = locale;
             parentCachedEntries = null;
 
             if(locale.getLanguage().equals("--")) {
@@ -114,14 +120,19 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     }
 
     @Override
-    public void reportLocaleChange(String propertiesFile) {
+    public void notifyExternalChange(String propertiesFile) {
         synchronized (localeLock) {
             var currentPath = bundleLoader.getPathForLocale(currentLocale).getFileName();
             boolean fileBeingEdited = Paths.get(propertiesFile).equals(currentPath);
+            // if there are changes, we do not load the files back
             if(defaultNeedsSave || (needsSave && fileBeingEdited)) {
-                // reload the default entries and then the selected locale
-                // TODO determine all files involved again and reload.
-
+                logger.log(INFO, "Locale reload was skipped as files were dirty");
+                return;
+            }
+            try {
+                changeLocale(currentLocale);
+            } catch (IOException e) {
+                logger.log(ERROR, "Locale reload has failed for " + propertiesFile);
             }
         }
     }

@@ -36,7 +36,7 @@ import static java.lang.System.Logger.Level.INFO;
  * with all the required functionality to both alter and persist project files. The controller should never perform any
  * write operations directly on the menu tree. Also controls the undo and redo buffers.
  */
-public class CurrentEditorProject {
+public class CurrentEditorProject implements TccProjectWatcher.ProjectWatchListener {
 
     public static final String NO_CREATOR_SELECTED = "";
     public static final String MENU_PROJECT_LANG_FILENAME = "project-lang";
@@ -71,6 +71,9 @@ public class CurrentEditorProject {
         configStore = storage;
         this.executorService = executorService;
         this.watcher = watcher;
+        projectPersistor.setSaveNotificationConsumer((path, text) -> {
+            watcher.fileWasSaved(path.getFileName(), text);
+        });
         cleanDown();
     }
 
@@ -78,7 +81,7 @@ public class CurrentEditorProject {
         watcher.close();
     }
 
-    private void emfFileHasChanged() {
+    public void externalChangeToProject() {
         try {
             String file = null;
             if (isDirty() && isFileNameSet()) {
@@ -101,6 +104,17 @@ public class CurrentEditorProject {
         } catch (IOException e) {
             logger.log(ERROR, "Could not reopen file " + fileName, e);
         }
+    }
+
+    @Override
+    public void projectRefreshRequired() {
+        externalProjectChangeListener.run();
+    }
+
+    @Override
+    public void i18nFileUpdated(String context) {
+        localeHandler.notifyExternalChange(context);
+        projectRefreshRequired();
     }
 
     public CurrentProjectEditorUIImpl getEditorUI() {
@@ -171,10 +185,10 @@ public class CurrentEditorProject {
         description = openedProject.getDescription();
         generatorOptions = openedProject.getOptions();
         if (generatorOptions == null) generatorOptions = makeBlankGeneratorOptions();
-        checkIfLocalesPresentAndEnable();
         setDirty(false);
-        updateTitle();
         setFileName(file);
+        checkIfLocalesPresentAndEnable();
+        updateTitle();
         changeHistory.clear();
         uncommittedItems.clear();
     }
@@ -238,7 +252,7 @@ public class CurrentEditorProject {
 
     private void setFileName(String name) {
         watcher.setProjectName(Paths.get(name));
-        watcher.registerNotifiers(emf -> emfFileHasChanged(), localeHandler);
+        watcher.registerWatchListener(this);
         fileName = Optional.ofNullable(name);
     }
 
@@ -381,6 +395,7 @@ public class CurrentEditorProject {
                     Files.writeString(rootProperties, "# Locale file created by tcMenu");
                 }
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+                watcher.registerWatchListener(this);
             } catch (IOException e) {
                 logger.log(ERROR, "Error creating resource bundle for languages", e);
             }

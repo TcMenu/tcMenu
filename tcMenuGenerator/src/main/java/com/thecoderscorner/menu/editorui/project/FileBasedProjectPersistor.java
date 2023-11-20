@@ -18,12 +18,18 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
-import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode.*;
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -35,11 +41,10 @@ import static java.lang.System.Logger.Level.INFO;
  * The file open / save dialog is based on JAva FX.
  */
 public class FileBasedProjectPersistor implements ProjectPersistor {
-
-
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final JsonMenuItemSerializer serializer;
     private final EmbeddedPlatforms platforms;
+    private AtomicReference<BiConsumer<Path, String>> saveNotificationConsumer = new AtomicReference<>();
 
     public FileBasedProjectPersistor(EmbeddedPlatforms platforms) {
         this.platforms = platforms;
@@ -48,6 +53,10 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
         serializer = new JsonMenuItemSerializer((gsonBuilder) ->
                 gsonBuilder.registerTypeAdapter(CodeGeneratorOptions.class, optsSerializer.getDeserialiser())
                            .registerTypeAdapter(CodeGeneratorOptions.class, optsSerializer.getSerialiser()));
+    }
+
+    public void setSaveNotificationConsumer(BiConsumer<Path, String> listener) {
+        this.saveNotificationConsumer.set(listener);
     }
 
     @Override
@@ -98,9 +107,14 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             persistedLists.add(new PersistableStringList(fi.getItem().getId(), stateItems.toArray(new String[0])));
         }
 
-        try (Writer writer = new BufferedWriter(new FileWriter(fileName))) {
+        try (var byteStream = new ByteArrayOutputStream(); Writer writer = new OutputStreamWriter(byteStream)) {
             String user = System.getProperty("user.name");
             serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])), writer);
+            var l = saveNotificationConsumer.get();
+            var s = byteStream.toString();
+            Path filePath = Paths.get(fileName);
+            Files.writeString(filePath, s, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            if(l != null) l.accept(filePath, s);
         }
     }
 

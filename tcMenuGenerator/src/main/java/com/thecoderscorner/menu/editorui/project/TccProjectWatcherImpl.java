@@ -1,13 +1,15 @@
 package com.thecoderscorner.menu.editorui.project;
 
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.zip.Adler32;
 
 import static java.lang.System.Logger.Level.*;
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -17,8 +19,8 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
     private final Thread watcherThread;
     private final AtomicReference<WatchService> watchService = new AtomicReference<>();
     private final AtomicReference<ProjectDirectories> projectDirs = new AtomicReference<>();
-    private final AtomicReference<Consumer<String>> emfAdjustmentHandler = new AtomicReference<>();
-    private final AtomicReference<LocaleMappingHandler> localeHandler = new AtomicReference<>();
+    private final AtomicReference<ProjectWatchListener> watchListener = new AtomicReference<>();
+    private Map<Path, Long> checksumsByFileName = new ConcurrentHashMap<>();
 
     public TccProjectWatcherImpl() {
         watcherThread = new Thread(() -> {
@@ -26,10 +28,9 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
                 logger.log(INFO, "Watch Thread starting");
                 while (!Thread.currentThread().isInterrupted()) {
                     var watcher = watchService.get();
-                    var emfHandler = emfAdjustmentHandler.get();
-                    var locHandler = localeHandler.get();
+                    var emfHandler = watchListener.get();
                     var projDir = projectDirs.get();
-                    if (watcher == null || emfHandler == null || locHandler == null || projDir == null) continue;
+                    if (watcher == null || emfHandler == null || projDir == null) continue;
 
                     try {
                         var keys = watcher.poll(500, TimeUnit.MILLISECONDS);
@@ -37,11 +38,18 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
                         for (var key : keys.pollEvents()) {
                             String context = key.context().toString();
                             if (context.equalsIgnoreCase(Paths.get(projectDirs.get().emfName()).getFileName().toString())) {
-                                Platform.runLater(() -> emfHandler.accept(context));
+                                if(!hasFileChecksumChanged(context)) return;
+                                // only the project has changed, reload the project file.
+                                Platform.runLater(emfHandler::externalChangeToProject);
                             }
-                            if (context.startsWith("i18n") && context.endsWith(".properties") && localeHandler.get().isLocalSupportEnabled()) {
-                                var propertiesFile = Paths.get(context).getFileName().toString();
-                                Platform.runLater(() -> locHandler.reportLocaleChange(propertiesFile));
+                            if (context.startsWith("project-lang") && context.endsWith(".properties")) {
+                                if(!hasFileChecksumChanged(context)) return;
+                                Platform.runLater(() -> {
+                                    // update any changed properties files, and then completely reload the project
+                                    // this makes double sure that everything is reloaded and updated.
+                                    emfHandler.i18nFileUpdated(context);
+                                });
+
                             }
                         }
                         keys.reset();
@@ -59,6 +67,27 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
         });
         watcherThread.start();
 
+    }
+
+    private boolean hasFileChecksumChanged(String context) {
+        Path key = Paths.get(context);
+        var f = (context.endsWith(".properties")) ? Paths.get("i18n", context) : key;
+        var completeFileName = projectDirs.get().projectDir.resolve(f);
+        if(!checksumsByFileName.containsKey(key)) return true;
+
+        try {
+            var lastChecksum = checksumsByFileName.get(key);
+            var fileContents = Files.readString(completeFileName);
+            var checksum = new Adler32();
+            checksum.update(fileContents.getBytes(StandardCharsets.UTF_8));
+            if(checksum.getValue() == lastChecksum) return false;
+
+            // update the checksum
+            checksumsByFileName.put(key, checksum.getValue());
+        } catch (IOException e) {
+            logger.log(ERROR, "Unable to read back changed file " + context, e);
+        }
+        return true;
     }
 
     @Override
@@ -103,9 +132,8 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
     }
 
     @Override
-    public void registerNotifiers(Consumer<String> emfHandler, LocaleMappingHandler handler) {
-        emfAdjustmentHandler.set(emfHandler);
-        localeHandler.set(handler);
+    public void registerWatchListener(ProjectWatchListener listener) {
+        watchListener.set(listener);
     }
 
     @Override
@@ -119,6 +147,13 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
             }
         }
         watcherThread.interrupt();
+    }
+
+    @Override
+    public void fileWasSaved(Path path, String data) {
+        var checksum = new Adler32();
+        checksum.update(data.getBytes(StandardCharsets.UTF_8));
+        checksumsByFileName.put(path.getFileName(), checksum.getValue());
     }
 
     record ProjectDirectories(String emfName, Path projectDir, Path i18nPath, boolean i18nExists) {

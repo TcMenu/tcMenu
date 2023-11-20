@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
@@ -125,7 +124,8 @@ public class ArduinoGeneratorTest {
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, handler));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions,
+                handler, List.of()));
 
         VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
         assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));

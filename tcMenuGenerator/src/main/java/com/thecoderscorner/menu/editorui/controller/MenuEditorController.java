@@ -28,6 +28,7 @@ import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.UIMenuItem;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -149,7 +150,7 @@ public class MenuEditorController {
 
         Platform.runLater(() -> {
             sortOutMenuForMac();
-            redrawTreeControl();
+            redrawTreeControl(true);
             populateAllMenus();
             getStage().focusedProperty().addListener((observable, lastFocus, focusNow) -> {
                 // if we are losing focus, save the document, quite likely to end up editing outside
@@ -173,7 +174,7 @@ public class MenuEditorController {
     }
 
     private void externalChangeHasOccurred() {
-        redrawTreeControl();
+        redrawTreeControl(false);
     }
 
     private void attemptToLoadLastProject() {
@@ -263,7 +264,7 @@ public class MenuEditorController {
                     .findFirst()
                     .ifPresent(example -> {
                         editorProject.openProject(example.toString());
-                        redrawTreeControl();
+                        redrawTreeControl(true);
                     });
         } catch (IOException e) {
             logger.log(ERROR, "Failed to locate ino in example " + path);
@@ -334,7 +335,7 @@ public class MenuEditorController {
         return (clipboard.hasContent(DataFormat.PLAIN_TEXT));
     }
 
-    private void redrawTreeControl() {
+    private void redrawTreeControl(boolean resetCompletely) {
         TreeItem<MenuItemWithDescription> selectedItem = menuTree.getSelectionModel().getSelectedItem();
         int sel = MenuTree.ROOT.getId();
         if (selectedItem != null && selectedItem.getValue() != null) {
@@ -353,9 +354,12 @@ public class MenuEditorController {
         if(simulatorUI != null) simulatorUI.itemHasChanged(null);
         selectChildInTreeById(rootItem, sel);
 
+        if(!resetCompletely) return;
+
         var items = localeMenuButton.getItems();
         items.clear();
         items.addAll(getLocaleMenuItems());
+
         if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
             localeMenuButton.setDisable(false);
             localeMenuButton.setMaxWidth(9999);
@@ -433,7 +437,7 @@ public class MenuEditorController {
             if(items.size() == 0) return;
             editorProject.applyCommand(new PastedItemChange(items, getSelectedSubMenu(), editorProject.getMenuTree(),
                     new MenuIdChooserImpl(editorProject.getMenuTree())));
-            redrawTreeControl();
+            redrawTreeControl(false);
         }
     }
 
@@ -443,7 +447,7 @@ public class MenuEditorController {
         Optional<MenuItem> maybeItem = editorUI.showNewItemDialog(editorProject.getMenuTree());
         maybeItem.ifPresent((menuItem) -> {
             editorProject.applyCommand(Command.NEW, menuItem, subMenu);
-            redrawTreeControl();
+            redrawTreeControl(false);
             selectChildInTreeById(menuTree.getRoot(), menuItem.getId());
             onFocusCurrentEditor(actionEvent);
         });
@@ -476,7 +480,7 @@ public class MenuEditorController {
         else {
             editorProject.applyCommand(Command.REMOVE, toRemove);
         }
-        redrawTreeControl();
+        redrawTreeControl(false);
     }
 
     public void onFocusMenuTree(ActionEvent actionEvent) {
@@ -494,7 +498,7 @@ public class MenuEditorController {
 
     private void createNew() {
         editorUI.showCreateProjectDialog();
-        redrawTreeControl();
+        redrawTreeControl(true);
         handleRecents();
     }
 
@@ -506,7 +510,7 @@ public class MenuEditorController {
         handleRecents();
         stopSimulatorIfNeeded();
         if (editorProject.openProject()) {
-            redrawTreeControl();
+            redrawTreeControl(true);
             handleRecents();
         }
     }
@@ -517,21 +521,21 @@ public class MenuEditorController {
         String recent = item.getText();
         if (!PrefsConfigurationStorage.RECENT_DEFAULT.equals(recent)) {
             editorProject.openProject(recent);
-            redrawTreeControl();
+            redrawTreeControl(true);
         }
     }
 
     public void onFileSave(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE);
         configStore.setLastLoadedProject(editorProject.getFileName());
-        redrawTreeControl();
+        redrawTreeControl(false);
         handleRecents();
     }
 
     public void onFileSaveAs(ActionEvent event) {
         editorProject.saveProject(EditorSaveMode.SAVE_AS);
         configStore.setLastLoadedProject(editorProject.getFileName());
-        redrawTreeControl();
+        redrawTreeControl(false);
         handleRecents();
     }
 
@@ -553,7 +557,7 @@ public class MenuEditorController {
             editorUI.showCodeGeneratorDialog(installer);
             editorProject.saveProject(EditorSaveMode.SAVE);
             configStore.setLastLoadedProject(editorProject.getFileName());
-            redrawTreeControl();
+            redrawTreeControl(false);
             handleRecents();
         }
         catch (Exception e) {
@@ -570,12 +574,12 @@ public class MenuEditorController {
 
     public void onUndo(ActionEvent event) {
         editorProject.undoChange();
-        redrawTreeControl();
+        redrawTreeControl(false);
     }
 
     public void onRedo(ActionEvent event) {
         editorProject.redoChange();
-        redrawTreeControl();
+        redrawTreeControl(false);
     }
 
     public void onCut(ActionEvent event) {
@@ -635,7 +639,7 @@ public class MenuEditorController {
             item.setOnAction(e-> {
                 stopSimulatorIfNeeded();
                 editorProject.openProject(recentlyUsedItem.path());
-                redrawTreeControl();
+                redrawTreeControl(true);
             });
             menuRecents.getItems().add(item);
         });
@@ -710,7 +714,7 @@ public class MenuEditorController {
     public void onConfigureLocales(ActionEvent actionEvent) {
         editorUI.showLocaleConfiguration(editorProject);
         if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
-            redrawTreeControl();
+            redrawTreeControl(true);
         }
     }
 
@@ -867,7 +871,7 @@ public class MenuEditorController {
             SubMenuItem currParent = editorProject.getMenuTree().findParent(originalLocation);
             editorProject.applyCommand(new ItemMovedChangeCommand(originalLocation, newLocation, editorProject.getMenuTree(), where));
             // once the command is applied and the drag and drop finishes, entirely redraw the tree control.
-            Platform.runLater(MenuEditorController.this::redrawTreeControl);
+            Platform.runLater(() -> MenuEditorController.this.redrawTreeControl(false));
         }
     }
 
@@ -875,8 +879,12 @@ public class MenuEditorController {
         return switch(l.getLanguage()) {
             case "" -> bundle.getString("locale.dialog.default.bundle");
             case "--" -> "--";
-            default -> l.getDisplayLanguage() + "-" + l.getCountry();
+            default -> l.getDisplayLanguage() + countryOrDefault(l.getCountry());
         };
+    }
+
+    private String countryOrDefault(String country) {
+        return (StringHelper.isStringEmptyOrNull(country)) ? "" : ("-" + country);
     }
 
     private List<javafx.scene.control.MenuItem> getLocaleMenuItems() {
@@ -899,7 +907,7 @@ public class MenuEditorController {
             if(l == null) return;
             menuTree.getSelectionModel().select(0);
             editorProject.getLocaleHandler().changeLocale(l);
-            Platform.runLater(this::redrawTreeControl);
+            Platform.runLater(() -> redrawTreeControl(true));
         } catch (IOException e) {
             logger.log(ERROR, "Locale could not be changed to " + l, e);
         }

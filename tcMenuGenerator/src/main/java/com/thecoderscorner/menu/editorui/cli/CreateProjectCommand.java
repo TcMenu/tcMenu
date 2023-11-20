@@ -102,7 +102,7 @@ public class CreateProjectCommand implements Callable<Integer> {
             var embeddedPlatform = platforms.getEmbeddedPlatformFromId(platform);
             createNewProject(Paths.get(projectLocation.toString()), newProject[0], cppMain, embeddedPlatform,
                     System.out::println, namespace, appContext.getCodeGeneratorSupplier(),
-                    appContext.getProjectPersistor());
+                    appContext.createProjectPersistor());
 
             if(!StringHelper.isStringEmptyOrNull(i18nLocales)) {
                 var localeList = Arrays.stream(i18nLocales.split("\\s*,\\s*")).map(Locale::of).toList();

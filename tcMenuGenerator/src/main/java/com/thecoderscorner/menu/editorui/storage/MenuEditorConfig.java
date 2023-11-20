@@ -31,7 +31,6 @@ public class MenuEditorConfig extends CoreControlAppConfig {
     private final OnlineLibraryVersionDetector libraryVersionDetector;
     private final ArduinoLibraryInstaller installer;
     private final DefaultXmlPluginLoader pluginLoader;
-    private final FileBasedProjectPersistor persistor;
     private final CodeGeneratorSupplier codeGenSupplier;
     private final EmbeddedPlatforms platforms;
     private final RemoteUiEmbedControlContext remoteContext;
@@ -52,7 +51,6 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         pluginLoader = new DefaultXmlPluginLoader(platforms, configStore, true);
         installer = new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configStore);
         codeGenSupplier = new CodeGeneratorSupplier(configStore, installer);
-        persistor = new FileBasedProjectPersistor(platforms);
     }
     public JdbcTcMenuConfigurationStore getConfigStore() {
         return configStore;
@@ -74,15 +72,15 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         return pluginLoader;
     }
 
-    public FileBasedProjectPersistor getProjectPersistor() {
-        return persistor;
+    public FileBasedProjectPersistor createProjectPersistor() {
+        return new FileBasedProjectPersistor(platforms);
     }
 
     public CurrentEditorProject newProject() {
         var editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector,
                 codeGenSupplier, databaseUtils, tcMenuHome.toString());
-        var editorProject = new CurrentEditorProject(editorUI, persistor, configStore, executor, new TccProjectWatcherImpl());
-        return editorProject;
+        FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(platforms);
+        return new CurrentEditorProject(editorUI, persistor, configStore, executor, new TccProjectWatcherImpl());
     }
 
     public CodeGeneratorSupplier getCodeGeneratorSupplier() {

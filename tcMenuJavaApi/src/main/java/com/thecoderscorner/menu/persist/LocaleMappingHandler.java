@@ -49,7 +49,7 @@ public interface LocaleMappingHandler {
      * Report a change in the file system that has occurred in the directory this locale represents, ignored by no
      * locale handler.
      */
-    default void reportLocaleChange(String propertiesFile) {}
+    default void notifyExternalChange(String propertiesFile) {}
 
     default boolean isDirty(Optional<String> fileName) { return false; }
 }

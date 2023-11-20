@@ -13,7 +13,9 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PersistedMenu;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * This class takes all file operations from the CurrentEditorProject to avoid the class being directly
@@ -45,4 +47,6 @@ public interface ProjectPersistor {
     List<PersistedMenu> copyTextToItems(String items);
 
     String itemsToCopyText(MenuItem startingPoint, MenuTree tree);
+
+    void setSaveNotificationConsumer(BiConsumer<Path, String> listener);
 }
