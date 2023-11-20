@@ -82,9 +82,9 @@ class EmbeddedJavaPluginCreatorTest {
                 new ReferenceCodeParameter("SpannerType", "spanner", "${prop2}", "", true)
         );
         List<CodeVariable> constructorStatements = List.of(
-                new CodeVariable("field1", "Field1Type", VARIABLE_AND_EXPORT, false, true, parameters, new AlwaysApplicable()),
-                new CodeVariable("field2", "Field2Type", VARIABLE_ONLY, false, true, parameters, new AlwaysApplicable()),
-                new CodeVariable("field3", "Field3Type", VARIABLE_ONLY, false, false, parameters, new AlwaysApplicable())
+                new CodeVariable("field1", "Field1Type", VARIABLE_AND_EXPORT, false, true, false, parameters, new AlwaysApplicable()),
+                new CodeVariable("field2", "Field2Type", VARIABLE_ONLY, false, true, false, parameters, new AlwaysApplicable()),
+                new CodeVariable("field3", "Field3Type", VARIABLE_ONLY, false, false, false, parameters, new AlwaysApplicable())
         );
         creator.mapVariables(constructorStatements, builder);
         var ctor = new GeneratedJavaMethod(CONSTRUCTOR_REPLACE);

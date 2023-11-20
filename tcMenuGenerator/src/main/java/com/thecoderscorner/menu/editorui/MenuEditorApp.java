@@ -48,8 +48,8 @@ import static java.lang.System.Logger.Level.ERROR;
 /**
  * The application starting point for the JavaFX version of the application
  */
-public class MenuEditorApp extends Application {
-    private static MenuEditorApp INSTANCE = null;
+public class MenuEditorApp extends Application implements MenuEditorContext {
+    private static MenuEditorContext INSTANCE = null;
     private static ResourceBundle designerBundle;
     public static final Locale EMPTY_LOCALE = Locale.of("");
 
@@ -71,6 +71,7 @@ public class MenuEditorApp extends Application {
         try {
             configureBundle(Locale.getDefault());
             appContext = new MenuEditorConfig();
+            INSTANCE = this;
         } catch(Exception ex) {
             System.getLogger(MenuEditorApp.class.getSimpleName()).log(ERROR, "Failed loading config", ex);
             Alert alert = new Alert(AlertType.ERROR);
@@ -103,6 +104,11 @@ public class MenuEditorApp extends Application {
 
         createPrimaryWindow(primaryStage);
     }
+
+    public static void setContext(MenuEditorContext mockedContext) {
+        INSTANCE = mockedContext;
+    }
+
 
     public MenuEditorController createPrimaryWindow(Stage primaryStage) throws IOException {
         boolean initialWindow = true;
@@ -211,7 +217,7 @@ public class MenuEditorApp extends Application {
         }
     }
 
-    public static MenuEditorApp getInstance() {
+    public static MenuEditorContext getContext() {
         return INSTANCE;
     }
 
@@ -251,7 +257,7 @@ public class MenuEditorApp extends Application {
     public void createEmbedControlPanel(TcMenuPersistedConnection con) {
         var panel = new RemoteConnectionPanel(appContext.getRemoteContext(), MenuTree.ROOT,
                 appContext.getExecutorService(), con);
-        MenuEditorApp.getInstance().embedControlRefresh();
+        MenuEditorApp.getContext().embedControlRefresh();
         Stage stage = new Stage();
         stage.setWidth(800);
         stage.setHeight(600);
@@ -269,7 +275,7 @@ public class MenuEditorApp extends Application {
     }
 
     public void handleCreatingConnection(Stage stage) {
-        var dlg = new EditConnectionDialog(stage, MenuEditorApp.getInstance().getAppContext().getRemoteContext(), true);
+        var dlg = new EditConnectionDialog(stage, MenuEditorApp.getContext().getAppContext().getRemoteContext(), true);
         dlg.checkResult().ifPresent(tcMenuPersistedConnection -> {
             try {
                 appContext.getEcDataStore().updateConnection(tcMenuPersistedConnection);

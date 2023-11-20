@@ -71,7 +71,7 @@ class EmbeddedJavaGeneratorTest {
                 .withProperties(plugin.getProperties()).codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
-        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
+        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION, List.of());
 
         var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 
@@ -101,7 +101,7 @@ class EmbeddedJavaGeneratorTest {
                 .codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
-        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION);
+        generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION, List.of());
 
         var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 

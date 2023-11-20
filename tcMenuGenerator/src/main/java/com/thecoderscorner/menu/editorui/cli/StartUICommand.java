@@ -7,7 +7,6 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +44,7 @@ public class StartUICommand implements Callable<Integer> {
             System.out.println("Designer is starting with project " + userSelectedProject.get());
             if(previewAtStart) {
                 Executors.newSingleThreadScheduledExecutor().schedule(() ->
-                    Platform.runLater(() -> MenuEditorApp.getInstance().previewOnProject(projectFile.toPath()))
+                    Platform.runLater(() -> MenuEditorApp.getContext().previewOnProject(projectFile.toPath()))
                     ,2, TimeUnit.SECONDS);
             }
             Application.launch(MenuEditorApp.class, "");

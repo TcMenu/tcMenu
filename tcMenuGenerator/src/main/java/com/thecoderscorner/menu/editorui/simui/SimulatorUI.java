@@ -77,7 +77,7 @@ public class SimulatorUI {
         dialogStage.show();
         dialogStage.setOnCloseRequest(event -> closeConsumer.accept(event));
 
-        var appContext = MenuEditorApp.getInstance().getAppContext();
+        var appContext = MenuEditorApp.getContext().getAppContext();
         settings = appContext.getGlobalSettings();
         dataStore = appContext.getEcDataStore();
         var dialogMgr = new DoNothingDialogManager();

@@ -11,7 +11,7 @@
 #ifndef MENU_GENERATED_CODE_H
 #define MENU_GENERATED_CODE_H
 
-#include <mbed.h>
+#include <PlatformDetermination.h>
 #include <tcMenu.h>
 
 #include "Scramble.h"

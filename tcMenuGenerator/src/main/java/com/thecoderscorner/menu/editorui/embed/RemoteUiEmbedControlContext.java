@@ -64,7 +64,7 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
                     .findFirst();
             if (panel.isPresent()) {
                 allPresentableViews.remove(panel.get());
-                MenuEditorApp.getInstance().embedControlRefresh();
+                MenuEditorApp.getContext().embedControlRefresh();
                 logger.log(INFO, "Deleted panel from storage and location " + connection.getName());
             } else {
                 logger.log(WARNING, "Request to delete non existing panel from UI " + connection.getName());
@@ -97,7 +97,7 @@ public class RemoteUiEmbedControlContext implements EmbedControlContext {
     public void updateConnection(TcMenuPersistedConnection newConnection) {
         try {
             dataStore.updateConnection(newConnection);
-            MenuEditorApp.getInstance().embedControlRefresh();
+            MenuEditorApp.getContext().embedControlRefresh();
         } catch (DataException e) {
             logger.log(ERROR, "Update operation failed", e);
         }

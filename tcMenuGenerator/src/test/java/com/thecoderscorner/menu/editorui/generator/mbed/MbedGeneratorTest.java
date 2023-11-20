@@ -130,7 +130,7 @@ public class MbedGeneratorTest {
 
         var propsLocale = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(projectDir.resolve("i18n"), MENU_PROJECT_LANG_FILENAME));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, propsLocale));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, propsLocale, List.of()));
 
         var sourceDir = projectDir.resolve("src");
         var generatedDir = sourceDir.resolve("generated");

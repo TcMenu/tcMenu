@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.MenuEditorContext;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
@@ -95,6 +96,10 @@ public class MenuEditorTestCases {
         dirHelper.createSketch(SKETCHES_DIR, "sketchesIgnore", false);
 
         var bundle = MenuEditorApp.configureBundle(MenuEditorApp.EMPTY_LOCALE);
+        var mockedContext = mock(MenuEditorContext.class);
+        when(mockedContext.getAllActiveConnections()).thenReturn(List.of());
+        when(mockedContext.getAllMenuEditors()).thenReturn(List.of());
+        MenuEditorApp.setContext(mockedContext);
 
         // load the main window FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));

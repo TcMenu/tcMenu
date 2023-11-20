@@ -107,15 +107,12 @@ public class FileBasedProjectPersistor implements ProjectPersistor {
             persistedLists.add(new PersistableStringList(fi.getItem().getId(), stateItems.toArray(new String[0])));
         }
 
-        try (var byteStream = new ByteArrayOutputStream(); Writer writer = new OutputStreamWriter(byteStream)) {
-            String user = System.getProperty("user.name");
-            serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])), writer);
-            var l = saveNotificationConsumer.get();
-            var s = byteStream.toString();
-            Path filePath = Paths.get(fileName);
-            Files.writeString(filePath, s, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            if(l != null) l.accept(filePath, s);
-        }
+        String user = System.getProperty("user.name");
+        var s = serializer.getGson().toJson(new PersistedProject(desc, user, itemsInOrder, options, persistedLists.toArray(new PersistableStringList[0])));
+        var l = saveNotificationConsumer.get();
+        Path filePath = Paths.get(fileName);
+        Files.writeString(filePath, s);
+        if(l != null) l.accept(filePath, s);
     }
 
     @Override

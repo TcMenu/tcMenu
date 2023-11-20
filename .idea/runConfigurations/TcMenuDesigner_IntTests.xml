@@ -1,13 +1,13 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="TcMenuDesigner IntTests" type="JUnit" factoryName="JUnit">
     <module name="menuEditorUI" />
+    <useClassPathOnly />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.thecoderscorner.menu.editorui.storage.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="liberica-20" />
     <option name="PACKAGE_NAME" value="com.thecoderscorner.menu" />
     <option name="MAIN_CLASS_NAME" value="" />

@@ -117,7 +117,7 @@ public abstract class BaseDialogSupport<T> {
         var mode = theme.equals("lightMode") ? "lightMode" : "darkMode";
         synchronized (metroLock) {
             jMetro = null;
-            MenuEditorApp.getInstance().setCurrentTheme(mode);
+            MenuEditorApp.getContext().setCurrentTheme(mode);
         }
     }
 }

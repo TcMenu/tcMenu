@@ -489,10 +489,16 @@ public class MenuEditorController {
 
     public void onFileNew(ActionEvent event) {
         try {
-            var controller = MenuEditorApp.getInstance().createPrimaryWindow(null);
-            controller.createNew();
+            MenuEditorController controller = MenuEditorApp.getContext().createPrimaryWindow(null);
+            if(controller != null) {
+                // we created another window, use that one for new.
+                controller.createNew();
+            } else {
+                // we can't create a 2nd window, use this one instead
+                createNew();
+            }
         } catch (IOException e) {
-            logger.log(ERROR, "Did not create panel");
+            logger.log(ERROR, "Did not create panel", e);
         }
     }
 
@@ -739,7 +745,7 @@ public class MenuEditorController {
     }
 
     public void onCreateConnection(ActionEvent actionEvent) {
-        MenuEditorApp.getInstance().handleCreatingConnection(getStage());
+        MenuEditorApp.getContext().handleCreatingConnection(getStage());
     }
 
     public void themeDidChange(String themeName) {
@@ -748,7 +754,7 @@ public class MenuEditorController {
     }
 
     public void windowMenuWillShow(Event event) {
-        var menuItems = MenuEditorApp.getInstance().getAllMenuEditors().stream()
+        var menuItems = MenuEditorApp.getContext().getAllMenuEditors().stream()
                 .map(controller -> {
                     var item = new javafx.scene.control.MenuItem(controller.getProject().getFileName());
                     item.setOnAction(evt -> controller.makeWindowActive());
@@ -762,13 +768,13 @@ public class MenuEditorController {
     }
 
     public void onAllToFront(ActionEvent actionEvent) {
-        for(var controller : MenuEditorApp.getInstance().getAllMenuEditors()) {
+        for(var controller : MenuEditorApp.getContext().getAllMenuEditors()) {
             controller.makeWindowActive();
         }
     }
 
     public void refreshEmbedControlMenu() {
-        var items = MenuEditorApp.getInstance().getAllActiveConnections().stream()
+        var items = MenuEditorApp.getContext().getAllActiveConnections().stream()
                 .map(con -> {
                     var item = new javafx.scene.control.MenuItem(con.getWindowDescription());
                     item.setOnAction(event -> con.toFront());
@@ -776,18 +782,18 @@ public class MenuEditorController {
                 }).toList();
         menuEmbedWindow.getItems().setAll(items);
 
-        var connections = MenuEditorApp.getInstance().getAvailableConnections().stream()
+        var connections = MenuEditorApp.getContext().getAvailableConnections().stream()
                 .map(con -> {
-                    boolean open = MenuEditorApp.getInstance( ).getAllActiveConnections().stream()
+                    boolean open = MenuEditorApp.getContext( ).getAllActiveConnections().stream()
                             .anyMatch(rcp -> rcp.getPersistence().equals(con));
                     var namePostfix = open ? " open" : "";
                     var item = new javafx.scene.control.MenuItem(con.getName() + namePostfix);
                     if(open) {
-                        var panel = MenuEditorApp.getInstance().getAllActiveConnections().stream()
+                        var panel = MenuEditorApp.getContext().getAllActiveConnections().stream()
                                 .findFirst().orElseThrow();
                         item.setOnAction(event -> panel.toFront());
                     } else {
-                        item.setOnAction(event -> MenuEditorApp.getInstance().createEmbedControlPanel(con));
+                        item.setOnAction(event -> MenuEditorApp.getContext().createEmbedControlPanel(con));
                     }
                     return item;
                 }).toList();
@@ -795,7 +801,7 @@ public class MenuEditorController {
     }
 
     public void onFormManager(ActionEvent actionEvent) {
-        new FormManagerDialog(getStage(), MenuEditorApp.getInstance().getAppContext().getRemoteContext());
+        new FormManagerDialog(getStage(), MenuEditorApp.getContext().getAppContext().getRemoteContext());
     }
 
     public void onFileExplorer(ActionEvent actionEvent) {

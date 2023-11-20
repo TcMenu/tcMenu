@@ -114,7 +114,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     private TcMenuFormPersistence getFirstByNameAndUuid(MenuTreeWithCodeOptions project, String formName) {
         var uuid = project.getOptions().getApplicationUUID().toString();
         try {
-            return MenuEditorApp.getInstance().getAppContext().getEcDataStore().getUtilities()
+            return MenuEditorApp.getContext().getAppContext().getEcDataStore().getUtilities()
                     .queryRecords(TcMenuFormPersistence.class, "FORM_UUID=? and FORM_NAME=?", uuid, formName)
                     .stream().findFirst().orElseThrow();
         } catch (DataException e) {
