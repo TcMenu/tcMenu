@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import static com.thecoderscorner.menu.editorui.project.TccProjectWatcherImplTest.TestProjectWatchListener.TestProjectWatchType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 @ExtendWith(ApplicationExtension.class)
 class TccProjectWatcherImplTest {
     private TccProjectWatcherImpl fileWatcher;
