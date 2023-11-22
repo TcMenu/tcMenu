@@ -3,8 +3,11 @@ package com.thecoderscorner.menu.persist;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static java.lang.System.Logger.Level.ERROR;
@@ -23,6 +26,7 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     private Map<String, String> defaultCachedEntries;
     private boolean needsSave = false;
     private boolean defaultNeedsSave = false;
+    private AtomicReference<BiConsumer<Path, String>> saveListener = new AtomicReference<>();
 
     public PropertiesLocaleEnabledHandler(SafeBundleLoader bundleLoader) {
         this.bundleLoader = bundleLoader;
@@ -31,6 +35,10 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
         } catch(Exception ex) {
             throw new UnsupportedOperationException("Default Locale not available", ex);
         }
+    }
+
+    public void setSaveNotificationConsumer(BiConsumer<Path, String> listener) {
+        saveListener.set(listener);
     }
 
     @Override
@@ -154,11 +162,11 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
         synchronized (localeLock) {
             if(defaultNeedsSave) {
                 defaultNeedsSave = false;
-                bundleLoader.saveChangesKeepingFormatting(DEFAULT_LOCALE, defaultCachedEntries);
+                bundleLoader.saveChangesKeepingFormatting(DEFAULT_LOCALE, defaultCachedEntries, saveListener.get());
             }
             if(needsSave) {
                 needsSave = false;
-                bundleLoader.saveChangesKeepingFormatting(currentLocale, cachedEntries);
+                bundleLoader.saveChangesKeepingFormatting(currentLocale, cachedEntries, saveListener.get());
             }
         }
     }

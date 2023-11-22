@@ -38,12 +38,12 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
                         for (var key : keys.pollEvents()) {
                             String context = key.context().toString();
                             if (context.equalsIgnoreCase(Paths.get(projectDirs.get().emfName()).getFileName().toString())) {
-                                if(!hasFileChecksumChanged(context)) return;
+                                if(!hasFileChecksumChanged(context)) continue;
                                 // only the project has changed, reload the project file.
                                 Platform.runLater(emfHandler::externalChangeToProject);
                             }
                             if (context.startsWith("project-lang") && context.endsWith(".properties")) {
-                                if(!hasFileChecksumChanged(context)) return;
+                                if(!hasFileChecksumChanged(context)) continue;
                                 Platform.runLater(() -> {
                                     // update any changed properties files, and then completely reload the project
                                     // this makes double sure that everything is reloaded and updated.
@@ -57,14 +57,14 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
                         logger.log(ERROR, "Watch Thread interrupted, exiting");
                         Thread.currentThread().interrupt();
                     } catch (Exception ex) {
-                        logger.log(ERROR, "Change handler is closing down " + projDir.emfName() + " " + ex.getMessage());
+                        logger.log(ERROR, "Change handler exception " + projDir.emfName() + " " + ex.getMessage());
                     }
                 }
                 logger.log(INFO, "Watch Thread exiting");
             } catch (Exception ex) {
                 logger.log(ERROR, "Severe failure of polling thread, exiting", ex);
             }
-        });
+        }, "File Watcher");
         watcherThread.start();
 
     }
@@ -73,13 +73,17 @@ public class TccProjectWatcherImpl implements TccProjectWatcher {
         Path key = Paths.get(context);
         var f = (context.endsWith(".properties")) ? Paths.get("i18n", context) : key;
         var completeFileName = projectDirs.get().projectDir.resolve(f);
-        if(!checksumsByFileName.containsKey(key)) return true;
 
         try {
-            var lastChecksum = checksumsByFileName.get(key);
             var fileContents = Files.readString(completeFileName);
             var checksum = new Adler32();
             checksum.update(fileContents.getBytes(StandardCharsets.UTF_8));
+
+            if(!checksumsByFileName.containsKey(key)) {
+                checksumsByFileName.put(key, checksum.getValue());
+                return true;
+            }
+            var lastChecksum = checksumsByFileName.get(key);
             if(checksum.getValue() == lastChecksum) return false;
 
             // update the checksum

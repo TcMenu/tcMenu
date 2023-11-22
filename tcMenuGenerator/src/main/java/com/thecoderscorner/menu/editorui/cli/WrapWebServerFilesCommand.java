@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToBuilder;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
 @CommandLine.Command(name="wrap-ws")
 public class WrapWebServerFilesCommand implements Callable<Integer> {
@@ -87,7 +89,7 @@ public class WrapWebServerFilesCommand implements Callable<Integer> {
                 }
                 byte[] allBytes = byteStream.toByteArray();
                 System.out.println("Zipped " + file + " before " + size + ", after " + allBytes.length);
-                processAsBinary(sbVariables, allBytes);
+                printArrayToBuilder(sbVariables, allBytes, 16);
                 entireSize += allBytes.length;
                 varName += "_gz";
             } else if (!binFile) {
@@ -99,7 +101,7 @@ public class WrapWebServerFilesCommand implements Callable<Integer> {
             } else {
                 System.out.println("Binary " + file + " size is " + size);
                 var allBytes = Files.readAllBytes(file);
-                processAsBinary(sbVariables, allBytes);
+                printArrayToBuilder(sbVariables, allBytes, 16);
                 entireSize += size;
             }
             sbVariables.append("};").append(LINE_BREAK);
@@ -133,34 +135,18 @@ public class WrapWebServerFilesCommand implements Callable<Integer> {
         return 0;
     }
 
-    private void processAsBinary(StringBuilder sbVariables, byte[] allBytes) {
-        for(int i = 0; i< allBytes.length; i++) {
-            sbVariables.append(String.format("0x%02x", allBytes[i]));
-            if(i != (allBytes.length -1)) {
-                sbVariables.append(",");
-            }
-            else {
-                sbVariables.append("\n");
-            }
-
-            if((i%20)==19) {
-                sbVariables.append("\n");
-            }
-        }
-    }
-
     private String createWebSocketBlock() {
         return """
-            \s   webServer.onUrlGet("/ws", [](WebServerResponse& response) {
-                    if(connectionHandler.hasFreeConnection() && response.getMethod() == WS_UPGRADE) {
-                        response.turnRequestIntoWebSocket();
-                        connectionHandler.takeConnection(&response);
-                    } else {
-                        response.sendError(500);
-                    }
-                });
-                connectionHandler.init(remoteServer);
-            """;
+                    webServer.onUrlGet("/ws", [](WebServerResponse& response) {
+                        if(connectionHandler.hasFreeConnection() && response.getMethod() == WS_UPGRADE) {
+                            response.turnRequestIntoWebSocket();
+                            connectionHandler.takeConnection(&response);
+                        } else {
+                            response.sendError(500);
+                        }
+                    });
+                    connectionHandler.init(remoteServer);
+                """;
     }
 
     private String writeServeLogicFor(String theLocalPath, String varName, boolean binary, boolean gzipped) {

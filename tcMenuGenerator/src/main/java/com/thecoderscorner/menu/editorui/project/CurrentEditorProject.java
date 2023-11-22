@@ -71,9 +71,7 @@ public class CurrentEditorProject implements TccProjectWatcher.ProjectWatchListe
         configStore = storage;
         this.executorService = executorService;
         this.watcher = watcher;
-        projectPersistor.setSaveNotificationConsumer((path, text) -> {
-            watcher.fileWasSaved(path.getFileName(), text);
-        });
+        projectPersistor.setSaveNotificationConsumer((path, text) -> watcher.fileWasSaved(path.getFileName(), text));
         cleanDown();
     }
 
@@ -369,6 +367,8 @@ public class CurrentEditorProject implements TccProjectWatcher.ProjectWatchListe
             var rootProperties = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
             if(Files.exists(rootProperties)) {
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+                watcher.registerWatchListener(this);
+                localeHandler.setSaveNotificationConsumer((path, text) -> watcher.fileWasSaved(path.getFileName(), text));
             } else {
                 localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
             }
@@ -396,6 +396,8 @@ public class CurrentEditorProject implements TccProjectWatcher.ProjectWatchListe
                 }
                 localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
                 watcher.registerWatchListener(this);
+                localeHandler.setSaveNotificationConsumer((path, text) -> watcher.fileWasSaved(path.getFileName(), text));
+
             } catch (IOException e) {
                 logger.log(ERROR, "Error creating resource bundle for languages", e);
             }

@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnmappableCharacterException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static java.lang.System.Logger.Level.DEBUG;
@@ -85,6 +86,10 @@ public class SafeBundleLoader {
     }
 
     public void saveChangesKeepingFormatting(Locale locale, Map<String, String> allValues) {
+        saveChangesKeepingFormatting(locale, allValues, null);
+    }
+
+    public void saveChangesKeepingFormatting(Locale locale, Map<String, String> allValues, BiConsumer<Path, String> saveListener) {
         Path resolvedPath = getPathForLocale(locale);
         try {
             List<PropertiesFileLine> lines;
@@ -112,7 +117,7 @@ public class SafeBundleLoader {
 
             var toWrite = lines.stream().map(PropertiesFileLine::outputLine).collect(Collectors.joining(lineSeparator)) + lineSeparator;
             Files.writeString(resolvedPath, toWrite);
-
+            saveListener.accept(resolvedPath, toWrite);
         } catch (IOException e) {
             logger.log(System.Logger.Level.ERROR, "Unable to save " + resolvedPath, e);
         }

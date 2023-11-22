@@ -1,10 +1,12 @@
 package com.thecoderscorner.menu.persist;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public interface LocaleMappingHandler {
     LocaleMappingHandler NOOP_IMPLEMENTATION = new NoLocaleEnabledLocalHandler();
@@ -52,4 +54,6 @@ public interface LocaleMappingHandler {
     default void notifyExternalChange(String propertiesFile) {}
 
     default boolean isDirty(Optional<String> fileName) { return false; }
+
+    default void setSaveNotificationConsumer(BiConsumer<Path, String> listener) {}
 }

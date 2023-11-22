@@ -149,7 +149,10 @@ public abstract class UIMenuItem<T extends MenuItem> {
         //var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
         //item.setOnAction(event -> localHasChanged(Locale.of("--")));
         notLocalizedButton = new ToggleButton();
-        notLocalizedButton.setOnAction(event -> notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected())));
+        notLocalizedButton.setOnAction(event -> {
+            notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected()));
+            callChangeConsumer();
+        });
         notLocalizedButton.setSelected(!menuItem.getName().startsWith("%") || menuItem.getName().startsWith("%%"));
         notLocalizedButton.setDisable(!localHandler.isLocalSupportEnabled());
         notLocalizedButton.setMaxWidth(9999);
