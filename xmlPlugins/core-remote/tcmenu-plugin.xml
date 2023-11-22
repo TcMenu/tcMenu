@@ -21,8 +21,9 @@
         <Plugin>remoteSerialESP.xml</Plugin>
         <Plugin>remoteWifiESP.xml</Plugin>
 
-        <!-- mbed specific -->
+        <!-- true cpp specific -->
         <Plugin>remoteMbedEthernet.xml</Plugin>
+        <Plugin>remoteStdio.xml</Plugin>
 
         <!-- simhub connector -->
         <Plugin>simhubConnector.xml</Plugin>

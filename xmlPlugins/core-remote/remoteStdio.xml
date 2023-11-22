@@ -1,0 +1,44 @@
+<TcMenuPlugin name="EmbedControl/API using C++ stdio functions" id="DFE97583-1897-4F87-BEFA-10CB72C43F0E" subsystem="REMOTE" requiresDesigner="4.2"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <PlatformGroup>TrueCpp</PlatformGroup>
+    </SupportedPlatforms>
+    <Description>An EmbedControl/API connection using stdio functions such as printf() and gets(). This assumes you have stdio available and configured on your board.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/serial-remote-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>serial-connection.jpg</ImageFile>
+
+    <Properties/>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="serialSrc/StdioTransport.cpp"/>
+        <SourceFile name="serialSrc/StdioTransport.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="RemoteConnector.h" inSource="false"/>
+        <Header name="StdioTransport.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="stdioInitializer" type="NoInitialisationNeeded"/>
+
+        <Variable name="stdioTransport" type="StdioTransport">
+            <Param value="255"/>
+        </Variable>
+
+        <Variable name="stdioConnection" type="TagValueRemoteServerConnection">
+            <Param value="stdioTransport"/>
+            <Param value="stdioInitializer"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="stdioConnection"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

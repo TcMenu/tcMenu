@@ -93,6 +93,7 @@ public class GenerateCodeDialog {
     private TextField namespaceField;
     private ToggleButton useModuleButton;
     private TableView<TcMenuFormPersistenceWithOptionality> formTable;
+    private VBox remotesPane;
 
     public GenerateCodeDialog(CodePluginManager manager, CurrentProjectEditorUI editorUI,
                               CurrentEditorProject project, CodeGeneratorRunner runner,
@@ -160,6 +161,8 @@ public class GenerateCodeDialog {
         centerPane.getChildren().add(titleLbl);
 
         List<String> remoteIds = genOptions.getLastRemoteCapabilitiesUuids();
+        remotesPane = new VBox();
+        centerPane.getChildren().add(remotesPane);
         if(remoteIds != null && !remoteIds.isEmpty()) {
             int count = 0;
             for(var remoteId : remoteIds) {
@@ -169,7 +172,7 @@ public class GenerateCodeDialog {
                 String pluginId = "remotePlugin" + count;
                 var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, count, pluginId);
                 currentRemote.getStyleClass().add("uiCodeGen");
-                centerPane.getChildren().add(currentRemote);
+                remotesPane.getChildren().add(currentRemote);
                 count++;
                 currentRemotes.add(currentRemote);
             }
@@ -180,7 +183,7 @@ public class GenerateCodeDialog {
             String pluginId = "remotePlugin0";
             var currentRemote = new UICodePluginItem(manager, itemRemote, CHANGE, this::onRemoteChange, editorUI, allItems, 0, pluginId);
             currentRemote.getStyleClass().add("uiCodeGen");
-            centerPane.getChildren().add(currentRemote);
+            remotesPane.getChildren().add(currentRemote);
         }
 
         Button addRemoteCapabilityButton = new Button(MenuEditorApp.getBundle().getString("code.gen.remote.add"));
@@ -284,7 +287,7 @@ public class GenerateCodeDialog {
         currentRemote.setId("currentRemoteUI-" + currentRemotes.size());
         currentRemote.getStyleClass().add("uiCodeGen");
         currentRemotes.add(currentRemote);
-        centerPane.getChildren().add(currentRemote);
+        remotesPane.getChildren().add(currentRemote);
     }
 
     private Label addTitleLabel(Pane vbox, String text) {
@@ -608,7 +611,7 @@ public class GenerateCodeDialog {
         if(item == null) {
             logger.log(INFO, "Remove fired on remote");
             currentRemotes.remove(uiPlugin);
-            centerPane.getChildren().remove(uiPlugin);
+            remotesPane.getChildren().remove(uiPlugin);
             changeProperties();
 
             for(int i=0; i<currentRemotes.size(); i++) {
