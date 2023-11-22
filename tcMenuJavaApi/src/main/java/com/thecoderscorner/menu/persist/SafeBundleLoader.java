@@ -117,7 +117,7 @@ public class SafeBundleLoader {
 
             var toWrite = lines.stream().map(PropertiesFileLine::outputLine).collect(Collectors.joining(lineSeparator)) + lineSeparator;
             Files.writeString(resolvedPath, toWrite);
-            saveListener.accept(resolvedPath, toWrite);
+            if(saveListener != null) saveListener.accept(resolvedPath, toWrite);
         } catch (IOException e) {
             logger.log(System.Logger.Level.ERROR, "Unable to save " + resolvedPath, e);
         }
