@@ -195,6 +195,7 @@ public class FormEditorController {
     }
 
     public void onMenuChangeButton(ActionEvent actionEvent) {
+        onSaveLayout(null);
         var formProperties = new FormEditorPropertiesPresentable(itemStore, this, navMgr);
         navMgr.pushNavigation(formProperties);
     }
