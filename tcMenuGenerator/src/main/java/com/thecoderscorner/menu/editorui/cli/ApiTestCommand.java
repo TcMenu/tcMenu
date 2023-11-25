@@ -2,9 +2,11 @@ package com.thecoderscorner.menu.editorui.cli;
 
 import com.thecoderscorner.embedcontrol.core.rs232.Rs232ControllerBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.commands.FormGetNamesRequestCommand;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
@@ -13,10 +15,13 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * this class contains the basic functionality to test any API connection without needing a UI present, it can
@@ -32,6 +37,7 @@ public class ApiTestCommand implements Runnable {
     private String connString;
     @CommandLine.Option(names = {"-p", "--pair"}, description = "Create a pairing connection")
     private boolean pair;
+    private MenuTree menuTree = new MenuTree();
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     private final Clock clock = Clock.systemUTC();
@@ -49,6 +55,7 @@ public class ApiTestCommand implements Runnable {
             return new SocketControllerBuilder()
                     .withUUID(testUuid).withLocalName(testName)
                     .withExecutor(executorService)
+                    .withMenuTree(menuTree)
                     .withClock(clock)
                     .withProtocol(protocol)
                     .withAddress(parts[1])
@@ -56,6 +63,7 @@ public class ApiTestCommand implements Runnable {
         } else if(parts.length == 3 && parts[0].equals("ser")) {
             return new Rs232ControllerBuilder()
                     .withUUID(testUuid).withLocalName(testName)
+                    .withMenuTree(menuTree)
                     .withExecutor(executorService)
                     .withClock(clock)
                     .withProtocol(protocol)
@@ -66,7 +74,13 @@ public class ApiTestCommand implements Runnable {
 
     public void run() {
         try {
+            var running = new AtomicBoolean(true);
             System.out.printf("API tester is starting!%n");
+
+            if(pair) {
+                pairingIsNeeded();
+                return;
+            }
 
             controller = createConnector().build();
 
@@ -84,17 +98,20 @@ public class ApiTestCommand implements Runnable {
                 @Override
                 public void connectionState(RemoteInformation info, AuthStatus status) {
                     if(status == AuthStatus.FAILED_AUTH) {
+                        running.set(false);
+                        System.out.println("Failed authentication. Connect first using pairing mode");
+                        System.exit(-1);
                     } else if(status == AuthStatus.BOOTSTRAPPING) {
-                        System.out.printf("Bootstrapping with %s, uuid=%s, serial no=%s, type=%s, ver=%s", info.getName(), info.getUuid(),
+                        System.out.printf("Bootstrapping with %s, uuid=%s, serial no=%s, type=%s, ver=%s%n", info.getName(), info.getUuid(),
                                 info.getSerialNumber(), info.getPlatform(), info.getVersionNum());
                     } else {
-                        System.out.printf("Connection status: %s", status);
+                        System.out.printf("Connection status: %s%n", status);
                     }
                 }
 
                 @Override
                 public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
-                    System.out.printf("Ack Rx: correlation=%s, item=%s, status=%s", key, item, status);
+                    System.out.printf("Ack Rx: correlation=%s, item=%s, status=%s%n", key, item, status);
                 }
 
                 @Override
@@ -103,16 +120,52 @@ public class ApiTestCommand implements Runnable {
                 }
             });
             controller.start();
+            printOptions();
+            var input = new Scanner(System.in);
+            while(running.get() && input.hasNextLine()) {
+                var ln = input.nextLine().toUpperCase(Locale.ROOT);
+                if(ln.equals("Q")) running.set(false);
+                if(ln.equals("I")) printOptions();
+                if(ln.startsWith("SD")) {
+                    var parts = ln.split("\s*");
+                    controller.sendDeltaUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(),
+                            Integer.parseInt(parts[1]));
+                }
+                if(ln.startsWith("SA")) {
+                    var parts = ln.split("\s*");
+                    controller.sendAbsoluteUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(), parts[1]);
+                }
+                if(ln.equals("GN")) {
+                    controller.getConnector().sendMenuCommand(new FormGetNamesRequestCommand());
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if(controller != null) controller.stop();
         }
+        executorService.shutdown();
+    }
+
+    private void printOptions() {
+        System.out.println("""
+                Connection options:
+                I: get this list of commands
+                Q: quit app
+                SD <id> <delta>: send delta update on id for amount delta 
+                SA <id> <amt>: send update on id for amt 
+                GN: get all embedded form names 
+                ND <name>: get embedded form data for name 
+                """);
     }
 
     private void pairingIsNeeded() throws IOException {
-        System.out.printf("Starting pairing connection");
-        controller.stop();
-        createConnector().attemptPairing(Optional.of(authStatus -> System.out.printf("Pairing status  = %s", authStatus)));
+        System.out.println("Starting pairing connection");
+        createConnector().attemptPairing(Optional.of(authStatus -> {
+            System.out.printf("Pairing status  = %s%n", authStatus);
+            if(authStatus == AuthStatus.AUTHENTICATED) {
+                System.out.println("Pairing was successful, you may now connect normally");
+            }
+        }));
     }
 }
