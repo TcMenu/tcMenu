@@ -4,7 +4,7 @@
 
 Firstly, ensure that you have OpenJDK 18 and a recent maven 3 on your system, without these it will not be possible to build.
 
-* All OpenJDK's that we've tested work for this, we've tried: Adoptium and Amazon Corretto   
+* All OpenJDK's that we've tested work for this, we've tried: Liberica, Adoptium, Amazon Corretto and Microsoft JDK.   
 * For Apache maven we recommend using [https://maven.apache.org/]
 
 Using git or zip download, get the contents of the tcMenu repository locally, for example: 
@@ -38,9 +38,9 @@ Ensure you are in the tcMenuGenerator/target directory.
 
     cp classes/img/tcMenuDesigner.ico .
 
-    jpackage --type app-image -n tcmenu -p jfx/deps --input jfx/app --win-console --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.1.2 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage --type app-image -n tcmenu -p jfx/deps --input jfx/app --win-console --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.2.0.1 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app  --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.1.2 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+    jpackage --type app-image -n tcMenuDesigner -p jfx/deps --input jfx/app  --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 4.2.0.1 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
 Copy the following files from tcMenuDesigner into tcmenu
 
