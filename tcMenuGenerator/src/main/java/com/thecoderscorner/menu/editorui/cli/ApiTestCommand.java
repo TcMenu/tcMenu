@@ -5,9 +5,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.FormGetNamesRequestCommand;
-import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
+import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
@@ -15,13 +13,14 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * this class contains the basic functionality to test any API connection without needing a UI present, it can
@@ -73,6 +72,7 @@ public class ApiTestCommand implements Runnable {
     }
 
     public void run() {
+        Logger.getLogger("").setLevel(Level.WARNING);
         try {
             var running = new AtomicBoolean(true);
             System.out.printf("API tester is starting!%n");
@@ -84,6 +84,16 @@ public class ApiTestCommand implements Runnable {
 
             controller = createConnector().build();
 
+            controller.addCustomMessageProcessor(MenuCommandType.FORM_GET_NAMES_RESPONSE, (controller, cmd) -> {
+                if(cmd instanceof FormGetNamesResponseCommand resp) {
+                    System.out.printf("We received %d form names: %s%n", resp.getFormNames().size(), resp.getFormNames());
+                }
+            });
+            controller.addCustomMessageProcessor(MenuCommandType.FORM_DATA_RESPONSE, (controller, cmd) -> {
+                if(cmd instanceof FormDataResponseCommand resp) {
+                    System.out.printf("We received form data %s%n", resp.getFormData());
+                }
+            });
             controller.addListener(new RemoteControllerListener() {
                 @Override
                 public void menuItemChanged(MenuItem item, boolean valueOnly) {
@@ -123,21 +133,24 @@ public class ApiTestCommand implements Runnable {
             printOptions();
             var input = new Scanner(System.in);
             while(running.get() && input.hasNextLine()) {
-                var ln = input.nextLine().toUpperCase(Locale.ROOT);
-                if(ln.equals("Q")) running.set(false);
-                if(ln.equals("I")) printOptions();
-                if(ln.startsWith("SD")) {
+                var ln = input.nextLine();
+                if(ln.equalsIgnoreCase("Q")) running.set(false);
+                else if(ln.equalsIgnoreCase("I")) printOptions();
+                else if(ln.toUpperCase().startsWith("SD")) {
                     var parts = ln.split("\s*");
                     controller.sendDeltaUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(),
                             Integer.parseInt(parts[1]));
-                }
-                if(ln.startsWith("SA")) {
+                } else if(ln.toUpperCase().startsWith("SA")) {
                     var parts = ln.split("\s*");
                     controller.sendAbsoluteUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(), parts[1]);
-                }
-                if(ln.equals("GN")) {
+                } else if(ln.equalsIgnoreCase("GN")) {
+                    System.out.println("Get Names Request being processed");
                     controller.getConnector().sendMenuCommand(new FormGetNamesRequestCommand());
+                } else if(ln.toUpperCase().startsWith("ND")) {
+                    System.out.printf("Form Data Request for %s%n", ln.substring(3));
+                    controller.getConnector().sendMenuCommand(new FormDataRequestCommand(ln.substring(3)));
                 }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,6 +178,7 @@ public class ApiTestCommand implements Runnable {
             System.out.printf("Pairing status  = %s%n", authStatus);
             if(authStatus == AuthStatus.AUTHENTICATED) {
                 System.out.println("Pairing was successful, you may now connect normally");
+                System.exit(0);
             }
         }));
     }
