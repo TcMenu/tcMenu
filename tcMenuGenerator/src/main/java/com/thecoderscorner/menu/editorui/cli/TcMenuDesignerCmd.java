@@ -4,9 +4,10 @@ import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import javafx.application.Application;
 import picocli.CommandLine;
 
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.Command;
 
 @Command(name = "tcMenuDesigner", versionProvider = CliVersionProvider.class, subcommands = {
+        ApiTestCommand.class,
         CodeGeneratorCommand.class,
         CodeVerificationCommand.class,
         CreateProjectCommand.class,
