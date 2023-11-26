@@ -65,10 +65,10 @@ public abstract class SharedStreamConnection {
             }
             return foundMsg;
         } else {
-            // START_OF_MSG - Protocol(2) - MSGTypeHi - MsgTypeLo - len(4) - BinData
-            bbCopy.getShort();
-            int len = bbCopy.getInt();
-            return bbCopy.remaining() >= len;
+            // START_OF_MSG - Protocol - MSGTypeHi - MsgTypeLo - len(2) - BinData
+            bbCopy.getShort(); // skip msg type
+            int len = bbCopy.getShort(); // read length
+            return bbCopy.remaining() >= len; // ensure enough data is available.
         }
     }
 
