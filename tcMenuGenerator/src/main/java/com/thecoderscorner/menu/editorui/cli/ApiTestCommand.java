@@ -97,7 +97,9 @@ public class ApiTestCommand implements Runnable {
             controller.addListener(new RemoteControllerListener() {
                 @Override
                 public void menuItemChanged(MenuItem item, boolean valueOnly) {
-                    System.out.printf("Item changed: %s, valueOnly=%b, value=%s%n", item, valueOnly, MenuItemHelper.getValueFor(item, controller.getManagedMenu()));
+                    System.out.printf("Item changed: %s, type=%s, readonly=%b, visible=%b, valueOnly=%b, value=%s%n",
+                            item, item.getClass().getSimpleName(), item.isReadOnly(), item.isVisible(), valueOnly,
+                            MenuItemHelper.getValueFor(item, controller.getManagedMenu()));
                 }
 
                 @Override
@@ -133,16 +135,22 @@ public class ApiTestCommand implements Runnable {
             printOptions();
             var input = new Scanner(System.in);
             while(running.get() && input.hasNextLine()) {
+                System.out.print("> ");
+                System.out.flush();
                 var ln = input.nextLine();
                 if(ln.equalsIgnoreCase("Q")) running.set(false);
                 else if(ln.equalsIgnoreCase("I")) printOptions();
                 else if(ln.toUpperCase().startsWith("SD")) {
-                    var parts = ln.split("\s*");
-                    controller.sendDeltaUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(),
-                            Integer.parseInt(parts[1]));
+                    var parts = ln.split("\\s+");
+                    MenuItem item = menuTree.getMenuById(Integer.parseInt(parts[1])).orElseThrow();
+                    int value = Integer.parseInt(parts[2]);
+                    System.out.printf("Send delta update command to %s value=%d%n", item, value);
+                    controller.sendDeltaUpdate(item, value);
                 } else if(ln.toUpperCase().startsWith("SA")) {
-                    var parts = ln.split("\s*");
-                    controller.sendAbsoluteUpdate(menuTree.getMenuById(Integer.parseInt(parts[0])).orElseThrow(), parts[1]);
+                    var parts = ln.split("\\s+");
+                    var item = menuTree.getMenuById(Integer.parseInt(parts[1])).orElseThrow();
+                    System.out.printf("Send absolute update command to %s value=%s%n", item, parts[2]);
+                    controller.sendAbsoluteUpdate(item, parts[2]);
                 } else if(ln.equalsIgnoreCase("GN")) {
                     System.out.println("Get Names Request being processed");
                     controller.getConnector().sendMenuCommand(new FormGetNamesRequestCommand());
@@ -150,7 +158,6 @@ public class ApiTestCommand implements Runnable {
                     System.out.printf("Form Data Request for %s%n", ln.substring(3));
                     controller.getConnector().sendMenuCommand(new FormDataRequestCommand(ln.substring(3)));
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();
