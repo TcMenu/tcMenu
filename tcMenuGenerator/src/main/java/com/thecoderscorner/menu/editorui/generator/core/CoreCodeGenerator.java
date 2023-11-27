@@ -49,8 +49,9 @@ import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuTy
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_EEPROM;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
-import static com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator.*;
-import static com.thecoderscorner.menu.editorui.util.StringHelper.*;
+import static com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator.makeNameFromVariable;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
+import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToWriter;
 import static java.lang.System.Logger.Level.*;
 
 public abstract class CoreCodeGenerator implements CodeGenerator {
@@ -509,6 +510,9 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(LINE_BREAK);
 
             writer.write("    // First we set up eeprom and authentication (if needed)." + LINE_BREAK);
+            if(!embeddedForms.isEmpty()) {
+                writer.write("    CombinedMessageProcessor::setFormTemplatesInFlash(tcMenuAllEmbeddedForms);" + LINE_BREAK);
+            }
             writer.write(extraCodeDefinitions().stream()
                     .map(CodeGeneratorCapable::generateCode)
                     .filter(Optional::isPresent)
@@ -558,11 +562,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                             }
                         });
             }
+            writer.write(LINE_BREAK + "}" + LINE_BREAK + LINE_BREAK);
 
             if(!embeddedForms.isEmpty()) {
                 writeEmbeddedForms(embeddedForms, writer);
-            } else {
-                writer.write(LINE_BREAK + "}" + LINE_BREAK + LINE_BREAK);
             }
 
             logLine(INFO, "Finished processing source file.");
@@ -576,8 +579,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     private void writeEmbeddedForms(List<TcMenuFormPersistence> embeddedForms, Writer writer) throws IOException {
         int entireSize = 0;
-        writer.write(LINE_BREAK + "    CombinedMessageProcessor::setFormTemplatesInFlash(tcMenuAllEmbeddedForms);" + LINE_BREAK);
-        writer.write("}" + TWO_LINES);
         writer.write("// Embedded form data" + TWO_LINES);
         StringBuilder arrayOfAllForms = new StringBuilder("const EmbedControlFlashedForm* tcMenuAllEmbeddedForms[] " + progMemStr() + "{ ");
         for(var ef : embeddedForms) {

@@ -41,6 +41,7 @@ EnumMenuItem menuExtra(&minfoExtra, 0, &menuTest, INFO_LOCATION_PGM);
 
 void setupMenu() {
     // First we set up eeprom and authentication (if needed).
+    CombinedMessageProcessor::setFormTemplatesInFlash(tcMenuAllEmbeddedForms);
     setSizeBasedEEPROMStorageEnabled(true);
     menuMgr.setEepromRef(&glAvrRom);
     authManager.initialise(menuMgr.getEepromAbstraction(), 100);
@@ -57,7 +58,6 @@ void setupMenu() {
     switches.onRelease(BUTTON_PIN, [](uint8_t /*key*/, bool held) {
             anotherFn(20);
         });
-    CombinedMessageProcessor::setFormTemplatesInFlash(tcMenuAllEmbeddedForms);
 }
 
 // Embedded form data

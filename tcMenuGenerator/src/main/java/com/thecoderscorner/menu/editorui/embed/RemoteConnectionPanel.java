@@ -4,7 +4,6 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.core.creators.RemotePanelDisplayable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
@@ -19,11 +18,11 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.mgr.DialogShowMode;
-import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
-import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
+import com.thecoderscorner.menu.remote.AuthStatus;
+import com.thecoderscorner.menu.remote.RemoteControllerListener;
+import com.thecoderscorner.menu.remote.RemoteInformation;
+import com.thecoderscorner.menu.remote.RemoteMenuController;
+import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -39,6 +38,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -48,6 +50,7 @@ import static java.lang.System.Logger.Level.*;
 
 public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePanelDisplayable {
     private final System.Logger logger = System.getLogger(RemoteConnectionPanel.class.getSimpleName());
+    private List<FormWithData> availableForms = List.of();
     private TcMenuPersistedConnection persistedConnection;
     private RemoteMenuComponentControl control;
     private GlobalSettings settings;
@@ -70,8 +73,9 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     private RemoteControllerListener remoteListener;
     private RemoteInformation remoteInformation = RemoteInformation.NOT_CONNECTED;
     private ContextMenu layoutContextMenu = null;
-    private TcMenuFormPersistence selectedForm;
+    private FormWithData selectedForm;
     private Button formWidgetButton = null;
+    private FormWithData inflightForm;
 
 
     public RemoteConnectionPanel(EmbedControlContext context, MenuItem item,
@@ -100,8 +104,16 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             topLayout.getChildren().add(navigationManager.initialiseControls());
             rootPanel.setTop(topLayout);
             generateWidgets();
-
             createNewController();
+            buildLayoutItems();
+            if(getUuid() != null) {
+                var formWidget = standardLayoutWidget();
+                navigationManager.addTitleWidget(formWidget);
+                navigationManager.getButtonFor(formWidget).ifPresent(b -> {
+                    b.setContextMenu(layoutContextMenu);
+                    formWidgetButton = b;
+                });
+            }
         }
         return rootPanel;
     }
@@ -122,30 +134,23 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
         ContextMenu settingsMenu = generateSettingsContextMenu();
         navigationManager.getButtonFor(settingsWidget).ifPresent(b -> b.setContextMenu(settingsMenu));
-
-        if(getUuid() != null) {
-            var formWidget = standardLayoutWidget();
-            navigationManager.addTitleWidget(formWidget);
-            ContextMenu layoutMenu = generateLayoutMenu();
-            navigationManager.getButtonFor(formWidget).ifPresent(b -> {
-                b.setContextMenu(layoutMenu);
-                formWidgetButton = b;
-            });
-        }
-    }
-
-    private ContextMenu generateLayoutMenu() {
-        layoutContextMenu = new ContextMenu();
-        buildLayoutItems();
-        return layoutContextMenu;
     }
 
     private void buildLayoutItems() {
-        var forms = context.getDataStore().getAllFormsForUuid(getUuid().toString());
+        if(layoutContextMenu == null) {
+            layoutContextMenu = new ContextMenu();
+        }
+
+        var dbForms = context.getDataStore().getAllFormsForUuid(getUuid().toString()).stream()
+                .map(form -> new FormWithData(form.getFormId(), form.getFormName(), form.getXmlData(), false))
+                .toList();
+        var forms = new ArrayList<>(availableForms);
+        forms.addAll(dbForms);
         var items = forms.stream()
                 .map(f -> {
-                    var selIndiciator = selectedForm != null && selectedForm.getFormId() == f.getFormId() ? " *" : "";
-                    var it = new javafx.scene.control.MenuItem(f.getFormName() + " [" + f.getFormId() + "]" + selIndiciator);
+                    var selIndiciator = selectedForm != null && selectedForm.internalId() == f.internalId() ? " *" : "";
+                    var embeddedInd = f.isEmbedded() ? " [Device]" : "";
+                    var it = new javafx.scene.control.MenuItem(f.name() + embeddedInd + selIndiciator);
                     it.setOnAction(event -> changeSelectedForm(f));
                     return it;
                 })
@@ -155,19 +160,41 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         layoutContextMenu.getItems().addAll(items);
 
         if(selectedForm != null) {
-           var editExisiting = new javafx.scene.control.MenuItem("Clear Form");
+           var editExisiting = new javafx.scene.control.MenuItem("Auto layout");
            editExisiting.setOnAction(event -> changeSelectedForm(null));
            layoutContextMenu.getItems().add(editExisiting);
         }
         if(formWidgetButton != null) formWidgetButton.setDisable(layoutContextMenu.getItems().isEmpty());
     }
 
-    private void changeSelectedForm(TcMenuFormPersistence form) {
+    private void formDataResponse(RemoteMenuController controller, MenuCommand cmd) {
+        if(cmd instanceof FormDataResponseCommand dataResp && inflightForm != null) {
+            changeSelectedForm(new FormWithData(inflightForm.internalId(), inflightForm.name(), dataResp.getFormData(), true));
+        }
+    }
+
+    private void formNamesResponse(RemoteMenuController controller, MenuCommand cmd) {
+        if(cmd instanceof FormGetNamesResponseCommand namesResp) {
+            Platform.runLater(() ->{
+                availableForms = namesResp.getFormNames().stream()
+                        .map(formName -> new FormWithData(-1, formName, "", true))
+                        .toList();
+                buildLayoutItems();
+            });
+        }
+    }
+
+    private void changeSelectedForm(FormWithData form) {
+        if(form != null && form.isEmbedded() && StringHelper.isStringEmptyOrNull(form.data())) {
+            inflightForm = form;
+            sendMsgAndLog(new FormDataRequestCommand(form.name()));
+            return;
+        }
         selectedForm = form;
         if(selectedForm != null) {
-            itemStore.loadLayout(form.getXmlData(), getUuid());
+            itemStore.loadLayout(form.data(), getUuid());
             buildLayoutItems();
-            persistedConnection = persistedConnection.withFormChange(selectedForm.getFormName());
+            persistedConnection = persistedConnection.withFormChange(selectedForm.name());
         } else {
             itemStore.reset("Empty");
             buildLayoutItems();
@@ -175,7 +202,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         }
         try {
             context.getDataStore().updateConnection(persistedConnection);
-            restartConnection(null);
+            navigationManager.pushMenuNavigation(MenuTree.ROOT, itemStore, true);
         } catch (DataException e) {
             logger.log(ERROR, "Save form failed", e);
         }
@@ -212,6 +239,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         // force a connection restart but only if already connected
         if (controller != null && controller.getConnector().getAuthenticationStatus() != AuthStatus.NOT_STARTED) {
             try {
+                controller.stop();
                 createNewController();
             } catch (Exception e) {
                 logger.log(ERROR, "Could not restart connection" + creator, e);
@@ -302,6 +330,14 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
         }
     }
 
+    private void sendMsgAndLog(MenuCommand cmd) {
+        try {
+            controller.getConnector().sendMenuCommand(cmd);
+        } catch (IOException e) {
+            logger.log(ERROR, "Unable to send get names request", e);
+        }
+    }
+
     public void statusHasChanged(AuthStatus status) {
         Platform.runLater(() -> {
             if (status == AuthStatus.CONNECTION_READY) {
@@ -362,6 +398,11 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
             controller = creator.start();
 
+            if(availableForms.isEmpty()) {
+                controller.addCustomMessageProcessor(MenuCommandType.FORM_GET_NAMES_RESPONSE, this::formNamesResponse);
+                controller.addCustomMessageProcessor(MenuCommandType.FORM_DATA_RESPONSE, this::formDataResponse);
+            }
+
             this.control = new RemoteMenuComponentControl(controller, navigationManager);
             this.control.setAuthStatusChangeConsumer(this::statusHasChanged);
 
@@ -369,10 +410,9 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             if(!StringHelper.isStringEmptyOrNull(persistedConnection.getFormName())) {
                 try {
                     logger.log(INFO, "Trying to reload form " + persistedConnection.getFormName());
-                    selectedForm = persistedConnection.getSelectedForm().orElse(null);
-                    if(selectedForm != null) {
-                        itemStore.loadLayout(selectedForm.getXmlData(), UUID.fromString(persistedConnection.getUuid()));
-                    }
+                    selectedForm = persistedConnection.getSelectedForm()
+                            .map(form -> new FormWithData(form.getFormId(), form.getFormName(), form.getXmlData(), false))
+                            .orElse(null);
                     buildLayoutItems();
                 } catch (Exception ex) {
                     logger.log(ERROR, "Reload of existing form failed with exception", ex);
@@ -395,7 +435,12 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
                 @Override
                 public void treeFullyPopulated() {
+                    sendMsgAndLog(new FormGetNamesRequestCommand());
+                    if(selectedForm != null) {
+                        itemStore.loadLayout(selectedForm.data(), UUID.fromString(persistedConnection.getUuid()));
+                    }
                     navigationManager.pushMenuNavigation(MenuTree.ROOT, itemStore, true);
+
                     if(!StringHelper.isStringEmptyOrNull(persistedConnection.getUuid()) &&
                             !persistedConnection.getUuid().equals(remoteInformation.getUuid().toString())) {
                         logger.log(WARNING, "The UUID stored does not match the remote" + persistedConnection.getName());
@@ -501,5 +546,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             }
         }
     }
+
+    record FormWithData(int internalId, String name, String data, boolean isEmbedded) { }
 
 }
