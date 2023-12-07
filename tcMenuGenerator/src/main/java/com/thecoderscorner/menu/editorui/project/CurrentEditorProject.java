@@ -169,8 +169,9 @@ public class CurrentEditorProject implements TccProjectWatcher.ProjectWatchListe
                 return true;
             }
         } catch (IOException e) {
-            fileName = Optional.empty();
-            watcher.clear();
+            cleanDown();
+            updateTitle();
+            changeHistory.clear();
             logger.log(ERROR, "open operation failed on " + file, e);
             editorUI.alertOnError("Unable to open file", "The selected file could not be opened");
         }
