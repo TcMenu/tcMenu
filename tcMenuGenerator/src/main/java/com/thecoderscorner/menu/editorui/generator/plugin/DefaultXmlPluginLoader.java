@@ -115,7 +115,18 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
             return Path.of(System.getProperty("override.core.plugin.dir"));
         } else {
             // packaged mode, plugins are stored within the application itself, in the ../app directory.
-            return Path.of(System.getProperty("java.home")).getParent().resolve("app");
+            int tries = 0;
+            var path = Path.of(System.getProperty("java.home")).getParent();
+            while(tries++ < 3) {
+                logger.log(INFO, "Looking for core plugins in dir " + path);
+                var appDir = path.resolve("app");
+                if (Files.exists(appDir) && Files.exists(appDir.resolve("core-display"))) {
+                    logger.log(INFO, "Found in " + appDir);
+                    return appDir;
+                }
+                path = path.getParent();
+            }
+            throw new UnsupportedOperationException("Plugins directory not found packaged with app");
         }
     }
 
