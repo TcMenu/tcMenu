@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.uimodel;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -61,11 +62,12 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private ResourceBundle designerBundle;
     private CurrentEditorProject editorProject;
     private final TccDatabaseUtilities dbUtilities;
+    private final GlobalSettings settings;
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
                                       LibraryVersionDetector versionDetector, CodeGeneratorSupplier codeGenSupplier,
-                                      TccDatabaseUtilities dbUtilities, String home) {
+                                      TccDatabaseUtilities dbUtilities, GlobalSettings settings, String home) {
         this.manager = manager;
         this.dbUtilities = dbUtilities;
         this.codeGeneratorSupplier = codeGenSupplier;
@@ -73,6 +75,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
         this.installer = installer;
         this.configStore = storage;
         this.versionDetector = versionDetector;
+        this.settings = settings;
         this.homeDirectory = home;
     }
 
@@ -232,7 +235,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showGeneralSettings() {
-        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, homeDirectory);
+        new GeneralSettingsDialog(mainStage, configStore, versionDetector, installer, manager, settings, dbUtilities, homeDirectory);
     }
 
     @Override

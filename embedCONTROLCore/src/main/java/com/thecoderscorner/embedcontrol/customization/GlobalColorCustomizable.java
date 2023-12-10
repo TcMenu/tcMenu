@@ -19,7 +19,7 @@ public class GlobalColorCustomizable implements ColorCustomizable {
 
     @Override
     public ColorStatus getColorStatus(ConditionalColoring.ColorComponentType componentType) {
-        return ColorStatus.AVAILABLE;
+        return getActualUnderlyingColor(componentType).isInUse() ? ColorStatus.AVAILABLE : ColorStatus.NOT_PROVIDED;
     }
 
     @Override
@@ -38,12 +38,11 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     @Override
     public void setColorFor(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
         getColorFor(componentType).copyColorsFrom(controlColor);
-        //globalSettings.save();
     }
 
     @Override
     public void clearColorFor(ConditionalColoring.ColorComponentType componentType) {
-        // not implemented on global and should never be called.
+        getActualUnderlyingColor(componentType).setInUse(false);
     }
 
     @Override

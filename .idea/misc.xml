@@ -1,7 +1,12 @@
 <project version="4">
   <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="com.thecoderscorner.embedcontrol.core.util.FieldMapping" />
+    </list>
     <writeAnnotations>
       <writeAnnotation name="picocli.CommandLine.Option" />
+      <writeAnnotation name="com.thecoderscorner.embedcontrol.core.util.FieldMapping" />
+      <writeAnnotation name="com.thecoderscorner.embedcontrol.core.util.ProvideStore" />
     </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -20,6 +25,7 @@
         <option value="$PROJECT_DIR$/embedCONTROLFx/pom.xml" />
       </set>
     </option>
+    <option name="workspaceImportForciblyTurnedOn" value="true" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="liberica-21" project-jdk-type="JavaSDK" />
 </project>

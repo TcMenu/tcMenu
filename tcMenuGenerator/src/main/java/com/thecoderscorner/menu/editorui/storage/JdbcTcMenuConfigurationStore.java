@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.embedcontrol.core.util.*;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.persist.ReleaseType;
@@ -40,8 +41,10 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     private boolean autoCommit = true;
     private ArduinoDirectoryChangeListener arduinoChangeListener = null;
     private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
+    private ApplicationThemeManager applicationThemeManager;
 
-    public JdbcTcMenuConfigurationStore(TccDatabaseUtilities databaseUtilities) {
+    public JdbcTcMenuConfigurationStore(TccDatabaseUtilities databaseUtilities, ApplicationThemeManager themeManager) {
+        this.applicationThemeManager = themeManager;
         this.databaseUtilities = databaseUtilities;
         LoadedConfiguration loaded;
         try(var resourceAsStream = getClass().getResourceAsStream("/version.properties")) {
@@ -63,6 +66,7 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             logger.log(ERROR, "Unable to initialise from database store", ex);
             loaded = new LoadedConfiguration();
         }
+        themeManager.setThemeName(loaded.getCurrentTheme());
         loadedConfig = loaded;
         logger.log(INFO, "Loaded initial designer settings as" + loadedConfig);
     }
@@ -389,6 +393,7 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
 
     public void setCurrentTheme(String theme) {
         loadedConfig.setCurrentTheme(theme);
+        applicationThemeManager.setThemeName(theme);
         saveIfNeeded();
     }
 

@@ -10,6 +10,10 @@ public interface ColorCustomizable {
     boolean isRepresentingGlobal();
     ColorStatus getColorStatus(ColorComponentType componentType);
     ControlColor getColorFor(ColorComponentType componentType);
+    default ControlColor getActualUnderlyingColor(ColorComponentType componentType) {
+        return getColorFor(componentType);
+    }
+
     void setColorFor(ColorComponentType componentType, ControlColor controlColor);
     void clearColorFor(ColorComponentType componentType);
 

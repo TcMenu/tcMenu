@@ -1,13 +1,16 @@
 package com.thecoderscorner.menu.editorui.controller;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
@@ -63,21 +66,28 @@ public class GeneralSettingsController {
     public CheckBox eepromStoreSizeField;
     public ComboBox<LocaleWithDescription> languageCombo;
     public Spinner<Integer> backupSpinner;
+    public TextField ecUuidField;
+    public TextField ecNameField;
+    public Spinner<Integer> fontSizeSpinner;
     private ConfigurationStorage storage;
     private String homeDirectory;
     private LibraryVersionDetector versionDetector;
     private CodePluginManager pluginManager;
     private ArduinoLibraryInstaller installer;
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
+    private GlobalSettings settings;
+    private TccDatabaseUtilities databaseUtilities;
 
     public void initialise(ConfigurationStorage storage, LibraryVersionDetector versionDetector,
                            ArduinoLibraryInstaller installer, CodePluginManager pluginManager,
-                           String homeDirectory) {
+                           GlobalSettings settings, TccDatabaseUtilities utilities, String homeDirectory) {
         this.installer = installer;
         this.pluginManager = pluginManager;
         this.storage = storage;
         this.homeDirectory = homeDirectory;
         this.versionDetector = versionDetector;
+        this.settings = settings;
+        this.databaseUtilities = utilities;
 
         usingArduinoLibsCheck.setSelected(storage.isUsingArduinoIDE());
         useFullyQualifiedNamesField.setSelected(storage.isDefaultRecursiveNamingOn());
@@ -129,6 +139,23 @@ public class GeneralSettingsController {
         populateLanguages();
 
         populateVersions();
+
+        populateEmbedControl();
+    }
+
+    private void populateEmbedControl() {
+        ecNameField.setText(settings.getAppName());
+        ecNameField.textProperty().addListener((act, o, n) -> {
+            if(!StringHelper.isStringEmptyOrNull(ecNameField.getText())) {
+                settings.setAppName(ecNameField.getText());
+            }
+        });
+        ecUuidField.setText(settings.getAppUuid());
+        fontSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 48, settings.getDefaultFontSize()));
+        fontSizeSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            settings.setDefaultFontSize(newVal);
+            settings.save(databaseUtilities);
+        });
     }
 
     private void populateLanguages() {
@@ -366,6 +393,17 @@ public class GeneralSettingsController {
         var item = languageCombo.getSelectionModel().getSelectedItem();
         if(item == null) return;
         storage.setChosenLocale(item.locale());
+    }
+
+    public void onUuidChanged(ActionEvent actionEvent) {
+        var bundle = MenuEditorApp.getBundle();
+        Alert alert = new Alert(Alert.AlertType.WARNING, bundle.getString("settings.uuid.change.desc"), ButtonType.YES, ButtonType.NO);
+        alert.setHeaderText(bundle.getString("settings.uuid.change"));
+        alert.setTitle(bundle.getString("settings.uuid.change"));
+        if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            settings.setAppUuid(UUID.randomUUID().toString());
+            ecUuidField.setText(settings.getAppUuid());
+        }
     }
 
     public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo available, VersionInfo installed) { }

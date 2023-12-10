@@ -5,6 +5,7 @@ import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.SafeNavigator;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
@@ -33,6 +34,7 @@ import java.util.UUID;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.PortableAlignment.LEFT;
 
 public class FormEditorController {
+    private final static String FORM_EDITOR_URL = "https://www.thecoderscorner.com/products/apps/embed-control/creating-custom-layout-embed-control/";
     public GridPane editGrid;
     public ListView<GridPositionChoice> selectionList;
     public Button menuButton;
@@ -137,6 +139,7 @@ public class FormEditorController {
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
+        SafeNavigator.safeNavigateTo(FORM_EDITOR_URL);
     }
 
     public void onColorConfig(ActionEvent actionEvent) {

@@ -2,6 +2,7 @@ package com.thecoderscorner.menuexample.tcmenu;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
@@ -89,7 +90,7 @@ public class MenuConfig {
 
     @Bean
     public GlobalSettings globalSettings() {
-        var settings = new GlobalSettings();
+        var settings = new GlobalSettings(new ApplicationThemeManager());
         // load or adjust the settings as needed here. You can see
         settings.setDefaultFontSize(14);
         settings.setDefaultRecursiveRendering(false);

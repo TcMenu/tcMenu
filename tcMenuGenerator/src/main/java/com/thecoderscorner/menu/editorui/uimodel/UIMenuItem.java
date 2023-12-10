@@ -22,7 +22,6 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -38,14 +37,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.StringFieldType.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
-import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * This represents a UI editor that can edit the fields of a MenuItem, specialised for each type of menu item in a
@@ -99,10 +96,12 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.setVgap(10);
         grid.setMaxWidth(9999);
         grid.setPadding(new Insets(0, 10, 6, 10));
-        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col1 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
         ColumnConstraints col2 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
         ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+        col1.setHgrow(Priority.NEVER);
         col2.setHgrow(Priority.ALWAYS);
+        col2.setHgrow(Priority.SOMETIMES);
         grid.getColumnConstraints().addAll(col1, col2, col3);
 
         int idx = 0;

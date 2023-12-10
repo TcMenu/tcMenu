@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -39,6 +40,7 @@ public abstract class BaseDialogSupport<T> {
                 loader.setResources(bundle);
             }
             Pane pane = loader.load();
+            pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
             controller = loader.getController();
             initialiseController(controller);
             createDialogStateAndShow(stage, pane, title, modal);

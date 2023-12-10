@@ -1,43 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane maxHeight="9999.0" maxWidth="9999.0" minHeight="480.0" minWidth="640.0" prefHeight="700.0" prefWidth="900.0" stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
    <right>
-      <VBox prefWidth="250.0" BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
-            <Label prefHeight="17.0" prefWidth="252.0" text="Form Name">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-             <TextField fx:id="nameField" />
-            <Label fx:id="subMenuLabel" prefHeight="17.0" prefWidth="252.0" text="Sub Menu Options">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="storeDetailLabel" prefHeight="17.0" prefWidth="261.0" text="store details" />
+            <Label text="Form Name"/>
+            <TextField fx:id="nameField" />
+            <Label fx:id="subMenuLabel"  text="Sub Menu Options"/>
+            <Label fx:id="storeDetailLabel"  text="store details" />
             <Button fx:id="menuButton" mnemonicParsing="false" onAction="#onMenuChangeButton" prefHeight="25.0" prefWidth="248.0" text="Menu Settings" />
-            <ButtonBar prefHeight="40.0" prefWidth="200.0" />
-            <Label prefHeight="17.0" prefWidth="257.0" text="Items to place">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <ListView fx:id="selectionList" maxHeight="9999.0" prefHeight="840" prefWidth="200.0" />
+            <ButtonBar />
+            <Label text="Items to place"/>
+            <ListView fx:id="selectionList" />
          </children>
          <padding>
             <Insets left="4.0" />
@@ -45,7 +22,7 @@
       </VBox>
    </right>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar BorderPane.alignment="CENTER">
         <buttons>
             <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
             <Button mnemonicParsing="false" onAction="#onColorConfig" text="Color Config" />

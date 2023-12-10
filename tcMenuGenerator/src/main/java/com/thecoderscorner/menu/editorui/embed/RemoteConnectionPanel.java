@@ -31,10 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
@@ -44,6 +41,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 import static java.lang.System.Logger.Level.*;
@@ -103,6 +101,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             topLayout.getChildren().add(getDialogComponents(rootPanel));
             topLayout.getChildren().add(navigationManager.initialiseControls());
             rootPanel.setTop(topLayout);
+            rootPanel.setBackground(new Background(new BackgroundFill(asFxColor(settings.getTextColor().getBg()), null, null)));
+            rootPanel.setStyle("-fx-font-size: " + settings.getDefaultFontSize());
             generateWidgets();
             createNewController();
             buildLayoutItems();
@@ -141,23 +141,24 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             layoutContextMenu = new ContextMenu();
         }
 
-        var dbForms = context.getDataStore().getAllFormsForUuid(getUuid().toString()).stream()
-                .map(form -> new FormWithData(form.getFormId(), form.getFormName(), form.getXmlData(), false))
-                .toList();
-        var forms = new ArrayList<>(availableForms);
-        forms.addAll(dbForms);
-        var items = forms.stream()
-                .map(f -> {
-                    var selIndiciator = selectedForm != null && selectedForm.internalId() == f.internalId() ? " *" : "";
-                    var embeddedInd = f.isEmbedded() ? " [Device]" : "";
-                    var it = new javafx.scene.control.MenuItem(f.name() + embeddedInd + selIndiciator);
-                    it.setOnAction(event -> changeSelectedForm(f));
-                    return it;
-                })
-                .toList();
-
-        layoutContextMenu.getItems().clear();
-        layoutContextMenu.getItems().addAll(items);
+        if(getUuid() != null) {
+            var dbForms = context.getDataStore().getAllFormsForUuid(getUuid().toString()).stream()
+                    .map(form -> new FormWithData(form.getFormId(), form.getFormName(), form.getXmlData(), false))
+                    .toList();
+            var forms = new ArrayList<>(availableForms);
+            forms.addAll(dbForms);
+            var items = forms.stream()
+                    .map(f -> {
+                        var selIndiciator = selectedForm != null && selectedForm.internalId() == f.internalId() ? " *" : "";
+                        var embeddedInd = f.isEmbedded() ? " [Device]" : "";
+                        var it = new javafx.scene.control.MenuItem(f.name() + embeddedInd + selIndiciator);
+                        it.setOnAction(event -> changeSelectedForm(f));
+                        return it;
+                    })
+                    .toList();
+            layoutContextMenu.getItems().clear();
+            layoutContextMenu.getItems().addAll(items);
+        }
 
         if(selectedForm != null) {
            var editExisiting = new javafx.scene.control.MenuItem("Auto layout");

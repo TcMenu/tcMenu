@@ -119,4 +119,8 @@ public class PortableColor {
     public int hashCode() {
         return Objects.hash(red, green, blue, alpha);
     }
+
+    public String toHtml() {
+        return String.format("#%02X%02X%02X", red, green, blue);
+    }
 }

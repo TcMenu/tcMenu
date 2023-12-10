@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -30,6 +31,7 @@ public abstract class BaseDialogSupport {
             var loader = new FXMLLoader(BaseDialogSupport.class.getResource(resource));
             loader.setResources(JfxNavigationHeader.getCoreResources());
             Pane pane = loader.load();
+            pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
             T controller = loader.getController();
             controllerInitializer.accept(controller);
             createDialogStateAndShow(stage, pane, title, modal);

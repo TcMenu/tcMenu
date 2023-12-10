@@ -4,13 +4,16 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.ColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
-import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.embedcontrol.customization.NamedColorCustomizable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
@@ -20,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.fromFxColor;
-import static com.thecoderscorner.embedcontrol.customization.ColorCustomizable.*;
+import static com.thecoderscorner.embedcontrol.customization.ColorCustomizable.ColorStatus;
 
 public class ColorSettingsController {
     public ColorPicker pendingFgEditor;
@@ -106,11 +109,10 @@ public class ColorSettingsController {
     private void updateEditorPairFromColor(ColorPicker fgPicker, ColorPicker bgPicker, CheckBox enableBox, ColorComponentType componentType, ColorCustomizable colorSet) {
         ColorStatus sts = colorSet.getColorStatus(componentType);
         if(sts == ColorStatus.AVAILABLE) {
-            fgPicker.setValue(asFxColor(colorSet.getColorFor(componentType).getFg()));
-            bgPicker.setValue(asFxColor(colorSet.getColorFor(componentType).getBg()));
+            fgPicker.setValue(asFxColor(colorSet.getActualUnderlyingColor(componentType).getFg()));
+            bgPicker.setValue(asFxColor(colorSet.getActualUnderlyingColor(componentType).getBg()));
         }
         enableBox.setSelected(sts == ColorStatus.AVAILABLE);
-        enableBox.setDisable(colorSet.isRepresentingGlobal() || sts == ColorStatus.NOT_PROVIDED);
         fgPicker.setDisable(sts != ColorStatus.AVAILABLE);
         bgPicker.setDisable(sts != ColorStatus.AVAILABLE);
 
@@ -159,7 +161,7 @@ public class ColorSettingsController {
 
     private void setColorsFor(ColorPicker fgPicker, ColorPicker bgPicker, CheckBox checkBox, ColorComponentType componentType, ColorCustomizable colorSet) {
         if(colorSet.getColorStatus(componentType) == ColorStatus.NOT_PROVIDED) return;
-        if(!checkBox.isSelected() && !colorSet.isRepresentingGlobal()) {
+        if(!checkBox.isSelected()) {
             colorSet.clearColorFor(componentType);
         } else {
             colorSet.setColorFor(componentType, new ControlColor(fromFxColor(fgPicker.getValue()), fromFxColor(bgPicker.getValue())));

@@ -7,6 +7,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
@@ -113,6 +114,7 @@ public class GenerateCodeDialog {
         this.mainStage = stage;
         BorderPane pane = new BorderPane();
         pane.getStyleClass().add("background");
+        pane.setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
 
         placeDirectoryAndEmbeddedPanels(pane);
 
@@ -662,6 +664,7 @@ public class GenerateCodeDialog {
         BorderPane pane = new BorderPane();
         pane.setCenter(vbox);
         vbox.getStyleClass().add("popupWindow");
+        vbox.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
 
         var scroll = new ScrollPane(pane);
         scroll.setFitToWidth(true);

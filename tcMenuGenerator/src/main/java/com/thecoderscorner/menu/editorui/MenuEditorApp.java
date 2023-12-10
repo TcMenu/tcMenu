@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -121,6 +122,7 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         loader.setResources(designerBundle);
         Pane myPane = loader.load();
+        myPane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
         MenuEditorController controller = loader.getController();
 
         var editorProject = appContext.newProject();

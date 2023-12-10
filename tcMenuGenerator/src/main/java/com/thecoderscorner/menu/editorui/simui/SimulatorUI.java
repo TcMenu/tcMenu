@@ -24,6 +24,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -34,6 +36,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class SimulatorUI {
@@ -57,11 +60,15 @@ public class SimulatorUI {
     public void presentSimulator(MenuTree menuTree, CurrentEditorProject project, Stage stage) {
         this.menuTree = menuTree;
         this.project = project;
+        var appContext = MenuEditorApp.getContext().getAppContext();
+        this.settings = appContext.getGlobalSettings();
         this.uuid = project.getGeneratorOptions().getApplicationUUID().toString();
         MenuItemFormatter.setDefaultLocalHandler(project.getLocaleHandler());
 
         ScrollPane scrollPane = new ScrollPane();
         var border = new BorderPane();
+        border.setStyle("-fx-font-size: " + settings.getDefaultFontSize());
+        border.setBackground(new Background(new BackgroundFill(asFxColor(settings.getTextColor().getBg()), null, null)));
         border.setCenter(scrollPane);
         border.setMaxSize(9999,9999);
         border.setPrefSize(600, 738);
@@ -77,8 +84,6 @@ public class SimulatorUI {
         dialogStage.show();
         dialogStage.setOnCloseRequest(event -> closeConsumer.accept(event));
 
-        var appContext = MenuEditorApp.getContext().getAppContext();
-        settings = appContext.getGlobalSettings();
         dataStore = appContext.getEcDataStore();
         var dialogMgr = new DoNothingDialogManager();
         navMgr = new JfxNavigationHeader(appContext.getExecutorService(), settings);

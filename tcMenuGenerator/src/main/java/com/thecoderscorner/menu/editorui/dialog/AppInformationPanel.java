@@ -104,10 +104,12 @@ public class AppInformationPanel {
         int row = 0;
         gridPane.setHgap(2);
         gridPane.setVgap(3);
-        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col1 = new ColumnConstraints(120, 250, Double.MAX_VALUE);
+        col1.setHgrow(Priority.SOMETIMES);
         ColumnConstraints col2 = new ColumnConstraints(300, 300, Double.MAX_VALUE);
         col2.setHgrow(Priority.ALWAYS);
-        ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+        ColumnConstraints col3 = new ColumnConstraints(100, 300, Double.MAX_VALUE);
+        col3.setHgrow(Priority.SOMETIMES);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
         gridPane.add(new Label(bundle.getString("core.platform")), 0, row);
@@ -140,7 +142,6 @@ public class AppInformationPanel {
         gridPane.add(appUuidLabel, 1, row);
         Button changeId = new Button(bundle.getString("app.info.change.id"));
         changeId.setId("changeIdBtn");
-        changeId.setPrefWidth(99);
         changeId.setOnAction(e -> {
             if (editorUI.questionYesNo(bundle.getString("app.info.really.change.id.title"), bundle.getString("app.info.really.change.id.message"))) {
                 controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()

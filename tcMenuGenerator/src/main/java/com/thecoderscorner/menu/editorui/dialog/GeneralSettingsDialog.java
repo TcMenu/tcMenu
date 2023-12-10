@@ -6,6 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.dialog;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.controller.GeneralSettingsController;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
@@ -20,14 +22,19 @@ public class GeneralSettingsDialog extends BaseDialogSupport<GeneralSettingsCont
     private final LibraryVersionDetector detector;
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager manager;
+    private final GlobalSettings settings;
+    private final TccDatabaseUtilities databaseUtilities;
     private final String home;
 
     public GeneralSettingsDialog(Stage stage, ConfigurationStorage storage, LibraryVersionDetector detector,
-                                 ArduinoLibraryInstaller installer, CodePluginManager manager, String home) {
+                                 ArduinoLibraryInstaller installer, CodePluginManager manager,
+                                 GlobalSettings settings, TccDatabaseUtilities databaseUtilities, String home) {
         this.storage = storage;
         this.detector = detector;
         this.installer = installer;
         this.manager = manager;
+        this.settings = settings;
+        this.databaseUtilities = databaseUtilities;
         this.home = home;
 
         tryAndCreateDialog(stage, "/ui/settingsDialog.fxml", bundle.getString("settings.dialog.title"), true);
@@ -36,6 +43,6 @@ public class GeneralSettingsDialog extends BaseDialogSupport<GeneralSettingsCont
 
     @Override
     protected void initialiseController(GeneralSettingsController controller) {
-        controller.initialise(storage, detector, installer, manager, home);
+        controller.initialise(storage, detector, installer, manager, settings, databaseUtilities, home);
     }
 }

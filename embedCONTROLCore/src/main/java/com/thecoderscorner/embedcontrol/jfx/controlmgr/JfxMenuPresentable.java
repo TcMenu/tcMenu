@@ -11,16 +11,16 @@ import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.thecoderscorner.embedcontrol.customization.FontInformation.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus.NORMAL;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.TEXT_FIELD;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
+import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement;
 
 public class JfxMenuPresentable implements PanelPresentable<Node> {
     private final SubMenuItem subMenuItem;
@@ -56,6 +56,9 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
         gridPane = new GridPane();
         presentableWidth = width;
         gridComponent.clearGrid();
+        gridPane.setBackground(new Background(new BackgroundFill(
+                asFxColor(store.getColorSet("").getColorFor(TEXT_FIELD).getBg()), null, null
+        )));
         gridComponent.renderMenuRecursive(editorFactory, subMenuItem, store.isRecursive(), 0);
         return gridPane;
     }
@@ -135,6 +138,7 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
             comp.setFont(calculateFont(settings.getFontInfo(), comp.getFont()));
             var where = settings.getPosition();
             comp.setTextAlignment(toTextAlign(settings.getJustification()));
+            comp.setTextFill(asFxColor(settings.getColors().foregroundFor(NORMAL, TEXT_FIELD)));
             GridPane.setColumnIndex(comp, where.getCol());
             GridPane.setRowIndex(comp, where.getRow());
             GridPane.setColumnSpan(comp, where.getColSpan());

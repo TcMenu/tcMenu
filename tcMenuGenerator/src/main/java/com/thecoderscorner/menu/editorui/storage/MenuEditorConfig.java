@@ -37,7 +37,7 @@ public class MenuEditorConfig extends CoreControlAppConfig {
 
     public MenuEditorConfig() throws Exception {
         super();
-        configStore = new JdbcTcMenuConfigurationStore(databaseUtils);
+        configStore = new JdbcTcMenuConfigurationStore(databaseUtils, getThemeManager());
         remoteContext = new RemoteUiEmbedControlContext(executor, serializer, serialFactory, ecDataStore, globalSettings);
 
         var httpClient = new SimpleHttpClient();
@@ -78,7 +78,7 @@ public class MenuEditorConfig extends CoreControlAppConfig {
 
     public CurrentEditorProject newProject() {
         var editorUI = new CurrentProjectEditorUIImpl(pluginLoader, platforms, installer, configStore, libraryVersionDetector,
-                codeGenSupplier, databaseUtils, tcMenuHome.toString());
+                codeGenSupplier, databaseUtils, globalSettings, tcMenuHome.toString());
         FileBasedProjectPersistor persistor = new FileBasedProjectPersistor(platforms);
         return new CurrentEditorProject(editorUI, persistor, configStore, executor, new TccProjectWatcherImpl());
     }
