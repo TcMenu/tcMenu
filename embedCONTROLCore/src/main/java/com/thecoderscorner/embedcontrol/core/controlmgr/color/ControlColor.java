@@ -26,6 +26,20 @@ public class ControlColor {
 
     private PortableColor fg;
     private PortableColor bg;
+    private boolean inUse;
+
+    /**
+     * Create a new color given the foreground and background as portable colors, also providing the in use flag
+     * @param fg the foreground
+     * @param bg the background
+     * @param inUse if the color is in use
+     *
+     */
+    public ControlColor(PortableColor fg, PortableColor bg, boolean inUse) {
+        this.fg = fg;
+        this.bg = bg;
+        this.inUse = inUse;
+    }
 
     /**
      * Create a new color given the foreground and background as portable colors
@@ -35,6 +49,18 @@ public class ControlColor {
     public ControlColor(PortableColor fg, PortableColor bg) {
         this.fg = fg;
         this.bg = bg;
+        this.inUse = true;
+    }
+
+    public ControlColor() {
+        this.fg = this.bg = PortableColor.BLACK;
+        this.inUse = false;
+    }
+
+    public ControlColor(String fg, String bg) {
+        this.fg = new PortableColor(fg);
+        this.bg = new PortableColor(bg);
+        this.inUse = true;
     }
 
     /**
@@ -68,12 +94,29 @@ public class ControlColor {
     }
 
     /**
+     * Checks if this control color is in use, or should be ignored
+     * @return true if in use, otherwise false
+     */
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    /**
+     * Set the in use state of this color, true or false.
+     * @param inUse true or false
+     */
+    public void setInUse(boolean inUse) {
+        this.inUse = inUse;
+    }
+
+    /**
      * Copy the colors into this object from another control color instance
      * @param controlColor the instance to copy from
      */
     public void copyColorsFrom(ControlColor controlColor) {
         this.fg = controlColor.getFg();
         this.bg = controlColor.getBg();
+        this.inUse = controlColor.isInUse();
     }
 
     /**

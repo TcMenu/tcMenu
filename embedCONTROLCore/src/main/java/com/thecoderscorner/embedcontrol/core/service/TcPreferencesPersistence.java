@@ -1,12 +1,19 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
-import com.thecoderscorner.embedcontrol.core.util.FieldMapping;
-import com.thecoderscorner.embedcontrol.core.util.FieldType;
-import com.thecoderscorner.embedcontrol.core.util.TableMapping;
-import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
+import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
+import com.thecoderscorner.embedcontrol.core.util.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
 
 @TableMapping(tableName = "GLOBAL_SETTINGS", uniqueKeyField = "SETTING_ID")
 public class TcPreferencesPersistence {
+    private List<TcPreferencesColor> colorsToSave;
+
     @FieldMapping(fieldName = "SETTING_ID", fieldType = FieldType.INTEGER, primaryKey = true)
     private int settingId;
 
@@ -18,54 +25,41 @@ public class TcPreferencesPersistence {
     private boolean recurseSub;
     @FieldMapping(fieldName = "FONT_SIZE", fieldType = FieldType.INTEGER)
     private int fontSize;
-
-    @FieldMapping(fieldName = "BUTTON_FG", fieldType = FieldType.VARCHAR)
-    private String fgButton;
-    @FieldMapping(fieldName = "BUTTON_BG", fieldType = FieldType.VARCHAR)
-    private String bgButton;
-
-    @FieldMapping(fieldName = "UPDATE_FG", fieldType = FieldType.VARCHAR)
-    private String fgUpdate;
-    @FieldMapping(fieldName = "UPDATE_BG", fieldType = FieldType.VARCHAR)
-    private String bgUpdate;
-
-    @FieldMapping(fieldName = "HIGHLIGHT_FG", fieldType = FieldType.VARCHAR)
-    private String fgHighlight;
-    @FieldMapping(fieldName = "HIGHLIGHT_BG", fieldType = FieldType.VARCHAR)
-    private String bgHighlight;
-
-    @FieldMapping(fieldName = "TEXT_FG", fieldType = FieldType.VARCHAR)
-    private String fgText;
-    @FieldMapping(fieldName = "TEXT_BG", fieldType = FieldType.VARCHAR)
-    private String bgText;
-
-    @FieldMapping(fieldName = "ERROR_FG", fieldType = FieldType.VARCHAR)
-    private String fgError;
-    @FieldMapping(fieldName = "ERROR_BG", fieldType = FieldType.VARCHAR)
-    private String bgError;
-    @FieldMapping(fieldName = "DIALOG_FG", fieldType = FieldType.VARCHAR)
-    private String fgDialog;
-    @FieldMapping(fieldName = "DIALOG_BG", fieldType = FieldType.VARCHAR)
-    private String bgDialog;
-
+    @ProvideStore
+    private TccDatabaseUtilities dataStore;
 
     public void populateGlobalSettings(GlobalSettings settings) {
         settings.setAppName(localName);
         settings.setAppUuid(localUuid);
         settings.setDefaultRecursiveRendering(recurseSub);
         settings.setDefaultFontSize(fontSize);
-        settings.getButtonColor().setBg(new PortableColor(bgButton));
-        settings.getButtonColor().setFg(new PortableColor(fgButton));
-        settings.getUpdateColor().setBg(new PortableColor(bgUpdate));
-        settings.getUpdateColor().setFg(new PortableColor(fgUpdate));
-        settings.getHighlightColor().setBg(new PortableColor(bgHighlight));
-        settings.getHighlightColor().setFg(new PortableColor(fgHighlight));
-        settings.getTextColor().setBg(new PortableColor(bgText));
-        settings.getTextColor().setFg(new PortableColor(fgText));
-        settings.getErrorColor().setBg(new PortableColor(bgError));
-        settings.getErrorColor().setFg(new PortableColor(fgError));
-        settings.getDialogColor().setBg(new PortableColor(bgDialog));
-        settings.getDialogColor().setFg(new PortableColor(fgDialog));
+
+        var mapPrefColors = colorsToSave.stream().collect(Collectors.toMap(TcPreferencesColor::getCompType, TcPreferencesColor::getControlColor));
+        updateColor(TEXT_FIELD, mapPrefColors, settings);
+        updateColor(BUTTON, mapPrefColors, settings);
+        updateColor(DIALOG, mapPrefColors, settings);
+        updateColor(CUSTOM, mapPrefColors, settings);
+        updateColor(ERROR, mapPrefColors, settings);
+        updateColor(HIGHLIGHT, mapPrefColors, settings);
+        updateColor(PENDING, mapPrefColors, settings);
+    }
+
+    private void updateColor(ColorComponentType compType, Map<ColorComponentType, ControlColor> mapPrefColors, GlobalSettings settings) {
+        ControlColor color;
+        if(mapPrefColors.containsKey(compType)) {
+            color = mapPrefColors.get(compType);
+        } else {
+            color = new ControlColor(); // not in use color
+        }
+        switch (compType) {
+            case TEXT_FIELD -> settings.getTextColor().copyColorsFrom(color);
+            case BUTTON -> settings.getButtonColor().copyColorsFrom(color);
+            case HIGHLIGHT -> settings.getHighlightColor().copyColorsFrom(color);
+            case CUSTOM -> settings.getUpdateColor().copyColorsFrom(color);
+            case DIALOG -> settings.getDialogColor().copyColorsFrom(color);
+            case ERROR -> settings.getErrorColor().copyColorsFrom(color);
+            case PENDING -> settings.getPendingColor().copyColorsFrom(color);
+        }
     }
 
     public TcPreferencesPersistence(GlobalSettings settings) {
@@ -74,25 +68,19 @@ public class TcPreferencesPersistence {
         recurseSub = settings.isDefaultRecursiveRendering();
         fontSize = settings.getDefaultFontSize();
 
-        bgButton = settings.getButtonColor().getBg().toString();
-        fgButton = settings.getButtonColor().getFg().toString();
-
-        bgUpdate = settings.getUpdateColor().getBg().toString();
-        fgUpdate = settings.getUpdateColor().getFg().toString();
-
-        bgHighlight = settings.getHighlightColor().getBg().toString();
-        fgHighlight = settings.getHighlightColor().getFg().toString();
-
-        bgText = settings.getTextColor().getBg().toString();
-        fgText = settings.getTextColor().getFg().toString();
-
-        bgError = settings.getErrorColor().getBg().toString();
-        fgError = settings.getErrorColor().getFg().toString();
-
-        bgDialog = settings.getDialogColor().getBg().toString();
-        fgDialog = settings.getDialogColor().getFg().toString();
+        colorsToSave = settings.getColorsToSave().entrySet().stream()
+                .map(colEntry -> new TcPreferencesColor(colEntry.getKey(), colEntry.getValue()))
+                .toList();
     }
 
     public TcPreferencesPersistence() {
+    }
+
+    public List<TcPreferencesColor> getColorsToSave() {
+        return colorsToSave;
+    }
+
+    public void setColorsToSave(List<TcPreferencesColor> colorsToSave) {
+        this.colorsToSave = colorsToSave;
     }
 }

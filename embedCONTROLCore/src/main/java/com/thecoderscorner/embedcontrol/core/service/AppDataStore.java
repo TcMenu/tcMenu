@@ -2,6 +2,7 @@ package com.thecoderscorner.embedcontrol.core.service;
 
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public interface AppDataStore {
      * Gets the global embedControl settings from the database
      * @return global settings
      */
-    Optional<TcPreferencesPersistence> getGlobalSettings();
+    Optional<TcPreferencesPersistence> getGlobalSettings(ApplicationThemeManager themeManager);
 
     /**
      * Updates the global settings in the database, or inserts if not present.

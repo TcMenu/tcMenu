@@ -2,6 +2,7 @@ package com.thecoderscorner.embedcontrol.core.service;
 
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,8 @@ public class DatabaseAppDataStore implements AppDataStore {
             databaseHelper.ensureTableFormatCorrect(
                     TcMenuPersistedConnection.class,
                     TcMenuFormPersistence.class,
-                    TcPreferencesPersistence.class
+                    TcPreferencesPersistence.class,
+                    TcPreferencesColor.class
             );
         } catch (DataException e) {
             logger.log(System.Logger.Level.ERROR, "Could not update database to new schema", e);
@@ -53,17 +55,19 @@ public class DatabaseAppDataStore implements AppDataStore {
         databaseHelper.executeRaw("DELETE FROM TC_CONNECTION WHERE LOCAL_ID = ?", connection.getLocalId());
     }
 
-    public Optional<TcPreferencesPersistence> getGlobalSettings() {
+    public Optional<TcPreferencesPersistence> getGlobalSettings(ApplicationThemeManager themeManager) {
         logger.log(System.Logger.Level.INFO, "Get global settings from store");
         try {
             var maybeSettings = databaseHelper.queryPrimaryKey(TcPreferencesPersistence.class, 0);
             if(maybeSettings.isEmpty()) {
                 logger.log(System.Logger.Level.INFO, "Setting up global setting table with defaults");
-                GlobalSettings settings = new GlobalSettings();
+                GlobalSettings settings = new GlobalSettings(themeManager);
                 updateGlobalSettings(new TcPreferencesPersistence(settings));
+                logger.log(System.Logger.Level.INFO, "Reading settings from table");
+                maybeSettings = databaseHelper.queryPrimaryKey(TcPreferencesPersistence.class, 0);
             }
-            logger.log(System.Logger.Level.INFO, "Reading settings from table");
-            return databaseHelper.queryPrimaryKey(TcPreferencesPersistence.class, 0);
+            maybeSettings.orElseThrow().setColorsToSave(databaseHelper.queryRecords(TcPreferencesColor.class, ""));
+            return maybeSettings;
         } catch(Exception ex) {
             logger.log(System.Logger.Level.ERROR, "Unable to query global settings", ex);
             return Optional.empty();
@@ -72,6 +76,11 @@ public class DatabaseAppDataStore implements AppDataStore {
 
     public void updateGlobalSettings(TcPreferencesPersistence settings) throws DataException {
         databaseHelper.updateRecord(TcPreferencesPersistence.class, settings);
+        if(settings.getColorsToSave() != null) {
+            for (var col : settings.getColorsToSave()) {
+                databaseHelper.updateRecord(TcPreferencesColor.class, col);
+            }
+        }
     }
 
     @Override

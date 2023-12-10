@@ -2,7 +2,9 @@ package com.thecoderscorner.embedcontrol.core.service;
 
 import com.thecoderscorner.embedcontrol.core.rs232.Rs232SerialFactory;
 import com.thecoderscorner.embedcontrol.core.serial.PlatformSerialFactory;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import org.sqlite.SQLiteDataSource;
 
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -20,6 +21,7 @@ public class CoreControlAppConfig {
     protected final SQLiteDataSource dataSource;
     protected final PlatformSerialFactory serialFactory;
     protected final TccDatabaseUtilities databaseUtils;
+    private final ApplicationThemeManager themeManager;
     protected DatabaseAppDataStore ecDataStore;
     protected JsonMenuItemSerializer serializer;
     protected GlobalSettings globalSettings;
@@ -37,17 +39,29 @@ public class CoreControlAppConfig {
         dataSource = new SQLiteDataSource();
         dataSource.setUrl("jdbc:sqlite:" + tcMenuHome.resolve("tcDataStore.db"));
 
-        globalSettings = new GlobalSettings();
-
         serializer = new JsonMenuItemSerializer();
 
         databaseUtils = new TccDatabaseUtilities(dataSource);
 
+        themeManager = new ApplicationThemeManager();
+        globalSettings = new GlobalSettings(themeManager);
+
         ecDataStore = new DatabaseAppDataStore(databaseUtils);
-        ecDataStore.getGlobalSettings().ifPresent(ps -> ps.populateGlobalSettings(globalSettings));
+        ecDataStore.getGlobalSettings(themeManager).ifPresent(ps -> {
+            try {
+                ps.populateGlobalSettings(globalSettings);
+                ps.setColorsToSave(databaseUtils.queryRecords(TcPreferencesColor.class, ""));
+            } catch (DataException e) {
+                throw new RuntimeException("Unexpected exception during load", e);
+            }
+        });
 
         serialFactory = new Rs232SerialFactory(globalSettings, executor);
 
+    }
+
+    public ApplicationThemeManager getThemeManager() {
+        return themeManager;
     }
 
     public Path getHomeDir() {

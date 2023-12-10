@@ -1,14 +1,43 @@
 package com.thecoderscorner.embedcontrol.core.service;
 
+import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
+import com.thecoderscorner.embedcontrol.core.util.DataException;
+import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
+import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 
+import java.util.Map;
 import java.util.UUID;
+
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.*;
 
 /**
  * This class stores all the global settings for both local and remote versions of embedCONTROL. This includes default
  * font sizes, control colors, and other setup values.
  */
 public class GlobalSettings {
+
+    final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_LIGHT_COLORS = Map.ofEntries(
+            Map.entry(CUSTOM, new ControlColor("", "")),
+            Map.entry(TEXT_FIELD, new ControlColor("", "")),
+            Map.entry(HIGHLIGHT, new ControlColor("", "")),
+            Map.entry(BUTTON, new ControlColor("", "")),
+            Map.entry(DIALOG, new ControlColor("", "")),
+            Map.entry(ERROR, new ControlColor("", "")),
+            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, GREY))
+    );
+    final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_DARK_COLORS = Map.ofEntries(
+            Map.entry(CUSTOM, new ControlColor("#FEFFFF", "#2D1E8C")),
+            Map.entry(TEXT_FIELD, new ControlColor("#FEFFFF", "#000")),
+            Map.entry(HIGHLIGHT, new ControlColor("#FEFFFF", "#9D5BBA")),
+            Map.entry(BUTTON, new ControlColor("#FEFFFF", "#33084A")),
+            Map.entry(DIALOG, new ControlColor("#FEFFFF", "#214F82")),
+            Map.entry(ERROR, new ControlColor("#FEFFFF", "#A80B0D")),
+            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, DARK_GREY))
+    );
+    private static int globalFontSize = 14;
+
     private ControlColor updateColor;
     private ControlColor pendingColor;
     private ControlColor highlightColor;
@@ -20,21 +49,28 @@ public class GlobalSettings {
     private String appName;
     private boolean defaultRecursiveRendering;
     private int defaultFontSize;
+    private ApplicationThemeManager themeManager;
 
     /**
      * Create an instance of global settings
      */
-    public GlobalSettings() {
-        setColorsForDefault(false);
+    public GlobalSettings(ApplicationThemeManager themeManager) {
+        this.themeManager = themeManager;
         appUuid = UUID.randomUUID().toString();
         appName = "untitled";
         defaultFontSize = 16;
+        setColorsForDefault(false);
+    }
+
+    public static int defaultFontSize() {
+        return globalFontSize;
     }
 
     public void copyFrom(GlobalSettings other) {
         this.appUuid = other.appUuid;
         this.appName = other.appName;
         this.defaultFontSize = other.defaultFontSize;
+        globalFontSize = defaultFontSize;
         this.defaultRecursiveRendering = other.defaultRecursiveRendering;
         this.buttonColor.copyColorsFrom(other.buttonColor);
         this.updateColor.copyColorsFrom(other.updateColor);
@@ -45,53 +81,72 @@ public class GlobalSettings {
         this.updateColor.copyColorsFrom(other.pendingColor);
     }
 
+    private ControlColor wrapWithDefault(ConditionalColoring.ColorComponentType componentType, ControlColor controlColor) {
+        if(controlColor.isInUse()) return controlColor;
+        var colorMap = isDarkMode() ? DEFAULT_DARK_COLORS : DEFAULT_LIGHT_COLORS;
+        return colorMap.containsKey(componentType) ? colorMap.get(componentType) : new ControlColor(WHITE, BLACK);
+
+    }
+
     /**
      * @return the default control color for textual items
      */
     public ControlColor getTextColor() {
-        return textColor;
+        return wrapWithDefault(TEXT_FIELD, textColor);
     }
 
     /**
      * @return the default control color for button items
      */
     public ControlColor getUpdateColor() {
-        return updateColor;
+        return wrapWithDefault(CUSTOM, updateColor);
     }
 
     /**
      * @return the default control color for pending items
      */
     public ControlColor getPendingColor() {
-        return pendingColor;
+        return wrapWithDefault(PENDING, pendingColor);
     }
 
     /**
      * @return the default control color for highlight items
      */
     public ControlColor getHighlightColor() {
-        return highlightColor;
+        return wrapWithDefault(HIGHLIGHT, highlightColor);
     }
 
     /**
      * @return the default control color for error items
      */
     public ControlColor getErrorColor() {
-        return errorColor;
+        return wrapWithDefault(ERROR, errorColor);
     }
 
     /**
      * @return the default control color for button items
      */
     public ControlColor getButtonColor() {
-        return buttonColor;
+        return wrapWithDefault(BUTTON, buttonColor);
     }
 
     /**
      * @return the default control color for dialogs
      */
     public ControlColor getDialogColor() {
-        return dialogColor;
+        return wrapWithDefault(DIALOG, dialogColor);
+    }
+
+    public Map<ConditionalColoring.ColorComponentType, ControlColor> getColorsToSave() {
+        return Map.of(
+                CUSTOM, updateColor,
+                PENDING, pendingColor,
+                HIGHLIGHT, highlightColor,
+                ERROR, errorColor,
+                BUTTON, buttonColor,
+                DIALOG, dialogColor,
+                TEXT_FIELD, textColor
+        );
     }
 
     /**
@@ -129,25 +184,13 @@ public class GlobalSettings {
      * @param darkMode if dark background colors should be used
      */
     public void setColorsForDefault(boolean darkMode) {
-        if(darkMode) {
-            updateColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
-            pendingColor = new ControlColor(ControlColor.LIGHT_GRAY, ControlColor.DARK_GREY);
-            buttonColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_BLUE);
-            errorColor = new ControlColor(ControlColor.WHITE, ControlColor.RED);
-            highlightColor = new ControlColor(ControlColor.WHITE, ControlColor.CRIMSON);
-            dialogColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
-            textColor = new ControlColor(ControlColor.ANTIQUE_WHITE, ControlColor.BLACK);
-        }
-        else
-        {
-            updateColor = new ControlColor(ControlColor.WHITE, ControlColor.INDIGO);
-            pendingColor = new ControlColor(ControlColor.LIGHT_GRAY, ControlColor.GREY);
-            buttonColor = new ControlColor(ControlColor.BLACK, ControlColor.CORNFLOWER_BLUE);
-            errorColor = new ControlColor(ControlColor.WHITE, ControlColor.RED);
-            highlightColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
-            dialogColor = new ControlColor(ControlColor.WHITE, ControlColor.DARK_SLATE_BLUE);
-            textColor = new ControlColor(ControlColor.BLACK, ControlColor.ANTIQUE_WHITE);
-        }
+        updateColor = new ControlColor();
+        pendingColor = new ControlColor();
+        buttonColor = new ControlColor();
+        errorColor = new ControlColor();
+        highlightColor = new ControlColor();
+        dialogColor = new ControlColor();
+        textColor = new ControlColor();
     }
 
     /**
@@ -169,6 +212,7 @@ public class GlobalSettings {
      * @param size the font size
      */
     public void setDefaultFontSize(int size) {
+        globalFontSize = size;
         defaultFontSize = size;
     }
 
@@ -178,5 +222,18 @@ public class GlobalSettings {
      */
     public void setDefaultRecursiveRendering(boolean recursiveRender) {
         defaultRecursiveRendering = recursiveRender;
+    }
+
+    public boolean isDarkMode() {
+        return themeManager.isDarkMode();
+    }
+
+    public void save(TccDatabaseUtilities databaseUtilities) {
+        TcPreferencesPersistence pp = new TcPreferencesPersistence(this);
+        try {
+            databaseUtilities.updateRecord(TcPreferencesPersistence.class, pp);
+        } catch (DataException e) {
+            throw new RuntimeException("Failed up update global settings record");
+        }
     }
 }
