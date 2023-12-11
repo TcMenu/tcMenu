@@ -16,13 +16,10 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +46,7 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
         }
 
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem());
-        builder.withEnumList(getValueLocalizedFromUIList(items));
+        builder.withEnumList(items);
         getChangedDefaults(builder, errors);
 
         var defValue = bundle.getString("menu.editor.default.value");

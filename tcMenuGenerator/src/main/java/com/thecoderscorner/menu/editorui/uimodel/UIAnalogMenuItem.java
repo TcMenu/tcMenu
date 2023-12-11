@@ -46,6 +46,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     private TextField stepField;
     private TextField divisorField;
     private TextField unitNameField;
+    private Label unitNameTranslation;
     private Label minMaxLabel;
     private ComboBox<AnalogCannedChoice> cannedChoicesCombo;
     private TextField defaultValueField;
@@ -66,12 +67,6 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         int maxValue = safeIntFromProperty(maxValueField.textProperty(), bundle.getString("menu.editor.analog.max"), errors, 1, 65535);
         if(step == 0 || ((maxValue % step) != 0)) {
             errors.add(new FieldError(bundle.getString("menu.editor.err.step.wrong"), stepStr));
-        }
-
-        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
-            var unitResStr = menuItemToLocale("unit");
-            localHandler.setLocalSpecificEntry(unitResStr.substring(1), unitName);
-            unitName = unitResStr;
         }
 
         AnalogMenuItemBuilder builder = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
@@ -162,19 +157,18 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         TextFormatterUtils.applyIntegerFormatToField(stepField);
         grid.add(stepField, 1, idx, 2, 1);
 
-        String unitName;
-        if(shouldAvoidLocalization()) {
-            unitName = getMenuItem().getUnitName();
-        } else {
-            unitName = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("unit"), getMenuItem().getUnitName());
-        }
-
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.analog.unit")), 0, idx);
-        unitNameField = new TextField(unitName);
+        unitNameField = new TextField(getMenuItem().getUnitName());
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::analogValueChanged);
-        grid.add(unitNameField, 1, idx, 2, 1);
+        unitNameTranslation = new Label(localHandler.getFromLocaleWithDefault(unitNameField.getText(), unitNameField.getText()));
+        if(localHandler.isLocalSupportEnabled()) {
+            grid.add(unitNameField, 1, idx);
+            grid.add(unitNameTranslation, 2, idx);
+        } else {
+            grid.add(unitNameField, 1, idx, 2, 1);
+        }
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
@@ -194,17 +188,12 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
     protected void analogValueChanged(Observable observable, String oldVal, String newVal) {
         coreValueChanged(observable, oldVal, newVal);
+        unitNameTranslation.setText(localHandler.getFromLocaleWithDefault(unitNameField.getText(), unitNameField.getText()));
         populateMinMaxLabel();
     }
 
     @Override
     public void localeDidChange() {
-        super.localeDidChange();
-        String unitName = getMenuItem().getUnitName();
-        if(localHandler.isLocalSupportEnabled() && !localHandler.getCurrentLocale().getLanguage().equals("--")) {
-            unitName = localHandler.getFromLocaleWithDefault(menuItemToLocale("unit"), unitName);
-        }
-        unitNameField.setText(unitName);
     }
 
     private void populateMinMaxLabel() {

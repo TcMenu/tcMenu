@@ -16,7 +16,10 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -45,9 +48,8 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
 
         ObservableList<String> items = listView.getItems();
         if(creationModeCombo.getValue() == ListCreationMode.FLASH_ARRAY) {
-            var listData = getValueLocalizedFromUIList(items);
-            initialRowsSpinner.getValueFactory().setValue(listData.size());
-            MenuItemHelper.setMenuState(getMenuItem(), listData, menuTree);
+            initialRowsSpinner.getValueFactory().setValue(items.size());
+            MenuItemHelper.setMenuState(getMenuItem(), items, menuTree);
         } else {
             MenuItemHelper.setMenuState(getMenuItem(), List.of(), menuTree);
         }

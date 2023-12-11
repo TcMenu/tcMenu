@@ -16,12 +16,10 @@ import com.thecoderscorner.menu.editorui.dialog.EditCallbackFunctionDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -37,7 +35,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
     private TextField idField;
     protected TextField nameField;
-    private ToggleButton notLocalizedButton;
+    protected Label nameTranslation;
     protected TextField variableField;
     protected TextField functionNameTextField;
     private Button functionBtn;
@@ -96,7 +97,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.setVgap(10);
         grid.setMaxWidth(9999);
         grid.setPadding(new Insets(0, 10, 6, 10));
-        ColumnConstraints col1 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
+        ColumnConstraints col1 = new ColumnConstraints(100, 300, Double.MAX_VALUE);
         ColumnConstraints col2 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
         ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
         col1.setHgrow(Priority.NEVER);
@@ -138,29 +139,25 @@ public abstract class UIMenuItem<T extends MenuItem> {
         idField.setEditable(false);
         grid.add(idField, 1, idx++, 2, 1);
 
+
         grid.add(new Label(bundle.getString("menu.editor.name.field")), 0, idx);
-        String text = localHandler.getWithLocaleInitIfNeeded(menuItemToLocale("name"), menuItem.getName());
-        nameField = new TextField(text);
+        nameField = new TextField(menuItem.getName());
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
-        grid.add(nameField, 1, idx);
-
-        //var item = new javafx.scene.control.MenuItem(bundle.getString("locale.dialog.not.localized"));
-        //item.setOnAction(event -> localHasChanged(Locale.of("--")));
-        notLocalizedButton = new ToggleButton();
-        notLocalizedButton.setOnAction(event -> {
-            notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected()));
-            callChangeConsumer();
-        });
-        notLocalizedButton.setSelected(!menuItem.getName().startsWith("%") || menuItem.getName().startsWith("%%"));
-        notLocalizedButton.setDisable(!localHandler.isLocalSupportEnabled());
-        notLocalizedButton.setMaxWidth(9999);
-        notLocalizedButton.setText(calculateNotLocalizedButtonText(notLocalizedButton.isSelected()));
-        grid.add(notLocalizedButton, 2, idx++);
+        nameTranslation = new Label(localHandler.getFromLocaleWithDefault(nameField.getText(), nameField.getText()));
+        if(localHandler.isLocalSupportEnabled()) {
+            grid.add(nameField, 1, idx);
+            grid.add(nameTranslation, 2, idx);
+        } else {
+            grid.add(nameField, 1, idx, 2, 1);
+        }
 
         nameField.textProperty().addListener((observableValue, s, t1) -> {
             if(variableNameGenerator.getUncommittedItems().contains(getMenuItem().getId())) {
                 variableField.setText(variableNameGenerator.makeNameToVar(getMenuItem(), nameField.getText()));
+            }
+            if(localHandler.isLocalSupportEnabled()) {
+                nameTranslation.setText(localHandler.getFromLocaleWithDefault(nameField.getText(), nameField.getText()));
             }
             callChangeConsumer();
         });
@@ -275,28 +272,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return grid;
     }
 
-    private String calculateNotLocalizedButtonText(boolean selected) {
-         if(!selected) {
-             String currLocale = localHandler.getCurrentLocale().toString();
-             if(StringHelper.isStringEmptyOrNull(currLocale)) {
-                 currLocale = "Def";
-             }
-             return bundle.getString("locale.dialog.localized.to") + ": " + currLocale;
-         } else {
-             return bundle.getString("locale.dialog.not.localized");
-         }
-    }
-
     public void localeDidChange() {
-        notLocalizedButton.setDisable(localHandler.isLocalSupportEnabled());
-    }
-
-    public boolean shouldAvoidLocalization() {
-        return !localHandler.isLocalSupportEnabled() || notLocalizedButton.isSelected();
-    }
-
-    protected String menuItemToLocale(String name) {
-        return "%menu." + menuItem.getId() + "." + name;
     }
 
     protected boolean itemRequiresFunctionCallback() {
@@ -319,14 +295,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected void getChangedDefaults(MenuItemBuilder<?,?> builder, List<FieldError> errorsBuilder) {
-        if(!nameField.getText().equals(menuItem.getName()) && localHandler.isLocalSupportEnabled() &&
-                !StringHelper.isStringEmptyOrNull(localHandler.getCurrentLocale().toString()) && notLocalizedButton.isSelected()) {
-            // we are editing the name field with a locale other than default when locale support enabled,
-            // in this case we turn locale support on for this item automatically as its most likely wanted
-            notLocalizedButton.setSelected(false);
-            notLocalizedButton.setText(calculateNotLocalizedButtonText(false));
-        }
-
         int eeprom = -1;
         if (eepromField != null) {
             eeprom = safeIntFromProperty(eepromField.textProperty(), "EEPROM",
@@ -335,12 +303,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         String name = safeStringFromProperty(nameField.textProperty(), "Name",
                 errorsBuilder, 19, MANDATORY);
-
-        if(!shouldAvoidLocalization()) {
-            String localeEntry = menuItemToLocale("name");
-            localHandler.setLocalSpecificEntry(localeEntry.substring(1), name);
-            name = localeEntry;
-        }
 
         String varName = safeStringFromProperty(variableField.textProperty(), "VariableName",
                 errorsBuilder, 128, OPTIONAL);
@@ -373,29 +335,8 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return Optional.empty();
     }
 
-    protected List<String> getValueLocalizedFromUIList(ObservableList<String> items) {
-        if (!shouldAvoidLocalization()) {
-            var itemsLocaleList = new ArrayList<String>();
-            for (int i = 0; i < items.size(); i++) {
-                String enumEntryName = getEnumEntryKey(i);
-                localHandler.setLocalSpecificEntry(enumEntryName, items.get(i));
-                itemsLocaleList.add("%" + enumEntryName);
-            }
-            return itemsLocaleList;
-        } else {
-            return items;
-        }
-    }
 
     protected ObservableList<String> createLocalizedList(ListView<String> listView, List<String> enumEntries, ObservableList<String> list) {
-        if(!shouldAvoidLocalization()) {
-            var itemsLocaleList = new ArrayList<String>();
-            for(int i = 0; i< enumEntries.size(); i++) {
-                String enumEntryName = getEnumEntryKey(i);
-                itemsLocaleList.add(localHandler.getWithLocaleInitIfNeeded("%" + enumEntryName, enumEntries.get(i)));
-            }
-            list = FXCollections.observableList(itemsLocaleList);
-        }
         listView.setEditable(true);
         listView.setPrefHeight(120);
         listView.setItems(list);
@@ -439,10 +380,6 @@ public abstract class UIMenuItem<T extends MenuItem> {
                     callChangeConsumer();
                 });
         return new ControlButtons(addButton, removeButton);
-    }
-
-    protected String getEnumEntryKey(int i) {
-        return "unknown" + i;
     }
 
     @SuppressWarnings("unused")
