@@ -4,6 +4,7 @@ public interface UrlsForDocumentation {
     String MAIN_TCMENU_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
     String CLI_DOCUMENTATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/";
     String MENU_MENU_ITEM_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/";
+    String LOCALE_DOCUMENTATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/";
     String ACTION_URL = MENU_MENU_ITEM_URL + "action-menu-item/";
     String ANALOG_URL = MENU_MENU_ITEM_URL + "analog-menu-item/";
     String ENUM_URL = MENU_MENU_ITEM_URL + "enum-menu-item/";

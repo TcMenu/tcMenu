@@ -1,6 +1,8 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import javafx.collections.FXCollections;
@@ -72,7 +74,7 @@ public class ConfigureLocalesController {
     }
 
     public void onOnlineHelp(ActionEvent actionEvent) {
-        // TODO, generate a page once further along on locale support
+        SafeNavigator.safeNavigateTo(UrlsForDocumentation.LOCALE_DOCUMENTATION_URL);
     }
 
     public void onCancelSettings(ActionEvent actionEvent) {
