@@ -3,7 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.text.Text?>
 <BorderPane styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.GeneralSettingsController">
     <padding><Insets topRightBottomLeft="5"/></padding>
    <center>
@@ -20,27 +20,25 @@
                             <ColumnConstraints hgrow="SOMETIMES" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
-                            <RowConstraints vgrow="SOMETIMES" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
+                            <RowConstraints vgrow="NEVER" />
                           </rowConstraints>
                            <children>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.arduino.location" GridPane.columnSpan="2">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Text>
+                              <Label text="%settings.arduino.location" GridPane.columnSpan="2">
+                                  <padding><Insets bottom="5.0" top="15.0" /></padding>
+                              </Label>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.arduino.dir" GridPane.rowIndex="1" />
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.libraries.dir" GridPane.rowIndex="2" />
                               <TextField fx:id="projectsTextField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -53,41 +51,26 @@
                                  <GridPane.margin>
                                     <Insets left="4.0" />
                                  </GridPane.margin></Button>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%settings.codegen.new.projects" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Text>
+                              <Label text="%settings.codegen.new.projects" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
+                                  <padding><Insets bottom="5.0" top="15.0" /></padding>
+                              </Label>
                               <CheckBox fx:id="usingArduinoLibsCheck" mnemonicParsing="false" onAction="#onCheckboxChanged" text="%settings.using.arduino.ide" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                               <CheckBox fx:id="useFullyQualifiedNamesField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="%settings.using.fully.qualified.vars" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                               <CheckBox fx:id="outputCppToSrcField" mnemonicParsing="false" onAction="#onCheckboxChanged" text="%settings.output.cpp.plugin.src" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label styleClass="label-bright" text="%settings.additional.plugin.path" GridPane.columnSpan="2" GridPane.rowIndex="10" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <ListView fx:id="additionalPathsList"  GridPane.columnSpan="2" GridPane.rowIndex="11" />
-                              <VBox  spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="11" fillWidth="true">
-                                 <children>
-                                    <Button maxWidth="99999" mnemonicParsing="false" onAction="#onAddNewPath" text="%core.add.button"/>
-                                    <Button maxWidth="99999" fx:id="removePathBtn" mnemonicParsing="false" onAction="#onRemoveSelectedPath" text="%core.remove.button" />
-                                 </children>
-                                 <GridPane.margin>
-                                    <Insets left="4.0" />
-                                 </GridPane.margin>
-                              </VBox>
-                              <Label  text="%settings.sketch.search.depth" GridPane.rowIndex="9" />
-                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged"  prefWidth="493.0" text="%settings.eeprom.save.sized.default" GridPane.columnSpan="3" GridPane.rowIndex="7" />
-                              <Label prefHeight="20.0" prefWidth="489.0" styleClass="label-bright" text="%settings.default.locale.use" GridPane.columnSpan="2" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
+                              <CheckBox fx:id="eepromStoreSizeField" mnemonicParsing="false" onAction="#onCheckboxChanged"  text="%settings.eeprom.save.sized.default" GridPane.columnSpan="3" GridPane.rowIndex="7" />
+                               <Label text="%settings.default.locale.use" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
+                                   <padding><Insets bottom="5.0" top="15.0" /></padding>
+                               </Label>
+                              <Label text="%settings.num.backups" GridPane.rowIndex="9" />
+                              <Spinner fx:id="backupSpinner" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                              <Label  text="%settings.sketch.search.depth" GridPane.rowIndex="10" />
+                              <ComboBox fx:id="sketchSearchDepthCombo" onAction="#searchDepthHasChanged" prefWidth="341.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+
+                               <Label text="%settings.other.sketch.settings" GridPane.columnSpan="2" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
+                                  <padding><Insets bottom="5.0" top="15.0" /></padding>
                               </Label>
                               <Label  text="%core.language" GridPane.rowIndex="13" />
                               <ComboBox fx:id="languageCombo" onAction="#onLanguageChange" prefHeight="25.0" prefWidth="348.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
-                              <Label text="%settings.num.backups" GridPane.rowIndex="8" />
-                              <Spinner fx:id="backupSpinner" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                            </children>
                         </GridPane>
                      </center>
@@ -125,6 +108,19 @@
                                         onAction="#onUuidChanged" text="%settings.change.uuid" />
                                 <Label text="%settings.embed.name" GridPane.rowIndex="4" GridPane.columnIndex="0" />
                                 <TextField fx:id="ecNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                <Label styleClass="label-bright" text="%settings.additional.plugin.path" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                                    <padding><Insets bottom="5.0" top="15.0" /></padding>
+                                </Label>
+                                <ListView fx:id="additionalPathsList"  GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                                <VBox  spacing="3.0" GridPane.columnIndex="2" GridPane.rowIndex="6" fillWidth="true">
+                                    <children>
+                                        <Button maxWidth="99999" mnemonicParsing="false" onAction="#onAddNewPath" text="%core.add.button"/>
+                                        <Button maxWidth="99999" fx:id="removePathBtn" mnemonicParsing="false" onAction="#onRemoveSelectedPath" text="%core.remove.button" />
+                                    </children>
+                                    <GridPane.margin>
+                                        <Insets left="4.0" />
+                                    </GridPane.margin>
+                                </VBox>
                             </GridPane>
                         </center>
                     </BorderPane>
@@ -138,7 +134,7 @@
                             <columns>
                               <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="%settings.library.name" />
                               <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="%settings.available.ver" />
-                                <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="%settings.actual.ver" />
+                              <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="%settings.actual.ver" />
                             </columns>
                           </TableView>
                        </center>
@@ -171,7 +167,7 @@
             <Insets top="5.0" />
          </opaqueInsets>
          <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            <Insets topRightBottomLeft="8" />
          </BorderPane.margin>
       </ButtonBar>
    </bottom>

@@ -148,6 +148,7 @@ public class GeneralSettingsController {
         ecNameField.textProperty().addListener((act, o, n) -> {
             if(!StringHelper.isStringEmptyOrNull(ecNameField.getText())) {
                 settings.setAppName(ecNameField.getText());
+                settings.save(databaseUtilities);
             }
         });
         ecUuidField.setText(settings.getAppUuid());
@@ -402,6 +403,7 @@ public class GeneralSettingsController {
         alert.setTitle(bundle.getString("settings.uuid.change"));
         if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             settings.setAppUuid(UUID.randomUUID().toString());
+            settings.save(databaseUtilities);
             ecUuidField.setText(settings.getAppUuid());
         }
     }
