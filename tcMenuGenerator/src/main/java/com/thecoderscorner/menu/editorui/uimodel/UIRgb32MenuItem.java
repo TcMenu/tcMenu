@@ -46,7 +46,7 @@ public class UIRgb32MenuItem extends UIMenuItem<Rgb32MenuItem> {
             MenuItemHelper.setMenuState(getMenuItem(), defaultValueField.getText(), menuTree);
         } catch(Exception ex) {
             errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " +
-                    ex.getClass().getSimpleName() + " " + ex.getMessage(), bundle.getString("menu.editor.default.value")));
+                    ex.getClass().getSimpleName() + " " + ex.getMessage(), bundle.getString("menu.editor.default.value"), true));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);

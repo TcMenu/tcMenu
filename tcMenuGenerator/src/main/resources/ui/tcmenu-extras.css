@@ -14,9 +14,6 @@
 }
 
 .item-title {
-  -fx-font-size: 16px !important;
-  -fx-font-family: "Arial";
-  -fx-opacity: 0.6;
   -fx-font-weight: bold;
 }
 
@@ -73,8 +70,6 @@
 }
 
 #uiItemErrors {
-  -fx-background-color: #ff2718;
-  -fx-text-fill: white;
   -fx-font-weight: bold;
   -fx-padding: 4;
 }

@@ -59,7 +59,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     @Override
     protected Optional<AnalogMenuItem> getChangedMenuItem() {
         List<FieldError> errors = new ArrayList<>();
-        String unitName = safeStringFromProperty(unitNameField.textProperty(), bundle.getString("menu.editor.analog.unit"), errors, 4, StringFieldType.OPTIONAL);
+        String unitName = safeStringFromNameUnit(unitNameField.textProperty(), bundle.getString("menu.editor.analog.unit"), errors, 4, StringFieldType.OPTIONAL);
         int divisor = safeIntFromProperty(divisorField.textProperty(), bundle.getString("menu.editor.analog.divisor"), errors, 0, 10000);
         int offset = safeIntFromProperty(offsetField.textProperty(), bundle.getString("menu.editor.analog.offset"), errors, Short.MIN_VALUE, Short.MAX_VALUE);
         String stepStr = bundle.getString("menu.editor.analog.step");
@@ -190,10 +190,6 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         coreValueChanged(observable, oldVal, newVal);
         unitNameTranslation.setText(localHandler.getFromLocaleWithDefault(unitNameField.getText(), unitNameField.getText()));
         populateMinMaxLabel();
-    }
-
-    @Override
-    public void localeDidChange() {
     }
 
     private void populateMinMaxLabel() {

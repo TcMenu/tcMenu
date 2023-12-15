@@ -47,13 +47,13 @@ public class UIFloatMenuItem extends UIMenuItem<FloatMenuItem> {
             String text = defaultValueField.getText();
             var value = StringHelper.isStringEmptyOrNull(text) ? 0 : Float.parseFloat(text);
             if (Float.isNaN(value)) {
-                errors.add(new FieldError(bundle.getString("menu.editor.err.value.nan"), defValueName));
+                errors.add(new FieldError(bundle.getString("menu.editor.err.value.nan"), defValueName, true));
             } else {
                 MenuItemHelper.setMenuState(getMenuItem(), value, menuTree);
             }
         } catch(Exception ex) {
             errors.add(new FieldError(bundle.getString("menu.editor.err.value.parse") + " " +
-                    ex.getClass().getSimpleName() + " " + ex.getMessage(), defValueName));
+                    ex.getClass().getSimpleName() + " " + ex.getMessage(), defValueName, true));
         }
 
         return getItemOrReportError(builder.menuItem(), errors);

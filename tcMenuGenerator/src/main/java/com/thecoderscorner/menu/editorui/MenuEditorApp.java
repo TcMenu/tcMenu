@@ -84,14 +84,14 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
             return;
         }
 
-        Platform.runLater(() -> {
-            final String os = System.getProperty("os.name");
-            if (os != null && os.startsWith("Mac")) {
-                Desktop desktop = Desktop.getDesktop();
-                desktop.setAboutHandler(e -> Platform.runLater(() -> lastActiveController().aboutMenuPressed(new ActionEvent())));
-                desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
-            }
-        });
+        // !!must be on the main thread!!
+        final String os = System.getProperty("os.name");
+        if (os != null && os.startsWith("Mac")) {
+            Desktop desktop = Desktop.getDesktop();
+            desktop.setAboutHandler(e -> Platform.runLater(() -> lastActiveController().aboutMenuPressed(new ActionEvent())));
+            desktop.setQuitStrategy(QuitStrategy.NORMAL_EXIT);
+        }
+        // !! end must be on the main thread!!
 
         CONFIG_STORE = appContext.getConfigStore();
 

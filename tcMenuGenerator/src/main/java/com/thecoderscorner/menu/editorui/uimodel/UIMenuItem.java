@@ -268,8 +268,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
                 .filter(node -> node instanceof TextField)
                 .map(textField -> (TextField) textField)
                 .collect(Collectors.toList());
-
         return grid;
+    }
+
+    public void runValidation() {
+        getChangedMenuItem();
     }
 
     public void localeDidChange() {
@@ -301,7 +304,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
                     errorsBuilder, -1, Short.MAX_VALUE);
         }
 
-        String name = safeStringFromProperty(nameField.textProperty(), "Name",
+        String name = safeStringFromNameUnit(nameField.textProperty(), "Name",
                 errorsBuilder, 19, MANDATORY);
 
         String varName = safeStringFromProperty(variableField.textProperty(), "VariableName",
@@ -318,21 +321,27 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected Optional<T> getItemOrReportError(T item, List<FieldError> errors) {
-        if(errors.isEmpty()) {
-            errorsField.setVisible(false);
-            errorsField.setManaged(false);
-            return Optional.of(item);
-        }
-        else {
+        boolean stoppingSave = false;
+        if(!errors.isEmpty()) {
+            stoppingSave = errors.stream().anyMatch(FieldError::isStoppingSave);
             String errorText = bundle.getString("menu.editor.fields.preventing.save") + "\n";
             errorText += errors.stream()
-                    .map(error-> error.getField() + " - " + error.getMessage())
+                    .map(Object::toString)
                     .collect(Collectors.joining("\n"));
             errorsField.setText(errorText);
+            if(stoppingSave) {
+                errorsField.setStyle("-fx-background-color: #ff2718;-fx-text-fill: white;");
+            } else {
+                errorsField.setStyle("-fx-background-color: #e3ac55;-fx-text-fill: white;");
+            }
             errorsField.setVisible(true);
             errorsField.setManaged(true);
         }
-        return Optional.empty();
+        else {
+            errorsField.setVisible(false);
+            errorsField.setManaged(false);
+        }
+        return stoppingSave ? Optional.empty() : Optional.of(item);
     }
 
 
@@ -407,6 +416,43 @@ public abstract class UIMenuItem<T extends MenuItem> {
         return menuItem;
     }
 
+    protected String safeStringFromNameUnit(StringProperty stringProperty, String field, List<FieldError> errorsBuilder,
+                                            int warnMaxLen, StringFieldType fieldType) {
+        String s = stringProperty.get();
+        if(s == null || s.isEmpty()) {
+            if(fieldType != OPTIONAL) {
+                errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field, true));
+            }
+            return "";
+        }
+
+        // also effectively invalid string an empty locale escape.
+        if(s.equals("%")) {
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field, true));
+            return s;
+        }
+
+        var valStr = s;
+        if(s.startsWith("%") && !s.equals("%%") && s.length() > 1 && localHandler.isLocalSupportEnabled()) {
+            var localeString = localHandler.getLocalSpecificEntry(s.substring(1));
+            if(localeString == null) {
+                errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.locale.missing") + " " +  s, field, false));
+                return s;
+            } else {
+                valStr = localeString;
+            }
+        }
+
+        // check the size of the text is within the allowable range.
+        if(valStr.length() > warnMaxLen) {
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.name.len") + " "
+                    + warnMaxLen + " characters", field, false));
+        }
+
+        checkValidityOfString(field, errorsBuilder, fieldType, s);
+        return s;
+    }
+
     /**
      * Gets the string value from a text field and validates it is correct in terms of length and content.
      * @param stringProperty the string property to get the string from
@@ -421,7 +467,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         String s = stringProperty.get();
         if(s == null) {
             if(fieldType != OPTIONAL) {
-                errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field));
+                errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field, true));
             }
             return "";
         }
@@ -429,24 +475,28 @@ public abstract class UIMenuItem<T extends MenuItem> {
         // check the size of the text is within the allowable range.
         if(fieldType == OPTIONAL &&  s.length() > maxLen) {
             errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.field.len") + " "
-                    + maxLen + " characters", field));
+                    + maxLen + " characters", field, true));
         }
         else if(fieldType != OPTIONAL  && (s.length() > maxLen || s.isEmpty())) {
-            errorsBuilder.add(new FieldError("field must not be blank and less than " + maxLen + " characters", field));
+            errorsBuilder.add(new FieldError("field must not be blank and less than " + maxLen + " characters", field, true));
         }
 
+        checkValidityOfString(field, errorsBuilder, fieldType, s);
+        return s;
+    }
+
+    private void checkValidityOfString(String field, List<FieldError> errorsBuilder, StringFieldType fieldType, String s) {
         // callbacks have a special mode where they are still function names, but they can start with "@"
         // otherwise check the variable or text against the regex.
         if(fieldType == CALLBACK_FN && !s.matches("^@?[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
-            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field, true));
         }
         else if(fieldType == VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
-            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field, true));
         }
         else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()\\.]*$")) {
-            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.text.invalid"), field));
+            errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.text.invalid"), field, true));
         }
-        return s;
     }
 
     /**
@@ -470,10 +520,10 @@ public abstract class UIMenuItem<T extends MenuItem> {
         try {
             val = Integer.parseInt(s);
             if(val < min || val > max) {
-                errorsBuilder.add(new FieldError("Value must be between " + min + " and " + max, field));
+                errorsBuilder.add(new FieldError("Value must be between " + min + " and " + max, field, true));
             }
         } catch (NumberFormatException e) {
-            errorsBuilder.add(new FieldError("Value must be a number", field));
+            errorsBuilder.add(new FieldError("Value must be a number", field, true));
         }
         return val;
     }
@@ -561,12 +611,18 @@ public abstract class UIMenuItem<T extends MenuItem> {
     }
 
     protected static class FieldError {
+        private final boolean stoppingSave;
         private final String field;
         private final String message;
 
         public FieldError(String message, String field) {
+            this(message, field, true);
+        }
+
+        public FieldError(String message, String field, boolean stoppingSave) {
             this.field = field;
             this.message = message;
+            this.stoppingSave = stoppingSave;
         }
 
         public String getField() {
@@ -575,6 +631,14 @@ public abstract class UIMenuItem<T extends MenuItem> {
 
         public String getMessage() {
             return message;
+        }
+
+        public boolean isStoppingSave() { return stoppingSave; }
+
+        @Override
+        public String toString() {
+            var levelText = stoppingSave ? "ERROR" : "WARNING";
+            return String.format("%s %s: %s", levelText, field, message);
         }
     }
 

@@ -214,7 +214,7 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="currentEditLabel" prefHeight="19.0" prefWidth="582.0" styleClass="item-title" text="Editor">
+            <Label fx:id="currentEditLabel" styleClass="item-title" text="Editor">
                <padding>
                   <Insets bottom="6.0" top="4.0" />
                </padding>

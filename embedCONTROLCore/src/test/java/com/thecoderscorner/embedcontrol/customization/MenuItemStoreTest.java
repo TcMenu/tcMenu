@@ -21,7 +21,7 @@ public class MenuItemStoreTest {
 
     @BeforeEach
     void setUp() {
-        unitGlobalSettings = new GlobalSettings();
+        unitGlobalSettings = new GlobalSettings(new ApplicationThemeManager());
         tree = new MenuTree();
         tree.addMenuItem(MenuTree.ROOT, aBooleanMenuItemBuilder().withName("abc").withId(1).menuItem());
         var sub = aSubMenuItemBuilder().withName("sub").withId(9).menuItem();

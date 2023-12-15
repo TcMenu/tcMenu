@@ -319,6 +319,7 @@ public class MenuEditorController {
                     appInfoPanel = Optional.empty();
                     currentEditLabel.setText(String.format(bundle.getString("main.editor.edit.item.fmt"),
                             newValue.getClass().getSimpleName(), newValue.getId()));
+                    uiMenuItem.runValidation();
                 }, this::presentInfoPanel
         );
 
