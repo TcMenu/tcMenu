@@ -3,7 +3,6 @@ package com.thecoderscorner.menu.editorui.embed;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -36,6 +35,11 @@ public class FormManagerController {
             var off = n == null;
             ensureButtonStates(off);
         });
+
+        formNameCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.28));
+        formUuidCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.68));
+
+
         reloadPage();
     }
 

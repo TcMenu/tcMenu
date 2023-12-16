@@ -6,62 +6,39 @@
   ~
   -->
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane prefHeight="521.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseAuthenticatorController">
-   <top>
-      <Label prefHeight="27.0" prefWidth="534.0" text="Choose Authentication Method" BorderPane.alignment="CENTER">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin></Label>
-   </top>
+<BorderPane styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseAuthenticatorController">
+    <padding><Insets topRightBottomLeft="10"/></padding>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">
+      <ButtonBar BorderPane.alignment="CENTER">
         <buttons>
             <Button mnemonicParsing="false" onAction="#onHelpPressed" text="%core.online.help" />
             <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
             <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreatePressed" text="%auth.sel.set.button" />
         </buttons>
-         <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </BorderPane.margin>
       </ButtonBar>
    </bottom>
    <styleClass>
       <String fx:value="background" />
    </styleClass>
    <center>
-      <GridPane BorderPane.alignment="CENTER">
+      <GridPane hgap="4" vgap="4" BorderPane.alignment="CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES"  />
+          <ColumnConstraints hgrow="SOMETIMES"  />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="71.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="102.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="81.0" minHeight="0.0" prefHeight="15.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="165.0" minHeight="10.0" prefHeight="162.0" vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <RadioButton fx:id="noAuthRadio" mnemonicParsing="false" selected="true" text="%auth.sel.no.auth" GridPane.columnSpan="2">
@@ -94,19 +71,19 @@
                   <Insets left="15.0" />
                </GridPane.margin>
             </Label>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="7">
+            <BorderPane GridPane.columnSpan="2" GridPane.rowIndex="7">
                <center>
-                  <ListView fx:id="flashVarList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                  <ListView fx:id="flashVarList" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets left="15.0" right="5.0" />
                      </BorderPane.margin>
                   </ListView>
                </center>
                <right>
-                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="4.0" BorderPane.alignment="CENTER">
+                  <VBox spacing="4.0" BorderPane.alignment="CENTER" fillWidth="true">
                      <children>
-                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onFlashAddRemote" prefHeight="26.0" prefWidth="102.0" text="%core.add.button" />
-                        <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onFlashRemoveRemote" prefHeight="26.0" prefWidth="103.0" text="%core.remove.button" />
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onFlashAddRemote" maxWidth="99999" text="%core.add.button" />
+                        <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onFlashRemoveRemote" maxWidth="99999" text="%core.remove.button" />
                      </children>
                   </VBox>
                </right>

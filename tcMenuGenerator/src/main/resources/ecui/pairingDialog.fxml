@@ -18,7 +18,7 @@
     <RowConstraints vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="The device requires that you pair with it before connecting" GridPane.columnSpan="2">
+      <Label text="%ec.pairing.required.title" GridPane.columnSpan="2">
          <font>
             <Font size="18.0" />
          </font>
@@ -26,22 +26,22 @@
       </Label>
       <VBox spacing="10.0" GridPane.rowIndex="1">
          <children>
-            <Label text="In order to proceed with the connection you need to pair with the device, before proceeding ensure you have the device you wish to pair with close by." wrapText="true" />
-            <Label text="Once you press the start pairing button you'll be presented with a dialog that looks very similar to the one on the right (depending on your screen). Choose accept to add this UI to the list of allowed UIs on the device." wrapText="true" />
-            <Label text="NOTE: only ever choose to accept connections if you send the request." wrapText="true" />
+            <Label text="%ec.pairing.desc1" wrapText="true" />
+            <Label text="%ec.pairing.desc2" wrapText="true" />
+            <Label text="%ec.pairing.desc3" wrapText="true" />
          </children>
       </VBox>
       <ButtonBar  GridPane.columnSpan="2" GridPane.rowIndex="3">
         <buttons>
-          <Button fx:id="pairingButton" mnemonicParsing="false" onAction="#onStartPairing" text="Start Pairing" />
+          <Button fx:id="pairingButton" mnemonicParsing="false" onAction="#onStartPairing" text="%ec.pairing.start.btn" />
         </buttons>
       </ButtonBar>
-      <Label text="Current pairing status:" GridPane.rowIndex="2">
+      <Label text="%ec.pairing.status" GridPane.rowIndex="2">
           <padding>
               <Insets topRightBottomLeft="10.0" />
           </padding>
       </Label>
-      <Label fx:id="pairingStatus" text="Not Started" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label fx:id="pairingStatus" text="--" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <ImageView fitHeight="168.0" fitWidth="218.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
          <image>
             <Image url="@../fximg/pairingExample.jpg" />

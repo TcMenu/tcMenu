@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.embed;
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.creators.ConnectionCreator;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -29,6 +30,7 @@ public class ConnectionPairingPresentable implements PanelPresentable<Node> {
     @Override
     public Node getPanelToPresent(double width) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ecui/pairingDialog.fxml"));
+        loader.setResources(MenuEditorApp.getBundle());
         Pane myPane = loader.load();
         PairingController pairingController = loader.getController();
         pairingController.initialise(navigationManager, creator, context.getExecutorService(), pairingHasFinished);

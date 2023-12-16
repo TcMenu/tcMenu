@@ -344,6 +344,7 @@ public class GenerateCodeDialog {
         eepromTypeButton = new Button("Change EEPROM");
         eepromTypeButton.setOnAction(this::onEepromButtonPressed);
         eepromTypeButton.setId("eepromTypeButton");
+        eepromTypeButton.setMaxWidth(99999);
         embeddedPane.add(eepromTypeLabel, 1, 3);
         embeddedPane.add(eepromTypeButton, 2, 3);
 
@@ -352,6 +353,7 @@ public class GenerateCodeDialog {
         var authModeButton = new Button("Change Auth");
         authModeButton.setId("authModeButton");
         authModeButton.setOnAction(this::onAuthenticatorButtonPressed);
+        authModeButton.setMaxWidth(99999);
         embeddedPane.add(authModeLabel, 1, 4);
         embeddedPane.add(authModeButton, 2, 4);
 
@@ -362,6 +364,7 @@ public class GenerateCodeDialog {
         embeddedPane.add(namespaceField, 1, 5);
         useModuleButton = new ToggleButton("Modular App");
         useModuleButton.setSelected(project.getGeneratorOptions().isModularApp());
+        useModuleButton.setMaxWidth(99999);
         embeddedPane.add(useModuleButton, 2, 5);
 
         ColumnConstraints column1 = new ColumnConstraints();
@@ -670,7 +673,9 @@ public class GenerateCodeDialog {
         scroll.setFitToWidth(true);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setPrefSize(700, 600);
+        var widPop = currentInput.getScene().getWidth() * 0.7;
+        var heiPop = currentInput.getScene().getHeight() * 0.7;
+        scroll.setPrefSize(widPop, heiPop);
         scroll.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, new CornerRadii(2),
                 BorderStroke.THICK)));
 

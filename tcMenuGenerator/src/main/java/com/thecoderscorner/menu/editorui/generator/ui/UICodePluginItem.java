@@ -154,7 +154,11 @@ public class UICodePluginItem extends BorderPane {
         BorderPane.setMargin(infoContainer, new Insets(5.0));
 
         propertiesPanel = new VBox(3);
-        if(showProperties) propertiesPanel.setPrefWidth(300);
+        if(action == UICodeAction.CHANGE) {
+            propertiesPanel.prefWidthProperty().bind(this.widthProperty().multiply(0.3));
+        } else {
+            propertiesPanel.setPrefWidth(10);
+        }
         setRight(propertiesPanel);
         BorderPane.setMargin(propertiesPanel, new Insets(5.0));
 
@@ -295,6 +299,7 @@ public class UICodePluginItem extends BorderPane {
 
         comboBox = new ComboBox<>(FXCollections.observableList(property.getValidationRules().choices()));
         var currentChoice = property.getValidationRules().getChoiceFor(property.getLatestValue());
+        comboBox.setMaxWidth(99999);
 
         if(currentChoice != null)
             comboBox.getSelectionModel().select(currentChoice);

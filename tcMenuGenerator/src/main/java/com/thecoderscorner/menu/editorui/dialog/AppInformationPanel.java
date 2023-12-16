@@ -115,7 +115,7 @@ public class AppInformationPanel {
         gridPane.add(new Label(bundle.getString("core.platform")), 0, row);
         var platformCombo = new ComboBox<>(observableArrayList(editorUI.getEmbeddedPlatforms()));
         platformCombo.setId("platformCombo");
-        platformCombo.setMaxWidth(999);
+        platformCombo.setMaxWidth(99999);
         gridPane.add(platformCombo, 1, row, 2, 1);
         platformCombo.getSelectionModel().select(options.getEmbeddedPlatform());
         platformCombo.setOnAction(event -> {
@@ -142,6 +142,7 @@ public class AppInformationPanel {
         gridPane.add(appUuidLabel, 1, row);
         Button changeId = new Button(bundle.getString("app.info.change.id"));
         changeId.setId("changeIdBtn");
+        changeId.setMaxWidth(99999);
         changeId.setOnAction(e -> {
             if (editorUI.questionYesNo(bundle.getString("app.info.really.change.id.title"), bundle.getString("app.info.really.change.id.message"))) {
                 controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
@@ -178,7 +179,7 @@ public class AppInformationPanel {
         saveToSrcCombo.setId("saveToSrcCbx");
         saveToSrcCombo.setItems(FXCollections.observableArrayList(ProjectSaveLocation.values()));
         saveToSrcCombo.getSelectionModel().select(options.getSaveLocation());
-        saveToSrcCombo.setMaxWidth(999);
+        saveToSrcCombo.setMaxWidth(999999);
         saveToSrcCombo.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
         gridPane.add(saveToSrcCombo, 1, row++, 2, 1);
 

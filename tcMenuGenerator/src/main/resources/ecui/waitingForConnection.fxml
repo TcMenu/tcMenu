@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="321.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.embed.AboutController">
    <children>
       <ImageView fitHeight="84.0" fitWidth="175.0" pickOnBounds="true" preserveRatio="true">
@@ -14,13 +12,13 @@
             <Image url="@../fximg/ethernet-connection.jpg" />
          </image>
       </ImageView>
-      <Label text="embedCONTROL">
+      <Label text="Embed Control">
          <font>
             <Font size="24.0" />
          </font>
       </Label>
-      <Label text="Attempting connection with remote device " />
-      <Label text="Ensure that the device is turned on and within range of the network." />
+      <Label text="%ec.attempt.remote.connection" />
+      <Label text="%ec.attempt.remote.description" />
       <Hyperlink onAction="#onVisitDocs" text="Visit the online documentation (thecoderscorner.com)" />
       <Hyperlink onAction="#onVisitForum" text="Visit the forum (thecoderscorner.com)" />
    </children>

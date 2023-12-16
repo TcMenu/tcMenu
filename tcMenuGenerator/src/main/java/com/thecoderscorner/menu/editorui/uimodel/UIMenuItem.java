@@ -99,10 +99,11 @@ public abstract class UIMenuItem<T extends MenuItem> {
         grid.setPadding(new Insets(0, 10, 6, 10));
         ColumnConstraints col1 = new ColumnConstraints(100, 300, Double.MAX_VALUE);
         ColumnConstraints col2 = new ColumnConstraints(280, 300, Double.MAX_VALUE);
-        ColumnConstraints col3 = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+        ColumnConstraints col3 = new ColumnConstraints();
         col1.setHgrow(Priority.NEVER);
         col2.setHgrow(Priority.ALWAYS);
-        col2.setHgrow(Priority.SOMETIMES);
+        col3.setHgrow(Priority.SOMETIMES);
+        col3.setPercentWidth(20);
         grid.getColumnConstraints().addAll(col1, col2, col3);
 
         int idx = 0;

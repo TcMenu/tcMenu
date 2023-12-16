@@ -13,13 +13,13 @@ public class EditConnectionDialog extends BaseDialogSupport<NewConnectionControl
     public EditConnectionDialog(Stage stage, EmbedControlContext context, TcMenuPersistedConnection creator, boolean modal) {
         this.context = context;
         this.existingConnection = Optional.of(creator);
-        tryAndCreateDialog(stage, "/ecui/newConnection.fxml", "Edit Connection", modal);
+        tryAndCreateDialog(stage, "/ecui/newConnection.fxml", bundle.getString("ec.new.con.title"), modal);
 
     }
     public EditConnectionDialog(Stage stage, EmbedControlContext context, boolean modal) {
         existingConnection = Optional.empty();
         this.context = context;
-        tryAndCreateDialog(stage, "/ecui/newConnection.fxml", "Edit Connection", modal);
+        tryAndCreateDialog(stage, "/ecui/newConnection.fxml", bundle.getString("ec.edit.con.title"), modal);
     }
 
     @Override
