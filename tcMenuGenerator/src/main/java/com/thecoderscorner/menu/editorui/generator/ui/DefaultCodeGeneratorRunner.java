@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.ui;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
@@ -56,6 +57,8 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 FXMLLoader loader = new FXMLLoader(NewItemDialog.class.getResource("/ui/generatorLog.fxml"));
                 loader.setResources(MenuEditorApp.getBundle());
                 BorderPane pane = loader.load();
+                pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
+                pane.setPrefSize(stage.getScene().getWidth() * .8, stage.getScene().getHeight() * .8);
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);
 
