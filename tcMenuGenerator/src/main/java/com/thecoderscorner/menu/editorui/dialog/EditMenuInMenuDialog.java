@@ -34,7 +34,7 @@ public class EditMenuInMenuDialog extends BaseDialogSupport<EditMenuInMenuContro
         this.collection = options.getMenuInMenuCollection();
         this.tree = tree;
 
-        tryAndCreateDialog(stage, "/ui/menuInMenuEditor.fxml", "Edit Menu In Menu Configuration", modal);
+        tryAndCreateDialog(stage, "/ui/menuInMenuEditor.fxml", "Edit Menu In Menu Configuration", modal, 0.75);
     }
 
     @Override

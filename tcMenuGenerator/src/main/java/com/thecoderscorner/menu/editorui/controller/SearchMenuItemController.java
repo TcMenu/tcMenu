@@ -42,6 +42,10 @@ public class SearchMenuItemController {
         subColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(handler.getFromLocaleOrUseSource(tree.findParent(cell.getValue()).getName())));
         itemColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(handler.getFromLocaleOrUseSource(cell.getValue().getName())));
         typeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getClass().getSimpleName()));
+
+        subColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(0.30));
+        itemColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(0.38));
+        typeColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(0.30));
     }
 
     private void assignResult() {

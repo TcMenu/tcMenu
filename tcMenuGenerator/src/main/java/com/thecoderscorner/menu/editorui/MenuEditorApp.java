@@ -31,6 +31,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -133,6 +134,9 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
         controller.initialise(editorProject, appContext.getInstaller(),
                 editorUI, appContext.getPluginLoader(), CONFIG_STORE,
                 appContext.getLibraryVersionDetector(), initialWindow);
+
+        var screenSize = Screen.getPrimary().getBounds();
+        myPane.setPrefSize(Math.max(800, screenSize.getWidth() * .7), Math.max(600, screenSize.getHeight() * .7));
 
         Scene myScene = new Scene(myPane);
         BaseDialogSupport.getJMetro().setScene(myScene);

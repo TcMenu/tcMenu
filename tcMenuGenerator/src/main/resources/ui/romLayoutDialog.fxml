@@ -7,54 +7,32 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="449.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.thecoderscorner.menu.editorui.controller.RomLayoutController">
    <top>
-      <Label prefHeight="28.0" prefWidth="446.0" stylesheets="@tcmenu-extras.css" text="%rom.layout.title" BorderPane.alignment="CENTER">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font></Label>
+      <Label prefHeight="28.0" prefWidth="446.0" stylesheets="@tcmenu-extras.css" text="%rom.layout.title" BorderPane.alignment="CENTER"/>
    </top>
-   <left>
-      <ScrollPane prefHeight="487.0" prefWidth="200.0" styleClass="control-background" BorderPane.alignment="CENTER">
-         <content>
-            <VBox fx:id="idContainer" prefHeight="200.0" prefWidth="200.0">
-               <children>
-                  <Label text="%rom.layout.id">
-                     <font>
-                        <Font size="11.0" />
-                     </font></Label>
-               </children>
+   <center>
+      <SplitPane>
+         <ScrollPane styleClass="control-background" BorderPane.alignment="CENTER">
+            <VBox fx:id="idContainer" >
+               <Label text="%rom.layout.id"/>
             </VBox>
-         </content>
-      </ScrollPane>
-   </left>
-   <right>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" styleClass="control-background" BorderPane.alignment="CENTER">
-         <content>
-            <VBox fx:id="eepromContainer" prefHeight="200.0" prefWidth="199.0">
-               <children>
-                  <Label text="%rom.layout.eeprom" />
-               </children>
+         </ScrollPane>
+         <ScrollPane styleClass="control-background" BorderPane.alignment="CENTER">
+            <VBox fx:id="eepromContainer">
+               <Label text="%rom.layout.eeprom"/>
             </VBox>
-         </content>
-      </ScrollPane>
-   </right>
-   <opaqueInsets>
-      <Insets />
-   </opaqueInsets>
+         </ScrollPane>
+      </SplitPane>
+   </center>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar BorderPane.alignment="CENTER">
         <buttons>
           <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onClose" text="%core.close.button" />
         </buttons>

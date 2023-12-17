@@ -1,51 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SelectUnicodeRangesController" styleClass="background">
-   <center>
-      <ListView fx:id="unicodeRangeList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </center>
-   <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <buttons>
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" />
-            <Button fx:id="selectRangeButton" defaultButton="true" mnemonicParsing="false" onAction="#onSelectRanges" text="%core.apply.text" />
-        </buttons>
-      </ButtonBar>
-   </bottom>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
-   <top>
-      <GridPane BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="291.0" minWidth="10.0" prefWidth="170.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="422.0" minWidth="10.0" prefWidth="422.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label text="%unicode.select.ranges" GridPane.columnSpan="2">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-            </Label>
-            <Label text="%unicode.search.ranges" GridPane.rowIndex="1" />
-            <TextField fx:id="unicodeSearchField" promptText="%unicode.search.ranges.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-         </children>
-      </GridPane>
-   </top>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.thecoderscorner.menu.editorui.controller.SelectUnicodeRangesController">
+    <center>
+        <ListView fx:id="unicodeRangeList" BorderPane.alignment="CENTER"/>
+    </center>
+    <bottom>
+        <ButtonBar BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="6"/>
+            </padding>
+            <buttons>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text"/>
+                <Button fx:id="selectRangeButton" defaultButton="true" mnemonicParsing="false"
+                        onAction="#onSelectRanges" text="%core.apply.text"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+    <top>
+        <GridPane BorderPane.alignment="CENTER" hgap="4" vgap="4">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER"/>
+                <ColumnConstraints hgrow="SOMETIMES"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <Label text="%unicode.search.ranges" GridPane.rowIndex="1"/>
+            <TextField fx:id="unicodeSearchField" promptText="%unicode.search.ranges.prompt" GridPane.columnIndex="1"
+                       GridPane.rowIndex="1" />
+        </GridPane>
+    </top>
 </BorderPane>

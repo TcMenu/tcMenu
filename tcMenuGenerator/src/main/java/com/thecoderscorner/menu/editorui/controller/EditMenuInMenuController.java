@@ -17,7 +17,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
-import java.util.Collection;
 import java.util.Comparator;
 
 public class EditMenuInMenuController {
@@ -57,6 +56,12 @@ public class EditMenuInMenuController {
          } else {
              menuInMenuTable.getSelectionModel().selectFirst();
          }
+
+        nameCol.prefWidthProperty().bind(menuInMenuTable.widthProperty().multiply(0.20));
+        typeCol.prefWidthProperty().bind(menuInMenuTable.widthProperty().multiply(0.20));
+        submenuCol.prefWidthProperty().bind(menuInMenuTable.widthProperty().multiply(0.20));
+        connectionCol.prefWidthProperty().bind(menuInMenuTable.widthProperty().multiply(0.38));
+
     }
 
     public void onlineHelpWasPressed(ActionEvent actionEvent) {

@@ -26,13 +26,26 @@ public abstract class BaseDialogSupport<T> {
     protected ResourceBundle bundle = MenuEditorApp.getBundle();
 
     /**
-     * Usually called to initialise the dialog and present on screen.
+     * Usually called to initialise the dialog and present on screen. No auto sizing is performed.
      * @param stage the stage to present on
      * @param resource the FXML resource file name as a string.
      * @param title the title for the dialog
      * @param modal if it should be modal.
      */
     public void tryAndCreateDialog(Stage stage, String resource, String title, boolean modal) {
+        tryAndCreateDialog(stage, resource, title, modal, 0.0);
+    }
+
+    /**
+     * Usually called to initialise the dialog and present on screen. providing a size between 0 and 1 for the factor
+     * to apply to the size.
+     * @param stage the stage to present on
+     * @param resource the FXML resource file name as a string.
+     * @param title the title for the dialog
+     * @param modal if it should be modal.
+     * @param sizeFactor a value between 0 and 1 for the factor of the parent size (0=don't apply)
+     */
+    public void tryAndCreateDialog(Stage stage, String resource, String title, boolean modal, double sizeFactor) {
         this.dialogStage = stage;
         try {
             var loader = new FXMLLoader(NewItemDialog.class.getResource(resource));
@@ -43,7 +56,7 @@ public abstract class BaseDialogSupport<T> {
             pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
             controller = loader.getController();
             initialiseController(controller);
-            createDialogStateAndShow(stage, pane, title, modal);
+            createDialogStateAndShow(stage, pane, title, modal, sizeFactor);
         }
         catch(Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form " + title, ButtonType.CLOSE);
@@ -57,6 +70,10 @@ public abstract class BaseDialogSupport<T> {
     }
 
     public static void createDialogStateAndShow(Stage parent, Pane root, String title, boolean modal) {
+        createDialogStateAndShow(parent, root, title, modal, 0.0);
+    }
+
+    public static void createDialogStateAndShow(Stage parent, Pane root, String title, boolean modal, double sizeFactor) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
         dialogStage.initOwner(parent);
@@ -65,6 +82,14 @@ public abstract class BaseDialogSupport<T> {
         getJMetro().setScene(scene);
 
         dialogStage.setScene(scene);
+
+        if(sizeFactor > 0.001) {
+            if(sizeFactor > 0.89 && parent.isMaximized()) {
+                dialogStage.setMaximized(true);
+            } else {
+                root.setPrefSize(parent.getScene().getWidth() * sizeFactor, parent.getScene().getHeight() * sizeFactor);
+            }
+        }
         if (modal) {
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.showAndWait();

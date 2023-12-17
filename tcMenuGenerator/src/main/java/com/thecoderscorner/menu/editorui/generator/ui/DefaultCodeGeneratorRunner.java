@@ -58,7 +58,6 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 loader.setResources(MenuEditorApp.getBundle());
                 BorderPane pane = loader.load();
                 pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
-                pane.setPrefSize(stage.getScene().getWidth() * .8, stage.getScene().getHeight() * .8);
                 CodeGenLoggingController controller = loader.getController();
                 controller.init(gen);
 
@@ -75,7 +74,7 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                             enabledFormObjects);
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
-                createDialogStateAndShow(stage, pane, "Code Generator Log", modal);
+                createDialogStateAndShow(stage, pane, "Code Generator Log", modal, 0.95);
             }
             else {
                 logger.log(ERROR, "Invalid platform detected: " + platform);

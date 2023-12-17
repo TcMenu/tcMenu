@@ -1,45 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SearchMenuItemController">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="159.0" minWidth="10.0" prefWidth="158.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="363.0" minWidth="10.0" prefWidth="331.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="192.0" minWidth="10.0" prefWidth="78.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints maxHeight="130.0" minHeight="0.0" prefHeight="34.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="267.0" minHeight="0.0" prefHeight="8.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="358.0" minHeight="10.0" prefHeight="352.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <Label text="%search.item.label" />
-      <TextField fx:id="searchField" promptText="%search.item.prompt.text" GridPane.columnIndex="1" />
-       <ButtonBar GridPane.columnSpan="2" GridPane.rowIndex="1" />
-       <TableView fx:id="resultsTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="3" GridPane.rowIndex="2">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane styleClass="background" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.thecoderscorner.menu.editorui.controller.SearchMenuItemController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+    <Label text="%search.item.label"/>
+    <TextField fx:id="searchField" promptText="%search.item.prompt.text" GridPane.columnIndex="1"/>
+    <ButtonBar GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+    <TableView fx:id="resultsTable" GridPane.columnSpan="3" GridPane.rowIndex="2">
         <columns>
-          <TableColumn fx:id="subColumn" prefWidth="197.0" text="%search.item.col.sub" />
-          <TableColumn fx:id="itemColumn" prefWidth="239.0" text="%search.item.col.item" />
-            <TableColumn fx:id="typeColumn" prefWidth="130.0" text="%search.item.col.type" />
+            <TableColumn fx:id="subColumn" text="%search.item.col.sub"/>
+            <TableColumn fx:id="itemColumn" text="%search.item.col.item"/>
+            <TableColumn fx:id="typeColumn" text="%search.item.col.type"/>
         </columns>
-      </TableView>
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" GridPane.columnIndex="2">
-         <GridPane.margin>
-            <Insets left="4.0" />
-         </GridPane.margin>
-      </Button>
-   </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
+    </TableView>
+    <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="%core.cancel.text" GridPane.columnIndex="2"/>
 </GridPane>

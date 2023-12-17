@@ -6,74 +6,56 @@
   ~
   -->
 
-<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane prefHeight="272.0" prefWidth="504.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<BorderPane styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseFontController">
    <top>
-      <Label prefHeight="27.0" prefWidth="534.0" text="%unicode.font.to.use" BorderPane.alignment="CENTER">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-         <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </BorderPane.margin></Label>
+      <Label  text="%unicode.font.to.use" BorderPane.alignment="CENTER"/>
    </top>
    <center>
-      <VBox prefHeight="343.0" prefWidth="504.0" BorderPane.alignment="CENTER">
-         <children>
-            <Hyperlink onAction="#onFontDefinitionsDocs" text="%read.docs.on.how.definitions.work" />
-            <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="%unicode.adafruit.tcunicode.select">
-               <toggleGroup>
-                  <ToggleGroup fx:id="main" />
-               </toggleGroup>
-            </RadioButton>
-            <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="%unicode.adafruit.font.local" toggleGroup="$main" />
-            <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="%unicode.static.u8g2.font" toggleGroup="$main" />
-            <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="%unicode.font.num.select" toggleGroup="$main" />
-             <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="%unicode.font.default.case" toggleGroup="$main" />
-            <GridPane>
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints />
-                <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-              </rowConstraints>
-               <children>
-                    <Label text="%unicode.font.variable.name" GridPane.rowIndex="1" />
-                    <TextField fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label fx:id="fontSizeLabel" text="%unicode.font.size" GridPane.rowIndex="2" />
-                    <Label fx:id="errorField" style="-fx-text-fill: red; -fx-font-weight: bold;" text="" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                  <ComboBox fx:id="sizeCombo" prefHeight="25.0" prefWidth="245.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               </children>
+       <VBox BorderPane.alignment="CENTER" spacing="4">
+           <BorderPane.margin>
+               <Insets bottom="5.0" left="10.0" right="5.0" top="5.0"/>
+           </BorderPane.margin>
+           <Hyperlink onAction="#onFontDefinitionsDocs" text="%read.docs.on.how.definitions.work"/>
+           <RadioButton fx:id="adafruitFontSel" mnemonicParsing="false" text="%unicode.adafruit.tcunicode.select">
+              <toggleGroup>
+                  <ToggleGroup fx:id="main"/>
+              </toggleGroup>
+           </RadioButton>
+           <RadioButton fx:id="adafruitLocalFontSel" mnemonicParsing="false" text="%unicode.adafruit.font.local"
+                        toggleGroup="$main"/>
+           <RadioButton fx:id="staticFontSel" mnemonicParsing="false" text="%unicode.static.u8g2.font"
+                        toggleGroup="$main"/>
+           <RadioButton fx:id="largeNumSelect" mnemonicParsing="false" text="%unicode.font.num.select"
+                        toggleGroup="$main"/>
+           <RadioButton fx:id="defaultFontSelect" mnemonicParsing="false" text="%unicode.font.default.case"
+                        toggleGroup="$main"/>
+           <GridPane vgap="4" hgap="4">
+               <columnConstraints>
+                   <ColumnConstraints hgrow="SOMETIMES"/>
+                   <ColumnConstraints hgrow="SOMETIMES"/>
+               </columnConstraints>
+               <rowConstraints>
+                   <RowConstraints/>
+                   <RowConstraints/>
+                   <RowConstraints/>
+                   <RowConstraints/>
+                   <RowConstraints/>
+               </rowConstraints>
                <padding>
-                  <Insets top="10.0" />
+                   <Insets top="10.0"/>
                </padding>
-            </GridPane>
-         </children>
-         <BorderPane.margin>
-            <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
-         </BorderPane.margin>
-      </VBox>
+               <Label text="%unicode.font.variable.name" GridPane.rowIndex="1"/>
+               <TextField fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+               <Label fx:id="fontSizeLabel" text="%unicode.font.size" GridPane.rowIndex="2"/>
+               <Label fx:id="errorField" style="-fx-text-fill: red; -fx-font-weight: bold;" text=""
+                      GridPane.columnSpan="2" GridPane.rowIndex="4"/>
+               <ComboBox fx:id="sizeCombo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+           </GridPane>
+       </VBox>
    </center>
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="504.0" BorderPane.alignment="CENTER">

@@ -11,7 +11,7 @@ public class CreateFontUtilityDialog extends BaseDialogSupport<CreateFontUtility
     public CreateFontUtilityDialog(Stage mainStage, CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
         this.homeDirectory = homeDirectory;
-        tryAndCreateDialog(mainStage, "/ui/createFontPanel.fxml", bundle.getString("font.create.title"), true);
+        tryAndCreateDialog(mainStage, "/ui/createFontPanel.fxml", bundle.getString("font.create.title"), true, .95);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class ChooseIoExpanderDialog extends BaseDialogSupport<ChooseIoExpanderCo
     public ChooseIoExpanderDialog(Stage stage, Optional<IoExpanderDefinition> def, CurrentEditorProject project, boolean modal) {
         this.currentSel = def;
         this.project = project;
-        tryAndCreateDialog(stage, "/ui/chooseIoExpander.fxml", bundle.getString("io.exp.title"), modal);
+        tryAndCreateDialog(stage, "/ui/chooseIoExpander.fxml", bundle.getString("io.exp.title"), modal, 0.65);
     }
 
     public Optional<String> getResultOrEmpty() {

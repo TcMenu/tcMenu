@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseIoExpanderController">
-   <top>
-      <Label text="Select IO Expander" BorderPane.alignment="TOP_LEFT">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-   </top>
+<BorderPane styleClass="background" prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.ChooseIoExpanderController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
@@ -24,7 +11,7 @@
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar BorderPane.alignment="CENTER">
         <buttons>
             <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
             <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddExpander" text="%core.add.button"/>
@@ -35,14 +22,14 @@
       </ButtonBar>
    </bottom>
    <center>
-      <TableView fx:id="mainTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <TableView fx:id="mainTable" BorderPane.alignment="CENTER">
         <columns>
           <TableColumn fx:id="tableNameCol" prefWidth="126.0" text="%io.exp.col.name" />
           <TableColumn fx:id="tableDescCol" prefWidth="351.0" text="%io.exp.col.desc" />
             <TableColumn fx:id="tableInUseCol" prefWidth="87.0" text="%io.exp.col.in.use" />
         </columns>
          <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            <Insets topRightBottomLeft="10" />
          </BorderPane.margin>
       </TableView>
    </center>

@@ -24,7 +24,7 @@ public class SearchMenuItemDialog extends BaseDialogSupport<SearchMenuItemContro
     public SearchMenuItemDialog(MenuTree tree, LocaleMappingHandler localeHandler, Stage stage, boolean modal) {
         this.tree = tree;
         this.localeHandler = localeHandler;
-        tryAndCreateDialog(stage, "/ui/searchItems.fxml", bundle.getString("menu.menuitem.search.items"), modal);
+        tryAndCreateDialog(stage, "/ui/searchItems.fxml", bundle.getString("menu.menuitem.search.items"), modal, .65);
     }
 
     @Override

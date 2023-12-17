@@ -3,40 +3,44 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="236.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EditFunctionController">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="294.0" minWidth="10.0" prefWidth="247.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="356.0" minWidth="10.0" prefWidth="353.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints maxHeight="308.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="308.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="308.0" minHeight="0.0" prefHeight="112.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="129.0" minHeight="10.0" prefHeight="43.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
-        <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help" />
-          <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed" text="%core.cancel.text" />
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#onUpdatePressed" text="%core.apply.text" />
-        </buttons>
-      </ButtonBar>
-      <Label text="%edit.function.callback.type" />
-      <ComboBox fx:id="callbackTypeCombo" onAction="#onCallbackTypeChanged" prefHeight="26.0" prefWidth="363.0" GridPane.columnIndex="1" />
-      <Label text="%edit.function.callback.name" GridPane.rowIndex="1" />
-      <TextField fx:id="functionNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label alignment="TOP_LEFT" text="%edit.function.code.definition" GridPane.rowIndex="2" GridPane.valignment="TOP">
-         <GridPane.margin>
-            <Insets top="5.0" />
-         </GridPane.margin></Label>
-      <TextArea fx:id="codeOutputArea" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-         <GridPane.margin>
-            <Insets top="3.0" />
-         </GridPane.margin>
-      </TextArea>
-   </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
+<GridPane styleClass="background" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+          hgap="4" vgap="4" fx:controller="com.thecoderscorner.menu.editorui.controller.EditFunctionController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <children>
+        <ButtonBar GridPane.columnSpan="2" GridPane.rowIndex="3">
+            <buttons>
+                <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help"/>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancelPressed"
+                        text="%core.cancel.text"/>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onUpdatePressed"
+                        text="%core.apply.text"/>
+            </buttons>
+        </ButtonBar>
+        <Label text="%edit.function.callback.type"/>
+        <ComboBox fx:id="callbackTypeCombo" onAction="#onCallbackTypeChanged" GridPane.columnIndex="1"/>
+        <Label text="%edit.function.callback.name" GridPane.rowIndex="1"/>
+        <TextField fx:id="functionNameField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label alignment="TOP_LEFT" text="%edit.function.code.definition" GridPane.rowIndex="2" GridPane.valignment="TOP">
+            <GridPane.margin>
+                <Insets top="5.0"/>
+            </GridPane.margin>
+        </Label>
+        <TextArea fx:id="codeOutputArea"  GridPane.columnIndex="1" GridPane.rowIndex="2" prefColumnCount="35">
+            <GridPane.margin>
+                <Insets top="3.0"/>
+            </GridPane.margin>
+        </TextArea>
+    </children>
+    <padding>
+        <Insets topRightBottomLeft="10" />
+    </padding>
 </GridPane>

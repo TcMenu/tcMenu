@@ -113,6 +113,7 @@ public class GenerateCodeDialog {
     public void showCodeGenerator(Stage stage, boolean modal)  {
         this.mainStage = stage;
         BorderPane pane = new BorderPane();
+        pane.setPadding(new Insets(10));
         pane.getStyleClass().add("background");
         pane.setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
 
@@ -224,7 +225,7 @@ public class GenerateCodeDialog {
 
 
         var title = MenuEditorApp.getBundle().getString("code.gen.title") + " " + project.getFileName();
-        createDialogStateAndShow(stage, pane, title, modal);
+        createDialogStateAndShow(stage, pane, title, modal, 0.95);
     }
 
     private Node generateTheFormSelectionTable()  {

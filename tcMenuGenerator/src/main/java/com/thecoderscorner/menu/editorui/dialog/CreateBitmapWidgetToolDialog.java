@@ -11,7 +11,7 @@ public class CreateBitmapWidgetToolDialog extends BaseDialogSupport<CreateBitmap
     public CreateBitmapWidgetToolDialog(Stage mainStage, CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
         this.homeDirectory = homeDirectory;
-        tryAndCreateDialog(mainStage, "/ui/ImageToNativeBitmapConverter.fxml", bundle.getString("bitmap.create.title"), true);
+        tryAndCreateDialog(mainStage, "/ui/ImageToNativeBitmapConverter.fxml", bundle.getString("bitmap.create.title"), true, 0.96);
     }
 
     @Override

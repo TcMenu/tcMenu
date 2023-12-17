@@ -108,8 +108,9 @@ public class AppInformationPanel {
         col1.setHgrow(Priority.SOMETIMES);
         ColumnConstraints col2 = new ColumnConstraints(300, 300, Double.MAX_VALUE);
         col2.setHgrow(Priority.ALWAYS);
-        ColumnConstraints col3 = new ColumnConstraints(100, 300, Double.MAX_VALUE);
+        ColumnConstraints col3 = new ColumnConstraints();
         col3.setHgrow(Priority.SOMETIMES);
+        col3.setPercentWidth(15);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
         gridPane.add(new Label(bundle.getString("core.platform")), 0, row);

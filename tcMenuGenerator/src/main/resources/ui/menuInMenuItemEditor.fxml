@@ -1,65 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
-
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="364.0" prefWidth="600.0" styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.EditMenuInMenuItemController">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="299.0" minWidth="10.0" prefWidth="252.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="377.0" minWidth="10.0" prefWidth="348.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="27.0" minHeight="10.0" prefHeight="12.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <Label text="Edit Menu In Menu configuration" GridPane.columnSpan="2" GridPane.halignment="CENTER">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
-      </Label>
-      <Label text="Name (will be used for variable)" GridPane.rowIndex="1" />
-      <Label text="Type of connection" GridPane.rowIndex="2" />
-      <Label fx:id="hostOrPortLabel" prefHeight="17.0" prefWidth="220.0" text="Host name" GridPane.rowIndex="5" />
-      <Label fx:id="portOrBaudLabel" prefHeight="17.0" prefWidth="202.0" text="Port" GridPane.rowIndex="6" />
-      <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <TextField fx:id="hostField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-      <TextField fx:id="portBaudField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-      <ComboBox fx:id="connectionTypeCombo" prefHeight="25.0" prefWidth="346.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="10">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.thecoderscorner.menu.editorui.controller.EditMenuInMenuItemController"
+          hgap="4" vgap="4">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+    <Label text="Edit Menu In Menu configuration" GridPane.columnSpan="2" GridPane.halignment="CENTER"/>
+    <Label text="Name (will be used for variable)" GridPane.rowIndex="1"/>
+    <Label text="Type of connection" GridPane.rowIndex="2"/>
+    <Label fx:id="hostOrPortLabel" text="Host name" GridPane.rowIndex="5"/>
+    <Label fx:id="portOrBaudLabel" text="Port" GridPane.rowIndex="6"/>
+    <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <TextField fx:id="hostField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    <TextField fx:id="portBaudField" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+    <ComboBox fx:id="connectionTypeCombo" maxWidth="99999" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="10">
         <buttons>
-          <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#closeWasPressed" text="Cancel" />
-            <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#saveWasPressed" text="Save" />
+            <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#closeWasPressed"
+                    text="Cancel"/>
+            <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#saveWasPressed"
+                    text="Save"/>
         </buttons>
-      </ButtonBar>
-      <Label text="Offset to add to all IDs" GridPane.rowIndex="7" />
-      <Label text="Maximum ID range" GridPane.rowIndex="8" />
-      <Spinner fx:id="offsetSpinner" editable="true" prefHeight="25.0" prefWidth="349.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-      <Spinner fx:id="maxRangeSpinner" editable="true" prefHeight="25.0" prefWidth="371.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-      <Label text="Submenu to put items in" GridPane.rowIndex="3" />
-      <ComboBox fx:id="submenuCombo" prefHeight="25.0" prefWidth="349.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-      <Label text="Replication mode" GridPane.rowIndex="4" />
-      <ComboBox fx:id="replicationCombo" prefHeight="26.0" prefWidth="350.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-   </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
+    </ButtonBar>
+    <Label text="Offset to add to all IDs" GridPane.rowIndex="7"/>
+    <Label text="Maximum ID range" GridPane.rowIndex="8"/>
+    <Spinner fx:id="offsetSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+    <Spinner fx:id="maxRangeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+    <Label text="Submenu to put items in" GridPane.rowIndex="3"/>
+    <ComboBox fx:id="submenuCombo" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <Label text="Replication mode" GridPane.rowIndex="4"/>
+    <ComboBox fx:id="replicationCombo" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 </GridPane>

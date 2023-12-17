@@ -103,7 +103,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         idx++;
         minMaxLabel = new Label("");
         populateMinMaxLabel();
-        grid.add(minMaxLabel, 1, idx);
+        grid.add(minMaxLabel, 1, idx, 2, 1);
         minMaxLabel.setId("minMaxLabel");
 
         idx++;

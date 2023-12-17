@@ -77,6 +77,7 @@ public class MenuEditorController {
     public Menu embedConnections;
     public Menu menuWindow;
     public Menu menuEmbedWindow;
+    public SplitPane treeViewSplit;
     private CurrentEditorProject editorProject;
     public javafx.scene.control.MenuItem menuCut;
     public javafx.scene.control.MenuItem menuCopy;
@@ -138,6 +139,8 @@ public class MenuEditorController {
                 onRemoveTreeMenu(new ActionEvent(menuTree, menuTree));
             }
         });
+
+        treeViewSplit.setDividerPosition(0, 0.25);
 
         menuTree.setCellFactory(param -> new MenuItemTreeCell(new MenuItemTreeController()));
         menuTree.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {

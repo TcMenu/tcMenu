@@ -12,7 +12,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="823.0" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
+<BorderPane fx:id="rootPane" styleClass="background" stylesheets="@tcmenu-extras.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.MenuEditorController">
    <top>
       <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
         <menus>
@@ -50,181 +50,185 @@
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="%menu.menuitem">
-              <items>
-                  <MenuItem fx:id="menuAddItem" mnemonicParsing="false" onAction="#onAddToTreeMenu" text="%menu.menuitem.add.item">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem fx:id="menuRemoveItem" mnemonicParsing="false" onAction="#onRemoveTreeMenu" text="%menu.menuitem.remove.item">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree" text="%menu.menuitem.focus.tree" />
-                  <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor" text="%menu.menuitem.focus.editor" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem accelerator="F4" mnemonicParsing="false" onAction="#onSearchPressed" text="%menu.menuitem.search.items" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
-              </items>
+                <MenuItem fx:id="menuAddItem" mnemonicParsing="false" onAction="#onAddToTreeMenu" text="%menu.menuitem.add.item">
+                    <accelerator>
+                      <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="DOWN" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="menuRemoveItem" mnemonicParsing="false" onAction="#onRemoveTreeMenu" text="%menu.menuitem.remove.item">
+                    <accelerator>
+                      <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="DOWN" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem accelerator="F10" mnemonicParsing="false" onAction="#onFocusMenuTree"
+                          text="%menu.menuitem.focus.tree"/>
+                <MenuItem accelerator="F9" mnemonicParsing="false" onAction="#onFocusCurrentEditor"
+                          text="%menu.menuitem.focus.editor"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem accelerator="F4" mnemonicParsing="false" onAction="#onSearchPressed"
+                          text="%menu.menuitem.search.items"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="%ec.show.preview.window"/>
             </Menu>
-          <Menu mnemonicParsing="false" text="%menu.code">
-            <items>
-              <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode" text="%menu.code.generate" />
-              <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout" text="%menu.code.show.layout" />
-              <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders" text="%menu.code.show.io.expanders" />
-              <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu" text="%menu.code.menu.in.menu" />
-                <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog" text="%menu.code.font.creator" />
-              <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool" text="%menu.code.bitmap.creator" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem accelerator="F6" mnemonicParsing="false" onAction="#onConfigureLocales" text="%menu.code.locale.configuration" />
-            </items>
-          </Menu>
+            <Menu mnemonicParsing="false" text="%menu.code">
+                <MenuItem accelerator="Shortcut+G" mnemonicParsing="false" onAction="#onGenerateCode"
+                          text="%menu.code.generate"/>
+                <MenuItem accelerator="Shortcut+L" mnemonicParsing="false" onAction="#onCodeShowLayout"
+                          text="%menu.code.show.layout"/>
+                <MenuItem accelerator="Shortcut+E" mnemonicParsing="false" onAction="#onShowExpanders"
+                          text="%menu.code.show.io.expanders"/>
+                <MenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#onMenuInMenu"
+                          text="%menu.code.menu.in.menu"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem accelerator="F8" mnemonicParsing="false" onAction="#onCreateFontDialog"
+                          text="%menu.code.font.creator"/>
+                <MenuItem accelerator="F7" mnemonicParsing="false" onAction="#onCreateBitmapTool"
+                          text="%menu.code.bitmap.creator"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem accelerator="F6" mnemonicParsing="false" onAction="#onConfigureLocales"
+                          text="%menu.code.locale.configuration"/>
+            </Menu>
             <Menu mnemonicParsing="false" text="%menu.embed.control">
                 <MenuItem accelerator="Shortcut+T" mnemonicParsing="false" onAction="#onCreateConnection" text="%menu.embed.create" />
                 <Menu fx:id="embedConnections" mnemonicParsing="false" text="%menu.embed.connections" />
                 <SeparatorMenuItem mnemonicParsing="false"/>
-                <MenuItem accelerator="Shortcut+D" mnemonicParsing="false" onAction="#onFormManager" text="Form Manager"/>
+                <MenuItem accelerator="Shortcut+D" mnemonicParsing="false" onAction="#onFormManager" text="%ec.form.manager"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
-                <MenuItem accelerator="F5" mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="Show Preview Window" />
+                <MenuItem accelerator="F5" mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="%ec.show.preview.window" />
             </Menu>
             <Menu mnemonicParsing="false" text="Window" onShowing="#windowMenuWillShow" >
-                <MenuItem mnemonicParsing="false" onAction="#onAllToFront" text="All To Front" />
-                <Menu mnemonicParsing="false" text="Active Editors" fx:id="menuWindow">
+                <MenuItem mnemonicParsing="false" onAction="#onAllToFront" text="%win.all.to.front" />
+                <Menu mnemonicParsing="false" text="%win.active.editors" fx:id="menuWindow">
                 </Menu>
-                <Menu mnemonicParsing="false" text="Active Connections" fx:id="menuEmbedWindow">
+                <Menu mnemonicParsing="false" text="%win.active.connections" fx:id="menuEmbedWindow">
                 </Menu>
             </Menu>
-          <Menu mnemonicParsing="false" text="%menu.help">
-            <items>
-              <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false" onAction="#aboutMenuPressed" text="%menu.help.about" />
-              <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation" text="%menu.help.docs" />
-                  <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="%menu.help.getting.started" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="%menu.help.old.forum" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuDiscussions" text="%menu.help.discussions" />
-                  <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics" text="%menu.help.prepare.diagnotics" />
-            </items>
-
-          </Menu>
+            <Menu mnemonicParsing="false" text="%menu.help">
+                <MenuItem fx:id="aboutMenuItem" accelerator="Shortcut+B" mnemonicParsing="false"
+                          onAction="#aboutMenuPressed" text="%menu.help.about"/>
+                <MenuItem accelerator="F1" mnemonicParsing="false" onAction="#onMenuDocumentation"
+                          text="%menu.help.docs"/>
+                <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="%menu.help.getting.started"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" onAction="#onMenuTCCForum" text="%menu.help.old.forum"/>
+                <MenuItem mnemonicParsing="false" onAction="#onMenuDiscussions" text="%menu.help.discussions"/>
+                <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics"
+                          text="%menu.help.prepare.diagnotics"/>
+            </Menu>
         </menus>
       </MenuBar>
    </top>
-   <left>
-      <BorderPane prefHeight="344.0" prefWidth="230.0" BorderPane.alignment="CENTER">
-         <center>
-            <TreeView fx:id="menuTree" prefHeight="311.0" prefWidth="248.0" BorderPane.alignment="CENTER" />
-         </center>
-         <bottom>
-            <HBox BorderPane.alignment="CENTER">
-               <children>
-                  <Button fx:id="menuTreeAdd" mnemonicParsing="false" onAction="#onAddToTreeMenu">
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../img/tree-add.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Add menu item" />
-                     </tooltip>
-                     <HBox.margin>
-                        <Insets right="3.0" />
-                     </HBox.margin></Button>
-                  <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu">
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../img/tree-remove.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Remove menu item" />
-                     </tooltip>
-                     <HBox.margin>
-                        <Insets right="3.0" />
-                     </HBox.margin></Button>
-                  <Button fx:id="menuTreeCopy" mnemonicParsing="false" onAction="#onTreeCopy">
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../img/tree-copy.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Copy selected item(s)" />
-                     </tooltip>
-                     <HBox.margin>
-                        <Insets right="3.0" />
-                     </HBox.margin>
-                  </Button>
-                   <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste">
-                       <graphic>
-                           <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                               <image>
-                                   <Image url="@../img/tree-paste.png" />
-                               </image>
-                           </ImageView>
-                       </graphic>
-                       <tooltip>
-                           <Tooltip text="Paste item(s)" />
-                       </tooltip>
-                     <HBox.margin>
-                        <Insets right="3.0" />
-                     </HBox.margin>
-                   </Button>
-                  <Button mnemonicParsing="false" onAction="#onSearchPressed" prefHeight="29.0" prefWidth="54.0">
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../img/tree-search.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </Button>
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <BorderPane.margin>
-                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-               </BorderPane.margin>
-            </HBox>
-         </bottom>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-         <top>
-            <MenuButton fx:id="localeMenuButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="236.0" text="Locale" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets bottom="4.0" />
-               </BorderPane.margin>
-            </MenuButton>
-         </top>
-      </BorderPane>
-   </left>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label fx:id="currentEditLabel" styleClass="item-title" text="Editor">
+       <SplitPane fx:id="treeViewSplit">
+           <BorderPane BorderPane.alignment="CENTER">
+               <center>
+                   <TreeView fx:id="menuTree" BorderPane.alignment="CENTER" />
+               </center>
+               <bottom>
+                   <HBox BorderPane.alignment="CENTER">
+                       <children>
+                           <Button fx:id="menuTreeAdd" mnemonicParsing="false" onAction="#onAddToTreeMenu">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-add.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <tooltip>
+                                   <Tooltip text="Add menu item" />
+                               </tooltip>
+                               <HBox.margin>
+                                   <Insets right="3.0" />
+                               </HBox.margin></Button>
+                           <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-remove.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <tooltip>
+                                   <Tooltip text="Remove menu item" />
+                               </tooltip>
+                               <HBox.margin>
+                                   <Insets right="3.0" />
+                               </HBox.margin></Button>
+                           <Button fx:id="menuTreeCopy" mnemonicParsing="false" onAction="#onTreeCopy">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-copy.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <tooltip>
+                                   <Tooltip text="Copy selected item(s)" />
+                               </tooltip>
+                               <HBox.margin>
+                                   <Insets right="3.0" />
+                               </HBox.margin>
+                           </Button>
+                           <Button fx:id="menuTreePaste" mnemonicParsing="false" onAction="#onTreePaste">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-paste.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <tooltip>
+                                   <Tooltip text="Paste item(s)" />
+                               </tooltip>
+                               <HBox.margin>
+                                   <Insets right="3.0" />
+                               </HBox.margin>
+                           </Button>
+                           <Button mnemonicParsing="false" onAction="#onSearchPressed" prefHeight="29.0" prefWidth="54.0">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-search.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <HBox.margin>
+                                   <Insets />
+                               </HBox.margin>
+                           </Button>
+                       </children>
+                       <opaqueInsets>
+                           <Insets />
+                       </opaqueInsets>
+                       <BorderPane.margin>
+                           <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                       </BorderPane.margin>
+                   </HBox>
+               </bottom>
                <padding>
-                  <Insets bottom="6.0" top="4.0" />
+                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
-            </Label>
-            <BorderPane fx:id="editorBorderPane" />
-         </children>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" />
-         </padding>
-      </VBox>
+               <top>
+                   <MenuButton fx:id="localeMenuButton" mnemonicParsing="false" text="Locale" BorderPane.alignment="CENTER">
+                       <BorderPane.margin>
+                           <Insets bottom="4.0" />
+                       </BorderPane.margin>
+                   </MenuButton>
+               </top>
+           </BorderPane>
+           <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <padding>
+                   <Insets bottom="5.0" left="5.0" right="5.0"/>
+               </padding>
+               <Label fx:id="currentEditLabel" styleClass="item-title" text="Editor">
+                   <padding>
+                       <Insets bottom="6.0" top="4.0"/>
+                   </padding>
+               </Label>
+               <BorderPane fx:id="editorBorderPane"/>
+           </VBox>
+       </SplitPane>
    </center>
    <bottom>
        <VBox>

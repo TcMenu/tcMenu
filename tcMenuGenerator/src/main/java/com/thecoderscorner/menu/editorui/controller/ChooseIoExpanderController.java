@@ -44,6 +44,10 @@ public class ChooseIoExpanderController {
             closeButton.setText("Close");
         }
 
+        tableNameCol.prefWidthProperty().bind(mainTable.widthProperty().multiply(0.30));
+        tableDescCol.prefWidthProperty().bind(mainTable.widthProperty().multiply(0.50));
+        tableInUseCol.prefWidthProperty().bind(mainTable.widthProperty().multiply(0.18));
+
         tableNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
         tableDescCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getNicePrintableName()));
         tableInUseCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(isExpanderInUse(cell.getValue().getId()) ? "Yes":"No"));

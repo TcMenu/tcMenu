@@ -19,7 +19,7 @@ public class RomLayoutDialog extends BaseDialogSupport<RomLayoutController> {
     public RomLayoutDialog(Stage stage, MenuTree menuTree, LocaleMappingHandler localeHandler, boolean modal) {
         this.menuTree = menuTree;
         this.localeHandler = localeHandler;
-        tryAndCreateDialog(stage, "/ui/romLayoutDialog.fxml", bundle.getString("rom.layout.title"), modal);
+        tryAndCreateDialog(stage, "/ui/romLayoutDialog.fxml", bundle.getString("rom.layout.title"), modal, .7);
     }
 
     @Override

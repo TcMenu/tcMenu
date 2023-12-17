@@ -13,6 +13,7 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.stage.Stage;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,17 +24,28 @@ public class SelectUnicodeRangesController {
     public TextField unicodeSearchField;
     public ListView<UnicodeBlockWithSelection> unicodeRangeList;
     public Button selectRangeButton;
+    public List<UnicodeBlockWithSelection> allSelections;
 
     private LoadedFont loadedFont = NO_LOADED_FONT;
     private Optional<Set<UnicodeBlockMapping>> result = Optional.empty();
 
     public void initialise(LoadedFont loadedFont, Set<UnicodeBlockMapping> currentEnabledMappings) {
-        var blocksForList = Arrays.stream(UnicodeBlockMapping.values())
+        allSelections = Arrays.stream(UnicodeBlockMapping.values())
                 .map(bm -> new UnicodeBlockWithSelection(bm, currentEnabledMappings.contains(bm)))
                 .toList();
-        unicodeRangeList.setItems(FXCollections.observableArrayList(blocksForList));
+        unicodeRangeList.setItems(FXCollections.observableArrayList(allSelections));
 
         unicodeRangeList.setCellFactory(CheckBoxListCell.forListView(UnicodeBlockWithSelection::selectedProperty));
+
+        unicodeSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.isEmpty()) {
+                unicodeRangeList.setItems(FXCollections.observableArrayList(allSelections));
+            } else {
+                var val = newValue.toLowerCase();
+                unicodeRangeList.setItems(FXCollections.observableArrayList(allSelections.stream()
+                        .filter(sel -> sel.getBlockMapping().toString().toLowerCase().contains(val)).toList()));
+            }
+        });
     }
 
     public Optional<Set<UnicodeBlockMapping>> getBlockMappings() {
@@ -46,7 +58,7 @@ public class SelectUnicodeRangesController {
     }
 
     public void onSelectRanges(ActionEvent actionEvent) {
-        result = Optional.of(unicodeRangeList.getItems().stream()
+        result = Optional.of(allSelections.stream()
                 .filter(UnicodeBlockWithSelection::isSelected)
                 .map(UnicodeBlockWithSelection::getBlockMapping)
                 .collect(Collectors.toSet())

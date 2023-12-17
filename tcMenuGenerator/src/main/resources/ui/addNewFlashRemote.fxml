@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <BorderPane styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.AddFlashRemoteController">
    <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+      <Insets topRightBottomLeft="10" />
    </padding>
    <bottom>
       <ButtonBar BorderPane.alignment="CENTER">
@@ -16,21 +16,19 @@
       </ButtonBar>
    </bottom>
    <center>
-      <GridPane BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" />
-          <ColumnConstraints hgrow="SOMETIMES" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints vgrow="SOMETIMES" />
-          <RowConstraints vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label text="%flash.remote.enter.uuid" />
-            <Label text="%flash.remote.enter.name" GridPane.rowIndex="1" />
-            <TextField fx:id="uuidField" GridPane.columnIndex="1" />
-            <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-         </children>
-      </GridPane>
+       <GridPane BorderPane.alignment="CENTER" hgap="5" vgap="5">
+           <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES"/>
+               <ColumnConstraints hgrow="SOMETIMES"/>
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints vgrow="SOMETIMES"/>
+               <RowConstraints vgrow="SOMETIMES"/>
+           </rowConstraints>
+           <Label text="%flash.remote.enter.uuid"/>
+           <Label text="%flash.remote.enter.name" GridPane.rowIndex="1"/>
+           <TextField fx:id="uuidField" GridPane.columnIndex="1" prefColumnCount="32"/>
+           <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1" prefColumnCount="20"/>
+       </GridPane>
    </center>
 </BorderPane>
