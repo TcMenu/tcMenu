@@ -45,6 +45,7 @@ public class FormBuilderPresentable implements PanelPresentable<Node> {
         } else {
             formEditorController.initialise(settings, tree, appUuid, navMgr, store, saveConsumer, editorFactory);
         }
+        navMgr.bindHeightToPane(loadedPane);
         return loadedPane;
     }
 

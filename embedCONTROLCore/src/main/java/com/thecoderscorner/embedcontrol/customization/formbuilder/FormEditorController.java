@@ -94,11 +94,13 @@ public class FormEditorController {
         editGrid.getRowConstraints().clear();
         editGrid.getChildren().clear();
         for(int i=0; i < itemStore.getGridSize(); i++) {
-            editGrid.getColumnConstraints().add(new ColumnConstraints(10, 100, 999, Priority.SOMETIMES, HPos.CENTER, true));
+            ColumnConstraints constraints = new ColumnConstraints(10, 100, 99999, Priority.SOMETIMES, HPos.CENTER, true);
+            constraints.setPercentWidth(((double) 100 / itemStore.getGridSize()) - 1);
+            editGrid.getColumnConstraints().add(constraints);
         }
 
         for(int i=0; i < itemStore.getMaximumRow(); i++) {
-            editGrid.getRowConstraints().add(new RowConstraints(100, 100, 999, Priority.SOMETIMES, VPos.CENTER, true));
+            editGrid.getRowConstraints().add(new RowConstraints(100, GlobalSettings.defaultFontSize() * 7, 99999, Priority.SOMETIMES, VPos.CENTER, true));
         }
 
         for(int row = 0; row < editGrid.getRowConstraints().size(); row++) {

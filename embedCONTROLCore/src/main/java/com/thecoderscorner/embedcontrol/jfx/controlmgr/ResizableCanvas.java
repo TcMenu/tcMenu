@@ -3,7 +3,7 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 import com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
-import com.thecoderscorner.embedcontrol.customization.FontInformation;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.scene.canvas.Canvas;
@@ -31,10 +31,8 @@ class ResizableCanvas extends Canvas {
 
             final Text textObj = new Text(toDraw);
             gc.setFill(asFxColor(customDrawing.getColorFor(protectedCurrent, context.getDrawingSettings().getColors(), context.getStatus(), ConditionalColoring.ColorComponentType.TEXT_FIELD).getFg()));
-            var fontSize = context.getDrawingSettings().getFontInfo().fontSize();
-            if(context.getDrawingSettings().getFontInfo().sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
-                fontSize = (int)(Font.getDefault().getSize() * (fontSize / 100.0));
-            }
+            var fontSize = context.getDrawingSettings().getFontInfo().fontSizeFromExisting(GlobalSettings.defaultFontSize());
+
             Font font = Font.font(gc.getFont().getFamily(), fontSize);
             gc.setFont(font);
             textObj.setFont(font);

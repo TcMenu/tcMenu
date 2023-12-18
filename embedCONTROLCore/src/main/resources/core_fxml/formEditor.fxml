@@ -3,60 +3,57 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
-   <right>
-      <VBox BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Form Name"/>
-            <TextField fx:id="nameField" />
-            <Label fx:id="subMenuLabel"  text="Sub Menu Options"/>
-            <Label fx:id="storeDetailLabel"  text="store details" />
-            <Button fx:id="menuButton" mnemonicParsing="false" onAction="#onMenuChangeButton" prefHeight="25.0" prefWidth="248.0" text="Menu Settings" />
-            <ButtonBar />
-            <Label text="Items to place"/>
-            <ListView fx:id="selectionList" />
-         </children>
-         <padding>
-            <Insets left="4.0" />
-         </padding>
-      </VBox>
-   </right>
-   <bottom>
-      <ButtonBar BorderPane.alignment="CENTER">
-        <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help" />
-            <Button mnemonicParsing="false" onAction="#onColorConfig" text="Color Config" />
-            <Button mnemonicParsing="false" onAction="#onAddNewRow" text="Add Row" />
-            <Button mnemonicParsing="false" onAction="#onLoadLayout" text="Load Layout" />
-          <Button mnemonicParsing="false" onAction="#onSaveLayout" text="Save Layout" />
-        </buttons>
-      </ButtonBar>
-   </bottom>
-   <opaqueInsets>
-      <Insets />
-   </opaqueInsets>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
-   <center>
-      <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
-         <content>
-            <GridPane fx:id="editGrid">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-            </GridPane>
-         </content>
-      </ScrollPane>
-   </center>
+<BorderPane stylesheets="@simui-styles.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.thecoderscorner.embedcontrol.customization.formbuilder.FormEditorController">
+    <center>
+        <SplitPane>
+            <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
+                <content>
+                    <GridPane fx:id="editGrid">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        </rowConstraints>
+                    </GridPane>
+                </content>
+            </ScrollPane>
+            <VBox maxHeight="99999">
+                <Label text="Form Name"/>
+                <TextField fx:id="nameField"/>
+                <Label fx:id="subMenuLabel" text="Sub Menu Options"/>
+                <Label fx:id="storeDetailLabel" text="store details"/>
+                <Button fx:id="menuButton" mnemonicParsing="false" onAction="#onMenuChangeButton" text="Menu Settings"
+                        maxWidth="99999"/>
+                <ButtonBar/>
+                <Label text="Items to place"/>
+                <ListView fx:id="selectionList" maxHeight="99999" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </SplitPane>
+    </center>
+    <bottom>
+        <ButtonBar BorderPane.alignment="CENTER">
+            <buttons>
+                <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Online Help"/>
+                <Button mnemonicParsing="false" onAction="#onColorConfig" text="Color Config"/>
+                <Button mnemonicParsing="false" onAction="#onAddNewRow" text="Add Row"/>
+                <Button mnemonicParsing="false" onAction="#onLoadLayout" text="Load Layout"/>
+                <Button mnemonicParsing="false" onAction="#onSaveLayout" text="Save Layout"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
+    <opaqueInsets>
+        <Insets/>
+    </opaqueInsets>
+    <padding>
+        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+    </padding>
 </BorderPane>

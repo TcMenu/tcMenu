@@ -58,7 +58,7 @@ public abstract class MenuGridComponent<T> {
                             mfi.getRedrawingMode(), mfi.getControlType(), mfi.getCustomDrawing(),  true);
                     var editorComponent = editorFactory.getComponentEditorItem(mfi.getItem(), settings, subRenderer);
                     editorComponent.ifPresent(comp -> {
-                        addToGrid(entry.getPositioning(), comp);
+                        addToGrid(entry.getPositioning(), comp, entry.getFontInfo());
                         editorComponents.put(mfi.getItem().getId(), comp);
                         MenuItemHelper.getValueFor(mfi.getItem(), tree, MenuItemHelper.getDefaultFor(mfi.getItem()));
                         comp.onItemUpdated(mfi.getItem(), tree.getMenuState(mfi.getItem()));
@@ -82,7 +82,7 @@ public abstract class MenuGridComponent<T> {
                         position, RedrawingMode.SHOW_NAME, ControlType.TEXT_CONTROL, NO_CUSTOM_DRAWING, false);
 
                 editorFactory.getComponentEditorItem(sub, settings, subRenderer).ifPresent(comp -> {
-                    addToGrid(settings.getPosition(), comp);
+                    addToGrid(settings.getPosition(), comp, settings.getFontInfo());
                     editorComponents.put(sub.getId(), comp);
                     MenuItemHelper.getValueFor(sub, tree);
                     comp.onItemUpdated(sub, tree.getMenuState(sub));
@@ -96,7 +96,7 @@ public abstract class MenuGridComponent<T> {
                 } else {
                     var settings = getComponentForMenuItem(item);
                     editorFactory.getComponentEditorItem(item, settings, subRenderer).ifPresent(comp -> {
-                        addToGrid(settings.getPosition(), comp);
+                        addToGrid(settings.getPosition(), comp, settings.getFontInfo());
                         editorComponents.put(item.getId(), comp);
                         MenuItemHelper.getValueFor(item, tree, MenuItemHelper.getDefaultFor(item));
                         comp.onItemUpdated(item, tree.getMenuState(item));
@@ -142,7 +142,7 @@ public abstract class MenuGridComponent<T> {
     }
 
 
-    protected abstract void addToGrid(ComponentPositioning where, EditorComponent<T> item);
+    protected abstract void addToGrid(ComponentPositioning where, EditorComponent<T> item, FontInformation fontInfo);
 
     protected abstract void addTextToGrid(ComponentSettings settings, String item);
 

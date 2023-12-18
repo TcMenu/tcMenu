@@ -1,6 +1,7 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.menu.domain.SubMenuItem;
@@ -118,9 +119,11 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
         }
 
         @Override
-        protected void addToGrid(ComponentPositioning where, EditorComponent<Node> item) {
+        protected void addToGrid(ComponentPositioning where, EditorComponent<Node> item, FontInformation fontInfo) {
             while(where.getRow() >= gridPane.getRowConstraints().size()) {
-                gridPane.getRowConstraints().add(new RowConstraints(10, 30, 999, Priority.SOMETIMES, VPos.CENTER, true));
+                var computedFontSize = GlobalSettings.defaultFontSize();
+                computedFontSize = fontInfo.fontSizeFromExisting(computedFontSize);
+                gridPane.getRowConstraints().add(new RowConstraints(10, computedFontSize * 2, 999, Priority.SOMETIMES, VPos.CENTER, true));
             }
             var comp = item.createComponent();
             GridPane.setColumnIndex(comp, where.getCol());

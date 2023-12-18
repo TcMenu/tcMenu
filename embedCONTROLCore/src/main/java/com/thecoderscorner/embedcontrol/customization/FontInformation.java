@@ -3,8 +3,8 @@ package com.thecoderscorner.embedcontrol.customization;
 public record FontInformation(int fontSize, SizeMeasurement sizeMeasurement) {
     public enum SizeMeasurement {ABS_SIZE, PERCENT}
 
-    public int fontSizeFromExisting(int sz) {
-        return (sizeMeasurement == SizeMeasurement.ABS_SIZE) ? fontSize : sz * ((int) (fontSize / 100.0) * fontSize);
+    public int fontSizeFromExisting(int size) {
+        return (sizeMeasurement == SizeMeasurement.ABS_SIZE) ? size : (int)((size) * (fontSize / 100.0));
     }
 
     public String toWire() { return fontSize + ((sizeMeasurement == SizeMeasurement.PERCENT) ? "%" : ""); }

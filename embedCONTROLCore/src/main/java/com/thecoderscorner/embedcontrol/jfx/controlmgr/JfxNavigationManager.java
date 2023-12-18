@@ -22,4 +22,6 @@ public interface JfxNavigationManager extends NavigationManager<Node, Image> {
      * @param toPresent the panel to be present when the submenu is selected.
      */
     void addCustomMenuPanel(MenuItem theItem, PanelPresentable<Node> toPresent);
+
+    void bindHeightToPane(Node loadedPane);
 }

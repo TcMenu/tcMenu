@@ -7,8 +7,6 @@ import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.mgr.DialogManager;
-import com.thecoderscorner.menu.persist.LocaleMappingHandler;
-import com.thecoderscorner.menu.persist.ResourceBundleMappingHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -18,10 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 
 import java.net.URL;
 import java.util.*;
@@ -70,7 +65,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         grid.setPadding(new Insets(4));
         grid.getColumnConstraints().clear();
         grid.getColumnConstraints().addAll(
-                new ColumnConstraints(25, 25, 120, Priority.ALWAYS, HPos.LEFT, false),
+                new ColumnConstraints(25, 30, 120, Priority.ALWAYS, HPos.LEFT, false),
                 new ColumnConstraints(100, 800, Double.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true),
                 new ColumnConstraints(32, 140, Double.MAX_VALUE, Priority.ALWAYS, HPos.RIGHT, false)
         );
@@ -180,6 +175,13 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
 
     public void pushNavigationIfNotOnStack(PanelPresentable<Node> settingsPanel) {
         if(!navigationStack.contains(settingsPanel)) pushNavigation(settingsPanel);
+    }
+
+    @Override
+    public void bindHeightToPane(Node loadedPane) {
+        if(loadedPane instanceof Pane p) {
+            p.prefHeightProperty().bind(managedNavArea.heightProperty());
+        }
     }
 
     private void runNavigation(PanelPresentable<Node> navigation) {
