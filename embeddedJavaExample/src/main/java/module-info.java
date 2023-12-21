@@ -2,13 +2,10 @@ module com.thecoderscorner.menuexample.embeddedjavademo {
     requires java.logging;
     requires java.prefs;
     requires java.desktop;
-    requires spring.beans;
     requires com.google.gson;
     requires com.fazecast.jSerialComm;
     requires com.thecoderscorner.tcmenu.javaapi;
     requires com.thecoderscorner.embedcontrol.core;
-    requires spring.core;
-    requires spring.context;
     requires javafx.graphics;
     requires javafx.base;
     requires javafx.controls;

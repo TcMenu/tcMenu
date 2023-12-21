@@ -23,6 +23,11 @@ public class GlobalColorCustomizable implements ColorCustomizable {
     }
 
     @Override
+    public ControlColor getActualUnderlyingColor(ConditionalColoring.ColorComponentType componentType) {
+        return globalSettings.getUnderlyingColor(componentType);
+    }
+
+    @Override
     public ControlColor getColorFor(ConditionalColoring.ColorComponentType componentType) {
         return switch (componentType) {
             case BUTTON -> globalSettings.getButtonColor();

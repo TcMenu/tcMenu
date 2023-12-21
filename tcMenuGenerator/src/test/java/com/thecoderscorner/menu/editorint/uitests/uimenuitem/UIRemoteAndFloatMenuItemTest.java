@@ -61,7 +61,7 @@ public class UIRemoteAndFloatMenuItemTest extends UIMenuItemTestBase{
         verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2.2"));
 
         tryToEnterBadValueIntoField(robot, "decimalPlacesField", "nameField", "100",
-                "Decimal Places - Value must be between 1 and 6");
+                "Decimal Places: Value must be between 1 and 6");
 
         writeIntoField(robot, "decimalPlacesField", "3");
         writeIntoField(robot, "defaultValueField", "200.0");

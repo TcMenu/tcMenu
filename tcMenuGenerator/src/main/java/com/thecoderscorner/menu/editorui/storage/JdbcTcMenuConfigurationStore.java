@@ -9,6 +9,7 @@ import com.thecoderscorner.menu.persist.VersionInfo;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
@@ -621,6 +622,10 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     }
 
     public record RecentlyUsedItem(String name, String path) {
+        public RecentlyUsedItem(Path basePath) {
+            this(basePath.getFileName().toString(), basePath.toString());
+        }
+
         public String toString() {
             return name;
         }

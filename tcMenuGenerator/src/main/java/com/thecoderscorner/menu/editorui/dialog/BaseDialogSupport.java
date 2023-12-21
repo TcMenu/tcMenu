@@ -83,7 +83,8 @@ public abstract class BaseDialogSupport<T> {
 
         dialogStage.setScene(scene);
 
-        if(sizeFactor > 0.001) {
+        // note for integration testing, often there may be parent, but the scene will not be set!
+        if(sizeFactor > 0.001 && parent != null && parent.getScene() != null) {
             if(sizeFactor > 0.89 && parent.isMaximized()) {
                 dialogStage.setMaximized(true);
             } else {

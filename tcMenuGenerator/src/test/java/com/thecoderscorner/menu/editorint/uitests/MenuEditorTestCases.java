@@ -51,6 +51,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore.RecentlyUsedItem;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.pushCtrlAndKey;
 import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
@@ -105,6 +107,7 @@ public class MenuEditorTestCases {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/menuEditor.fxml"));
         loader.setResources(bundle);
         Pane myPane = loader.load();
+        myPane.setPrefSize(800, 600);
 
         // we need to mock a few things around the edges to make testing easier.
         editorProjectUI = mock(CurrentProjectEditorUIImpl.class);
@@ -127,7 +130,11 @@ public class MenuEditorTestCases {
         );
 
         JdbcTcMenuConfigurationStore storage = mock(JdbcTcMenuConfigurationStore.class);
-        when(storage.loadRecents()).thenReturn(List.of(sketch1.orElseThrow(), sketch2.orElseThrow(), "filesDoesNotExistRemove.emf"));
+        when(storage.getRecents()).thenReturn(List.of(
+                new RecentlyUsedItem( Path.of(sketch1.orElseThrow())),
+                new RecentlyUsedItem( Path.of(sketch2.orElseThrow())),
+                new RecentlyUsedItem("broken", "filesDoesNotExistRemove.emf")
+        ));
         when(storage.getRegisteredKey()).thenReturn("UnitTesterII");
         when(storage.isUsingArduinoIDE()).thenReturn(true);
         when(storage.getArduinoOverrideDirectory()).thenReturn(Optional.empty());

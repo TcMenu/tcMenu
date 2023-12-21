@@ -101,10 +101,10 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
 
         tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "40000",
-                "EEPROM - Value must be between -1 and 32767");
+                "EEPROM: Value must be between -1 and 32767");
 
         tryToEnterBadValueIntoField(robot, "eepromField", "nameField", "-2",
-                "EEPROM - Value must be between -1 and 32767");
+                "EEPROM: Value must be between -1 and 32767");
 
         robot.clickOn("#nameField");
         robot.eraseText(10);
@@ -142,16 +142,16 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         performAllCommonChecks(subItem, false);
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This#Is+Err",
-                "Name - Text can only contain letters, numbers, spaces and '.-_()*%'");
+                "Name: Text can only contain letters, numbers, spaces and '.-_()*%'");
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "",
-                "Name - field must not be blank and less than 19 characters");
+                "Name: field must be populated");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "variableField", "name spaces",
                 "Field must use only letters, digits, and '_'");
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "This name is too long for menuitem",
-                                    "Name - field must not be blank and less than 19 characters");
+                                    "WARNING Name: default storage on device is 19 characters");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "nameField", "19_Bad",
                                     "Field must use only letters, digits, and '_'");

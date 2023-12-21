@@ -10,8 +10,7 @@
         <jdk.version>20</jdk.version>
         <jfx.version>20</jfx.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
-        <tcmenu.api.version>4.2.0-SNAPSHOT</tcmenu.api.version>
-        <springframework.version>5.3.23</springframework.version>
+        <tcmenu.api.version>4.2.0-BETA</tcmenu.api.version>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
@@ -25,11 +24,6 @@
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
             <version>${tcmenu.api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${springframework.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>

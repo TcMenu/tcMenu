@@ -130,18 +130,6 @@ public class ColorSettingsController {
 
     }
 
-    public void onResetToDark(ActionEvent actionEvent) {
-        globalSettings.setColorsForDefault(true);
-        prepareFromSubMenuSelection();
-        changed = true;
-    }
-
-    public void onResetToLight(ActionEvent actionEvent) {
-        globalSettings.setColorsForDefault(false);
-        prepareFromSubMenuSelection();
-        changed = true;
-    }
-
     public void onSaveChanges(ActionEvent actionEvent) {
         save();
         navigator.popNavigation();
@@ -185,5 +173,12 @@ public class ColorSettingsController {
             store.addColorSet(newCustom);
             refreshColorSets(newCustom.getColorSchemeName());
         }
+    }
+
+    public void onResetScheme(ActionEvent actionEvent) {
+        globalSettings.resetColorsToDefault();
+        prepareFromSubMenuSelection();
+        changed = true;
+
     }
 }

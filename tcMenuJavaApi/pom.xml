@@ -11,7 +11,7 @@
     <groupId>com.thecoderscorner.tcmenu</groupId>
     <artifactId>tcMenuJavaAPI</artifactId>
     <name>tcMenuJavaAPI</name>
-    <version>4.2.0-SNAPSHOT</version>
+    <version>4.2.0-BETA</version>
     <description>A series of domain and serialisation components for the TcMenu library</description>
     <url>https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/</url>
 

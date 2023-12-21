@@ -5,14 +5,11 @@ import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,6 +84,41 @@ class PreDefinedAuthenticatorTest {
         finally {
             Files.deleteIfExists(tempFile);
         }
+    }
+
+    /**
+     * The test is responsible for verifying that the removeAuthentication method
+     * correctly removes a user's authentication from the stored authenticationItems list if it exists
+     */
+    @Test
+    void testRemoveExistingAuthentication() {
+        List<PreDefinedAuthenticator.AuthenticationToken> tokens = new ArrayList<>();
+        tokens.add(new PreDefinedAuthenticator.AuthenticationToken("user1", UUID.randomUUID().toString()));
+        tokens.add(new PreDefinedAuthenticator.AuthenticationToken("user2", UUID.randomUUID().toString()));
+        PreDefinedAuthenticator authenticator = new PreDefinedAuthenticator("pass1234", tokens);
+
+        authenticator.removeAuthentication("user1");
+
+        List<String> names = authenticator.getAllNames();
+        assertFalse(names.contains("user1"), "User1 should be removed");
+    }
+
+    /**
+     * The test verifies that the removeAuthentication method does not remove
+     * a user's authentication from the stored authenticationItems list if it does not exist
+     */
+    @Test
+    void testRemoveNonexistentAuthentication() {
+        List<PreDefinedAuthenticator.AuthenticationToken> tokens = new ArrayList<>();
+        tokens.add(new PreDefinedAuthenticator.AuthenticationToken("user1", UUID.randomUUID().toString()));
+        tokens.add(new PreDefinedAuthenticator.AuthenticationToken("user2", UUID.randomUUID().toString()));
+        PreDefinedAuthenticator authenticator = new PreDefinedAuthenticator("pass1234", tokens);
+
+        authenticator.removeAuthentication("user3");
+
+        List<String> names = authenticator.getAllNames();
+        assertTrue(names.contains("user1"), "User1 should still be present");
+        assertTrue(names.contains("user2"), "User2 should still be present");
     }
 
     private class UnitDialogManager extends DialogManager {

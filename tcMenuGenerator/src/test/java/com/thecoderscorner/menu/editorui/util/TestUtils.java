@@ -347,7 +347,7 @@ public class TestUtils {
     }
 
     public static void clickOnButtonInDialog(FxRobot robot, Node dialogPane, String text) {
-        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equals(text)).query();
+        var btn = robot.from(dialogPane).lookup((Button b) -> b.getText().equalsIgnoreCase(text)).query();
         robot.clickOn(btn);
     }
 }

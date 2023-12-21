@@ -125,13 +125,13 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         verifyExpectedFields(ARRAY_IN_EEPROM);
 
         tryToEnterBadValueIntoField(robot, "eepromOffsetFieldField", "nameField", "100000",
-                "EEPROM Offset - Value must be between 0 and 65000");
+                "ERROR EEPROM Offset: Value must be between 0 and 65000");
 
         tryToEnterBadValueIntoField(robot, "itemWidthFieldField", "nameField", "-100",
-                "Item Width - Value must be between 1 and 255");
+                "ERROR Item Width: Value must be between 1 and 255");
 
         tryToEnterBadValueIntoField(robot, "numItemsFieldField", "nameField", "99999",
-                "Num Items - Value must be between 0 and 255");
+                "Num Items: Value must be between 0 and 255");
 
         writeIntoField(robot, "eepromOffsetFieldField", 100);
         writeIntoField(robot, "itemWidthFieldField", 10);
@@ -153,7 +153,7 @@ public class UIRgbAndScrollEditorTest extends UIMenuItemTestBase{
         verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2"));
 
         tryToEnterBadValueIntoField(robot, "choiceVarField", "nameField", "123 45",
-                "RAM Variable - Field must use only letters, digits, and '_'");
+                "RAM Variable: Field must use only letters, digits, and '_'");
 
         writeIntoField(robot, "choiceVarField", "ramVarName");
         writeIntoField(robot, "itemWidthFieldField", 10);

@@ -62,6 +62,7 @@ import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
+import static com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore.RecentlyUsedItem;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -365,14 +366,15 @@ public class MenuEditorController {
         items.addAll(getLocaleMenuItems());
 
         if(editorProject.getLocaleHandler().isLocalSupportEnabled()) {
+            localeMenuButton.setVisible(true);
+            localeMenuButton.setManaged(true);
             localeMenuButton.setDisable(false);
             localeMenuButton.setMaxWidth(9999);
             localeMenuButton.setText(bundle.getString("main.editor.lang") + " " + toLang(editorProject.getLocaleHandler().getCurrentLocale()));
         } else {
-            localeMenuButton.setDisable(true);
-            localeMenuButton.setText(bundle.getString("main.editor.no.locale"));
+            localeMenuButton.setVisible(false);
+            localeMenuButton.setManaged(false);
         }
-
     }
 
     private void selectChildInTreeById(TreeItem<MenuItemWithDescription> item, int id) {
@@ -640,11 +642,12 @@ public class MenuEditorController {
     private void handleRecents() {
         if (editorProject.isFileNameSet()) {
             var path = Paths.get(editorProject.getFileName());
-            configStore.addToRecents(new JdbcTcMenuConfigurationStore.RecentlyUsedItem(path.getFileName().toString(), path.toString()));
+            configStore.addToRecents(new RecentlyUsedItem(path.getFileName().toString(), path.toString()));
         }
 
         menuRecents.getItems().clear();
-        configStore.getRecents().forEach(recentlyUsedItem -> {
+        var recentItems = configStore.getRecents();
+        recentItems.stream().filter(ri -> Files.exists(Path.of(ri.path()))).forEach(recentlyUsedItem -> {
             var item = new javafx.scene.control.MenuItem(recentlyUsedItem.name());
             item.setOnAction(e-> {
                 stopSimulatorIfNeeded();

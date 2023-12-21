@@ -19,12 +19,12 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
 public class GlobalSettings {
 
     final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_LIGHT_COLORS = Map.ofEntries(
-            Map.entry(CUSTOM, new ControlColor("", "")),
-            Map.entry(TEXT_FIELD, new ControlColor("", "")),
-            Map.entry(HIGHLIGHT, new ControlColor("", "")),
-            Map.entry(BUTTON, new ControlColor("", "")),
-            Map.entry(DIALOG, new ControlColor("", "")),
-            Map.entry(ERROR, new ControlColor("", "")),
+            Map.entry(CUSTOM, new ControlColor("#000000", "#0A81F7")),
+            Map.entry(TEXT_FIELD, new ControlColor(BLACK, WHITE)),
+            Map.entry(HIGHLIGHT, new ControlColor("#000000", "#0A81F7")),
+            Map.entry(BUTTON, new ControlColor(WHITE, DARK_SLATE_BLUE)),
+            Map.entry(DIALOG, new ControlColor(WHITE, DARK_BLUE)),
+            Map.entry(ERROR, new ControlColor(WHITE, RED)),
             Map.entry(PENDING, new ControlColor(LIGHT_GRAY, GREY))
     );
     final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_DARK_COLORS = Map.ofEntries(
@@ -59,7 +59,7 @@ public class GlobalSettings {
         appUuid = UUID.randomUUID().toString();
         appName = "untitled";
         defaultFontSize = 16;
-        setColorsForDefault(false);
+        resetColorsToDefault();
     }
 
     public static int defaultFontSize() {
@@ -85,7 +85,6 @@ public class GlobalSettings {
         if(controlColor.isInUse()) return controlColor;
         var colorMap = isDarkMode() ? DEFAULT_DARK_COLORS : DEFAULT_LIGHT_COLORS;
         return colorMap.containsKey(componentType) ? colorMap.get(componentType) : new ControlColor(WHITE, BLACK);
-
     }
 
     /**
@@ -137,6 +136,18 @@ public class GlobalSettings {
         return wrapWithDefault(DIALOG, dialogColor);
     }
 
+    public ControlColor getUnderlyingColor(ConditionalColoring.ColorComponentType ty) {
+        return switch (ty) {
+            case TEXT_FIELD -> textColor;
+            case BUTTON -> buttonColor;
+            case HIGHLIGHT -> highlightColor;
+            case CUSTOM -> updateColor;
+            case DIALOG -> dialogColor;
+            case ERROR -> errorColor;
+            case PENDING -> pendingColor;
+        };
+    }
+
     public Map<ConditionalColoring.ColorComponentType, ControlColor> getColorsToSave() {
         return Map.of(
                 CUSTOM, updateColor,
@@ -181,9 +192,8 @@ public class GlobalSettings {
 
     /**
      * This is used to reset colorschemes back to the default settings.
-     * @param darkMode if dark background colors should be used
      */
-    public void setColorsForDefault(boolean darkMode) {
+    public void resetColorsToDefault() {
         updateColor = new ControlColor();
         pendingColor = new ControlColor();
         buttonColor = new ControlColor();

@@ -44,13 +44,13 @@ public class UILargeNumberItemTest extends UIMenuItemTestBase {
         performAllCommonChecks(uiLge.getMenuItem(), true);
 
         tryToEnterBadValueIntoField(robot, "lgeTotalDigits", "nameField", "99",
-                "Total Digits - Value must be between 4 and 12");
+                "ERROR Total Digits: Value must be between 4 and 12");
         tryToEnterBadValueIntoField(robot, "lgeDecimalPlaces", "nameField", "99",
-                "Decimal Places - Value must be between 0 and 8");
+                "ERROR Decimal Places: Value must be between 0 and 8");
 
         writeIntoField(robot, "lgeDecimalPlaces", 0);
         tryToEnterBadValueIntoField(robot, "lgeTotalDigits", "nameField", "10",
-                "Total Digits - Whole part cannot be larger than 9 figures");
+                "ERROR Total Digits: Whole part cannot be larger than 9 figures");
 
         writeIntoField(robot, "lgeTotalDigits", 8);
 

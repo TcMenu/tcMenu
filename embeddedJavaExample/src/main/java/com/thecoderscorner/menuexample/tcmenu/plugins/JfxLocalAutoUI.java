@@ -1,13 +1,10 @@
 package com.thecoderscorner.menuexample.tcmenu.plugins;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
-import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
-import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorPresentable;
-import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.ListResponse;
@@ -19,6 +16,7 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.commands.DialogMode;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
+import com.thecoderscorner.menuexample.tcmenu.MenuConfig;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -31,13 +29,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.springframework.context.ApplicationContext;
 
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class JfxLocalAutoUI extends Application {
-    private static final AtomicReference<ApplicationContext> GLOBAL_CONTEXT = new AtomicReference<>(null);
+    private static final AtomicReference<MenuConfig> GLOBAL_CONTEXT = new AtomicReference<>(null);
     private static final int DEFAULT_INDENTATION = 8;
 
     private MenuManagerServer mgr;
@@ -46,19 +42,19 @@ public class JfxLocalAutoUI extends Application {
     private MenuAppVersion versionData;
     private LocalTreeComponentManager localTree;
 
-    public static void setAppContext(ApplicationContext context) {
+    public static void setAppContext(MenuConfig context) {
         GLOBAL_CONTEXT.set(context);
     }
 
     @Override
     public void start(Stage stage) {
         var ctx = GLOBAL_CONTEXT.get();
-        mgr = ctx.getBean(MenuManagerServer.class);
-        var executor = ctx.getBean(ScheduledExecutorService.class);
-        versionData = ctx.getBean(MenuAppVersion.class);
+        mgr = ctx.getMenuManagerServer();
+        var executor = ctx.getScheduledExecutorService();
+        versionData = ctx.getMenuAppVersion();
 
         dlgMgr = new LocalDialogManager();
-        var auth = ctx.getBean(MenuAuthenticator.class);
+        var auth = ctx.getMenuAuthenticator();
         if(auth instanceof PropertiesAuthenticator propAuth) propAuth.setDialogManager(dlgMgr);
 
         stage.setTitle(mgr.getServerName());
@@ -71,12 +67,12 @@ public class JfxLocalAutoUI extends Application {
         });
 
         var localController = new LocalMenuController();
-        navigationHeader = ctx.getBean(JfxNavigationHeader.class);
+        navigationHeader = ctx.getNavigationHeader();
         navigationHeader.initialiseUI(dlgMgr, localController, scroller);
 
         localTree = new LocalTreeComponentManager(mgr, navigationHeader);
         mgr.start();
-        navigationHeader.pushMenuNavigation(MenuTree.ROOT, ctx.getBean(MenuItemStore.class));
+        navigationHeader.pushMenuNavigation(MenuTree.ROOT, ctx.getItemStore());
 
         var dialogComponents = dlgMgr.initialiseControls();
         var border = new BorderPane();

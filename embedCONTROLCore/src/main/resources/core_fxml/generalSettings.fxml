@@ -3,66 +3,65 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsController">
+<BorderPane xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsController">
     <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>
     <center>
         <GridPane BorderPane.alignment="CENTER">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
+                <ColumnConstraints hgrow="SOMETIMES"/>
+                <ColumnConstraints hgrow="SOMETIMES"/>
+                <ColumnConstraints hgrow="SOMETIMES"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
             </rowConstraints>
-            <children>
-                <Label text="Color" GridPane.rowIndex="1" />
-                <ColorPicker fx:id="pendingFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <ColorPicker fx:id="pendingBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                <ColorPicker fx:id="dialogFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <ColorPicker fx:id="dialogBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                <ColorPicker fx:id="highlightFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <ColorPicker fx:id="highlightBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                <ColorPicker fx:id="buttonFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                <ColorPicker fx:id="errorFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                <ColorPicker fx:id="buttonBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                <ColorPicker fx:id="errorBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="8" />
-                <Label text="Foreground" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <Label text="Background" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                <ColorPicker fx:id="textFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                <ColorPicker fx:id="textBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                <ColorPicker fx:id="updateFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                <ColorPicker fx:id="updateBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-            <Label text="Color Set Name" />
-            <ComboBox fx:id="colorSetCombo" prefHeight="26.0" prefWidth="394.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-            <CheckBox fx:id="pendingCheck" mnemonicParsing="false" text="Pending" GridPane.rowIndex="2" />
-            <CheckBox fx:id="dialogCheck" mnemonicParsing="false" text="Dialog" GridPane.rowIndex="3" />
-            <CheckBox fx:id="highlightCheck" mnemonicParsing="false" text="Highlight" GridPane.rowIndex="4" />
-            <CheckBox fx:id="buttonCheck" mnemonicParsing="false" text="Button" GridPane.rowIndex="5" />
-            <CheckBox fx:id="textCheck" mnemonicParsing="false" text="Text" GridPane.rowIndex="6" />
-            <CheckBox fx:id="updateCheck" mnemonicParsing="false" text="Update" GridPane.rowIndex="7" />
-            <CheckBox fx:id="errorCheck" mnemonicParsing="false" text="Error" GridPane.rowIndex="8" />
-            </children>
+            <Label text="Color" GridPane.rowIndex="1"/>
+            <ColorPicker fx:id="pendingFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <ColorPicker fx:id="pendingBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+            <ColorPicker fx:id="dialogFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            <ColorPicker fx:id="dialogBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+            <ColorPicker fx:id="highlightFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <ColorPicker fx:id="highlightBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+            <ColorPicker fx:id="buttonFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+            <ColorPicker fx:id="errorFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+            <ColorPicker fx:id="buttonBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+            <ColorPicker fx:id="errorBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="8"/>
+            <Label text="Foreground" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="Background" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <ColorPicker fx:id="textFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            <ColorPicker fx:id="textBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="6"/>
+            <ColorPicker fx:id="updateFgEditor" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+            <ColorPicker fx:id="updateBgEditor" GridPane.columnIndex="2" GridPane.rowIndex="7"/>
+            <Label text="Color Set Name"/>
+            <ComboBox fx:id="colorSetCombo" prefHeight="26.0" prefWidth="394.0" GridPane.columnIndex="1"
+                      GridPane.columnSpan="2"/>
+            <CheckBox fx:id="pendingCheck" mnemonicParsing="false" text="Pending" GridPane.rowIndex="2"/>
+            <CheckBox fx:id="dialogCheck" mnemonicParsing="false" text="Dialog" GridPane.rowIndex="3"/>
+            <CheckBox fx:id="highlightCheck" mnemonicParsing="false" text="Highlight" GridPane.rowIndex="4"/>
+            <CheckBox fx:id="buttonCheck" mnemonicParsing="false" text="Button" GridPane.rowIndex="5"/>
+            <CheckBox fx:id="textCheck" mnemonicParsing="false" text="Text" GridPane.rowIndex="6"/>
+            <CheckBox fx:id="updateCheck" mnemonicParsing="false" text="Update" GridPane.rowIndex="7"/>
+            <CheckBox fx:id="errorCheck" mnemonicParsing="false" text="Error" GridPane.rowIndex="8"/>
         </GridPane>
     </center>
     <bottom>
         <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <buttons>
-                <Button mnemonicParsing="false" onAction="#onResetToDark" text="Dark Defaults" />
-            <Button mnemonicParsing="false" onAction="#onResetToLight" text="Light Defaults" />
-            <Button fx:id="addButton" mnemonicParsing="false" text="Add" onAction="#onAddNew" />
-            <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveOverride" text="Remove" />
-                <Button mnemonicParsing="false" onAction="#onSaveChanges" text="Save" />
+                <Button mnemonicParsing="false" onAction="#onResetScheme" text="Reset Colors"/>
+                <Button fx:id="addButton" mnemonicParsing="false" text="Add" onAction="#onAddNew"/>
+                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveOverride" text="Remove"/>
+                <Button mnemonicParsing="false" onAction="#onSaveChanges" text="Save"/>
             </buttons>
         </ButtonBar>
     </bottom>
