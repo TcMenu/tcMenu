@@ -122,13 +122,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         patcher.addRequires("java.logging");
         patcher.addRequires("java.prefs");
         patcher.addRequires("java.desktop");
-        patcher.addRequires("spring.beans");
         patcher.addRequires("com.google.gson");
         patcher.addRequires("com.fazecast.jSerialComm");
         patcher.addRequires("com.thecoderscorner.tcmenu.javaapi");
         patcher.addRequires("com.thecoderscorner.embedcontrol.core");
-        patcher.addRequires("spring.core");
-        patcher.addRequires("spring.context");
 
         allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream())
                 .filter(inc -> inc.getApplicability().isApplicable(context.getProperties()))
@@ -170,8 +167,8 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     }
 
     private void generateMenuAppContext(EmbeddedJavaProject javaProject, String clazzBaseName) throws IOException {
-        logLine(INFO, "Creating or updating the spring application context");
-        var builder = javaProject.classBuilderFullName("MenuConfig")
+        logLine(INFO, "Creating or updating the application context");
+        var builder = javaProject.classBuilderFullName("MenuConfig").extendsClass("BaseMenuConfig")
                 .addPackageImport("com.thecoderscorner.menu.auth.*")
                 .addPackageImport("com.thecoderscorner.menu.mgr.MenuManagerServer")
                 .addPackageImport("com.thecoderscorner.menu.persist.*")
@@ -179,68 +176,59 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 .addPackageImport("com.thecoderscorner.embedcontrol.core.service.*")
                 .addPackageImport("com.thecoderscorner.embedcontrol.customization.*")
                 .addPackageImport("com.thecoderscorner.embedcontrol.jfx.controlmgr.*")
-                .addPackageImport("org.springframework.beans.factory.annotation.Value")
                 .addPackageImport("com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter")
-                .addPackageImport("org.springframework.context.annotation.*")
                 .addPackageImport("java.time.Clock")
                 .addPackageImport("java.util.*")
                 .addPackageImport("java.util.concurrent.*")
                 .addPackageImport("java.nio.file.Path")
                 .setStatementBeforeClass("""
                         /**
-                         * Spring creates an application context out of all these components, you can wire together your own objects in either
-                         * this same file, or you can import another file. See the spring configuration for more details. You're safe to edit
-                         * this file as the designer only appends new entries
+                         * This class creates an application context out of all these components, and you can request any components that are
+                         * put into the context using getBean(ClassName.class). See the base class BaseMenuConfig for more details. Generally
+                         * don't change the constructor, as it is rebuild each time around. Prefer putting your own code in appCustomConfiguration
                          */
-                        @Configuration
-                        @PropertySource("classpath:application.properties")
                         """)
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "Clock", "clock")
-                        .withStatement("return Clock.systemUTC();").withAnnotation("Bean"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuStateSerialiser", "menuStateSerialiser")
-                        .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${file.menu.storage}\") String filePath")
-                        .withStatement("return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve(\"menuStorage.properties\"));").withAnnotation("Bean"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Menu", "menuDef")
-                        .withStatement("return new " + clazzBaseName + "Menu();").withAnnotation("Bean"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, clazzBaseName + "Controller", "menuController")
-                        .withParameter(clazzBaseName + "Menu menuDef").withAnnotation("Bean")
-                        .withStatement("return new " + clazzBaseName + "Controller(menuDef);"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "GlobalSettings", "globalSettings")
-                        .withAnnotation("Bean").withStatement("var settings = new GlobalSettings();")
-                        .withStatement("// load or adjust the settings as needed here")
-                        .withStatement("settings.setDefaultFontSize(14);")
+                .addStatement(new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
+                        .withStatement("// Do not change this constructor, it is replaced with each build, put your objects in appCustomConfiguration")
+                        .withStatement("super(env);")
+                        .withStatement("Clock clock = asBean(Clock.systemUTC());")
+                        .withStatement("var executorService = asBean(Executors.newScheduledThreadPool(propAsIntWithDefault(\"threading.pool.size\", 4)));")
+                        .withStatement("var menuDef = asBean(new EmbeddedJavaDemoMenu());")
+                        .withStatement("asBean(new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(resolvedProperties.getProperty(\"file.menu.storage\")).resolve(\"menuStorage.properties\")));")
+                        .withStatement("var settings = asBean(new GlobalSettings(new ApplicationThemeManager()));")
+                        .withStatement("// load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store")
+                        .withStatement("// these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.")
+                        .withStatement("settings.setDefaultFontSize(16);")
                         .withStatement("settings.setDefaultRecursiveRendering(false);")
-                        .withStatement("return settings;"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuItemStore", "itemStore")
-                        .withAnnotation("Bean").withParameter(javaProject.getAppClassName("Menu") + " menuDef")
-                        .withParameter("GlobalSettings settings")
-                        .withStatement("return new MenuItemStore(settings, menuDef.getMenuTree(), \"\", 7, 2, settings.isDefaultRecursiveRendering());"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "ScheduledExecutorService", "executor")
-                        .withParameter("@Value(\"${threading.pool.size}\") int poolSize").withAnnotation("Bean")
-                        .withStatement("return Executors.newScheduledThreadPool(poolSize);"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "JfxNavigationHeader", "navigationManager")
-                        .withParameter("ScheduledExecutorService executorService").withParameter("GlobalSettings settings")
-                        .withAnnotation("Bean")
-                        .withStatement("return new JfxNavigationHeader(executorService, settings);"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAppVersion", "versionInfo")
-                        .withAnnotation("Bean").withParameter("@Value(\"${build.version}\") String version")
-                        .withParameter("@Value(\"${build.timestamp}\") String timestamp")
-                        .withParameter("@Value(\"${build.groupId}\") String groupId")
-                        .withParameter("@Value(\"${build.artifactId}\") String artifact")
-                        .withStatement("return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);"))
-                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuManagerServer", "menuManagerServer")
-                        .withAnnotation("Bean").withParameter("ScheduledExecutorService executor")
-                        .withParameter(clazzBaseName + "Menu menuDef").withParameter("@Value(\"${server.name}\") String serverName")
-                        .withParameter("@Value(\"${server.uuid}\") String serverUUID").withParameter("MenuAuthenticator authenticator").withParameter("Clock clock")
-                        .withStatement("return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);"));
+                        .withStatement("asBean(new JfxNavigationHeader(executorService, settings));")
+                        .withStatement("asBean(new MenuItemStore(settings, menuDef.getMenuTree(), \"\", 7, 2, settings.isDefaultRecursiveRendering()));")
+                        .withStatement("var protocol =  asBean(new ConfigurableProtocolConverter(true));")
+                        .withStatement("asBean(new TcJettyWebServer(protocol, clock, \"./data/www\", 8080, false));")
+                        .withStatement("var authenticator = asBean(new PropertiesAuthenticator(mandatoryStringProp(\"file.auth.storage\")));")
+                        .withStatement("asBean(new MenuManagerServer(executorService, menuDef.getMenuTree(), mandatoryStringProp(\"server.name\"), UUID.fromString(mandatoryStringProp(\"server.uuid\")), authenticator, clock));")
+                        .withStatement("asBean(new SocketServerConnectionManager(protocol, executorService, 3333, clock));")
+                        .withStatement("asBean(createVersionInfo());")
+                        .withStatement("appCustomConfiguration();"))
+                .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "void", "appCustomConfiguration")
+                        .withStatement("asBean(new EmbeddedJavaDemoController(")
+                        .withStatement("        getBean(EmbeddedJavaDemoMenu.class),")
+                        .withStatement("        getBean(JfxNavigationManager.class),")
+                        .withStatement("        getBean(ScheduledExecutorService.class),")
+                        .withStatement("        getBean(GlobalSettings.class),")
+                        .withStatement("        getBean(MenuItemStore.class)")
+                        .withStatement("));")
+                        .withStatement("")
+                        .withStatement("// you can put your configurations here and this method is not replaced , example:")
+                        .withStatement("// var myComponent = asBean(new MyOwnComponent(\"hello\");")
+                        .withStatement("// to later access it simple call getBean(MyOwnComponent.class) on the context."));
 
         if(handler.isLocalSupportEnabled()) {
             builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
-                    .withAnnotation("Bean")
+                    .withTcComponent()
                     .withStatement("return new ResourceBundleMappingHandler(ResourceBundle.getBundle(\"i18n." + MENU_PROJECT_LANG_FILENAME+ "\"));"));
         } else {
             builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
-                    .withAnnotation("Bean").withStatement("return LocaleMappingHandler.NOOP_IMPLEMENTATION;"));
+                    .withTcComponent().withStatement("return LocaleMappingHandler.NOOP_IMPLEMENTATION;"));
         }
 
 
@@ -266,8 +254,6 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                          """)
                 .addPackageImport("com.thecoderscorner.menu.mgr.*")
                 .addPackageImport("com.thecoderscorner.menu.persist.MenuStateSerialiser")
-                .addPackageImport("org.springframework.context.ApplicationContext")
-                .addPackageImport("org.springframework.context.annotation.AnnotationConfigApplicationContext")
                 .addStatement(new GeneratedJavaField("MenuManagerServer", "manager"))
                 .addStatement(new GeneratedJavaField("ApplicationContext", "context"));
         for(var cap : javaProject.getAllCodeGeneratorCapables()) {
@@ -277,7 +263,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         pluginCreator.mapImports(allPlugins.stream().flatMap(p -> p.getIncludeFiles().stream()).distinct().toList(), builder);
 
         var constructor = new GeneratedJavaMethod(CONSTRUCTOR_REPLACE)
-                .withStatement("context = new AnnotationConfigApplicationContext(MenuConfig.class);")
+                .withStatement("context = new MenuConfig(null);")
                 .withStatement("manager = context.getBean(MenuManagerServer.class);");
         pluginCreator.mapConstructorStatements(allPlugins.stream().flatMap(p -> p.getVariables().stream()).toList(), constructor);
 

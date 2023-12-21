@@ -7,11 +7,9 @@ import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParamete
 import com.thecoderscorner.menu.editorui.generator.parameters.ReferenceCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
-import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.generator.plugin.VariableDefinitionMode;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,7 +98,7 @@ public class EmbeddedJavaPluginCreator {
         for(var v : l) {
             String objName = expando.expandExpression(context, v.getObjectName());
             String value = expando.expandExpression(context, v.getVariableName());
-            var method = new GeneratedJavaMethod(METHOD_IF_MISSING, objName, value).withAnnotation("Bean");
+            var method = new GeneratedJavaMethod(METHOD_IF_MISSING, objName, value).withTcComponent();
             StringBuilder statement = new StringBuilder("return new " + objName + "(");
             boolean firstStatement = true;
             for(var param : v.getParameterList()) {

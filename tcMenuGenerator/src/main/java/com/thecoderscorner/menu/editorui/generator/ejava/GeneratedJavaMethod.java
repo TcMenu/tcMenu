@@ -59,6 +59,11 @@ public class GeneratedJavaMethod implements GeneratedStatement {
         return this;
     }
 
+    public GeneratedJavaMethod withTcComponent() {
+        return withAnnotation("TcComponent");
+    }
+
+
     public boolean isIfMissingOnly() {
         return genMode == GenerationMode.CONSTRUCTOR_IF_MISSING || genMode == GenerationMode.METHOD_IF_MISSING;
     }

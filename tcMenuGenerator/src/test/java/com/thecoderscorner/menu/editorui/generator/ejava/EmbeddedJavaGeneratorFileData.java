@@ -65,8 +65,6 @@ public class EmbeddedJavaGeneratorFileData {
                         
             import com.thecoderscorner.menu.mgr.*;
             import com.thecoderscorner.menu.persist.MenuStateSerialiser;
-            import org.springframework.context.ApplicationContext;
-            import org.springframework.context.annotation.AnnotationConfigApplicationContext;
             import com.thecoderscorner.menu.remote.protocol.*;
             import com.thecoderscorner.menu.remote.mgrclient.*;
             import java.util.concurrent.*;
@@ -80,7 +78,7 @@ public class EmbeddedJavaGeneratorFileData {
                 private final TagValMenuCommandProtocol tagVal;
                \s
                 public UnitTestApp() {
-                    context = new AnnotationConfigApplicationContext(MenuConfig.class);
+                    context = new MenuConfig(null);
                     manager = context.getBean(MenuManagerServer.class);
                     tagVal = context.getBean(TagValMenuCommandProtocol.class);
                 }
@@ -106,8 +104,6 @@ public class EmbeddedJavaGeneratorFileData {
                         
             import com.thecoderscorner.menu.mgr.*;
             import com.thecoderscorner.menu.persist.MenuStateSerialiser;
-            import org.springframework.context.ApplicationContext;
-            import org.springframework.context.annotation.AnnotationConfigApplicationContext;
             import com.thecoderscorner.menu.remote.protocol.*;
             import com.thecoderscorner.menu.remote.mgrclient.*;
             import java.util.concurrent.*;
@@ -125,7 +121,7 @@ public class EmbeddedJavaGeneratorFileData {
                 private final TagValMenuCommandProtocol tagVal;
                \s
                 public UnitTestApp() {
-                    context = new AnnotationConfigApplicationContext(MenuConfig.class);
+                    context = new MenuConfig(null);
                     manager = context.getBean(MenuManagerServer.class);
                     tagVal = context.getBean(TagValMenuCommandProtocol.class);
                 }
@@ -169,9 +165,7 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.embedcontrol.core.service.*;
             import com.thecoderscorner.embedcontrol.customization.*;
             import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
-            import org.springframework.beans.factory.annotation.Value;
             import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
-            import org.springframework.context.annotation.*;
             import java.time.Clock;
             import java.util.*;
             import java.util.concurrent.*;
@@ -180,87 +174,68 @@ public class EmbeddedJavaGeneratorFileData {
             import com.thecoderscorner.menu.remote.mgrclient.*;
                         
             /**
-             * Spring creates an application context out of all these components, you can wire together your own objects in either
-             * this same file, or you can import another file. See the spring configuration for more details. You're safe to edit
-             * this file as the designer only appends new entries
+             * This class creates an application context out of all these components, and you can request any components that are
+             * put into the context using getBean(ClassName.class). See the base class BaseMenuConfig for more details. Generally
+             * don't change the constructor, as it is rebuild each time around. Prefer putting your own code in appCustomConfiguration
              */
-            @Configuration
-            @PropertySource("classpath:application.properties")
-            public class MenuConfig {
-                @Bean
-                public Clock clock() {
-                    return Clock.systemUTC();
-                }
-                        
-                @Bean
-                public MenuStateSerialiser menuStateSerialiser(UnitTestMenu menuDef, @Value("${file.menu.storage}") String filePath) {
-                    return new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(filePath).resolve("menuStorage.properties"));
-                }
-                        
-                @Bean
-                public UnitTestMenu menuDef() {
-                    return new UnitTestMenu();
-                }
-                        
-                @Bean
-                public UnitTestController menuController(UnitTestMenu menuDef) {
-                    return new UnitTestController(menuDef);
-                }
-                
-                @Bean
-                public GlobalSettings globalSettings() {
-                    var settings = new GlobalSettings();
-                    // load or adjust the settings as needed here
-                    settings.setDefaultFontSize(14);
+            public class MenuConfig extends BaseMenuConfig {
+                public MenuConfig() {
+                    // Do not change this constructor, it is replaced with each build, put your objects in appCustomConfiguration
+                    super(env);
+                    Clock clock = asBean(Clock.systemUTC());
+                    var executorService = asBean(Executors.newScheduledThreadPool(propAsIntWithDefault("threading.pool.size", 4)));
+                    var menuDef = asBean(new EmbeddedJavaDemoMenu());
+                    asBean(new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(resolvedProperties.getProperty("file.menu.storage")).resolve("menuStorage.properties")));
+                    var settings = asBean(new GlobalSettings(new ApplicationThemeManager()));
+                    // load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store
+                    // these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.
+                    settings.setDefaultFontSize(16);
                     settings.setDefaultRecursiveRendering(false);
-                    return settings;
-                }
-            
-                @Bean
-                public MenuItemStore itemStore(UnitTestMenu menuDef, GlobalSettings settings) {
-                    return new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering());
+                    asBean(new JfxNavigationHeader(executorService, settings));
+                    asBean(new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering()));
+                    var protocol =  asBean(new ConfigurableProtocolConverter(true));
+                    asBean(new TcJettyWebServer(protocol, clock, "./data/www", 8080, false));
+                    var authenticator = asBean(new PropertiesAuthenticator(mandatoryStringProp("file.auth.storage")));
+                    asBean(new MenuManagerServer(executorService, menuDef.getMenuTree(), mandatoryStringProp("server.name"), UUID.fromString(mandatoryStringProp("server.uuid")), authenticator, clock));
+                    asBean(new SocketServerConnectionManager(protocol, executorService, 3333, clock));
+                    asBean(createVersionInfo());
+                    appCustomConfiguration();
                 }
                         
-                @Bean
-                public ScheduledExecutorService executor(@Value("${threading.pool.size}") int poolSize) {
-                    return Executors.newScheduledThreadPool(poolSize);
+                public void appCustomConfiguration() {
+                    asBean(new EmbeddedJavaDemoController(
+                            getBean(EmbeddedJavaDemoMenu.class),
+                            getBean(JfxNavigationManager.class),
+                            getBean(ScheduledExecutorService.class),
+                            getBean(GlobalSettings.class),
+                            getBean(MenuItemStore.class)
+                    ));
+                   \s
+                    // you can put your configurations here and this method is not replaced , example:
+                    // var myComponent = asBean(new MyOwnComponent("hello");
+                    // to later access it simple call getBean(MyOwnComponent.class) on the context.
                 }
-
-                @Bean
-                public JfxNavigationHeader navigationManager(ScheduledExecutorService executorService, GlobalSettings settings) {
-                    return new JfxNavigationHeader(executorService, settings);
-                }
-                
-                @Bean
-                public MenuAppVersion versionInfo(@Value("${build.version}") String version, @Value("${build.timestamp}") String timestamp, @Value("${build.groupId}") String groupId, @Value("${build.artifactId}") String artifact) {
-                    return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
-                }
-                
-                @Bean
-                public MenuManagerServer menuManagerServer(ScheduledExecutorService executor, UnitTestMenu menuDef, @Value("${server.name}") String serverName, @Value("${server.uuid}") String serverUUID, MenuAuthenticator authenticator, Clock clock) {
-                    return new MenuManagerServer(executor, menuDef.getMenuTree(), serverName, UUID.fromString(serverUUID), authenticator, clock);
-                }
-                
-                @Bean
+                        
+                @TcComponent
                 public LocaleMappingHandler localeHandler() {
                     return LocaleMappingHandler.NOOP_IMPLEMENTATION;
                 }
                         
-                @Bean
+                @TcComponent
                 public MenuAuthenticator menuAuthenticator() {
                     return new PreDefinedAuthenticator(true);
                 }
-                       
-                @Bean
+                        
+                @TcComponent
                 public TagValMenuCommandProtocol tagVal() {
                     return new TagValMenuCommandProtocol();
                 }
                         
-                @Bean
+                @TcComponent
                 public SocketServerConnectionManager socketClient(TagValMenuCommandProtocol protocol, ScheduledExecutorService executor, Clock clock) {
                     return new SocketServerConnectionManager(protocol, executor, 3333, clock);
                 }
-                
+                        
                 // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
             }
             """;
@@ -475,7 +450,6 @@ public class EmbeddedJavaGeneratorFileData {
                     <jserialcomm.version>2.9.2</jserialcomm.version>
                     <jfx.version>17.0.0.1</jfx.version>
                     <tcmenu.api.version>1.2.3</tcmenu.api.version>
-                    <springframework.version>6.0.11</springframework.version>
                     <timestamp>${maven.build.timestamp}</timestamp>
                 </properties>
                         
@@ -489,11 +463,6 @@ public class EmbeddedJavaGeneratorFileData {
                         <groupId>com.thecoderscorner.tcmenu</groupId>
                         <artifactId>tcMenuJavaAPI</artifactId>
                         <version>${tcmenu.api.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                        <version>${springframework.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.thecoderscorner.tcmenu</groupId>
@@ -624,13 +593,10 @@ public class EmbeddedJavaGeneratorFileData {
                 requires java.logging;
                 requires java.prefs;
                 requires java.desktop;
-                requires spring.beans;
                 requires com.google.gson;
                 requires com.fazecast.jSerialComm;
                 requires com.thecoderscorner.tcmenu.javaapi;
                 requires com.thecoderscorner.embedcontrol.core;
-                requires spring.core;
-                requires spring.context;
                 exports com.tester.tcmenu.plugins;
                 opens com.tester.tcmenu;
             }

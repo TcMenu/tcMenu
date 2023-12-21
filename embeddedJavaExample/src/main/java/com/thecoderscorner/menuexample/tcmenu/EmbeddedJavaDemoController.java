@@ -24,6 +24,14 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * This class represents the controller for the EmbeddedJavaDemoMenu. It implements the MenuManagerListener interface.
+ * The controller is responsible for creating instances of objects that are required around the application, you can
+ * get hold of these objects later using getBean, and you can add extra ones wrapping an object creation with asBean(..).
+ *
+ * Unless you delete this file it will not be recreated as you can edit it too.
+ * @see MenuManagerListener
+ */
 public class EmbeddedJavaDemoController implements MenuManagerListener {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
     private final EmbeddedJavaDemoMenu  menuDef;

@@ -7,6 +7,7 @@ import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorPresentable;
+import PACKAGE_NAME_REPLACEMENT.tcmenu.MenuConfig;
 import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -37,8 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class JfxLocalAutoUI extends Application {
-    private static final AtomicReference<ApplicationContext> GLOBAL_CONTEXT = new AtomicReference<>(null);
-    private static final int DEFAULT_INDENTATION = 8;
+    private static final AtomicReference<MenuConfig> GLOBAL_CONTEXT = new AtomicReference<>(null);
 
     private MenuManagerServer mgr;
     private JfxNavigationHeader navigationHeader;
@@ -46,7 +46,7 @@ public class JfxLocalAutoUI extends Application {
     private MenuAppVersion versionData;
     private LocalTreeComponentManager localTree;
 
-    public static void setAppContext(ApplicationContext context) {
+    public static void setAppContext(MenuConfig context) {
         GLOBAL_CONTEXT.set(context);
     }
 

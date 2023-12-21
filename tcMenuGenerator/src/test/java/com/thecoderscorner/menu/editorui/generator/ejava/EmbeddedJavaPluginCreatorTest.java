@@ -120,12 +120,12 @@ class EmbeddedJavaPluginCreatorTest {
                 public class UnitTester {
                     private final Field1Type field1;
                     private final Field3Type field3;
-                    @Bean
+                    @TcComponent
                     public Field1Type field1(SpannerType spanner) {
                         return new Field1Type(param1, param2, spanner);
                     }
                 
-                    @Bean
+                    @TcComponent
                     public Field2Type field2(SpannerType spanner) {
                         return new Field2Type(param1, param2, spanner);
                     }

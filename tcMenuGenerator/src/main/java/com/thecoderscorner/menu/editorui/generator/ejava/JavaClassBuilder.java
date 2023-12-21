@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.TWO_LINES;
-import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
+import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.METHOD_REPLACE;
 import static java.lang.System.Logger.Level;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -26,6 +26,7 @@ public class JavaClassBuilder {
     private final List<GeneratedStatement> statements = new ArrayList<>();
     private final BiConsumer<Level, String> uiLogger;
     private Optional<String> possibleInterface = Optional.empty();
+    private Optional<String> possibleExtension = Optional.empty();
     private Path location;
     private int indentation = 1;
     private Optional<String> statementBeforeClass = Optional.empty();
@@ -40,6 +41,11 @@ public class JavaClassBuilder {
 
     public JavaClassBuilder supportsInterface(String impl) {
         this.possibleInterface = Optional.ofNullable(impl);
+        return this;
+    }
+
+    public JavaClassBuilder extendsClass(String impl) {
+        this.possibleExtension = Optional.ofNullable(impl);
         return this;
     }
 
@@ -196,6 +202,7 @@ public class JavaClassBuilder {
         statementBeforeClass.ifPresent(sb::append);
 
         sb.append("public class ").append(clazzName);
+        possibleExtension.ifPresent(s -> sb.append(" extends ").append(s));
         possibleInterface.ifPresent(s -> sb.append(" implements ").append(s));
         sb.append(" {").append(LINE_BREAK);
 

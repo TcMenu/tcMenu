@@ -19,7 +19,7 @@ public class JavaCodeGeneratorCapableWrapper {
         if(capable instanceof NoAuthenticatorDefinition) {
             classBuilder.addPackageImport("com.thecoderscorner.menu.auth.*");
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
-                    .withStatement("return new PreDefinedAuthenticator(true);").withAnnotation("Bean"));
+                    .withStatement("return new PreDefinedAuthenticator(true);").withTcComponent());
         }
         else if(capable instanceof ReadOnlyAuthenticatorDefinition readAuth) {
             var authTokens = readAuth.getRemoteIds().stream()
@@ -28,13 +28,13 @@ public class JavaCodeGeneratorCapableWrapper {
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
                     .withStatement("var remoteTokens = List.of(" + String.join(", ", authTokens) + ");")
                     .withStatement("return new PreDefinedAuthenticator(\"" + readAuth.getPin() + "\", remoteTokens);")
-                    .withAnnotation("Bean"));
+                    .withTcComponent());
         }
         else if(capable instanceof EepromAuthenticatorDefinition) {
             classBuilder.addPackageImport("com.thecoderscorner.menu.auth.*");
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
                     .withParameter("@Value(\"${file.auth.storage}\") String propsPath")
-                    .withStatement("return new PropertiesAuthenticator(propsPath);").withAnnotation("Bean"));
+                    .withStatement("return new PropertiesAuthenticator(propsPath);").withTcComponent());
         }
     }
 }

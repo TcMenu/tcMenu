@@ -2,9 +2,11 @@ package com.thecoderscorner.menuexample.tcmenu.plugins;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.util.MenuAppVersion;
+import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.AuthIoTMonitorPresentable;
+import com.thecoderscorner.menu.auth.MenuAuthenticator;
 import com.thecoderscorner.menu.auth.PropertiesAuthenticator;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.ListResponse;
@@ -30,11 +32,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class JfxLocalAutoUI extends Application {
     private static final AtomicReference<MenuConfig> GLOBAL_CONTEXT = new AtomicReference<>(null);
-    private static final int DEFAULT_INDENTATION = 8;
 
     private MenuManagerServer mgr;
     private JfxNavigationHeader navigationHeader;
@@ -49,12 +51,12 @@ public class JfxLocalAutoUI extends Application {
     @Override
     public void start(Stage stage) {
         var ctx = GLOBAL_CONTEXT.get();
-        mgr = ctx.getMenuManagerServer();
-        var executor = ctx.getScheduledExecutorService();
-        versionData = ctx.getMenuAppVersion();
+        mgr = ctx.getBean(MenuManagerServer.class);
+        var executor = ctx.getBean(ScheduledExecutorService.class);
+        versionData = ctx.getBean(MenuAppVersion.class);
 
         dlgMgr = new LocalDialogManager();
-        var auth = ctx.getMenuAuthenticator();
+        var auth = ctx.getBean(MenuAuthenticator.class);
         if(auth instanceof PropertiesAuthenticator propAuth) propAuth.setDialogManager(dlgMgr);
 
         stage.setTitle(mgr.getServerName());
@@ -67,12 +69,12 @@ public class JfxLocalAutoUI extends Application {
         });
 
         var localController = new LocalMenuController();
-        navigationHeader = ctx.getNavigationHeader();
+        navigationHeader = ctx.getBean(JfxNavigationHeader.class);
         navigationHeader.initialiseUI(dlgMgr, localController, scroller);
 
         localTree = new LocalTreeComponentManager(mgr, navigationHeader);
         mgr.start();
-        navigationHeader.pushMenuNavigation(MenuTree.ROOT, ctx.getItemStore());
+        navigationHeader.pushMenuNavigation(MenuTree.ROOT, ctx.getBean(MenuItemStore.class));
 
         var dialogComponents = dlgMgr.initialiseControls();
         var border = new BorderPane();
