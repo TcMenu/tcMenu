@@ -88,8 +88,8 @@ class JavaCodeGeneratorCapableWrapperTest {
                     }
                     
                     @TcComponent
-                    public MenuAuthenticator menuAuthenticator(@Value("${file.auth.storage}") String propsPath) {
-                        return new PropertiesAuthenticator(propsPath);
+                    public MenuAuthenticator menuAuthenticator() {
+                        return new PropertiesAuthenticator(mandatoryStringProp("file.auth.storage"));
                     }
                                 
                     @TcComponent

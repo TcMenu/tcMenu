@@ -1,7 +1,7 @@
 package com.thecoderscorner.menuexample.tcmenu;
 
 import com.thecoderscorner.menu.domain.*;
-import com.thecoderscorner.menu.domain.state.*;
+import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 
 public class EmbeddedJavaDemoMenu {
@@ -176,6 +176,7 @@ tcMenuCopy:[
     "type": "runtimeList",
     "item": {
       "initialRows": 0,
+      "listCreationMode": "CUSTOM_RTCALL",
       "name": "My List Item",
       "variableName": "StatusMyListItem",
       "id": 15,

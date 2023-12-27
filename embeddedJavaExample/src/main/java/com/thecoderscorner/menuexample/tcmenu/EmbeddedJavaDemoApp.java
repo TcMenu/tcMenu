@@ -23,7 +23,7 @@ public class EmbeddedJavaDemoApp {
     private final TcJettyWebServer webServer;
     
     public EmbeddedJavaDemoApp() {
-        context = new MenuConfig(null);
+        context = new MenuConfig();
         manager = context.getBean(MenuManagerServer.class);
         webServer = context.getBean(TcJettyWebServer.class);
     }

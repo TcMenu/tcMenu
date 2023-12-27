@@ -33,8 +33,8 @@ public class JavaCodeGeneratorCapableWrapper {
         else if(capable instanceof EepromAuthenticatorDefinition) {
             classBuilder.addPackageImport("com.thecoderscorner.menu.auth.*");
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "MenuAuthenticator", "menuAuthenticator")
-                    .withParameter("@Value(\"${file.auth.storage}\") String propsPath")
-                    .withStatement("return new PropertiesAuthenticator(propsPath);").withTcComponent());
+                    .withStatement("return new PropertiesAuthenticator(mandatoryStringProp(\"file.auth.storage\"));")
+                    .withTcComponent());
         }
     }
 }

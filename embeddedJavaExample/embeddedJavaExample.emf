@@ -172,6 +172,7 @@
       "type": "runtimeList",
       "item": {
         "initialRows": 0,
+        "listCreationMode": "CUSTOM_RTCALL",
         "name": "My List Item",
         "variableName": "StatusMyListItem",
         "id": 15,
@@ -251,7 +252,6 @@
     "embeddedPlatform": "RASPBERRY_PIJ",
     "lastDisplayUuid": "59f05a22-8873-4bfe-86d4-73ef874a0283",
     "lastInputUuid": "89cd7f70-0457-4884-97c2-0db904ccb0ba",
-    "lastRemoteUuid": "36f98a10-7ffc-468c-8b6b-3961b5c87cbe",
     "lastRemoteUuids": [
       "36f98a10-7ffc-468c-8b6b-3961b5c87cbe"
     ],
@@ -281,8 +281,8 @@
       }
     ],
     "namingRecursive": true,
-    "saveToSrc": false,
     "useCppMain": false,
+    "saveLocation": "ALL_TO_CURRENT",
     "usingSizedEEPROMStorage": false,
     "eepromDefinition": "",
     "authenticatorDefinition": "rom:2:6",
@@ -304,6 +304,8 @@
       ]
     },
     "packageNamespace": "com.thecoderscorner.menuexample",
-    "appIsModular": true
-  }
+    "appIsModular": true,
+    "listOfEmbeddedForms": []
+  },
+  "stringLists": []
 }

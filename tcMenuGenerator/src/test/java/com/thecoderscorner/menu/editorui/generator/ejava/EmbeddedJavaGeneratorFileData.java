@@ -74,11 +74,11 @@ public class EmbeddedJavaGeneratorFileData {
              */
             public class UnitTestApp {
                 private final MenuManagerServer manager;
-                private final ApplicationContext context;
+                private final MenuConfig context;
                 private final TagValMenuCommandProtocol tagVal;
                \s
                 public UnitTestApp() {
-                    context = new MenuConfig(null);
+                    context = new MenuConfig();
                     manager = context.getBean(MenuManagerServer.class);
                     tagVal = context.getBean(TagValMenuCommandProtocol.class);
                 }
@@ -117,11 +117,11 @@ public class EmbeddedJavaGeneratorFileData {
              */
             public class UnitTestApp {
                 private final MenuManagerServer manager;
-                private final ApplicationContext context;
+                private final MenuConfig context;
                 private final TagValMenuCommandProtocol tagVal;
                \s
                 public UnitTestApp() {
-                    context = new MenuConfig(null);
+                    context = new MenuConfig();
                     manager = context.getBean(MenuManagerServer.class);
                     tagVal = context.getBean(TagValMenuCommandProtocol.class);
                 }
@@ -181,39 +181,62 @@ public class EmbeddedJavaGeneratorFileData {
             public class MenuConfig extends BaseMenuConfig {
                 public MenuConfig() {
                     // Do not change this constructor, it is replaced with each build, put your objects in appCustomConfiguration
-                    super(env);
+                    super(null, null);
                     Clock clock = asBean(Clock.systemUTC());
                     var executorService = asBean(Executors.newScheduledThreadPool(propAsIntWithDefault("threading.pool.size", 4)));
-                    var menuDef = asBean(new EmbeddedJavaDemoMenu());
+                    var menuDef = asBean(new UnitTestMenu());
                     asBean(new PropertiesMenuStateSerialiser(menuDef.getMenuTree(), Path.of(resolvedProperties.getProperty("file.menu.storage")).resolve("menuStorage.properties")));
-                    var settings = asBean(new GlobalSettings(new ApplicationThemeManager()));
-                    // load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store
-                    // these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.
-                    settings.setDefaultFontSize(16);
-                    settings.setDefaultRecursiveRendering(false);
-                    asBean(new JfxNavigationHeader(executorService, settings));
-                    asBean(new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering()));
-                    var protocol =  asBean(new ConfigurableProtocolConverter(true));
-                    asBean(new TcJettyWebServer(protocol, clock, "./data/www", 8080, false));
-                    var authenticator = asBean(new PropertiesAuthenticator(mandatoryStringProp("file.auth.storage")));
-                    asBean(new MenuManagerServer(executorService, menuDef.getMenuTree(), mandatoryStringProp("server.name"), UUID.fromString(mandatoryStringProp("server.uuid")), authenticator, clock));
-                    asBean(new SocketServerConnectionManager(protocol, executorService, 3333, clock));
-                    asBean(createVersionInfo());
-                    appCustomConfiguration();
+                    scanForComponents();
                 }
                         
-                public void appCustomConfiguration() {
-                    asBean(new EmbeddedJavaDemoController(
+                @TcComponent
+                public JfxNavigationHeader navMgr(ScheduledExecutorService executorService, GlobalSettings settings) {
+                    return new JfxNavigationHeader(executorService, settings);
+                }
+                        
+                @TcComponent
+                public ConfigurableProtocolConverter protocol() {
+                    return new ConfigurableProtocolConverter(true);
+                }
+                        
+                @TcComponent
+                public MenuManagerServer menuManagerServer(Clock clock, UnitTestMenu menuDef, ScheduledExecutorService executorService, MenuAuthenticator authenticator) {
+                    return new MenuManagerServer(executorService, menuDef.getMenuTree(), mandatoryStringProp("server.name"), UUID.fromString(mandatoryStringProp("server.uuid")), authenticator, clock);
+                }
+                        
+                @TcComponent
+                public UnitTestController menuController() {
+                    return new EmbeddedJavaDemoController(
                             getBean(EmbeddedJavaDemoMenu.class),
                             getBean(JfxNavigationManager.class),
                             getBean(ScheduledExecutorService.class),
                             getBean(GlobalSettings.class),
                             getBean(MenuItemStore.class)
-                    ));
-                   \s
-                    // you can put your configurations here and this method is not replaced , example:
-                    // var myComponent = asBean(new MyOwnComponent("hello");
-                    // to later access it simple call getBean(MyOwnComponent.class) on the context.
+                    );
+                }
+                        
+                @TcComponent
+                public MenuItemStore itemStore(GlobalSettings settings, UnitTestMenu menuDef) {
+                    return new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering());
+                }
+                        
+                @TcComponent
+                public GlobalSettings globalSettings() {
+                    var settings = new GlobalSettings(new ApplicationThemeManager());
+                    // load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store
+                    // these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.
+                    settings.setDefaultFontSize(16);
+                    settings.setDefaultRecursiveRendering(false);
+                    return settings;
+                }
+                        
+                @TcComponent
+                public MenuAppVersion versionInfo() {
+                    var version = mandatoryStringProp("build.version");
+                    var timestamp = mandatoryStringProp("build.timestamp");
+                    var groupId = mandatoryStringProp("build.groupId");
+                    var artifact = mandatoryStringProp("build.artifactId");
+                    return new MenuAppVersion(new VersionInfo(version), timestamp, groupId, artifact);
                 }
                         
                 @TcComponent
