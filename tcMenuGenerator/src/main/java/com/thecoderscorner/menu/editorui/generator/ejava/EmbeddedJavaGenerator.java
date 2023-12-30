@@ -19,6 +19,7 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -93,7 +94,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                     options.getSaveLocation(), previousPluginFiles);
 
             if(handler.isLocalSupportEnabled()) {
-                copyLocaleDataIntoProject();
+                copyLocaleDataIntoProject(javaProject);
             }
 
             logLine(INFO, "Checking if all dependencies are in the maven POM");
@@ -110,8 +111,10 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         return false;
     }
 
-    private void copyLocaleDataIntoProject() {
-
+    private void copyLocaleDataIntoProject(EmbeddedJavaProject javaProject) throws IOException {
+        loggerDelegate.accept(INFO, "Copying resource bundles to data/i18n directory");
+        Files.copy(javaProject.getProjectRoot().resolve("i18n"), javaProject.getProjectRoot().resolve("data"),
+                StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private void createJavaModuleFile(CodeGeneratorOptions options, EmbeddedJavaProject javaProject) throws IOException {
@@ -238,7 +241,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         if(handler.isLocalSupportEnabled()) {
             builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
                     .withTcComponent()
-                    .withStatement("return new ResourceBundleMappingHandler(ResourceBundle.getBundle(\"i18n." + MENU_PROJECT_LANG_FILENAME+ "\"));"));
+                    .withStatement("return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(\"./data/i18n/" + MENU_PROJECT_LANG_FILENAME+ "\"));"));
         } else {
             builder.addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "LocaleMappingHandler", "localeHandler")
                     .withTcComponent().withStatement("return LocaleMappingHandler.NOOP_IMPLEMENTATION;"));
