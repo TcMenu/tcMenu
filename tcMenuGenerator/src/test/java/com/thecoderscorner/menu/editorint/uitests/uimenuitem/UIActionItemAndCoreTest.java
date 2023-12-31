@@ -208,12 +208,16 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
     }
 
     @Override
-    protected LocaleMappingHandler getTestLocaleHandler() throws IOException {
-        var coreFile = tempPath.resolve("temp.properties");
-        Files.writeString(coreFile, """
-                menu.item.name=hello world
-                """);
+    protected LocaleMappingHandler getTestLocaleHandler() {
+        try {
+            var coreFile = tempPath.resolve("temp.properties");
+            Files.writeString(coreFile, """
+                    menu.item.name=hello world
+                    """);
+            return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(tempPath, "temp"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(tempPath, "temp"));
     }
 }

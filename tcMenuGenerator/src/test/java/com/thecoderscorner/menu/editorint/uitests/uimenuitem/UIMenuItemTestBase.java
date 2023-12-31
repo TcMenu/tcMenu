@@ -33,7 +33,6 @@ import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -129,7 +128,7 @@ public abstract class UIMenuItemTestBase {
         if(!latch.await(2000, TimeUnit.MILLISECONDS)) throw new IllegalStateException("panel timeout");
     }
 
-    protected LocaleMappingHandler getTestLocaleHandler() throws IOException {
+    protected LocaleMappingHandler getTestLocaleHandler() {
         return LocaleMappingHandler.NOOP_IMPLEMENTATION;
     }
 }
