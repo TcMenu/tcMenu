@@ -12,6 +12,9 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.UIAnalogMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +27,12 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -32,15 +41,21 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 @ExtendWith(ApplicationExtension.class)
 public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
+    private Path tempPath;
 
     @Start
-    public void setup(Stage stage) {
+    public void setup(Stage stage) throws IOException {
+        tempPath = Files.createTempDirectory("i18ntest");
         init(stage);
     }
 
     @AfterEach
-    protected void closeWindow() {
+    protected void closeWindow() throws IOException {
         Platform.runLater(() -> stage.close());
+        Files.walk(tempPath)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
     @Test
@@ -63,6 +78,9 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
         tryToEnterBadValueIntoField(robot, "unitNameField", "nameField", "too long",
                 "WARNING Unit name: default storage on device is 4 characters");
+
+        tryToEnterBadValueIntoField(robot, "unitNameField", "nameField", "%unknown",
+                "WARNING Unit name: no locale entry in bundle");
 
         tryToEnterBadValueIntoField(robot, "divisorField", "nameField", "100000",
                 "ERROR Divisor: Value must be between 0 and 10000");
@@ -126,7 +144,11 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         writeIntoField(robot, "unitNameField", "dB");
         writeIntoField(robot, "divisorField", "2");
 
-        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value -40.0dB."));
+        writeIntoField(robot, "unitNameField", "%menu.item.unit");
+
+        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0VA. Max value -40.0VA."));
+
+        writeIntoField(robot, "unitNameField", "dB", 20);
 
         writeIntoField(robot, "maxValueField", "255");
         verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: -90.0dB. Max value 37.5dB."));
@@ -177,6 +199,20 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
         assertEquals(10000, item.getDivisor());
         assertEquals("", item.getUnitName());
         assertEquals(99, MenuItemHelper.getValueFor(item, menuTree, -1));
+    }
+
+    @Override
+    protected LocaleMappingHandler getTestLocaleHandler() {
+        try {
+            var coreFile = tempPath.resolve("temp.properties");
+            Files.writeString(coreFile, """
+                    menu.item.name=hello world
+                    menu.item.unit=VA
+                    """);
+            return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(tempPath, "temp"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

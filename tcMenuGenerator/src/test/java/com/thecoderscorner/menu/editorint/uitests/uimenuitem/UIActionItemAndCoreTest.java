@@ -225,6 +225,5 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

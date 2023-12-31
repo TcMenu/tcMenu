@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TcMenuDesigner Single Test" type="JUnit" factoryName="JUnit">
+    <module name="menuEditorUI" />
+    <useClassPathOnly />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.thecoderscorner.menu.editorui.storage.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="ALTERNATIVE_JRE_PATH" value="liberica-20" />
+    <option name="PACKAGE_NAME" value="com.thecoderscorner.menu.editorint.uitests.uimenuitem" />
+    <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorint.uitests.uimenuitem.UIAnalogMenuItemTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-ea --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -92,6 +92,10 @@ public abstract class UIMenuItemTestBase {
         TestUtils.writeIntoField(robot, "#" + idField, value, 12);
     }
 
+    protected void writeIntoField(FxRobot robot, String idField, Object value, int amountToErase) {
+        TestUtils.writeIntoField(robot, "#" + idField, value, amountToErase);
+    }
+
     protected void verifyThatThereAreNoErrorsReported() {
         verifyThat("#uiItemErrors", node -> !node.isVisible());
     }
