@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -120,11 +121,15 @@ public abstract class UIMenuItemTestBase {
         Platform.runLater(() -> {
             BorderPane borderLayout = new BorderPane();
             borderLayout.setMinSize(500, 500);
-            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree, LocaleMappingHandler.NOOP_IMPLEMENTATION));
+            borderLayout.centerProperty().set(uiSubItem.get().initPanel(menuTree, getTestLocaleHandler()));
             dialogPane.getChildren().add(borderLayout);
             stage.show();
             latch.countDown();
         });
         if(!latch.await(2000, TimeUnit.MILLISECONDS)) throw new IllegalStateException("panel timeout");
+    }
+
+    protected LocaleMappingHandler getTestLocaleHandler() throws IOException {
+        return LocaleMappingHandler.NOOP_IMPLEMENTATION;
     }
 }

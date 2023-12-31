@@ -12,6 +12,9 @@ import com.thecoderscorner.menu.domain.Rgb32MenuItem;
 import com.thecoderscorner.menu.domain.Rgb32MenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -24,6 +27,11 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,13 +44,21 @@ import static org.testfx.api.FxAssert.verifyThat;
 @ExtendWith(ApplicationExtension.class)
 public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
+    private Path tempPath;
+
     @Start
-    public void setup(Stage stage) {
+    public void setup(Stage stage) throws IOException {
+        tempPath = Files.createTempDirectory("i18ntest");
         init(stage);
     }
 
     @AfterEach
-    protected void closeWindow() {
+    protected void closeWindow() throws Exception {
+        Files.walk(tempPath)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+
         Platform.runLater(() -> stage.close());
     }
 
@@ -189,5 +205,15 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         verify(mockedConsumer, atLeastOnce()).accept(eq(captor.getValue()), captor.capture());
         assertTrue(captor.getValue().isReadOnly());
         assertTrue(captor.getValue().isLocalOnly());
+    }
+
+    @Override
+    protected LocaleMappingHandler getTestLocaleHandler() throws IOException {
+        var coreFile = tempPath.resolve("temp.properties");
+        Files.writeString(coreFile, """
+                menu.item.name=hello world
+                """);
+
+        return new PropertiesLocaleEnabledHandler(new SafeBundleLoader(tempPath, "temp"));
     }
 }

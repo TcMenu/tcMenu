@@ -3,6 +3,10 @@ package com.thecoderscorner.embedcontrol.core.controlmgr.color;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import javafx.scene.paint.Color;
 
+import java.util.Map;
+
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.*;
+
 /**
  * This represents a color for a control, it has a background and a foreground in portable color format. Portable color
  * is an API level construct that is not tied to any implementation.
@@ -23,6 +27,26 @@ public class ControlColor {
     public static final PortableColor CORNFLOWER_BLUE = new PortableColor(100, 149, 237);
     public static final PortableColor BLUE = new PortableColor(0, 0, 255);
     public static final PortableColor GREEN = new PortableColor(0, 255, 0);
+
+    public final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_LIGHT_COLORS = Map.ofEntries(
+            Map.entry(CUSTOM, new ControlColor("#000000", "#0A81F7")),
+            Map.entry(TEXT_FIELD, new ControlColor(BLACK, WHITE)),
+            Map.entry(HIGHLIGHT, new ControlColor("#000000", "#0A81F7")),
+            Map.entry(BUTTON, new ControlColor(WHITE, DARK_SLATE_BLUE)),
+            Map.entry(DIALOG, new ControlColor(WHITE, DARK_BLUE)),
+            Map.entry(ERROR, new ControlColor(WHITE, RED)),
+            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, GREY))
+    );
+
+    public final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_DARK_COLORS = Map.ofEntries(
+            Map.entry(CUSTOM, new ControlColor("#FEFFFF", "#2D1E8C")),
+            Map.entry(TEXT_FIELD, new ControlColor("#FEFFFF", "#000")),
+            Map.entry(HIGHLIGHT, new ControlColor("#FEFFFF", "#9D5BBA")),
+            Map.entry(BUTTON, new ControlColor("#FEFFFF", "#33084A")),
+            Map.entry(DIALOG, new ControlColor("#FEFFFF", "#214F82")),
+            Map.entry(ERROR, new ControlColor("#FEFFFF", "#A80B0D")),
+            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, DARK_GREY))
+    );
 
     private PortableColor fg;
     private PortableColor bg;

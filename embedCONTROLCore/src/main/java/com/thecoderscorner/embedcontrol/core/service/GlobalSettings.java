@@ -17,25 +17,6 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColo
  * font sizes, control colors, and other setup values.
  */
 public class GlobalSettings {
-
-    final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_LIGHT_COLORS = Map.ofEntries(
-            Map.entry(CUSTOM, new ControlColor("#000000", "#0A81F7")),
-            Map.entry(TEXT_FIELD, new ControlColor(BLACK, WHITE)),
-            Map.entry(HIGHLIGHT, new ControlColor("#000000", "#0A81F7")),
-            Map.entry(BUTTON, new ControlColor(WHITE, DARK_SLATE_BLUE)),
-            Map.entry(DIALOG, new ControlColor(WHITE, DARK_BLUE)),
-            Map.entry(ERROR, new ControlColor(WHITE, RED)),
-            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, GREY))
-    );
-    final static Map<ConditionalColoring.ColorComponentType, ControlColor> DEFAULT_DARK_COLORS = Map.ofEntries(
-            Map.entry(CUSTOM, new ControlColor("#FEFFFF", "#2D1E8C")),
-            Map.entry(TEXT_FIELD, new ControlColor("#FEFFFF", "#000")),
-            Map.entry(HIGHLIGHT, new ControlColor("#FEFFFF", "#9D5BBA")),
-            Map.entry(BUTTON, new ControlColor("#FEFFFF", "#33084A")),
-            Map.entry(DIALOG, new ControlColor("#FEFFFF", "#214F82")),
-            Map.entry(ERROR, new ControlColor("#FEFFFF", "#A80B0D")),
-            Map.entry(PENDING, new ControlColor(LIGHT_GRAY, DARK_GREY))
-    );
     private static int globalFontSize = 14;
 
     private ControlColor updateColor;
