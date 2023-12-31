@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode;
 
@@ -60,6 +61,15 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
             errors.add(new FieldError(bundle.getString("menu.editor.enum.fmt.error"), "Choices"));
         }
 
+        if(creationModeCombo.getValue() != ListCreationMode.CUSTOM_RTCALL && localHandler.isLocalSupportEnabled()) {
+            var itemsNotInResources = listView.getItems().stream()
+                    .filter(item -> item.startsWith("%") && !item.startsWith("%%") && item.length() > 1)
+                    .filter(item -> localHandler.getLocalSpecificEntry(item.substring(1)) == null)
+                    .collect(Collectors.joining(", "));
+            errors.add(new FieldError(bundle.getString("menu.editor.core.locale.missing") + " " +  itemsNotInResources,
+                    "List values", false));
+        }
+
         builder.withInitialRows(initialRowsSpinner.getValue());
         builder.withCreationMode(creationModeCombo.getValue());
         var item = builder.menuItem();
@@ -70,6 +80,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
     protected int internalInitPanel(GridPane pane, int idx) {
         idx++;
         initialRowsSpinner = new Spinner<>(0, 255, getMenuItem().getInitialRows());
+        initialRowsSpinner.setId("initialRowsSpinner");
         initialRowsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> callChangeConsumer());
         pane.add(new Label(bundle.getString("menu.editor.initial.rows")), 0, idx);
         pane.add(initialRowsSpinner, 1, idx);
@@ -109,9 +120,5 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
         if(isConst) {
             buttonsToAddRemove.removeButton().setDisable(listView.getSelectionModel().getSelectedIndex() == -1);
         } else buttonsToAddRemove.removeButton().setDisable(true);
-    }
-
-    protected String getEnumEntryKey(int i) {
-        return String.format("menu.%d.list.%d", getMenuItem().getId(), i);
     }
 }
