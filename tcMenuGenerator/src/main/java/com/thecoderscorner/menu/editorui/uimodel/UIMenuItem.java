@@ -644,5 +644,15 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
     }
 
+    protected void checkListValuesAreInResources(ObservableList<String> items, List<FieldError> errors) {
+        var itemsNotInResources = items.stream()
+                .filter(item -> item.startsWith("%") && !item.startsWith("%%") && item.length() > 1)
+                .filter(item -> localHandler.getLocalSpecificEntry(item.substring(1)) == null)
+                .collect(Collectors.joining(", "));
+        errors.add(new FieldError(bundle.getString("menu.editor.core.locale.missing") + " " +  itemsNotInResources,
+                "List values", false));
+    }
+
+
     public record ControlButtons(Button addButton, Button removeButton) { }
 }

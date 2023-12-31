@@ -45,6 +45,10 @@ public class UIEnumMenuItem extends UIMenuItem<EnumMenuItem> {
             errors.add(new FieldError(bundle.getString("menu.editor.enum.fmt.error"), "Choices"));
         }
 
+        if(localHandler.isLocalSupportEnabled()) {
+            checkListValuesAreInResources(listView.getItems(), errors);
+        }
+
         EnumMenuItemBuilder builder = EnumMenuItemBuilder.anEnumMenuItemBuilder().withExisting(getMenuItem());
         builder.withEnumList(items);
         getChangedDefaults(builder, errors);

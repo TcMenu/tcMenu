@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode;
 
@@ -62,12 +61,7 @@ public class UIRuntimeListMenuItem extends UIMenuItem<RuntimeListMenuItem> {
         }
 
         if(creationModeCombo.getValue() != ListCreationMode.CUSTOM_RTCALL && localHandler.isLocalSupportEnabled()) {
-            var itemsNotInResources = listView.getItems().stream()
-                    .filter(item -> item.startsWith("%") && !item.startsWith("%%") && item.length() > 1)
-                    .filter(item -> localHandler.getLocalSpecificEntry(item.substring(1)) == null)
-                    .collect(Collectors.joining(", "));
-            errors.add(new FieldError(bundle.getString("menu.editor.core.locale.missing") + " " +  itemsNotInResources,
-                    "List values", false));
+            checkListValuesAreInResources(listView.getItems(), errors);
         }
 
         builder.withInitialRows(initialRowsSpinner.getValue());
