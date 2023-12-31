@@ -25,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.io.File;
@@ -82,12 +83,15 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
         writeIntoFunctionFieldAndVerifyOK(robot, "öôóòLatin");
         writeIntoFunctionFieldAndVerifyOK(robot, "onChange");
 
+        writeIntoField(robot, "nameField", "%menu.item.name");
+        verifyThat("#nameTranslation", LabeledMatchers.hasText("hello world"));
+
         verifyThatThereAreNoErrorsReported();
 
         ArgumentCaptor<MenuItem> captor = ArgumentCaptor.forClass(MenuItem.class);
         verify(mockedConsumer, atLeastOnce()).accept(isA(ActionMenuItem.class), captor.capture());
         assertEquals(-1, captor.getValue().getEepromAddress());
-        assertEquals("One Shot", captor.getValue().getName());
+        assertEquals("%menu.item.name", captor.getValue().getName());
         assertEquals("onChange", captor.getValue().getFunctionName());
     }
 
@@ -162,6 +166,9 @@ public class UIActionItemAndCoreTest extends UIMenuItemTestBase {
 
         tryToEnterBadValueIntoField(robot, "nameField", "variableField", "",
                 "Name: field must be populated");
+
+        tryToEnterBadValueIntoField(robot, "nameField", "variableField", "%unknown",
+                "WARNING Name: no locale entry in bundle");
 
         tryToEnterBadValueIntoField(robot, "functionNameTextField", "variableField", "name spaces",
                 "Field must use only letters, digits, and '_'");

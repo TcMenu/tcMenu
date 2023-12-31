@@ -146,6 +146,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         nameField.setId("nameField");
         nameField.setTooltip(new Tooltip("The name of the menu item as shown on the device and sent remotely"));
         nameTranslation = new Label(localHandler.getFromLocaleWithDefault(nameField.getText(), nameField.getText()));
+        nameTranslation.setId("nameTranslation");
         if(localHandler.isLocalSupportEnabled()) {
             grid.add(nameField, 1, idx);
             grid.add(nameTranslation, 2, idx);
