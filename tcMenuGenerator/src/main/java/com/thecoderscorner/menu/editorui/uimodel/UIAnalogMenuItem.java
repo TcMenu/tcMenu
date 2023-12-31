@@ -46,7 +46,6 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
     private TextField stepField;
     private TextField divisorField;
     private TextField unitNameField;
-    private Label unitNameTranslation;
     private Label minMaxLabel;
     private ComboBox<AnalogCannedChoice> cannedChoicesCombo;
     private TextField defaultValueField;
@@ -162,13 +161,7 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
         unitNameField = new TextField(getMenuItem().getUnitName());
         unitNameField.setId("unitNameField");
         unitNameField.textProperty().addListener(this::analogValueChanged);
-        unitNameTranslation = new Label(localHandler.getFromLocaleWithDefault(unitNameField.getText(), unitNameField.getText()));
-        if(localHandler.isLocalSupportEnabled()) {
-            grid.add(unitNameField, 1, idx);
-            grid.add(unitNameTranslation, 2, idx);
-        } else {
-            grid.add(unitNameField, 1, idx, 2, 1);
-        }
+        grid.add(unitNameField, 1, idx, 2, 1);
 
         idx++;
         grid.add(new Label(bundle.getString("menu.editor.default.value")), 0, idx);
@@ -188,7 +181,6 @@ public class UIAnalogMenuItem extends UIMenuItem<AnalogMenuItem> {
 
     protected void analogValueChanged(Observable observable, String oldVal, String newVal) {
         coreValueChanged(observable, oldVal, newVal);
-        unitNameTranslation.setText(localHandler.getFromLocaleWithDefault(unitNameField.getText(), unitNameField.getText()));
         populateMinMaxLabel();
     }
 
