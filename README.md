@@ -146,12 +146,6 @@ This desktop UI can be easily built from the source here using the instructions 
 
 [https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
 
-### Xamarin Forms based UI written in C#
-
-This UI can be easily built from the source using the instructions provided, it is not yet packaged but provided but more of a starting point for a mobile or desktop UI. This offering builds on top of Xamarin and C#, it has an automated UI by default and for a simple UI may need little coding.
-
-Repo: https://github.com/davetcc/tcMenuController
-
 ### Java / JVM API
 
 There is a java API for accessing the menu remotely, source includes JavaDoc to help getting started. There is an example JavaFX UI built with it within the above Repo. Include the following into your maven build file:
