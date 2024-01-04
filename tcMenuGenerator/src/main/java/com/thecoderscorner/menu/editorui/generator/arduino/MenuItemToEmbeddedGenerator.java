@@ -18,8 +18,7 @@ import java.util.*;
 
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.RUNTIME_FUNCTION_SUFIX;
-import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.isFromResourceBundle;
-import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.removePossibleBundleEscape;
+import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.*;
 
 /**
  * This class follows the visitor pattern to generate code for each item
@@ -74,7 +73,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public static String getUnitName(AnalogMenuItem item, LocaleMappingHandler handler) {
         String unitName = item.getUnitName();
         if(unitName != null && handler.isLocalSupportEnabled() && isFromResourceBundle(unitName) && unitName.length() > 1) {
-            return String.format("TC_I18N_MENU_%d_UNIT", item.getId());
+            return "TC_I18N" + toUpperWithUnderscores(item.getUnitName());
         } else {
             return "\"" + removePossibleBundleEscape(unitName) + "\""; // as before;
         }
@@ -82,7 +81,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
 
     public static String getItemName(MenuItem item, LocaleMappingHandler handler) {
         if(handler.isLocalSupportEnabled() && isFromResourceBundle(item.getName())) {
-            return String.format("TC_I18N_MENU_%d_NAME", item.getId());
+            return "TC_I18N" + toUpperWithUnderscores(item.getName());
         } else {
             return "\"" + removePossibleBundleEscape(item.getName()) + "\""; // as before
         }
@@ -317,10 +316,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public void visit(EnumMenuItem item) {
         List<String> enumEntries = item.getEnumEntries();
         boolean quotesNeeded = true;
-        if(handler.isLocalSupportEnabled() && !enumEntries.isEmpty() && isFromResourceBundle(enumEntries.get(0))) {
+        if(handler.isLocalSupportEnabled()) {
             var tempList = new ArrayList<String>(enumEntries.size()+1);
-            for(int i=0;i<enumEntries.size();i++) {
-                tempList.add(String.format("TC_I18N_MENU_%d_ENUM_%d", item.getId(), i));
+            for(var en : enumEntries) {
+                if(isFromResourceBundle(en)) {
+                    tempList.add("TC_I18N" + toUpperWithUnderscores(en));
+                } else {
+                    tempList.add("\"" + en + "\"");
+                }
             }
             quotesNeeded = false;
             enumEntries = tempList;
@@ -377,10 +380,14 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             List<String> list = MenuItemHelper.getValueFor(listItem, tree, List.of());
             boolean quotesNeeded = true;
             List<String> enumEntries;
-            if(handler.isLocalSupportEnabled() && !list.isEmpty() && isFromResourceBundle(list.get(0))) {
+            if(handler.isLocalSupportEnabled()) {
                 var tempList = new ArrayList<String>(list.size()+1);
-                for(int i=0;i<list.size();i++) {
-                    tempList.add(String.format("TC_I18N_MENU_%d_LIST_%d", listItem.getId(), i));
+                for(var it : list) {
+                    if(isFromResourceBundle(it)) {
+                        tempList.add("TC_I18N" + toUpperWithUnderscores(it));
+                    } else {
+                        tempList.add("\"" + it + "\"");
+                    }
                 }
                 quotesNeeded = false;
                 enumEntries = tempList;

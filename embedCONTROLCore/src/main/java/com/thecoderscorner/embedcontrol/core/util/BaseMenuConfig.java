@@ -168,7 +168,6 @@ public class BaseMenuConfig {
      * interface provided. If no compatible class is found, an exception is thrown.
      *
      * @param clazz the class to retrieve an instance of
-     * @param <T>   the generic type of the class, the function is T <= class T
      * @return an instance of the specified class
      * @throws NoSuchElementException if no compatible class is found in the component map
      */

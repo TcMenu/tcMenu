@@ -618,12 +618,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     }
 
     public static boolean isFromResourceBundle(String val) {
-        return val.startsWith("%");
+        return val.startsWith("%") && !val.startsWith("%%");
     }
 
     public static String removePossibleBundleEscape(String val) {
         if(val == null) return null;
-        return (val.startsWith("\\%")) ? val.substring(1) : val;
+        return (val.startsWith("%%")) ? val.substring(1) : val;
     }
 
     private boolean requiresGlobalServerDefinition() {
@@ -635,6 +635,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             logger.log(ERROR, "Cannot determine tcMenu library version, assume > 2.2.0");
             return true;
         }
+    }
+
+    public static String toUpperWithUnderscores(String in) {
+        var splits = in.split("\\W+");
+        return Arrays.stream(splits).map(String::toUpperCase)
+                .collect(Collectors.joining("_"));
     }
 
     protected void generateHeaders(List<CodePluginItem> embeddedCreators,
