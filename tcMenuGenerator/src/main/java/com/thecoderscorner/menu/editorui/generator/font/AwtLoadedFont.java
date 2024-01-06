@@ -3,7 +3,7 @@ package com.thecoderscorner.menu.editorui.generator.font;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.lang.System.Logger.Level;
 import java.util.*;
@@ -106,7 +106,7 @@ public class AwtLoadedFont implements LoadedFont {
                     return;
                 }
                 int sizeBmp = font.getSize() * 2;
-                var offScreenImg = new BufferedImage(sizeBmp, sizeBmp, BufferedImage.TYPE_INT_RGB);
+                var offScreenImg = new BufferedImage(sizeBmp, sizeBmp, BufferedImage.TYPE_BYTE_BINARY);
                 var strCode = new String(Character.toChars(code));
                 Graphics2D g = (Graphics2D) offScreenImg.getGraphics();
                 g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, fromAntiAliasMode(antiAliasMode));
@@ -116,7 +116,7 @@ public class AwtLoadedFont implements LoadedFont {
                 var lm = fontMetrics.getLineMetrics(strCode, g);
                 var width = fontMetrics.stringWidth(strCode);
                 g.drawString(strCode, 0, (int) lm.getAscent());
-                var data = ((DataBufferInt) offScreenImg.getRaster().getDataBuffer()).getData();
+                var data = ((DataBufferByte) offScreenImg.getRaster().getDataBuffer()).getData();
 
                 var dims = getFontDimensions(data, sizeBmp, Math.round(lm.getAscent()));
                 if (width == 0) {
@@ -125,9 +125,10 @@ public class AwtLoadedFont implements LoadedFont {
                 } else {
                     FontBitPacker bitSet = new FontBitPacker(dims.widthHeight());
                     int theBit = 0;
+                    int perLine = (sizeBmp + 7) / 8;
                     for (int y = dims.startY(); y < dims.lastY(); y++) {
                         for (int x = dims.startX(); x < dims.lastX(); x++) {
-                            int rgb = data[(y * sizeBmp) + x];
+                            int rgb = (data[(y * perLine) + (x / 8)] >> (7-(x % 8))) & 1;
                             bitSet.pushBit(rgb != 0);
                             theBit = theBit + 1;
                         }
@@ -154,18 +155,19 @@ public class AwtLoadedFont implements LoadedFont {
         };
     }
 
-    private static FontDimensionInformation getFontDimensions(int[] data, int sizeBmp, int baseline) {
+    private static FontDimensionInformation getFontDimensions(byte[] data, int sizeBmp, int baseline) {
         int firstYLocation = -1;
         int lastYLocation = 1;
         int firstXLocation = -1;
         int lastXLocation = 1;
+        int perLine = (sizeBmp + 7) / 8;
         for (int y = 0; y < sizeBmp; y++) {
             boolean lineHadData = false;
             int xStartThisGo = -1;
             int xEndThisGo = -1;
             for (int x = 0; x < sizeBmp; x++) {
-                int locSrc = (y * sizeBmp) + x;
-                if (firstYLocation == -1 && data[locSrc] != 0) {
+                int locSrc = (y * perLine) + (x / 8);
+                if (firstYLocation == -1 && (data[locSrc] >> (7-(x % 8)) & 1) != 0) {
                     firstYLocation = y;
                 }
                 lineHadData = lineHadData || data[locSrc] != 0;

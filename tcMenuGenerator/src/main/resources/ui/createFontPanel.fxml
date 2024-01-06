@@ -9,7 +9,7 @@
         <ColumnConstraints hgrow="SOMETIMES"/>
         <ColumnConstraints hgrow="SOMETIMES"/>
         <ColumnConstraints hgrow="SOMETIMES"/>
-        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="NEVER"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints vgrow="NEVER"/>

@@ -143,8 +143,12 @@ public class CreateFontUtilityController {
                     var glyph = maybeGlyph.get();
                     Image img = fromGlyphToImg(glyph);
                     var toggleButton = new ToggleButton("U" + glyph.code());
-                    toggleButton.setGraphic(new ImageView(img));
+                    ImageView fontImg = new ImageView(img);
+                    fontImg.fitHeightProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
+                    fontImg.fitWidthProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
+                    toggleButton.setGraphic(fontImg);
                     toggleButton.setContentDisplay(ContentDisplay.TOP);
+                    toggleButton.setTooltip(new Tooltip(String.format("W=%d, H=%d", glyph.calculatedWidth(), glyph.toBaseLine() + glyph.belowBaseline())));
                     var selected = currentlySelected.get(glyph.code());
                     toggleButton.setSelected(selected != null && selected);
                     toggleButton.setOnAction(event -> {
