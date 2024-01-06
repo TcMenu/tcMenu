@@ -142,7 +142,7 @@ public class CreateFontUtilityController {
                 if (maybeGlyph.isPresent()) {
                     var glyph = maybeGlyph.get();
                     Image img = fromGlyphToImg(glyph);
-                    var toggleButton = new ToggleButton("U" + glyph.code());
+                    var toggleButton = new ToggleButton("U" + glyph.code() + " : " + new String(Character.toChars(glyph.code())));
                     ImageView fontImg = new ImageView(img);
                     fontImg.fitHeightProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
                     fontImg.fitWidthProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
