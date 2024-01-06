@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeGeneratorCapable;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 
 import java.io.FileOutputStream;
@@ -53,10 +54,12 @@ public class EmbeddedJavaProject {
     private final Path data;
     private final CodeGeneratorOptions codeOptions;
     private final ConfigurationStorage configStorage;
+    private final LocaleMappingHandler handler;
     private final BiConsumer<System.Logger.Level, String> uiLogger;
 
     public EmbeddedJavaProject(Path directory, CodeGeneratorOptions options, ConfigurationStorage storage,
-                               BiConsumer<System.Logger.Level, String> uiLogger) {
+                               LocaleMappingHandler handler, BiConsumer<System.Logger.Level, String> uiLogger) {
+        this.handler = handler;
         this.uiLogger = uiLogger;
         configStorage = storage;
         root = directory;
@@ -134,9 +137,21 @@ public class EmbeddedJavaProject {
     }
 
     public String getAppClassName(String postfix) {
-        var className = codeOptions.getApplicationName();
+        var className = ensureLocalized(codeOptions.getApplicationName());
         Collection<String> parts = Arrays.asList(className.split("[\\s]+"));
-        return parts.stream().map(StringHelper::capitaliseFirst).collect(Collectors.joining()) + postfix;
+        var varName = parts.stream().map(StringHelper::capitaliseFirst).collect(Collectors.joining()) + postfix;
+        varName = varName.replaceAll("[\\W%]+", "");
+        return varName;
+    }
+
+    private String ensureLocalized(String applicationName) {
+        if(applicationName.startsWith("%") && !applicationName.startsWith("%%")) {
+            applicationName = handler.getLocalSpecificEntry(applicationName);
+            if(applicationName == null) {
+                throw new IllegalArgumentException("The application name is an undefined locale reference: " + applicationName);
+            }
+        }
+        return applicationName;
     }
 
     public String getMenuPackage() {

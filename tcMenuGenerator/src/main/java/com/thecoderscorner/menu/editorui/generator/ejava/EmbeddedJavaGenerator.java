@@ -67,7 +67,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             context = new CodeConversionContext(platform, rootMenuName, options, options.getLastProperties());
             pluginCreator = new EmbeddedJavaPluginCreator(context);
 
-            EmbeddedJavaProject javaProject = new EmbeddedJavaProject(directory, options, configStorage, this::logLine);
+            EmbeddedJavaProject javaProject = new EmbeddedJavaProject(directory, options, configStorage, handler, this::logLine);
             logLine(INFO, "Determining that required project files are in place");
             javaProject.setupProjectIfNeeded();
 

@@ -14,6 +14,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.FunctionDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +63,8 @@ class EmbeddedJavaPluginCreatorTest {
         tempPath = Files.createTempDirectory("pluginJava");
         var storage = mock(ConfigurationStorage.class);
         when(storage.getVersion()).thenReturn("1.0.0");
-        project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, s));
+        project = new EmbeddedJavaProject(tempPath, options, storage, LocaleMappingHandler.NOOP_IMPLEMENTATION,
+                (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, s));
         builder = project.classBuilderFullName("UnitTester");
     }
 

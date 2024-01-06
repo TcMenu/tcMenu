@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -67,13 +66,13 @@ class EmbeddedJavaGeneratorTest {
     @Test
     public void testConversion() throws IOException {
         var options = new CodeGeneratorOptionsBuilder()
-                .withAppName("unit test").withPackageNamespace("com.tester")
+                .withAppName("unit* test%").withPackageNamespace("com.tester")
                 .withProperties(plugin.getProperties()).codeOptions();
         List<CodePluginItem> plugins = List.of(plugin);
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
         generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION, List.of());
 
-        var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
+        var project = new EmbeddedJavaProject(tempPath, options, storage, LocaleMappingHandler.NOOP_IMPLEMENTATION, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 
         var pom = project.getProjectRoot().resolve("pom.xml");
         assertTrue(Files.exists(pom));
@@ -103,7 +102,8 @@ class EmbeddedJavaGeneratorTest {
         generator.setLoggerFunction((level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
         generator.startConversion(tempPath, plugins, tree, List.of("xyzoerj"), options, LocaleMappingHandler.NOOP_IMPLEMENTATION, List.of());
 
-        var project = new EmbeddedJavaProject(tempPath, options, storage, (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
+        var project = new EmbeddedJavaProject(tempPath, options, storage, LocaleMappingHandler.NOOP_IMPLEMENTATION,
+                (level, s) -> Logger.getAnonymousLogger().log(Level.INFO, level + " " + s));
 
         var pom = project.getProjectRoot().resolve("pom.xml");
         assertTrue(Files.exists(pom));

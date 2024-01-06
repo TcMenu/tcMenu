@@ -7,6 +7,7 @@ import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticat
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class JavaCodeGeneratorCapableWrapperTest {
                 .withAppName("Super Amplifier")
                 .codeOptions();
 
-        javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, this::logLine);
+        javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, LocaleMappingHandler.NOOP_IMPLEMENTATION, this::logLine);
     }
 
     @AfterEach

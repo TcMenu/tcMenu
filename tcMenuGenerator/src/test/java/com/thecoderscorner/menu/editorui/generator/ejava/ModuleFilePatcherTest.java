@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class ModuleFilePatcherTest {
                 withPlatform(EmbeddedPlatform.RASPBERRY_PIJ)
                 .withPackageNamespace("com.thecoderscorner.test").codeOptions();
         storage = mock(ConfigurationStorage.class);
-        project = new EmbeddedJavaProject(tempDir, options, storage, (level, s) -> {});
+        project = new EmbeddedJavaProject(tempDir, options, storage, LocaleMappingHandler.NOOP_IMPLEMENTATION, (level, s) -> {});
     }
 
     @AfterEach

@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.generator.ejava;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class JavaClassBuilderTest {
                 .withAppName("Super Amplifier")
                 .codeOptions();
 
-        javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, this::logLine);
+        javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, LocaleMappingHandler.NOOP_IMPLEMENTATION, this::logLine);
     }
 
     @AfterEach
