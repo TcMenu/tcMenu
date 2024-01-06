@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.font.*;
@@ -34,6 +33,7 @@ import java.util.*;
 import static com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont.*;
 import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.FontFormat;
 import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontGlyph;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class CreateFontUtilityController {
     public static final long APPROX_ADA_SIZE = 8;
@@ -211,10 +211,7 @@ public class CreateFontUtilityController {
     @SuppressWarnings("unused")
     public void onChooseUnicodeRanges(ActionEvent actionEvent) {
         if(loadedFont instanceof NoLoadedFont) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a font before choosing unicode ranges");
-            alert.setTitle("No font Selected");
-            alert.setHeaderText("No Font Selected");
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "No Font Selected", "Please select a font before choosing unicode ranges", ButtonType.CLOSE);
         } else {
             Stage mainStage = (Stage) outputStructNameField.getScene().getWindow();
             var dlg = new SelectUnicodeRangesDialog(mainStage, loadedFont, blockMappings);
@@ -272,12 +269,9 @@ public class CreateFontUtilityController {
             TcUnicodeFontExporter exporter = new TcUnicodeFontExporter(outputStructNameField.getText(), blocks, maxY);
             exporter.encodeFontToStream(outStream, format);
             logger.log(System.Logger.Level.INFO, "Finished write to file");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Font Export Utility");
-            alert.setHeaderText("Font Export Successful");
-            alert.setContentText("Font '" +  outputStructNameField.getText() + "'  exported successfully to '" + outputFile + "' in format " + fontStyleCombo.getValue());
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.INFORMATION, "Font Export Successful",
+                    "Font '" +  outputStructNameField.getText() + "'  exported successfully to '" + outputFile + "' in format " + fontStyleCombo.getValue(),
+                    ButtonType.CLOSE);
         } catch (Exception ex) {
             editorUI.alertOnError("Font not converted", "The font was not converted due to the following. " + ex.getMessage());
             logger.log(System.Logger.Level.ERROR, "Unable to convert font to " + format, ex);

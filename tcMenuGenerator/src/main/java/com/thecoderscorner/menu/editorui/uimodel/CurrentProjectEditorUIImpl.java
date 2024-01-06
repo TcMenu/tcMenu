@@ -46,6 +46,7 @@ import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -128,14 +129,8 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void alertOnError(String heading, String description) {
-        logger.log(ERROR, "Show error with heading: {0}, description: {1}", heading, description);
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         heading = decodeBundleIfNeeded(heading);
-        alert.setTitle(heading);
-        alert.setHeaderText(heading);
-        alert.setContentText(decodeBundleIfNeeded(description));
-        alert.showAndWait();
+        showAlertAndWait(Alert.AlertType.ERROR, heading, decodeBundleIfNeeded(description), ButtonType.YES, ButtonType.NO);
     }
 
     private String decodeBundleIfNeeded(String s) {
@@ -149,12 +144,9 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public boolean questionYesNo(String title, String header) {
         logger.log(INFO, "Showing question for confirmation title: {0}, header: {1}", title, header);
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, decodeBundleIfNeeded(header), ButtonType.YES, ButtonType.NO);
-        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
         title = decodeBundleIfNeeded(title);
-        alert.setTitle(title);
-        alert.setHeaderText(title);
-        return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
+        var btn = showAlertAndWait(Alert.AlertType.CONFIRMATION, title, decodeBundleIfNeeded(header), ButtonType.YES, ButtonType.NO);
+        return btn.orElse(ButtonType.NO) == ButtonType.YES;
     }
 
     @Override

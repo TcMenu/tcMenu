@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
+
 public class PairingController {
     private ConnectionCreator creator;
     private ExecutorService executor;
@@ -40,8 +42,7 @@ public class PairingController {
             try {
                 pairingSuccess = creator.attemptPairing(this::pairingUpdate);
             } catch (Exception e) {
-                var alert = new Alert(Alert.AlertType.ERROR, "Pairing failed to start", ButtonType.CLOSE);
-                alert.showAndWait();
+                showAlertAndWait(Alert.AlertType.ERROR, "Pairing failed to start", ButtonType.CLOSE);
             }
             Platform.runLater(this::pairingHasFinished);
         });

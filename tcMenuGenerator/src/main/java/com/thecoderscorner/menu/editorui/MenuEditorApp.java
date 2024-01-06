@@ -18,6 +18,7 @@ import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore;
 import com.thecoderscorner.menu.editorui.storage.MenuEditorConfig;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.AlertUtil;
 import com.thecoderscorner.menu.editorui.util.IHttpClient;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Application;
@@ -26,7 +27,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -76,11 +76,9 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
             INSTANCE = this;
         } catch(Exception ex) {
             System.getLogger(MenuEditorApp.class.getSimpleName()).log(ERROR, "Failed loading config", ex);
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setHeaderText("Could not load designer");
-            alert.setContentText("App did not start due to " + ex.getMessage() + ". See log for more details.");
-            alert.setTitle("TcMenu Designer did not start");
-            alert.showAndWait();
+            AlertUtil.showAlertAndWait(AlertType.ERROR,"Could not load designer",
+                    "App did not start due to " + ex.getMessage() + ". See log for more details.",
+                    ButtonType.CLOSE);
             primaryStage.close(); // make sure the app closes here.
             return;
         }
@@ -155,13 +153,8 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
             try {
                 if(editorProject.isDirty()) {
                     evt.consume();
-                    Alert alert = new Alert(AlertType.CONFIRMATION, "There are unsaved changes, save first?",
-                            ButtonType.YES, ButtonType.NO);
-                    BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-
-                    alert.setTitle("Are you sure");
-                    alert.setHeaderText("");
-                    if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+                    var btn = AlertUtil.showAlertAndWait(AlertType.CONFIRMATION, "There are unsaved changes, save first?", ButtonType.YES, ButtonType.NO);
+                    if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
                         editorProject.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
                     }
                 }

@@ -1,5 +1,6 @@
 package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -30,6 +31,7 @@ public class AddAuthEntryController {
     public void addAuthenticationWasPressed(ActionEvent actionEvent) {
         if(appNameField.getText().isEmpty() || uuidField.getText().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR,"You must enter both values", ButtonType.CLOSE);
+            alert.getDialogPane().setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
             alert.showAndWait();
             return;
         }
@@ -40,6 +42,7 @@ public class AddAuthEntryController {
         }
         catch(Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please enter a valid UUID", ButtonType.CLOSE);
+            alert.getDialogPane().setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
             alert.showAndWait();
         }
     }

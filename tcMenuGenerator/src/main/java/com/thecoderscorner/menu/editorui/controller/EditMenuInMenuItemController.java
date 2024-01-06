@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition;
 import com.thecoderscorner.menu.editorui.util.EnumWithStringValue;
 import com.thecoderscorner.menu.mgr.MenuInMenu;
@@ -13,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.editorui.util.EnumWithStringValue.asFriendlyEnum;
 import static com.thecoderscorner.menu.editorui.util.EnumWithStringValue.createFriendlyEnum;
 
@@ -70,10 +70,7 @@ public class EditMenuInMenuItemController {
 
     public void saveWasPressed(ActionEvent actionEvent) {
         if(nameField.getText().isEmpty() || hostField.getText().isEmpty()) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Name and connection details must be provided");
-            alert.setHeaderText("Missing fields must be corrected");
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Missing fields must be corrected", "Name and connection details must be provided", ButtonType.CLOSE);
             return;
         }
 
@@ -92,11 +89,7 @@ public class EditMenuInMenuItemController {
             closeIt();
         }
         catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Unable to process the fields provided");
-            alert.setHeaderText("Please check the values provided");
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.showAndWait();
-
+            showAlertAndWait(Alert.AlertType.ERROR, "Please check the values provided", "Unable to process the fields provided", ButtonType.CLOSE);
         }
     }
 

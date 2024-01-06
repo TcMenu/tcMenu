@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
@@ -26,6 +25,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -141,15 +141,11 @@ public class NewProjectController {
                 project.openProject(emfFileName.toString());
             } catch (Exception e) {
                 logger.log(ERROR, "Failure processing create new project", e);
-                var alert = new Alert(Alert.AlertType.ERROR, bundle.getString("create.dialog.error.creating"), ButtonType.CLOSE);
-                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-                alert.showAndWait();
+                showAlertAndWait(Alert.AlertType.ERROR, bundle.getString("create.dialog.error.creating"), ButtonType.CLOSE);
             }
         }
         else {
-            var alert = new Alert(Alert.AlertType.WARNING, bundle.getString("create.dialog.fields.not.populated"), ButtonType.CLOSE);
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.WARNING, bundle.getString("create.dialog.fields.not.populated"), ButtonType.CLOSE);
             return; // avoid closing.
         }
 
@@ -159,11 +155,9 @@ public class NewProjectController {
 
     private boolean passDirtyCheck() {
         if(project.isDirty()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, bundle.getString("create.dialog.project.unsaved"), ButtonType.YES, ButtonType.NO);
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.setHeaderText(bundle.getString("create.dialog.project.unsaved.header"));
-            var result = alert.showAndWait();
-            if(result.isPresent() && result.get() == ButtonType.YES) {
+            var btn = showAlertAndWait(Alert.AlertType.CONFIRMATION, bundle.getString("create.dialog.project.unsaved.header"),
+                    bundle.getString("create.dialog.project.unsaved"), ButtonType.YES, ButtonType.NO);
+            if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
                 project.setDirty(false);
                 return true;
             }

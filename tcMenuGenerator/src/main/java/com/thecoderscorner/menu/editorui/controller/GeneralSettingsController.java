@@ -3,7 +3,6 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -32,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.persist.VersionInfo.ERROR_VERSION;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -365,11 +365,8 @@ public class GeneralSettingsController {
 
     private void refreshAdditionalPaths(ArrayList<String> paths) {
         additionalPathsList.setItems(FXCollections.observableList(paths));
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, bundle.getString("settings.reload.all.plugins") , ButtonType.YES, ButtonType.NO);
-        alert.setTitle(bundle.getString("settings.plugins.reload"));
-        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-        var result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.YES) {
+        var btn = showAlertAndWait(Alert.AlertType.CONFIRMATION, bundle.getString("settings.plugins.reload"), bundle.getString("settings.reload.all.plugins") , ButtonType.YES, ButtonType.NO);
+        if (btn.orElse(ButtonType.NO) == ButtonType.YES) {
             pluginManager.reload();
         }
     }
@@ -398,10 +395,8 @@ public class GeneralSettingsController {
 
     public void onUuidChanged(ActionEvent actionEvent) {
         var bundle = MenuEditorApp.getBundle();
-        Alert alert = new Alert(Alert.AlertType.WARNING, bundle.getString("settings.uuid.change.desc"), ButtonType.YES, ButtonType.NO);
-        alert.setHeaderText(bundle.getString("settings.uuid.change"));
-        alert.setTitle(bundle.getString("settings.uuid.change"));
-        if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+        var btn = showAlertAndWait(Alert.AlertType.WARNING, bundle.getString("settings.uuid.change"), bundle.getString("settings.uuid.change.desc"), ButtonType.YES, ButtonType.NO);
+        if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
             settings.setAppUuid(UUID.randomUUID().toString());
             settings.save(databaseUtilities);
             ecUuidField.setText(settings.getAppUuid());

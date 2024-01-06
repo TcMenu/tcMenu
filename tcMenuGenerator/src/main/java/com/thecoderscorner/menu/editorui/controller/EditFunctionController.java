@@ -2,16 +2,12 @@ package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.util.Optional;
@@ -21,6 +17,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequir
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules.VAR_PATTERN;
 import static com.thecoderscorner.menu.editorui.uimodel.UIMenuItem.NO_FUNCTION_DEFINED;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class EditFunctionController {
     public TextArea codeOutputArea;
@@ -104,12 +101,8 @@ public class EditFunctionController {
                 ((Stage)callbackTypeCombo.getScene().getWindow()).close();
             } else {
                 result = Optional.empty();
-                var alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(bundle.getString("edit.function.variable.error.title"));
-                alert.setHeaderText(bundle.getString("edit.function.variable.error.header"));
-                alert.setContentText(bundle.getString("edit.function.variable.error.message"));
-                BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-                alert.showAndWait();
+                showAlertAndWait(Alert.AlertType.ERROR, bundle.getString("edit.function.variable.error.header"),
+                        bundle.getString("edit.function.variable.error.message"), ButtonType.CLOSE);
             }
         }
     }

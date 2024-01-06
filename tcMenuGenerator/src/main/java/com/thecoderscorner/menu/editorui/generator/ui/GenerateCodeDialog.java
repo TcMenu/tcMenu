@@ -12,7 +12,6 @@ import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectAuthenticatorTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
@@ -55,6 +54,7 @@ import java.util.stream.Collectors;
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -513,22 +513,16 @@ public class GenerateCodeDialog {
 
     private void onGenerateCode(ActionEvent actionEvent) {
         if(currentDisplay.getItem().isThemeNeeded() && currentTheme.getItem().getId().equals(DEFAULT_THEME_ID)) {
-            var alert = new Alert(Alert.AlertType.WARNING, "No theme selected", ButtonType.CLOSE);
-            alert.setTitle(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.title"));
-            alert.setHeaderText(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.header"));
-            alert.setContentText(MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.desc"));
-
-            BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.WARNING,
+                    MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.header"),
+                    MenuEditorApp.getBundle().getString("code.gen.display.needs.theme.desc"), ButtonType.CLOSE);
             return;
         }
 
         if(platformCombo.getSelectionModel().getSelectedItem() == EmbeddedPlatform.RASPBERRY_PIJ && namespaceField.getText().isEmpty()) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Error", ButtonType.CLOSE);
-            alert.setTitle(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.title"));
-            alert.setHeaderText(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.header"));
-            alert.setContentText(MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.desc"));
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR,
+                    MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.header"),
+                    MenuEditorApp.getBundle().getString("code.gen.java.no.pkg.desc"), ButtonType.CLOSE);
             return;
         }
 

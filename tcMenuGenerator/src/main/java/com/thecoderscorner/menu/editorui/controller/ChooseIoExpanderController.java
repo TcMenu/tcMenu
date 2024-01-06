@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
+
 public class ChooseIoExpanderController {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
@@ -123,8 +125,7 @@ public class ChooseIoExpanderController {
     public void onRemoveExpander(ActionEvent actionEvent) {
         var selectedItem = mainTable.getSelectionModel().getSelectedItem();
         if(selectedItem == null || selectedItem instanceof InternalDeviceExpander || isExpanderInUse(selectedItem.getId())) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Ensure item can be deleted, you cannot delete internal expanders or items that are in use");
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Remove..", "Ensure item can be deleted, you cannot delete internal expanders or items that are in use");
             logger.log(System.Logger.Level.INFO, "User stopped from removing " + selectedItem);
             return;
         }

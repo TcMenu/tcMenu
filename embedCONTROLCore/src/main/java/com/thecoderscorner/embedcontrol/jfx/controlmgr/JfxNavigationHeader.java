@@ -194,6 +194,7 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Did not navigate to panel " + navigation.getPanelName(), e);
             Alert alert = new Alert(AlertType.ERROR, "Navigation failed to " + navigation.getPanelName(), ButtonType.CLOSE);
+            alert.getDialogPane().setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
             alert.showAndWait();
         }
     }

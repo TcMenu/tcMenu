@@ -39,6 +39,7 @@ public abstract class BaseDialogSupport {
         catch(Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating " + title, ButtonType.CLOSE);
             alert.setHeaderText("Unexpected error during creation of dialog, more detail is in the log");
+            alert.getDialogPane().setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
             alert.showAndWait();
 
             logger.log(ERROR, "Unable to create the form", e);

@@ -39,9 +39,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.getJMetro;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class AppInformationPanel {
@@ -300,12 +300,8 @@ public class AppInformationPanel {
                 pluginLabel.setId("tcMenuPluginIndicator");
                 pluginLabel.getStyleClass().add("libsNotOK");
                 pluginLabel.setOnAction(actionEvent -> {
-                    var alert = new Alert(Alert.AlertType.INFORMATION);
-                    getJMetro().setScene(alert.getDialogPane().getScene());
-                    alert.setTitle(bundle.getString("app.info.plugin.updater.fail.title"));
-                    alert.setHeaderText(bundle.getString("app.info.plugin.updater.fail.header"));
-                    alert.setContentText(bundle.getString("app.info.plugin.updater.fail.message"));
-                    alert.showAndWait();
+                    showAlertAndWait(Alert.AlertType.INFORMATION, bundle.getString("app.info.plugin.updater.fail.header")
+                            , bundle.getString("app.info.plugin.updater.fail.message"), ButtonType.CLOSE);
                     controller.presentInfoPanel();
                 });
                 vbox.getChildren().add(pluginLabel);

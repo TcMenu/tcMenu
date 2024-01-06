@@ -22,6 +22,7 @@ import java.lang.System.Logger.Level;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.editorui.util.IHttpClient.HttpDataType;
 
 public class RegistrationController {
@@ -93,18 +94,12 @@ public class RegistrationController {
     }
 
     private void registrationFailed() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Failed to register");
-        alert.setHeaderText("Registration could not be sent");
-
         StringBuilder sb = new StringBuilder();
         if(errorStore.get() != null) {
             sb.append(errorStore.get());
         }
         sb.append("\nSorry for the inconvenience.");
-        alert.setContentText(sb.toString());
-        alert.showAndWait();
-
+        showAlertAndWait(Alert.AlertType.ERROR, "Registration failure", sb.toString(), ButtonType.CLOSE);
         generateButton.setText("Retry");
         generateButton.setTooltip(new Tooltip("Retry sending"));
         generateButton.setDisable(false);

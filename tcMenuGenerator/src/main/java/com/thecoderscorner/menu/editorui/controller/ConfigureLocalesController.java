@@ -12,6 +12,8 @@ import javafx.stage.Stage;
 
 import java.util.*;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
+
 public class ConfigureLocalesController {
     public enum LocaleStatus { AVAILABLE, TO_CREATE }
 
@@ -66,10 +68,10 @@ public class ConfigureLocalesController {
         if(sel.status() == LocaleStatus.TO_CREATE) {
             activeLocalList.getItems().remove(sel);
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText(bundle.getString("locale.dialog.remove.manual.header"));
-            alert.setContentText(bundle.getString("locale.dialog.remove.manual.message"));
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.WARNING,
+                bundle.getString("locale.dialog.remove.manual.header"),
+                bundle.getString("locale.dialog.remove.manual.message"),
+                ButtonType.CLOSE);
         }
     }
 

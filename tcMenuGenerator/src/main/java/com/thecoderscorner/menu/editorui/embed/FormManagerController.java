@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
+
 public class FormManagerController {
     public Button editFormButton;
     public Button removeFormButton;
@@ -64,18 +66,12 @@ public class FormManagerController {
         var item = formTable.getSelectionModel().getSelectedItem();
         if(item == null) return;
 
-        var alert = new Alert(Alert.AlertType.ERROR, "Really delete form named " + item.getFormName(), ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Remove form");
-        alert.setHeaderText("Remove form " + item.getFormName());
-        if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+        var btn = showAlertAndWait(Alert.AlertType.ERROR, "Remove form " + item.getFormName(), "Really delete form named " + item.getFormName(), ButtonType.YES, ButtonType.NO);
+        if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
             try {
                 context.getDataStore().deleteForm(item);
             } catch (DataException e) {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Delete failed " + e.getMessage());
-                alert.setHeaderText("Delete form " + formUuidCol.getText());
-                alert.setTitle("Delete Form");
-                alert.showAndWait();
+                showAlertAndWait(Alert.AlertType.ERROR, "Delete form " + formUuidCol.getText(), "Delete failed " + e.getMessage(), ButtonType.CLOSE);
             }
             reloadPage();
         }
@@ -90,11 +86,7 @@ public class FormManagerController {
         try {
             importXmlToTable(Files.readString(chosen.toPath()));
         } catch (IOException e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Import of Form XML");
-            alert.setHeaderText("XML file not opened");
-            alert.setContentText("Please ensure the file exists and XML is valid, error was " + e.getMessage());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "XML file not opened", "Please ensure the file exists and XML is valid, error was " + e.getMessage(), ButtonType.CLOSE);
         }
     }
 
@@ -111,33 +103,20 @@ public class FormManagerController {
         try {
             xml = XMLDOMHelper.loadDocumentFromData(txt);
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Import of Form XML");
-            alert.setHeaderText("XML was not parsed");
-            alert.setContentText("Please ensure the XML is valid, error was " + e.getMessage());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "XML was not parsed", "Please ensure the XML is valid, error was " + e.getMessage(), ButtonType.CLOSE);
             return;
         }
         var name = xml.getDocumentElement().getAttribute("layoutName");
         var uuid = xml.getDocumentElement().getAttribute("boardUuid");
         if(StringHelper.isStringEmptyOrNull(name) || StringHelper.isStringEmptyOrNull(uuid)) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Import of Form XML");
-            alert.setHeaderText("Form has empty name or UUID");
-            alert.setContentText("Please populate these two fields before attempting to import");
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR,"Form has empty name or UUID", "Please populate these two fields before attempting to import", ButtonType.CLOSE);
             return;
         }
         var form = new TcMenuFormPersistence(-1, uuid, name, txt);
         try {
             context.getDataStore().updateForm(form);
         } catch (DataException e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Saving failed " + e.getMessage());
-            alert.setHeaderText("Save Form " + uuid);
-            alert.setTitle("Save Changes Error");
-            alert.showAndWait();
-
+            showAlertAndWait(Alert.AlertType.ERROR, "Save Form " + uuid, "Saving failed " + e.getMessage(), ButtonType.CLOSE);
         }
         reloadPage();
     }
@@ -155,11 +134,7 @@ public class FormManagerController {
         try {
             Files.writeString(file.toPath(), item.getXmlData());
         } catch (IOException e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Export of Form " + item.getFormName());
-            alert.setHeaderText("Form did not export to " + file);
-            alert.setContentText("Reason was " + e.getMessage());
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Form did not export to " + file,"Reason was " + e.getMessage(), ButtonType.CLOSE);
         }
     }
 

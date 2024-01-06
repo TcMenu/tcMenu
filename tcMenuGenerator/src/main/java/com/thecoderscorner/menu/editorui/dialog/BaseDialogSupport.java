@@ -14,6 +14,7 @@ import jfxtras.styles.jmetro.Style;
 
 import java.util.ResourceBundle;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.ERROR;
 
 public abstract class BaseDialogSupport<T> {
@@ -59,12 +60,7 @@ public abstract class BaseDialogSupport<T> {
             createDialogStateAndShow(stage, pane, title, modal, sizeFactor);
         }
         catch(Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Error creating form " + title, ButtonType.CLOSE);
-            getJMetro().setScene(alert.getDialogPane().getScene());
-
-            alert.setHeaderText("Error creating the form, more detail is in the log");
-            alert.showAndWait();
-
+            showAlertAndWait(Alert.AlertType.ERROR, "Error creating the form, more detail is in the log", "Error creating form " + title, ButtonType.CLOSE);
             logger.log(ERROR, "Unable to create the form", e);
         }
     }

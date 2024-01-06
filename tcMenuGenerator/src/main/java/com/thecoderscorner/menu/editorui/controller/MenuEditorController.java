@@ -63,6 +63,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibrary
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore.RecentlyUsedItem;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
@@ -703,8 +704,7 @@ public class MenuEditorController {
             content.putString(sb.toString());
             systemClipboard.setContent(content);
 
-            var alert = new Alert(Alert.AlertType.INFORMATION, MenuEditorApp.getBundle().getString("core.diagnostics.copied"), ButtonType.CLOSE);
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.INFORMATION, "Diagnostics", MenuEditorApp.getBundle().getString("core.diagnostics.copied"), ButtonType.CLOSE);
             logger.log(INFO, "Diagnostics generated successfully");
 
         } catch (IOException e) {
@@ -817,12 +817,7 @@ public class MenuEditorController {
             try {
                 Desktop.getDesktop().browse(dir.toUri());
             } catch (IOException e) {
-                var alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Browse failed");
-                alert.setHeaderText("Could not browse to file");
-                alert.setContentText("File was " + dir);
-                alert.getButtonTypes().add(ButtonType.CLOSE);
-                alert.showAndWait();
+                showAlertAndWait(Alert.AlertType.ERROR, "Could not browse to project", "Location was " + dir, ButtonType.CLOSE);
             }
         }
     }

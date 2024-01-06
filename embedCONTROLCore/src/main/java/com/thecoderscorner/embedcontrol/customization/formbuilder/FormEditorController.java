@@ -194,9 +194,9 @@ public class FormEditorController {
             saveConsumer.formEditorClosing(xml, nameField.getText());
         } catch (IOException e) {
             var alert = new Alert(Alert.AlertType.ERROR, "Failed to persist " + e, ButtonType.CLOSE);
+            alert.getDialogPane().setStyle("-fx-font-size:" + GlobalSettings.defaultFontSize());
             alert.showAndWait();
         }
-
     }
 
     public void onMenuChangeButton(ActionEvent actionEvent) {

@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
@@ -22,6 +21,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
 public class CreateBitmapWidgetController {
@@ -290,12 +290,8 @@ public class CreateBitmapWidgetController {
     }
 
     private void exportSuccessful(String where) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        BaseDialogSupport.getJMetro().setScene(alert.getDialogPane().getScene());
-        alert.setTitle("Successfully exported");
-        alert.setHeaderText(variableField.getText() + " successfully exported");
-        alert.setContentText(variableField.getText() + " was successfully exported to " + where);
-        alert.showAndWait();
+        showAlertAndWait(Alert.AlertType.INFORMATION, variableField.getText() + " successfully exported",
+                variableField.getText() + " was successfully exported to " + where, ButtonType.CLOSE);
     }
 
 

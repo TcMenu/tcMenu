@@ -7,8 +7,9 @@ import com.thecoderscorner.embedcontrol.core.util.DataException;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 
-import java.util.Optional;
 import java.util.UUID;
+
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class GeneralSettingsController {
     public TextField appNameField;
@@ -28,9 +29,8 @@ public class GeneralSettingsController {
     }
 
     public void onChangeUUID(ActionEvent actionEvent) {
-        var alert = new Alert(Alert.AlertType.CONFIRMATION, "Really change UUID, all saved authentications will be lost?", ButtonType.YES, ButtonType.NO);
-        Optional<ButtonType> buttonType = alert.showAndWait();
-        if(buttonType.isPresent() && buttonType.get() == ButtonType.YES) {
+        var btn = showAlertAndWait(Alert.AlertType.CONFIRMATION, "Really change UUID, all saved authentications will be lost?", ButtonType.YES, ButtonType.NO);
+        if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
             appUuidField.setText(UUID.randomUUID().toString());
         }
     }
@@ -43,11 +43,7 @@ public class GeneralSettingsController {
         try {
             dataStore.updateGlobalSettings(new TcPreferencesPersistence(settings));
         } catch (DataException e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Saving failed " + e.getMessage());
-            alert.setHeaderText("Save Changes to configuration");
-            alert.setTitle("Save Changes Error");
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Save Changes to configuration", "Saving failed " + e.getMessage(), ButtonType.CLOSE);
         }
     }
 

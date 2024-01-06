@@ -44,6 +44,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.*;
 
 public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePanelDisplayable {
@@ -250,17 +251,11 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
     private void deleteConnection(ActionEvent actionEvent) {
         // confirm and then delete the connection information.
-        var alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete " + getPanelName());
-        alert.setHeaderText("Really delete " + getPanelName());
-        alert.setContentText("This will remove all associated information about this connection");
-        alert.getButtonTypes().clear();
-        alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-        alert.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.YES) {
-                context.deleteConnection(persistedConnection);
-            }
-        });
+        var btn= showAlertAndWait(Alert.AlertType.CONFIRMATION,"Really delete " + getPanelName(),
+                "This will remove all associated information about this connection", ButtonType.YES, ButtonType.NO);
+        if(btn.orElse(ButtonType.NO) == ButtonType.YES) {
+            context.deleteConnection(persistedConnection);
+        }
     }
 
     private Node getDialogComponents(BorderPane pane) {
@@ -357,8 +352,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                         Platform.runLater(this::doPairing);
                     }
                 } catch (Exception e) {
-                    var alert = new Alert(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
-                    alert.showAndWait();
+                    showAlertAndWait(Alert.AlertType.ERROR, "Pairing has failed", ButtonType.CLOSE);
                 }
             } else {
                 boolean noConnection = status == AuthStatus.AWAITING_CONNECTION || status == AuthStatus.CONNECTION_FAILED;
@@ -387,8 +381,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 createNewController();
             }
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Connection not restarted", ButtonType.CLOSE);
             logger.log(ERROR, "Unable to restart connection after pairing", e);
         }
     }
@@ -446,11 +439,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                             !persistedConnection.getUuid().equals(remoteInformation.getUuid().toString())) {
                         logger.log(WARNING, "The UUID stored does not match the remote" + persistedConnection.getName());
                         Platform.runLater(() -> {
-                            var alert = new Alert(Alert.AlertType.WARNING);
-                            alert.setTitle("Warning UUID mismatch");
-                            alert.setHeaderText("The UUID stored does not match the remote UUID");
-                            alert.setContentText("The UUID of the remote has changed from last time and could cause problems");
-                            alert.showAndWait();
+                            showAlertAndWait(Alert.AlertType.WARNING, "The UUID stored does not match the remote UUID",
+                            "The UUID of the remote has changed from last time and could cause problems", ButtonType.CLOSE);
                         });
                     }
                     persistedConnection = persistedConnection.withUuid(remoteInformation.getUuid());

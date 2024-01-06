@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static java.lang.System.Logger.Level.ERROR;
 
 public class ConfigureExpanderController {
@@ -107,8 +108,7 @@ public class ConfigureExpanderController {
 
     public void onSetExpander(ActionEvent actionEvent) {
         if(newDialog && namesInUse.contains(variableNameField.getText())) {
-            var alert = new Alert(Alert.AlertType.ERROR, "The name you have chosen is already in use");
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "The name you have chosen is already in use");
             return;
         }
         try {
@@ -143,19 +143,16 @@ public class ConfigureExpanderController {
             };
             ((Stage) interruptPinField.getScene().getWindow()).close();
         } catch (Exception ex) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please check validity of all fields " + ex.getMessage(), ButtonType.CLOSE);
-            alert.showAndWait();
+            showAlertAndWait(Alert.AlertType.ERROR, "Field Validity", "Please check validity of all fields " + ex.getMessage(), ButtonType.CLOSE);
             logger.log(ERROR, "Field validation error in configure expander", ex);
         }
 
     }
 
     private void alertWithLocaleText(String name, String name1) {
-        var al = new Alert(Alert.AlertType.ERROR);
-        al.setHeaderText(MenuEditorApp.getBundle().getString(name));
-        al.setTitle(MenuEditorApp.getBundle().getString("io.exp.col.name") + " " + variableNameField.getText());
-        al.setContentText(MenuEditorApp.getBundle().getString(name1));
-        al.showAndWait();
+        showAlertAndWait(Alert.AlertType.ERROR, MenuEditorApp.getBundle().getString(name),
+                MenuEditorApp.getBundle().getString("io.exp.col.name") + " " + variableNameField.getText() + " " + MenuEditorApp.getBundle().getString(name1),
+                ButtonType.CLOSE);
     }
 
     private int fromHex(String text) {
