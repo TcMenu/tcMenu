@@ -1,10 +1,9 @@
-package com.thecoderscorner.menu.editorui.controller;
+package com.thecoderscorner.menu.editorui.gfxui;
 
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.generator.font.*;
-import com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontBlock;
+import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontBlock;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.collections.FXCollections;
@@ -30,9 +29,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 
-import static com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont.*;
-import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.FontFormat;
-import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.TcUnicodeFontGlyph;
+import static com.thecoderscorner.menu.editorui.gfxui.AwtLoadedFont.*;
+import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.FontFormat;
+import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontGlyph;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class CreateFontUtilityController {

@@ -1,5 +1,7 @@
 package com.thecoderscorner.menu.editorui.generator.font;
 
+import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter;
+import com.thecoderscorner.menu.editorui.gfxui.UnicodeBlockMapping;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import static com.thecoderscorner.menu.editorui.generator.font.TcUnicodeFontExporter.*;
+import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.*;
 
 class TcUnicodeFontTest {
     private TcUnicodeFontExporter font;

@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.generator.font;
+package com.thecoderscorner.menu.editorui.gfxui;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -9,8 +9,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.controller.CreateFontUtilityController.*;
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
+import static com.thecoderscorner.menu.editorui.gfxui.CreateFontUtilityController.*;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
 public record TcUnicodeFontExporter(String fontName, List<TcUnicodeFontBlock> blocks, int yAdvance) implements FontEncoder {

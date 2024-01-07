@@ -1,7 +1,7 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.editorui.generator.font.LoadedFont;
-import com.thecoderscorner.menu.editorui.generator.font.UnicodeBlockMapping;
+import com.thecoderscorner.menu.editorui.gfxui.LoadedFont;
+import com.thecoderscorner.menu.editorui.gfxui.UnicodeBlockMapping;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.font.AwtLoadedFont.NO_LOADED_FONT;
+import static com.thecoderscorner.menu.editorui.gfxui.AwtLoadedFont.NO_LOADED_FONT;
 
 public class SelectUnicodeRangesController {
     public TextField unicodeSearchField;

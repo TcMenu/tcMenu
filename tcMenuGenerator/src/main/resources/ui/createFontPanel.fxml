@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <GridPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-          hgap="4" vgap="4" fx:controller="com.thecoderscorner.menu.editorui.controller.CreateFontUtilityController">
+          hgap="4" vgap="4" fx:controller="com.thecoderscorner.menu.editorui.gfxui.CreateFontUtilityController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES"/>
         <ColumnConstraints hgrow="SOMETIMES"/>

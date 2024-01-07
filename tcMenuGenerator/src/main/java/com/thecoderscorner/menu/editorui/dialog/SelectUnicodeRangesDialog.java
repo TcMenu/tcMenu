@@ -1,8 +1,8 @@
 package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.controller.SelectUnicodeRangesController;
-import com.thecoderscorner.menu.editorui.generator.font.LoadedFont;
-import com.thecoderscorner.menu.editorui.generator.font.UnicodeBlockMapping;
+import com.thecoderscorner.menu.editorui.gfxui.LoadedFont;
+import com.thecoderscorner.menu.editorui.gfxui.UnicodeBlockMapping;
 import javafx.stage.Stage;
 
 import java.util.Optional;

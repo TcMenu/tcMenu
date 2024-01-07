@@ -7,7 +7,8 @@ import java.util.Objects;
  * It can convert to and from web color format strings.
  */
 public class PortableColor {
-    public static final PortableColor BLACK = new PortableColor(0,0, 0);
+    public static final PortableColor BLACK = new PortableColor(0, 0, 0);
+    public static final PortableColor WHITE = new PortableColor(255, 255, 255);
     private final int red;
     private final int green;
     private final int blue;
@@ -15,9 +16,10 @@ public class PortableColor {
 
     /**
      * Create a color from RGB with alpha set to full (255), each value from 0 to 255
-     * @param red the red component
+     *
+     * @param red   the red component
      * @param green the green component
-     * @param blue the blue component
+     * @param blue  the blue component
      */
     public PortableColor(int red, int green, int blue) {
         this(red, green, blue, 255);
@@ -25,9 +27,10 @@ public class PortableColor {
 
     /**
      * Create a color from RGBA using values from 0 to 255
-     * @param red the red component
+     *
+     * @param red   the red component
      * @param green the green component
-     * @param blue the blue component
+     * @param blue  the blue component
      * @param alpha the alpha
      */
     public PortableColor(int red, int green, int blue, int alpha) {
@@ -39,6 +42,7 @@ public class PortableColor {
 
     /**
      * Create a color object from a web color code such as #FFFFFF
+     *
      * @param htmlCode the html code
      */
     public PortableColor(String htmlCode) {
@@ -55,8 +59,7 @@ public class PortableColor {
             blue = ((parseHex(htmlCode.charAt(5)) << 4) + parseHex(htmlCode.charAt(6)));
             if (htmlCode.length() == 9) {
                 alpha = ((parseHex(htmlCode.charAt(7)) << 4) + parseHex(htmlCode.charAt(8)));
-            }
-            else alpha = 255;
+            } else alpha = 255;
             return;
         }
 
@@ -65,9 +68,9 @@ public class PortableColor {
     }
 
     private static int parseHex(char val) {
-        if(val >= '0' && val <= '9') return (short)(val - '0');
+        if (val >= '0' && val <= '9') return (short) (val - '0');
         val = Character.toUpperCase(val);
-        if(val >= 'A' && val <= 'F') return (short)(val - ('A' - 10));
+        if (val >= 'A' && val <= 'F') return (short) (val - ('A' - 10));
         return 0;
     }
 
@@ -122,5 +125,22 @@ public class PortableColor {
 
     public String toHtml() {
         return String.format("#%02X%02X%02X", red, green, blue);
+    }
+
+    public static PortableColor asPortableColor(int argb) {
+        int b = (argb & 0xff);
+        int g = ((argb) >>> 8) & 0xFF;
+        int r = ((argb) >>> 16) & 0xFF;
+        int a = ((argb) >>> 24) & 0xFF;
+        return new PortableColor(r, g, b, a);
+    }
+
+    public PortableColor applyAlphaChannel() {
+        double al = alpha / 255.0;
+        double r = (red / 255.0) * al;
+        double g = (green / 255.0) * al;
+        double b = (blue / 255.0) * al;
+
+        return new PortableColor((int) (r * 255), (int) (g * 255), (int) (b * 255), 255);
     }
 }

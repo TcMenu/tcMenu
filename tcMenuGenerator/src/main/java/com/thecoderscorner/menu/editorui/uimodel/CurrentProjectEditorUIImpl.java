@@ -25,6 +25,8 @@ import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
 import com.thecoderscorner.menu.editorui.generator.ui.DefaultCodeGeneratorRunner;
 import com.thecoderscorner.menu.editorui.generator.ui.GenerateCodeDialog;
+import com.thecoderscorner.menu.editorui.gfxui.CreateBitmapWidgetToolDialog;
+import com.thecoderscorner.menu.editorui.gfxui.CreateFontUtilityDialog;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooser;
 import com.thecoderscorner.menu.editorui.project.MenuIdChooserImpl;
@@ -130,7 +132,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     @Override
     public void alertOnError(String heading, String description) {
         heading = decodeBundleIfNeeded(heading);
-        showAlertAndWait(Alert.AlertType.ERROR, heading, decodeBundleIfNeeded(description), ButtonType.YES, ButtonType.NO);
+        showAlertAndWait(Alert.AlertType.ERROR, heading, decodeBundleIfNeeded(description), ButtonType.CLOSE);
     }
 
     private String decodeBundleIfNeeded(String s) {

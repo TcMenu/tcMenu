@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <GridPane vgap="4" hgap="4" onKeyReleased="#onKeyReleased" styleClass="background"
           xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="com.thecoderscorner.menu.editorui.controller.CreateBitmapWidgetController">
+          fx:controller="com.thecoderscorner.menu.editorui.gfxui.CreateBitmapWidgetController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="24.5"/>
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="24.5"/>
@@ -32,6 +32,8 @@
             <Button fx:id="addImgButton" mnemonicParsing="false" onAction="#onAddImage" text="%bitmap.add.image"/>
             <Button fx:id="removeImgButton" mnemonicParsing="false" onAction="#onRemoveImage"
                     text="%bitmap.remove.image"/>
+            <Button fx:id="pasteImgButton" mnemonicParsing="false" onAction="#onPasteImage"
+                    text="%bitmap.paste.image"/>
             <Button fx:id="createWidgetButton" mnemonicParsing="false" onAction="#onCreateWidget"
                     text="%bitmap.create.widget"/>
             <Button fx:id="createBitmapButton" mnemonicParsing="false" onAction="#onCreateBitmaps"

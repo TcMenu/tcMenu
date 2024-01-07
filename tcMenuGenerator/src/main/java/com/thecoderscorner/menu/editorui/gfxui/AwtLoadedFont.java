@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.generator.font;
+package com.thecoderscorner.menu.editorui.gfxui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,7 +6,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.lang.System.Logger.Level;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -123,18 +126,7 @@ public class AwtLoadedFont implements LoadedFont {
                     logger.log(Level.DEBUG, "Empty Code " + code + "(" + strCode + ")");
                     fontGlyphConsumer.accept(Optional.empty());
                 } else {
-                    FontBitPacker bitSet = new FontBitPacker(dims.widthHeight());
-                    int theBit = 0;
-                    int perLine = (sizeBmp + 7) / 8;
-                    for (int y = dims.startY(); y < dims.lastY(); y++) {
-                        for (int x = dims.startX(); x < dims.lastX(); x++) {
-                            int rgb = (data[(y * perLine) + (x / 8)] >> (7-(x % 8))) & 1;
-                            bitSet.pushBit(rgb != 0);
-                            theBit = theBit + 1;
-                        }
-                    }
-
-                    byte[] fontRawData = bitSet.getData();
+                    byte[] fontRawData = getBitPackedDataFromImage(dims, sizeBmp, data);
                     logger.log(Level.DEBUG, "Code " + code + "(" + strCode + ") width " + width + " height " + dims.height());
                     fontGlyphConsumer.accept(Optional.of(
                             new ConvertedFontGlyph(code, dims, fontRawData, Math.round(lm.getAscent()), Math.round(lm.getDescent()), width)
@@ -144,6 +136,19 @@ public class AwtLoadedFont implements LoadedFont {
                 logger.log(Level.ERROR, "Processing of character failed, code=", code, ex);
             }
         });
+    }
+
+    private static byte[] getBitPackedDataFromImage(FontDimensionInformation dims, int sizeBmp, byte[] data) {
+        NativeBmpBitPacker awtSet = new NativeBmpBitPacker(data, sizeBmp, sizeBmp, false);
+        NativeBmpBitPacker bitSet = new NativeBmpBitPacker(dims.width(), dims.height(), true);
+        int theBit = 0;
+        for (int y = dims.startY(); y < dims.lastY(); y++) {
+            for (int x = dims.startX(); x < dims.lastX(); x++) {
+                bitSet.pushBit(awtSet.getBitAt(x, y));
+                theBit = theBit + 1;
+            }
+        }
+        return bitSet.getData();
     }
 
     private Object fromAntiAliasMode(AntiAliasMode antiAliasMode) {
@@ -195,30 +200,4 @@ public class AwtLoadedFont implements LoadedFont {
                 lastYLocation > baseline ? lastYLocation - baseline : 0);
     }
 
-    static class FontBitPacker {
-        public final int bitsNeeded;
-        public int bit;
-        public byte[] data;
-
-        public FontBitPacker(int bitsNeeded) {
-            this.bitsNeeded = bitsNeeded;
-            this.bit = 0;
-            this.data = new byte[(bitsNeeded + 7) / 8];
-            Arrays.fill(data, (byte)0);
-        }
-
-        public void pushBit(boolean value) {
-            if(bit >= bitsNeeded) throw new ArrayIndexOutOfBoundsException("too many bits");
-            byte theBit = (byte)(7 - (bit % 8));
-            if(value) {
-                this.data[bit / 8] |=  (byte)(1 << theBit);
-            }
-
-            bit++;
-        }
-
-        public byte[] getData() {
-            return data;
-        }
-    }
 }

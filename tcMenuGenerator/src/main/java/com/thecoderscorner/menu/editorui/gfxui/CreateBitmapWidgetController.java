@@ -1,5 +1,7 @@
-package com.thecoderscorner.menu.editorui.controller;
+package com.thecoderscorner.menu.editorui.gfxui;
 
+import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -14,7 +16,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -26,9 +27,9 @@ import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToSt
 
 public class CreateBitmapWidgetController {
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    public enum NativePixelFormat { XBITMAP } // PALETTE_8_COL, PALETTE_4_COL, PALETTE_2COL }
+    public enum NativePixelFormat { XBITMAP} // PALETTE_4_COL, PALETTE_2COL
 
-
+    public Button pasteImgButton;
     public CheckBox clipboardCheckBox;
     public TextField variableField;
     public Button addImgButton;
@@ -79,17 +80,58 @@ public class CreateBitmapWidgetController {
 
     public void onKeyReleased(KeyEvent keyEvent) {
         if(keyEvent.isShortcutDown() && !keyEvent.isShiftDown() && !keyEvent.isAltDown() && keyEvent.getCode() == KeyCode.V) {
-            var clipboard = Clipboard.getSystemClipboard();
-            if(clipboard.hasContent(DataFormat.IMAGE)) {
-                Image image = clipboard.getImage();
-                putImageIntoAvailableSlot(image);
-            } else {
-                editorUI.alertOnError("No image on clipboard", "Please ensure there is an image on the clipboard first.");
-            }
+            onPasteImage(new ActionEvent(keyEvent, pasteImgButton));
+        }
+    }
+
+    public void onPasteImage(ActionEvent actionEvent) {
+        var clipboard = Clipboard.getSystemClipboard();
+        if(clipboard.hasContent(DataFormat.IMAGE)) {
+            Image image = clipboard.getImage();
+            putImageIntoAvailableSlot(image);
+        } else {
+            editorUI.alertOnError("No image on clipboard", "Please ensure there is an image on the clipboard first.");
         }
     }
 
     private void putImageIntoAvailableSlot(Image image) {
+        int blankImage = findBlankImageIndex();
+        if (blankImage == -1) return;
+
+        BitmapImportPopup popup = new BitmapImportPopup(image, blankImage);
+        popup.showConfigSetup((Stage) addImgButton.getScene().getWindow(), this::importImage);
+    }
+    private void importImage(BitmapImportPopup popup) {
+        var blankImage = popup.getSlot();
+        var image = popup.getImage();
+        toggleArray[blankImage].setContentDisplay(ContentDisplay.TOP);
+        Optional<LoadedImage> maybeImage = createBitmap(NativePixelFormat.XBITMAP, popup);
+        if(maybeImage.isEmpty()) {
+            editorUI.alertOnError("Image conversion error", "Couldn't convert the image to the desired format");
+            return;
+        }
+        ImageView imgView = new ImageView(maybeImage.get().bmpData().createImageFromBitmap(popup.getPalette()));
+        double ratio = image.getWidth() / image.getHeight();
+        double maxWid = createWidgetButton.getScene().getHeight() * 0.2;
+        if(image.getWidth() > image.getHeight()) {
+            imgView.setFitWidth(maxWid);
+            imgView.setFitHeight(maxWid / ratio);
+        } else {
+            imgView.setFitWidth(maxWid * ratio);
+            imgView.setFitHeight(maxWid);
+        }
+
+        toggleArray[blankImage].setGraphic(imgView);
+        toggleArray[blankImage].setText(String.format("%s %.0fx%.0f", shortFmtText(pixelFormatCombo.getSelectionModel().getSelectedItem()),
+                image.getWidth(), image.getHeight()));
+        toggleArray[blankImage].setSelected(true);
+        toggleArray[blankImage].setDisable(false);
+        loadedImages.put(blankImage, maybeImage.get());
+
+        refreshButtonStates();
+    }
+
+    private int findBlankImageIndex() {
         int blankImage = -1;
         for(int i=0; i< 8; i++) {
             if(!loadedImages.containsKey(i)) {
@@ -100,33 +142,8 @@ public class CreateBitmapWidgetController {
 
         if(blankImage == -1) {
             editorUI.alertOnError("No image spaces available", "No images spaces are left available for the paste operation, remove at least one image");
-            return;
         }
-
-        toggleArray[blankImage].setContentDisplay(ContentDisplay.TOP);
-        Optional<LoadedImage> maybeImage = createBitmap(NativePixelFormat.XBITMAP, image);
-        if(maybeImage.isEmpty()) {
-            editorUI.alertOnError("Image conversion error", "Couldn't convert the image to the desired format");
-            return;
-        }
-        ImageView imgView = new ImageView(image);
-        if(image.getHeight() > image.getWidth()) {
-            double scaleFactor = image.getHeight() / 135;
-            imgView.setFitWidth(image.getWidth() / scaleFactor);
-            imgView.setFitHeight(135);
-        } else {
-            double scaleFactor = image.getWidth() / 180;
-            imgView.setFitWidth(180);
-            imgView.setFitHeight(image.getHeight() / scaleFactor);
-        }
-        toggleArray[blankImage].setGraphic(imgView);
-        toggleArray[blankImage].setText(String.format("%s %.0fx%.0f", shortFmtText(pixelFormatCombo.getSelectionModel().getSelectedItem()),
-                image.getWidth(), image.getHeight()));
-        toggleArray[blankImage].setSelected(true);
-        toggleArray[blankImage].setDisable(false);
-        loadedImages.put(blankImage, maybeImage.get());
-
-        refreshButtonStates();
+        return blankImage;
     }
 
     private String shortFmtText(NativePixelFormat fmtCode) {
@@ -241,7 +258,7 @@ public class CreateBitmapWidgetController {
             fileOut.println();
             fileOut.printf("const uint8_t %s%s%d[] PROGMEM = {", name, extraName, count++);
             fileOut.println();
-            printArrayToStream(fileOut, img.dataLoaded(), 20);
+            printArrayToStream(fileOut, img.bmpData().getData(), 20);
             fileOut.println("};");
         }
     }
@@ -294,32 +311,28 @@ public class CreateBitmapWidgetController {
                 variableField.getText() + " was successfully exported to " + where, ButtonType.CLOSE);
     }
 
-
-    public record LoadedImage(byte[] dataLoaded, NativePixelFormat pixelFormat, int width, int height, List<Color> rawColorData) {
-    }
-
-    Optional<LoadedImage> createBitmap(NativePixelFormat fmt, Image image) {
+    Optional<LoadedImage> createBitmap(NativePixelFormat fmt, BitmapImportPopup popup) {
+        Image image = popup.getImage();
         PixelReader reader = image.getPixelReader();
+        boolean applyAlpha = popup.isApplyAlpha();
         if(fmt == NativePixelFormat.XBITMAP) {
-            int oneLineBytes = ((int)image.getWidth() + 7) / 8;
-            int rawSize = oneLineBytes * (int)image.getHeight();
-            byte[] pixels = new byte[rawSize];
-            for(int y=0;y<image.getHeight();y++) {
-                for(int x=0; x<image.getWidth(); x++) {
-                    boolean on = reader.getArgb(x, y) != 0;
-                    int bit = (x&7);
-                    int theByte = (x / 8) + (y * oneLineBytes);
-                    if(on) {
-                        pixels[theByte] |= (1 << bit);
-                    } else {
-                        pixels[theByte] &= ~(1 << bit);
+            var bitmapProcessor = new NativeBmpBitPacker((int) image.getWidth(), (int) image.getHeight(), false);
+            PortablePalette palette = popup.getPalette();
+            bitmapProcessor.convertToBits((x, y) -> {
+                var col = PortableColor.asPortableColor(reader.getArgb(x, y));
+                return palette.getClosestColorIndex(col, popup.getTolerance() / 100.0, applyAlpha) != 0; // in this palette zero is background
+            });
 
-                    }
-                }
-            }
-
-            return Optional.of(new LoadedImage(pixels, NativePixelFormat.XBITMAP, (int) image.getWidth(), (int) image.getHeight(), List.of()));
+            return Optional.of(new LoadedImage(bitmapProcessor, NativePixelFormat.XBITMAP, (int) image.getWidth(), (int) image.getHeight(), palette));
         }
         return Optional.empty();
     }
+
+    public record LoadedImage(
+            NativeBmpBitPacker bmpData,
+            NativePixelFormat pixelFormat,
+            int width, int height,
+            PortablePalette palette) {
+    }
+
 }

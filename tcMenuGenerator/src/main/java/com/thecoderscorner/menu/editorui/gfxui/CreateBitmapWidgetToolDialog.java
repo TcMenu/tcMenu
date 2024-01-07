@@ -1,6 +1,6 @@
-package com.thecoderscorner.menu.editorui.dialog;
+package com.thecoderscorner.menu.editorui.gfxui;
 
-import com.thecoderscorner.menu.editorui.controller.CreateBitmapWidgetController;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.stage.Stage;
 

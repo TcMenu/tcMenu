@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.generator.font;
+package com.thecoderscorner.menu.editorui.gfxui;
 
 import java.io.IOException;
 import java.io.OutputStream;
