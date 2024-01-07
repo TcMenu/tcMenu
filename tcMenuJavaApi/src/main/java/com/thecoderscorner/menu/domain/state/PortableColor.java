@@ -46,6 +46,10 @@ public class PortableColor {
      * @param htmlCode the html code
      */
     public PortableColor(String htmlCode) {
+        if(htmlCode == null) {
+            red = green = blue = alpha = 0;
+            return;
+        }
         if (htmlCode.startsWith("#") && htmlCode.length() == 4) {
             red = (parseHex(htmlCode.charAt(1)) << 4);
             green = (parseHex(htmlCode.charAt(2)) << 4);
