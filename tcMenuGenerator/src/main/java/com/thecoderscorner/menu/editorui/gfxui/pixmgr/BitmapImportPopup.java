@@ -67,7 +67,7 @@ public class BitmapImportPopup {
         grid.add(pixelFormatCombo, 1, row++);
         pixelFormatCombo.setOnAction(event -> {
             palette = paletteControl.createPaletteFor(pixelFormatCombo.getValue());
-            paletteControl.initializePaletteEntries(palette);
+            paletteControl.initializePaletteEntries(palette, 350);
         });
 
         grid.add(new Label("Tolerance %"), 1, row++);
@@ -79,7 +79,7 @@ public class BitmapImportPopup {
         var useAlphaCheck = new CheckBox("Alpha channel");
         grid.add(useAlphaCheck, 1, row++);
 
-        paletteControl.initializePaletteEntries(palette);
+        paletteControl.initializePaletteEntries(palette, 350);
         grid.add(paletteControl.getControl(), 1, row++);
 
         ButtonBar buttonBar = new ButtonBar();

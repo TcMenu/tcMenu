@@ -27,9 +27,11 @@ public class UIColorPaletteControl {
         return scrollArea;
     }
 
-    public void initializePaletteEntries(PortablePalette palette) {
+    public void initializePaletteEntries(PortablePalette palette, int maxSize) {
         paletteEntries = new VBox();
         scrollArea.setContent(paletteEntries);
+        scrollArea.setMaxHeight(maxSize);
+        scrollArea.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         for(int i = 0; i < palette.getColorArray().length; i++) {
             var col = palette.getColorArray()[i];
