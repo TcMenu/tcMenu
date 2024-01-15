@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.gfxui;
+package com.thecoderscorner.menu.editorui.gfxui.pixmgr;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ public class NativeBmpBitPackerTest {
 
         // resetting to initial state
         packer.reset();
-        assertEquals(0, packer.getData()[0]);
+        assertEquals(0, packer.getData(NativePixelFormat.MONO_BITMAP)[0]);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class NativeBmpBitPackerTest {
             fail("Expected an ArrayIndexOutOfBoundsException to be thrown");
         } catch (ArrayIndexOutOfBoundsException e) {
             // Assert that exception message is not empty
-            assertTrue(!e.getMessage().isEmpty());
+            assertFalse(e.getMessage().isEmpty());
         }
     }
 
@@ -109,7 +109,8 @@ public class NativeBmpBitPackerTest {
         assertFalse(packer.getBitAt(1, 0));
         assertFalse(packer.getBitAt(3, 0));
         assertFalse(packer.getBitAt(5, 0));
-        assertFalse(packer.getBitAt(1, 1));
+        assertEquals(0, packer.getDataAt(1, 1));
+        assertEquals(1, packer.getDataAt(2, 0));
 
     }
 
@@ -121,7 +122,7 @@ public class NativeBmpBitPackerTest {
     @Test
     public void testConvertToBits() {
         var testedBitPacker = new NativeBmpBitPacker(8, 8, true);
-        BiFunction<Integer, Integer, Boolean> xyDataSupplier = (x, y) -> x == y;
+        BiFunction<Integer, Integer, Integer> xyDataSupplier = (x, y) -> x == y ? 1 : 0;
 
         testedBitPacker.convertToBits(xyDataSupplier);
 
@@ -132,13 +133,24 @@ public class NativeBmpBitPackerTest {
     @Test
     public void testConvertToBitsOutOfRange() {
         var testedBitPacker = new NativeBmpBitPacker(8, 8, true);
-        BiFunction<Integer, Integer, Boolean> xyDataSupplier = (x, y) -> x > 8 || y > 8;
+        BiFunction<Integer, Integer, Integer> xyDataSupplier = (x, y) -> ((x > 8) || (y > 8)) ? 1 : 0;
 
         try {
             testedBitPacker.convertToBits(xyDataSupplier);
         } catch (ArrayIndexOutOfBoundsException e){
             assertTrue(e instanceof ArrayIndexOutOfBoundsException);
         }
+    }
+
+    @Test
+    public void testGetDataInXbmpIsReversed() {
+        var by = new byte[] { 0x01, (byte) 0x80, 0x55, (byte) 0xAA};
+        var testBitPacker = new NativeBmpBitPacker(by, 16, 2, false);
+        var data = testBitPacker.getData(NativePixelFormat.XBM_LSB_FIRST);
+        assertEquals((byte)0x80, data[0]);
+        assertEquals(0x01, data[1]);
+        assertEquals((byte)0xAA, data[2]);
+        assertEquals(0x55, data[3]);
     }
 
     /**

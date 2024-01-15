@@ -1,5 +1,7 @@
 package com.thecoderscorner.menu.editorui.gfxui;
 
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;

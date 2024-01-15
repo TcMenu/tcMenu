@@ -87,9 +87,6 @@
             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
         </GridPane.margin>
     </ToggleButton>
-    <Label text="%bitmap.pixel.format" GridPane.rowIndex="4"/>
-    <ComboBox fx:id="pixelFormatCombo" onAction="#onPixelFormatChange" maxWidth="99999"
-              GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4"/>
     <TextField fx:id="variableField" promptText="variableName" GridPane.columnIndex="1" GridPane.columnSpan="2"
                GridPane.rowIndex="3"/>
 </GridPane>

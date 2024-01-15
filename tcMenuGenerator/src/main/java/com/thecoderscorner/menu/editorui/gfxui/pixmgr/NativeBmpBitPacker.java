@@ -1,16 +1,12 @@
-package com.thecoderscorner.menu.editorui.gfxui;
-
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
-import com.thecoderscorner.menu.domain.state.PortableColor;
-import com.thecoderscorner.menu.domain.util.PortablePalette;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+package com.thecoderscorner.menu.editorui.gfxui.pixmgr;
 
 import java.util.Arrays;
-import java.util.function.BiFunction;
 
-public class NativeBmpBitPacker {
+/**
+ * Supports the manipulation of native single pixel bitmaps such as fonts, XBMP and mono bitmap data.
+ * It is able to handle bit packing and also both MSB and LSB first data.
+ */
+public class NativeBmpBitPacker implements BmpDataManager {
     public final int lineSize;
     public final int bitsNeeded;
     public final byte[] data;
@@ -72,9 +68,9 @@ public class NativeBmpBitPacker {
         if (bit >= bitsNeeded) throw new ArrayIndexOutOfBoundsException("too many bits");
         byte theBit = (byte) (7 - (bit % 8));
         if (value) {
-            this.data[bit / 8] |= (byte) (1 << theBit);
+            this.data[bit / 8] |= (byte) ((1 << theBit));
         } else {
-            this.data[bit / 8] &= (byte) ~(1 << theBit);
+            this.data[bit / 8] &= (byte) ~((1 << theBit));
         }
         bit++;
     }
@@ -103,6 +99,29 @@ public class NativeBmpBitPacker {
     }
 
     /**
+     * Retrieves the pixel color index at the specified coordinates in the data array that represents
+     * the pixel data of the image.
+     *
+     * @param x The x-coordinate of the bit to retrieve
+     * @param y The y-coordinate of the bit to retrieve
+     * @return The index value of the specified pixel
+     */
+    public int getDataAt(int x, int y) {
+        return getBitAt(x, y) ? 1 : 0;
+    }
+
+    /**
+     * Sets the pixel value at the specified coordinates in the data array. Assumption that 0 is off
+     * and any other value is on.
+     *
+     * @param x The x-coordinate of the bit to set
+     * @param y The y-coordinate of the bit to set
+     */
+    public void setDataAt(int x, int y, int idx) {
+        setBitAt(x, y, idx != 0);
+    }
+
+    /**
      * Sets the bit value at the specified coordinates in the data array.
      *
      * @param x The x-coordinate of the bit to set
@@ -126,40 +145,39 @@ public class NativeBmpBitPacker {
     }
 
     /**
-     * Converts the x and y coordinates of a bitmap into bits using a supplied {@code BiFunction}.
-     *
-     * @param xyDataSupplier The function that provides the value for each bitmap coordinate. The function
-     *        should take in the x and y coordinates as parameters and return a boolean value representing the bit.
-     *        If the bit should be set, the function should return {@code true}, otherwise {@code false}.
-     *
-     * @throws ArrayIndexOutOfBoundsException if the supplied coordinates exceed the bitmap dimensions.
+     * Gets the data corrected as need be for the underlying format
+     * @param nativePixelFormat the pixel format
+     * @return the data converted if needed
      */
-    public void convertToBits(BiFunction<Integer, Integer, Boolean> xyDataSupplier) {
-        for(int y=0;y<yExtent;y++) {
-            for(int x=0; x<xExtent; x++) {
-                setBitAt(x, y, xyDataSupplier.apply(x, y));
+    public byte[] getData(NativePixelFormat nativePixelFormat) {
+        if(nativePixelFormat == NativePixelFormat.XBM_LSB_FIRST) {
+            byte[] reversed = Arrays.copyOf(data, data.length);
+            for(int i=0; i<reversed.length; i++) {
+                byte rev = 0;
+                for(int b=0;b<8;b++) {
+                    rev = (byte) (rev << 1);
+                    rev |= (byte) (((data[i] & (1 << b)) != 0) ? 1 : 0);
+                }
+                reversed[i] = rev;
             }
+            return reversed;
+        } else {
+            return data;
         }
     }
 
-    /**
-     * Returns a JavaFX Image object representing the bitmap data of the original size.
-     *
-     * @param palette The palette used to map colors from the bitmap to JavaFX colors.
-     * @return The JavaFX Image object representing the bitmap.
-     */
-    public Image createImageFromBitmap(PortablePalette palette) {
-        WritableImage img = new WritableImage(xExtent, yExtent);
-        PixelWriter writer = img.getPixelWriter();
+    @Override
+    public int getPixelWidth() {
+        return xExtent;
+    }
 
-        for (int y = 0; y < yExtent; y++) {
-            for (int x = 0; x < xExtent; x++) {
-                boolean bit = getBitAt(x, y);
-                PortableColor portableColor = bit ? palette.getColorAt(1) : palette.getColorAt(0);
-                writer.setColor(x, y, ControlColor.asFxColor(portableColor));
-            }
-        }
+    @Override
+    public int getPixelHeight() {
+        return yExtent;
+    }
 
-        return img;
+    @Override
+    public int getBitsPerPixel() {
+        return 1;
     }
 }

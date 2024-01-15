@@ -50,4 +50,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     opens com.thecoderscorner.menu.editorui.generator.mbed;
     opens com.thecoderscorner.menu.editorui.generator.plugin;
     opens com.thecoderscorner.menu.editorui.gfxui to com.google.gson;
+    exports com.thecoderscorner.menu.editorui.gfxui.pixmgr;
+    opens com.thecoderscorner.menu.editorui.gfxui.pixmgr to com.google.gson;
 }

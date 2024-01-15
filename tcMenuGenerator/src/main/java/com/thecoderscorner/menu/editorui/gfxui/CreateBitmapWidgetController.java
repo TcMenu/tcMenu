@@ -3,10 +3,9 @@ package com.thecoderscorner.menu.editorui.gfxui;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.*;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -20,14 +19,15 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
-import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
 public class CreateBitmapWidgetController {
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    public enum NativePixelFormat { XBITMAP} // PALETTE_4_COL, PALETTE_2COL
 
     public Button pasteImgButton;
     public CheckBox clipboardCheckBox;
@@ -37,7 +37,6 @@ public class CreateBitmapWidgetController {
 
     public Button createWidgetButton;
     public Button createBitmapButton;
-    public ComboBox<NativePixelFormat> pixelFormatCombo;
     public ToggleButton imageToggle1;
     public ToggleButton imageToggle2;
     public ToggleButton imageToggle3;
@@ -56,8 +55,6 @@ public class CreateBitmapWidgetController {
         this.editorUI = editorUI;
         this.homeDirectory = homeDirectory;
 
-        pixelFormatCombo.setItems(FXCollections.observableArrayList(NativePixelFormat.values()));
-        pixelFormatCombo.getSelectionModel().select(0);
         toggleArray = new ToggleButton[] { imageToggle1,imageToggle2,imageToggle3,imageToggle4,imageToggle5,imageToggle6,imageToggle7,imageToggle8 };
 
         variableField.textProperty().addListener((observable, oldValue, newValue) -> refreshButtonStates());
@@ -105,12 +102,8 @@ public class CreateBitmapWidgetController {
         var blankImage = popup.getSlot();
         var image = popup.getImage();
         toggleArray[blankImage].setContentDisplay(ContentDisplay.TOP);
-        Optional<LoadedImage> maybeImage = createBitmap(NativePixelFormat.XBITMAP, popup);
-        if(maybeImage.isEmpty()) {
-            editorUI.alertOnError("Image conversion error", "Couldn't convert the image to the desired format");
-            return;
-        }
-        ImageView imgView = new ImageView(maybeImage.get().bmpData().createImageFromBitmap(popup.getPalette()));
+        var img = createBitmap(popup);
+        ImageView imgView = new ImageView(img.bmpData().createImageFromBitmap(popup.getPalette()));
         double ratio = image.getWidth() / image.getHeight();
         double maxWid = createWidgetButton.getScene().getHeight() * 0.2;
         if(image.getWidth() > image.getHeight()) {
@@ -122,11 +115,11 @@ public class CreateBitmapWidgetController {
         }
 
         toggleArray[blankImage].setGraphic(imgView);
-        toggleArray[blankImage].setText(String.format("%s %.0fx%.0f", shortFmtText(pixelFormatCombo.getSelectionModel().getSelectedItem()),
+        toggleArray[blankImage].setText(String.format("%s %.0fx%.0f", shortFmtText(popup.getPixelFormat()),
                 image.getWidth(), image.getHeight()));
         toggleArray[blankImage].setSelected(true);
         toggleArray[blankImage].setDisable(false);
-        loadedImages.put(blankImage, maybeImage.get());
+        loadedImages.put(blankImage, img);
 
         refreshButtonStates();
     }
@@ -148,7 +141,10 @@ public class CreateBitmapWidgetController {
 
     private String shortFmtText(NativePixelFormat fmtCode) {
         return switch (fmtCode) {
-            case XBITMAP -> "XBMP";
+            case XBM_LSB_FIRST -> "XBMP";
+            case MONO_BITMAP -> "MONO";
+            case PALETTE_2BPP -> "2BPP(4)";
+            case PALETTE_4BPP -> "4BPP(16)";
         };
     }
 
@@ -224,61 +220,35 @@ public class CreateBitmapWidgetController {
         }
     }
 
-    private void writeOutTitleWidget(PrintStream fileOut) {
-        String name = VariableNameGenerator.makeNameFromVariable(variableField.getText());
-
-        StringBuilder arrayOfNames = new StringBuilder();
-        var items = new ArrayList<LoadedImage>();
+    private void writeOutTitleWidget(PrintStream fileOut) throws IOException {
+        var exporter = new NativeBitmapExporter();
         for(int i=0;i<8;i++) {
             if(loadedImages.containsKey(i) && toggleArray[i].isSelected()) {
-                if(!items.isEmpty()) {
-                    arrayOfNames.append(", ");
-                }
-                arrayOfNames.append(name).append("WidIcon").append(i);
-                items.add(loadedImages.get(i));
+                exporter.addImageToExport(loadedImages.get(i));
             }
         }
-
-        writeOutBitmaps(fileOut, name, items, "WidIcon");
-
-        fileOut.printf("const uint8_t* const %sWidIcons[] PROGMEM = { %s };", name, arrayOfNames);
-        fileOut.println();
-
-        fileOut.println();
-
-        fileOut.println("// Widget Generator " + variableField.getText());
-        fileOut.printf("TitleWidget %sWidget(%1$sWidIcons, %d, %d, %d, nullptr);", name, items.size(), items.get(0).width(), items.get(0).height());
-        fileOut.println();
-    }
-
-    private static void writeOutBitmaps(PrintStream fileOut, String name, ArrayList<LoadedImage> items, String extraName) {
-        int count = 0;
-        for(var img : items) {
-            fileOut.printf("// %s icon=%d, width=%d, height=%d, size=%d", name, count, img.width(), img.height(), ((img.width() + 7)/8) * img.height());
-            fileOut.println();
-            fileOut.printf("const uint8_t %s%s%d[] PROGMEM = {", name, extraName, count++);
-            fileOut.println();
-            printArrayToStream(fileOut, img.bmpData().getData(), 20);
-            fileOut.println("};");
-        }
+        exporter.exportBitmapDataAsWidget(fileOut, variableField.getText());
     }
 
     public void onCreateBitmaps(ActionEvent actionEvent) {
-        String name = VariableNameGenerator.makeNameFromVariable(variableField.getText());
+        String name = variableField.getText();
+        if(name.isEmpty() || name.matches(".*[\\s.].*")) {
+            editorUI.alertOnError("Invalid name", "Not a variable name");
+            return;
+        }
 
-        var items = new ArrayList<LoadedImage>();
+        var exporter = new NativeBitmapExporter();
         for(int i=0;i<8;i++) {
             if(loadedImages.containsKey(i) && toggleArray[i].isSelected()) {
-                items.add(loadedImages.get(i));
+                exporter.addImageToExport(loadedImages.get(i));
             }
         }
 
         if(clipboardCheckBox.isSelected()) {
             try(var os = new ByteArrayOutputStream(10240); var fileOut = new PrintStream(os);) {
-                writeOutBitmaps(fileOut, name, items, "Bitmap");
+                exporter.exportBitmaps(fileOut, name, "Bitmap");
                 Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, os.toString()));
                 exportSuccessful("clipboard");
-
             }
             catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "Could not put file content on clipboard", e);
@@ -289,7 +259,7 @@ public class CreateBitmapWidgetController {
         var maybeName = editorUI.findFileNameFromUser(getInitialDir(), false, "*.h");
         if(maybeName.isPresent()) {
             try(var fileOut = new PrintStream(new FileOutputStream(maybeName.get()))) {
-                writeOutBitmaps(fileOut, name, items, "Bitmap");
+                exporter.exportBitmaps(fileOut, name, "Bitmap");
                 exportSuccessful(maybeName.get());
             } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "File could not be written", e);
@@ -311,28 +281,28 @@ public class CreateBitmapWidgetController {
                 variableField.getText() + " was successfully exported to " + where, ButtonType.CLOSE);
     }
 
-    Optional<LoadedImage> createBitmap(NativePixelFormat fmt, BitmapImportPopup popup) {
+    LoadedImage createBitmap(BitmapImportPopup popup) {
+        NativePixelFormat fmt = popup.getPixelFormat();
         Image image = popup.getImage();
         PixelReader reader = image.getPixelReader();
         boolean applyAlpha = popup.isApplyAlpha();
-        if(fmt == NativePixelFormat.XBITMAP) {
-            var bitmapProcessor = new NativeBmpBitPacker((int) image.getWidth(), (int) image.getHeight(), false);
-            PortablePalette palette = popup.getPalette();
-            bitmapProcessor.convertToBits((x, y) -> {
-                var col = PortableColor.asPortableColor(reader.getArgb(x, y));
-                return palette.getClosestColorIndex(col, popup.getTolerance() / 100.0, applyAlpha) != 0; // in this palette zero is background
-            });
+        BmpDataManager bitmapProcessor = getBmpDataManager(fmt, image);
+        PortablePalette palette = popup.getPalette();
+        bitmapProcessor.convertToBits((x, y) -> {
+            var col = PortableColor.asPortableColor(reader.getArgb(x, y));
+            return palette.getClosestColorIndex(col, popup.getTolerance() / 100.0, applyAlpha); // in this palette zero is background
+        });
 
-            return Optional.of(new LoadedImage(bitmapProcessor, NativePixelFormat.XBITMAP, (int) image.getWidth(), (int) image.getHeight(), palette));
+        return new LoadedImage(bitmapProcessor, fmt, (int) image.getWidth(), (int) image.getHeight(), palette);
+    }
+
+    private static BmpDataManager getBmpDataManager(NativePixelFormat fmt, Image image) {
+        if(fmt == NativePixelFormat.XBM_LSB_FIRST || fmt == NativePixelFormat.MONO_BITMAP) {
+            return  new NativeBmpBitPacker((int) image.getWidth(), (int) image.getHeight(), false);
+        } else if(fmt == NativePixelFormat.PALETTE_2BPP || fmt == NativePixelFormat.PALETTE_4BPP) {
+            return  new NBppBitPacker((int) image.getWidth(), (int) image.getHeight(),
+                    (fmt == NativePixelFormat.PALETTE_2BPP) ? 2 : 4);
         }
-        return Optional.empty();
+        else throw new IllegalArgumentException("Unknown bitmap format");
     }
-
-    public record LoadedImage(
-            NativeBmpBitPacker bmpData,
-            NativePixelFormat pixelFormat,
-            int width, int height,
-            PortablePalette palette) {
-    }
-
 }
