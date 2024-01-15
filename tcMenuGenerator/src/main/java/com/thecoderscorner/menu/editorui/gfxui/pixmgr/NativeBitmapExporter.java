@@ -68,14 +68,11 @@ public class NativeBitmapExporter {
             fileOut.printf("// auto size = Coord(%d, %d);", img.width(), img.height());
             fileOut.println();
             if(img.palette().getBitsPerPixel() != 1) {
-                fileOut.printf("const color_t %s%s_palArr%d[] PROGMEM { ", name, extraName, count);
+                fileOut.printf("const color_t %s%s_palette%d[] PROGMEM { ", name, extraName, count);
                 fileOut.print(Arrays.stream(img.palette().getColorArray())
                         .map(color -> String.format("RGB(%d,%d,%d)", color.getRed(), color.getGreen(), color.getBlue()))
                         .collect(Collectors.joining(", ")));
                 fileOut.println(" };");
-                fileOut.printf("const PaletteDrawingData %s%s_palette%d PROGMEM = { %s%s_palArr%d,  2 };", name, extraName, count,
-                        name, extraName, count);
-                fileOut.println();
             }
             fileOut.printf("const uint8_t %s%s%d[] PROGMEM = {", name, extraName, count++);
             fileOut.println();

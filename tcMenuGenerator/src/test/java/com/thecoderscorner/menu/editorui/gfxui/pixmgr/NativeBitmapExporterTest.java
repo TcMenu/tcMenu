@@ -110,8 +110,7 @@ class NativeBitmapExporterTest {
                     };
                     // PALETTE_2BPP width=8, height=3, size=6
                     // auto size = Coord(8, 3);
-                    const color_t var1_palArr3[] PROGMEM { RGB(0,0,0), RGB(255,255,255), RGB(255,0,0), RGB(0,0,255) };
-                    const PaletteDrawingData var1_palette3 PROGMEM = { var1_palArr3,  2 };
+                    const color_t var1_palette3[] PROGMEM { RGB(0,0,0), RGB(255,255,255), RGB(255,0,0), RGB(0,0,255) };
                     const uint8_t var13[] PROGMEM = {
                     0x03,0x02,0x01,0x06,0x05,0x04
                     };
