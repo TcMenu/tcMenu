@@ -114,6 +114,13 @@
             <Param value="${MK_ENCODER_TYPE}"/>
         </Function>
 
+        <Function name="createInternalEncoder" object="tcMenuKeyListener" whenProperty="MK_NEED_ENCODER" isValue="false"/>
+
+        <Function name="initWithoutInput" object="menuMgr" whenProperty="MK_NEED_ENCODER" isValue="false">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+        </Function>
+
         <Function name="setRowPin" object="keyboardLayout">
             <Param value="0"/><Param value="${MK_ROW_PIN_0}"/>
         </Function>
