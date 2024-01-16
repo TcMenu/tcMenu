@@ -99,7 +99,7 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="init" object="switches" whenProperty="MK_NEED_ENCODER" isValue="true">
+        <Function name="init" object="switches">
             <Param ioDevice="${MK_ENCODER_DEVICE}" />
             <Param value="${MK_POLLING_MODE}" />
             <Param value="${MK_USE_PULL_UP}"/>
