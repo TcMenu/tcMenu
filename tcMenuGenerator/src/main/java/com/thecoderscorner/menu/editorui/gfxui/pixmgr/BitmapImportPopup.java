@@ -65,16 +65,25 @@ public class BitmapImportPopup {
         pixelFormatCombo.setItems(FXCollections.observableArrayList(NativePixelFormat.values()));
         pixelFormatCombo.getSelectionModel().select(0);
         grid.add(pixelFormatCombo, 1, row++);
+
+        var cbxTolerance = new ComboBox<>(FXCollections.observableArrayList(1, 5, 10, 15, 20));
+
         pixelFormatCombo.setOnAction(event -> {
-            palette = paletteControl.createPaletteFor(pixelFormatCombo.getValue());
+            if(pixelFormatCombo.getValue() == NativePixelFormat.PALETTE_2BPP || pixelFormatCombo.getValue() == NativePixelFormat.PALETTE_4BPP) {
+                NativePixelFormat fmt = pixelFormatCombo.getValue() == NativePixelFormat.PALETTE_2BPP ? NativePixelFormat.PALETTE_2BPP : NativePixelFormat.PALETTE_4BPP;
+                palette = paletteControl.paletteFromImage(loadedImage, fmt, cbxTolerance.getValue() / 100.0);
+
+            }
+            else {
+                palette = paletteControl.createPaletteFor(pixelFormatCombo.getValue());
+            }
             paletteControl.initializePaletteEntries(palette, 350);
         });
 
         grid.add(new Label("Tolerance %"), 1, row++);
-        var cbx = new ComboBox<>(FXCollections.observableArrayList(1, 5, 10, 15, 20));
-        cbx.setMaxWidth(99999);
-        cbx.getSelectionModel().select(2);
-        grid.add(cbx, 1, row++);
+        cbxTolerance.setMaxWidth(99999);
+        cbxTolerance.getSelectionModel().select(2);
+        grid.add(cbxTolerance, 1, row++);
 
         var useAlphaCheck = new CheckBox("Alpha channel");
         grid.add(useAlphaCheck, 1, row++);
@@ -96,7 +105,7 @@ public class BitmapImportPopup {
         popup.show(where);
 
         importButton.setOnAction(event -> {
-            tolerance = cbx.getValue();
+            tolerance = cbxTolerance.getValue();
             applyAlpha = useAlphaCheck.isSelected();
             pixelFormat = pixelFormatCombo.getValue();
             importContinuation.accept(this);
