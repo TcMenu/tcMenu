@@ -51,7 +51,10 @@ class NativeBitmapExporterTest {
         try(var os = new ByteArrayOutputStream(); var ps = new PrintStream(os)) {
             exporter.exportBitmapDataAsWidget(ps, "var1");
             TestUtils.assertEqualsIgnoringCRLF("""
+                    // To use palette and size constants we need to use tcgfx types
                     #include <graphics/DrawingPrimitives.h>
+                                        
+                    using namespace tcgfx;
                     
                     // XBM_LSB_FIRST width=8, height=3, size=3
                     // auto size = Coord(8, 3);
@@ -91,8 +94,11 @@ class NativeBitmapExporterTest {
         try(var os = new ByteArrayOutputStream(); var ps = new PrintStream(os)) {
             exporter.exportBitmaps(ps, "var1", "");
             TestUtils.assertEqualsIgnoringCRLF("""
+                    // To use palette and size constants we need to use tcgfx types
                     #include <graphics/DrawingPrimitives.h>
-                                        
+                    
+                    using namespace tcgfx;
+                    
                     // XBM_LSB_FIRST width=8, height=3, size=3
                     // auto size = Coord(8, 3);
                     const uint8_t var10[] PROGMEM = {

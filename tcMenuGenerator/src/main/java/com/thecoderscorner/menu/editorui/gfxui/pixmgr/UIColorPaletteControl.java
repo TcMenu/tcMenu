@@ -10,6 +10,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
@@ -70,18 +71,27 @@ public class UIColorPaletteControl {
         var maxColors = fmt == NativePixelFormat.PALETTE_2BPP ? 4 : 16;
         var colors = new PortableColor[maxColors];
         Arrays.fill(colors, BLACK);
-        colors[0] = ControlColor.fromFxColor(pixelReader.getColor(0, 0));
+        colors[0] = fromFxColorWithCorrectedOpacity(pixelReader.getColor(0, 0));
         var nextColor = 1;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                var color = fromFxColor(pixelReader.getColor(x, y));
-                if(!hasColorCloseTo(color, colors, nextColor, tolerance)) {
-                    colors[nextColor++] = color;
-                    if(nextColor >= maxColors) break;
+                var color = fromFxColorWithCorrectedOpacity(pixelReader.getColor(x, y));
+                if(!hasColorCloseTo(color, colors, nextColor, tolerance) && nextColor < maxColors) {
+                    colors[nextColor] = color;
+                    nextColor += 1;
                 }
             }
+            if(nextColor >= maxColors) break;
         }
         return new PortablePalette(colors, maxColors == 4 ? PaletteMode.TWO_BPP : PaletteMode.FOUR_BPP);
+    }
+
+    private PortableColor fromFxColorWithCorrectedOpacity(Color color) {
+        if(color.getOpacity() != 0) {
+            return fromFxColor(color);
+        } else {
+            return new PortableColor((short)(color.getRed() * 255.0), (short)(color.getGreen() * 255.0), (short)(color.getBlue() * 255.0));
+        }
     }
 
     private boolean hasColorCloseTo(PortableColor color, PortableColor[] colors, int currMax, double tolerance) {

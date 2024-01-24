@@ -38,8 +38,7 @@ public class NativeBitmapExporter {
             arrayOfNames.append(name).append("WidIcon").append(i);
         }
 
-        fileOut.println("#include <graphics/DrawingPrimitives.h>");
-        fileOut.println();
+        outputStandardHeader(fileOut);
 
         exportBitmapsInternal(fileOut, name, "WidIcon");
 
@@ -53,9 +52,16 @@ public class NativeBitmapExporter {
         fileOut.println();
     }
 
-    public void exportBitmaps(PrintStream fileOut, String name, String extra) {
+    private static void outputStandardHeader(PrintStream fileOut) {
+        fileOut.println("// To use palette and size constants we need to use tcgfx types");
         fileOut.println("#include <graphics/DrawingPrimitives.h>");
         fileOut.println();
+        fileOut.println("using namespace tcgfx;");
+        fileOut.println();
+    }
+
+    public void exportBitmaps(PrintStream fileOut, String name, String extra) {
+        outputStandardHeader(fileOut);
         exportBitmapsInternal(fileOut, name, extra);
     }
 
