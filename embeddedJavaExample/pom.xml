@@ -10,7 +10,7 @@
         <jdk.version>20</jdk.version>
         <jfx.version>20</jfx.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
-        <tcmenu.api.version>4.2.0-BETA</tcmenu.api.version>
+        <tcmenu.api.version>4.2.1</tcmenu.api.version>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 

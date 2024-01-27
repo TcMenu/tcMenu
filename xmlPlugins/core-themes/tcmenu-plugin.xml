@@ -4,7 +4,7 @@
                         xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin.xsd">
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
-        <Version>4.2.0-BETA</Version>
+        <Version>4.2.1</Version>
         <Name>%plugin.name</Name>
         <Description>This plugin provides themes that can be used with all graphical displays.</Description>
         <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
