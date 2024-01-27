@@ -42,12 +42,13 @@ void TfteSpiDrawable::internalDrawText(const Coord &where, const void *font, int
 void TfteSpiDrawable::drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) {
     if(icon->getIconType() == DrawableIcon::ICON_XBITMAP) {
         tft->drawXBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor, backgroundColor);
-    }
-    else if(icon->getIconType() == DrawableIcon::ICON_MONO) {
+    } else if(icon->getIconType() == DrawableIcon::ICON_MONO) {
         tft->drawBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor, backgroundColor);
-    }
-    else if(icon->getIconType() == DrawableIcon::ICON_NATIVE) {
+    } else if(icon->getIconType() == DrawableIcon::ICON_NATIVE) {
         tft->pushImage(where.x, where.y, icon->getDimensions().x, icon->getDimensions().y, (const uint16_t*)icon->getIcon(selected));
+    } else if(icon->getPalette() != nullptr) {
+        auto bpp = icon->getIconType() == tcgfx::DrawableIcon::ICON_PALLETE_2BPP ? 2 : 4;
+        drawBitmapNbpp(where, icon->getIcon(selected), icon->getDimensions(), bpp, icon->getPalette());
     }
 }
 
@@ -166,6 +167,77 @@ void TftSpriteAndConfig::transaction(bool isStarting, bool redrawNeeded) {
         sprite.pushSprite(where.x, where.y, 0, 0, currentSize.x, currentSize.y);
     }
 }
+
+void TftSpriteAndConfig::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const uint16_t* palette) {
+    auto yTot = int16_t(where.y + size.y);
+    auto xTot = int16_t(where.x + size.x);
+    int bitsInByte = bpp == 2 ? 4 : 2;
+    uint8_t downShift = bpp == 2 ? 6 : 4;
+
+    uint8_t byteIteration = bitsInByte;
+    uint8_t current;
+    for(int16_t y = where.y; y<yTot; y++) {
+        for(int16_t x = where.x; x<xTot; x++) {
+            if(byteIteration == bitsInByte) {
+                current = pgm_read_byte(data);
+                data += 1;
+                byteIteration = 0;
+            }
+            uint8_t idx = current >> downShift;
+            current = current << bitsInByte;
+            byteIteration++;
+            sprite.drawPixel(x, y, idx);
+        }
+        byteIteration = bitsInByte; // always need a new byte in this case
+    }
+}
+
+#ifndef COOKIE_CUT_MEMBUFFER_SIZE
+#define COOKIE_CUT_MEMBUFFER_SIZE 32
+#endif
+uint16_t memBuffer[COOKIE_CUT_MEMBUFFER_SIZE];
+
+void TfteSpiDrawable::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) {
+    auto yTot = int16_t(where.y + size.y);
+    auto xTot = int16_t(where.x + size.x);
+    int bitsInByte = bpp == 2 ? 4 : 2;
+    uint8_t downShift = bpp == 2 ? 6 : 4;
+
+    uint16_t next = 0;
+    uint8_t byteIteration = bitsInByte;
+    uint8_t current;
+
+    tft->startWrite();
+
+    for(int16_t y = where.y; y<yTot; y++) {
+        tft->setAddrWindow(where.x, y, size.x, 1);
+        for(int16_t x = where.x; x<xTot; x++) {
+            if(byteIteration == bitsInByte) {
+                current = pgm_read_byte(data);
+                data += 1;
+                byteIteration = 0;
+            }
+            uint8_t idx = current >> downShift;
+            current = current << bpp;
+            byteIteration++;
+
+            memBuffer[next] = palette[idx];
+            next = next + 1;
+            if(next == COOKIE_CUT_MEMBUFFER_SIZE) {
+                tft->pushColors(memBuffer, next);
+                next = 0;
+            }
+        }
+        if(next != 0) {
+            tft->pushColors(memBuffer, next);
+            next = 0;
+        }
+        byteIteration = bitsInByte; // always need a new byte in this case
+    }
+
+    tft->endWrite();
+}
+
 
 #if TC_TFT_ESPI_NEEDS_TOUCH == true
 

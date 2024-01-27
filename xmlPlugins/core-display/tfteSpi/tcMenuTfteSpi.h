@@ -41,6 +41,8 @@ public:
 
     void drawXBitmap(const Coord &where, const Coord &size, const uint8_t *data) override;
 
+    virtual void drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette);
+
     void drawBox(const Coord &where, const Coord &size, bool filled) override;
 
     void drawCircle(const Coord &where, int radius, bool filled) override;
@@ -75,6 +77,8 @@ public:
     DeviceDrawable *getSubDeviceFor(const Coord &where, const Coord& size, const color_t *palette, int paletteSize) override { return nullptr; }
     void transaction(bool isStarting, bool redrawNeeded) override;
     color_t getUnderlyingColor(color_t col) override;
+    void drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) override;
+    TFT_eSprite& getTftSprite() { return sprite; }
 };
 
 #define TC_TFT_ESPI_NEEDS_TOUCH false

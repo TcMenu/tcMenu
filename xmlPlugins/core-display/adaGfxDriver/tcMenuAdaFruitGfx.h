@@ -176,6 +176,7 @@ public:
     void internalDrawText(const Coord &where, const void *font, int mag, const char *text) override;
     void drawBitmap(const Coord &where, const DrawableIcon *icon, bool selected) override;
     void drawXBitmap(const Coord &where, const Coord &size, const uint8_t *data) override;
+    virtual void drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette);
     void drawBox(const Coord &where, const Coord &size, bool filled) override;
     void drawCircle(const Coord& where, int radius, bool filled) override;
     void drawPolygon(const Coord points[], int numPoints, bool filled) override;
@@ -212,6 +213,7 @@ public:
     void transaction(bool isStarting, bool redrawNeeded) override;
     color_t getUnderlyingColor(color_t col) override;
     DeviceDrawable *getSubDeviceFor(const Coord &where, const Coord &size, const color_t *palette, int paletteSize) override;
+    void drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) override;
 };
 
 #endif /* _TCMENU_TCMENUADAFRUITGFX_H_ */

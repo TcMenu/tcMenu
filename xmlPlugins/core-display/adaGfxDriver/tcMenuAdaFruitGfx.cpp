@@ -34,6 +34,8 @@ using namespace tcgfx;
 #endif // AVR reduced size buffer
 #endif // COOKIE_CUT_MEMBUFFER_SIZE
 
+uint16_t memBuffer[COOKIE_CUT_MEMBUFFER_SIZE];
+
 void AdafruitDrawable::transaction(bool isStarting, bool redrawNeeded) {
     if(!isStarting) refreshDisplayIfNeeded(graphics, redrawNeeded);
 }
@@ -52,13 +54,56 @@ void AdafruitDrawable::drawBitmap(const Coord &where, const DrawableIcon *icon, 
     if(icon->getIconType() == DrawableIcon::ICON_XBITMAP) {
         graphics->fillRect(where.x, where.y, icon->getDimensions().x, icon->getDimensions().y, backgroundColor);
         graphics->drawXBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor);
-    }
-    else if(icon->getIconType() == DrawableIcon::ICON_NATIVE) {
+    } else if(icon->getIconType() == DrawableIcon::ICON_NATIVE) {
         graphics->drawRGBBitmap(where.x, where.y, (const uint16_t*)icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y);
-    }
-    else if(icon->getIconType() == DrawableIcon::ICON_MONO) {
+    } else if(icon->getIconType() == DrawableIcon::ICON_MONO) {
         graphics->drawBitmap(where.x, where.y, icon->getIcon(selected), icon->getDimensions().x, icon->getDimensions().y, drawColor, backgroundColor);
+    } else if(icon->getPalette() != nullptr){
+        auto bpp = icon->getIconType() == tcgfx::DrawableIcon::ICON_PALLETE_2BPP ? 2 : 4;
+        drawBitmapNbpp(where, icon->getIcon(selected), icon->getDimensions(), bpp, icon->getPalette());
     }
+}
+
+void AdafruitDrawable::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const color_t* palette) {
+    auto* asTft = reinterpret_cast<Adafruit_SPITFT *>(graphics);
+    auto yTot = int16_t(where.y + size.y);
+    auto xTot = int16_t(where.x + size.x);
+    int bitsInByte = bpp == 2 ? 4 : 2;
+    uint8_t downShift = bpp == 2 ? 6 : 4;
+
+    uint16_t next = 0;
+    uint8_t byteIteration = bitsInByte;
+    uint8_t current;
+
+    asTft->startWrite();
+
+    for(int16_t y = where.y; y<yTot; y++) {
+        asTft->setAddrWindow(where.x, y, size.x, 1);
+        for(int16_t x = where.x; x<xTot; x++) {
+            if(byteIteration == bitsInByte) {
+                current = pgm_read_byte(data);
+                data += 1;
+                byteIteration = 0;
+            }
+            uint8_t idx = current >> downShift;
+            current = current << bpp;
+            byteIteration++;
+
+            memBuffer[next] = palette[idx];
+            next = next + 1;
+            if(next == COOKIE_CUT_MEMBUFFER_SIZE) {
+                asTft->writePixels(memBuffer, next);
+                next = 0;
+            }
+        }
+        if(next != 0) {
+            asTft->writePixels(memBuffer, next);
+            next = 0;
+        }
+        byteIteration = bitsInByte; // always need a new byte in this case
+    }
+
+    asTft->endWrite();
 }
 
 void AdafruitDrawable::drawXBitmap(const Coord &where, const Coord &size, const uint8_t *data) {
@@ -69,8 +114,7 @@ void AdafruitDrawable::drawXBitmap(const Coord &where, const Coord &size, const 
 void AdafruitDrawable::drawBox(const Coord &where, const Coord &size, bool filled) {
     if(filled) {
         graphics->fillRect(where.x, where.y, size.x, size.y, drawColor);
-    }
-    else {
+    } else {
         graphics->drawRect(where.x, where.y, size.x, size.y, drawColor);
     }
 }
@@ -156,8 +200,6 @@ UnicodeFontHandler *AdafruitDrawable::createFontHandler() {
 //
 // helper functions
 //
-
-uint16_t memBuffer[COOKIE_CUT_MEMBUFFER_SIZE];
 
 void drawCookieCutBitmap(Adafruit_SPITFT* gfx, int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
                          int16_t h, int16_t totalWidth, int16_t xStart, int16_t yStart,
@@ -519,7 +561,7 @@ DeviceDrawable *AdafruitDrawable::getSubDeviceFor(const Coord &where, const Coor
 }
 
 AdafruitCanvasDrawable2bpp::AdafruitCanvasDrawable2bpp(AdafruitDrawable *root,  int width, int height) : root(root),
-            sizeMax({width, height}), sizeCurrent(), palette{} {
+                                                                                                         sizeMax({width, height}), sizeCurrent(), palette{} {
     canvas = new TcGFXcanvas2(width, height);
     setGraphics(canvas);
 }
@@ -561,3 +603,26 @@ DeviceDrawable *AdafruitCanvasDrawable2bpp::getSubDeviceFor(const Coord&, const 
     return nullptr; // don't allow further nesting.
 }
 
+void AdafruitCanvasDrawable2bpp::drawBitmapNbpp(const Coord& where, const uint8_t* data, const Coord& size, int bpp, const uint16_t* palette) {
+    auto yTot = int16_t(where.y + size.y);
+    auto xTot = int16_t(where.x + size.x);
+    int bitsInByte = bpp == 2 ? 4 : 2;
+    uint8_t downShift = bpp == 2 ? 6 : 4;
+
+    uint8_t byteIteration = bitsInByte;
+    uint8_t current;
+    for(int16_t y = where.y; y<yTot; y++) {
+        for(int16_t x = where.x; x<xTot; x++) {
+            if(byteIteration == bitsInByte) {
+                current = pgm_read_byte(data);
+                data += 1;
+                byteIteration = 0;
+            }
+            uint8_t idx = current >> downShift;
+            current = current << bitsInByte;
+            byteIteration++;
+            canvas->drawPixel(x, y, idx);
+        }
+        byteIteration = bitsInByte; // always need a new byte in this case
+    }
+}
