@@ -23,7 +23,7 @@
 #include <BaseRenderers.h>
 #include <tcUnicodeHelper.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
+#include <Adafruit_Header.h>
 #include <gfxfont.h>
 #include <graphics/GfxMenuConfig.h>
 #include <BaseDialog.h>

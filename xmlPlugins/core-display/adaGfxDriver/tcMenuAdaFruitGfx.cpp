@@ -21,7 +21,7 @@ using namespace tcgfx;
 
 
 #if DISPLAY_HAS_MEMBUFFER == true
-#define refreshDisplayIfNeeded(gr, needUpd) {if(needUpd) reinterpret_cast<Adafruit_ILI9341*>(gr)->display();}
+#define refreshDisplayIfNeeded(gr, needUpd) {if(needUpd) reinterpret_cast<Adafruit_Driver*>(gr)->display();}
 #else
 #define refreshDisplayIfNeeded(g, n)
 #endif

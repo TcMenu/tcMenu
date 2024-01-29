@@ -45,17 +45,6 @@ public class MenuConfig extends BaseMenuConfig {
     }
 
     @TcComponent
-    public EmbeddedJavaDemoController menuController() {
-        return new EmbeddedJavaDemoController(
-                getBean(EmbeddedJavaDemoMenu.class),
-                getBean(JfxNavigationManager.class),
-                getBean(ScheduledExecutorService.class),
-                getBean(GlobalSettings.class),
-                getBean(MenuItemStore.class)
-        );
-    }
-
-    @TcComponent
     public MenuItemStore itemStore(GlobalSettings settings, EmbeddedJavaDemoMenu menuDef) {
         return new MenuItemStore(settings, menuDef.getMenuTree(), "", 7, 2, settings.isDefaultRecursiveRendering());
     }
@@ -97,6 +86,13 @@ public class MenuConfig extends BaseMenuConfig {
     @TcComponent
     public TcJettyWebServer webServer(ConfigurableProtocolConverter protocol, Clock clock) {
         return new TcJettyWebServer(protocol, clock, "./data/www", 8080, false);
+    }
+
+    @TcComponent
+    public EmbeddedJavaDemoController controller(EmbeddedJavaDemoMenu menuDef, JfxNavigationManager navMgr,
+                                                 ScheduledExecutorService executor, GlobalSettings settings,
+                                                 MenuItemStore itemStore) {
+        return new EmbeddedJavaDemoController(menuDef, navMgr, executor, settings, itemStore);
     }
 
     public MenuConfig() {
