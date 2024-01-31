@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.cli;
 
+import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -96,7 +97,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
             var enabledFormObjects = project.getOptions().getListOfEmbeddedForms().stream()
-                    .map(form -> getFirstByNameAndUuid(project, form)).toList();
+                    .map(form -> getFirstByNameAndUuid(appContext.getEcDataStore(), project, form)).toList();
 
             codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(),
                     getLocaleHandler(location), enabledFormObjects);
@@ -111,10 +112,11 @@ public class CodeGeneratorCommand implements Callable<Integer> {
         }
     }
 
-    private TcMenuFormPersistence getFirstByNameAndUuid(MenuTreeWithCodeOptions project, String formName) {
+    private TcMenuFormPersistence getFirstByNameAndUuid(DatabaseAppDataStore dataStore, MenuTreeWithCodeOptions project,
+                                                        String formName) {
         var uuid = project.getOptions().getApplicationUUID().toString();
         try {
-            return MenuEditorApp.getContext().getAppContext().getEcDataStore().getUtilities()
+            return dataStore.getUtilities()
                     .queryRecords(TcMenuFormPersistence.class, "FORM_UUID=? and FORM_NAME=?", uuid, formName)
                     .stream().findFirst().orElseThrow();
         } catch (DataException e) {

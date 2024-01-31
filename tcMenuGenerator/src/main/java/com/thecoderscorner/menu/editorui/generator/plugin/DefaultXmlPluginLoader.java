@@ -108,11 +108,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     }
 
     private Path findPluginDir() {
-        if("Y".equals(System.getProperty("devlog"))) {
+        if(System.getProperty("override.core.plugin.dir") != null) {
+            return Path.of(System.getProperty("override.core.plugin.dir"));
+        } else if("Y".equals(System.getProperty("devlog"))) {
             // Developer mode assume home directory is the tcMenuGenerator directory.
             return Path.of(System.getProperty("user.dir")).getParent().resolve("xmlPlugins");
-        } else if(System.getProperty("override.core.plugin.dir") != null) {
-            return Path.of(System.getProperty("override.core.plugin.dir"));
         } else {
             // packaged mode, plugins are stored within the application itself, in the ../app directory.
             int tries = 0;
