@@ -26,6 +26,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
@@ -102,9 +103,10 @@ public class CreateFontUtilityController {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
         fileChoice.ifPresent(file -> {
             fontFileField.setText(file);
-            loadedFont = new AwtLoadedFont(file, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
+            loadedFont = new NativeFreeFontLoadedFont(Paths.get(file), 100);
             changeNameField();
             recalcFont();
+            checkButtons();
         });
     }
 
@@ -136,7 +138,7 @@ public class CreateFontUtilityController {
 
             var allButtons = new ArrayList<ToggleButton>();
             int gridCol = 0;
-            for(int i=blockRange.getStartingCode(); i<blockRange.getEndingCode();i++) {
+            for(int i = minimumStartingCode(blockRange); i<blockRange.getEndingCode(); i++) {
                 var maybeGlyph = loadedFont.getConvertedGlyph(i);
                 if (maybeGlyph.isPresent()) {
                     var glyph = maybeGlyph.get();
@@ -172,19 +174,23 @@ public class CreateFontUtilityController {
 
     private Image fromGlyphToImg(ConvertedFontGlyph glyph) {
         WritableImage img = new WritableImage(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 2);
-        var writer = img.getPixelWriter();
-        int bitOffset = 0;
-        for(int y=glyph.fontDims().startY();y<glyph.fontDims().lastY(); y++) {
-            for(int x=glyph.fontDims().startX();x<glyph.fontDims().lastX(); x++) {
-                int byteOffset = bitOffset / 8;
-                if(byteOffset >= glyph.data().length) break;
-                int d = glyph.data()[byteOffset];
-                boolean on = (d & (1<<(7 - (bitOffset % 8)))) != 0;
-                if(on) {
-                    writer.setColor(x, y, Color.WHITE);
+        try {
+            var writer = img.getPixelWriter();
+            int bitOffset = 0;
+            for(int y=glyph.fontDims().startY();y<glyph.fontDims().lastY(); y++) {
+                for(int x=glyph.fontDims().startX();x<glyph.fontDims().lastX(); x++) {
+                    int byteOffset = bitOffset / 8;
+                    if(byteOffset >= glyph.data().length) break;
+                    int d = glyph.data()[byteOffset];
+                    boolean on = (d & (1<<(7 - (bitOffset % 8)))) != 0;
+                    if(on) {
+                        writer.setColor(x, y, Color.WHITE);
+                    }
+                    bitOffset++;
                 }
-                bitOffset++;
             }
+        } catch (Exception e) {
+            logger.log(System.Logger.Level.ERROR, "Image conversion caused exception", e);
         }
         return img;
     }
@@ -243,14 +249,14 @@ public class CreateFontUtilityController {
         var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
         if(maybeOutFile.isEmpty()) return;
         String outputFile = maybeOutFile.get();
-        logger.log(System.Logger.Level.INFO, "Convert font " + format + ", name " + outputFile);
+        logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, name \{outputFile}");
         try(var outStream = new FileOutputStream(outputFile)) {
             var blocks = new ArrayList<TcUnicodeFontBlock>();
             int maxY = 0;
 
             for(var blockMapping : blockMappings) {
                 var glyphsInBlock = new ArrayList<TcUnicodeFontGlyph>();
-                for(int i = blockMapping.getStartingCode(); i <= blockMapping.getEndingCode(); i++) {
+                for(int i = minimumStartingCode(blockMapping); i <= blockMapping.getEndingCode(); i++) {
                     if(!currentlySelected.containsKey(i)) continue;
                     var maybeRawGlyph = loadedFont.getConvertedGlyph(i);
                     if(maybeRawGlyph.isEmpty()) continue;
@@ -279,6 +285,10 @@ public class CreateFontUtilityController {
             editorUI.alertOnError("Font not converted", "The font was not converted due to the following. " + ex.getMessage());
             logger.log(System.Logger.Level.ERROR, "Unable to convert font to " + format, ex);
         }
+    }
+
+    private static int minimumStartingCode(UnicodeBlockMapping blockMapping) {
+        return Math.max(31, blockMapping.getStartingCode());
     }
 
     private void recalcSize() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <GridPane vgap="4" hgap="4" onKeyReleased="#onKeyReleased" styleClass="background"
@@ -15,7 +15,6 @@
     <rowConstraints>
         <RowConstraints vgrow="NEVER"/>
         <RowConstraints vgrow="ALWAYS" />
-        <RowConstraints vgrow="ALWAYS" />
         <RowConstraints vgrow="NEVER"/>
         <RowConstraints vgrow="NEVER"/>
         <RowConstraints vgrow="NEVER"/>
@@ -24,14 +23,25 @@
     <padding>
         <Insets topRightBottomLeft="10" />
     </padding>
+    <GridPane vgap="4" hgap="4" onKeyReleased="#onKeyReleased" fx:id="imageGridPane" GridPane.columnSpan="4"
+              GridPane.columnIndex="0" GridPane.rowIndex="1">
+    </GridPane>
     <Label text="%bitmap.create.title" GridPane.columnSpan="2"/>
+    <Label text="%bitmap.var.name.use" GridPane.rowIndex="3"/>
+    <TextField fx:id="variableField" promptText="variableName" GridPane.columnIndex="1" GridPane.columnSpan="2"
+               GridPane.rowIndex="3"/>
+
+    <CheckBox fx:id="clipboardCheckBox" mnemonicParsing="false" GridPane.rowIndex="5"
+              text="%bitmap.create.clipboard" GridPane.columnIndex="1" GridPane.columnSpan="2">
+        <padding>
+            <Insets left="5.0"/>
+        </padding>
+    </CheckBox>
     <ButtonBar GridPane.columnSpan="4" GridPane.rowIndex="6">
         <buttons>
             <Button mnemonicParsing="false" onAction="#onClose" text="%core.close.button" cancelButton="true"/>
             <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help"/>
             <Button fx:id="addImgButton" mnemonicParsing="false" onAction="#onAddImage" text="%bitmap.add.image"/>
-            <Button fx:id="removeImgButton" mnemonicParsing="false" onAction="#onRemoveImage"
-                    text="%bitmap.remove.image"/>
             <Button fx:id="pasteImgButton" mnemonicParsing="false" onAction="#onPasteImage"
                     text="%bitmap.paste.image"/>
             <Button fx:id="createWidgetButton" mnemonicParsing="false" onAction="#onCreateWidget"
@@ -40,53 +50,4 @@
                     text="%bitmap.create.bitmap"/>
         </buttons>
     </ButtonBar>
-    <Label text="%bitmap.var.name.use" GridPane.rowIndex="3"/>
-    <CheckBox fx:id="clipboardCheckBox" mnemonicParsing="false" GridPane.rowIndex="5"
-              text="%bitmap.create.clipboard" GridPane.columnIndex="1" GridPane.columnSpan="2">
-        <padding>
-            <Insets left="5.0"/>
-        </padding>
-    </CheckBox>
-    <ToggleButton fx:id="imageToggle1" mnemonicParsing="false" text="Image 1" GridPane.rowIndex="1" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle2" mnemonicParsing="false" text="Image 2" GridPane.columnIndex="1" GridPane.rowIndex="1" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle3" mnemonicParsing="false" text="Image 3" GridPane.columnIndex="2" GridPane.rowIndex="1" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle4" mnemonicParsing="false" text="Image 4" GridPane.columnIndex="3" GridPane.rowIndex="1" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle5" mnemonicParsing="false" text="Image 5" GridPane.rowIndex="2" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle6" mnemonicParsing="false" text="Image 6" GridPane.columnIndex="1" GridPane.rowIndex="2" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle7" mnemonicParsing="false" text="Image 7" GridPane.columnIndex="2" GridPane.rowIndex="2" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <ToggleButton fx:id="imageToggle8" mnemonicParsing="false" text="Image 8" GridPane.columnIndex="3" GridPane.rowIndex="2" maxWidth="99999" maxHeight="99999">
-        <GridPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
-        </GridPane.margin>
-    </ToggleButton>
-    <TextField fx:id="variableField" promptText="variableName" GridPane.columnIndex="1" GridPane.columnSpan="2"
-               GridPane.rowIndex="3"/>
 </GridPane>

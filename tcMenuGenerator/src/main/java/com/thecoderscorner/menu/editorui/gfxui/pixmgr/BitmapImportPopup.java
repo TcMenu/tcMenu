@@ -21,15 +21,13 @@ public class BitmapImportPopup {
             new PortableColor[] { PortableColor.BLACK, PortableColor.WHITE}, PortablePalette.PaletteMode.ONE_BPP
     );
     private final Image loadedImage;
-    private final int slot;
     private PortablePalette palette = EMPTY_PALETTE;
     private int tolerance;
     private boolean applyAlpha;
     private NativePixelFormat pixelFormat;
 
-    public BitmapImportPopup(Image loadedImage, int slot) {
+    public BitmapImportPopup(Image loadedImage) {
         this.loadedImage = loadedImage;
-        this.slot = slot;
     }
 
     private RowConstraints priorityRowConstraint(Priority priority) {
@@ -117,10 +115,6 @@ public class BitmapImportPopup {
 
     public Image getImage() {
         return loadedImage;
-    }
-
-    public int getSlot() {
-        return slot;
     }
 
     public PortablePalette getPalette() {
