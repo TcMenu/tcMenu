@@ -92,7 +92,8 @@ public class UIColorPaletteControl {
         hBox.getChildren().clear();
         listOfSwatches.clear();
         for(var col : pal.getColorArray()) {
-            var r = new Rectangle(20, 20, ControlColor.asFxColor(col));
+            int size = GlobalSettings.defaultFontSize() * 2;
+            var r = new Rectangle(size, size, ControlColor.asFxColor(col));
             listOfSwatches.add(r);
             hBox.getChildren().add(r);
         }

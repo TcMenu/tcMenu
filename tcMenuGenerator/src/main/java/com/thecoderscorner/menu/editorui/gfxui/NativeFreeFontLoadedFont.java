@@ -41,11 +41,11 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
                 FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
         );
         fontGetGlyph = linker.downcallHandle(
-                fontLib.find("canDisplay").orElseThrow(),
+                fontLib.find("getFontGlyph").orElseThrow(),
                 FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
         );
         canDisplayFn = linker.downcallHandle(
-                fontLib.find("getFontGlyph").orElseThrow(),
+                fontLib.find("canDisplay").orElseThrow(),
                 FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
         );
         setPixelsPerInch = linker.downcallHandle(

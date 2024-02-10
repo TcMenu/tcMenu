@@ -9,8 +9,13 @@ import javafx.scene.paint.Color;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Heavily based on Adafruit_GFX code, this edits a bitmap in a way similar to how Adafruit GFX draws onto native
+ * displays. It is done this way as we must avoid any aliasing whatsoever in graphics libraries given these bitmaps
+ * are going to be used later potentially on native displays.
+ */
 public class ImageDrawingGrid extends Canvas {
-    public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT }
+    public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT, OUTLINE_CIRCLE, FLOOD_FILL }
     private final BmpDataManager bitmap;
     private final PortablePalette palette;
     private final boolean editMode;
@@ -33,7 +38,7 @@ public class ImageDrawingGrid extends Canvas {
             setOnMousePressed(event -> {
                 xStart = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yStart = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
-                mode = DrawingMode.DOT;
+                mode = currentShape == DrawingMode.FLOOD_FILL ? DrawingMode.FLOOD_FILL : DrawingMode.DOT;
             });
 
             setOnMouseDragged(event -> {
@@ -56,25 +61,81 @@ public class ImageDrawingGrid extends Canvas {
                 int yEnd = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
                 if (xEnd >= bitmap.getPixelWidth() || yEnd >= bitmap.getPixelHeight()) return;
                 if(mode == DrawingMode.DOT) {
-                    bitmap.setDataAt(xEnd, yEnd, colorIndex);
                     recordChange();
+                    bitmap.setDataAt(xEnd, yEnd, colorIndex);
                     onPaintSurface(getGraphicsContext2D());
                 } else if(mode == DrawingMode.FILLED_RECT) {
                     recordChange();
                     filledRectangle(bitmap, xEnd, yEnd);
+                } else if(mode == DrawingMode.OUTLINE_CIRCLE) {
+                    recordChange();
+                    int halfX = (xEnd - xStart) / 2;
+                    drawCircle(xStart + halfX, yStart + halfX, halfX);
                 } else if(mode == DrawingMode.OUTLINE_RECT) {
                     recordChange();
-                    drawLine(xStart, yStart, xEnd, yStart);
-                    drawLine(xEnd, yStart, xEnd, yEnd);
-                    drawLine(xStart, yEnd, xEnd, yEnd);
-                    drawLine(xStart, yStart, xStart, yEnd);
+                    drawBoxOutline(xEnd, yEnd);
                 } else if(mode == DrawingMode.LINE) {
                     recordChange();
                     drawLine(xStart, yStart, xEnd, yEnd);
+                } else if(mode == DrawingMode.FLOOD_FILL) {
+                    recordChange();
+                    floodFill(xEnd, yEnd, bitmap.getDataAt(xEnd, yEnd));
                 }
                 mode = DrawingMode.NONE;
                 onPaintSurface(getGraphicsContext2D());
             });
+        }
+    }
+
+    private void floodFill(int x, int y, int startingCol) {
+        // make sure we are inside bounds, and still able to fill, IE colour is still the starting colour
+        if(x < 0 || y < 0 || x >= bitmap.getPixelWidth() || y >= bitmap.getPixelHeight()) return;
+        if(bitmap.getDataAt(x, y) != startingCol) return;
+
+        bitmap.setDataAt(x, y, colorIndex);
+        floodFill(x, y + 1, startingCol);
+        floodFill(x, y - 1, startingCol);
+        floodFill(x  - 1, y, startingCol);
+        floodFill(x  + 1, y, startingCol);
+    }
+
+    private void drawBoxOutline(int xEnd, int yEnd) {
+        drawLine(xStart, yStart, xEnd, yStart);
+        drawLine(xEnd, yStart, xEnd, yEnd);
+        drawLine(xStart, yEnd, xEnd, yEnd);
+        drawLine(xStart, yStart, xStart, yEnd);
+    }
+
+    private void drawCircle(int x0, int y0, int r) {
+        int f = 1 - r;
+        int ddF_x = 1;
+        int ddF_y = -2 * r;
+        int x = 0;
+        int y = r;
+
+        bitmap.setDataAt(x0, y0 + r, colorIndex);
+        bitmap.setDataAt(x0, y0 - r, colorIndex);
+        bitmap.setDataAt(x0 + r, y0, colorIndex);
+        bitmap.setDataAt(x0 - r, y0, colorIndex);
+
+        while (x < y) {
+            if (f >= 0) {
+                y--;
+                ddF_y += 2;
+                f += ddF_y;
+            }
+            x++;
+            ddF_x += 2;
+            f += ddF_x;
+
+            bitmap.setDataAt(x0 + x, y0 + y, colorIndex);
+            bitmap.setDataAt(x0 - x, y0 + y, colorIndex);
+            bitmap.setDataAt(x0 + x, y0 - y, colorIndex);
+            bitmap.setDataAt(x0 - x, y0 - y, colorIndex);
+            bitmap.setDataAt(x0 + y, y0 + x, colorIndex);
+            bitmap.setDataAt(x0 - y, y0 + x, colorIndex);
+            bitmap.setDataAt(x0 + y, y0 - x, colorIndex);
+            bitmap.setDataAt(x0 - y, y0 - x, colorIndex);
         }
     }
 
@@ -190,7 +251,7 @@ public class ImageDrawingGrid extends Canvas {
 
         double wid = ((xNow - xStart) + 1) * perSquareX;
         double hei = ((yNow - yStart) + 1) * perSquareY;
-        if(mode == DrawingMode.FILLED_RECT || mode == DrawingMode.OUTLINE_RECT) {
+        if(mode == DrawingMode.FILLED_RECT || mode == DrawingMode.OUTLINE_RECT || mode == DrawingMode.OUTLINE_CIRCLE) {
             gc.strokeRect(xStart * perSquareX, yStart * perSquareY, wid, hei);
         } else if(mode == DrawingMode.LINE) {
             gc.strokeLine(xStart * perSquareX, yStart * perSquareY, xNow * perSquareX, yNow * perSquareY);
@@ -218,7 +279,7 @@ public class ImageDrawingGrid extends Canvas {
         return dirty;
     }
 
-    public void onPositionUpdate(BiConsumer<Integer, Integer> consumer) {
+    public void setPositionUpdateListener(BiConsumer<Integer, Integer> consumer) {
         positionConsumer = consumer;
     }
 }

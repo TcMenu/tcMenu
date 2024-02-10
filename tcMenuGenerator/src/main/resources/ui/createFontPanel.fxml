@@ -51,19 +51,19 @@
     </Label>
     <ComboBox fx:id="fontStyleCombo" onAction="#onFontStyleChanged" maxWidth="99999"
               GridPane.columnIndex="3" GridPane.rowIndex="3"/>
-    <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="5">
+    <ScrollPane prefHeight="200.0" prefWidth="200.0" maxWidth="9999" fitToWidth="true" GridPane.columnSpan="4" GridPane.rowIndex="5">
         <GridPane fx:id="fontRenderArea">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints vgrow="SOMETIMES"/>

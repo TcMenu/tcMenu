@@ -126,7 +126,7 @@ public class CreateFontUtilityController {
                     for(var item : allItems) {
                         item.setSelected(selAllCheck.isSelected());
                     }
-                    for(int i=blockRange.getStartingCode(); i<=blockRange.getEndingCode();i++) {
+                    for(int i=minimumStartingCode(blockRange); i<=blockRange.getEndingCode();i++) {
                         currentlySelected.put(i, selAllCheck.isSelected());
                     }
                 }
