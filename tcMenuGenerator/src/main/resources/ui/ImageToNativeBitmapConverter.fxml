@@ -41,7 +41,8 @@
         <buttons>
             <Button mnemonicParsing="false" onAction="#onClose" text="%core.close.button" cancelButton="true"/>
             <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help"/>
-            <Button fx:id="addImgButton" mnemonicParsing="false" onAction="#onAddImage" text="%bitmap.add.image"/>
+            <Button fx:id="loadImageButton" mnemonicParsing="false" onAction="#onLoadImage" text="%bitmap.load.image"/>
+            <Button fx:id="newImgButton" mnemonicParsing="false" onAction="#onNewImage" text="%bitmap.add.image"/>
             <Button fx:id="pasteImgButton" mnemonicParsing="false" onAction="#onPasteImage"
                     text="%bitmap.paste.image"/>
             <Button fx:id="createWidgetButton" mnemonicParsing="false" onAction="#onCreateWidget"

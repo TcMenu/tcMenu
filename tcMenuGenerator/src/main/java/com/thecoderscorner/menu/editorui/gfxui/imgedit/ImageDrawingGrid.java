@@ -7,11 +7,14 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.util.function.BiConsumer;
+
 public class ImageDrawingGrid extends Canvas {
     public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT }
     private final BmpDataManager bitmap;
     private final PortablePalette palette;
     private final boolean editMode;
+    private BiConsumer<Integer, Integer> positionConsumer;
     private DrawingMode mode = DrawingMode.NONE;
     private DrawingMode currentShape = DrawingMode.LINE;
     private int colorIndex = 0;
@@ -40,6 +43,12 @@ public class ImageDrawingGrid extends Canvas {
                 yNow = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
                 if (xNow  >= bitmap.getPixelWidth() || yNow >= bitmap.getPixelHeight()) return;
                 onPaintSurface(getGraphicsContext2D());
+            });
+
+            setOnMouseMoved(event -> {
+                int xEnd = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
+                int yEnd = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
+                if(positionConsumer != null) positionConsumer.accept(xEnd, yEnd);
             });
 
             setOnMouseReleased(event -> {
@@ -207,5 +216,9 @@ public class ImageDrawingGrid extends Canvas {
 
     public boolean isModified() {
         return dirty;
+    }
+
+    public void onPositionUpdate(BiConsumer<Integer, Integer> consumer) {
+        positionConsumer = consumer;
     }
 }

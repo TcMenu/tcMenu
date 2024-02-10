@@ -122,6 +122,10 @@ public class PortableColor {
                 alpha == that.alpha;
     }
 
+    public int asArgb() {
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(red, green, blue, alpha);

@@ -1,17 +1,22 @@
 package com.thecoderscorner.menu.editorui.gfxui.pixmgr;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Popup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +39,7 @@ public class UIColorPaletteControl {
 
     public void initializePaletteEntries(PortablePalette palette, int maxSize) {
         paletteEntries = new VBox();
+        pickers.clear();
         scrollArea.setContent(paletteEntries);
         scrollArea.setMaxHeight(maxSize);
         scrollArea.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -60,11 +66,7 @@ public class UIColorPaletteControl {
     public Node swatchControl(PortablePalette pal, Consumer<Integer> colorConsumer) {
         HBox hBox = new HBox(2);
         var listOfSwatches = new ArrayList<Rectangle>();
-        for(var col : pal.getColorArray()) {
-            var r = new Rectangle(20, 20, ControlColor.asFxColor(col));
-            listOfSwatches.add(r);
-            hBox.getChildren().add(r);
-        }
+        populateColorsIntoBox(pal, listOfSwatches, hBox);
         hBox.setOnMouseClicked(event -> {
             var swatch = event.getTarget();
             if(swatch instanceof Rectangle newSel) {
@@ -76,13 +78,52 @@ public class UIColorPaletteControl {
             }
             var swatchIndex = hBox.getChildren().indexOf(event.getTarget());
             if(swatchIndex != -1 && swatchIndex < pal.getNumColors()) {
-                colorConsumer.accept(swatchIndex);
+                if(event.getClickCount() > 1) {
+                    showPopup(pal, hBox, () -> populateColorsIntoBox(pal, listOfSwatches, hBox));
+                } else {
+                    colorConsumer.accept(swatchIndex);
+                }
             }
         });
         return hBox;
     }
 
+    private static void populateColorsIntoBox(PortablePalette pal, ArrayList<Rectangle> listOfSwatches, HBox hBox) {
+        hBox.getChildren().clear();
+        listOfSwatches.clear();
+        for(var col : pal.getColorArray()) {
+            var r = new Rectangle(20, 20, ControlColor.asFxColor(col));
+            listOfSwatches.add(r);
+            hBox.getChildren().add(r);
+        }
+    }
+
+    private void showPopup(PortablePalette pal, HBox hBox, Runnable onClose) {
+        var popup = new Popup();
+        initializePaletteEntries(pal, 999);
+
+        var close = new Button("Apply");
+        close.setOnAction(_ -> {
+            popup.hide();
+            onClose.run();
+        });
+        var vbox = new VBox(4);
+        vbox.getChildren().add(paletteEntries);
+        vbox.getChildren().add(close);
+        vbox.setOpacity(1);
+        vbox.setBackground(Background.fill(Color.BLACK));
+        vbox.setOpaqueInsets(new Insets(10));
+        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+
+        popup.getContent().add(vbox);
+        popup.show(hBox.getScene().getWindow());
+    }
+
     public PortablePalette paletteFromImage(Image img, NativePixelFormat fmt, double tolerance) {
+        // when null return the default
+        if(img == null) return createPaletteFor(fmt);
+
+        // otherwise get the palette based on the colors in the image and the tolerance.
         var width = (int) img.getWidth();
         var height = (int) img.getHeight();
         var pixelReader = img.getPixelReader();

@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.editorui.gfxui.imgedit;
 
 import com.thecoderscorner.menu.domain.util.PortablePalette;
+import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.UIColorPaletteControl;
@@ -42,7 +43,7 @@ public class SimpleImageEditor {
 
         HBox hbox = new HBox(4);
         hbox.setAlignment(Pos.CENTER_LEFT);
-        hbox.getChildren().add(new Label("Toolbar"));
+        hbox.getChildren().add(new Label("Function"));
         pane.setTop(hbox);
         ImageDrawingGrid canvas = new ImageDrawingGrid(bitmap, palette, true);
         var modeComboBox = new ComboBox<>(FXCollections.observableArrayList(
@@ -51,6 +52,8 @@ public class SimpleImageEditor {
         modeComboBox.getSelectionModel().select(0);
         modeComboBox.setOnAction(_ -> canvas.setCurrentShape(modeComboBox.getValue()));
         hbox.getChildren().add(modeComboBox);
+
+        hbox.getChildren().add(new Label("Palette"));
         UIColorPaletteControl paletteControl = new UIColorPaletteControl();
         hbox.getChildren().add(paletteControl.swatchControl(palette, canvas::setCurrentColor));
 
@@ -66,7 +69,9 @@ public class SimpleImageEditor {
             }
         });
         hbox.getChildren().add(saveButton);
-
+        var xyLabel = new Label("");
+        canvas.onPositionUpdate((x, y) -> xyLabel.setText(STR."X=\{x}, Y=\{y}"));
+        hbox.getChildren().add(xyLabel);
 
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty().multiply(0.9));
@@ -75,11 +80,16 @@ public class SimpleImageEditor {
         pane.heightProperty().addListener((_) -> canvas.onPaintSurface(canvas.getGraphicsContext2D()));
 
         pane.setCenter(canvas);
+        pane.getStyleClass().add("background");
 
         Scene scene = new Scene(pane);
         Stage stage = new Stage();
+        stage.setMaximized(true);
+        stage.setWidth(800);
+        stage.setWidth(600);
         stage.setScene(scene);
         stage.setTitle(STR."Bitmap Editor \{shortFmtText(format)} \{bitmap.getPixelWidth()} x \{bitmap.getPixelHeight()}");
+        BaseDialogSupport.getJMetro().setScene(scene);
         stage.showAndWait();
         return canvas.isModified();
     }

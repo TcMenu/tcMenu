@@ -37,9 +37,10 @@ public class CreateBitmapWidgetController {
     public Button pasteImgButton;
     public CheckBox clipboardCheckBox;
     public TextField variableField;
-    public Button addImgButton;
+    public Button newImgButton;
     public Button createWidgetButton;
     public Button createBitmapButton;
+    public Button loadImageButton;
     public GridPane imageGridPane;
 
     private CurrentProjectEditorUI editorUI;
@@ -130,7 +131,7 @@ public class CreateBitmapWidgetController {
         if (loadedImages.size() >= 8) return;
 
         BitmapImportPopup popup = new BitmapImportPopup(image);
-        popup.showConfigSetup((Stage) addImgButton.getScene().getWindow(), this::importImage);
+        popup.showConfigSetup((Stage) newImgButton.getScene().getWindow(), this::importImage);
     }
     private void importImage(BitmapImportPopup popup) {
         var img = createBitmap(popup);
@@ -140,7 +141,10 @@ public class CreateBitmapWidgetController {
     }
 
     private void refreshButtonStates() {
-        addImgButton.setDisable(loadedImages.size() == 8);
+        boolean tooManyImages = loadedImages.size() == 8;
+        newImgButton.setDisable(tooManyImages);
+        loadImageButton.setDisable(tooManyImages);
+        pasteImgButton.setDisable(tooManyImages);
         var variableEmpty = variableField.getText().isEmpty();
         createWidgetButton.setDisable(loadedImages.isEmpty() || variableEmpty);
         createBitmapButton.setDisable(loadedImages.isEmpty() || variableEmpty);
@@ -153,8 +157,12 @@ public class CreateBitmapWidgetController {
     public void onOnlineHelp(ActionEvent ignoredActionEvent) {
         SafeNavigator.safeNavigateTo(AppInformationPanel.CREATE_USE_BITMAP_PAGE);
     }
+    public void onNewImage(ActionEvent ignoredActionEvent) {
+        var popup = new BitmapImportPopup();
+        popup.showNewBitmap((Stage) newImgButton.getScene().getWindow(), this::importImage);
+    }
 
-    public void onAddImage(ActionEvent ignoredActionEvent) {
+    public void onLoadImage(ActionEvent ignoredActionEvent) {
         var maybeFile = editorUI.findFileNameFromUser(getInitialDir(), true, "*");
         if(maybeFile.isPresent()) {
             try(var is = new BufferedInputStream(new FileInputStream(maybeFile.get()))) {
