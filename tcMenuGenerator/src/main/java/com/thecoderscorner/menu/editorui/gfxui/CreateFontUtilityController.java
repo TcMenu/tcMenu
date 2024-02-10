@@ -1,9 +1,15 @@
 package com.thecoderscorner.menu.editorui.gfxui;
 
+import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontBlock;
+import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.collections.FXCollections;
@@ -15,11 +21,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -59,7 +63,7 @@ public class CreateFontUtilityController {
     private Path currentDir;
     private LoadedFont loadedFont = NO_LOADED_FONT;
     private Set<UnicodeBlockMapping> blockMappings = Set.of();
-    private final Map<UnicodeBlockMapping,List<ToggleButton>> controlsByBlock = new HashMap<>();
+    private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
     private final Map<Integer, Boolean> currentlySelected = new HashMap<>();
 
     public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
@@ -136,29 +140,24 @@ public class CreateFontUtilityController {
 
             gridRow++;
 
-            var allButtons = new ArrayList<ToggleButton>();
+            var allButtons = new ArrayList<FontGlyphDataControl>();
             int gridCol = 0;
             for(int i = minimumStartingCode(blockRange); i<blockRange.getEndingCode(); i++) {
                 var maybeGlyph = loadedFont.getConvertedGlyph(i);
                 if (maybeGlyph.isPresent()) {
                     var glyph = maybeGlyph.get();
-                    Image img = fromGlyphToImg(glyph);
-                    var toggleButton = new ToggleButton("U" + glyph.code() + " : " + new String(Character.toChars(glyph.code())));
-                    ImageView fontImg = new ImageView(img);
-                    fontImg.fitHeightProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
-                    fontImg.fitWidthProperty().bind(fontRenderArea.getScene().widthProperty().multiply(.05));
-                    toggleButton.setGraphic(fontImg);
-                    toggleButton.setContentDisplay(ContentDisplay.TOP);
-                    toggleButton.setTooltip(new Tooltip(String.format("W=%d, H=%d", glyph.calculatedWidth(), glyph.toBaseLine() + glyph.belowBaseline())));
+                    var bmp = fromGlyphToImg(glyph);
+                    var toggleButton = new FontGlyphDataControl(i, bmp);
                     var selected = currentlySelected.get(glyph.code());
                     toggleButton.setSelected(selected != null && selected);
-                    toggleButton.setOnAction(event -> {
-                        currentlySelected.put(glyph.code(), toggleButton.isSelected());
-                        recalcSize();
-                    });
-                    fontRenderArea.add(toggleButton, gridCol, gridRow);
+//                    toggleButton.setOnAction(event -> {
+//                        currentlySelected.put(glyph.code(), toggleButton.isSelected());
+//                        recalcSize();
+//                    });
+                    Pane ui = toggleButton.getUI();
+                    fontRenderArea.add(ui, gridCol, gridRow);
                     allButtons.add(toggleButton);
-                    GridPane.setMargin(toggleButton, new Insets(4));
+                    GridPane.setMargin(ui, new Insets(4));
                     gridCol++;
                     if(gridCol > 9) {
                         gridCol = 0;
@@ -172,10 +171,9 @@ public class CreateFontUtilityController {
         recalcSize();
     }
 
-    private Image fromGlyphToImg(ConvertedFontGlyph glyph) {
-        WritableImage img = new WritableImage(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 2);
+    private BmpDataManager fromGlyphToImg(ConvertedFontGlyph glyph) {
+        var data = new NativeBmpBitPacker(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 2, true);
         try {
-            var writer = img.getPixelWriter();
             int bitOffset = 0;
             for(int y=glyph.fontDims().startY();y<glyph.fontDims().lastY(); y++) {
                 for(int x=glyph.fontDims().startX();x<glyph.fontDims().lastX(); x++) {
@@ -184,7 +182,7 @@ public class CreateFontUtilityController {
                     int d = glyph.data()[byteOffset];
                     boolean on = (d & (1<<(7 - (bitOffset % 8)))) != 0;
                     if(on) {
-                        writer.setColor(x, y, Color.WHITE);
+                        data.setBitAt(x, y, true);
                     }
                     bitOffset++;
                 }
@@ -192,7 +190,7 @@ public class CreateFontUtilityController {
         } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "Image conversion caused exception", e);
         }
-        return img;
+        return data;
     }
 
     @SuppressWarnings("unused")
@@ -334,5 +332,28 @@ public class CreateFontUtilityController {
     @SuppressWarnings("unused")
     public void onOnlineHelp(ActionEvent actionEvent) {
         SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
+    }
+
+    class FontGlyphDataControl {
+        private static final PortablePalette FONT_PALETTE = new PortablePalette(new PortableColor[]{PortableColor.BLACK, PortableColor.WHITE}, PortablePalette.PaletteMode.ONE_BPP);
+        final private int code;
+        final private BmpDataManager data;
+        boolean selected;
+
+        public FontGlyphDataControl(int code, BmpDataManager data) {
+            this.code = code;
+            this.data = data;
+        }
+
+        public Pane getUI() {
+            BorderPane pane = new BorderPane();
+            pane.setCenter(new SimpleImagePane(data, NativePixelFormat.MONO_BITMAP, false, FONT_PALETTE, List.of()));
+            pane.setBottom(new Label(STR."U\{code} : \{new String(Character.toChars(code))}"));
+            return pane;
+        }
+
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
     }
 }
