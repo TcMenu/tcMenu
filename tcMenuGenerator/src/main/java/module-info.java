@@ -8,6 +8,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires javafx.graphics;
     requires javafx.base;
     requires javafx.controls;
+    requires javafx.swing;
     requires java.net.http;
 
     requires com.thecoderscorner.tcmenu.javaapi;

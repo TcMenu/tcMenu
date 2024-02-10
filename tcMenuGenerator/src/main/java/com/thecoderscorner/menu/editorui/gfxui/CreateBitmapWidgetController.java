@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.gfxui;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
+import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.*;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
@@ -90,13 +91,20 @@ public class CreateBitmapWidgetController {
             LoadedImage img = loadedImages.get(i);
             var editButton = new Button("edit");
             var removeButton = new Button("remove");
+            var buttons = List.of(editButton, removeButton);
+            var imageView = new SimpleImagePane(img.bmpData(), img.pixelFormat(),false, img.palette(), buttons);
+
+            editButton.setOnAction(_ -> {
+                var editor = new SimpleImageEditor(img.bmpData(), img.pixelFormat(), img.palette());
+                if(editor.presentUI(editorUI)) {
+                    imageView.invalidate();
+                }
+            });
             removeButton.setOnAction(_ -> {
                 loadedImages.remove(img);
                 refreshGridComponents();
                 refreshButtonStates();
             });
-            var buttons = List.of(editButton, removeButton);
-            var imageView = new SimpleImagePane(img.bmpData(), img.pixelFormat(),false, img.palette(), buttons);
             GridPane.setConstraints(imageView, i % cols, i / cols);
             imageGridPane.getChildren().add(imageView);
         }
@@ -179,7 +187,7 @@ public class CreateBitmapWidgetController {
                 exportSuccessful(maybeName.get());
             } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "File could not be written", e);
-                editorUI.alertOnError("Not exported to file", "Not exported to file " + e.getMessage());
+                editorUI.alertOnError("Not exported to file", STR."Not exported to file \{e.getMessage()}");
             }
         }
     }
@@ -212,7 +220,7 @@ public class CreateBitmapWidgetController {
             }
             catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "Could not put file content on clipboard", e);
-                editorUI.alertOnError("Not exported to Clipboard", "Not exported to Clipboard " + e.getMessage());
+                editorUI.alertOnError("Not exported to Clipboard", STR."Not exported to Clipboard \{e.getMessage()}");
             }
             return;
         }
@@ -223,7 +231,7 @@ public class CreateBitmapWidgetController {
                 exportSuccessful(maybeName.get());
             } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "File could not be written", e);
-                editorUI.alertOnError("File not written", "Error while writing file " + e.getMessage());
+                editorUI.alertOnError("File not written", STR."Error while writing file \{e.getMessage()}");
             }
         }
     }

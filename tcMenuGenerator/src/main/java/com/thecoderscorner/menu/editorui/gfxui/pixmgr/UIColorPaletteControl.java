@@ -16,6 +16,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.*;
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
@@ -56,11 +57,28 @@ public class UIColorPaletteControl {
         }
     }
 
-    public Node swatchControl(PortablePalette pal) {
+    public Node swatchControl(PortablePalette pal, Consumer<Integer> colorConsumer) {
         HBox hBox = new HBox(2);
+        var listOfSwatches = new ArrayList<Rectangle>();
         for(var col : pal.getColorArray()) {
-            hBox.getChildren().add(new Rectangle(20, 20, ControlColor.asFxColor(col)));
+            var r = new Rectangle(20, 20, ControlColor.asFxColor(col));
+            listOfSwatches.add(r);
+            hBox.getChildren().add(r);
         }
+        hBox.setOnMouseClicked(event -> {
+            var swatch = event.getTarget();
+            if(swatch instanceof Rectangle newSel) {
+                for(var r : listOfSwatches) {
+                    r.setStrokeWidth(0);
+                }
+                newSel.setStroke(Color.BLACK);
+                newSel.setStrokeWidth(2);
+            }
+            var swatchIndex = hBox.getChildren().indexOf(event.getTarget());
+            if(swatchIndex != -1 && swatchIndex < pal.getNumColors()) {
+                colorConsumer.accept(swatchIndex);
+            }
+        });
         return hBox;
     }
 

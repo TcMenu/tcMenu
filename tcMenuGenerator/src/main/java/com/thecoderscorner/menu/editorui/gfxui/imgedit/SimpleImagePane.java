@@ -15,6 +15,7 @@ public class SimpleImagePane extends BorderPane {
     private final Image image;
     private final boolean editable;
     private final PortablePalette palette;
+    private final ImageDrawingGrid canvas;
 
     public SimpleImagePane(BmpDataManager bitmap, NativePixelFormat format, boolean editable, PortablePalette palette,
                            List<Button> actionButtons) {
@@ -23,7 +24,7 @@ public class SimpleImagePane extends BorderPane {
         this.palette = palette;
         setMaxSize(99999, 99999);
 
-        ImageDrawingGrid canvas = new ImageDrawingGrid(image, editable);
+        canvas = new ImageDrawingGrid(bitmap, palette, editable);
         canvas.widthProperty().bind(widthProperty());
         canvas.heightProperty().bind(heightProperty().multiply(0.9));
 
@@ -39,7 +40,7 @@ public class SimpleImagePane extends BorderPane {
         canvas.onPaintSurface(canvas.getGraphicsContext2D());
     }
 
-    private String shortFmtText(NativePixelFormat fmtCode) {
+    public static String shortFmtText(NativePixelFormat fmtCode) {
         return switch (fmtCode) {
             case XBM_LSB_FIRST -> "XBMP";
             case MONO_BITMAP -> "MONO";
@@ -48,4 +49,7 @@ public class SimpleImagePane extends BorderPane {
         };
     }
 
+    public void invalidate() {
+        canvas.onPaintSurface(canvas.getGraphicsContext2D());
+    }
 }
