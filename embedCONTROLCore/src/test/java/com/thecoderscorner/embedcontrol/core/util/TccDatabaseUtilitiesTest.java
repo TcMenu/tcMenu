@@ -4,12 +4,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sqlite.SQLiteDataSource;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.embedcontrol.core.util.PersistenceTestObj.PersistType.*;
@@ -19,19 +25,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TccDatabaseUtilitiesTest {
     private TccDatabaseUtilities dbUtilities;
-    private SQLiteDataSource dataSource;
+    private Connection connection;
+    private Path tempDir;
 
     @BeforeEach
-    void setUp() throws SQLException {
-        dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite::memory:");
-        dbUtilities = new TccDatabaseUtilities(dataSource);
+    void setUp() throws SQLException, IOException {
+        tempDir = Files.createTempDirectory("tcDbTest");
+        connection = DriverManager.getConnection("jdbc:hsqldb:mem:" + tempDir, "SA", "");
+        dbUtilities = new TccDatabaseUtilities(connection);
     }
 
     @AfterEach
-    void tearDown() {
-        dataSource = null;
+    void tearDown() throws SQLException, IOException {
+        connection.close();
         dbUtilities = null;
+        Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
     @Test
@@ -134,9 +145,7 @@ class TccDatabaseUtilitiesTest {
 
     private void checkTableHasColumns(Class<PersistenceTestObj> persistedType) throws Exception {
         var tableMapping = persistedType.getAnnotation(TableMapping.class);
-        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
-        var res = dbUtilities.queryRawSqlSingleInt(sql, tableMapping.tableName());
-        Assertions.assertEquals(1, res);
+        Assertions.assertTrue(dbUtilities.checkTableExists(tableMapping.tableName()));
         dbUtilities.rawSelect("SELECT * FROM " + tableMapping.tableName(), resultSet -> {
             var allFields = Arrays.stream(persistedType.getDeclaredFields())
                     .filter(pt -> pt.isAnnotationPresent(FieldMapping.class))

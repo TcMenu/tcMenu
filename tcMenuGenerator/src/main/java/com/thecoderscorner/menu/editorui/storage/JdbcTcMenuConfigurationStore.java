@@ -57,7 +57,7 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             // and if not started before, on the first attempt, we try and copy from preferences or default.
             if(firstStart) createIfNeeded();
             // and lastly load the configuration
-            loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElseThrow();
+            loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElse(makeDefaultConfig());
 
             var r = databaseUtilities.queryStrings("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX");
             recentItems = r.stream().map(rec -> new RecentlyUsedItem(Paths.get(rec).getFileName().toString(), rec))
@@ -72,6 +72,21 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         logger.log(INFO, "Loaded initial designer settings as" + loadedConfig);
     }
 
+    private LoadedConfiguration makeDefaultConfig() {
+        var lc = new LoadedConfiguration();
+        lc.setUsingArduinoIDE(true);
+        lc.setSaveToSrc(false);
+        lc.setEEPROMSized(true);
+        lc.setRecursiveNaming(false);
+        lc.setNumberBackups(DEFAULT_NUM_BACKUPS);
+        lc.setLocale("DEFAULT");
+        lc.setArduinoOverrideDirectory("");
+        lc.setLibraryOverrideDirectory("");
+        lc.setProjectMaxLevel(1);
+        lc.setCurrentTheme("lightMode");
+        return lc;
+    }
+
     private void createIfNeeded() {
         logger.log(INFO, "First startup on database config.");
         // we are creating a new instance, let us try and copy from preferences.
@@ -82,19 +97,11 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             nodeExists = false;
         }
 
-        LoadedConfiguration lc = new LoadedConfiguration();
+        LoadedConfiguration lc;
         if(!nodeExists) {
-            lc.setUsingArduinoIDE(true);
-            lc.setSaveToSrc(false);
-            lc.setEEPROMSized(true);
-            lc.setRecursiveNaming(false);
-            lc.setNumberBackups(DEFAULT_NUM_BACKUPS);
-            lc.setLocale("DEFAULT");
-            lc.setArduinoOverrideDirectory("");
-            lc.setLibraryOverrideDirectory("");
-            lc.setProjectMaxLevel(1);
-            lc.setCurrentTheme("lightMode");
+            lc = makeDefaultConfig();
         } else {
+            lc = new LoadedConfiguration();
             Preferences prefsNode = Preferences.userNodeForPackage(BaseDialogSupport.class);
             var prefs = new PrefsConfigurationStorage();
             var lastTheme = prefsNode.get("uiTheme", "lightMode");

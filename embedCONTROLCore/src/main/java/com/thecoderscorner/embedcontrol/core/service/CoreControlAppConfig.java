@@ -6,19 +6,18 @@ import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
-import org.sqlite.SQLiteDataSource;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class CoreControlAppConfig {
     protected final Path tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
-    protected final SQLiteDataSource dataSource;
     protected final PlatformSerialFactory serialFactory;
     protected final TccDatabaseUtilities databaseUtils;
     private final ApplicationThemeManager themeManager;
@@ -28,20 +27,22 @@ public class CoreControlAppConfig {
     protected ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
 
     public CoreControlAppConfig() throws Exception {
+        var dbHome = tcMenuHome.resolve("h2db");
         if(!Files.exists(tcMenuHome)) {
             try {
                 Files.createDirectory(tcMenuHome);
+                Files.createDirectory(dbHome);
             } catch (IOException e) {
                 System.getLogger("Context").log(System.Logger.Level.ERROR, "Could not create ~/.tcmenu directory");
             }
         }
 
-        dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + tcMenuHome.resolve("tcDataStore.db"));
+        var dbSafePath = dbHome.toString().replace('\\', '/') + "/tcmenuConfig";
+        Connection c = DriverManager.getConnection("jdbc:hsqldb:file:" + dbSafePath, "SA", "");
 
         serializer = new JsonMenuItemSerializer();
 
-        databaseUtils = new TccDatabaseUtilities(dataSource);
+        databaseUtils = new TccDatabaseUtilities(c);
 
         themeManager = new ApplicationThemeManager();
         globalSettings = new GlobalSettings(themeManager);
@@ -66,10 +67,6 @@ public class CoreControlAppConfig {
 
     public Path getHomeDir() {
         return tcMenuHome;
-    }
-
-    public DataSource getDataSource() {
-        return dataSource;
     }
 
     public DatabaseAppDataStore getEcDataStore() {

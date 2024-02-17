@@ -2,9 +2,9 @@ package com.thecoderscorner.menu.editorui.simui;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
+import com.thecoderscorner.embedcontrol.core.service.FormPersistMode;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
-import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.customization.formbuilder.FormBuilderPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.*;
@@ -13,7 +13,9 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.embed.FormManagerController;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.mgr.DialogManager;
 import com.thecoderscorner.menu.remote.AuthStatus;
@@ -23,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -31,8 +34,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -42,6 +50,8 @@ import static java.lang.System.Logger.Level.ERROR;
 public class SimulatorUI {
     public static final int WIDGET_ID_FORM = 1;
     public static final int WIDGET_ID_SETTINGS = 2;
+
+    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     private JfxNavigationHeader navMgr;
     private MenuTree menuTree;
@@ -56,8 +66,11 @@ public class SimulatorUI {
     private String uuid;
     private TcMenuFormPersistence currentLayout;
     private MenuItemStore itemStore;
+    private Path formsDir;
 
     public void presentSimulator(MenuTree menuTree, CurrentEditorProject project, Stage stage) {
+        var mainDir = Paths.get(project.getFileName()).getParent();
+        formsDir = mainDir.resolve("forms");
         this.menuTree = menuTree;
         this.project = project;
         var appContext = MenuEditorApp.getContext().getAppContext();
@@ -85,6 +98,10 @@ public class SimulatorUI {
         dialogStage.setOnCloseRequest(event -> closeConsumer.accept(event));
 
         dataStore = appContext.getEcDataStore();
+        if(Files.exists(formsDir) && Files.isDirectory(formsDir)) {
+            autoImportAllFormsIntoDb(formsDir);
+        }
+
         var dialogMgr = new DoNothingDialogManager();
         navMgr = new JfxNavigationHeader(appContext.getExecutorService(), settings);
         var control = new SimulatorUIControl();
@@ -106,12 +123,41 @@ public class SimulatorUI {
                 this::saveFormConsumer, new JfxMenuEditorFactory(control, Platform::runLater, dialogMgr));
     }
 
+    private void autoImportAllFormsIntoDb(Path formsDir) {
+        try(var fileList = Files.list(formsDir)) {
+            // get all project forms to ensure they are still valid. This automatically prunes any project stored
+            // forms that no longer exist on the disk.
+            List<TcMenuFormPersistence> allProjectForms = dataStore.getAllProjectBasedForms();
+
+            // next we get all the forms that are defined in the project forms dir
+            var xmlFiles = fileList.filter(path -> path.getFileName().toString().toLowerCase().endsWith(".xml")).toList();
+
+            // and create project form records for any that don't exist. These are effectively symlinks to the file
+            // that is on disk, and are mainly kept in sync on a best efforts basis using this method, every time the
+            // preview window is loaded.
+            for(var f : xmlFiles) {
+                var match = allProjectForms.stream().anyMatch(form -> form.getFileNameIfPresent().orElseThrow().equals(f));
+                if(!match) {
+                    var data = Files.readString(f);
+                    var form = FormManagerController.buildObjectFromXml(data, FormPersistMode.WITHIN_PROJECT, f).orElseThrow();
+                    dataStore.updateForm(form);
+                }
+            }
+        } catch (Exception e) {
+            logger.log(ERROR, "Could not sync forms with project files in " + formsDir);
+        }
+    }
+
     private void saveFormConsumer(String xml, String newName) {
         if(currentLayout == null) return;
-        currentLayout = currentLayout.withNewNameAndXml(newName, xml);
+        currentLayout = currentLayout.projectFormLayoutUpdate(newName);
         try {
+            var fileNameOpt = currentLayout.getFileNameIfPresent();
+            if(fileNameOpt.isPresent()) {
+                Files.writeString(fileNameOpt.get(), xml, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            }
             dataStore.updateForm(currentLayout);
-        } catch (DataException e) {
+        } catch (Exception e) {
             System.getLogger("Simulator").log(ERROR, "Form Save failed");
         }
         rebuildGrid();
@@ -152,10 +198,34 @@ public class SimulatorUI {
     }
 
     private void createActivateNewLayout() {
-        var form = TcMenuFormPersistence.anEmptyFormPersistence(uuid);
-        currentLayout = form;
-        itemStore.loadLayout(currentLayout.getXmlData(), UUID.fromString(uuid));
-        navMgr.pushNavigationIfNotOnStack(formEditorPanel);
+        var maybeName = acquireFormNameFromUser();
+        try {
+            if (maybeName.isEmpty()) return;
+            var name = maybeName.get();
+            var fileName = formsDir.resolve(VariableNameGenerator.makeNameFromVariable(name) + ".xml");
+            if (!Files.exists(formsDir)) {
+                Files.createDirectory(formsDir);
+            }
+            var formData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+                    "<EmbedControl boardUuid=\"" + uuid + "\" layoutName=\"" + name + "\"><MenuLayouts/><ColorSets/></EmbedControl>";
+            Files.writeString(fileName, formData);
+            currentLayout = TcMenuFormPersistence.createProjectFileFormPersistence(name, uuid, fileName.toString());
+            dataStore.updateForm(currentLayout);
+            itemStore.loadLayout(currentLayout.getXmlData(), UUID.fromString(uuid));
+            navMgr.pushNavigationIfNotOnStack(formEditorPanel);
+        } catch(Exception ex) {
+            logger.log(ERROR, "Could not create new layout", ex);
+        }
+    }
+
+    private Optional<String> acquireFormNameFromUser() {
+        var inputDlg = new TextInputDialog("");
+        inputDlg.setTitle("Input name");
+        inputDlg.setHeaderText("Enter name of form for " + Paths.get(project.getFileName()).getFileName());
+        var maybeText = inputDlg.showAndWait();
+        if(maybeText.isEmpty()) return Optional.empty();
+        if(maybeText.get().trim().isEmpty()) return Optional.empty();
+        return maybeText;
     }
 
     private void rebuildGrid() {

@@ -52,7 +52,7 @@ public class MenuConfig extends BaseMenuConfig {
     @TcComponent
     public GlobalSettings globalSettings() {
         var settings = new GlobalSettings(new ApplicationThemeManager());
-        // load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store
+        // load or adjust the settings as needed here. You could use the JDBC components to load and store
         // these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.
         settings.setDefaultFontSize(16);
         settings.setDefaultRecursiveRendering(false);

@@ -1,11 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.util;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,12 +19,10 @@ import java.util.stream.Collectors;
 public class TccDatabaseUtilities {
     private final System.Logger logger = System.getLogger(TccDatabaseUtilities.class.getSimpleName());
     private final String newLine = System.getProperty("line.separator");
-    private final DataSource dataSource;
     private final Connection connection;
 
-    public TccDatabaseUtilities(DataSource dataSource) throws SQLException {
-        this.dataSource = dataSource;
-        connection = this.dataSource.getConnection();
+    public TccDatabaseUtilities(Connection c) throws SQLException {
+        connection = c;
     }
 
     public void close() throws Exception {
@@ -73,7 +67,7 @@ public class TccDatabaseUtilities {
                 case BOOLEAN -> field.setBoolean(item, rs.getInt(fm.fieldName()) == 1);
                 case INTEGER -> field.setInt(item, rs.getInt(fm.fieldName()));
                 case ISO_DATE -> field.set(item, LocalDateTime.parse(rs.getString(fm.fieldName()), DateTimeFormatter.ISO_DATE_TIME));
-                case VARCHAR, BLOB -> field.set(item, rs.getString(fm.fieldName()));
+                case VARCHAR, LARGE_TEXT -> field.set(item, rs.getString(fm.fieldName()));
                 case ENUM -> field.set(item, Enum.valueOf((Class<Enum>) field.getType(), rs.getString(fm.fieldName())));
             }
         }
@@ -118,7 +112,7 @@ public class TccDatabaseUtilities {
                     var annotation = field.getAnnotation(FieldMapping.class);
                     field.setAccessible(true);
                     names.add(annotation.fieldName());
-                    values.add(field.get(data));
+                    putValueInArray(data, field, annotation, values);
                 }
                 sql = "INSERT INTO " + tableInfo.tableName() + "(" + String.join(",", names)
                         + ") values(?" + ",?".repeat(values.size() - 1) + ");";
@@ -128,7 +122,7 @@ public class TccDatabaseUtilities {
                     field.setAccessible(true);
                     var annotation = field.getAnnotation(FieldMapping.class);
                     names.add("  " + annotation.fieldName() + " = ?");
-                    values.add(field.get(data));
+                    putValueInArray(data, field, annotation, values);
                 }
                 values.add(pkValue);
                 sql = "UPDATE " + tableInfo.tableName() + newLine
@@ -146,6 +140,14 @@ public class TccDatabaseUtilities {
         } catch (Exception e) {
             throw new DataException("Update record " + databaseType.getSimpleName(), e);
         }
+    }
+
+    private static <T> void putValueInArray(T data, Field field, FieldMapping annotation, ArrayList<Object> values) throws IllegalAccessException {
+        if(annotation.fieldType() == FieldType.BOOLEAN) {
+            values.add(((boolean) field.get(data)) ? 1 : 0);
+        } else if(field.get(data) != null) {
+            values.add(field.get(data).toString());
+        } else values.add(null);
     }
 
     private int nextRecordForTable(TableMapping tableInfo) throws DataException {
@@ -166,9 +168,7 @@ public class TccDatabaseUtilities {
             boolean changed = false;
 
             logger.log(System.Logger.Level.INFO, "Checking for table " + tableMapping.tableName());
-            var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
-            var res = queryRawSqlSingleInt(sql, tableMapping.tableName());
-            if (res == 0) {
+            if(!checkTableExists(tableMapping.tableName())) {
                 createTableFully(tableMapping, fieldMappings);
                 changed = true;
             } else {
@@ -203,7 +203,7 @@ public class TccDatabaseUtilities {
         }
     }
 
-    private FieldMapping[] getAnnotationsByType(Class<?> databaseType, Class<?> fieldMappingClass) {
+    private FieldMapping[] getAnnotationsByType(Class<?> databaseType, Class<?> ignoredFieldMappingClass) {
         var l = Arrays.stream(databaseType.getDeclaredFields())
                 .filter(f -> f.isAnnotationPresent(FieldMapping.class))
                 .map(f -> f.getAnnotation(FieldMapping.class))
@@ -227,7 +227,7 @@ public class TccDatabaseUtilities {
     private void createTableFully(TableMapping tableMapping, FieldMapping[] fieldMappings) throws DataException {
         logger.log(System.Logger.Level.DEBUG, "Creating table " + tableMapping.tableName());
 
-        var sql = "CREATE TABLE " + tableMapping.tableName() + "(" + newLine;
+        var sql = "CREATE CACHED TABLE " + tableMapping.tableName() + "(" + newLine;
         sql += Arrays.stream(fieldMappings).map(fm -> "  " + fm.fieldName() + " " + toTypeDecl(fm))
                 .collect(Collectors.joining("," + newLine));
         sql += ");";
@@ -248,7 +248,7 @@ public class TccDatabaseUtilities {
         var strTy = switch (fm.fieldType()) {
             case ENUM, VARCHAR, ISO_DATE -> "VARCHAR(255)";
             case INTEGER, BOOLEAN -> "INTEGER";
-            case BLOB -> "BLOB";
+            case LARGE_TEXT -> "CLOB(262143)";
         };
         return fm.primaryKey() ? strTy + " PRIMARY KEY" : strTy;
     }
@@ -264,6 +264,15 @@ public class TccDatabaseUtilities {
             throw new DataException("Query had no result but was int query");
         } catch (Exception ex) {
             throw new DataException("Query raw SQL single " + sql, ex);
+        }
+    }
+
+    public int queryRawSqlSingleIntNoException(String sql, Object... data) {
+        try {
+            return queryRawSqlSingleInt(sql, data);
+        } catch (Exception ex) {
+            logger.log(System.Logger.Level.WARNING, "query single int caught exception returning 0 - " + ex.getMessage());
+            return 0;
         }
     }
 
@@ -301,15 +310,32 @@ public class TccDatabaseUtilities {
     }
 
     public boolean checkTableExists(String table) throws DataException {
-        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
-        return queryRawSqlSingleInt(sql, table) != 0;
+        ResultSet mapping = null;
+        try {
+            DatabaseMetaData dbm = connection.getMetaData();
+            mapping = dbm.getTables(null, null, "%", null);
+            while(mapping.next()) {
+                String tableName = mapping.getString(3);
+                if(tableName.equals(table)) return true;
+            }
+            return false;
+        } catch (Exception ex) {
+            logger.log(System.Logger.Level.ERROR, "Failed checking table", ex);
+            return false;
+        } finally {
+            if(mapping != null) {
+                try {
+                    mapping.close();
+                } catch (SQLException e) {
+                    logger.log(System.Logger.Level.ERROR, "Could not close connection", e);
+                }
+            }
+        }
     }
 
     public void ensureTableExists(String tableToCheck, String sqlForCreate) {
-        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
         try {
-            int res = queryRawSqlSingleInt(sql, tableToCheck);
-            if (res == 0) {
+            if(!checkTableExists(tableToCheck)) {
                 executeRaw(sqlForCreate);
             }
         } catch (DataException e) {

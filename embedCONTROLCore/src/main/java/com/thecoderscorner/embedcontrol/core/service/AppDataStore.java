@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * THe app store stores all connection and form information, the default implementation is backed by an SQLite database
+ * THe app store stores all connection and form information, the default implementation is backed by a database
  * that is stored in the .tcmenu directory.
  */
 public interface AppDataStore {
@@ -52,6 +52,7 @@ public interface AppDataStore {
 
     List<TcMenuFormPersistence> getAllForms();
     List<TcMenuFormPersistence> getAllFormsForUuid(String uuid);
+    List<TcMenuFormPersistence> getAllProjectBasedForms();
     void updateForm(TcMenuFormPersistence form) throws DataException;
     void deleteForm(TcMenuFormPersistence form) throws DataException;
 
