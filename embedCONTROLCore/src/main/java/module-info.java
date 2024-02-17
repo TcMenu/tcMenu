@@ -11,7 +11,7 @@ module com.thecoderscorner.embedcontrol.core {
     requires javafx.fxml;
 
     requires java.sql;
-    requires org.xerial.sqlitejdbc;
+    requires org.hsqldb;
 
     opens com.thecoderscorner.embedcontrol.core.service;
 

@@ -8,7 +8,7 @@ public class FormManagerDialog extends BaseDialogSupport<FormManagerController> 
 
     public FormManagerDialog(Stage stage, EmbedControlContext context) {
         this.context = context;
-        tryAndCreateDialog(stage, "/ecui/formManager.fxml", "Edit Connection", true);
+        tryAndCreateDialog(stage, "/ecui/formManager.fxml", "Edit Connection", true, 0.85);
     }
 
     @Override

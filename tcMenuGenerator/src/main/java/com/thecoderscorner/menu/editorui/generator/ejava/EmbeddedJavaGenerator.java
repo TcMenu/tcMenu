@@ -225,7 +225,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                         .withStatement("return new MenuItemStore(settings, menuDef.getMenuTree(), \"\", 7, 2, settings.isDefaultRecursiveRendering());"))
                 .addStatement(new GeneratedJavaMethod(METHOD_IF_MISSING, "GlobalSettings", "globalSettings").withTcComponent()
                         .withStatement("var settings = new GlobalSettings(new ApplicationThemeManager());")
-                        .withStatement("// load or adjust the settings as needed here. You could use the JDBC components with SQLite to load and store")
+                        .withStatement("// load or adjust the settings as needed here. You could use the JDBC components to load and store")
                         .withStatement("// these values just like embed control does. See TcPreferencesPersistence and TccDatabaseUtilities.")
                         .withStatement("settings.setDefaultFontSize(16);")
                         .withStatement("settings.setDefaultRecursiveRendering(false);")

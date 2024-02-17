@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.embed;
 
+import com.thecoderscorner.embedcontrol.core.service.FormPersistMode;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
@@ -16,6 +17,8 @@ import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
@@ -24,6 +27,8 @@ public class FormManagerController {
     public Button removeFormButton;
     public TableColumn<TcMenuFormPersistence, String> formNameCol;
     public TableColumn<TcMenuFormPersistence, String> formUuidCol;
+    public TableColumn<TcMenuFormPersistence, Integer> formIdCol;
+    public TableColumn<TcMenuFormPersistence, String> formModeCol;
     public TableView<TcMenuFormPersistence> formTable;
     public MenuItem exportClipMenu;
     public MenuItem exportFileMenu;
@@ -33,13 +38,17 @@ public class FormManagerController {
         this.context = context;
         formNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getFormName() + " [" + cell.getValue().getFormId() + "]"));
         formUuidCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getUuid()));
+        formIdCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getFormId()));
+        formModeCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getFormMode().toString()));
         formTable.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             var off = n == null;
             ensureButtonStates(off);
         });
 
-        formNameCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.28));
-        formUuidCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.68));
+        formNameCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.25));
+        formUuidCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.45));
+        formIdCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.09));
+        formModeCol.prefWidthProperty().bind(formTable.widthProperty().multiply(0.19));
 
 
         reloadPage();
@@ -98,25 +107,34 @@ public class FormManagerController {
         }
     }
 
-    private void importXmlToTable(String txt) {
+    public static Optional<TcMenuFormPersistence> buildObjectFromXml(String txt, FormPersistMode mode) {
+        return buildObjectFromXml(txt, mode, null);
+    }
+
+    public static Optional<TcMenuFormPersistence> buildObjectFromXml(String txt, FormPersistMode mode, Path path) {
         Document xml = null;
         try {
             xml = XMLDOMHelper.loadDocumentFromData(txt);
         } catch (Exception e) {
             showAlertAndWait(Alert.AlertType.ERROR, "XML was not parsed", "Please ensure the XML is valid, error was " + e.getMessage(), ButtonType.CLOSE);
-            return;
+            return Optional.empty();
         }
         var name = xml.getDocumentElement().getAttribute("layoutName");
         var uuid = xml.getDocumentElement().getAttribute("boardUuid");
         if(StringHelper.isStringEmptyOrNull(name) || StringHelper.isStringEmptyOrNull(uuid)) {
             showAlertAndWait(Alert.AlertType.ERROR,"Form has empty name or UUID", "Please populate these two fields before attempting to import", ButtonType.CLOSE);
-            return;
+            return Optional.empty();
         }
-        var form = new TcMenuFormPersistence(-1, uuid, name, txt);
-        try {
+        var form = new TcMenuFormPersistence(-1, mode, uuid, name, path != null ? path.toString() : txt);
+        return Optional.of(form);
+    }
+
+    private void importXmlToTable(String txt) {
+       try {
+           var form = buildObjectFromXml(txt, FormPersistMode.EXTERNAL_MANAGED).orElseThrow();
             context.getDataStore().updateForm(form);
-        } catch (DataException e) {
-            showAlertAndWait(Alert.AlertType.ERROR, "Save Form " + uuid, "Saving failed " + e.getMessage(), ButtonType.CLOSE);
+        } catch (Exception e) {
+            showAlertAndWait(Alert.AlertType.ERROR, "Saving failed " + e.getMessage(), ButtonType.CLOSE);
         }
         reloadPage();
     }

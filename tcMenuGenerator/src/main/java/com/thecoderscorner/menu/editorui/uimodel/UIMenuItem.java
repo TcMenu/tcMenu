@@ -429,7 +429,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         }
 
         // also effectively invalid string an empty locale escape.
-        if(s.equals("%")) {
+        if(s.equals("%") && localHandler.isLocalSupportEnabled()) {
             errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.unpopulated"), field, true));
             return s;
         }

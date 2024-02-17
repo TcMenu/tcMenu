@@ -9,6 +9,8 @@
         <columns>
           <TableColumn fx:id="formNameCol" prefWidth="280.0" text="%ec.form.mgr.col.name" />
           <TableColumn fx:id="formUuidCol" prefWidth="370.0" text="%ec.form.mgr.col.uuid" />
+          <TableColumn fx:id="formIdCol" prefWidth="120.0" text="%ec.form.mgr.col.id" />
+          <TableColumn fx:id="formModeCol" prefWidth="200.0" text="%ec.form.mgr.col.mode" />
         </columns>
       </TableView>
    </center>

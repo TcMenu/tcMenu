@@ -4,8 +4,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sqlite.SQLiteDataSource;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,18 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TccDatabaseUtilitiesTest {
     private TccDatabaseUtilities dbUtilities;
-    private SQLiteDataSource dataSource;
+    private Connection connection;
 
     @BeforeEach
     void setUp() throws SQLException {
-        dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite::memory:");
-        dbUtilities = new TccDatabaseUtilities(dataSource);
+        connection = DriverManager.getConnection("jdbc:hsqldb:mem", "SA", "");
+        dbUtilities = new TccDatabaseUtilities(connection);
     }
 
     @AfterEach
-    void tearDown() {
-        dataSource = null;
+    void tearDown() throws SQLException {
+        connection.close();
         dbUtilities = null;
     }
 
@@ -134,9 +134,7 @@ class TccDatabaseUtilitiesTest {
 
     private void checkTableHasColumns(Class<PersistenceTestObj> persistedType) throws Exception {
         var tableMapping = persistedType.getAnnotation(TableMapping.class);
-        var sql = "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=?";
-        var res = dbUtilities.queryRawSqlSingleInt(sql, tableMapping.tableName());
-        Assertions.assertEquals(1, res);
+        Assertions.assertTrue(dbUtilities.checkTableExists(tableMapping.tableName()));
         dbUtilities.rawSelect("SELECT * FROM " + tableMapping.tableName(), resultSet -> {
             var allFields = Arrays.stream(persistedType.getDeclaredFields())
                     .filter(pt -> pt.isAnnotationPresent(FieldMapping.class))
