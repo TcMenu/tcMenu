@@ -4,7 +4,7 @@ A menu library and designer UI for Arduino and mbed that is modular enough to su
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for Windows, macOS, and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
 
-TheCodersCorner.com invest a lot of time and resources into making this open source product which is used by literally thousands of users. We don't presently sell hardware or have any other income streams from it, we ask that especially commercial users consider making a voluntary contribution to help keep us going using the sponsor button. 
+TheCodersCorner.com invest a lot of time and resources into making this open source product which is used by literally thousands of users. We offer both [commercial support]() and [C++/Java/Dart consultancy](), or if you just want to say thanks, you can also make a donation via [GitHub](https://github.com/davetcc/tcMenu) (this repository). 
 
 In any fork, please ensure all text up to here is left unaltered.
 
@@ -18,7 +18,9 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Questions, community forum and support
 
-You can ask questions either in the discussions section of this repo, or using the Arduino forum. We generally answer most questions, but the rules of engagement are: **this is my hobby, I make it available because it helps others**. Don't expect immediate answers, make sure you've recreated the problem in a simple sketch that you can send to me. Please consider making at least a one time donation using the sponsor link if we do help you out.
+Community questions can be asked in the discussions section of this repo, or using the Arduino forum. We generally answer most community questions but the responses will not be timely, for commercial use we recommend you purchase support.
+
+Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation using the sponsor link if we do help you out.
 
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.

@@ -15,17 +15,18 @@ import java.util.function.BiConsumer;
  * are going to be used later potentially on native displays.
  */
 public class ImageDrawingGrid extends Canvas {
-    public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT, OUTLINE_CIRCLE, FLOOD_FILL }
+    public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT, OUTLINE_CIRCLE, FLOOD_FILL, SELECTION }
     private final BmpDataManager bitmap;
     private final PortablePalette palette;
     private final boolean editMode;
     private BiConsumer<Integer, Integer> positionConsumer;
     private DrawingMode mode = DrawingMode.NONE;
-    private DrawingMode currentShape = DrawingMode.LINE;
+    private DrawingMode currentShape = DrawingMode.DOT;
     private int colorIndex = 0;
     private double fitWidth;
     private double fitHeight;
     private int xStart, yStart;
+    private OrderedRect imageSelection = null;
     private int xNow, yNow;
     private boolean dirty = false;
 
@@ -36,6 +37,7 @@ public class ImageDrawingGrid extends Canvas {
 
         if(editMode) {
             setOnMousePressed(event -> {
+                imageSelection = null;
                 xStart = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yStart = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
                 mode = currentShape == DrawingMode.FLOOD_FILL ? DrawingMode.FLOOD_FILL : DrawingMode.DOT;
@@ -47,13 +49,19 @@ public class ImageDrawingGrid extends Canvas {
                 xNow = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yNow = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
                 if (xNow  >= bitmap.getPixelWidth() || yNow >= bitmap.getPixelHeight()) return;
+                if(mode == DrawingMode.SELECTION) {
+                    imageSelection = new OrderedRect(xStart, yStart, xNow, yNow);
+                }
+
                 onPaintSurface(getGraphicsContext2D());
             });
 
             setOnMouseMoved(event -> {
                 int xEnd = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 int yEnd = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
-                if(positionConsumer != null) positionConsumer.accept(xEnd, yEnd);
+                if(positionConsumer != null) {
+                    positionConsumer.accept(xEnd, yEnd);
+                }
             });
 
             setOnMouseReleased(event -> {
@@ -66,7 +74,7 @@ public class ImageDrawingGrid extends Canvas {
                     onPaintSurface(getGraphicsContext2D());
                 } else if(mode == DrawingMode.FILLED_RECT) {
                     recordChange();
-                    filledRectangle(bitmap, xEnd, yEnd);
+                    filledRectangle(bitmap, xStart, yStart, xEnd, yEnd);
                 } else if(mode == DrawingMode.OUTLINE_CIRCLE) {
                     recordChange();
                     int halfX = (xEnd - xStart) / 2;
@@ -87,7 +95,7 @@ public class ImageDrawingGrid extends Canvas {
         }
     }
 
-    private void floodFill(int x, int y, int startingCol) {
+    public void floodFill(int x, int y, int startingCol) {
         // make sure we are inside bounds, and still able to fill, IE colour is still the starting colour
         if(x < 0 || y < 0 || x >= bitmap.getPixelWidth() || y >= bitmap.getPixelHeight()) return;
         if(bitmap.getDataAt(x, y) != startingCol) return;
@@ -99,14 +107,14 @@ public class ImageDrawingGrid extends Canvas {
         floodFill(x  + 1, y, startingCol);
     }
 
-    private void drawBoxOutline(int xEnd, int yEnd) {
+    public void drawBoxOutline(int xEnd, int yEnd) {
         drawLine(xStart, yStart, xEnd, yStart);
         drawLine(xEnd, yStart, xEnd, yEnd);
         drawLine(xStart, yEnd, xEnd, yEnd);
         drawLine(xStart, yStart, xStart, yEnd);
     }
 
-    private void drawCircle(int x0, int y0, int r) {
+    public void drawCircle(int x0, int y0, int r) {
         int f = 1 - r;
         int ddF_x = 1;
         int ddF_y = -2 * r;
@@ -143,23 +151,20 @@ public class ImageDrawingGrid extends Canvas {
         dirty = true;
     }
 
-    void setCurrentShape(DrawingMode shape) {
+    public void setCurrentShape(DrawingMode shape) {
         currentShape = shape;
     }
 
-    private void filledRectangle(BmpDataManager bitmap, int xEnd, int yEnd) {
-        int xMin = Math.min(xStart, xEnd);
-        int yMin = Math.min(yStart, yEnd);
-        int xMax = Math.max(xStart, xEnd);
-        int yMax = Math.max(yStart, yEnd);
-        for (int x = xMin; x <= xMax; x++) {
-            for (int y = yMin; y <= yMax; y++) {
+    public void filledRectangle(BmpDataManager bitmap, int xStart, int yStart, int xEnd, int yEnd) {
+        OrderedRect r = new OrderedRect(xStart, yStart, xEnd, yEnd);
+        for (int x = r.getXMin(); x <= r.getXMax(); x++) {
+            for (int y = r.getYMin(); y <= r.getYMax(); y++) {
                 bitmap.setDataAt(x, y, colorIndex);
             }
         }
     }
 
-    private void drawLine(int x0, int y0, int x1, int y1) {
+    public void drawLine(int x0, int y0, int x1, int y1) {
         // roughly copied from Adafruit_GFX, Thanks!
         boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
         if (steep) {
@@ -255,6 +260,12 @@ public class ImageDrawingGrid extends Canvas {
             gc.strokeRect(xStart * perSquareX, yStart * perSquareY, wid, hei);
         } else if(mode == DrawingMode.LINE) {
             gc.strokeLine(xStart * perSquareX, yStart * perSquareY, xNow * perSquareX, yNow * perSquareY);
+        } else if(currentShape == DrawingMode.SELECTION && imageSelection != null) {
+            gc.setStroke(Color.GREENYELLOW);
+            gc.setLineWidth(4);
+            gc.setLineDashes(10, 10);
+            gc.strokeRect(imageSelection.getXMin() * perSquareX, imageSelection.getYMin() * perSquareY,
+                    imageSelection.width() * perSquareX, imageSelection.height() * perSquareY);
         }
 
         // only use grid squares if the magnification is sufficient.
@@ -281,5 +292,42 @@ public class ImageDrawingGrid extends Canvas {
 
     public void setPositionUpdateListener(BiConsumer<Integer, Integer> consumer) {
         positionConsumer = consumer;
+    }
+
+    public OrderedRect getImageSelection() {
+        return imageSelection;
+    }
+
+    public class OrderedRect {
+        private final int xMin;
+        private final int yMin;
+        private final int xMax;
+        private final int yMax;
+
+        public OrderedRect(int xStart, int yStart, int xEnd, int yEnd) {
+            xMin = Math.min(xStart, xEnd);
+            yMin = Math.min(yStart, yEnd);
+            xMax = Math.max(xStart, xEnd);
+            yMax = Math.max(yStart, yEnd);
+        }
+
+        public int getXMin() {
+            return xMin;
+        }
+
+        public int getYMin() {
+            return yMin;
+        }
+
+        public int getXMax() {
+            return xMax;
+        }
+
+        public int getYMax() {
+            return yMax;
+        }
+
+        int width() { return xMax - xMin; }
+        int height() { return yMax - yMin; }
     }
 }

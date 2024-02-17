@@ -6,6 +6,7 @@ import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontBlock;
+import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
@@ -21,8 +22,10 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -347,8 +350,23 @@ public class CreateFontUtilityController {
 
         public Pane getUI() {
             BorderPane pane = new BorderPane();
-            pane.setCenter(new SimpleImagePane(data, NativePixelFormat.MONO_BITMAP, false, FONT_PALETTE, List.of()));
+            SimpleImagePane imgView = new SimpleImagePane(data, NativePixelFormat.MONO_BITMAP, false, FONT_PALETTE, List.of());
+            pane.setCenter(imgView);
             pane.setBottom(new Label(STR."U\{code} : \{new String(Character.toChars(code))}"));
+
+            var box = new HBox(2);
+            var editButton = new Button();
+            editButton.setGraphic(new ImageView(getClass().getResource("/img/edit-pencil.png").toString()));
+            editButton.setOnAction(_ -> {
+                var editor = new SimpleImageEditor(data, NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
+                if(editor.presentUI(editorUI)) {
+                    imgView.invalidate();
+                }
+            });
+            var selectCheck = new CheckBox();
+            selectCheck.setOnAction(event -> selected = selectCheck.isSelected());
+            box.getChildren().addAll(selectCheck, editButton);
+            pane.setTop(box);
             return pane;
         }
 

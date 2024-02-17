@@ -15,13 +15,11 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.*;
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
@@ -62,64 +60,6 @@ public class UIColorPaletteControl {
             paletteEntries.getChildren().add(picker);
         }
     }
-
-    public Node swatchControl(PortablePalette pal, Consumer<Integer> colorConsumer) {
-        HBox hBox = new HBox(2);
-        var listOfSwatches = new ArrayList<Rectangle>();
-        populateColorsIntoBox(pal, listOfSwatches, hBox);
-        hBox.setOnMouseClicked(event -> {
-            var swatch = event.getTarget();
-            if(swatch instanceof Rectangle newSel) {
-                for(var r : listOfSwatches) {
-                    r.setStrokeWidth(0);
-                }
-                newSel.setStroke(Color.BLACK);
-                newSel.setStrokeWidth(2);
-            }
-            var swatchIndex = hBox.getChildren().indexOf(event.getTarget());
-            if(swatchIndex != -1 && swatchIndex < pal.getNumColors()) {
-                if(event.getClickCount() > 1) {
-                    showPopup(pal, hBox, () -> populateColorsIntoBox(pal, listOfSwatches, hBox));
-                } else {
-                    colorConsumer.accept(swatchIndex);
-                }
-            }
-        });
-        return hBox;
-    }
-
-    private static void populateColorsIntoBox(PortablePalette pal, ArrayList<Rectangle> listOfSwatches, HBox hBox) {
-        hBox.getChildren().clear();
-        listOfSwatches.clear();
-        for(var col : pal.getColorArray()) {
-            int size = GlobalSettings.defaultFontSize() * 2;
-            var r = new Rectangle(size, size, ControlColor.asFxColor(col));
-            listOfSwatches.add(r);
-            hBox.getChildren().add(r);
-        }
-    }
-
-    private void showPopup(PortablePalette pal, HBox hBox, Runnable onClose) {
-        var popup = new Popup();
-        initializePaletteEntries(pal, 999);
-
-        var close = new Button("Apply");
-        close.setOnAction(_ -> {
-            popup.hide();
-            onClose.run();
-        });
-        var vbox = new VBox(4);
-        vbox.getChildren().add(paletteEntries);
-        vbox.getChildren().add(close);
-        vbox.setOpacity(1);
-        vbox.setBackground(Background.fill(Color.BLACK));
-        vbox.setOpaqueInsets(new Insets(10));
-        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
-
-        popup.getContent().add(vbox);
-        popup.show(hBox.getScene().getWindow());
-    }
-
     public PortablePalette paletteFromImage(Image img, NativePixelFormat fmt, double tolerance) {
         // when null return the default
         if(img == null) return createPaletteFor(fmt);
@@ -179,4 +119,27 @@ public class UIColorPaletteControl {
             }, PaletteMode.FOUR_BPP);
         };
     }
+
+    public void showPopup(PortablePalette pal, HBox hBox, Runnable onClose) {
+        var popup = new Popup();
+        initializePaletteEntries(pal, 999);
+
+        var close = new Button("Apply");
+        close.setOnAction(_ -> {
+            popup.hide();
+            onClose.run();
+        });
+        close.setCancelButton(true);
+        var vbox = new VBox(4);
+        vbox.getChildren().add(paletteEntries);
+        vbox.getChildren().add(close);
+        vbox.setOpacity(1);
+        vbox.setBackground(Background.fill(Color.BLACK));
+        vbox.setOpaqueInsets(new Insets(10));
+        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+
+        popup.getContent().add(vbox);
+        popup.show(hBox.getScene().getWindow());
+    }
+
 }

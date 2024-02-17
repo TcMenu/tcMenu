@@ -91,4 +91,41 @@ public interface BmpDataManager {
             }
         }
     }
+
+    BmpDataManager createNew(int width, int height);
+
+    default void pushBitsRaw(int xStart, int yStart, BmpDataManager data) {
+        for (int y = 0; y < data.getPixelHeight(); y++) {
+            if(yStart + y >= getPixelHeight()) break;
+            for (int x = 0; x < data.getPixelWidth(); x++) {
+                if(xStart + x >= getPixelWidth()) break;
+                setDataAt(xStart + x, yStart + y, data.getDataAt(x, y));
+            }
+        }
+    }
+
+    default void pushBitsOn(int xStart, int yStart, NativeBmpBitPacker data, int idxOn) {
+        for (int y = 0; y < data.getPixelHeight(); y++) {
+            if(yStart + y >= getPixelHeight()) break;
+            for (int x = 0; x < data.getPixelWidth(); x++) {
+                if(data.getBitAt(x, y)) {
+                    if(xStart + x >= getPixelWidth()) break;
+                    setDataAt(xStart + x, yStart + y, idxOn);
+                }
+            }
+        }
+    }
+
+    default BmpDataManager segmentOf(int xStart, int yStart, int xEnd, int yEnd) {
+        var bmp = createNew(xEnd - xStart, yEnd - yStart);
+        int yd = 0;
+        for (int ys = yStart; ys < yEnd; ys++) {
+            int xd = 0;
+            for (int xs = xStart; xs < xEnd; xs++) {
+                bmp.setDataAt(xd++, yd, getDataAt(xs, ys));
+            }
+            yd += 1;
+        }
+        return bmp;
+    }
 }

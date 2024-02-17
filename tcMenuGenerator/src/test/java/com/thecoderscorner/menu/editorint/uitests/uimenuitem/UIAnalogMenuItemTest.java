@@ -42,6 +42,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 @ExtendWith(ApplicationExtension.class)
 public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     private Path tempPath;
+    private boolean testWithoutLocale = false;
 
     @Start
     public void setup(Stage stage) throws IOException {
@@ -166,6 +167,31 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
     }
 
     @Test
+    void testEnteringValidValuesWithoutLocaleEnabled(FxRobot robot) throws InterruptedException {
+        MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
+        MenuItemHelper.setMenuState(analogItem, 2, menuTree);
+        VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
+        var uiSubItem = editorUI.createPanelForMenuItem(analogItem, menuTree, vng, mockedConsumer);
+
+        // open the sub menu item editor panel
+        testWithoutLocale = true;
+        createMainPanel(uiSubItem);
+
+        // firstly check that all the fields are populated properly
+        performAllCommonChecks(analogItem, true);
+        verifyThat("#offsetField", TextInputControlMatchers.hasText("0"));
+        verifyThat("#maxValueField", TextInputControlMatchers.hasText("100"));
+        verifyThat("#unitNameField", TextInputControlMatchers.hasText("dB"));
+        verifyThat("#divisorField", TextInputControlMatchers.hasText("1"));
+        verifyThat("#defaultValueField", TextInputControlMatchers.hasText("2"));
+
+        writeIntoField(robot, "unitNameField", "%");
+        verifyThat("#minMaxLabel", LabeledMatchers.hasText("Min value: 0%. Max value 100%."));
+
+        verifyThatThereAreNoErrorsReported();
+    }
+
+    @Test
     void testValidValuesNearLimits(FxRobot robot) throws InterruptedException {
         MenuItem analogItem = menuTree.getMenuById(1).orElseThrow();
         VariableNameGenerator vng = new VariableNameGenerator(menuTree, false);
@@ -203,6 +229,8 @@ public class UIAnalogMenuItemTest extends UIMenuItemTestBase {
 
     @Override
     protected LocaleMappingHandler getTestLocaleHandler() {
+        if(testWithoutLocale) return LocaleMappingHandler.NOOP_IMPLEMENTATION;
+
         try {
             var coreFile = tempPath.resolve("temp.properties");
             Files.writeString(coreFile, """

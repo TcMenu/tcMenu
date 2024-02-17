@@ -96,7 +96,7 @@ public class CreateBitmapWidgetController {
             var imageView = new SimpleImagePane(img.bmpData(), img.pixelFormat(),false, img.palette(), buttons);
 
             editButton.setOnAction(_ -> {
-                var editor = new SimpleImageEditor(img.bmpData(), img.pixelFormat(), img.palette());
+                var editor = new SimpleImageEditor(img.bmpData(), img.pixelFormat(), img.palette(), true);
                 if(editor.presentUI(editorUI)) {
                     imageView.invalidate();
                 }

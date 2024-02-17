@@ -7,7 +7,11 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.lang.System.Logger.Level.*;
+
 public class NativeFreeFontLoadedFont implements LoadedFont {
+    public final System.Logger logger = System.getLogger(getClass().getSimpleName());
+
     private final Path fontPath;
     private final MethodHandle fontClose;
     private final MethodHandle fontGetGlyph;
@@ -19,6 +23,8 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
     private int fontHandle;
 
     public NativeFreeFontLoadedFont(Path path, int dpi) {
+        logger.log(INFO, "Loading the freetype library and finding methods");
+
         fontPath = path;
         fontHandle = 0;
         System.loadLibrary("fontGlyphGenerator");
@@ -54,30 +60,36 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         );
 
         try (Arena arena = Arena.ofConfined()) {
+            logger.log(INFO, "Trying to initialise the library");
             int retCode = (int)fontLibInit.invoke();
-            if(retCode != 0) throw new IllegalArgumentException("Font Library not loaded");
+            if(retCode != 0) throw new IllegalArgumentException("Font Library init failed");
             setPixelsPerInch.invoke(dpi);
+            logger.log(INFO, "All initialisation complete");
         } catch (Throwable e) {
+            logger.log(ERROR, "Unable to load font library", e);
         }
     }
 
     public void dispose() {
         try {
+            logger.log(INFO, "Closing the freetype library");
             fontLibDestroy.invokeExact();
         } catch (Throwable e) {
+            logger.log(ERROR, "Unable to close font library", e);
         }
     }
 
     @Override
     public Optional<ConvertedFontGlyph> getConvertedGlyph(int code) {
         try(Arena arena = Arena.ofConfined()) {
+            logger.log(DEBUG, "Get Glyph from library for {}",  code);
             var data = arena.allocate(2200);
             var result = (int) fontGetGlyph.invoke(fontHandle, code, data);
             if(result == 0) {
                 return Optional.of(parseDataBlock(data));
             }
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            logger.log(ERROR, "Unable to get glyph, will return empty", e);
         }
         return Optional.empty();
     }
@@ -116,6 +128,7 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         try {
             return (boolean) canDisplayFn.invoke(fontHandle, code);
         } catch (Throwable e) {
+            logger.log(ERROR, "Unable to check if code is displayable", e);
             return false;
         }
     }
@@ -123,13 +136,14 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
     @Override
     public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newMappings, AntiAliasMode aliasMode) {
         try(Arena arena = Arena.ofConfined()) {
+            logger.log(INFO, "Derive font size {} mappings {} path {}", size, newMappings.size(), fontPath);
             if(fontHandle != 0) {
                 fontClose.invoke(fontHandle);
             }
             var cstrName = arena.allocateUtf8String(fontPath.toString());
             fontHandle = (int) fontLibCreateFont.invoke(cstrName, 0, size);
         } catch (Throwable ex) {
-
+            logger.log(ERROR, "Unable to derive font", ex);
         }
     }
 }

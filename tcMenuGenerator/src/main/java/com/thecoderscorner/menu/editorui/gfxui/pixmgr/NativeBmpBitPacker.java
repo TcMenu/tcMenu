@@ -10,10 +10,12 @@ public class NativeBmpBitPacker implements BmpDataManager {
     public final int lineSize;
     public final int bitsNeeded;
     public final byte[] data;
+    private final boolean bitPacked;
     public int bit;
     public int xExtent, yExtent;
 
     public NativeBmpBitPacker(byte[] existingData, int x, int y, boolean bitPacked) {
+        this.bitPacked = bitPacked;
         this.bit = 0;
         this.xExtent = x;
         this.yExtent = y;
@@ -40,6 +42,7 @@ public class NativeBmpBitPacker implements BmpDataManager {
      * @param bitPacked if each line ends on a byte boundary, or the structure is bitwise.
      */
     public NativeBmpBitPacker(int x, int y, boolean bitPacked) {
+        this.bitPacked = bitPacked;
         this.bit = 0;
         this.xExtent = x;
         this.yExtent = y;
@@ -179,5 +182,10 @@ public class NativeBmpBitPacker implements BmpDataManager {
     @Override
     public int getBitsPerPixel() {
         return 1;
+    }
+
+    @Override
+    public BmpDataManager createNew(int width, int height) {
+        return new NativeBmpBitPacker(width, height, bitPacked);
     }
 }

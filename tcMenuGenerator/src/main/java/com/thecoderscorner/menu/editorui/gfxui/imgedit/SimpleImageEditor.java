@@ -1,11 +1,12 @@
 package com.thecoderscorner.menu.editorui.gfxui.imgedit;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
-import com.thecoderscorner.menu.editorui.gfxui.pixmgr.UIColorPaletteControl;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.SwatchPaletteControl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
@@ -15,6 +16,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -32,13 +35,16 @@ public class SimpleImageEditor {
     private final BmpDataManager bitmap;
     private final PortablePalette palette;
     private final NativePixelFormat format;
+    private final boolean paletteEditable;
     private CurrentProjectEditorUI editorUI;
     private ComboBox<TextDrawingMode> modeComboBox;
+    private ImageDrawingGrid canvas;
 
-    public SimpleImageEditor(BmpDataManager bitmap, NativePixelFormat format, PortablePalette palette) {
+    public SimpleImageEditor(BmpDataManager bitmap, NativePixelFormat format, PortablePalette palette, boolean paletteEditable) {
         this.bitmap = bitmap;
         this.palette = palette;
         this.format = format;
+        this.paletteEditable = paletteEditable;
     }
 
     public boolean presentUI(CurrentProjectEditorUI editorUI) {
@@ -50,30 +56,35 @@ public class SimpleImageEditor {
         hbox.setAlignment(Pos.CENTER_LEFT);
         hbox.getChildren().add(new Label("Function"));
         pane.setTop(hbox);
-        ImageDrawingGrid canvas = new ImageDrawingGrid(bitmap, palette, true);
+        canvas = new ImageDrawingGrid(bitmap, palette, true);
         modeComboBox = new ComboBox<>(FXCollections.observableArrayList(
                 new TextDrawingMode("Pixel - D", DOT),
                 new TextDrawingMode("Line - L", LINE),
                 new TextDrawingMode("Box Outline - R", OUTLINE_RECT),
                 new TextDrawingMode("Box Filled - B", FILLED_RECT),
                 new TextDrawingMode("Circle - I", OUTLINE_CIRCLE),
-                new TextDrawingMode("Flood Fill - F", FLOOD_FILL)
+                new TextDrawingMode("Flood Fill - F", FLOOD_FILL),
+                new TextDrawingMode("Selection - E", SELECTION)
         ));
         modeComboBox.getSelectionModel().select(0);
         modeComboBox.setOnAction(_ -> canvas.setCurrentShape(modeComboBox.getValue().mode()));
         hbox.getChildren().add(modeComboBox);
 
         hbox.getChildren().add(new Label("Palette"));
-        UIColorPaletteControl paletteControl = new UIColorPaletteControl();
-        hbox.getChildren().add(paletteControl.swatchControl(palette, canvas::setCurrentColor));
+        var paletteControl = new SwatchPaletteControl();
+        hbox.getChildren().add(paletteControl.swatchControl(palette, canvas::setCurrentColor, paletteEditable));
 
-        var copyButton = new Button("Copy");
-        copyButton.setOnAction(_ -> copyContents());
-        var saveButton = new Button("Save");
+        var cutButton = new Button("", new ImageView(getClass().getResource("/img/tree-cut.png").toString()));
+        cutButton.setOnAction(_ -> copyContents(true));
+        var copyButton = new Button("", new ImageView(getClass().getResource("/img/tree-copy.png").toString()));
+        copyButton.setOnAction(_ -> copyContents(false));
+        var pasteButton = new Button("", new ImageView(getClass().getResource("/img/tree-paste.png").toString()));
+        pasteButton.setOnAction(_ -> pasteSelection());
+        var saveButton = new Button("", new ImageView(getClass().getResource("/img/disk-save.png").toString()));
         saveButton.setOnAction(_ -> saveContents());
         var xyLabel = new Label("");
         canvas.setPositionUpdateListener((x, y) -> xyLabel.setText(STR."X=\{x}, Y=\{y}"));
-        hbox.getChildren().addAll(copyButton, saveButton, xyLabel);
+        hbox.getChildren().addAll(cutButton, copyButton, pasteButton, saveButton, xyLabel);
 
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty().multiply(0.9));
@@ -87,7 +98,9 @@ public class SimpleImageEditor {
 
         Scene scene = new Scene(pane);
 
+        KeyCombination cutPressed = new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN);
         KeyCombination copyPressed = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
+        KeyCombination pastePressed = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
         KeyCombination savePressed = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
         KeyCombination dotPressed = new KeyCodeCombination(KeyCode.D);
         KeyCombination linePressed = new KeyCodeCombination(KeyCode.L);
@@ -95,19 +108,23 @@ public class SimpleImageEditor {
         KeyCombination boxPressed = new KeyCodeCombination(KeyCode.B);
         KeyCombination rectPressed = new KeyCodeCombination(KeyCode.R);
         KeyCombination fillPressed = new KeyCodeCombination(KeyCode.F);
+        KeyCombination selectionPressed = new KeyCodeCombination(KeyCode.E);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
-            if (copyPressed.match(ke)) {
-                copyContents();
-                ke.consume(); // <-- stops passing the event to next node
-            } else if(savePressed.match(ke)) {
-                saveContents();
-                ke.consume(); // <-- stops passing the event to next node
-            } else if(dotPressed.match(ke)) changeShape(DOT);
+            if (cutPressed.match(ke)) copyContents(true);
+            else if (copyPressed.match(ke)) copyContents(false);
+            else if (pastePressed.match(ke)) pasteSelection();
+            else if(savePressed.match(ke)) saveContents();
+            else if(dotPressed.match(ke)) changeShape(DOT);
             else if(linePressed.match(ke)) changeShape(LINE);
             else if(circlePressed.match(ke)) changeShape(OUTLINE_CIRCLE);
             else if(boxPressed.match(ke)) changeShape(FILLED_RECT);
             else if(rectPressed.match(ke)) changeShape(OUTLINE_RECT);
             else if(fillPressed.match(ke)) changeShape(FLOOD_FILL);
+            else if(selectionPressed.match(ke)) changeShape(SELECTION);
+            else if(ke.getCode().getCode() >= KeyCode.DIGIT0.getCode() && ke.getCode().getCode() <= KeyCode.DIGIT9.getCode()) {
+                int palEnt = ke.getCode().getCode() - KeyCode.DIGIT0.getCode();
+                paletteControl.onExternalPaletteChange(palEnt);
+            }
         });
         Stage stage = new Stage();
         stage.setMaximized(true);
@@ -140,11 +157,48 @@ public class SimpleImageEditor {
         }
     }
 
-    private void copyContents() {
+    private void copyContents(boolean cut) {
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
-        content.putImage(bitmap.createImageFromBitmap(palette));
+        if(canvas.getImageSelection() != null) {
+            var sel = canvas.getImageSelection();
+            BmpDataManager newBitmap = bitmap.segmentOf(sel.getXMin(), sel.getYMin(), sel.getXMax(), sel.getYMax());
+            content.putImage(newBitmap.createImageFromBitmap(palette));
+            clipboard.setContent(content);
+
+            if(cut) {
+                canvas.filledRectangle(bitmap, sel.getXMin(), sel.getYMin(), sel.getXMax() - 1, sel.getYMax() - 1);
+                canvas.onPaintSurface(canvas.getGraphicsContext2D());
+            }
+
+        } else {
+            // copy the whole image to the clipboard, no selection
+            content.putImage(bitmap.createImageFromBitmap(palette));
+
+            if(cut) {
+                canvas.filledRectangle(bitmap, 0, 0, bitmap.getPixelWidth() - 1, bitmap.getPixelHeight() - 1);
+                canvas.onPaintSurface(canvas.getGraphicsContext2D());
+            }
+        }
         clipboard.setContent(content);
+    }
+
+    private void pasteSelection() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        if (clipboard.hasImage() && canvas.getImageSelection() != null) {
+            var image = clipboard.getImage();
+            PixelReader reader = image.getPixelReader();
+
+            BmpDataManager bitmapProcessor = bitmap.createNew((int) image.getWidth(), (int) image.getHeight());
+            bitmapProcessor.convertToBits((x, y) -> {
+                var col = PortableColor.asPortableColor(reader.getArgb(x, y));
+                return palette.getClosestColorIndex(col, 1, false);
+            });
+
+            var sel = canvas.getImageSelection();
+            bitmap.pushBitsRaw(sel.getXMin(), sel.getYMin(), bitmapProcessor);
+            canvas.onPaintSurface(canvas.getGraphicsContext2D());
+        }
     }
 
     record TextDrawingMode(String name, ImageDrawingGrid.DrawingMode mode) {

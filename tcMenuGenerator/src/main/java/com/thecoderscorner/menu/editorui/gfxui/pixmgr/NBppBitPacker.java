@@ -103,6 +103,11 @@ public class NBppBitPacker implements BmpDataManager {
         return bpp;
     }
 
+    @Override
+    public BmpDataManager createNew(int width, int height) {
+        return new NBppBitPacker(width, height, bpp);
+    }
+
     private byte indexToBitPacked(byte inData, int amt, int idx) {
         if(bpp == 2) {
             idx = idx & 0x03;
