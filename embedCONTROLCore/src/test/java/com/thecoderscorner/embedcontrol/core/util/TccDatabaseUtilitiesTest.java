@@ -5,12 +5,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.embedcontrol.core.util.PersistenceTestObj.PersistType.*;
@@ -21,17 +26,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TccDatabaseUtilitiesTest {
     private TccDatabaseUtilities dbUtilities;
     private Connection connection;
+    private Path tempDir;
 
     @BeforeEach
-    void setUp() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:hsqldb:mem", "SA", "");
+    void setUp() throws SQLException, IOException {
+        tempDir = Files.createTempDirectory("tcDbTest");
+        connection = DriverManager.getConnection("jdbc:hsqldb:mem:" + tempDir, "SA", "");
         dbUtilities = new TccDatabaseUtilities(connection);
     }
 
     @AfterEach
-    void tearDown() throws SQLException {
+    void tearDown() throws SQLException, IOException {
         connection.close();
         dbUtilities = null;
+        Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
     @Test

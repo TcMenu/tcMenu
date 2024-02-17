@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
+import com.thecoderscorner.embedcontrol.core.service.FormPersistMode;
 import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -137,7 +138,7 @@ public class ArduinoGeneratorTest {
         ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, new PrefsConfigurationStorage());
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform());
 
-        var embeddedForm = new TcMenuFormPersistence(0, standardOptions.getApplicationUUID().toString(), "My Form 1", TEST_FORM_XML);
+        var embeddedForm = new TcMenuFormPersistence(0, FormPersistMode.EXTERNAL_MANAGED, standardOptions.getApplicationUUID().toString(), "My Form 1", TEST_FORM_XML);
 
         var firstPlugin = pluginConfig.getPlugins().get(0);
         firstPlugin.getProperties().stream()
