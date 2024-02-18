@@ -25,8 +25,9 @@
                 <MenuItem mnemonicParsing="false" onAction="#onExportClipboard" fx:id="exportClipMenu" text="%ec.form.mgr.export.clip" />
               </items>
             </MenuButton>
-          <Button fx:id="editFormButton" mnemonicParsing="false" onAction="#onFormEdit" text="%ec.form.mgr.edit" />
+            <Button fx:id="editFormButton" mnemonicParsing="false" onAction="#onFormEdit" text="%ec.form.mgr.edit" />
             <Button fx:id="removeFormButton" mnemonicParsing="false" onAction="#onFormRemove" text="%ec.form.mgr.remove" />
+            <Button mnemonicParsing="false" cancelButton="true" onAction="#onClose" text="%core.close.button" />
         </buttons>
       </ButtonBar>
    </bottom>

@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.gfxui;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
@@ -8,6 +9,7 @@ import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontBlock;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BitmapImportPopup;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
@@ -22,11 +24,11 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -68,6 +70,7 @@ public class CreateFontUtilityController {
     private Set<UnicodeBlockMapping> blockMappings = Set.of();
     private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
     private final Map<Integer, Boolean> currentlySelected = new HashMap<>();
+    javafx.stage.Popup popup;
 
     public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
@@ -77,7 +80,7 @@ public class CreateFontUtilityController {
         blockMappings = Set.of(UnicodeBlockMapping.BASIC_LATIN, UnicodeBlockMapping.LATIN1_SUPPLEMENT);
 
         pixelSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 255, 12));
-        pixelSizeSpinner.getValueFactory().valueProperty().addListener((observable, oldValue, newValue) -> {
+        pixelSizeSpinner.getValueFactory().valueProperty().addListener((_, _, _) -> {
             changeNameField();
             recalcFont();
         });
@@ -125,7 +128,10 @@ public class CreateFontUtilityController {
         for(var blockRange : UnicodeBlockMapping.values()) {
             if(!blockMappings.contains(blockRange)) continue;
 
-            fontRenderArea.add(new Label(blockRange.toString()), 0, gridRow, 5, 1);
+            Label title = new Label(blockRange.toString());
+            title.setPadding(new Insets(15, 0, 6, 0));
+            title.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize() * 2};");
+            fontRenderArea.add(title, 0, gridRow, 5, 1);
             CheckBox selAllCheck = new CheckBox("Select/Clear All");
             selAllCheck.setOnAction(event -> {
                 var allItems = controlsByBlock.get(blockRange);
@@ -139,7 +145,10 @@ public class CreateFontUtilityController {
                 }
                 recalcSize();
             });
-            fontRenderArea.add(selAllCheck, 6, gridRow, 3, 1);
+            Button preview = new Button("Preview");
+            preview.setOnAction(_ -> previewNativeFont(blockRange, controlsByBlock.get(blockRange)));
+            fontRenderArea.add(selAllCheck, 6, gridRow, 2, 1);
+            fontRenderArea.add(preview, 8, gridRow);
 
             gridRow++;
 
@@ -150,16 +159,10 @@ public class CreateFontUtilityController {
                 if (maybeGlyph.isPresent()) {
                     var glyph = maybeGlyph.get();
                     var bmp = fromGlyphToImg(glyph);
-                    var toggleButton = new FontGlyphDataControl(i, bmp);
-                    var selected = currentlySelected.get(glyph.code());
-                    toggleButton.setSelected(selected != null && selected);
-//                    toggleButton.setOnAction(event -> {
-//                        currentlySelected.put(glyph.code(), toggleButton.isSelected());
-//                        recalcSize();
-//                    });
-                    Pane ui = toggleButton.getUI();
+                    var fontGlyphView = new FontGlyphDataControl(i, bmp);
+                    Pane ui = fontGlyphView.getUI();
                     fontRenderArea.add(ui, gridCol, gridRow);
-                    allButtons.add(toggleButton);
+                    allButtons.add(fontGlyphView);
                     GridPane.setMargin(ui, new Insets(4));
                     gridCol++;
                     if(gridCol > 9) {
@@ -337,11 +340,46 @@ public class CreateFontUtilityController {
         SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
     }
 
+    private void previewNativeFont(UnicodeBlockMapping mapping, List<FontGlyphDataControl> glyphs) {
+        int totalWidth = Math.max(1, glyphs.stream().filter(FontGlyphDataControl::isSelected)
+                .map(d -> d.getData().getPixelWidth()).reduce(0, Integer::sum));
+        int maxHeight = glyphs.stream().map(d -> d.getData().getPixelHeight()).max(Integer::compareTo).orElse(1);
+        NativeBmpBitPacker packer = new NativeBmpBitPacker(320, maxHeight * ((totalWidth / 320) + 1), false);
+        int xPos = 0;
+        int yPos = 0;
+        for(var g : glyphs) {
+            if(!g.isSelected()) continue;
+            if(xPos + g.getData().getPixelWidth() > 320) {
+                xPos = 0;
+                yPos += maxHeight;
+            }
+            packer.pushBitsOn(xPos, yPos, ((NativeBmpBitPacker) g.getData()), 1);
+            xPos += g.getData().getPixelWidth();
+        }
+
+        var popup = new Popup();
+        var vbox = new VBox(4);
+        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+
+        SimpleImagePane e = new SimpleImagePane(packer, NativePixelFormat.MONO_BITMAP, false, BitmapImportPopup.EMPTY_PALETTE, List.of());
+        e.setPrefWidth(640);
+        e.setPrefHeight(maxHeight * 2);
+
+        var title = new Label(STR."Glyphs in \{mapping.name()} range \{mapping.getStartingCode()}-\{mapping.getEndingCode()}");
+        var closeBtn = new Button("Close");
+        closeBtn.setMaxWidth(99999);
+        closeBtn.setOnAction(_ -> popup.hide());
+        vbox.getChildren().addAll(title, e, closeBtn);
+        popup.getContent().add(vbox);
+        popup.show(generateAdafruitBtn.getScene().getWindow());
+    }
+
     class FontGlyphDataControl {
         private static final PortablePalette FONT_PALETTE = new PortablePalette(new PortableColor[]{PortableColor.BLACK, PortableColor.WHITE}, PortablePalette.PaletteMode.ONE_BPP);
         final private int code;
         final private BmpDataManager data;
         boolean selected;
+        private BorderPane pane;
 
         public FontGlyphDataControl(int code, BmpDataManager data) {
             this.code = code;
@@ -349,29 +387,66 @@ public class CreateFontUtilityController {
         }
 
         public Pane getUI() {
-            BorderPane pane = new BorderPane();
+            pane = new BorderPane();
             SimpleImagePane imgView = new SimpleImagePane(data, NativePixelFormat.MONO_BITMAP, false, FONT_PALETTE, List.of());
             pane.setCenter(imgView);
-            pane.setBottom(new Label(STR."U\{code} : \{new String(Character.toChars(code))}"));
+            setFooterText(pane);
 
-            var box = new HBox(2);
-            var editButton = new Button();
-            editButton.setGraphic(new ImageView(getClass().getResource("/img/edit-pencil.png").toString()));
-            editButton.setOnAction(_ -> {
-                var editor = new SimpleImageEditor(data, NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
-                if(editor.presentUI(editorUI)) {
-                    imgView.invalidate();
-                }
+            imgView.setOnMouseClicked(mouseEvent -> {
+                if(popup != null) popup.hide();
+                popup = new Popup();
+
+                var box = new VBox(4);
+                box.setFillWidth(true);
+                box.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+                var editButton = new Button(STR."Edit Glyph U\{code}");
+                editButton.setMaxWidth(99999);
+                editButton.setOnAction(_ -> {
+                    popup.hide();
+                    var editor = new SimpleImageEditor(data, NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
+                    if(editor.presentUI(editorUI)) {
+                        imgView.invalidate();
+                    }
+                });
+                var selectButton = new Button(selected ? "Exclude Glyph" : "Include Glyph");
+                selectButton.setMaxWidth(99999);
+                selectButton.setOnAction(_ -> {
+                    selected = !selected;
+                    setFooterText(pane);
+                    popup.hide();
+                });
+                var closeButton = new Button("Close");
+                closeButton.setMaxWidth(99999);
+                closeButton.setOnAction(_ -> popup.hide());
+                box.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+                box.getChildren().addAll(selectButton, editButton, closeButton);
+                popup.getContent().add(box);
+                popup.show(pane.getScene().getWindow());
+                popup.setX(mouseEvent.getScreenX());
+                popup.setY(mouseEvent.getScreenY());
             });
-            var selectCheck = new CheckBox();
-            selectCheck.setOnAction(event -> selected = selectCheck.isSelected());
-            box.getChildren().addAll(selectCheck, editButton);
-            pane.setTop(box);
             return pane;
+        }
+
+        public BmpDataManager getData() {
+            return data;
+        }
+
+        private void setFooterText(BorderPane pane) {
+            var strSel = selected ? "[X] " : "[ ]";
+            pane.setBottom(new Label(STR."\{strSel}U\{code} : \{new String(Character.toChars(code))}"));
         }
 
         public void setSelected(boolean selected) {
             this.selected = selected;
+            // protect against the UI not being generated yet.
+            if(pane != null) {
+                setFooterText(pane);
+            }
+        }
+
+        public boolean isSelected() {
+            return selected;
         }
     }
 }

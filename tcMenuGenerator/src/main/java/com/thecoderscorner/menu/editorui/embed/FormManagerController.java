@@ -13,6 +13,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -162,5 +163,9 @@ public class FormManagerController {
         ClipboardContent content = new ClipboardContent();
         content.putString(item.getXmlData());
         systemClipboard.setContent(content);
+    }
+
+    public void onClose(ActionEvent ignoredActionEvent) {
+        ((Stage)formTable.getScene().getWindow()).close();
     }
 }
