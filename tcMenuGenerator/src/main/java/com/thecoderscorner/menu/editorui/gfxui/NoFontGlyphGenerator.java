@@ -3,7 +3,7 @@ package com.thecoderscorner.menu.editorui.gfxui;
 import java.util.Optional;
 import java.util.Set;
 
-public class NoLoadedFont implements LoadedFont {
+public class NoFontGlyphGenerator implements FontGlyphGenerator {
         @Override
         public Optional<ConvertedFontGlyph> getConvertedGlyph(int code) { return Optional.empty(); }
 

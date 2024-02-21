@@ -17,15 +17,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class AwtLoadedFont implements LoadedFont {
-    private final System.Logger logger = System.getLogger(AwtLoadedFont.class.getSimpleName());
+public class AwtFontGlyphGenerator implements FontGlyphGenerator {
+    private final System.Logger logger = System.getLogger(AwtFontGlyphGenerator.class.getSimpleName());
     private AntiAliasMode antiAliasMode = AntiAliasMode.ANTI_ALIAS_ON;
     public AtomicReference<Set<UnicodeBlockMapping>> enabledUnicodeGroups = new AtomicReference<>(Set.of());
     public final Map<Integer, ConvertedFontGlyph> fontGlyphCache = new HashMap<>(4096);
 
     private Font font;
 
-    public AwtLoadedFont(String fontFile, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
+    public AwtFontGlyphGenerator(String fontFile, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFile));
             font = font.deriveFont(toAwtStyle(fontStyle), size);
@@ -37,7 +37,7 @@ public class AwtLoadedFont implements LoadedFont {
         }
     }
 
-    public AwtLoadedFont(Font font, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
+    public AwtFontGlyphGenerator(Font font, FontStyle fontStyle, int size, Set<UnicodeBlockMapping> mappings, AntiAliasMode mode) {
         try {
             this.font = font.deriveFont(toAwtStyle(fontStyle), size);
             this.antiAliasMode = mode;

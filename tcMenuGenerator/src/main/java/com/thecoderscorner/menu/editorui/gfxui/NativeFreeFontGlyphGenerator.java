@@ -9,7 +9,12 @@ import java.util.Set;
 
 import static java.lang.System.Logger.Level.*;
 
-public class NativeFreeFontLoadedFont implements LoadedFont {
+/**
+ * This class implements the FontGlyphGenerator interface by using the tcMenuNative library. This library has functions
+ * available to generate glyphs using the freetype library. This requires that the library is on the path, and supported
+ * on the target platform.
+ */
+public class NativeFreeFontGlyphGenerator implements FontGlyphGenerator, AutoCloseable {
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
 
     private final Path fontPath;
@@ -22,12 +27,18 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
     private final MethodHandle canDisplayFn;
     private int fontHandle;
 
-    public NativeFreeFontLoadedFont(Path path, int dpi) {
+    /**
+     * Construct an instance of the generator based on a particular font file and the DPI of the display. This will
+     * instantiate the native library and functions, ready for deriveFont to be called later.
+     * @param path the font file path
+     * @param dpi the DPI to assume
+     */
+    public NativeFreeFontGlyphGenerator(Path path, int dpi) {
         logger.log(INFO, "Loading the freetype library and finding methods");
 
         fontPath = path;
         fontHandle = 0;
-        System.loadLibrary("fontGlyphGenerator");
+        System.loadLibrary("tcMenuNative");
         Linker linker = Linker.nativeLinker();
         SymbolLookup fontLib = SymbolLookup.loaderLookup();
         fontLibInit = linker.downcallHandle(
@@ -70,7 +81,11 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         }
     }
 
-    public void dispose() {
+    /**
+     * This should be called when you're done with this object, it frees native resource which would otherwise leak.
+     */
+    @Override
+    public void close() {
         try {
             logger.log(INFO, "Closing the freetype library");
             fontLibDestroy.invokeExact();
@@ -79,6 +94,13 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         }
     }
 
+    /**
+     * Retrieve a particular glyph by its code. This may return empty indicating there is no glyph available. Otherwise,
+     * it will return an instance of ConvertedFontGlyph.
+     * @param code the code to convert
+     * @see com.thecoderscorner.menu.editorui.gfxui.FontGlyphGenerator.ConvertedFontGlyph
+     * @return Either empty, or a glyph
+     */
     @Override
     public Optional<ConvertedFontGlyph> getConvertedGlyph(int code) {
         try(Arena arena = Arena.ofConfined()) {
@@ -123,6 +145,11 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         return new ConvertedFontGlyph(code, dims, rawData, height - belowBaseline, belowBaseline, xAdvance);
     }
 
+    /**
+     * Determine if a code has any displayable glyph
+     * @param code the code to check
+     * @return true if it has a glyph, otherwise false.
+     */
     @Override
     public boolean canDisplay(int code) {
         try {
@@ -133,6 +160,13 @@ public class NativeFreeFontLoadedFont implements LoadedFont {
         }
     }
 
+    /**
+     * Load a particular variant of a font so that the glyphs can be requested.
+     * @param fontStyle the style of the font, not supported for this class.
+     * @param size the size of the font in points for the current DPI
+     * @param newMappings The unicode blocks that should be loaded up
+     * @param aliasMode not supported for this class.
+     */
     @Override
     public void deriveFont(FontStyle fontStyle, int size, Set<UnicodeBlockMapping> newMappings, AntiAliasMode aliasMode) {
         try(Arena arena = Arena.ofConfined()) {

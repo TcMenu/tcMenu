@@ -39,7 +39,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
-import static com.thecoderscorner.menu.editorui.gfxui.AwtLoadedFont.*;
+import static com.thecoderscorner.menu.editorui.gfxui.AwtFontGlyphGenerator.*;
 import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.FontFormat;
 import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontGlyph;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
@@ -66,7 +66,7 @@ public class CreateFontUtilityController {
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
-    private LoadedFont loadedFont = NO_LOADED_FONT;
+    private FontGlyphGenerator loadedFont = NO_LOADED_FONT;
     private Set<UnicodeBlockMapping> blockMappings = Set.of();
     private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
     private final Map<Integer, Boolean> currentlySelected = new HashMap<>();
@@ -97,7 +97,7 @@ public class CreateFontUtilityController {
                 MenuItem item = new MenuItem(f.getName() + " " + f.getFamily());
                 item.setOnAction(event -> {
                     fontFileField.setText("OS " + f.getName() + " " + f.getFamily());
-                    loadedFont = new AwtLoadedFont(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
+                    loadedFont = new AwtFontGlyphGenerator(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
                     changeNameField();
                     recalcFont();
                 });
@@ -113,7 +113,7 @@ public class CreateFontUtilityController {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
         fileChoice.ifPresent(file -> {
             fontFileField.setText(file);
-            loadedFont = new NativeFreeFontLoadedFont(Paths.get(file), 100);
+            loadedFont = new NativeFreeFontGlyphGenerator(Paths.get(file), 100);
             changeNameField();
             recalcFont();
             checkButtons();
@@ -223,7 +223,7 @@ public class CreateFontUtilityController {
 
     @SuppressWarnings("unused")
     public void onChooseUnicodeRanges(ActionEvent actionEvent) {
-        if(loadedFont instanceof NoLoadedFont) {
+        if(loadedFont instanceof NoFontGlyphGenerator) {
             showAlertAndWait(Alert.AlertType.ERROR, "No Font Selected", "Please select a font before choosing unicode ranges", ButtonType.CLOSE);
         } else {
             Stage mainStage = (Stage) outputStructNameField.getScene().getWindow();
@@ -328,7 +328,7 @@ public class CreateFontUtilityController {
         long count = currentlySelected.values().stream().filter(e -> e).count();
         generateAdafruitBtn.setDisable(count == 0);
         generateTcUnicodeBtn.setDisable(count == 0);
-        boolean isFontLoaded = loadedFont instanceof NoLoadedFont;
+        boolean isFontLoaded = loadedFont instanceof NoFontGlyphGenerator;
         pixelSizeSpinner.setDisable(isFontLoaded);
         fontStyleCombo.setDisable(isFontLoaded);
         chooseRangesButton.setDisable(isFontLoaded);

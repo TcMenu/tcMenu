@@ -1,6 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.editorui.gfxui.LoadedFont;
+import com.thecoderscorner.menu.editorui.gfxui.FontGlyphGenerator;
 import com.thecoderscorner.menu.editorui.gfxui.UnicodeBlockMapping;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.gfxui.AwtLoadedFont.NO_LOADED_FONT;
+import static com.thecoderscorner.menu.editorui.gfxui.AwtFontGlyphGenerator.NO_LOADED_FONT;
 
 public class SelectUnicodeRangesController {
     public TextField unicodeSearchField;
@@ -26,10 +26,10 @@ public class SelectUnicodeRangesController {
     public Button selectRangeButton;
     public List<UnicodeBlockWithSelection> allSelections;
 
-    private LoadedFont loadedFont = NO_LOADED_FONT;
+    private FontGlyphGenerator loadedFont = NO_LOADED_FONT;
     private Optional<Set<UnicodeBlockMapping>> result = Optional.empty();
 
-    public void initialise(LoadedFont loadedFont, Set<UnicodeBlockMapping> currentEnabledMappings) {
+    public void initialise(FontGlyphGenerator loadedFont, Set<UnicodeBlockMapping> currentEnabledMappings) {
         allSelections = Arrays.stream(UnicodeBlockMapping.values())
                 .map(bm -> new UnicodeBlockWithSelection(bm, currentEnabledMappings.contains(bm)))
                 .toList();
