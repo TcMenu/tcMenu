@@ -2,6 +2,7 @@
 target/
 **/.vscode
 **/Output
+**/cmake-build-debug-visual-studio
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
