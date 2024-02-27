@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
 
     setPixelsPerInch(100);
 
-    FontHandle h = createFont("/Users/dave/Library/CloudStorage/OneDrive-Personal/Audiowide/B612/B612-Regular.ttf", PLAIN, 8);
-    //FontHandle h = createFont("C:/Users/dave/temp/tcMenu/Roboto-Regular.ttf", BOLD, 8);
+    //FontHandle h = createFont("/Users/dave/Library/CloudStorage/OneDrive-Personal/Audiowide/B612/B612-Regular.ttf", PLAIN, 8);
+    FontHandle h = createFont("C:/Users/dave/temp/tcMenu/Roboto-Regular.ttf", BOLD, 8);
     //FontHandle h = createFont("C:\\Users\\dave\\temp\\tcMenu\\openSans\\static\\OpenSans\\OpenSans-Medium.ttf", BOLD, 12);
 
     if(h <= 0) {

@@ -32,7 +32,7 @@ if(UNIX)
 else ()
     # on windows however, we need to build freetype from source in release mode as a static library. Consult the freetype
     # docs if you don't want to use the tcMenuPackaged one
-    target_link_libraries(tcMenuNative "${CMAKE_CURRENT_SOURCE_DIR}/win/freetype.lib")
+    target_link_libraries(tcMenuNative "${CMAKE_CURRENT_SOURCE_DIR}/packaged/win/freetype.lib")
 endif()
 
 # and include the test project

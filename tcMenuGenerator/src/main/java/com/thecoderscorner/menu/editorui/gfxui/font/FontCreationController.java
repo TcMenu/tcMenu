@@ -1,5 +1,6 @@
 package com.thecoderscorner.menu.editorui.gfxui.font;
 
+import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
@@ -49,6 +50,7 @@ public class FontCreationController {
 
         int row = 0;
         var grid = new GridPane(4, 4);
+        grid.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
         grid.getColumnConstraints().addAll(
             priorityColConstraint(Priority.NEVER),
             priorityColConstraint(Priority.SOMETIMES),
