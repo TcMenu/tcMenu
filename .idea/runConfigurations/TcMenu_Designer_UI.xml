@@ -2,7 +2,7 @@
   <configuration default="false" name="TcMenu Designer UI" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorui.MenuEditorApp" />
     <module name="menuEditorUI" />
-    <option name="VM_PARAMETERS" value="-Ddevlog=Y -DalwaysShowSplash=Y --enable-preview --enable-native-access=com.thecoderscorner.tcmenu.menuEditorUI -Djava.library.path=../tcMenuNative/cmake-build-debug-visual-studio;%PATH%" />
+    <option name="VM_PARAMETERS" value="-Ddevlog=Y -DalwaysShowSplash=Y --enable-preview --enable-native-access=com.thecoderscorner.tcmenu.menuEditorUI -Djava.library.path=../tcMenuNative/packaged/mac:$PATH" />
     <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
     <method v="2">
       <option name="Make" enabled="true" />

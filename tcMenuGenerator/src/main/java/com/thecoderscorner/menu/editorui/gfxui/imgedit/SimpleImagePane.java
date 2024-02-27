@@ -12,16 +12,11 @@ import javafx.scene.layout.HBox;
 import java.util.List;
 
 public class SimpleImagePane extends BorderPane {
-    private final Image image;
-    private final boolean editable;
-    private final PortablePalette palette;
     private final ImageDrawingGrid canvas;
 
     public SimpleImagePane(BmpDataManager bitmap, NativePixelFormat format, boolean editable, PortablePalette palette,
                            List<Button> actionButtons) {
-        this.image = bitmap.createImageFromBitmap(palette);
-        this.editable = editable;
-        this.palette = palette;
+        Image image = bitmap.createImageFromBitmap(palette);
         setMaxSize(99999, 99999);
 
         canvas = new ImageDrawingGrid(bitmap, palette, editable);
@@ -51,5 +46,9 @@ public class SimpleImagePane extends BorderPane {
 
     public void invalidate() {
         canvas.onPaintSurface(canvas.getGraphicsContext2D());
+    }
+
+    public ImageDrawingGrid getDrawingGrid() {
+        return canvas;
     }
 }

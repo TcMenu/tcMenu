@@ -1,7 +1,6 @@
 package com.thecoderscorner.menu.editorui.controller;
 
-import com.thecoderscorner.menu.editorui.gfxui.FontGlyphGenerator;
-import com.thecoderscorner.menu.editorui.gfxui.UnicodeBlockMapping;
+import com.thecoderscorner.menu.editorui.gfxui.font.UnicodeBlockMapping;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -18,18 +17,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.gfxui.AwtFontGlyphGenerator.NO_LOADED_FONT;
-
 public class SelectUnicodeRangesController {
     public TextField unicodeSearchField;
     public ListView<UnicodeBlockWithSelection> unicodeRangeList;
     public Button selectRangeButton;
     public List<UnicodeBlockWithSelection> allSelections;
-
-    private FontGlyphGenerator loadedFont = NO_LOADED_FONT;
     private Optional<Set<UnicodeBlockMapping>> result = Optional.empty();
 
-    public void initialise(FontGlyphGenerator loadedFont, Set<UnicodeBlockMapping> currentEnabledMappings) {
+    public void initialise(Set<UnicodeBlockMapping> currentEnabledMappings) {
         allSelections = Arrays.stream(UnicodeBlockMapping.values())
                 .map(bm -> new UnicodeBlockWithSelection(bm, currentEnabledMappings.contains(bm)))
                 .toList();
@@ -37,7 +32,7 @@ public class SelectUnicodeRangesController {
 
         unicodeRangeList.setCellFactory(CheckBoxListCell.forListView(UnicodeBlockWithSelection::selectedProperty));
 
-        unicodeSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+        unicodeSearchField.textProperty().addListener((_, _, newValue) -> {
             if(newValue.isEmpty()) {
                 unicodeRangeList.setItems(FXCollections.observableArrayList(allSelections));
             } else {
@@ -52,12 +47,12 @@ public class SelectUnicodeRangesController {
         return result;
     }
 
-    public void onCancel(ActionEvent actionEvent) {
+    public void onCancel(ActionEvent ignoredActionEvent) {
         result = Optional.empty();
         ((Stage)unicodeSearchField.getScene().getWindow()).close();
     }
 
-    public void onSelectRanges(ActionEvent actionEvent) {
+    public void onSelectRanges(ActionEvent ignoredActionEvent) {
         result = Optional.of(allSelections.stream()
                 .filter(UnicodeBlockWithSelection::isSelected)
                 .map(UnicodeBlockWithSelection::getBlockMapping)

@@ -104,7 +104,7 @@ public class XMLDOMHelper {
      */
     public static String textOfElementByName(Element elem, String child) {
         var ch = getChildElementsWithName(elem, child);
-        if (ch == null || ch.size() == 0) return "";
+        if (ch == null || ch.isEmpty()) return "";
         return ch.get(0).getTextContent();
     }
 
@@ -161,10 +161,35 @@ public class XMLDOMHelper {
      */
     public static String getAttributeOrDefault(Element elem, String val, Object def) {
         String att = elem.getAttribute(val);
-        if (att == null || att.length() == 0) {
+        if (att == null || att.isEmpty()) {
             return def.toString();
         }
         return att;
+    }
+
+    /**
+     * Gets the value of an attribute as an integer from the given element. If the attribute is not present or cannot be
+     * parsed as an integer, the default value is returned.
+     *
+     * @param ele the element to get the attribute from
+     * @param attr the name of the attribute
+     * @param def the default value to return if the attribute is not present or cannot be parsed
+     * @return the value of the attribute as an integer, or the default value if the attribute is not present or cannot be parsed
+     */
+    public static int getAttributeAsIntWithDefault(Element ele, String attr, int def) {
+        return Integer.parseInt(getAttributeOrDefault(ele, attr, def));
+    }
+
+    /**
+     * Parses the value of the specified attribute of an XML element as a boolean and returns it.
+     * If the attribute is not present or cannot be parsed as a boolean, it returns the default value.
+     *
+     * @param ele  the XML element
+     * @param attr the attribute name
+     * @return the boolean value of the attribute, or the default value
+     */
+    public static boolean getAttributeAsBool(Element ele, String attr) {
+        return Boolean.parseBoolean(getAttributeOrDefault(ele, attr, false));
     }
 
     /**

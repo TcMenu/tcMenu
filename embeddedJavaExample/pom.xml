@@ -8,7 +8,7 @@
 
     <properties>
         <jdk.version>20</jdk.version>
-        <jfx.version>20</jfx.version>
+        <jfx.version>21.0.2</jfx.version>
         <jserialcomm.version>2.9.2</jserialcomm.version>
         <tcmenu.api.version>4.3.0-SNAPSHOT</tcmenu.api.version>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -41,13 +41,11 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${jfx.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${jfx.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- END JavaFX notes -->

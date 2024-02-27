@@ -6,9 +6,9 @@
 <GridPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
           hgap="4" vgap="4" fx:controller="com.thecoderscorner.menu.editorui.gfxui.CreateFontUtilityController">
     <columnConstraints>
+        <ColumnConstraints hgrow="NEVER"/>
         <ColumnConstraints hgrow="SOMETIMES"/>
-        <ColumnConstraints hgrow="SOMETIMES"/>
-        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="NEVER"/>
         <ColumnConstraints hgrow="NEVER"/>
     </columnConstraints>
     <rowConstraints>
@@ -23,34 +23,14 @@
     <padding>
         <Insets topRightBottomLeft="10"/>
     </padding>
-    <Label text="%font.create.title" GridPane.columnSpan="2"/>
-    <Label text="%font.create.select" GridPane.rowIndex="1"/>
-    <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2"
-               GridPane.rowIndex="1"/>
+
+    <Label text="%core.file.name" GridPane.rowIndex="1"/>
+    <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1"/>
+    <Label text="%font.create.struct.name" GridPane.rowIndex="2"/>
+    <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3"/>
+
     <Label fx:id="fontSizeField" text="%font.create.choose" GridPane.columnSpan="3" GridPane.rowIndex="4"
            GridPane.valignment="BOTTOM"/>
-    <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
-        <buttons>
-            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help"/>
-            <Button fx:id="chooseRangesButton" mnemonicParsing="false" onAction="#onChooseUnicodeRanges"
-                    text="%font.create.choose.range"/>
-            <Button fx:id="generateAdafruitBtn" mnemonicParsing="false" onAction="#onGenerateAdafruit"
-                    text="%font.create.ada"/>
-            <Button fx:id="generateTcUnicodeBtn" mnemonicParsing="false" onAction="#onGenerateUnicode"
-                    text="%font.create.uni"/>
-        </buttons>
-    </ButtonBar>
-    <Label text="%font.create.size" GridPane.rowIndex="3"/>
-    <Spinner fx:id="pixelSizeSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-    <Label text="%font.create.struct.name" GridPane.rowIndex="2"/>
-    <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-    <Label text="%font.create.style" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
-        <padding>
-            <Insets right="4.0"/>
-        </padding>
-    </Label>
-    <ComboBox fx:id="fontStyleCombo" onAction="#onFontStyleChanged" maxWidth="99999"
-              GridPane.columnIndex="3" GridPane.rowIndex="3"/>
     <ScrollPane prefHeight="200.0" prefWidth="200.0" maxWidth="9999" fitToWidth="true" GridPane.columnSpan="4" GridPane.rowIndex="5">
         <GridPane fx:id="fontRenderArea">
             <columnConstraints>
@@ -70,15 +50,13 @@
             </rowConstraints>
         </GridPane>
     </ScrollPane>
-    <MenuButton mnemonicParsing="false" text="%font.create.choose.font" GridPane.columnIndex="3" GridPane.rowIndex="1" maxWidth="99999">
-        <items>
-            <MenuItem mnemonicParsing="false" onAction="#onChooseFont" text="%font.create.choose.file"/>
-            <Menu fx:id="loadedFontsMenu" mnemonicParsing="false" text="%font.create.loaded">
-            </Menu>
-        </items>
-    </MenuButton>
-    <Label text="%font.create.antialias" GridPane.columnIndex="2" GridPane.halignment="RIGHT"
-           GridPane.rowIndex="2"/>
-    <ComboBox fx:id="antiAliasModeCombo" onAction="#onFontStyleChanged" maxWidth="99999"
-              GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+    <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="%core.online.help"/>
+            <Button mnemonicParsing="false" onAction="#onOpenExistingFont" text="%font.create.open" />
+            <Button mnemonicParsing="false" onAction="#importFont" text="%font.create.import" />
+            <Button mnemonicParsing="false" onAction="#saveFont" text="%core.save.file" />
+            <MenuButton mnemonicParsing="false" text="Generate.." fx:id="generateButton"/>
+        </buttons>
+    </ButtonBar>
 </GridPane>

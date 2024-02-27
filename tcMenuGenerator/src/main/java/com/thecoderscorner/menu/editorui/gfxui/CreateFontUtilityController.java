@@ -3,10 +3,10 @@ package com.thecoderscorner.menu.editorui.gfxui;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
+import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.dialog.SelectUnicodeRangesDialog;
-import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
-import com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontBlock;
+import com.thecoderscorner.menu.editorui.gfxui.font.*;
+import com.thecoderscorner.menu.editorui.gfxui.imgedit.ImageDrawingGrid;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BitmapImportPopup;
@@ -15,15 +15,13 @@ import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -31,117 +29,148 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.*;
 
-import static com.thecoderscorner.menu.editorui.gfxui.AwtFontGlyphGenerator.*;
-import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.FontFormat;
-import static com.thecoderscorner.menu.editorui.gfxui.TcUnicodeFontExporter.TcUnicodeFontGlyph;
-import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
+import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
+import static com.thecoderscorner.menu.editorui.gfxui.font.EmbeddedFontExporter.FontFormat;
 
 public class CreateFontUtilityController {
-    public static final long APPROX_ADA_SIZE = 8;
-    public static final long ADA_OVERHEAD = 16;
-    public static final long APPROX_TCUNICODE_SIZE = 10;
-    public static final long TC_UNI_OVERHEAD = 16; // for each block
 
     public final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    private final ResourceBundle bundle = MenuEditorApp.getBundle();
 
     public TextField fontFileField;
-    public Spinner<Integer> pixelSizeSpinner;
-    public ComboBox<FontStyle> fontStyleCombo;
     public TextField outputStructNameField;
     public GridPane fontRenderArea;
-    public Menu loadedFontsMenu;
     public Label fontSizeField;
-    public Button generateAdafruitBtn;
-    public Button generateTcUnicodeBtn;
-    public Button chooseRangesButton;
-    public ComboBox<AntiAliasMode> antiAliasModeCombo;
+    public MenuButton generateButton;
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
-    private FontGlyphGenerator loadedFont = NO_LOADED_FONT;
-    private Set<UnicodeBlockMapping> blockMappings = Set.of();
+    private Set<UnicodeBlockMapping> chosenMappings = new HashSet<>(Set.of(UnicodeBlockMapping.BASIC_LATIN, UnicodeBlockMapping.LATIN_EXTENDED_A));
     private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
-    private final Map<Integer, Boolean> currentlySelected = new HashMap<>();
+    private EmbeddedFont embeddedFont = new EmbeddedFont();
     javafx.stage.Popup popup;
+    private boolean dirty = false;
+    private boolean clipboardExport = false;
 
     public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
         this.homeDirectory = homeDirectory;
         var fileName = editorUI.getCurrentProject().getFileName();
         currentDir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
-        blockMappings = Set.of(UnicodeBlockMapping.BASIC_LATIN, UnicodeBlockMapping.LATIN1_SUPPLEMENT);
 
-        pixelSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 255, 12));
-        pixelSizeSpinner.getValueFactory().valueProperty().addListener((_, _, _) -> {
-            changeNameField();
-            recalcFont();
-        });
+        var clipboardItem = new CheckMenuItem(bundle.getString("core.to.clip"));
+        clipboardItem.setSelected(false);
+        clipboardItem.setOnAction(_ -> clipboardExport = clipboardItem.isSelected());
 
-        this.fontStyleCombo.setItems(FXCollections.observableArrayList(FontStyle.values()));
-        this.fontStyleCombo.getSelectionModel().select(0);
-
-        this.antiAliasModeCombo.setItems(FXCollections.observableArrayList(AntiAliasMode.values()));
-        this.antiAliasModeCombo.getSelectionModel().select(0);
-
-        SwingUtilities.invokeLater(() -> {
-            var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            for(var f : ge.getAllFonts()) {
-                MenuItem item = new MenuItem(f.getName() + " " + f.getFamily());
-                item.setOnAction(event -> {
-                    fontFileField.setText("OS " + f.getName() + " " + f.getFamily());
-                    loadedFont = new AwtFontGlyphGenerator(f, fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
-                    changeNameField();
-                    recalcFont();
-                });
-                loadedFontsMenu.getItems().add(item);
-            }
-        });
+        generateButton.getItems().addAll(
+                clipboardItem,
+                bundleMenuItemWithAction("font.create.ada", _ -> internalGenerate(FontFormat.ADAFRUIT)),
+                bundleMenuItemWithAction("font.create.uni", _ -> internalGenerate(FontFormat.TC_UNICODE))
+        );
 
         checkButtons();
     }
 
-    @SuppressWarnings("unused")
-    public void onChooseFont(ActionEvent actionEvent) {
-        var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Fonts|*.ttf");
+    private void internalGenerate(FontEncoder.FontFormat format) {
+        if(clipboardExport) {
+            logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, to clipboard");
+            try(var outStream = new ByteArrayOutputStream()) {
+                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont);
+                exporter.encodeFontToStream(outStream, format);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent content = new ClipboardContent();
+                content.putString(outStream.toString());
+                clipboard.setContent(content);
+            } catch (Exception ex) {
+                editorUI.alertOnError("Clipboard export failed", STR."The font was not converted due to the following. \{ex.getMessage()}");
+            }
+        } else {
+            logger.log(System.Logger.Level.INFO, "Show font conversion save dialog");
+            var fileName = editorUI.getCurrentProject().getFileName();
+            var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
+            var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
+            if (maybeOutFile.isEmpty()) return;
+            String outputFile = maybeOutFile.get();
+            logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, name \{outputFile}");
+            try (var outStream = new FileOutputStream(outputFile)) {
+                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont);
+                exporter.encodeFontToStream(outStream, format);
+            } catch (Exception ex) {
+                editorUI.alertOnError("File export failed ", STR."The font was not converted due to the following. \{ex.getMessage()}");
+            }
+        }
+    }
+
+    private MenuItem bundleMenuItemWithAction(String text, EventHandler<ActionEvent> act) {
+        var m = new MenuItem(bundle.getString(text));
+        m.setOnAction(act);
+        return m;
+    }
+
+    public void onOpenExistingFont(ActionEvent ignoredEvent) {
+        if(!shouldOverwrite()) return;
+        var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Embedded Fonts|*.xml");
         fileChoice.ifPresent(file -> {
-            fontFileField.setText(file);
-            loadedFont = new NativeFreeFontGlyphGenerator(Paths.get(file), 100);
-            changeNameField();
-            recalcFont();
-            checkButtons();
+            try {
+                embeddedFont = new EmbeddedFont(Path.of(file));
+                recalcFont();
+            } catch (Exception e) {
+                editorUI.alertOnError("File load problem", STR."The font file was not loaded - \{e}");
+            }
         });
+    }
+
+    public void saveFont(ActionEvent ignored) {
+        try {
+            if (embeddedFont.getFontType() != EmbeddedFont.EmbeddedFontType.XML_LOADED) {
+                var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), false, "Embedded Fonts|*.xml");
+                if(fileChoice.isEmpty()) return;
+                embeddedFont.convertToXmlLoaded(Path.of(fileChoice.get()));
+            }
+            embeddedFont.saveFont();
+            dirty = false;
+            recalcFont();
+        } catch(Exception ex) {
+            editorUI.alertOnError("Font Save Failed", ex.getMessage());
+            logger.log(System.Logger.Level.ERROR, "Font save failed with exception", ex);
+        }
+    }
+
+    public void importFont(ActionEvent ignoredActionEvent) {
+        if(!shouldOverwrite()) return;
+        var createFontDlg = new FontCreationController();
+        var p = (embeddedFont.getFontPath() != null) ? embeddedFont.getFontPath().getParent() : currentDir;
+        var font = createFontDlg.createDialog((Stage)fontFileField.getScene().getWindow(), p, editorUI);
+        if(font.isEmpty()) return;
+        embeddedFont = font.get();
+        recalcFont();
+        checkButtons();
     }
 
     private void recalcFont() {
         fontRenderArea.getChildren().clear();
         controlsByBlock.clear();
-        loadedFont.deriveFont(fontStyleCombo.getValue(), pixelSizeSpinner.getValue(), blockMappings, antiAliasModeCombo.getValue());
         int gridRow = 0;
         for(var blockRange : UnicodeBlockMapping.values()) {
-            if(!blockMappings.contains(blockRange)) continue;
+            if(!chosenMappings.contains(blockRange)) continue;
 
             Label title = new Label(blockRange.toString());
             title.setPadding(new Insets(15, 0, 6, 0));
             title.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize() * 2};");
             fontRenderArea.add(title, 0, gridRow, 5, 1);
             CheckBox selAllCheck = new CheckBox("Select/Clear All");
-            selAllCheck.setOnAction(event -> {
+            selAllCheck.setOnAction(_ -> {
                 var allItems = controlsByBlock.get(blockRange);
                 if(allItems != null && !allItems.isEmpty()) {
                     for(var item : allItems) {
                         item.setSelected(selAllCheck.isSelected());
                     }
-                    for(int i=minimumStartingCode(blockRange); i<=blockRange.getEndingCode();i++) {
-                        currentlySelected.put(i, selAllCheck.isSelected());
-                    }
+                    markDirty();
                 }
                 recalcSize();
             });
@@ -150,25 +179,27 @@ public class CreateFontUtilityController {
             fontRenderArea.add(selAllCheck, 6, gridRow, 2, 1);
             fontRenderArea.add(preview, 8, gridRow);
 
+            fontFileField.setText(STR."\{embeddedFont.getFontType()} \{embeddedFont.getFontPath()}");
+            outputStructNameField.setText(embeddedFont.getDefaultFontVariableName());
+
             gridRow++;
 
             var allButtons = new ArrayList<FontGlyphDataControl>();
             int gridCol = 0;
-            for(int i = minimumStartingCode(blockRange); i<blockRange.getEndingCode(); i++) {
-                var maybeGlyph = loadedFont.getConvertedGlyph(i);
-                if (maybeGlyph.isPresent()) {
-                    var glyph = maybeGlyph.get();
-                    var bmp = fromGlyphToImg(glyph);
-                    var fontGlyphView = new FontGlyphDataControl(i, bmp);
+            for(var glyph : embeddedFont.getGlyphsForBlock(blockRange)) {
+                try {
+                    var fontGlyphView = new FontGlyphDataControl(glyph);
                     Pane ui = fontGlyphView.getUI();
                     fontRenderArea.add(ui, gridCol, gridRow);
                     allButtons.add(fontGlyphView);
                     GridPane.setMargin(ui, new Insets(4));
                     gridCol++;
-                    if(gridCol > 9) {
+                    if (gridCol > 9) {
                         gridCol = 0;
                         gridRow++;
                     }
+                } catch(Exception ex) {
+                    logger.log(System.Logger.Level.ERROR, STR."Create control has failed at \{glyph}");
                 }
             }
             gridRow++;
@@ -177,162 +208,19 @@ public class CreateFontUtilityController {
         recalcSize();
     }
 
-    private BmpDataManager fromGlyphToImg(ConvertedFontGlyph glyph) {
-        var data = new NativeBmpBitPacker(glyph.calculatedWidth() + 1, glyph.belowBaseline() + glyph.toBaseLine() + 2, true);
-        try {
-            int bitOffset = 0;
-            for(int y=glyph.fontDims().startY();y<glyph.fontDims().lastY(); y++) {
-                for(int x=glyph.fontDims().startX();x<glyph.fontDims().lastX(); x++) {
-                    int byteOffset = bitOffset / 8;
-                    if(byteOffset >= glyph.data().length) break;
-                    int d = glyph.data()[byteOffset];
-                    boolean on = (d & (1<<(7 - (bitOffset % 8)))) != 0;
-                    if(on) {
-                        data.setBitAt(x, y, true);
-                    }
-                    bitOffset++;
-                }
-            }
-        } catch (Exception e) {
-            logger.log(System.Logger.Level.ERROR, "Image conversion caused exception", e);
-        }
-        return data;
-    }
-
-    @SuppressWarnings("unused")
-    public void onFontStyleChanged(ActionEvent actionEvent) {
-        changeNameField();
-        recalcFont();
-    }
-
-    private void changeNameField() {
-        var file = Path.of(fontFileField.getText()).getFileName().toString();
-        file = file.replace(".ttf", "");
-        var outputName = file + " " + pixelSizeSpinner.getValue() + toSimpleStyle(fontStyleCombo.getValue());
-        outputStructNameField.setText(VariableNameGenerator.makeNameFromVariable(outputName));
-    }
-
-    private String toSimpleStyle(FontStyle value) {
-        return switch (value) {
-            case PLAIN -> "";
-            case BOLD -> "b";
-            case ITALICS -> "i";
-            case BOLD_ITALICS -> "bi";
-        };
-    }
-
-    @SuppressWarnings("unused")
-    public void onChooseUnicodeRanges(ActionEvent actionEvent) {
-        if(loadedFont instanceof NoFontGlyphGenerator) {
-            showAlertAndWait(Alert.AlertType.ERROR, "No Font Selected", "Please select a font before choosing unicode ranges", ButtonType.CLOSE);
-        } else {
-            Stage mainStage = (Stage) outputStructNameField.getScene().getWindow();
-            var dlg = new SelectUnicodeRangesDialog(mainStage, loadedFont, blockMappings);
-            dlg.getBlockMappings().ifPresent(unicodeBlockMappings -> {
-                blockMappings = unicodeBlockMappings;
-                recalcFont();
-            });
-
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onGenerateAdafruit(ActionEvent actionEvent) {
-        internalGenerate(FontFormat.ADAFRUIT);
-    }
-
-    @SuppressWarnings("unused")
-    public void onGenerateUnicode(ActionEvent actionEvent) {
-        internalGenerate(FontFormat.TC_UNICODE);
-    }
-
-    private void internalGenerate(FontEncoder.FontFormat format) {
-        logger.log(System.Logger.Level.INFO, "Show font conversion save dialog");
-        var fileName = editorUI.getCurrentProject().getFileName();
-        var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
-        var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
-        if(maybeOutFile.isEmpty()) return;
-        String outputFile = maybeOutFile.get();
-        logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, name \{outputFile}");
-        try(var outStream = new FileOutputStream(outputFile)) {
-            var blocks = new ArrayList<TcUnicodeFontBlock>();
-            int maxY = 0;
-
-            for(var blockMapping : blockMappings) {
-                var glyphsInBlock = new ArrayList<TcUnicodeFontGlyph>();
-                for(int i = minimumStartingCode(blockMapping); i <= blockMapping.getEndingCode(); i++) {
-                    if(!currentlySelected.containsKey(i)) continue;
-                    var maybeRawGlyph = loadedFont.getConvertedGlyph(i);
-                    if(maybeRawGlyph.isEmpty()) continue;
-                    var rawGlyph = maybeRawGlyph.get();
-
-                    int totalHeight = rawGlyph.toBaseLine();
-                    glyphsInBlock.add(new TcUnicodeFontGlyph(i, rawGlyph.data(), rawGlyph.fontDims().width(),
-                            rawGlyph.fontDims().height(), rawGlyph.totalWidth(),
-                            rawGlyph.fontDims().startX(), -(totalHeight - rawGlyph.fontDims().startY())));
-                    if(totalHeight > maxY) {
-                        maxY = totalHeight;
-                    }
-                }
-
-                blocks.add(new TcUnicodeFontBlock(blockMapping, glyphsInBlock));
-            }
-
-            logger.log(System.Logger.Level.INFO, "Writing to file");
-            TcUnicodeFontExporter exporter = new TcUnicodeFontExporter(outputStructNameField.getText(), blocks, maxY);
-            exporter.encodeFontToStream(outStream, format);
-            logger.log(System.Logger.Level.INFO, "Finished write to file");
-            showAlertAndWait(Alert.AlertType.INFORMATION, "Font Export Successful",
-                    "Font '" +  outputStructNameField.getText() + "'  exported successfully to '" + outputFile + "' in format " + fontStyleCombo.getValue(),
-                    ButtonType.CLOSE);
-        } catch (Exception ex) {
-            editorUI.alertOnError("Font not converted", "The font was not converted due to the following. " + ex.getMessage());
-            logger.log(System.Logger.Level.ERROR, "Unable to convert font to " + format, ex);
-        }
-    }
-
-    private static int minimumStartingCode(UnicodeBlockMapping blockMapping) {
-        return Math.max(31, blockMapping.getStartingCode());
-    }
-
     private void recalcSize() {
-        long count = currentlySelected.values().stream().filter(e -> e).count();
-
-        long byteSize = currentlySelected.entrySet().stream().filter(Map.Entry::getValue)
-                .map(e-> loadedFont.getConvertedGlyph(e.getKey()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(g -> g.data().length)
-                .reduce(0, Integer::sum);
-
-        long min = currentlySelected.entrySet().stream()
-                .filter(Map.Entry::getValue)
-                .map(Map.Entry::getKey)
-                .min(Integer::compareTo)
-                .orElse(0);
-        long max = currentlySelected.entrySet().stream()
-                .filter(Map.Entry::getValue)
-                .map(Map.Entry::getKey)
-                .max(Integer::compareTo)
-                .orElse(0);
-
-        var txt = String.format("Choose Characters below, selected = %d, approx size Adafruit %d, TcUnicode %d",
-                count, ((max-min) * APPROX_ADA_SIZE) + ADA_OVERHEAD + byteSize,
-                (count * APPROX_TCUNICODE_SIZE) + (blockMappings.size() + TC_UNI_OVERHEAD) + byteSize);
+        var fsi = embeddedFont.getFontSizeInfo();
+        var txt = String.format(" Characters selected = %d, yAdvance = %d, baseline = %d, approx size Adafruit = %d, TcUnicode = %d",
+                fsi.count(), embeddedFont.getYAdvance(), embeddedFont.getBelowBaseline(), fsi.adafruitSize(), fsi.tcUnicodeSize());
         fontSizeField.setText(txt);
 
         checkButtons();
     }
 
     private void checkButtons() {
-        long count = currentlySelected.values().stream().filter(e -> e).count();
-        generateAdafruitBtn.setDisable(count == 0);
-        generateTcUnicodeBtn.setDisable(count == 0);
-        boolean isFontLoaded = loadedFont instanceof NoFontGlyphGenerator;
-        pixelSizeSpinner.setDisable(isFontLoaded);
-        fontStyleCombo.setDisable(isFontLoaded);
-        chooseRangesButton.setDisable(isFontLoaded);
-        outputStructNameField.setDisable(isFontLoaded);
+        boolean atLeastOneSelected = embeddedFont.isAnythingSelected();
+        generateButton.setDisable(!atLeastOneSelected);
+        outputStructNameField.setDisable(!embeddedFont.isPopulated());
     }
 
     @SuppressWarnings("unused")
@@ -340,28 +228,32 @@ public class CreateFontUtilityController {
         SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
     }
 
+    private boolean shouldOverwrite() {
+        if(!dirty) return true;
+        if(editorUI.questionYesNo("%font.create.changed.title", "%font.create.changed.content")) {
+            dirty = false;
+            return true;
+        } else return false;
+    }
+
     private void previewNativeFont(UnicodeBlockMapping mapping, List<FontGlyphDataControl> glyphs) {
         int totalWidth = Math.max(1, glyphs.stream().filter(FontGlyphDataControl::isSelected)
                 .map(d -> d.getData().getPixelWidth()).reduce(0, Integer::sum));
         int maxHeight = glyphs.stream().map(d -> d.getData().getPixelHeight()).max(Integer::compareTo).orElse(1);
         NativeBmpBitPacker packer = new NativeBmpBitPacker(320, maxHeight * ((totalWidth / 320) + 1), false);
-        int xPos = 0;
-        int yPos = 0;
+        SimpleImagePane e = new SimpleImagePane(packer, NativePixelFormat.MONO_BITMAP, false, BitmapImportPopup.EMPTY_PALETTE, List.of());
+        e.getDrawingGrid().setTextCursor(0,0);
+        e.getDrawingGrid().setFont(embeddedFont);
+        e.getDrawingGrid().setCurrentColor(1);
         for(var g : glyphs) {
             if(!g.isSelected()) continue;
-            if(xPos + g.getData().getPixelWidth() > 320) {
-                xPos = 0;
-                yPos += maxHeight;
-            }
-            packer.pushBitsOn(xPos, yPos, ((NativeBmpBitPacker) g.getData()), 1);
-            xPos += g.getData().getPixelWidth();
+            e.getDrawingGrid().printChar(g.glyph.code());
         }
 
         var popup = new Popup();
         var vbox = new VBox(4);
-        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+        vbox.setStyle(STR."-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: \{GlobalSettings.defaultFontSize()}");
 
-        SimpleImagePane e = new SimpleImagePane(packer, NativePixelFormat.MONO_BITMAP, false, BitmapImportPopup.EMPTY_PALETTE, List.of());
         e.setPrefWidth(640);
         e.setPrefHeight(maxHeight * 2);
 
@@ -371,74 +263,52 @@ public class CreateFontUtilityController {
         closeBtn.setOnAction(_ -> popup.hide());
         vbox.getChildren().addAll(title, e, closeBtn);
         popup.getContent().add(vbox);
-        popup.show(generateAdafruitBtn.getScene().getWindow());
+        popup.show(generateButton.getScene().getWindow());
+    }
+
+    void markDirty() {
+        dirty = true;
+        checkButtons();
     }
 
     class FontGlyphDataControl {
-        private static final PortablePalette FONT_PALETTE = new PortablePalette(new PortableColor[]{PortableColor.BLACK, PortableColor.WHITE}, PortablePalette.PaletteMode.ONE_BPP);
-        final private int code;
-        final private BmpDataManager data;
-        boolean selected;
+        private static final PortablePalette FONT_PALETTE = new PortablePalette(new PortableColor[]{PortableColor.BLACK, PortableColor.WHITE}, PaletteMode.ONE_BPP);
+        final private EmbeddedFontGlyph glyph;
         private BorderPane pane;
+        private ImageDrawingGrid imgView;
 
-        public FontGlyphDataControl(int code, BmpDataManager data) {
-            this.code = code;
-            this.data = data;
+        public FontGlyphDataControl(EmbeddedFontGlyph glyph) {
+            this.glyph = glyph;
         }
 
         public Pane getUI() {
             pane = new BorderPane();
-            SimpleImagePane imgView = new SimpleImagePane(data, NativePixelFormat.MONO_BITMAP, false, FONT_PALETTE, List.of());
-            pane.setCenter(imgView);
+            createAnImageView();
             setFooterText(pane);
-
-            imgView.setOnMouseClicked(mouseEvent -> {
-                if(popup != null) popup.hide();
-                popup = new Popup();
-
-                var box = new VBox(4);
-                box.setFillWidth(true);
-                box.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
-                var editButton = new Button(STR."Edit Glyph U\{code}");
-                editButton.setMaxWidth(99999);
-                editButton.setOnAction(_ -> {
-                    popup.hide();
-                    var editor = new SimpleImageEditor(data, NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
-                    if(editor.presentUI(editorUI)) {
-                        imgView.invalidate();
-                    }
-                });
-                var selectButton = new Button(selected ? "Exclude Glyph" : "Include Glyph");
-                selectButton.setMaxWidth(99999);
-                selectButton.setOnAction(_ -> {
-                    selected = !selected;
-                    setFooterText(pane);
-                    popup.hide();
-                });
-                var closeButton = new Button("Close");
-                closeButton.setMaxWidth(99999);
-                closeButton.setOnAction(_ -> popup.hide());
-                box.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
-                box.getChildren().addAll(selectButton, editButton, closeButton);
-                popup.getContent().add(box);
-                popup.show(pane.getScene().getWindow());
-                popup.setX(mouseEvent.getScreenX());
-                popup.setY(mouseEvent.getScreenY());
-            });
             return pane;
         }
 
+        private void createAnImageView() {
+            imgView = glyph.getDisplayBitmapForGlyph();
+            pane.setCenter(imgView);
+            imgView.widthProperty().bind(pane.widthProperty());
+            imgView.heightProperty().bind(pane.heightProperty().multiply(0.9));
+            imgView.setOnMouseClicked(this::imgViewMouseClick);
+            pane.widthProperty().addListener((_) -> imgView.onPaintSurface(imgView.getGraphicsContext2D()));
+            pane.heightProperty().addListener((_) -> imgView.onPaintSurface(imgView.getGraphicsContext2D()));
+        }
+
         public BmpDataManager getData() {
-            return data;
+            return glyph.data();
         }
 
         private void setFooterText(BorderPane pane) {
-            var strSel = selected ? "[X] " : "[ ]";
-            pane.setBottom(new Label(STR."\{strSel}U\{code} : \{new String(Character.toChars(code))}"));
+            var strSel = glyph.selected() ? "[X] " : "[ ]";
+            pane.setBottom(new Label(STR."\{strSel}U\{glyph.code()} : \{new String(Character.toChars(glyph.code()))}"));
         }
 
         public void setSelected(boolean selected) {
-            this.selected = selected;
+            glyph.setSelected(selected);
             // protect against the UI not being generated yet.
             if(pane != null) {
                 setFooterText(pane);
@@ -446,7 +316,45 @@ public class CreateFontUtilityController {
         }
 
         public boolean isSelected() {
-            return selected;
+            return glyph.selected();
+        }
+
+        private void imgViewMouseClick(MouseEvent mouseEvent) {
+            if (popup != null) popup.hide();
+            popup = new Popup();
+
+            var box = new VBox(4);
+            box.setFillWidth(true);
+            box.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+            var editButton = new Button(STR."Edit Glyph U\{glyph.code()}");
+            editButton.setMaxWidth(99999);
+            editButton.setOnAction(_ -> {
+                var editor = new SimpleImageEditor(glyph.data(), NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
+                if(editor.presentUI(editorUI)) {
+                    markDirty();
+                    popup.hide();
+                    createAnImageView();
+                    imgView.onPaintSurface(imgView.getGraphicsContext2D());
+                } else popup.hide();
+            });
+            var selectButton = new Button(glyph.selected() ? "Exclude Glyph" : "Include Glyph");
+            selectButton.setMaxWidth(99999);
+            selectButton.setOnAction(_ -> {
+                markDirty();
+                glyph.setSelected(!glyph.selected());
+                setFooterText(pane);
+                recalcSize();
+                popup.hide();
+            });
+            var closeButton = new Button("Close");
+            closeButton.setMaxWidth(99999);
+            closeButton.setOnAction(_ -> popup.hide());
+            box.setStyle(STR."-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+            box.getChildren().addAll(selectButton, editButton, closeButton);
+            popup.getContent().add(box);
+            popup.show(pane.getScene().getWindow());
+            popup.setX(mouseEvent.getScreenX());
+            popup.setY(mouseEvent.getScreenY());
         }
     }
 }

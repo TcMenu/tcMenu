@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.editorui.gfxui.imgedit;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
+import com.thecoderscorner.menu.editorui.gfxui.font.EmbeddedFont;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -26,8 +27,10 @@ public class ImageDrawingGrid extends Canvas {
     private double fitWidth;
     private double fitHeight;
     private int xStart, yStart;
-    private OrderedRect imageSelection = null;
     private int xNow, yNow;
+    private OrderedRect imageSelection = null;
+    private int cursorX, cursorY;
+    private EmbeddedFont embeddedFont;
     private boolean dirty = false;
 
     public ImageDrawingGrid(BmpDataManager bitmap, PortablePalette palette, boolean editMode) {
@@ -224,18 +227,18 @@ public class ImageDrawingGrid extends Canvas {
 
     void prepareRatios() {
         double ratio = (double) bitmap.getPixelWidth() / (double) bitmap.getPixelHeight();
-        if (bitmap.getPixelWidth() > bitmap.getPixelHeight()) {
-            double maxWid = this.getWidth();
-            fitWidth = maxWid;
-            fitHeight = (maxWid / ratio);
-        } else {
+
+        double maxWid = this.getWidth();
+        fitWidth = maxWid;
+        fitHeight = (maxWid / ratio);
+        if(fitHeight > this.getHeight()) {
             double maxHei = this.getHeight();
             fitWidth = (maxHei * ratio);
             fitHeight = maxHei;
         }
     }
 
-    protected void onPaintSurface(GraphicsContext gc) {
+    public void onPaintSurface(GraphicsContext gc) {
         prepareRatios();
         var perSquareX = fitWidth / bitmap.getPixelWidth();
         var perSquareY = fitHeight / bitmap.getPixelHeight();
@@ -329,5 +332,34 @@ public class ImageDrawingGrid extends Canvas {
 
         int width() { return xMax - xMin; }
         int height() { return yMax - yMin; }
+    }
+
+    public void setTextCursor(int x, int y) {
+        cursorX = Math.min(x, bitmap.getPixelWidth() - 1);
+        cursorY = Math.min(y, bitmap.getPixelHeight() - 1);
+    }
+
+    public void setFont(EmbeddedFont font) {
+        this.embeddedFont = font;
+    }
+
+    public void printChar(int code) {
+        if(embeddedFont == null) return;
+        var g = embeddedFont.getGlyph(code);
+        if(g == null) return;
+
+        if(cursorX + g.calculatedWidth() > 320) {
+            cursorX = 0;
+            cursorY += embeddedFont.getYAdvance();
+        }
+        int startingPositionY = ((embeddedFont.getYAdvance() - embeddedFont.getBelowBaseline()) - g.fontDims().startY());
+        bitmap.pushBitsOn(cursorX + g.fontDims().startX(), cursorY + startingPositionY, g.data(), colorIndex);
+        cursorX += g.calculatedWidth();
+    }
+
+    void printString(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            printChar(text.charAt(i));
+        }
     }
 }

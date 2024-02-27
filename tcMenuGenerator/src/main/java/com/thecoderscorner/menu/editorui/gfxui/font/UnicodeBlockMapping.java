@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorui.gfxui;
+package com.thecoderscorner.menu.editorui.gfxui.font;
 
 public enum UnicodeBlockMapping {
     BASIC_LATIN(0x0000, 0x007F, "Basic Latin"),

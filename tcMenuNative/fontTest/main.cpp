@@ -1,36 +1,39 @@
 #include <cstdio>
+#include <string>
 #include "library.h"
 
 ConvertedFontGlyph gl;
 
 int main(int argc, char* argv[]) {
-    printf("Hello world\n");
+    printf("TcNative Font test suite\n");
 
     if(initialiseLibrary() != 0) {
         printf("Didn't initialise library");
         return -1;
     }
 
-    printf("Loading font\n");
-
     setPixelsPerInch(100);
 
-    FontHandle h = createFont("C:/Users/dave/temp/tcMenu/Roboto-Regular.ttf", BOLD, 8);
+    FontHandle h = createFont("/Users/dave/Library/CloudStorage/OneDrive-Personal/Audiowide/B612/B612-Regular.ttf", PLAIN, 8);
+    //FontHandle h = createFont("C:/Users/dave/temp/tcMenu/Roboto-Regular.ttf", BOLD, 8);
     //FontHandle h = createFont("C:\\Users\\dave\\temp\\tcMenu\\openSans\\static\\OpenSans\\OpenSans-Medium.ttf", BOLD, 12);
+
     if(h <= 0) {
         printf("Didn't open font");
         return -1;
     }
 
-    printf("Got handle %d - Now Getting Glyph\n", h);
+    printf("Got handle %d - Now Getting Glyphs\n", h);
 
-    for(int code = 0; code < 70; code++) {
+    std::string charCodes = "AbcdGgLlyY@_0123456789~='\"";
+
+    for(auto code : charCodes) {
 
         if(!canDisplay(h, code)) {
-            printf("Can't display %d\n", code);
+            printf("Can't display %d-----------------------\n", code);
             continue;
         } else {
-            printf("code = %d\n", code);
+            printf("Glyph Code = %d (%c)--------------------\n", code, code);
         }
 
         if (getFontGlyph(h, code, &gl) != 0) {
@@ -48,7 +51,6 @@ int main(int argc, char* argv[]) {
         }
         printf("xOffset = %d, yOffset = %d, xAdvance = %d, wid = %d, hei = %d\n", gl.xOffset, gl.yOffset, gl.xAdvance,
                gl.width, gl.height);
-        printf("Below BL = %d\n", gl.height - gl.yOffset);
     }
 
     printf("Closing out\n");

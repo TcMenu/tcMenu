@@ -26,6 +26,9 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     exports com.thecoderscorner.menu.editorui.generator;
     exports com.thecoderscorner.menu.editorui.embed;
     exports com.thecoderscorner.menu.editorui.gfxui;
+    exports com.thecoderscorner.menu.editorui.gfxui.imgedit;
+    exports com.thecoderscorner.menu.editorui.gfxui.font;
+    exports com.thecoderscorner.menu.editorui.gfxui.pixmgr;
     exports com.thecoderscorner.menu.editorui.generator.ui;
     exports com.thecoderscorner.menu.editorui.generator.core;
     exports com.thecoderscorner.menu.editorui.generator.plugin;
@@ -51,6 +54,6 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     opens com.thecoderscorner.menu.editorui.generator.mbed;
     opens com.thecoderscorner.menu.editorui.generator.plugin;
     opens com.thecoderscorner.menu.editorui.gfxui to com.google.gson;
-    exports com.thecoderscorner.menu.editorui.gfxui.pixmgr;
     opens com.thecoderscorner.menu.editorui.gfxui.pixmgr to com.google.gson;
+    opens com.thecoderscorner.menu.editorui.gfxui.font to com.google.gson;
 }
