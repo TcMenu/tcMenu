@@ -202,7 +202,8 @@ public class EmbeddedFont {
     }
 
     public List<EmbeddedFontGlyph> getGlyphsForBlock(UnicodeBlockMapping block) {
-        return mapBlockToGlyph.get(block);
+        var glyphs = mapBlockToGlyph.get(block);
+        return (glyphs != null) ? glyphs : List.of();
     }
 
     public FontSizeInfo getFontSizeInfo() {

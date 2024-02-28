@@ -119,4 +119,8 @@ public class FontCreationController {
             }
         });
     }
+
+    public Set<UnicodeBlockMapping> getChosenMappings() {
+        return blockMappings;
+    }
 }

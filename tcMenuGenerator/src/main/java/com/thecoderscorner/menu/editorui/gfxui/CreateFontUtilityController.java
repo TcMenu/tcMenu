@@ -50,7 +50,7 @@ public class CreateFontUtilityController {
     private CurrentProjectEditorUI editorUI;
     private String homeDirectory;
     private Path currentDir;
-    private Set<UnicodeBlockMapping> chosenMappings = new HashSet<>(Set.of(UnicodeBlockMapping.BASIC_LATIN, UnicodeBlockMapping.LATIN_EXTENDED_A));
+    private Set<UnicodeBlockMapping> chosenMappings = new HashSet<>(Set.of(UnicodeBlockMapping.BASIC_LATIN));
     private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
     private EmbeddedFont embeddedFont = new EmbeddedFont();
     javafx.stage.Popup popup;
@@ -80,7 +80,7 @@ public class CreateFontUtilityController {
         if(clipboardExport) {
             logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, to clipboard");
             try(var outStream = new ByteArrayOutputStream()) {
-                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont);
+                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 ClipboardContent content = new ClipboardContent();
@@ -98,7 +98,7 @@ public class CreateFontUtilityController {
             String outputFile = maybeOutFile.get();
             logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, name \{outputFile}");
             try (var outStream = new FileOutputStream(outputFile)) {
-                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont);
+                EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
             } catch (Exception ex) {
                 editorUI.alertOnError("File export failed ", STR."The font was not converted due to the following. \{ex.getMessage()}");
@@ -148,6 +148,7 @@ public class CreateFontUtilityController {
         var font = createFontDlg.createDialog((Stage)fontFileField.getScene().getWindow(), p, editorUI);
         if(font.isEmpty()) return;
         embeddedFont = font.get();
+        chosenMappings = createFontDlg.getChosenMappings();
         recalcFont();
         checkButtons();
     }
