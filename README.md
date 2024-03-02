@@ -22,7 +22,7 @@ In any fork, please ensure all text up to here is left unaltered.
 
 Community questions can be asked in the discussions section of this repo, or using the Arduino forum. We generally answer most community questions but the responses will not be timely, for [commercial use we recommend you purchase support](https://www.thecoderscorner.com/support-services/training-support/).
 
-Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation using the sponsor link if we do help you out.
+Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation (see above)
 
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
