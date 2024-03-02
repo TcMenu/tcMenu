@@ -6,80 +6,86 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<GridPane styleClass="background" style="-fx-font-size: 16" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" />
-    <ColumnConstraints hgrow="SOMETIMES" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <ImageView fitHeight="235.0" fitWidth="252.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
-         <image>
-            <Image url="@../img/menu-icon-large.png" />
-         </image>
-         <GridPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </GridPane.margin>
-      </ImageView>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.thanks.for.using" GridPane.columnSpan="2">
-         <font>
-            <Font name="System Bold" size="18" />
-         </font>
-         <GridPane.margin>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-         </GridPane.margin>
-      </Text>
-      <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1" fillWidth="true" prefWidth="400">
-         <children>
-            <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version" />
-            <Label text="%splash.dialog.get.up.and.running.quick" wrapText="true"/>
-            <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube" />
-            <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation" />
-            <Label text="%splash.dialog.please.sponsor.us" wrapText="true" />
-            <Hyperlink onAction="#onSponsorOptions" text="%splash.dialog.payment.options" />
-            <Label text="%splash.dialog.help.with.translation" wrapText="true"/>
-            <Hyperlink onAction="#onLanguageResourcesLink" text="%splash.dialog.translation.github" />
-         </children>
-      </VBox>
-      <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted" text="%splash.dialog.get.started" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
-         <GridPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </GridPane.margin>
-      </Button>
-       <HBox spacing="6" GridPane.rowIndex="3" GridPane.columnSpan="2" >
-           <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode"  text="%splash.dialog.light.mode" >
-               <graphic>
-                   <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
-                       <image>
-                           <Image url="@../img/lightModeSnap.png" />
-                       </image>
-                   </ImageView>
-               </graphic>
-           </Button>
-           <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode"  text="%splash.dialog.dark.mode">
-               <graphic>
-                   <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
-                       <image>
-                           <Image url="@../img/darkModeSnap.png" />
-                       </image>
-                   </ImageView>
-               </graphic>
-           </Button>
+<GridPane styleClass="background" style="-fx-font-size: 16" xmlns="http://javafx.com/javafx/18"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.thecoderscorner.menu.editorui.controller.SplashScreenController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <children>
+        <ImageView fitHeight="235.0" fitWidth="252.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
+            <image>
+                <Image url="@../img/menu-icon-large.png"/>
+            </image>
+            <GridPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </GridPane.margin>
+        </ImageView>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%splash.dialog.thanks.for.using" GridPane.columnSpan="2">
+            <font>
+                <Font name="System Bold" size="18"/>
+            </font>
+            <GridPane.margin>
+                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+            </GridPane.margin>
+        </Text>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1" fillWidth="true" prefWidth="400">
+            <children>
+                <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version"/>
+                <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube"/>
+                <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation"/>
+                <Hyperlink onAction="#onSupportOptions" text="Commercial STM32Cube, ESP-IDF, PicoSDK support."/>
+                <Hyperlink onAction="#onSupportOptions" text="Commercial support and consultancy."/>
+                <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
+                <Hyperlink onAction="#onSponsorOptions" text="Sponsor me on GitHub."/>
+                <Hyperlink onAction="#onLanguageResourcesLink" text="%splash.dialog.translation.github"/>
+            </children>
+        </VBox>
+        <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted"
+                text="%splash.dialog.get.started" GridPane.columnIndex="1" GridPane.halignment="RIGHT"
+                GridPane.rowIndex="4">
+            <GridPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </GridPane.margin>
+        </Button>
+        <HBox spacing="6" GridPane.rowIndex="3" GridPane.columnSpan="2">
+            <Button fx:id="lightModeButton" mnemonicParsing="false" onAction="#onLightMode"
+                    text="%splash.dialog.light.mode">
+                <graphic>
+                    <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../img/lightModeSnap.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="darkModeButton" mnemonicParsing="false" onAction="#onDarkMode"
+                    text="%splash.dialog.dark.mode">
+                <graphic>
+                    <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../img/darkModeSnap.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
 
-       </HBox >
-      <Label text="%splash.dialog.choose.color.scheme" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
-      </Label>
-   </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
+        </HBox>
+        <Label text="%splash.dialog.choose.color.scheme" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+            <font>
+                <Font name="System Bold" size="14.0"/>
+            </font>
+        </Label>
+    </children>
+    <padding>
+        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+    </padding>
 </GridPane>

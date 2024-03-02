@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TCMENU_COMMERCIAL_SUPPORT_URL;
 
 public class SplashScreenController {
     private CurrentProjectEditorUI editorUI;
@@ -25,28 +26,28 @@ public class SplashScreenController {
         this.tcMenuVersionField.setText(bundle.getString("splash.dialog.you.installed.version") + storage.getVersion());
     }
 
-    public void onGettingStartedVideo(ActionEvent actionEvent) {
+    public void onGettingStartedVideo(ActionEvent ignored) {
         editorUI.browseToURL(GETTING_STARTED_PAGE_URL);
     }
 
-    public void onTcMenuDocs(ActionEvent actionEvent) {
+    public void onTcMenuDocs(ActionEvent ignored) {
         editorUI.browseToURL(LIBRARY_DOCS_URL);
     }
 
-    public void onGetStarted(ActionEvent actionEvent) {
+    public void onGetStarted(ActionEvent ignored) {
         Stage s = (Stage) closeButton.getScene().getWindow();
         s.close();
     }
 
-    public void onSponsorOptions(ActionEvent actionEvent) {
+    public void onSponsorOptions(ActionEvent ignored) {
         editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
     }
 
-    public void onLightMode(ActionEvent actionEvent) {
+    public void onLightMode(ActionEvent ignored) {
         themeChange("lightMode");
     }
 
-    public void onDarkMode(ActionEvent actionEvent) {
+    public void onDarkMode(ActionEvent ignored) {
         themeChange("darkMode");
     }
 
@@ -56,7 +57,15 @@ public class SplashScreenController {
         themeListener.accept(darkMode);
     }
 
-    public void onLanguageResourcesLink(ActionEvent actionEvent) {
+    public void onLanguageResourcesLink(ActionEvent ignored) {
         editorUI.browseToURL(GITHUB_LANGUAGE_FILES_URL);
+    }
+
+    public void onSupportOptions(ActionEvent ignored) {
+        editorUI.browseToURL(TCMENU_COMMERCIAL_SUPPORT_URL);
+    }
+
+    public void onBuyMeACoffee(ActionEvent ignored) {
+        editorUI.browseToURL(BUY_ME_A_COFFEE_URL);
     }
 }

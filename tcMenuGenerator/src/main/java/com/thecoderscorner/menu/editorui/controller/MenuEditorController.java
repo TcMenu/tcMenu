@@ -63,6 +63,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibrary
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore.RecentlyUsedItem;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TCMENU_COMMERCIAL_SUPPORT_URL;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
@@ -820,6 +821,18 @@ public class MenuEditorController {
                 showAlertAndWait(Alert.AlertType.ERROR, "Could not browse to project", "Location was " + dir, ButtonType.CLOSE);
             }
         }
+    }
+
+    public void onCommericalSupport(ActionEvent ignored) {
+        editorUI.browseToURL(TCMENU_COMMERCIAL_SUPPORT_URL);
+    }
+
+    public void onMakeADonation(ActionEvent ignored) {
+        editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
+    }
+
+    public void onBuyMeACoffee(ActionEvent ignored) {
+        editorUI.browseToURL(BUY_ME_A_COFFEE_URL);
     }
 
     public class MenuItemWithDescription {

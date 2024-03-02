@@ -2,19 +2,29 @@ package com.thecoderscorner.menu.editorui.gfxui.font;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToStream;
 
+/**
+ * The EmbeddedFontExporter class is a FontEncoder implementation that exports embedded fonts.
+ * It takes an EmbeddedFont object and an output name as parameters and generates font data in various formats.
+ * The font data takes the form of a series of C++ arrays and structs.
+ */
 public class EmbeddedFontExporter implements FontEncoder {
     private final EmbeddedFont font;
     private final List<TcUnicodeFontBlock> blocks;
     private final int yAdvance;
     private final String variableName;
 
+    /**
+     * Represents an exporter for an embedded font. This class is used to export
+     * an embedded font to a desired output format.
+     * @param font the embedded font object to convert.
+     * @param outputName the base name of the structs to be created
+     */
     public EmbeddedFontExporter(EmbeddedFont font, String outputName) {
         this.font = font;
         this.variableName = outputName;
@@ -47,6 +57,12 @@ public class EmbeddedFontExporter implements FontEncoder {
                 .toList();
     }
 
+    /**
+     * Encodes the font into the given output stream in the specified format.
+     *
+     * @param stream the output stream to write the encoded font to
+     * @param fmt the format in which the font should be encoded
+     */
     @Override
     public void encodeFontToStream(OutputStream stream, FontFormat fmt) {
         var ps = new PrintStream(stream);
@@ -168,10 +184,6 @@ public class EmbeddedFontExporter implements FontEncoder {
         }
 
         printArrayToStream(ps, dataBytes, 20);
-    }
-
-    public ByteBuffer encodeFontAsByteArray(FontFormat fmt) {
-        throw new UnsupportedOperationException();
     }
 
     public EmbeddedFont font() {

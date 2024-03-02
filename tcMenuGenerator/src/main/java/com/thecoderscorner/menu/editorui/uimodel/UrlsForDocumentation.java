@@ -19,4 +19,5 @@ public interface UrlsForDocumentation {
     String RUNTIME_MENU_URL = MENU_MENU_ITEM_URL + "based-on-runtimemenuitem/";
     String CORE_CALLBACK_MENU_DOCS_URL = MENU_MENU_ITEM_URL + "#callback-function-for-changes";
     String REMOTE_AUTHENTICATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/";
+    String TCMENU_COMMERCIAL_SUPPORT_URL = "https://www.thecoderscorner.com/support-services/training-support/";
 }

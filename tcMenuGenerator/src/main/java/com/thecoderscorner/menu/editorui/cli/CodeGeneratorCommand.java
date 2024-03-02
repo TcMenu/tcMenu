@@ -96,8 +96,19 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             codeGen.setLoggerFunction((level, s) -> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
-            var enabledFormObjects = project.getOptions().getListOfEmbeddedForms().stream()
-                    .map(form -> getFirstByNameAndUuid(appContext.getEcDataStore(), project, form)).toList();
+
+            List<TcMenuFormPersistence> enabledFormObjects;
+            try {
+                enabledFormObjects = project.getOptions().getListOfEmbeddedForms().stream()
+                        .map(form -> getFirstByNameAndUuid(appContext.getEcDataStore(), project, form)).toList();
+            } catch(Exception ex) {
+                enabledFormObjects = List.of();
+                System.err.println(STR."WARNING: Forms \{project.getOptions().getListOfEmbeddedForms()} didn't load");
+                System.err.println("IMPORTANT: Conversion will continue but forms will be missing from the build");
+                if(verbose) {
+                    ex.printStackTrace();
+                }
+            }
 
             codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(),
                     getLocaleHandler(location), enabledFormObjects);
