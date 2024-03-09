@@ -20,4 +20,6 @@ public interface UrlsForDocumentation {
     String CORE_CALLBACK_MENU_DOCS_URL = MENU_MENU_ITEM_URL + "#callback-function-for-changes";
     String REMOTE_AUTHENTICATION_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/";
     String TCMENU_COMMERCIAL_SUPPORT_URL = "https://www.thecoderscorner.com/support-services/training-support/";
+    String TWITTER_X_FOLLOW_URL = "https://twitter.com/thecoderscorner";
+    String FACEBOOK_PAGE_URL = "https://www.facebook.com/thecoderscorner";
 }

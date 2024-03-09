@@ -34,6 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
@@ -43,6 +45,7 @@ import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnor
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildSimpleTreeReadOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ArduinoGeneratorTest {
@@ -135,12 +138,15 @@ public class ArduinoGeneratorTest {
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
                 .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
                 .codeOptions();
-        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, new PrefsConfigurationStorage());
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform());
+        PrefsConfigurationStorage config = new PrefsConfigurationStorage();
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, config);
+        var clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform(), config, clock);
 
         var embeddedForm = new TcMenuFormPersistence(0, FormPersistMode.EXTERNAL_MANAGED, standardOptions.getApplicationUUID().toString(), "My Form 1", TEST_FORM_XML);
 
-        var firstPlugin = pluginConfig.getPlugins().get(0);
+        var firstPlugin = pluginConfig.getPlugins().getFirst();
         firstPlugin.getProperties().stream()
                 .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
                 .findFirst()

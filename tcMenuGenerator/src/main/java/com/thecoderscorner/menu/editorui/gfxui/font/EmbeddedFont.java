@@ -235,9 +235,11 @@ public class EmbeddedFont {
                 .reduce(0, Integer::sum);
 
         if(fmt == FontEncoder.FontFormat.ADAFRUIT) {
-            var allGlyphs = mapBlockToGlyph.values().stream().flatMap(Collection::stream).toList();
+            var allGlyphs = mapBlockToGlyph.values().stream()
+                    .flatMap(Collection::stream)
+                    .sorted(Comparator.comparingInt(EmbeddedFontGlyph::code)).toList();
             int min = allGlyphs.getFirst().code();
-            int max = allGlyphs.stream().map(EmbeddedFontGlyph::code).reduce(0, Integer::max);
+            int max = allGlyphs.getLast().code();
             long fontSizes = (((max - min) + 1) * APPROX_ADA_SIZE) + ADA_OVERHEAD;
             return fontSizes + bitmapSizes;
         } else {

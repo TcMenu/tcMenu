@@ -10,6 +10,8 @@ import com.thecoderscorner.menu.editorui.generator.mbed.MbedSketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 
+import java.time.Clock;
+
 import static com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl.*;
 
 public class CodeGeneratorSupplier {
@@ -24,13 +26,13 @@ public class CodeGeneratorSupplier {
     public CodeGenerator getCodeGeneratorFor(EmbeddedPlatform platform, CodeGeneratorOptions options) {
         if (installer == null) throw new IllegalArgumentException("Please call setInstaller first");
         if (arduinoPlatforms.contains(platform)) {
-            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options, configStorage), installer, platform);
+            return new ArduinoGenerator(new ArduinoSketchFileAdjuster(options, configStorage), installer, platform, configStorage, Clock.systemDefaultZone());
         } else if (trueCppPlatform.contains(platform)) {
-            return new MbedGenerator(new MbedSketchFileAdjuster(options, configStorage), installer, platform);
+            return new MbedGenerator(new MbedSketchFileAdjuster(options, configStorage), installer, platform, configStorage, Clock.systemDefaultZone());
         } else if (javaPlatforms.contains(platform)) {
             return new EmbeddedJavaGenerator(configStorage, platform);
         } else {
-            throw new IllegalArgumentException("No such board type: " + platform);
+            throw new IllegalArgumentException(STR."No such board type: \{platform}");
         }
     }
 }

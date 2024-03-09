@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor.EditingMode.BITMAP_EDITOR;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class CreateBitmapWidgetController {
@@ -96,7 +97,7 @@ public class CreateBitmapWidgetController {
             var imageView = new SimpleImagePane(img.bmpData(), img.pixelFormat(),false, img.palette(), buttons);
 
             editButton.setOnAction(_ -> {
-                var editor = new SimpleImageEditor(img.bmpData(), img.pixelFormat(), img.palette(), true);
+                var editor = new SimpleImageEditor(img.bmpData(), img.pixelFormat(), img.palette(), BITMAP_EDITOR);
                 if(editor.presentUI(editorUI)) {
                     imageView.invalidate();
                 }

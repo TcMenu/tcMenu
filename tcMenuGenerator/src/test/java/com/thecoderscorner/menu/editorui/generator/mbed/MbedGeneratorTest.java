@@ -12,7 +12,6 @@ import com.thecoderscorner.menu.domain.EditItemType;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
-import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
@@ -36,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +52,7 @@ import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.buildTreeFromJson;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MbedGeneratorTest {
@@ -116,10 +118,12 @@ public class MbedGeneratorTest {
         when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
-        var codeGenSupplier = new CodeGeneratorSupplier(new PrefsConfigurationStorage(), installer);
-        var generator = codeGenSupplier.getCodeGeneratorFor(MBED_RTOS, options);
+        PrefsConfigurationStorage config = new PrefsConfigurationStorage();
+        var clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
+        var generator = new MbedGenerator(new MbedSketchFileAdjuster(options, config), installer, MBED_RTOS, config, clock);
 
-        var firstPlugin = pluginConfig.getPlugins().get(0);
+        var firstPlugin = pluginConfig.getPlugins().getFirst();
         firstPlugin.getProperties().stream()
                 .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
                 .findFirst()

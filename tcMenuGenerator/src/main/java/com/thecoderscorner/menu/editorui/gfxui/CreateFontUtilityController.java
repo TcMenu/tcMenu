@@ -36,6 +36,7 @@ import java.util.*;
 
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
 import static com.thecoderscorner.menu.editorui.gfxui.font.EmbeddedFontExporter.FontFormat;
+import static com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor.EditingMode.FONT_EDITOR;
 
 public class CreateFontUtilityController {
 
@@ -330,7 +331,7 @@ public class CreateFontUtilityController {
             var editButton = new Button(STR."Edit Glyph U\{glyph.code()}");
             editButton.setMaxWidth(99999);
             editButton.setOnAction(_ -> {
-                var editor = new SimpleImageEditor(glyph.data(), NativePixelFormat.MONO_BITMAP, FONT_PALETTE, false);
+                var editor = new SimpleImageEditor(glyph.data(), NativePixelFormat.MONO_BITMAP, FONT_PALETTE, FONT_EDITOR);
                 if(editor.presentUI(editorUI)) {
                     markDirty();
                     popup.hide();

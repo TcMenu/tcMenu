@@ -63,7 +63,7 @@ import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibrary
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command;
 import static com.thecoderscorner.menu.editorui.storage.JdbcTcMenuConfigurationStore.RecentlyUsedItem;
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TCMENU_COMMERCIAL_SUPPORT_URL;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.persist.PersistedMenu.TCMENU_COPY_PREFIX;
 import static java.lang.System.Logger.Level.ERROR;
@@ -933,5 +933,17 @@ public class MenuEditorController {
             logger.log(ERROR, "Locale could not be changed to " + l, e);
         }
 
+    }
+
+    public void onLanguageResourcesLink(ActionEvent ignored) {
+        editorUI.browseToURL(GITHUB_LANGUAGE_FILES_URL);
+    }
+
+    public void onFollowFacebook(ActionEvent ignored) {
+        editorUI.browseToURL(FACEBOOK_PAGE_URL);
+    }
+
+    public void onFollowTwitter(ActionEvent ignored) {
+        editorUI.browseToURL(TWITTER_X_FOLLOW_URL);
     }
 }

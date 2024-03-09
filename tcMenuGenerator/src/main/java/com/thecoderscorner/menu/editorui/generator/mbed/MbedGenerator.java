@@ -10,16 +10,27 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+
+import java.time.Clock;
 
 public class MbedGenerator extends CoreCodeGenerator {
-    public MbedGenerator(SketchFileAdjuster adjuster, ArduinoLibraryInstaller installer, EmbeddedPlatform embeddedPlatform) {
-        super(adjuster, installer, embeddedPlatform);
+    public MbedGenerator(SketchFileAdjuster adjuster,
+                         ArduinoLibraryInstaller installer,
+                         EmbeddedPlatform embeddedPlatform,
+                         ConfigurationStorage config,
+                         Clock clock) {
+        super(adjuster, installer, embeddedPlatform, config, clock);
     }
 
-    private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
-            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
-            "#include <PlatformDetermination.h>" + LINE_BREAK +
-            "#include <tcMenu.h>" + LINE_BREAK + LINE_BREAK;
+    private static final String HEADER_TOP = """
+            #ifndef MENU_GENERATED_CODE_H
+            #define MENU_GENERATED_CODE_H
+            
+            #include <PlatformDetermination.h>
+            #include <tcMenu.h>
+            
+            """;
 
 
     @Override

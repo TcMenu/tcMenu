@@ -32,6 +32,7 @@ public class ImageDrawingGrid extends Canvas {
     private int cursorX, cursorY;
     private EmbeddedFont embeddedFont;
     private boolean dirty = false;
+    private boolean changed = false;
 
     public ImageDrawingGrid(BmpDataManager bitmap, PortablePalette palette, boolean editMode) {
         this.bitmap = bitmap;
@@ -51,7 +52,7 @@ public class ImageDrawingGrid extends Canvas {
 
                 xNow = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yNow = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
-                if (xNow  >= bitmap.getPixelWidth() || yNow >= bitmap.getPixelHeight()) return;
+                if (xNow  > bitmap.getPixelWidth() || yNow > bitmap.getPixelHeight()) return;
                 if(mode == DrawingMode.SELECTION) {
                     imageSelection = new OrderedRect(xStart, yStart, xNow, yNow);
                 }
@@ -152,6 +153,19 @@ public class ImageDrawingGrid extends Canvas {
 
     private void recordChange() {
         dirty = true;
+        changed = true;
+    }
+
+    public void markAsSaved() {
+        dirty = false;
+    }
+
+    public boolean isChanged() {
+        return false;
+    }
+
+    public boolean isDirty() {
+        return dirty;
     }
 
     public void setCurrentShape(DrawingMode shape) {
@@ -287,10 +301,6 @@ public class ImageDrawingGrid extends Canvas {
                 gc.strokeLine(x * perSquareX, 0, x * perSquareX, fitHeight);
             }
         }
-    }
-
-    public boolean isModified() {
-        return dirty;
     }
 
     public void setPositionUpdateListener(BiConsumer<Integer, Integer> consumer) {

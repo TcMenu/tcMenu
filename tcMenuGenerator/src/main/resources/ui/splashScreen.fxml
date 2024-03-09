@@ -42,11 +42,14 @@
                 <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version"/>
                 <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube"/>
                 <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation"/>
-                <Hyperlink onAction="#onSupportOptions" text="Commercial STM32Cube, ESP-IDF, PicoSDK support."/>
-                <Hyperlink onAction="#onSupportOptions" text="Commercial support and consultancy."/>
+                <Hyperlink onAction="#onSupportOptions" text="Commercial support options"/>
                 <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
-                <Hyperlink onAction="#onSponsorOptions" text="Sponsor me on GitHub."/>
-                <Hyperlink onAction="#onLanguageResourcesLink" text="%splash.dialog.translation.github"/>
+                <Hyperlink onAction="#onSponsorOptions" text="Follow/Sponsor GitHub"/>
+                <HBox>
+                    <Hyperlink onAction="#onFollowTwitter" text="Follow Twitter"/>
+                    <Hyperlink onAction="#onFollowFacebook" text="Follow Facebook"/>
+                </HBox>
+
             </children>
         </VBox>
         <Button fx:id="closeButton" cancelButton="true" mnemonicParsing="false" onAction="#onGetStarted"

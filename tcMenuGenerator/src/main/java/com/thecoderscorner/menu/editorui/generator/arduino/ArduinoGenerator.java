@@ -11,25 +11,31 @@ import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.SketchFileAdjuster;
 import com.thecoderscorner.menu.editorui.generator.core.TcMenuConversionException;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Map;
 
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.WARNING;
 
 public class ArduinoGenerator extends CoreCodeGenerator {
 
 
-    private static final String HEADER_TOP = "#ifndef MENU_GENERATED_CODE_H" + LINE_BREAK +
-            "#define MENU_GENERATED_CODE_H" + LINE_BREAK + LINE_BREAK +
-            "#include <Arduino.h>" + LINE_BREAK +
-            "#include <tcMenu.h>" + LINE_BREAK;
+    private static final String HEADER_TOP = """
+            #ifndef MENU_GENERATED_CODE_H
+            #define MENU_GENERATED_CODE_H
+            
+            #include <Arduino.h>
+            #include <tcMenu.h>
+            """;
 
     public ArduinoGenerator(SketchFileAdjuster adjuster,
                             ArduinoLibraryInstaller installer,
-                            EmbeddedPlatform embeddedPlatform) {
-        super(adjuster, installer, embeddedPlatform);
+                            EmbeddedPlatform embeddedPlatform,
+                            ConfigurationStorage configStore,
+                            Clock clock) {
+        super(adjuster, installer, embeddedPlatform, configStore, clock);
     }
 
     @Override

@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TCMENU_COMMERCIAL_SUPPORT_URL;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
 
 public class SplashScreenController {
     private CurrentProjectEditorUI editorUI;
@@ -57,15 +57,19 @@ public class SplashScreenController {
         themeListener.accept(darkMode);
     }
 
-    public void onLanguageResourcesLink(ActionEvent ignored) {
-        editorUI.browseToURL(GITHUB_LANGUAGE_FILES_URL);
-    }
-
     public void onSupportOptions(ActionEvent ignored) {
         editorUI.browseToURL(TCMENU_COMMERCIAL_SUPPORT_URL);
     }
 
     public void onBuyMeACoffee(ActionEvent ignored) {
         editorUI.browseToURL(BUY_ME_A_COFFEE_URL);
+    }
+
+    public void onFollowFacebook(ActionEvent ignored) {
+        editorUI.browseToURL(FACEBOOK_PAGE_URL);
+    }
+
+    public void onFollowTwitter(ActionEvent ignored) {
+        editorUI.browseToURL(TWITTER_X_FOLLOW_URL);
     }
 }

@@ -35,16 +35,20 @@ public class SimpleImageEditor {
     private final BmpDataManager bitmap;
     private final PortablePalette palette;
     private final NativePixelFormat format;
-    private final boolean paletteEditable;
+    private final EditingMode editingMode;
     private CurrentProjectEditorUI editorUI;
     private ComboBox<TextDrawingMode> modeComboBox;
     private ImageDrawingGrid canvas;
 
-    public SimpleImageEditor(BmpDataManager bitmap, NativePixelFormat format, PortablePalette palette, boolean paletteEditable) {
+    public enum EditingMode {
+        FONT_EDITOR, BITMAP_EDITOR
+    }
+
+    public SimpleImageEditor(BmpDataManager bitmap, NativePixelFormat format, PortablePalette palette, EditingMode editingMode) {
         this.bitmap = bitmap;
         this.palette = palette;
         this.format = format;
-        this.paletteEditable = paletteEditable;
+        this.editingMode = editingMode;
     }
 
     public boolean presentUI(CurrentProjectEditorUI editorUI) {
@@ -72,7 +76,8 @@ public class SimpleImageEditor {
 
         hbox.getChildren().add(new Label("Palette"));
         var paletteControl = new SwatchPaletteControl();
-        hbox.getChildren().add(paletteControl.swatchControl(palette, canvas::setCurrentColor, paletteEditable));
+        boolean paletteIsEditable = editingMode == EditingMode.BITMAP_EDITOR;
+        hbox.getChildren().add(paletteControl.swatchControl(palette, canvas::setCurrentColor, paletteIsEditable));
 
         var cutButton = new Button("", new ImageView(getClass().getResource("/img/tree-cut.png").toString()));
         cutButton.setOnAction(_ -> copyContents(true));
@@ -82,9 +87,18 @@ public class SimpleImageEditor {
         pasteButton.setOnAction(_ -> pasteSelection());
         var saveButton = new Button("", new ImageView(getClass().getResource("/img/disk-save.png").toString()));
         saveButton.setOnAction(_ -> saveContents());
+        var closeButton = new Button("Close");
+        closeButton.setOnAction(_ -> {
+            if(canvas.isDirty()) {
+                if(editorUI.questionYesNo("Save Image Changed?", "The image is dirty do you want to save?")) {
+                    saveContents();
+                }
+            }
+            ((Stage)canvas.getScene().getWindow()).close();
+        });
         var xyLabel = new Label("");
         canvas.setPositionUpdateListener((x, y) -> xyLabel.setText(STR."X=\{x}, Y=\{y}"));
-        hbox.getChildren().addAll(cutButton, copyButton, pasteButton, saveButton, xyLabel);
+        hbox.getChildren().addAll(cutButton, copyButton, pasteButton, saveButton, closeButton, xyLabel);
 
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty().multiply(0.9));
@@ -133,8 +147,15 @@ public class SimpleImageEditor {
         stage.setScene(scene);
         stage.setTitle(STR."Bitmap Editor \{shortFmtText(format)} \{bitmap.getPixelWidth()} x \{bitmap.getPixelHeight()}");
         BaseDialogSupport.getJMetro().setScene(scene);
+        stage.setOnCloseRequest(_ -> {
+            if(canvas.isDirty()) {
+                if(editorUI.questionYesNo("Save Image?", "The image is dirty do you want to save?")) {
+                    saveContents();
+                }
+            }
+        });
         stage.showAndWait();
-        return canvas.isModified();
+        return canvas.isChanged();
     }
 
     private void changeShape(ImageDrawingGrid.DrawingMode drawingMode) {
@@ -151,6 +172,7 @@ public class SimpleImageEditor {
         if(file.isEmpty()) return;
         try {
             var img = bitmap.createImageFromBitmap(palette);
+            canvas.markAsSaved();
             ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", Paths.get(file.get()).toFile());
         } catch (IOException e) {
             editorUI.alertOnError("Error Saving Image", "An error occurred while saving the image.");

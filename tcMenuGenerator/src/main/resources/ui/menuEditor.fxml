@@ -118,6 +118,8 @@
                 <MenuItem mnemonicParsing="false" onAction="#onMenuDiscussions" text="%menu.help.discussions"/>
                 <MenuItem mnemonicParsing="false" onAction="#onPrepareDiagnostics"
                           text="%menu.help.prepare.diagnotics"/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" onAction="#onLanguageResourcesLink" text="%splash.dialog.help.with.translation" />
             </Menu>
         </menus>
       </MenuBar>
@@ -210,9 +212,6 @@
                        </BorderPane.margin>
                    </HBox>
                </bottom>
-               <padding>
-                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
                <top>
                    <MenuButton fx:id="localeMenuButton" mnemonicParsing="false" text="Locale" BorderPane.alignment="CENTER">
                        <BorderPane.margin>
@@ -239,9 +238,11 @@
            <Hyperlink onAction="#onSponsorLinkPressed" text="Sponsor on GitHub" />
            <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee" />
            <Hyperlink onAction="#onCommericalSupport" text="Commercial Support/STM32Cube/ESP-IDF/Atmel" />
+           <Hyperlink onAction="#onFollowTwitter" text="Follow Twitter"/>
+           <Hyperlink onAction="#onFollowFacebook" text="Follow Facebook"/>
        </HBox>
    </bottom>
     <padding>
-        <Insets topRightBottomLeft="10" />
+        <Insets top="0" left="10" right="10" bottom="10" />
     </padding>
 </BorderPane>
