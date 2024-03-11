@@ -161,7 +161,7 @@ public class ImageDrawingGrid extends Canvas {
     }
 
     public boolean isChanged() {
-        return false;
+        return changed;
     }
 
     public boolean isDirty() {

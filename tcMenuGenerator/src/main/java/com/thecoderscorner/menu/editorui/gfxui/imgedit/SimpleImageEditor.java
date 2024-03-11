@@ -89,8 +89,8 @@ public class SimpleImageEditor {
         saveButton.setOnAction(_ -> saveContents());
         var closeButton = new Button("Close");
         closeButton.setOnAction(_ -> {
-            if(canvas.isDirty()) {
-                if(editorUI.questionYesNo("Save Image Changed?", "The image is dirty do you want to save?")) {
+            if(editingMode == EditingMode.BITMAP_EDITOR &&  canvas.isDirty()) {
+                if(editorUI.questionYesNo("Image not saved?", "The image has been changed, do you want to save?")) {
                     saveContents();
                 }
             }
@@ -148,7 +148,7 @@ public class SimpleImageEditor {
         stage.setTitle(STR."Bitmap Editor \{shortFmtText(format)} \{bitmap.getPixelWidth()} x \{bitmap.getPixelHeight()}");
         BaseDialogSupport.getJMetro().setScene(scene);
         stage.setOnCloseRequest(_ -> {
-            if(canvas.isDirty()) {
+            if(editingMode == EditingMode.BITMAP_EDITOR && canvas.isDirty()) {
                 if(editorUI.questionYesNo("Save Image?", "The image is dirty do you want to save?")) {
                     saveContents();
                 }

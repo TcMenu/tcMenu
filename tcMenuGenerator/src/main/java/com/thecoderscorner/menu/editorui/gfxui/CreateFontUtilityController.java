@@ -332,9 +332,9 @@ public class CreateFontUtilityController {
             editButton.setMaxWidth(99999);
             editButton.setOnAction(_ -> {
                 var editor = new SimpleImageEditor(glyph.data(), NativePixelFormat.MONO_BITMAP, FONT_PALETTE, FONT_EDITOR);
+                popup.hide();
                 if(editor.presentUI(editorUI)) {
                     markDirty();
-                    popup.hide();
                     createAnImageView();
                     imgView.onPaintSurface(imgView.getGraphicsContext2D());
                 } else popup.hide();
