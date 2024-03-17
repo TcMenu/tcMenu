@@ -59,12 +59,14 @@ public class CreateFontUtilityController {
     javafx.stage.Popup popup;
     private boolean dirty = false;
     private boolean clipboardExport = false;
+    private Path lastExportDir;
 
     public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
         this.editorUI = editorUI;
         this.homeDirectory = homeDirectory;
         var fileName = editorUI.getCurrentProject().getFileName();
         currentDir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
+        lastExportDir = currentDir;
 
         var clipboardItem = new CheckMenuItem(bundle.getString("core.to.clip"));
         clipboardItem.setSelected(false);
@@ -94,11 +96,10 @@ public class CreateFontUtilityController {
             }
         } else {
             logger.log(INFO, "Show font conversion save dialog");
-            var fileName = editorUI.getCurrentProject().getFileName();
-            var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
-            var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
+            var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(lastExportDir), false, "*.h");
             if (maybeOutFile.isEmpty()) return;
             String outputFile = maybeOutFile.get();
+            lastExportDir = Path.of(outputFile).getParent();
             logger.log(INFO, STR."Convert font \{format}, name \{outputFile}");
             try (var outStream = new FileOutputStream(outputFile)) {
                 EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
@@ -120,7 +121,9 @@ public class CreateFontUtilityController {
         var fileChoice = editorUI.findFileNameFromUser(Optional.of(currentDir), true, "Embedded Fonts|*.xml");
         fileChoice.ifPresent(file -> {
             try {
-                embeddedFont = new EmbeddedFont(Path.of(file));
+                Path path = Path.of(file);
+                currentDir = path.getParent();
+                embeddedFont = new EmbeddedFont(path);
                 recalcFont();
             } catch (Exception e) {
                 editorUI.alertOnError("File load problem", STR."The font file was not loaded - \{e}");
