@@ -37,6 +37,8 @@ import java.util.*;
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
 import static com.thecoderscorner.menu.editorui.gfxui.font.EmbeddedFontExporter.FontFormat;
 import static com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor.EditingMode.FONT_EDITOR;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 public class CreateFontUtilityController {
 
@@ -79,7 +81,7 @@ public class CreateFontUtilityController {
 
     private void internalGenerate(FontEncoder.FontFormat format) {
         if(clipboardExport) {
-            logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, to clipboard");
+            logger.log(INFO, STR."Convert font \{format}, to clipboard");
             try(var outStream = new ByteArrayOutputStream()) {
                 EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
@@ -91,13 +93,13 @@ public class CreateFontUtilityController {
                 editorUI.alertOnError("Clipboard export failed", STR."The font was not converted due to the following. \{ex.getMessage()}");
             }
         } else {
-            logger.log(System.Logger.Level.INFO, "Show font conversion save dialog");
+            logger.log(INFO, "Show font conversion save dialog");
             var fileName = editorUI.getCurrentProject().getFileName();
             var dir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
             var maybeOutFile = editorUI.findFileNameFromUser(Optional.of(dir), false, "*.h");
             if (maybeOutFile.isEmpty()) return;
             String outputFile = maybeOutFile.get();
-            logger.log(System.Logger.Level.INFO, STR."Convert font \{format}, name \{outputFile}");
+            logger.log(INFO, STR."Convert font \{format}, name \{outputFile}");
             try (var outStream = new FileOutputStream(outputFile)) {
                 EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
@@ -138,7 +140,7 @@ public class CreateFontUtilityController {
             recalcFont();
         } catch(Exception ex) {
             editorUI.alertOnError("Font Save Failed", ex.getMessage());
-            logger.log(System.Logger.Level.ERROR, "Font save failed with exception", ex);
+            logger.log(ERROR, "Font save failed with exception", ex);
         }
     }
 
@@ -201,7 +203,7 @@ public class CreateFontUtilityController {
                         gridRow++;
                     }
                 } catch(Exception ex) {
-                    logger.log(System.Logger.Level.ERROR, STR."Create control has failed at \{glyph}");
+                    logger.log(ERROR, STR."Create control has failed at \{new String(Character.toChars(glyph.code()))} \{glyph}", ex);
                 }
             }
             gridRow++;
@@ -225,8 +227,7 @@ public class CreateFontUtilityController {
         outputStructNameField.setDisable(!embeddedFont.isPopulated());
     }
 
-    @SuppressWarnings("unused")
-    public void onOnlineHelp(ActionEvent actionEvent) {
+    public void onOnlineHelp(ActionEvent ignored) {
         SafeNavigator.safeNavigateTo(AppInformationPanel.FONTS_GUIDE_URL);
     }
 

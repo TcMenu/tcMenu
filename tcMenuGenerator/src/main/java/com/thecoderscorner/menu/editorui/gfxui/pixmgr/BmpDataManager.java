@@ -92,6 +92,14 @@ public interface BmpDataManager {
         }
     }
 
+    /**
+     * Creates a new instance of a BmpDataManager class with the specified width and height. This will be of the
+     * same type as the existing object.
+     *
+     * @param width  the width of the new instance
+     * @param height the height of the new instance
+     * @return the new BmpDataManager instance
+     */
     BmpDataManager createNew(int width, int height);
 
     default void pushBitsRaw(int xStart, int yStart, BmpDataManager data) {
@@ -104,18 +112,39 @@ public interface BmpDataManager {
         }
     }
 
+    /**
+     * Sets the specified index data from a source bitmap into a destination at a starting location, it crops the
+     * source to fit into the destination. The source will be a monochrome bitmap and the color index provided is used
+     * to fill.
+     *
+     * @param xStart The starting x pixel position in the bitmap
+     * @param yStart The starting y pixel position in the bitmap
+     * @param data The NativeBmpBitPacker containing the bits to be set
+     * @param idxOn The index to set for the specified bits
+     */
     default void pushBitsOn(int xStart, int yStart, NativeBmpBitPacker data, int idxOn) {
         for (int y = 0; y < data.getPixelHeight(); y++) {
-            if(yStart + y >= getPixelHeight()) break;
+            int currentVert = yStart + y;
+            if(currentVert < 0 || currentVert >= getPixelHeight()) continue;
             for (int x = 0; x < data.getPixelWidth(); x++) {
                 if(data.getBitAt(x, y)) {
                     if(xStart + x >= getPixelWidth()) break;
-                    setDataAt(xStart + x, yStart + y, idxOn);
+                    setDataAt(xStart + x, currentVert, idxOn);
                 }
             }
         }
     }
 
+    /**
+     * Create a new index bitmap out of a segment of an existing one. The newly created bitmap will be of the same
+     * type as the original, just a different shape.
+     *
+     * @param xStart the start x location
+     * @param yStart the start y location
+     * @param xEnd the x end location
+     * @param yEnd the y end location
+     * @return
+     */
     default BmpDataManager segmentOf(int xStart, int yStart, int xEnd, int yEnd) {
         var bmp = createNew(xEnd - xStart, yEnd - yStart);
         int yd = 0;

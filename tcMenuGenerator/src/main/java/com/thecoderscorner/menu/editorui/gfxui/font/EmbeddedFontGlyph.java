@@ -10,10 +10,11 @@ import java.util.Objects;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.*;
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
+import static com.thecoderscorner.menu.editorui.gfxui.font.FontGlyphGenerator.FontDimensionInformation;
 
 public class EmbeddedFontGlyph {
     private final int code;
-    private FontGlyphGenerator.FontDimensionInformation fontDims;
+    private FontDimensionInformation fontDims;
     private NativeBmpBitPacker data;
     private int toBaseLine;
     private int belowBaseline;
@@ -21,7 +22,7 @@ public class EmbeddedFontGlyph {
     private EmbeddedFont font;
     private boolean selected;
 
-    public EmbeddedFontGlyph(int code, FontGlyphGenerator.FontDimensionInformation fontDims, byte[] data, int toBaseLine, int belowBaseline, int totalWidth, boolean selected, EmbeddedFont font) {
+    public EmbeddedFontGlyph(int code, FontDimensionInformation fontDims, byte[] data, int toBaseLine, int belowBaseline, int totalWidth, boolean selected, EmbeddedFont font) {
         this.code = code;
         this.fontDims = fontDims;
         this.font = font;
@@ -40,7 +41,7 @@ public class EmbeddedFontGlyph {
         return code;
     }
 
-    public FontGlyphGenerator.FontDimensionInformation fontDims() {
+    public FontDimensionInformation fontDims() {
         return fontDims;
     }
 
@@ -72,7 +73,7 @@ public class EmbeddedFontGlyph {
         this.font = font;
     }
 
-    public void setGlyphData(NativeBmpBitPacker newBits, FontGlyphGenerator.FontDimensionInformation fontDims) {
+    public void setGlyphData(NativeBmpBitPacker newBits, FontDimensionInformation fontDims) {
         this.data = newBits;
         this.fontDims = fontDims;
     }
@@ -115,14 +116,15 @@ public class EmbeddedFontGlyph {
      */
     public ImageDrawingGrid getDisplayBitmapForGlyph() {
         var palette = new PortablePalette(new PortableColor[]{BLACK, WHITE, GREY, BLUE}, PaletteMode.TWO_BPP);
-        var bmp = new NBppBitPacker(totalWidth(), font.getYAdvance(), 2);
+        int advance = font.getYAdvance() + 1;
+        var bmp = new NBppBitPacker(totalWidth(), advance, 2);
         ImageDrawingGrid drawingGrid = new ImageDrawingGrid(bmp, palette, false);
         drawingGrid.setCurrentColor(2);
-        int baseLinePoint = font.getYAdvance() - font.getBelowBaseline();
+        int baseLinePoint = advance - font.getBelowBaseline();
         drawingGrid.drawLine(0, baseLinePoint, bmp.getPixelWidth() - 1, baseLinePoint);
         // The below calc is as follows. First we calculate what the ascent is, IE above the baseline, then we subtract
         // from that the height of the bitmap, finally we then add back in the below baseline amount for this glyph.
-        int startingPositionY = ((font.getYAdvance() - font.getBelowBaseline()) - fontDims.startY());
+        int startingPositionY = ((advance - font.getBelowBaseline()) - fontDims.startY());
         bmp.pushBitsOn(fontDims().startX(), startingPositionY, data, 1);
         return drawingGrid;
     }
@@ -130,4 +132,44 @@ public class EmbeddedFontGlyph {
     public void setSelected(boolean b) {
         selected = b;
     }
+
+    public void reDimensionToSmallest() {
+        int firstYLocation = -1;
+        int lastYLocation = 1;
+        int firstXLocation = -1;
+        int lastXLocation = 1;
+        for (int y = 0; y < data.getPixelHeight(); y++) {
+            boolean lineHadData = false;
+            int xStartThisGo = -1;
+            int xEndThisGo = -1;
+            for (int x = 0; x < data.getPixelWidth(); x++) {
+                int idx = data.getDataAt(x, y);
+                if (firstYLocation == -1 && idx != 0) {
+                    firstYLocation = y;
+                }
+                lineHadData = lineHadData || idx != 0;
+
+                if (xStartThisGo == -1 && idx != 0) {
+                    xStartThisGo = x;
+                }
+                if (idx != 0) {
+                    xEndThisGo = x;
+                }
+            }
+            if (lineHadData) {
+                lastYLocation = y;
+            }
+
+            if ((xStartThisGo != -1 && xStartThisGo < firstXLocation) || firstXLocation == -1)
+                firstXLocation = xStartThisGo;
+            if (xEndThisGo != -1 && xEndThisGo > lastXLocation) lastXLocation = xEndThisGo;
+        }
+
+        // do not re-dimension if nothing found
+        if (firstYLocation == -1 || firstXLocation == -1) return;
+
+        data = (NativeBmpBitPacker) data.segmentOf(firstXLocation, firstYLocation, lastXLocation, lastYLocation);
+        fontDims = new FontDimensionInformation(firstXLocation, firstYLocation, data.getPixelWidth(), data.getPixelHeight(), fontDims.pixelsBelowBaseline());
+    }
+
 }
