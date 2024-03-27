@@ -110,7 +110,6 @@
                 <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="%menu.help.getting.started"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
                 <MenuItem mnemonicParsing="false" onAction="#onCommericalSupport" text="Commercial Support/Consultancy"/>
-                <MenuItem mnemonicParsing="false" onAction="#onCommericalSupport" text="Build for STM32Cube, ESP-IDF, Atmel"/>
                 <MenuItem mnemonicParsing="false" onAction="#onMakeADonation" text="Make Donation - GitHub"/>
                 <MenuItem mnemonicParsing="false" onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
@@ -237,7 +236,6 @@
        <HBox spacing="10">
            <Hyperlink onAction="#onSponsorLinkPressed" text="Sponsor on GitHub" />
            <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee" />
-           <Hyperlink onAction="#onCommericalSupport" text="Commercial Support/STM32Cube/ESP-IDF/Atmel" />
            <Hyperlink onAction="#onFollowTwitter" text="Follow Twitter"/>
            <Hyperlink onAction="#onFollowFacebook" text="Follow Facebook"/>
        </HBox>

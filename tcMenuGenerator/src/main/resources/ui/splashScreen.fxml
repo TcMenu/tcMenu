@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -42,13 +42,15 @@
                 <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version"/>
                 <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube"/>
                 <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation"/>
-                <Hyperlink onAction="#onSupportOptions" text="Commercial support options"/>
-                <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
-                <Hyperlink onAction="#onSponsorOptions" text="Follow/Sponsor GitHub"/>
                 <HBox>
                     <Hyperlink onAction="#onFollowTwitter" text="Follow Twitter"/>
                     <Hyperlink onAction="#onFollowFacebook" text="Follow Facebook"/>
                 </HBox>
+                <Label text="Releasing this UI costs more than you think:">
+                    <padding><Insets top="10"/></padding>
+                </Label>
+                <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
+                <Hyperlink onAction="#onSponsorOptions" text="Follow/Sponsor GitHub"/>
 
             </children>
         </VBox>
