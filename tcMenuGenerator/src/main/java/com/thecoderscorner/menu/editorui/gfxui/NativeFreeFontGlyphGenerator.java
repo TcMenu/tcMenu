@@ -142,7 +142,7 @@ public class NativeFreeFontGlyphGenerator implements FontGlyphGenerator, AutoClo
             if(fontHandle != 0) {
                 tcNative.getFontClose().invoke(fontHandle);
             }
-            var cstrName = arena.allocateUtf8String(fontPath.toString());
+            var cstrName = arena.allocateFrom(fontPath.toString());
             fontHandle = (int) tcNative.getFontLibCreateFont().invoke(cstrName, 0, size);
         } catch (Throwable ex) {
             logger.log(ERROR, "Unable to derive font", ex);
