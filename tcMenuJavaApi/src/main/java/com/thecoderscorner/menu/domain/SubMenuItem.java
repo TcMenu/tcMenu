@@ -23,8 +23,8 @@ public class SubMenuItem extends MenuItem {
         this.secured = false;
     }
 
-    public SubMenuItem(String name, String varName, int id, int eepromAddr, boolean localOnly, boolean visible, boolean secured, boolean staticInRAM) {
-        super(name, varName, id, eepromAddr, null, false, localOnly, visible, staticInRAM);
+    public SubMenuItem(String name, String varName, int id, int eepromAddr, String functionName, boolean localOnly, boolean visible, boolean secured, boolean staticInRAM) {
+        super(name, varName, id, eepromAddr, functionName, false, localOnly, visible, staticInRAM);
         this.secured = secured;
     }
 

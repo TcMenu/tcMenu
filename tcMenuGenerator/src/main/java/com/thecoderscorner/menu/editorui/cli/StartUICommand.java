@@ -36,12 +36,17 @@ public class StartUICommand implements Callable<Integer> {
         return userSelectedProject.get();
     }
 
+    public static void userDidSelectProject(File projectFile) {
+        userSelectedProject.set(projectFile.getAbsolutePath());
+        System.out.println(STR."Designer is starting with project \{userSelectedProject.get()}");
+
+    }
+
     @Override
     public Integer call() {
         try {
             projectFile = locateProjectFile(projectFile, createIfNeeded);
-            userSelectedProject.set(projectFile.getAbsolutePath());
-            System.out.println("Designer is starting with project " + userSelectedProject.get());
+            userDidSelectProject(projectFile);
             if(previewAtStart) {
                 Executors.newSingleThreadScheduledExecutor().schedule(() ->
                     Platform.runLater(() -> MenuEditorApp.getContext().previewOnProject(projectFile.toPath()))
