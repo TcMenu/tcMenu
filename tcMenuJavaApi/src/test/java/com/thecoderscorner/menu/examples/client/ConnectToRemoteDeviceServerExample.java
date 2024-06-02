@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * SimpleServerMain is a class that represents a simple server application that communicates with a remote menu controller.
+ * In this case the device is accepting connections and the client (us) is opening a connection to the remote device.
  * It listens for updates from the remote controller and performs actions based on the received updates. Mainly use this
  * as an example of where to start with the Java API. This example creates a connection to a socket server, this is the
  * default case.
