@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.examples.connector;
+package com.thecoderscorner.menu.examples.client;
 
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * as an example of where to start with the Java API. This example creates a connection to a socket server, this is the
  * default case.
  */
-public class SimpleServerMain implements RemoteControllerListener {
+public class ConnectToRemoteDeviceServerExample implements RemoteControllerListener {
     // where we want to connect, host and port
     private static final String MY_HOST = "192.168.0.96";
     private static final int MY_PORT = 3333;
@@ -43,11 +43,11 @@ public class SimpleServerMain implements RemoteControllerListener {
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
     public static void main(String[] args) {
-        var server = new SimpleServerMain();
+        var server = new ConnectToRemoteDeviceServerExample();
         server.start();
     }
 
-    public SimpleServerMain() {
+    public ConnectToRemoteDeviceServerExample() {
         // here we create the connection and controller using the builder.
         var builder = new SocketControllerBuilder()
                 .withAddress(MY_HOST).withPort(MY_PORT)

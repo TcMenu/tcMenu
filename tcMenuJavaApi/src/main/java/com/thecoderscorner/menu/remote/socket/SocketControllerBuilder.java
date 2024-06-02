@@ -10,7 +10,6 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
-import com.thecoderscorner.menu.remote.protocol.TagValMenuCommandProcessors;
 
 import java.time.Clock;
 import java.util.Optional;
@@ -43,6 +42,7 @@ public class SocketControllerBuilder implements ConnectorFactory {
     private String address;
     private int port;
     private UUID uuid;
+    private int maximumInstances = 99999;
 
     /**
      * Optional, defaults to system clock but can be overriden
@@ -127,6 +127,17 @@ public class SocketControllerBuilder implements ConnectorFactory {
     }
 
     /**
+     * Only for socket client remote where the connection logic is reversed, this sets the number of connections that
+     * we can accept at once. It defaults to 99999.
+     * @param maximumInstances the maximum
+     * @return itself, suitable for chaining
+     */
+    public SocketControllerBuilder withMaximumInstances(int maximumInstances) {
+        this.maximumInstances = maximumInstances;
+        return this;
+    }
+
+    /**
      * Once the above methods have been called to fill in the blanks, then call build to get
      * the actual instance.
      * @return the actual instance.
@@ -138,6 +149,17 @@ public class SocketControllerBuilder implements ConnectorFactory {
                 protocol, address, port, ConnectMode.FULLY_AUTHENTICATED
         );
         return new RemoteMenuController(connector, menuTree);
+    }
+
+    /**
+     * Once the above methods have been called to fill in the blanks, then call build to get
+     * the actual instance.
+     * @return the actual instance.
+     */
+    public SocketClientRemoteServer buildClient() {
+        initialiseBasics();
+        var localId = new LocalIdentifier(uuid, name);
+        return new SocketClientRemoteServer(port, localId, executorService, protocol, clock, maximumInstances);
     }
 
     private void initialiseBasics() {
