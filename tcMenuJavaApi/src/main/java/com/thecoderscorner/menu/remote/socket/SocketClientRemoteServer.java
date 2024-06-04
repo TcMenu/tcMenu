@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.remote.LocalIdentifier;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.RemoteInformation;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -82,12 +83,11 @@ public class SocketClientRemoteServer {
                 sock = serverSocket.accept();
                 logger.log(System.Logger.Level.INFO, "Accepted client " + sock.getRemoteAddress());
                 SocketClientRemoteConnector connector = new SocketClientRemoteConnector(localId, executor, clock, protocol, sock, this::onConnectionClose);
-                var uuidSerial = new UuidAndSerial(connector.getRemoteParty().getUuid(), connector.getRemoteParty().getSerialNumber());
+                var uuidSerial = UuidAndSerial.fromRemote(connector.getRemoteParty());
                 mapOfConnections.put(uuidSerial, connector);
                 for(var listener : connectionListeners) {
                     listener.onConnectionCreated(connector);
                 }
-                connector.start();
             } catch (Exception e) {
                 connectionSemaphore.release();
                 if(sock != null) {
@@ -109,7 +109,7 @@ public class SocketClientRemoteServer {
         for(var listener : connectionListeners) {
             listener.onConnectionClosed(conn);
         }
-        var uuidAndSerial = new UuidAndSerial(conn.getRemoteParty().getUuid(), conn.getRemoteParty().getSerialNumber());
+        var uuidAndSerial = UuidAndSerial.fromRemote(conn.getRemoteParty());
         mapOfConnections.remove(uuidAndSerial);
     }
 
@@ -136,9 +136,13 @@ public class SocketClientRemoteServer {
         private final UUID uuid;
         private final long serial;
 
-        public UuidAndSerial(UUID uuid, long serial) {
+        private UuidAndSerial(UUID uuid, long serial) {
             this.uuid = uuid;
             this.serial = serial;
+        }
+
+        public static UuidAndSerial fromRemote(RemoteInformation remoteParty) {
+            return new UuidAndSerial(remoteParty.getUuid(), remoteParty.getSerialNumber());
         }
 
         public UUID getUuid() {

@@ -1,12 +1,21 @@
 package com.thecoderscorner.menu.examples.client;
 
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.socket.SocketClientRemoteConnector;
 import com.thecoderscorner.menu.remote.socket.SocketClientServerListener;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
 
 import java.io.IOException;
 import java.lang.System.Logger.Level;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.LogManager;
+
+import static com.thecoderscorner.menu.remote.socket.SocketClientRemoteServer.UuidAndSerial;
+import static java.util.logging.Level.FINEST;
 
 /**
  * This example is a client in that it receives menu state and can control menu applications running on a device, but
@@ -24,6 +33,10 @@ public class ClientThatAcceptsForRemoteExample {
     private static final UUID MY_LOCAL_UUID = UUID.fromString("8A19E904-B007-498A-9BCB-5F0C0A7B9D71");
 
     public static void main(String[] args) throws IOException {
+        // enable all logging including debug.
+        LogManager.getLogManager().getLogger("").setLevel(FINEST);
+        Arrays.stream(LogManager.getLogManager().getLogger("").getHandlers()).forEach(h -> h.setLevel(FINEST));
+
         // here we minimally configure a socket accept client, that in this case will only accept one connection at once
         // but you control that using withMaximumInstances.
         var builder = new SocketControllerBuilder()
@@ -52,17 +65,33 @@ public class ClientThatAcceptsForRemoteExample {
         maybeUuidSerial.ifPresent(connector -> logger.log(Level.INFO, "Connector is " + connector));
     }
 
+    /**
+     * This is an example of how you'd process connections as they come in, you get notified when there's a new connection
+     * and when one is closed. In most cases you'd want a RemoteMenuController, unless you wanted custom control over the
+     * protocol yourself. You could create your own object here that managed the connection using the methods available
+     * on either the connector or the controller.
+     */
     private static class MyConnectionListener implements SocketClientServerListener {
+        private final Map<UuidAndSerial, RemoteMenuController> remoteMenuControllers = new ConcurrentHashMap<>();
         @Override
         public void onConnectionCreated(SocketClientRemoteConnector connector) {
             logger.log(Level.INFO, "Connection has been received from " + connector.getRemoteParty());
             // here you could create an object that represented your side of the connection etc.
+            // in this case I just create a remote controller that handles the bootstrapping and update logic
+            // Creating and starting a remote controller also starts the underlying connection.
+            var controller = new RemoteMenuController(connector, new MenuTree());
+            controller.start();
+            remoteMenuControllers.put(UuidAndSerial.fromRemote(connector.getRemoteParty()), controller);
         }
 
         @Override
         public void onConnectionClosed(SocketClientRemoteConnector connector) {
             logger.log(Level.INFO, "Connection closed from " + connector.getRemoteParty());
             // here you would do any cleaning up needed when a connection closed.
+            var controller = remoteMenuControllers.get(UuidAndSerial.fromRemote(connector.getRemoteParty()));
+            if(controller != null) {
+                controller.stop();
+            }
         }
     }
 }

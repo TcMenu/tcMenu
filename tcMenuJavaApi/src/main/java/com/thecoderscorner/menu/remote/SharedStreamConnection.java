@@ -39,8 +39,6 @@ public abstract class SharedStreamConnection {
 
             logByteBuffer("Line read from stream", inputBuffer);
 
-
-
             // now we take a shallow buffer copy and process the message
             MenuCommand mc = protocol.fromChannel(inputBuffer);
             if(logger.isLoggable(DEBUG)) connectionLog(DEBUG, "Menu command read: " + mc);

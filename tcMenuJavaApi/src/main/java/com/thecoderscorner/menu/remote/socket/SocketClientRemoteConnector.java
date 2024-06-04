@@ -41,11 +41,25 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
         startThreadProc();
     }
 
+    /**
+     * Stop and close are the same on this type of connection, there is no way to reconnect a client socket.
+     */
     @Override
     public void stop() {
         close();
-        stopThreadProc();
-        changeState(AuthStatus.NOT_STARTED);
+    }
+
+    @Override
+    public void close() {
+        connectionLog(INFO, "Closing client socket " + getConnectionName());
+        try {
+            stopThreadProc();
+            clientCloseHandler.accept(this);
+            changeState(AuthStatus.CONNECTION_FAILED);
+            socketChannel.close();
+        } catch (IOException e) {
+            connectionLog(ERROR, "Unexpected error closing socket", e);
+        }
     }
 
     @Override
@@ -87,21 +101,16 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
         return "TCP " + socketChannel.socket().getRemoteSocketAddress();
     }
 
-    @Override
-    public void close() {
-        connectionLog(INFO, "Closing client socket " + getConnectionName());
-        try {
-            socketChannel.close();
-        } catch (IOException e) {
-            connectionLog(ERROR, "Unexpected error closing socket", e);
-        }
-        stop();
-    }
+    public static class ClientConnectionFailedState implements RemoteConnectorState {
+        private final StreamRemoteConnector controller;
 
-    private class ClientConnectionFailedState implements RemoteConnectorState {
+        public ClientConnectionFailedState(StreamRemoteConnector controller) {
+            this.controller = controller;
+        }
+
         @Override
         public void enterState() {
-            clientCloseHandler.accept(SocketClientRemoteConnector.this);
+            controller.close();
         }
 
         @Override
@@ -120,7 +129,7 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
 
         @Override
         public void runLoop() throws Exception {
-            stop();
+            Thread.sleep(10);
         }
     }
 }
