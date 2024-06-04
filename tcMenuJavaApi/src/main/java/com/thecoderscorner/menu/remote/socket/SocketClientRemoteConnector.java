@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.remote.socket;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.states.PairingAuthFailedState;
+import com.thecoderscorner.menu.remote.states.RemoteConnectorContext;
 import com.thecoderscorner.menu.remote.states.RemoteConnectorState;
 import com.thecoderscorner.menu.remote.states.SocketAwaitJoinState;
 
@@ -102,9 +103,9 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
     }
 
     public static class ClientConnectionFailedState implements RemoteConnectorState {
-        private final StreamRemoteConnector controller;
+        private final RemoteConnectorContext controller;
 
-        public ClientConnectionFailedState(StreamRemoteConnector controller) {
+        public ClientConnectionFailedState(RemoteConnectorContext controller) {
             this.controller = controller;
         }
 
