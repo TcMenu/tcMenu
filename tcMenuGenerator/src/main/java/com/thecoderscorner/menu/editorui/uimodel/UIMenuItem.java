@@ -496,7 +496,7 @@ public abstract class UIMenuItem<T extends MenuItem> {
         else if(fieldType == VARIABLE && !s.matches("^[\\p{L}_$][\\p{L}\\p{N}_]*$")) {
             errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.variable.invalid"), field, true));
         }
-        else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()\\.]*$")) {
+        else if((fieldType == MANDATORY || fieldType == OPTIONAL) && !s.matches("^[\\p{L}\\p{N}\\s\\-_*%()\\.\\\\]*$")) {
             errorsBuilder.add(new FieldError(bundle.getString("menu.editor.core.text.invalid"), field, true));
         }
     }
