@@ -26,6 +26,7 @@
                 <Choice desc="SSD1306 128x64 HW I2C">U8G2_SSD1306_128X64_NONAME_F_HW_I2C</Choice>
                 <Choice desc="SSD1306 128x64 SW I2C">U8G2_SSD1306_128X64_NONAME_F_SW_I2C</Choice>
                 <Choice desc="SSD1306 128x64 3W HW I2C">U8G2_SSD1306_128X64_NONAME_F_3W_HW_SPI</Choice>
+                <Choice desc="SSD1309 128x64 HW I2C">U8G2_SSD1309_128X64_NONAME0_F_HW_I2C</Choice>
 
                 <Choice desc="SH1106 128X64 4W SW SPI">U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI</Choice>
                 <Choice desc="SH1106 128X64 4W HW SPI">U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI</Choice>
