@@ -7,7 +7,11 @@
 package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.remote.*;
-import com.thecoderscorner.menu.remote.states.*;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
+import com.thecoderscorner.menu.remote.states.NoOperationInitialState;
+import com.thecoderscorner.menu.remote.states.PairingAuthFailedState;
+import com.thecoderscorner.menu.remote.states.SocketAwaitJoinState;
+import com.thecoderscorner.menu.remote.states.StreamNotConnectedState;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,8 +36,9 @@ public class SocketBasedConnector extends StreamRemoteConnector {
     private final AtomicReference<SocketChannel> socketChannel = new AtomicReference<>();
 
     public SocketBasedConnector(LocalIdentifier localId, ScheduledExecutorService executor, Clock clock,
-                                MenuCommandProtocol protocol, String remoteHost, int remotePort, ConnectMode mode) {
-        super(localId, protocol, executor, clock);
+                                MenuCommandProtocol protocol, String remoteHost, int remotePort, ConnectMode mode,
+                                ProtocolEncryptionHandler encryptionHandler) {
+        super(localId, protocol, executor, clock, encryptionHandler);
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
 

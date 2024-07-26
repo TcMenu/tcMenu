@@ -1,6 +1,7 @@
 package com.thecoderscorner.menu.remote;
 
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
 import com.thecoderscorner.menu.remote.protocol.CommandProtocol;
 import com.thecoderscorner.menu.remote.protocol.TagValTextParser;
 import com.thecoderscorner.menu.remote.protocol.TcProtocolException;
@@ -13,15 +14,21 @@ import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;
 
 public abstract class SharedStreamConnection {
+    public static final int MAX_MSG_EXPECTED = 8192;
     protected final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    protected static final int MAX_MSG_EXPECTED = 1024;
 
     protected final MenuCommandProtocol protocol;
     protected final ByteBuffer inputBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
     protected final ByteBuffer cmdBuffer = ByteBuffer.allocate(MAX_MSG_EXPECTED).order(ByteOrder.BIG_ENDIAN);
+    protected final ProtocolEncryptionHandler encryptionHandler;
 
-    protected SharedStreamConnection(MenuCommandProtocol protocol) {
+    protected SharedStreamConnection(MenuCommandProtocol protocol, ProtocolEncryptionHandler encryptionHandler) {
         this.protocol = protocol;
+        this.encryptionHandler = encryptionHandler;
+    }
+
+    public void close() {
+        if(encryptionHandler != null) encryptionHandler.getDecryptBuffer().reset().flip();
     }
 
     public MenuCommand readCommandFromStream() throws IOException {
@@ -84,7 +91,20 @@ public abstract class SharedStreamConnection {
      * @throws IOException if there are problems reading data.
      */
     private byte nextByte(ByteBuffer inputBuffer) throws IOException {
-        getAtLeastBytes(inputBuffer, 1, StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY);
+        if(encryptionHandler != null) {
+            if(inputBuffer.remaining() < 1) {
+                var decryptBuffer = encryptionHandler.getDecryptBuffer();
+                getAtLeastBytes(decryptBuffer, 2, StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY);
+                int len = decryptBuffer.getShort();
+                while(decryptBuffer.remaining() < len) {
+                    getAtLeastBytes(decryptBuffer, len, StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY);
+                }
+                var data = encryptionHandler.decryptBuffer(decryptBuffer, len);
+                inputBuffer.compact().put(data).flip();
+            }
+        } else {
+            getAtLeastBytes(inputBuffer, 1, StreamRemoteConnector.ReadMode.ONLY_WHEN_EMPTY);
+        }
         return inputBuffer.get();
     }
 
@@ -137,6 +157,12 @@ public abstract class SharedStreamConnection {
                 protocol.toChannel(cmdBuffer, msg);
                 cmdBuffer.flip();
                 logByteBuffer("Sending message on " + getConnectionName(), cmdBuffer);
+                if(encryptionHandler != null) {
+                    var data = encryptionHandler.encryptBuffer(cmdBuffer);
+                    cmdBuffer.clear()
+                            .putShort((short) data.length).put(data)
+                            .flip();
+                }
                 sendInternal(cmdBuffer);
             }
         } else {

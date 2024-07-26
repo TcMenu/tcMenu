@@ -4,10 +4,10 @@ import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.mgrclient.SocketServerConnectionManager;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
@@ -62,12 +61,14 @@ public class MenuServerSocketIntegrationTest {
         var executor = Executors.newScheduledThreadPool(4);
         var tree = DomainFixtures.fullEspAmplifierTestTree();
         var authenticator = new PreDefinedAuthenticator("4321", List.of(new AuthenticationToken("integration-client", localUuid.toString())));
-        serverConnection = new SocketServerConnectionManager(protocol, executor, 9876, Clock.systemDefaultZone());
+        int heartbeatFrequency = 30000;
+        serverConnection = new SocketServerConnectionManager(protocol, executor, 9876, Clock.systemDefaultZone(), heartbeatFrequency);
         menuServer = new MenuManagerServer(executor, tree, "integration-test", serverUuid, authenticator, Clock.systemDefaultZone());
         menuServer.addConnectionManager(serverConnection);
 
         clientConnector = new SocketBasedConnector(new LocalIdentifier(localUuid, "integration-client"), executor,
-                Clock.systemDefaultZone(), protocol, "localhost", 9876, ConnectMode.FULLY_AUTHENTICATED);
+                Clock.systemDefaultZone(), protocol, "localhost", 9876, ConnectMode.FULLY_AUTHENTICATED,
+                null);
         clientController = new RemoteMenuController(clientConnector, new MenuTree());
         treePopulatedLatch = new CountDownLatch(1);
         correlationLatch = new CountDownLatch(1);

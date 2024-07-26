@@ -31,6 +31,8 @@ public class ClientThatAcceptsForRemoteExample {
     public static final int MY_PORT = 3333;
     private static final String MY_LOCAL_NAME = "Test Client";
     private static final UUID MY_LOCAL_UUID = UUID.fromString("8A19E904-B007-498A-9BCB-5F0C0A7B9D71");
+    public static final String ENCRYPTED_AES_KEY = "A8UvLzdTzUCYeqir6DODRquIbch04kN1EuyocNqoJI4=";
+    public static final String ENCRYPTED_AES_IV = "PouIJPG+eN5WtbbGESuPeg==";
 
     public static void main(String[] args) throws IOException {
         // enable all logging including debug.
@@ -43,7 +45,8 @@ public class ClientThatAcceptsForRemoteExample {
                 .withMaximumInstances(1)
                 .withPort(MY_PORT)
                 .withLocalName(MY_LOCAL_NAME)
-                .withUUID(MY_LOCAL_UUID);
+                .withUUID(MY_LOCAL_UUID)
+                .withAESEncryption(ENCRYPTED_AES_KEY, ENCRYPTED_AES_IV);
         var deviceConnections = builder.buildClient();
 
         // Now we add a listener that gets notified every time a connection is created or closed.
