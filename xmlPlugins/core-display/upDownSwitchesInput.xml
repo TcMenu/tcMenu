@@ -15,8 +15,8 @@
     <Properties>
         <Property id="SW_POLLING_MODE" name="%core.input.polling" initial="SWITCHES_POLL_EVERYTHING" desc="%core.input.polling.desc" type="choice">
             <Choices>
-                <Choice desc="%core.input.polling.none">SWITCHES_POLL_EVERYTHING</Choice>
-                <Choice desc="%core.input.polling.all">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="%core.input.polling.none">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="%core.input.polling.all">SWITCHES_POLL_EVERYTHING</Choice>
                 <Choice desc="%core.input.polling.keys">SWITCHES_POLL_KEYS_ONLY</Choice>
             </Choices>
         </Property>

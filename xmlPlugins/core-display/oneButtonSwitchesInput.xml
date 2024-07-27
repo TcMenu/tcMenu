@@ -1,5 +1,5 @@
-<TcMenuPlugin name="%two.button.name"
-              id="560E5382-52C6-4641-BB2B-5C9A9DE06785" subsystem="INPUT"
+<TcMenuPlugin name="%one.button.name"
+              id="4F92CBC0-D13A-4090-9B86-C1952FE42D9B" subsystem="INPUT"
               requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
@@ -7,10 +7,10 @@
         <PlatformGroup>Arduino</PlatformGroup>
         <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
-    <Description>%two.button.desc</Description>
+    <Description>%one.button.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries/>
-    <ImageFile>up-down-encoder.jpg</ImageFile>
+    <ImageFile>user-button.jpg</ImageFile>
 
     <Properties>
         <Property id="SW_POLLING_MODE" name="%core.input.polling" initial="SWITCHES_POLL_EVERYTHING" desc="%core.input.polling.desc" type="choice">
@@ -21,18 +21,25 @@
             </Choices>
         </Property>
         <Property id="SWITCH_IODEVICE" name="%core.switch.io.device" initial="devicePins" desc="%core.switch.io.device.desc" type="io-device"/>
-        <Property id="ENCODER_UP_PIN" name="%updown.encoder.up.pin" initial="2" desc="%updown.encoder.up.pin.desc" type="pin"/>
-        <Property id="ENCODER_DOWN_PIN" name="%updown.encoder.down.pin" initial="3" desc="%updown.encoder.down.pin.desc" type="pin"/>
+        <Property id="BUTTON_PIN" name="%one.button.pin" initial="2" desc="%one.button.pin" type="pin"/>
         <Property id="PULLUP_LOGIC" name="%core.pullup.logic" initial="true" desc="%core.pullup.logic.desc" type="boolean"/>
+        <Property id="DOUBLE_CLICK_THRESHOLD" name="%double.click.threshold" initial="true" desc="%double.click.threshold" type="int" min="100" max="1000"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles/>
 
-    <IncludeFiles/>
+    <IncludeFiles>
+        <Header name="extras/TcOneButtonHandler.h" inSource="false" />
+    </IncludeFiles>
 
-    <GlobalVariables/>
+    <GlobalVariables>
+        <Variable name="oneButtonHandler" export="true" type="TcOneButtonHandler">
+            <Param value="${BUTTON_PIN}"/>
+            <Param value="${DOUBLE_CLICK_THRESHOLD}"/>
+        </Variable>
+    </GlobalVariables>
 
     <SetupFunctions>
         <Function name="init" object="switches">
@@ -41,12 +48,11 @@
             <Param value="${PULLUP_LOGIC}"/>
         </Function>
 
-        <Function name="initForTwoButton" object="menuMgr" >
+        <Function name="initWithoutInput" object="menuMgr" >
             <Param ref="renderer"/>
             <Param ref="${ROOT}"/>
-            <Param value="${ENCODER_UP_PIN}"/>
-            <Param value="${ENCODER_DOWN_PIN}"/>
         </Function>
 
+        <Function name="start" object="oneButtonHandler"/>
     </SetupFunctions>
 </TcMenuPlugin>

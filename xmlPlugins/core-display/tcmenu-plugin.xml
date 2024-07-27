@@ -29,6 +29,7 @@
         <!-- input plugins-->
         <Plugin>rotaryEncoderInput.xml</Plugin>
         <Plugin>upDownSwitchesInput.xml</Plugin>
+        <Plugin>oneButtonSwitchesInput.xml</Plugin>
         <Plugin>twoButtonSwitchesInput.xml</Plugin>
         <Plugin>analogJoystickInput.xml</Plugin>
         <Plugin>analogResistiveTouchScreen.xml</Plugin>
