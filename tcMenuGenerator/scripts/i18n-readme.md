@@ -4,9 +4,9 @@ In Java i18n is achieved using resource bundles. These are properties files that
 
 There are several sets of files that control internationalisation, each of these is listed below:
 
-* The menu designer resource bundles have text for the dialogs: https://github.com/davetcc/tcMenu/tree/master/tcMenuGenerator/src/main/resources/i18n
-* The input and display plugin resource bundles - https://github.com/davetcc/tcMenu/tree/master/xmlPlugins/core-display/i18n
-* The theme plugin resource bundles - https://github.com/davetcc/tcMenu/tree/master/xmlPlugins/core-themes/i18n
+* The menu designer resource bundles have text for the dialogs: https://github.com/TcMenu/tcMenu/tree/main/tcMenuGenerator/src/main/resources/i18n
+* The input and display plugin resource bundles - https://github.com/TcMenu/tcMenu/tree/main/xmlPlugins/core-display/i18n
+* The theme plugin resource bundles - https://github.com/TcMenu/tcMenu/tree/main/xmlPlugins/core-themes/i18n
 * The remote plugin has not yet been attempted, once it is internationalized, it will be added here.
 
 The easiest way to test is to set your locale to the one you are working with, you can also switch locales in the designer, but it needs that locale to have been added to the general settings first as things stand. To do this add a new LocaleWithDescription to the list. Below is what the structure looks like now:

@@ -9,7 +9,7 @@
  * make sure to rename it first.
  * 
  * LIBRARY REQUIREMENT
- * This renderer is designed for use with this library: https://github.com/davetcc/LiquidCrystalIO
+ * This renderer is designed for use with this library: https://github.com/TcMenu/LiquidCrystalIO
  */
 
 #include "tcMenuLiquidCrystal.h"

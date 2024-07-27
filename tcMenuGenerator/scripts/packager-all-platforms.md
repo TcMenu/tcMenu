@@ -9,7 +9,7 @@ Firstly, ensure that you have OpenJDK 18 and a recent maven 3 on your system, wi
 
 Using git or zip download, get the contents of the tcMenu repository locally, for example: 
 
-    git clone https://github.com/davetcc/tcMenu.git
+    git clone https://github.com/TcMenu/tcMenu.git
     git checkout <release-branch-name>
 
 ## Optional step - building a non-released version (advanced users)

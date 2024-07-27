@@ -1,12 +1,12 @@
 [submodule "embedded/LiquidCrystalIO"]
 	path = embedded/LiquidCrystalIO
-	url = https://github.com/davetcc/LiquidCrystalIO.git
+	url = https://github.com/TcMenu/LiquidCrystalIO.git
 [submodule "embedded/IoAbstraction"]
 	path = embedded/IoAbstraction
-	url = https://github.com/davetcc/IoAbstraction.git
+	url = https://github.com/TcMenu/IoAbstraction.git
 [submodule "embedded/tcMenu"]
 	path = embedded/tcMenu
-	url = https://github.com/davetcc/tcMenuLib.git
+	url = https://github.com/TcMenu/tcMenuLib.git
 [submodule "embedded/TaskManagerIO"]
 	path = embedded/TaskManagerIO
-	url = https://github.com/davetcc/TaskManagerIO.git
+	url = https://github.com/TcMenu/TaskManagerIO.git

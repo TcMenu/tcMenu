@@ -44,9 +44,9 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:https://github.com/davetcc/tcMenu.git</connection>
-        <developerConnection>scm:git:https://github.com/davetcc/tcMenu.git</developerConnection>
-        <url>https://github.com/davetcc/tcMenu/tree/master</url>
+        <connection>scm:git:https://github.com/TcMenu/tcMenu.git</connection>
+        <developerConnection>scm:git:https://github.com/TcMenu/tcMenu.git</developerConnection>
+        <url>https://github.com/TcMenu/tcMenu/tree/main</url>
     </scm>
 
     <properties>

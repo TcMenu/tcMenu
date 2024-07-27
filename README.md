@@ -6,7 +6,7 @@ Initially, you can use the menu designer UI that is packaged with every release,
 
 TheCodersCorner.com invest a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost neutral to me by using either option to sponsor the project. We have [some commercial offerings](https://www.thecoderscorner.com/support-services/training-support/) _but these are presently very limited as I work full time_. 
 
-Sponsor me on [GitHub](https://github.com/davetcc/tcMenu) (this repository). 
+Sponsor me on [GitHub](https://github.com/TcMenu/tcMenu) (this repository). 
 
 <a href="https://www.buymeacoffee.com/davetcc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
@@ -33,7 +33,7 @@ Community questions can be asked in the discussions section of this repo, or usi
 
 Releases are directly available from the releases page, there is a signed Windows version, notarized macOS version, and a package for Linux:
 
-[Get the latest TcMenu Designer release](https://github.com/davetcc/tcMenu/releases)
+[Get the latest TcMenu Designer release](https://github.com/TcMenu/tcMenu/releases)
 
 Although most will use the above packages, it's also possible to build from source, full instructions are in the tcMenuGenerator folder. We ask that you only build from source for your own use.
 
@@ -63,23 +63,23 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 
 ### Embedded Libraries for Arduino and mbed 
 
-* tcMenuLib - https://github.com/davetcc/tcMenuLib
-* IoAbstraction - https://github.com/davetcc/IoAbstraction
-* TaskManagerIO - https://github.com/davetcc/TaskManagerIO
-* SimpleCollections - https://github.com/davetcc/SimpleCollections
-* tcUnicodeHelper - https://github.com/davetcc/tcUnicodeHelper
+* tcMenuLib - https://github.com/TcMenu/tcMenuLib
+* IoAbstraction - https://github.com/TcMenu/IoAbstraction
+* TaskManagerIO - https://github.com/TcMenu/TaskManagerIO
+* SimpleCollections - https://github.com/TcMenu/SimpleCollections
+* tcUnicodeHelper - https://github.com/TcMenu/tcUnicodeHelper
 
 ### Additional libraries you may need depending on display
 
-* LiquidCrystalIO forked from Arduino version - https://github.com/davetcc/LiquidCrystalIO 
-* Adafruit-GFX-mbed-fork - https://github.com/davetcc/Adafruit-GFX-mbed-fork
+* LiquidCrystalIO forked from Arduino version - https://github.com/TcMenu/LiquidCrystalIO 
+* Adafruit-GFX-mbed-fork - https://github.com/TcMenu/Adafruit-GFX-mbed-fork
 * TFT-eSPI by Bodmer - https://github.com/Bodmer/TFT_eSPI
 * Adafruit_GFX by AdaFruit- https://github.com/adafruit/Adafruit-GFX-Library 
 * U8G2 by olikraus - https://github.com/olikraus/u8g2
 
 ### Main Java source code locations
 
-The designer UI code base and plugins for 2.0 onwards are located in this repository, the 1.7 plugins were here https://github.com/davetcc/tcMenuXmlPlugins. The designer, library and shipped plugins are all Apache licensed.
+The designer UI code base and plugins for 2.0 onwards are located [in this repository](https://github.com/TcMenu/tcMenu/tree/main/xmlPlugins). The designer, library and shipped plugins are all Apache licensed.
 
 ## Input and display technologies
 
@@ -117,7 +117,7 @@ We have a fork LiquidCrystal for 20x4 or 16x2 displays - can be either directly 
 
 Most libraries that are compatible with Adafruit_GFX will work with tcMenu, we've tested with the following TFT's ILI9341, ST7735 and also Nokia 5110 display. We even have a quick start option that helps you get started with this option.
 
-For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/davetcc/Adafruit-GFX-mbed-fork that supports SSD1306, SH1106. 
+For mbed RTOS 5/6 we have a custom Adafruit_GFX OLED driver https://github.com/TcMenu/Adafruit-GFX-mbed-fork that supports SSD1306, SH1106. 
 
 ### U8G2 integration for mono display
 
@@ -163,21 +163,21 @@ There is a java API for accessing the menu remotely, source includes JavaDoc to 
 
 The C# API is relatively complete and can do most of what the Java API can do, it is well tested and stable.
 
-Repo: https://github.com/davetcc/tcMenuController
+Repo: https://github.com/TcMenu/tcmenu-dotnet-sdk
 
 ### Python API
 
-There is now a Python API thanks to @vzahradnik - https://github.com/davetcc/tcmenu-python
+There is now a Python API thanks to @vzahradnik - https://github.com/TcMenu/tcmenu-python-sdk
 
 ### JavaScript and TypeScript
 
-There is also an early version of a TypeScript API that can be used from any JavaScript environment. https://github.com/davetcc/embedcontrolJS. In the future, we may better package this API to a package manager.
+There is also an early version of a TypeScript API that can be used from any JavaScript environment. https://github.com/TcMenu/embedcontrolJS. In the future, we may better package this API to a package manager.
 
 There is also a Webserver/HTML based app that you can deploy, but it only really works from a Raspberry PI with the embedded Java support. It is somewhat limited in what it offers. After careful evaluation we decided NOT to support ESP32 and STM32 for this app at the moment as it is too large for them.
 
 ## Working with menus using the CLI
 
-The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
+The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://tcmenu.github.io/documentation/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
 
 ## Loading and saving menu items
 

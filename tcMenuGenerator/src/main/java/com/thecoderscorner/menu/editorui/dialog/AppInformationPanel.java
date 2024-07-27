@@ -46,7 +46,7 @@ import static javafx.collections.FXCollections.observableArrayList;
 
 public class AppInformationPanel {
     public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
-    public static final String GITHUB_PROJECT_URL = "https://github.com/davetcc/tcMenu/";
+    public static final String GITHUB_PROJECT_URL = "https://github.com/TcMenu/tcMenu/";
     public static final String GITHUB_LANGUAGE_FILES_URL = GITHUB_PROJECT_URL + "blob/master/tcMenuGenerator/scripts/i18n-readme.md";
     public static final String GITHUB_DISCUSSION_URL = GITHUB_PROJECT_URL + "discussions";
     public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
