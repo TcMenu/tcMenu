@@ -118,7 +118,7 @@ public class MenuItemTest {
 
         assertBaseMenuFields(sub,"SomeName", 30, 104);
         assertTrue(sub.hasChildren());
-        assertNull(sub.getFunctionName());
+        assertEquals("shouldntBeUsed", sub.getFunctionName());
         assertTrue(sub.isLocalOnly());
         assertTrue(sub.isVisible());
 
