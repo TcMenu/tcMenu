@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.remote.socket;
 import com.thecoderscorner.menu.remote.LocalIdentifier;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.RemoteInformation;
+import com.thecoderscorner.menu.remote.encryption.EncryptionHandlerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,6 +23,7 @@ public class SocketClientRemoteServer {
     private final ScheduledExecutorService executor;
     private final MenuCommandProtocol protocol;
     private final Clock clock;
+    private final EncryptionHandlerFactory encryptionFactory;
     private final Semaphore connectionSemaphore;
 
     private final Map<UuidAndSerial, SocketClientRemoteConnector> mapOfConnections = new ConcurrentHashMap<>();
@@ -31,12 +33,14 @@ public class SocketClientRemoteServer {
     private volatile ServerSocketChannel serverSocket = null;
 
     protected SocketClientRemoteServer(int port, LocalIdentifier localId, ScheduledExecutorService executor,
-                                       MenuCommandProtocol protocol, Clock clock, int maximumInstances) {
+                                       MenuCommandProtocol protocol, Clock clock, EncryptionHandlerFactory encryptionFactory,
+                                       int maximumInstances) {
         this.port = port;
         this.localId = localId;
         this.executor = executor;
         this.protocol = protocol;
         this.clock = clock;
+        this.encryptionFactory = encryptionFactory;
         connectionSemaphore = new Semaphore(maximumInstances);
     }
 
@@ -82,7 +86,8 @@ public class SocketClientRemoteServer {
                 logger.log(System.Logger.Level.INFO, "Attempting to accept client connection on port: " + port);
                 sock = serverSocket.accept();
                 logger.log(System.Logger.Level.INFO, "Accepted client " + sock.getRemoteAddress());
-                SocketClientRemoteConnector connector = new SocketClientRemoteConnector(localId, executor, clock, protocol, sock, this::onConnectionClose);
+                SocketClientRemoteConnector connector = new SocketClientRemoteConnector(localId, executor, clock, protocol, sock,
+                        this::onConnectionClose, encryptionFactory.create());
                 var uuidSerial = UuidAndSerial.fromRemote(connector.getRemoteParty());
                 mapOfConnections.put(uuidSerial, connector);
                 for(var listener : connectionListeners) {

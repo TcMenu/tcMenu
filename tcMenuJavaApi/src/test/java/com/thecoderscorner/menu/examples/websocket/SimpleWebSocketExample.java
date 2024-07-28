@@ -38,7 +38,7 @@ public class SimpleWebSocketExample {
                 new PropertiesAuthenticator("./auth.properties", new NoDialogFacilities()),
                 clock);
         menuManager.addConnectionManager(new WebSocketServerConnectionManager(tagValProtocol, 3333, clock));
-        menuManager.addConnectionManager(new SocketServerConnectionManager(tagValProtocol, executor, 3334, clock));
+        menuManager.addConnectionManager(new SocketServerConnectionManager(tagValProtocol, executor, 3334, clock, 15000));
         menuManager.start();
 
         var menuList = menuManager.getManagedMenu().getMenuById(21).orElseThrow();

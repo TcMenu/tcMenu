@@ -5,6 +5,8 @@ import com.thecoderscorner.menu.mgr.ServerConnection;
 import com.thecoderscorner.menu.mgr.ServerConnectionManager;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
+import com.thecoderscorner.menu.remote.encryption.EncryptionHandlerFactory;
+import com.thecoderscorner.menu.remote.encryption.NoEncryptionHandlerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,7 +14,10 @@ import java.net.ServerSocket;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class SocketServerConnectionManager implements ServerConnectionManager {
     private final System.Logger logger = System.getLogger(SocketServerConnectionManager.class.getSimpleName());
@@ -23,13 +28,16 @@ public class SocketServerConnectionManager implements ServerConnectionManager {
     private final ScheduledFuture<?> taskFuture;
     private final int port;
     private final Clock clock;
+    private final int heartbeatTimeout;
     private volatile NewServerConnectionListener connectionListener;
+    private EncryptionHandlerFactory encryptionManager = new NoEncryptionHandlerFactory();
 
     public SocketServerConnectionManager(MenuCommandProtocol protocol, ScheduledExecutorService service,
-                                         int port, Clock clock)  {
+                                         int port, Clock clock, int heartbeatTimeout)  {
         this.protocol = protocol;
         this.port = port;
         this.clock = clock;
+        this.heartbeatTimeout = heartbeatTimeout;
         acceptThread = new Thread(this::acceptConnections);
         try {
             serverSocket = new ServerSocket();
@@ -61,10 +69,10 @@ public class SocketServerConnectionManager implements ServerConnectionManager {
             try {
                 var sock = serverSocket.accept();
                 logger.log(System.Logger.Level.INFO, "Accepted client " + sock.getRemoteSocketAddress());
-                var newConnection = new SocketServerConnection(sock, protocol, clock);
+                var newConnection = new SocketServerConnection(sock, protocol, clock, encryptionManager.create(), heartbeatTimeout);
                 connections.add(newConnection);
                 connectionListener.connectionCreated(newConnection);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "Exception during accept", e);
             }
         }

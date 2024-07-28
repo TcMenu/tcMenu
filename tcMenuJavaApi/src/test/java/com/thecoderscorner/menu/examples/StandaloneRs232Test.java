@@ -13,8 +13,6 @@ import com.thecoderscorner.menu.remote.RemoteControllerListener;
 import com.thecoderscorner.menu.remote.RemoteInformation;
 import com.thecoderscorner.menu.remote.RemoteMenuController;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
-import com.thecoderscorner.menu.remote.commands.DialogMode;
-import com.thecoderscorner.menu.remote.commands.MenuButtonType;
 import com.thecoderscorner.menu.remote.commands.MenuDialogCommand;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.socket.SocketControllerBuilder;
@@ -24,6 +22,12 @@ import java.util.UUID;
 
 import static java.lang.System.Logger.Level.INFO;
 
+/**
+ * An example showing the use of an RS232 based connection between a device and the API acting as a client. In this
+ * case the device acts as a server and the API acts as a client receiving the menu tree from the device. You can
+ * monitor and control the menu on the device over the serial connection. The protocol is quite lightweight and works
+ * from about 9600 baud upward depending on number of updates per second.
+ */
 public class StandaloneRs232Test {
 
     private final static System.Logger logger = System.getLogger("StandaloneRs232Test");

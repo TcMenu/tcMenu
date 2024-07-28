@@ -8,25 +8,25 @@ import com.thecoderscorner.menu.remote.StreamRemoteConnector;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
 import com.thecoderscorner.menu.remote.commands.MenuJoinCommand;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.time.Clock;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.*;
 
 /**
- *
+ * Represents a client API connection to a device, this would normally be used on the device side and represents a
+ * socket connection to an API client.
  */
 public class SocketServerConnection extends SharedStreamConnection implements ServerConnection {
     private final System.Logger logger = System.getLogger(SocketServerConnection.class.getSimpleName());
-    private final AtomicInteger heartbeatFrequency = new AtomicInteger(1500);
+    private final int heartbeatFrequency;
     private final AtomicLong lastHeartbeatTx = new AtomicLong();
     private final AtomicLong lastHeartbeatRx = new AtomicLong();
     private final Socket socket;
@@ -37,14 +37,16 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
     private final Thread readThread;
     private final AtomicReference<ServerConnectionMode> connectionMode = new AtomicReference<>(ServerConnectionMode.UNAUTHENTICATED);
 
-    public SocketServerConnection(Socket socket, MenuCommandProtocol protocol, Clock clock) {
-        super(protocol);
+    public SocketServerConnection(Socket socket, MenuCommandProtocol protocol, Clock clock,
+                                  ProtocolEncryptionHandler encryption, int heartbeatFrequency) {
+        super(protocol, encryption);
         this.socket = socket;
         this.clock = clock;
         readThread = new Thread(this::readLoop);
         readThread.start();
         lastHeartbeatRx.set(clock.millis());
         lastHeartbeatTx.set(clock.millis());
+        this.heartbeatFrequency = heartbeatFrequency;
     }
 
     private void readLoop() {
@@ -54,7 +56,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
                 MenuCommand cmd = readCommandFromStream();
                 if (cmd != null && messageHandler.get() != null) {
                     if(cmd instanceof MenuHeartbeatCommand) {
-                        heartbeatFrequency.set(((MenuHeartbeatCommand)cmd).getHearbeatInterval());
+                        logger.log(DEBUG, "received heartbeat command");
                     }
                     else if(cmd instanceof MenuJoinCommand) {
                         remoteUser.set(((MenuJoinCommand) cmd).getMyName());
@@ -72,7 +74,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
 
     @Override
     public int getHeartbeatFrequency() {
-        return heartbeatFrequency.get();
+        return heartbeatFrequency;
     }
 
     @Override
@@ -106,6 +108,7 @@ public class SocketServerConnection extends SharedStreamConnection implements Se
         }
         catch (Exception e) {
             connectionLog(ERROR, "Connection error during send");
+            close();
         }
     }
 

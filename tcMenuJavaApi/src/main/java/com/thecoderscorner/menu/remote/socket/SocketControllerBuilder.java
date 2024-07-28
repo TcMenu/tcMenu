@@ -8,6 +8,10 @@ package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.*;
+import com.thecoderscorner.menu.remote.encryption.AESEncryptionHandlerFactory;
+import com.thecoderscorner.menu.remote.encryption.EncryptionHandlerFactory;
+import com.thecoderscorner.menu.remote.encryption.NoEncryptionHandlerFactory;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
 import com.thecoderscorner.menu.remote.protocol.ConfigurableProtocolConverter;
 import com.thecoderscorner.menu.remote.protocol.PairingHelper;
 
@@ -43,6 +47,9 @@ public class SocketControllerBuilder implements ConnectorFactory {
     private int port;
     private UUID uuid;
     private int maximumInstances = 99999;
+    private String encryptedAesIv;
+    private String encryptedAesKey;
+    private EncryptionHandlerFactory encryptionHandlerFactory;
 
     /**
      * Optional, defaults to system clock but can be overriden
@@ -143,10 +150,16 @@ public class SocketControllerBuilder implements ConnectorFactory {
      * @return the actual instance.
      */
     public RemoteMenuController build() {
+        ProtocolEncryptionHandler handler;
+        try {
+            handler = encryptionHandlerFactory.create();
+        } catch (Exception e) {
+            handler = null;
+        }
         initialiseBasics();
         SocketBasedConnector connector = new SocketBasedConnector(
                 new LocalIdentifier(uuid, name), executorService, clock,
-                protocol, address, port, ConnectMode.FULLY_AUTHENTICATED
+                protocol, address, port, ConnectMode.FULLY_AUTHENTICATED, handler
         );
         return new RemoteMenuController(connector, menuTree);
     }
@@ -159,7 +172,7 @@ public class SocketControllerBuilder implements ConnectorFactory {
     public SocketClientRemoteServer buildClient() {
         initialiseBasics();
         var localId = new LocalIdentifier(uuid, name);
-        return new SocketClientRemoteServer(port, localId, executorService, protocol, clock, maximumInstances);
+        return new SocketClientRemoteServer(port, localId, executorService, protocol, clock, encryptionHandlerFactory, maximumInstances);
     }
 
     private void initialiseBasics() {
@@ -174,15 +187,35 @@ public class SocketControllerBuilder implements ConnectorFactory {
             executorService = Executors.newScheduledThreadPool(2,
                     new NamedDaemonThreadFactory("remote-socket"));
         }
+
+        if(encryptedAesKey != null && encryptedAesIv != null) {
+            encryptionHandlerFactory = new AESEncryptionHandlerFactory(encryptedAesKey);
+        } else {
+            encryptionHandlerFactory = new NoEncryptionHandlerFactory();
+        }
     }
 
     public boolean attemptPairing(Optional<Consumer<AuthStatus>> maybePairingListener)  {
         initialiseBasics();
+
+        ProtocolEncryptionHandler handler;
+        try {
+            handler = encryptionHandlerFactory.create();
+        } catch (Exception e) {
+            handler = null;
+        }
+
         SocketBasedConnector connector = new SocketBasedConnector(
                 new LocalIdentifier(uuid, name), executorService, clock,
-                protocol, address, port, ConnectMode.PAIRING_CONNECTION
+                protocol, address, port, ConnectMode.PAIRING_CONNECTION, handler
         );
         PairingHelper helper = new PairingHelper(connector, executorService, maybePairingListener);
         return helper.attemptPairing();
+    }
+
+    public SocketControllerBuilder withAESEncryption(String encryptedAesKey, String encryptedAesIv) {
+        this.encryptedAesIv = encryptedAesIv;
+        this.encryptedAesKey = encryptedAesKey;
+        return this;
     }
 }

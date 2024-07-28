@@ -2,6 +2,7 @@ package com.thecoderscorner.menu.remote.socket;
 
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
 import com.thecoderscorner.menu.remote.states.PairingAuthFailedState;
 import com.thecoderscorner.menu.remote.states.RemoteConnectorContext;
 import com.thecoderscorner.menu.remote.states.RemoteConnectorState;
@@ -22,8 +23,10 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
     private Consumer<SocketClientRemoteConnector> clientCloseHandler;
 
     public SocketClientRemoteConnector(LocalIdentifier localId, ScheduledExecutorService executor, Clock clock,
-                                MenuCommandProtocol protocol, SocketChannel socketChannel, Consumer<SocketClientRemoteConnector> closeNotifier) {
-        super(localId, protocol, executor, clock);
+                                       MenuCommandProtocol protocol, SocketChannel socketChannel,
+                                       Consumer<SocketClientRemoteConnector> closeNotifier,
+                                       ProtocolEncryptionHandler encryptionHandler) {
+        super(localId, protocol, executor, clock, encryptionHandler);
         this.socketChannel = socketChannel;
         this.clientCloseHandler = closeNotifier;
         applyStates(ConnectMode.FULLY_AUTHENTICATED);
@@ -58,6 +61,7 @@ public class SocketClientRemoteConnector extends StreamRemoteConnector  {
             clientCloseHandler.accept(this);
             changeState(AuthStatus.CONNECTION_FAILED);
             socketChannel.close();
+            super.close();
         } catch (IOException e) {
             connectionLog(ERROR, "Unexpected error closing socket", e);
         }

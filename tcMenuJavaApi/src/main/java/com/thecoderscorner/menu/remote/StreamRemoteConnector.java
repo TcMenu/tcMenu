@@ -10,6 +10,7 @@ import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.commands.CommandFactory;
 import com.thecoderscorner.menu.remote.commands.MenuCommand;
 import com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand;
+import com.thecoderscorner.menu.remote.encryption.ProtocolEncryptionHandler;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import com.thecoderscorner.menu.remote.states.*;
 
@@ -25,7 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thecoderscorner.menu.remote.RemoteInformation.NOT_CONNECTED;
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
 /**
  * Stream remote connector is the base class for all stream implementations, such as Socket and RS232. Any remote
@@ -48,8 +50,9 @@ public abstract class StreamRemoteConnector extends SharedStreamConnection imple
     private final AtomicBoolean connectionRunning = new AtomicBoolean(false);
 
     protected StreamRemoteConnector(LocalIdentifier ourLocalId, MenuCommandProtocol protocol,
-                                    ScheduledExecutorService executor, Clock clock) {
-        super(protocol);
+                                    ScheduledExecutorService executor, Clock clock,
+                                    ProtocolEncryptionHandler encryptionHandler) {
+        super(protocol, encryptionHandler);
         this.ourLocalId = ourLocalId;
         this.executor = executor;
         this.clock = clock;
@@ -101,6 +104,7 @@ public abstract class StreamRemoteConnector extends SharedStreamConnection imple
         inputBuffer.flip();
         cmdBuffer.clear();
         notifyConnection();
+        super.close();
     }
 
     protected void handleCoreConnectionStates(ConnectMode connectMode) {
