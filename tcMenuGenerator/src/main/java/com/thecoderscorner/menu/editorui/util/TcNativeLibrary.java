@@ -79,8 +79,11 @@ public class TcNativeLibrary {
         } else if(os != null && os.startsWith("Win")) {
             var path = DefaultXmlPluginLoader.findPluginDir().resolve("win").resolve("tcMenuNative.dll");
             System.load(path.toString());
+        } else if(os != null && os.startsWith("Linux")) {
+            var path = DefaultXmlPluginLoader.findPluginDir().resolve("ubu").resolve("libtcMenuNative.so");
+            System.load(path.toString());
         }
-        // Linux to follow in another PR shortly
+    
     }
 
     public static TcNativeLibrary getInstance() {

@@ -249,7 +249,7 @@
                                     <includes>
                                         <include>mac/*.dylib</include>
                                         <include>win/*.dll</include>
-                                        <!--include>ubu/*.so</include-->
+                                        <include>ubu/*.so</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>
