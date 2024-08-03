@@ -244,6 +244,15 @@
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../tcMenuNative/packaged</directory>
+                                    <includes>
+                                        <include>mac/*.dylib</include>
+                                        <include>win/*.dll</include>
+                                        <include>ubu/*.so</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>

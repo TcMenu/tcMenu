@@ -1,5 +1,7 @@
 package com.thecoderscorner.menu.editorui.util;
 
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
+
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.SymbolLookup;
@@ -25,7 +27,7 @@ public class TcNativeLibrary {
 
     private TcNativeLibrary() {
         logger.log(System.Logger.Level.INFO, "Loading TcNative Library");
-        System.loadLibrary("tcMenuNative");
+        loadLibrary();
         logger.log(System.Logger.Level.INFO, "Creating native linker");
         Linker linker = Linker.nativeLinker();
         SymbolLookup fontLib = SymbolLookup.loaderLookup();
@@ -64,6 +66,24 @@ public class TcNativeLibrary {
                 fontLib.find("setPixelsPerInch").orElseThrow(),
                 FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT)
         );
+    }
+
+    private static void loadLibrary() {
+        String os = System.getProperty("os.name");
+        if(System.getProperty("devlog") != null) {
+            logger.log(System.Logger.Level.INFO, "Assuming native library on LD_LIBRARY_PATH already");
+            System.loadLibrary("tcMenuNative");
+        }else if (os != null && os.startsWith ("Mac")) {
+            var path = DefaultXmlPluginLoader.findPluginDir().resolve("mac").resolve("libtcMenuNative.dylib");
+            System.load(path.toString());
+        } else if(os != null && os.startsWith("Win")) {
+            var path = DefaultXmlPluginLoader.findPluginDir().resolve("win").resolve("tcMenuNative.dll");
+            System.load(path.toString());
+        } else if(os != null && os.startsWith("Linux")) {
+            var path = DefaultXmlPluginLoader.findPluginDir().resolve("ubu").resolve("libtcMenuNative.so");
+            System.load(path.toString());
+        }
+    
     }
 
     public static TcNativeLibrary getInstance() {
