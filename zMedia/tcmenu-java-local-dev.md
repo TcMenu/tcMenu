@@ -127,3 +127,6 @@ See the "Configure passphrase in settings.xml" in the following: https://maven.a
 
 Once these steps are done, you should be able to build the API and embedCONTROL Core.
 
+## The native library used by embedded font creator
+
+This is within the application in `tcMenuNative` folder, it can be build using cmake and has its own instructions. Normally, you don't need to build this, as it is already provided in the `packaged` folder for many platforms. You can set the `devlog` property to `Y` and then set `LD_LIBRARY_PATH` so that it includes the right library for you platform. This is done for Windows by default, but as above you can change the default run configuration for your platform.  
