@@ -53,7 +53,7 @@ Ensure you are in the tcMenuGenerator/target directory.
 
     jpackage -n tcMenuDesigner -p jfx/deps --input jfx/app --icon ./classes/img/menu-icon.png --verbose --license-file ../../LICENSE --linux-app-category Development --linux-menu-group "Development;Utility;" --java-options "-Dprism.lcdtext=false --enable-preview -Djava.library.path=$APPDIR/lin" --app-version 4.3.0  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
-## Packaging - macOS build all versions (without signing)
+## Packaging - macOS build all versions (without notarization)
 
 Ensure you are in the tcMenuGenerator/target directory.
 
