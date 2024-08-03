@@ -41,7 +41,7 @@ import static com.thecoderscorner.menu.persist.XMLDOMHelper.*;
 import static java.lang.System.Logger.Level.*;
 
 public class DefaultXmlPluginLoader implements CodePluginManager {
-    private final System.Logger logger = System.getLogger(getClass().getSimpleName());
+    private final static System.Logger logger = System.getLogger(DefaultXmlPluginLoader.class.getSimpleName());
     private final EmbeddedPlatforms embeddedPlatforms;
     private final List<CodePluginConfig> allPlugins = new ArrayList<>();
     private final ConfigurationStorage configStorage;
@@ -107,7 +107,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         }
     }
 
-    private Path findPluginDir() {
+    public static Path findPluginDir() {
         if(System.getProperty("override.core.plugin.dir") != null) {
             return Path.of(System.getProperty("override.core.plugin.dir"));
         } else if("Y".equals(System.getProperty("devlog"))) {
