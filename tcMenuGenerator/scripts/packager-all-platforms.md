@@ -34,7 +34,7 @@ Run and smoke test, ensure you are in the tcMenuGenerator/target/jfx/app directo
 
 ## Packaging - Build the package - Windows all versions
 
-Ensure you are in the tcMenuGenerator/target directory.
+Ensure you are in the tcMenuGenerator/target directory. On Windows all these steps can be performed by running `buildTcMenuWin.cmd` in the target directory:
 
     cp classes/img/tcMenuDesigner.ico .
 
