@@ -39,6 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "{#MyTcMenuDesignerDir}\tcmenu\tcMenuDesigner.exe"; DestDir: "{app}"; Flags: ignoreversion signonce
 Source: "{#MyTcMenuDesignerDir}\tcmenu\tcmenu.exe"; DestDir: "{app}"; Flags: ignoreversion signonce
+Source: "{#MyTcMenuDesignerDir}\tcmenu\app\win\tcMenuNative.dll"; DestDir: "{app}\app\win"; Flags: ignoreversion signonce
 Source: "{#MyTcMenuDesignerDir}\tcmenu\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
