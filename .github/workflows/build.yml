@@ -19,44 +19,14 @@ jobs:
         distribution: 'liberica'
         cache: maven
 
-    - name: Generate GPG key
-      run: |
-        cat >gen-key-script <<EOF
-        %no-protection
-        %echo Generating a temporary GPG key
-        Key-Type: 1
-        Key-Length: 2048
-        Subkey-Type: 1
-        Subkey-Length: 2048
-        Name-Real: Temporary CI Key
-        Name-Comment: Signing key for CI builds
-        Name-Email: ci@example.com
-        Expire-Date: 1d
-        %commit
-        %echo done
-        EOF
-        gpg --batch --generate-key gen-key-script
-        gpg --list-secret-keys --keyid-format LONG
-        GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep 'sec' | awk '{print $2}' | awk -F'/' '{print $2}')
-        echo "GPG_KEY_ID=$GPG_KEY_ID" >> $GITHUB_ENV
-
-    - name: Import GPG key to Maven settings
-      run: |
-        mkdir -p ~/.gnupg
-        chmod 700 ~/.gnupg
-        echo "use-agent" > ~/.gnupg/gpg.conf
-        echo "GPG_TTY=$(tty)" >> ~/.bashrc
-        gpg --list-keys
-        echo '<settings><servers><server><id>gpg.passphrase</id><passphrase>'"$GPG_KEY_ID"'</passphrase></server></servers></settings>' > ~/.m2/settings.xml
-
     - name: Build embedCONTROLCore
-      run: mvn -B install --file embedCONTROLCore/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file embedCONTROLCore/pom.xml
 
     - name: Build tcMenuJavaApi
-      run: mvn -B install --file tcMenuJavaApi/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
 
     - name: Build tcMenuGenerator
-      run: mvn -B install --file tcMenuGenerator/pom.xml
+      run: mvn -B compile -Dgpg.skip=true --file tcMenuGenerator/pom.xml
 
     - name: Build embeddedJavaExample
       run: mvn -B package --file embeddedJavaExample/pom.xml

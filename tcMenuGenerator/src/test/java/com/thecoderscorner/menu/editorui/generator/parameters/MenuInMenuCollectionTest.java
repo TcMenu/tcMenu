@@ -3,9 +3,10 @@ package com.thecoderscorner.menu.editorui.generator.parameters;
 import com.thecoderscorner.menu.mgr.MenuInMenu;
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuDefinition.ConnectionType;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class MenuInMenuCollectionTest {
     @Test

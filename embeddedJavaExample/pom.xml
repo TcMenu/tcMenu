@@ -7,9 +7,9 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <jdk.version>20</jdk.version>
-        <jfx.version>21.0.2</jfx.version>
-        <jserialcomm.version>2.9.2</jserialcomm.version>
+        <jdk.version>22</jdk.version>
+        <jfx.version>22.0.2</jfx.version>
+        <jserialcomm.version>2.11.0</jserialcomm.version>
         <tcmenu.api.version>4.3.0</tcmenu.api.version>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
@@ -33,7 +33,7 @@
 
         <!--
         !!!!!!!JavaFX - Special notes!!!!!!
-        If you are using BellSoft's Liberica Full JDK leave the below scopes set to "test"
+        If you are using BellSoft Liberica Full JDK leave the below scopes set to "test"
         If you are using another JDK without JavaFX, comment out the scope for each org.openjfx component.
          -->
 
@@ -53,19 +53,19 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>10.0.14</version>
+            <version>10.0.23</version>
         </dependency>
 
         <!-- To run javax.websocket in embedded server -->
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-javax-server</artifactId>
-            <version>10.0.14</version>
+            <version>10.0.23</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.7.36</version>
+            <version>2.0.16</version>
         </dependency>
 
     </dependencies>
@@ -92,7 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
@@ -102,7 +102,7 @@
                 <!-- copy all the JARs for the dependencies into the jfx/deps folder -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.8.0</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -137,7 +137,7 @@
                 <!-- copy the application JAR file from target dir into jfx/deps -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>copy-resources-jar</id>
@@ -163,7 +163,7 @@
             <plugin>
                 <!-- copy the data folder into the jfx/app folder -->
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>copy-resources-logging</id>

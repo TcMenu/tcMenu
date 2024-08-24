@@ -1,4 +1,9 @@
 ## tcMenu - A menu library and designer for Arduino and mbed with IoT capabilities
+[![Java Build](https://github.com/TcMenu/tcMenu/actions/workflows/build.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/TcMenu/tcMenu/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/TcMenu/tcMenu.svg?maxAge=3600)](https://github.com/TcMenu/tcMenu/releases)
+[![davetcc](https://img.shields.io/badge/davetcc-dev-blue.svg)](https://github.com/davetcc)
+[![JSC TechMinds](https://img.shields.io/badge/JSC-TechMinds-green.svg)](https://www.jsctm.cz)
 
 A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 

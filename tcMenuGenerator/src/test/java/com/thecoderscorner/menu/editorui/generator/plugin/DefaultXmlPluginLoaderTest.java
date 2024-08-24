@@ -1,6 +1,5 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.EqualityApplicability;
 import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
@@ -11,6 +10,7 @@ import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.parameters.LambdaCodeParameter;
 import com.thecoderscorner.menu.editorui.generator.validation.*;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

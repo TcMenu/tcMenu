@@ -5,7 +5,6 @@ import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.*;
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
-import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.application.Platform;
