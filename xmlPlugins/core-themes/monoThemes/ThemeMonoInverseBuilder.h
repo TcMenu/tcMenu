@@ -33,7 +33,7 @@ void installMonoInverseTitleTheme(GraphicsDeviceRenderer& gr, const MenuFontDef&
     }
 
     if(useUnicode) {
-        themeBuilder.enablingTcUnicode();
+        themeBuilder.enableTcUnicode();
     }
 
     themeBuilder.defaultTitleProperties()
