@@ -8,8 +8,8 @@ import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthe
 import org.junit.jupiter.api.Test;
 
 import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.*;
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -6,24 +6,17 @@
 
 package com.thecoderscorner.menu.editorint.uitests;
 
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.dialog.AboutDialog;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.TextInputControlMatchers;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.fromString;
-import static com.thecoderscorner.menu.editorui.util.TestUtils.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;

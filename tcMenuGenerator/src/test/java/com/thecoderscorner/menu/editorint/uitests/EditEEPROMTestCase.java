@@ -4,7 +4,6 @@ import com.thecoderscorner.menu.editorui.dialog.SelectEepromTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.*;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 

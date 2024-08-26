@@ -2,8 +2,9 @@ package com.thecoderscorner.menu.editorui.generator.parameters;
 
 import org.junit.jupiter.api.Test;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.ADAFRUIT;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.ADAFRUIT_LOCAL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FontDefinitionTest {
     @Test

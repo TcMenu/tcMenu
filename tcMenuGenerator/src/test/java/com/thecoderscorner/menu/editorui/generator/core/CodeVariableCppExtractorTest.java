@@ -9,7 +9,6 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
-import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import org.assertj.core.api.Assertions;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
-import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.*;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

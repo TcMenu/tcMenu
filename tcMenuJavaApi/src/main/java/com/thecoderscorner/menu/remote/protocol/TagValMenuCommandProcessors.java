@@ -19,10 +19,7 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -538,7 +535,7 @@ public class TagValMenuCommandProcessors {
         appendField(sb, KEY_FLOAT_DECIMAL_PLACES, decimalPlaces);
         appendField(sb, KEY_NEGATIVE_ALLOWED, isNegativeAllowed ? 1 : 0);
         appendField(sb, KEY_MAX_LENGTH, cmd.getMenuItem().getDigitsAllowed());
-        NumberFormat fmt = NumberFormat.getInstance();
+        NumberFormat fmt = NumberFormat.getInstance(Locale.US);
         fmt.setGroupingUsed(false);
         fmt.setMinimumFractionDigits(decimalPlaces);
         fmt.setMaximumFractionDigits(decimalPlaces);
