@@ -1,12 +1,12 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.generator.plugin.RequiredZipFile;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import com.thecoderscorner.menu.editorui.util.ZipUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -110,7 +110,7 @@ public class PluginRequiredFileProcessor {
                         }
                         Files.createDirectories(destDir);
                         uiLogger.accept(INFO, "Extract zip into dest directory " + destDir + " for " + zipFile.getFileName());
-                        OnlineLibraryVersionDetector.extractFilesFromZip(destDir, stream);
+                        ZipUtils.extractFilesFromZip(destDir, stream);
                     }
                 } else {
                     uiLogger.accept(INFO, "Copy plugin file: " + srcFile.getFileName());

@@ -133,7 +133,6 @@
                           <TableView fx:id="versionsTable" BorderPane.alignment="CENTER">
                             <columns>
                               <TableColumn fx:id="libraryNameColumn" editable="false" prefWidth="215.0" text="%settings.library.name" />
-                              <TableColumn fx:id="expectedVerCol" editable="false" prefWidth="152.0" text="%settings.available.ver" />
                               <TableColumn fx:id="actualVerCol" editable="false" prefWidth="160.0" text="%settings.actual.ver" />
                             </columns>
                           </TableView>
@@ -147,7 +146,6 @@
                                       <Insets top="4.0" />
                                    </HBox.margin>
                                 </Text>
-                                <ComboBox fx:id="pluginStreamCombo" onAction="#onStreamChanged" prefWidth="250.0" />
                              </children>
                           </HBox>
                        </top>

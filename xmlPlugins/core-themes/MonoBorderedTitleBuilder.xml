@@ -1,14 +1,14 @@
-<TcMenuPlugin name="DEPRECATED - Legacy Mono inverse theme" id="0dd60ceb-7e0f-46e2-8d40-b264eb3aa7e0"
+<TcMenuPlugin name="%theme.mono.border.name" id="8D9B49C7-FD28-4533-9B00-21A4184BB0C9"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
-    <Description>THIS THEME IS DEPRECATED (kept existing users), mono inverse theme for lower resolution.</Description>
+    <Description>%theme.mono.border.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
-    <ImageFile>theme-oled-inverse.jpg</ImageFile>
+    <ImageFile>theme-oled-bordered.jpg</ImageFile>
 
     <Properties>
         <Property id="ITEM_FONT" name="%theme.item.font" initial="def:,1" desc="%theme.item.font.desc" type="font"/>
@@ -30,11 +30,11 @@
     <SourceFiles>
         <Replacement find="TITLE_SPACING 1" replace="TITLE_SPACING ${TITLE_TO_ITEM_SPACING}"/>
         <Replacement find="TITLE_PADDING 1" replace="TITLE_PADDING ${TITLE_HEADER_PADDING}"/>
-        <SourceFile name="monoThemes/ThemeMonoInverse.h" overwrite="false"/>
+        <SourceFile name="monoThemes/ThemeMonoBorderedBuilder.h" overwrite="false"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="${SRC_DIR_OFFSET}ThemeMonoInverse.h" inSource="cppSrc"/>
+        <Header name="${SRC_DIR_OFFSET}ThemeMonoBorderedBuilder.h" inSource="cppSrc"/>
         <Header name="tcUnicodeHelper.h" inSource="false" priority="high" whenProperty="USE_TC_UNICODE" isValue="true" />
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
@@ -46,21 +46,13 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="setTitleMode" object="renderer">
-            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
-        </Function>
-
-        <Function name="setUseSliderForAnalog" object="renderer">
-            <Param name="false"/>
-        </Function>
-
-        <Function name="enableTcUnicode" object="renderer" whenProperty="USE_TC_UNICODE" isValue="true"/>
-
-        <Function name="installMonoInverseTitleTheme">
+        <Function name="installMonoBorderTitleTheme">
             <Param value="renderer"/>
             <Param font="${ITEM_FONT}"/>
             <Param font="${TITLE_FONT}"/>
             <Param value="true"/>
+            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
+            <Param name="${USE_TC_UNICODE}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>

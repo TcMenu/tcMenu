@@ -305,6 +305,11 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
         }
 
         @Override
+        public String getRequestForString(String url) throws IOException {
+            throw new IOException("Boom");
+        }
+
+        @Override
         public String postRequestForString(String url, String parameter, HttpDataType reqDataType) throws IOException {
             throw new IOException("Boom");
         }

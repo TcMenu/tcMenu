@@ -1,8 +1,8 @@
 # How to build tcMenu Designer into a native package using OpenJDK 17 onwards.
 
-**For most users, we recommend using our pre-packaged software.** However, should you wish to build it yourself, follow these instructions, you'll end up with a native installer for Windows, a disk image for macOS, or a debian install archive for Linux. Please only use these steps to build a UI for you own purposes.
+**For most users, we recommend using our pre-packaged software.** However, should you wish to build it yourself, follow these instructions, you'll end up with a native executable for Windows, a disk image for macOS, or an  archive for Linux. Please only use these steps to build a UI for you own purposes.
 
-Firstly, ensure that you have OpenJDK 18 and a recent maven 3 on your system, without these it will not be possible to build.
+Firstly, ensure that you have the most recent OpenJDK and a recent version of maven on your system, without these it will not be possible to build.
 
 * All OpenJDK's that we've tested work for this, we've tried: Liberica, Adoptium, Amazon Corretto and Microsoft JDK.   
 * For Apache maven we recommend using [https://maven.apache.org/]
@@ -82,23 +82,3 @@ Drop to a command-line, in the tcMenu/embedCONTROLCore directory, run a local ma
 Testing before deployment
 
     java --module-path ../deps "-Dprism.lcdtext=false" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
-
-### Building the embedCONTROLFx desktop UI for Windows
-
-Ensure you are in the embedCONTROLFx/target directory.
-
-    cp classes/fximg/embedCONTROL.ico .
-
-    jpackage --type app-image -n embedCONTROL -p jfx/deps --input jfx/app --resource-dir .\classes\fximg\ --icon embedCONTROL.ico --app-version 4.1.2 --verbose --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
-
-### Building the embedCONTROLFx desktop for macOS
-
-Ensure you are in the embedCONTROLFx/target directory.
-
-    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/fximg/MyIcon.icns --vendor TheCodersCorner --app-version 4.1.2 --verbose --license-file ../../LICENSE --java-options "-Dprism.lcdtext=false" --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp
-
-### Building the embedCONTROLFx desktop for Linux
-
-Ensure you are in the embedCONTROLFx/target directory.
-
-    jpackage -n embedCONTROL -p jfx/deps --input jfx/app --icon ./classes/fximg/large_icon.png --verbose --license-file ../../LICENSE --linux-app-category Utility --linux-menu-group "Utility;" --java-options "-Dprism.lcdtext=false" --app-version 4.1.2  --add-modules "jdk.crypto.cryptoki" -m com.thecoderscorner.tcmenu.embedcontrolfx/com.thecoderscorner.embedcontrol.jfxapp.EmbedControlApp

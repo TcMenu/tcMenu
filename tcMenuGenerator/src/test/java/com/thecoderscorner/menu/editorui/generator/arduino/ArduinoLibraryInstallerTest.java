@@ -6,7 +6,8 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.GitHubAppVersionChecker;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.persist.VersionInfo;
@@ -19,13 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Optional;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,7 @@ public class ArduinoLibraryInstallerTest {
     private Path dirTmp;
     private Path dirArduino;
     private Path dirArduinoLibs;
-    private LibraryVersionDetector verDetector;
+    private AppVersionDetector verDetector;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -45,7 +45,7 @@ public class ArduinoLibraryInstallerTest {
         dirArduinoLibs = dirArduino.resolve("libraries");
         // we don't create libraries, make sure the installer can do it.
 
-        verDetector = Mockito.mock(LibraryVersionDetector.class);
+        verDetector = Mockito.mock(AppVersionDetector.class);
 
         var prefs = mock(ConfigurationStorage.class);
         when(prefs.isUsingArduinoIDE()).thenReturn(true);
@@ -71,27 +71,13 @@ public class ArduinoLibraryInstallerTest {
         putLibraryInPlace(dirArduinoLibs, "LiquidCrystalIO", "1.4.1");
         putLibraryInPlace(dirArduinoLibs, "TaskManagerIO", "1.0.0");
 
-        var versions = Map.of(
-                "tcMenu/Library", new VersionInfo("1.0.0"),
-                "IoAbstraction/Library", new VersionInfo("1.2.1"),
-                "LiquidCrystalIO/Library", new VersionInfo("1.5.1"),
-                "TaskManagerIO/Library", new VersionInfo("1.0.1"),
-                "xyz/Plugin", new VersionInfo("7.8.9")
-        );
-        when(verDetector.acquireVersions()).thenReturn(versions);
-
-        assertFalse(installer.areCoreLibrariesUpToDate());
+        when(verDetector.acquireVersion()).thenReturn(
+                new GitHubAppVersionChecker.TcMenuRelease("", VersionInfo.of("1.2.3"), LocalDateTime.now()));
 
         assertEquals("1.0.1", installer.getVersionOfLibrary("tcMenu", CURRENT_LIB).toString());
         assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB).toString());
         assertEquals("1.4.1", installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB).toString());
         assertEquals("1.0.0", installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB).toString());
-
-        assertEquals("1.0.1", installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB).toString());
-        assertEquals("1.0.0", installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB).toString());
-        assertEquals("1.2.1", installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB).toString());
-        assertEquals("1.5.1", installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB).toString());
-        assertEquals("7.8.9", installer.getVersionOfLibrary("xyz", AVAILABLE_PLUGIN).toString());
     }
 
     private void putLibraryInPlace(Path location, String name, String version) throws IOException {

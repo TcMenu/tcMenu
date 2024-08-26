@@ -17,8 +17,6 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Map;
 
-import static java.lang.System.Logger.Level.WARNING;
-
 public class ArduinoGenerator extends CoreCodeGenerator {
 
 
@@ -43,18 +41,8 @@ public class ArduinoGenerator extends CoreCodeGenerator {
         return HEADER_TOP;
     }
 
-    private void checkIfUpToDateWarningNeeded() {
-        if (!installer.areCoreLibrariesUpToDate()) {
-            logLine(WARNING, "WARNING==================================================================");
-            logLine(WARNING, "Embedded libraries are not on recommended versions, build problems likely");
-            logLine(WARNING, "WARNING==================================================================");
-        }
-    }
-
-
     @Override
     public void internalConversion(Path directory, Path srcDir, Map<MenuItem, CallbackRequirement> callbackFunctions, String projectName) throws TcMenuConversionException {
         super.internalConversion(directory, srcDir, callbackFunctions, projectName);
-        checkIfUpToDateWarningNeeded();
     }
 }

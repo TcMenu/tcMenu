@@ -17,7 +17,7 @@ import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.dialog.EditMenuInMenuDialog;
 import com.thecoderscorner.menu.editorui.embed.FormManagerDialog;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
@@ -110,7 +110,7 @@ public class MenuEditorController {
     private CurrentProjectEditorUI editorUI;
     private CodePluginManager pluginManager;
     private JdbcTcMenuConfigurationStore configStore;
-    private LibraryVersionDetector libVerDetector;
+    private AppVersionDetector libVerDetector;
     private int menuToProjectMaxLevels = 1;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
@@ -119,7 +119,7 @@ public class MenuEditorController {
     public void initialise(CurrentEditorProject editorProject, ArduinoLibraryInstaller installer,
                            CurrentProjectEditorUI editorUI, CodePluginManager pluginManager,
                            JdbcTcMenuConfigurationStore storage,
-                           LibraryVersionDetector libraryVersionDetector, boolean initialWindow) {
+                           AppVersionDetector libraryVersionDetector, boolean initialWindow) {
         this.editorProject = editorProject;
         this.installer = installer;
         this.editorUI = editorUI;
@@ -681,7 +681,7 @@ public class MenuEditorController {
     public void onPrepareDiagnostics(ActionEvent actionEvent) {
         try {
             StringBuilder sb = new StringBuilder(255);
-            sb.append("tcMenu diagnostics - stream ").append(libVerDetector.getReleaseType()).append(LINE_BREAK);
+            sb.append("tcMenu diagnostics").append(LINE_BREAK);
             sb.append("TcMenuDesigner Version - ").append(configStore.getVersion()).append(LINE_BREAK);
             sb.append("Plugin versions:").append(LINE_BREAK);
             for(var pl : pluginManager.getLoadedPlugins()) {

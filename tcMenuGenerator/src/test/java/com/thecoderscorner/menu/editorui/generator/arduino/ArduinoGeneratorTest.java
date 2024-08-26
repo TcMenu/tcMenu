@@ -23,7 +23,6 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +71,7 @@ public class ArduinoGeneratorTest {
     private Path pluginDir;
     private Path rootDir;
     private CodePluginConfig pluginConfig;
+    private ConfigurationStorage storage;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -82,8 +82,8 @@ public class ArduinoGeneratorTest {
         pluginDir = rootDir.resolve("plugin");
         pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, false);
         var embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
-        var storage = Mockito.mock(ConfigurationStorage.class);
-        when(storage.getVersion()).thenReturn("1.7.0");
+        storage = Mockito.mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("4.3.0-SNAPSHOT");
         var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
 
@@ -129,7 +129,6 @@ public class ArduinoGeneratorTest {
 
         MenuTree tree = buildSimpleTreeReadOnly();
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
 
         var standardOptions = new CodeGeneratorOptionsBuilder()
                 .withExisting(options)
@@ -138,11 +137,10 @@ public class ArduinoGeneratorTest {
                 .withExpanderDefinitions(new IoExpanderDefinitionCollection(List.of(new CustomDeviceExpander("123"))))
                 .withAppName("app").withNewId(UUID.fromString("4490f2fb-a48b-4c89-b6e5-7f557e5f6faf"))
                 .codeOptions();
-        PrefsConfigurationStorage config = new PrefsConfigurationStorage();
-        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, config);
+        ArduinoSketchFileAdjuster adjuster = new ArduinoSketchFileAdjuster(standardOptions, storage);
         var clock = mock(Clock.class);
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
-        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform(), config, clock);
+        ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform(), storage, clock);
 
         var embeddedForm = new TcMenuFormPersistence(0, FormPersistMode.EXTERNAL_MANAGED, standardOptions.getApplicationUUID().toString(), "My Form 1", TEST_FORM_XML);
 

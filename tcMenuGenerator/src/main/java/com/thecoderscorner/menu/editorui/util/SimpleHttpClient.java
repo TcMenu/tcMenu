@@ -46,6 +46,19 @@ public class SimpleHttpClient implements IHttpClient {
     }
 
     @Override
+    public String getRequestForString(String url) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(20))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if(response.statusCode() != HTTP_SUCCESS) throw new IOException("Call returned bad status " + response.statusCode());
+        return response.body();
+    }
+
+    @Override
     public String postRequestForString(String url, String parameter,
                                            HttpDataType reqDataType) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()

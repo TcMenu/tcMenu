@@ -22,7 +22,6 @@ import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
-import com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import com.thecoderscorner.menu.persist.VersionInfo;
@@ -61,6 +60,7 @@ public class MbedGeneratorTest {
     private Path rootDir;
     private CodePluginConfig pluginConfig;
     private PluginEmbeddedPlatformsImpl embeddedPlatforms;
+    private ConfigurationStorage storage;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -71,8 +71,8 @@ public class MbedGeneratorTest {
         pluginDir = rootDir.resolve("plugin");
         pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, true);
         embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
-        var storage = Mockito.mock(ConfigurationStorage.class);
-        when(storage.getVersion()).thenReturn("2.1.0");
+        storage = Mockito.mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("4.3.0-SNAPSHOT");
         var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, false);
         pluginConfig = loader.loadPluginLib(pluginDir);
     }
@@ -115,13 +115,11 @@ public class MbedGeneratorTest {
                 .withVariableName("TextEditor").menuItem());
 
         ArduinoLibraryInstaller installer = Mockito.mock(ArduinoLibraryInstaller.class);
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.getVersionOfLibrary("core-remote", InstallationType.CURRENT_PLUGIN)).thenReturn(VersionInfo.fromString("2.2.1"));
 
-        PrefsConfigurationStorage config = new PrefsConfigurationStorage();
         var clock = mock(Clock.class);
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
-        var generator = new MbedGenerator(new MbedSketchFileAdjuster(options, config), installer, MBED_RTOS, config, clock);
+        var generator = new MbedGenerator(new MbedSketchFileAdjuster(options, storage), installer, MBED_RTOS, storage, clock);
 
         var firstPlugin = pluginConfig.getPlugins().getFirst();
         firstPlugin.getProperties().stream()
