@@ -16,18 +16,23 @@
         <Plugin>MonoBorderedTitleBuilder.xml</Plugin>
 
         <!-- Blue hue plugins -->
-        <Plugin>CoolBlueModern.xml</Plugin>
-        <Plugin>CoolBlueTraditional.xml</Plugin>
-        <Plugin>DarkModeModern.xml</Plugin>
-        <Plugin>DarkModeTraditional.xml</Plugin>
+        <Plugin>CoolBlueModernBuilder.xml</Plugin>
+        <Plugin>CoolBlueTraditionalBuilder.xml</Plugin>
 
+        <!-- dark mode plugin -->
+        <Plugin>DarkModeModernBuilder.xml</Plugin>
+        <Plugin>DarkModeTraditionalBuilder.xml</Plugin>
 
         <!-- Manual plugins -->
         <Plugin>ManualTheme.xml</Plugin>
         <Plugin>NoThemeSelected.xml</Plugin>
 
-        <!-- legacy plugins -->
+        <!-- legacy plugins to delete in 12 months -->
         <Plugin>MonoBorderedTitle.xml</Plugin>
         <Plugin>MonoInverseTitle.xml</Plugin>
+        <Plugin>CoolBlueModern.xml</Plugin>
+        <Plugin>DarkModeModern.xml</Plugin>
+        <Plugin>CoolBlueTraditional.xml</Plugin>
+        <Plugin>DarkModeTraditional.xml</Plugin>
     </Plugins>
 </TcMenuPluginDefinition>

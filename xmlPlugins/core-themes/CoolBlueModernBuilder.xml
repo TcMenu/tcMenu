@@ -1,14 +1,14 @@
-<TcMenuPlugin name="DEPRECATED cool blue traditional" id="03c6b25f-db63-402a-8447-a5ce1484c14d"
+<TcMenuPlugin name="%theme.cool.blue.modern.name" id="1947F585-9D36-448C-8A80-B425686107BD"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
-    <Description>THIS THEME IS DEPRECATED (kept for existing users), cool blue traditional theme</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/color-themes-for-all-display-sizes/"/>
+    <Description>%theme.cool.blue.modern.desc</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
-    <ImageFile>theme-cool-blue-traditional.jpg</ImageFile>
+    <ImageFile>theme-cool-blue-modern.jpg</ImageFile>
 
     <Properties>
         <Property id="ITEM_FONT" name="%theme.item.font" initial="def:,1" desc="%theme.item.font.desc" type="font"/>
@@ -29,11 +29,13 @@
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <SourceFile name="coolBlue/ThemeCoolBlueTraditional.h" overwrite="false"/>
+        <Replacement find="USE_SLIDER_FOR_ANALOG 1" replace="USE_SLIDER_FOR_ANALOG ${USE_SLIDER_ANALOG}"/>
+        <Replacement find="ACTION_BORDER_WIDTH 0" replace="ACTION_BORDER_WIDTH ${BORDER_FOR_ACTIONS}"/>
+        <SourceFile name="coolBlue/ThemeCoolBlueModernBuilder.h" overwrite="false"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="${SRC_DIR_OFFSET}ThemeCoolBlueTraditional.h" inSource="cppSrc"/>
+        <Header name="${SRC_DIR_OFFSET}ThemeCoolBlueModernBuilder.h" inSource="cppSrc"/>
         <Header name="tcUnicodeHelper.h" inSource="false" priority="high" whenProperty="USE_TC_UNICODE" isValue="true" />
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
@@ -45,21 +47,13 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="setTitleMode" object="renderer">
-            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
-        </Function>
-
-        <Function name="setUseSliderForAnalog" object="renderer">
-            <Param name="${USE_SLIDER_ANALOG}"/>
-        </Function>
-
-        <Function name="enableTcUnicode" object="renderer" whenProperty="USE_TC_UNICODE" isValue="true"/>
-
-        <Function name="installCoolBlueTraditionalTheme">
+        <Function name="installDarkModeModernTheme">
             <Param value="renderer"/>
             <Param font="${ITEM_FONT}"/>
             <Param font="${TITLE_FONT}"/>
             <Param value="${NEED_EDITING_ICONS}"/>
+            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
+            <Param name="${USE_TC_UNICODE}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>
