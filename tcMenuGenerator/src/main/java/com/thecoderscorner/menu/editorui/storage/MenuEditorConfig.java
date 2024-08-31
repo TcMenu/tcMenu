@@ -8,9 +8,9 @@ package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.embedcontrol.core.service.CoreControlAppConfig;
 import com.thecoderscorner.menu.editorui.embed.RemoteUiEmbedControlContext;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
-import com.thecoderscorner.menu.editorui.generator.OnlineLibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.GitHubAppVersionChecker;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatforms;
@@ -21,14 +21,12 @@ import com.thecoderscorner.menu.editorui.project.TccProjectWatcherImpl;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.util.SimpleHttpClient;
 
-import static java.lang.System.Logger.Level.WARNING;
-
 /**
  * The application configuration for the JavaFX version of the application
  */
 public class MenuEditorConfig extends CoreControlAppConfig {
     private final JdbcTcMenuConfigurationStore configStore;
-    private final OnlineLibraryVersionDetector libraryVersionDetector;
+    private final GitHubAppVersionChecker libraryVersionDetector;
     private final ArduinoLibraryInstaller installer;
     private final DefaultXmlPluginLoader pluginLoader;
     private final CodeGeneratorSupplier codeGenSupplier;
@@ -41,12 +39,7 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         remoteContext = new RemoteUiEmbedControlContext(executor, serializer, serialFactory, ecDataStore, globalSettings);
 
         var httpClient = new SimpleHttpClient();
-        var urlBase = "https://www.thecoderscorner.com";
-        if(System.getProperty("localTccService") != null) {
-            urlBase = System.getProperty("localTccService");
-            System.getLogger("Main").log(WARNING, "Overriding the TCC service to " + urlBase);
-        }
-        libraryVersionDetector = new OnlineLibraryVersionDetector(urlBase, httpClient, configStore);
+        libraryVersionDetector = new GitHubAppVersionChecker(GitHubAppVersionChecker.GITHUB_VERSIONING_URL, httpClient);
         platforms = new PluginEmbeddedPlatformsImpl();
         pluginLoader = new DefaultXmlPluginLoader(platforms, configStore, true);
         installer = new ArduinoLibraryInstaller(libraryVersionDetector, pluginLoader, configStore);
@@ -56,7 +49,7 @@ public class MenuEditorConfig extends CoreControlAppConfig {
         return configStore;
     }
 
-    public LibraryVersionDetector getLibraryVersionDetector() {
+    public AppVersionDetector getLibraryVersionDetector() {
         return libraryVersionDetector;
     }
 

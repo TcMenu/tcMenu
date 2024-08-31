@@ -46,6 +46,6 @@ public class AboutDialogTestCases {
     public void testAboutDialog(FxRobot robot) {
         verifyThat("#apiVersion", hasText("V1.0.2"));
         verifyThat("#buildDateLabel", hasText("20/10/2018 09:30"));
-        robot.clickOn(".button:default");
+        robot.clickOn(".button:cancel");
     }
 }

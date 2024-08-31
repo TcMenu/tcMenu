@@ -11,8 +11,8 @@ import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
@@ -59,7 +59,7 @@ public abstract class UIMenuItemTestBase {
         ConfigurationStorage storage = mock(ConfigurationStorage.class);
         var bundle = MenuEditorApp.configureBundle(EMPTY_LOCALE);
         editorUI = new CurrentProjectEditorUIImpl(manager, new PluginEmbeddedPlatformsImpl(),
-                mock(ArduinoLibraryInstaller.class), storage, mock(LibraryVersionDetector.class),
+                mock(ArduinoLibraryInstaller.class), storage, mock(AppVersionDetector.class),
                 mock(CodeGeneratorSupplier.class), mock(TccDatabaseUtilities.class), mock(GlobalSettings.class), System.getProperty("user.home"));
         editorUI.setStage(stage, bundle);
         menuTree = TestUtils.buildCompleteTree();

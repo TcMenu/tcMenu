@@ -11,5 +11,8 @@ import java.io.IOException;
 public interface IHttpClient {
     enum HttpDataType { XML_DATA, JSON_DATA, FORM }
     byte[] postRequestForBinaryData(String url, String parameter, HttpDataType reqDataType) throws IOException, InterruptedException;
+
+    String getRequestForString(String url) throws IOException, InterruptedException;
+
     String postRequestForString(String url, String parameter, HttpDataType reqDataType) throws IOException, InterruptedException;
 }

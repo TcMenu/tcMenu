@@ -9,8 +9,8 @@ package com.thecoderscorner.menu.persist;
 import java.util.Objects;
 
 /**
- * This class represents a version number in standard form, such as 1.2.3, it can parse from text and determine which
- * is the newer of two versions.
+ * This class represents a version number in standard form (see semantic versioning), such as 1.2.3,
+ * it can parse from text and determine which is the newer of two versions.
  */
 public class VersionInfo {
     public static final VersionInfo ERROR_VERSION = new VersionInfo("0.0.0");
@@ -19,6 +19,11 @@ public class VersionInfo {
     private final int patch;
     private final ReleaseType releaseType;
 
+    /**
+     * Create a version from just major and minor, other fields are zero.
+     * @param major major part
+     * @param minor minor part
+     */
     public VersionInfo(int major, int minor) {
         this.major = major;
         this.minor = minor;
@@ -26,6 +31,12 @@ public class VersionInfo {
         this.releaseType = ReleaseType.STABLE;
     }
 
+    /**
+     * Create a version from a string without error handling so will throw if the format is not right.
+     * Prefer using fromString(..) or of(..) both of which handle exceptions returning the error version
+     * defined as ERROR_VERSION.
+     * @param ver
+     */
     public VersionInfo(String ver) {
         String[] verSplit = ver.split("[-.]");
         if(verSplit.length < 2) {
@@ -62,6 +73,22 @@ public class VersionInfo {
         }
     }
 
+    /**
+     * Shorthand form to create a new version from a string, follows the new java API convention.
+     * It will attempt to parse the string and return ERROR_VERSION upon failure.
+     * @param sel the string to get the version from
+     * @return either a version, or the error version
+     */
+    public static VersionInfo of(String sel) {
+        return VersionInfo.fromString(sel);
+    }
+
+    /**
+     * Create a new version from a string. It will attempt to parse the string and return
+     * ERROR_VERSION upon failure.
+     * @param sel the string to get the version from
+     * @return either a version, or the error version
+     */
     public static VersionInfo fromString(String sel) {
         try {
             return new VersionInfo(sel);
@@ -71,6 +98,11 @@ public class VersionInfo {
         }
     }
 
+    /**
+     * returns true if this version is newer than the other provided version.
+     * @param other version to check against
+     * @return true if this version is newer
+     */
     public boolean isSameOrNewerThan(VersionInfo other) {
         if(major > other.major) return true;
         if(major < other.major) return false;
@@ -81,6 +113,10 @@ public class VersionInfo {
         return patch >= other.patch;
     }
 
+    /**
+     * Provides the string in semantic version syntax
+     * @return string in semantic version syntax
+     */
     @Override
     public String toString() {
         if(releaseType == ReleaseType.STABLE) {

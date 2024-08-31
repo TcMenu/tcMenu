@@ -13,7 +13,7 @@ import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.MenuEditorContext;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
 import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -28,7 +28,6 @@ import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUIImpl;
 import com.thecoderscorner.menu.editorui.uimodel.UISubMenuItem;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import com.thecoderscorner.menu.persist.PersistedMenu;
-import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -52,6 +51,7 @@ import org.testfx.matcher.control.TextInputControlMatchers;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +63,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.thecoderscorner.menu.editorui.generator.GitHubAppVersionChecker.TcMenuRelease;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.SKETCHES_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoDirectoryStructureHelper.DirectoryPath.TCMENU_DIR;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
@@ -86,7 +87,7 @@ public class MenuEditorTestCases {
     private Stage stage;
     private CodePluginManager simulatedCodeManager;
     private ArduinoDirectoryStructureHelper dirHelper = new ArduinoDirectoryStructureHelper();
-    private LibraryVersionDetector libDetector;
+    private AppVersionDetector libDetector;
 
     @Start
     public void onStart(Stage stage) throws Exception {
@@ -144,12 +145,9 @@ public class MenuEditorTestCases {
 
         // set up the controller and stage..
         MenuEditorController controller = loader.getController();
-        libDetector = mock(LibraryVersionDetector.class);
-        when(libDetector.getReleaseType()).thenReturn(ReleaseType.STABLE);
+        libDetector = mock(AppVersionDetector.class);
         controller.initialise(project, installer, editorProjectUI, simulatedCodeManager, storage, libDetector, true);
         this.stage = stage;
-
-        when(libDetector.availableVersionsAreValid(anyBoolean())).thenReturn(true);
 
         Scene myScene = new Scene(myPane);
         stage.setScene(myScene);
@@ -158,22 +156,15 @@ public class MenuEditorTestCases {
 
     private void setUpInstallerLibVersions() throws IOException {
         // and we are always up to date library wise in unit test land
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         when(installer.findLibraryInstall("tcMenu")).thenReturn(dirHelper.getTcMenuPath());
         when(installer.getArduinoDirectory()).thenReturn(dirHelper.getSketchesDir());
         when(installer.getVersionOfLibrary("java-app", AVAILABLE_APP)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("java-app", CURRENT_APP)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("module.name", CURRENT_PLUGIN)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("tcMenu", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.1"));
         when(installer.getVersionOfLibrary("tcMenu", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("IoAbstraction", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("IoAbstraction", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("LiquidCrystalIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("LiquidCrystalIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.getVersionOfLibrary("TaskManagerIO", AVAILABLE_LIB)).thenReturn(new VersionInfo("1.0.0"));
         when(installer.getVersionOfLibrary("TaskManagerIO", CURRENT_LIB)).thenReturn(new VersionInfo("1.0.0"));
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(false);
     }
 
     private CodePluginConfig generateCodePluginConfig() {
@@ -457,10 +448,9 @@ public class MenuEditorTestCases {
 
     @Test
     void testAreaInformationPanelNeedingUpdate(FxRobot robot) throws Exception {
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(false);
-        when(installer.getVersionOfLibrary("module.name", AVAILABLE_PLUGIN)).thenReturn(new VersionInfo("1.0.2"));
-
         openTheCompleteMenuTree(robot);
+        when(libDetector.acquireVersion()).thenReturn(new TcMenuRelease("abc", VersionInfo.of("4.3.1"), LocalDateTime.now()));
+        when(installer.getVersionOfLibrary("java-app", AVAILABLE_APP)).thenReturn(VersionInfo.of("1.2.3"));
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
         TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
 
@@ -468,13 +458,11 @@ public class MenuEditorTestCases {
         assertTrue(recursiveSelectTreeItem(treeView, treeView.getRoot(), MenuTree.ROOT));
 
         Thread.sleep(500);
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Libraries need updating, check in General Settings"));
+        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("There is a UI update available [see more]"));
     }
 
     @Test
     void testTheRootAreaInformationPanel(FxRobot robot) throws Exception {
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
-
         openTheCompleteMenuTree(robot);
         SubMenuItem subItem = project.getMenuTree().getSubMenuById(100).orElseThrow();
         TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();
@@ -493,14 +481,11 @@ public class MenuEditorTestCases {
 
         Thread.sleep(500);
 
-        verifyThat("#tcMenuStatusArea", LabeledMatchers.hasText("Embedded Arduino libraries all up-to-date"));
-
         checkTheTreeMatchesMenuTree(robot, MenuTree.ROOT);
     }
 
     @Test
     void testEditingTheNameAndDescriptionOnRootPanel(FxRobot robot) throws Exception {
-        when(installer.areCoreLibrariesUpToDate()).thenReturn(true);
         openTheCompleteMenuTree(robot);
 
         TreeView<MenuEditorController.MenuItemWithDescription> treeView = robot.lookup("#menuTree").query();

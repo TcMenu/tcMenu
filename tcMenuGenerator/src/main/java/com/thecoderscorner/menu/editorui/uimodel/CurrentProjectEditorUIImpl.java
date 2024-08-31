@@ -14,8 +14,8 @@ import com.thecoderscorner.menu.domain.util.AbstractMenuItemVisitor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.cli.CreateProjectCommand;
 import com.thecoderscorner.menu.editorui.dialog.*;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorSupplier;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
 import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
@@ -54,7 +54,7 @@ import static java.lang.System.Logger.Level.INFO;
 
 public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
     private final System.Logger logger = System.getLogger(getClass().getSimpleName());
-    private final LibraryVersionDetector versionDetector;
+    private final AppVersionDetector versionDetector;
     private final String homeDirectory;
     private final CodeGeneratorSupplier codeGeneratorSupplier;
     private Stage mainStage;
@@ -69,7 +69,7 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     public CurrentProjectEditorUIImpl(CodePluginManager manager, EmbeddedPlatforms platforms,
                                       ArduinoLibraryInstaller installer, ConfigurationStorage storage,
-                                      LibraryVersionDetector versionDetector, CodeGeneratorSupplier codeGenSupplier,
+                                      AppVersionDetector versionDetector, CodeGeneratorSupplier codeGenSupplier,
                                       TccDatabaseUtilities dbUtilities, GlobalSettings settings, String home) {
         this.manager = manager;
         this.dbUtilities = dbUtilities;

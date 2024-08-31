@@ -3,12 +3,11 @@ package com.thecoderscorner.menu.editorui.controller;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
-import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -30,7 +29,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.*;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_APP;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType.CURRENT_LIB;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static com.thecoderscorner.menu.persist.VersionInfo.ERROR_VERSION;
 import static java.lang.System.Logger.Level.ERROR;
@@ -55,9 +55,7 @@ public class GeneralSettingsController {
     public TextField libsTextField;
     public Button chooseArduinoButton;
     public Button chooseLibsButton;
-    public ComboBox<ReleaseType> pluginStreamCombo;
     public TableColumn<NameWithVersion, String> libraryNameColumn;
-    public TableColumn<NameWithVersion, String> expectedVerCol;
     public TableColumn<NameWithVersion, String> actualVerCol;
     public TableView<NameWithVersion> versionsTable;
     public ListView<String> additionalPathsList;
@@ -71,23 +69,23 @@ public class GeneralSettingsController {
     public Spinner<Integer> fontSizeSpinner;
     private ConfigurationStorage storage;
     private String homeDirectory;
-    private LibraryVersionDetector versionDetector;
+    private AppVersionDetector versionDetector;
     private CodePluginManager pluginManager;
     private ArduinoLibraryInstaller installer;
     private final ResourceBundle bundle = MenuEditorApp.getBundle();
     private GlobalSettings settings;
     private TccDatabaseUtilities databaseUtilities;
 
-    public void initialise(ConfigurationStorage storage, LibraryVersionDetector versionDetector,
+    public void initialise(ConfigurationStorage storage, AppVersionDetector versionDetector,
                            ArduinoLibraryInstaller installer, CodePluginManager pluginManager,
                            GlobalSettings settings, TccDatabaseUtilities utilities, String homeDirectory) {
         this.installer = installer;
         this.pluginManager = pluginManager;
         this.storage = storage;
         this.homeDirectory = homeDirectory;
-        this.versionDetector = versionDetector;
         this.settings = settings;
         this.databaseUtilities = utilities;
+        this.versionDetector = versionDetector;
 
         usingArduinoLibsCheck.setSelected(storage.isUsingArduinoIDE());
         useFullyQualifiedNamesField.setSelected(storage.isDefaultRecursiveNamingOn());
@@ -115,11 +113,7 @@ public class GeneralSettingsController {
         });
 
         libraryNameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().name()));
-        expectedVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().available().toString()));
         actualVerCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().installed().toString()));
-
-        pluginStreamCombo.setItems(FXCollections.observableList(Arrays.asList(ReleaseType.values())));
-        pluginStreamCombo.getSelectionModel().select(versionDetector.getReleaseType());
 
         additionalPathsList.getSelectionModel().selectedItemProperty().addListener((observableValue, s1, s2) ->
                 removePathBtn.setDisable(additionalPathsList.getSelectionModel().getSelectedItem() == null));
@@ -168,7 +162,7 @@ public class GeneralSettingsController {
         for (var locDesc : availableLocales) {
             if(locDesc.locale().equals(chosenLocale)) return locDesc;
         }
-        return availableLocales.get(0);
+        return availableLocales.getFirst();
     }
 
     private void setDirectoryPickerOrEmpty(TextField field, Optional<String> maybePath, Supplier<Optional<String>> defaulter) {
@@ -286,21 +280,13 @@ public class GeneralSettingsController {
         s.close();
     }
 
-    public void onStreamChanged(ActionEvent actionEvent) {
-        var newStream = pluginStreamCombo.getSelectionModel().getSelectedItem();
-        if(newStream != null) {
-            versionDetector.changeReleaseType(newStream);
-            onRefreshLibraries(actionEvent);
-        }
-    }
-
     public void onRefreshLibraries(ActionEvent actionEvent) {
         populateVersions();
     }
 
     private void populateVersions() {
         var fr = executor.submit(() -> {
-            versionDetector.acquireVersions();
+            versionDetector.acquireVersion();
             Platform.runLater(this::populateListAfterRequest);
         });
     }
@@ -322,7 +308,6 @@ public class GeneralSettingsController {
             versionsTable.getItems().add(new NameWithVersion(
                     "TcMenuDesigner UI", "tcMenuDesigner",
                     false,
-                    getVersionOfLibraryOrError("java-app", AVAILABLE_APP),
                     getVersionOfLibraryOrError("java-app", CURRENT_APP)
             ));
 
@@ -334,13 +319,11 @@ public class GeneralSettingsController {
     }
 
     private NameWithVersion findLibVersion(String libName) throws IOException {
-        var available = installer.getVersionOfLibrary(libName, AVAILABLE_LIB);
         var installed = installer.getVersionOfLibrary(libName, CURRENT_LIB);
 
-        if(available == null) available = ERROR_VERSION;
         if(installed == null) installed = ERROR_VERSION;
 
-        return new NameWithVersion(libName + " library", libName, false, available, installed);
+        return new NameWithVersion(libName + " library", libName, false, installed);
     }
 
     private VersionInfo getVersionOfLibraryOrError(String name, ArduinoLibraryInstaller.InstallationType type) {
@@ -403,7 +386,7 @@ public class GeneralSettingsController {
         }
     }
 
-    public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo available, VersionInfo installed) { }
+    public record NameWithVersion(String name, String underlyingId, boolean isPlugin, VersionInfo installed) { }
 
     static class NameWithVersionValueFactory implements Callback<TableColumn.CellDataFeatures<NameWithVersion, NameWithVersion>, ObservableValue<NameWithVersion>> {
         @Override

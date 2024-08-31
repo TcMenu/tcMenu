@@ -8,8 +8,8 @@ package com.thecoderscorner.menu.editorui.dialog;
 
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
-import com.thecoderscorner.menu.editorui.generator.LibraryVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
@@ -17,6 +17,7 @@ import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginManager;
 import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
+import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import javafx.application.Platform;
@@ -65,7 +66,7 @@ public class AppInformationPanel {
     private final ArduinoLibraryInstaller installer;
     private final CodePluginManager pluginManager;
     private final CurrentProjectEditorUI editorUI;
-    private final LibraryVersionDetector libraryVersionDetector;
+    private final AppVersionDetector versionDetector;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ConfigurationStorage storage;
     private VBox libraryInfoVBox;
@@ -80,12 +81,12 @@ public class AppInformationPanel {
 
     public AppInformationPanel(ArduinoLibraryInstaller installer, MenuEditorController controller,
                                CodePluginManager pluginManager, CurrentProjectEditorUI editorUI,
-                               LibraryVersionDetector libraryVersionDetector, ConfigurationStorage storage) {
+                               AppVersionDetector libraryVersionDetector, ConfigurationStorage storage) {
         this.installer = installer;
         this.controller = controller;
         this.pluginManager = pluginManager;
         this.editorUI = editorUI;
-        this.libraryVersionDetector = libraryVersionDetector;
+        this.versionDetector = libraryVersionDetector;
         this.storage = storage;
     }
 
@@ -120,7 +121,7 @@ public class AppInformationPanel {
         platformCombo.setMaxWidth(99999);
         gridPane.add(platformCombo, 1, row, 2, 1);
         platformCombo.getSelectionModel().select(options.getEmbeddedPlatform());
-        platformCombo.setOnAction(event -> {
+        platformCombo.setOnAction(_ -> {
             controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                     .withExisting(options)
                     .withPlatform(platformCombo.getSelectionModel().getSelectedItem())
@@ -145,7 +146,7 @@ public class AppInformationPanel {
         Button changeId = new Button(bundle.getString("app.info.change.id"));
         changeId.setId("changeIdBtn");
         changeId.setMaxWidth(99999);
-        changeId.setOnAction(e -> {
+        changeId.setOnAction(_ -> {
             if (editorUI.questionYesNo(bundle.getString("app.info.really.change.id.title"), bundle.getString("app.info.really.change.id.message"))) {
                 controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                         .withExisting(options)
@@ -160,7 +161,7 @@ public class AppInformationPanel {
         gridPane.add(new Label(bundle.getString("app.info.project.name")), 0, row);
         appNameTextField = new TextField(options.getApplicationName());
         appNameTextField.setId("appNameTextField");
-        appNameTextField.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+        appNameTextField.textProperty().addListener((_, _, newValue) -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                 .withExisting(options)
                 .withAppName(newValue)
                 .codeOptions()));
@@ -172,7 +173,7 @@ public class AppInformationPanel {
         appDescTextArea.setId("appDescTextArea");
         appDescTextArea.setWrapText(true);
         appDescTextArea.setPrefRowCount(2);
-        appDescTextArea.textProperty().addListener((observable, oldValue, newValue) -> controller.getProject().setDescription(newValue));
+        appDescTextArea.textProperty().addListener((_, _, newValue) -> controller.getProject().setDescription(newValue));
         gridPane.add(appDescTextArea, 1, row, 2, 1);
         ++row;
 
@@ -182,13 +183,13 @@ public class AppInformationPanel {
         saveToSrcCombo.setItems(FXCollections.observableArrayList(ProjectSaveLocation.values()));
         saveToSrcCombo.getSelectionModel().select(options.getSaveLocation());
         saveToSrcCombo.setMaxWidth(999999);
-        saveToSrcCombo.setOnAction(e -> Platform.runLater(this::saveToSrcPressed));
+        saveToSrcCombo.setOnAction(_ -> Platform.runLater(this::saveToSrcPressed));
         gridPane.add(saveToSrcCombo, 1, row++, 2, 1);
 
         recursiveNamingCheck = new CheckBox(bundle.getString("app.info.check.use.recursive.naming"));
         recursiveNamingCheck.setId("recursiveNamingCheck");
         recursiveNamingCheck.setSelected(options.isNamingRecursive());
-        recursiveNamingCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+        recursiveNamingCheck.setOnAction(_ -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withRecursiveNaming(recursiveNamingCheck.isSelected())
                 .codeOptions()));
@@ -197,7 +198,7 @@ public class AppInformationPanel {
         useCppMainCheck = new CheckBox(bundle.getString("app.info.check.use.cpp.main"));
         useCppMainCheck.setId("useCppMainCheck");
         useCppMainCheck.setSelected(options.isUseCppMain());
-        useCppMainCheck.setOnAction(e -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+        useCppMainCheck.setOnAction(_ -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                 .withExisting(controller.getProject().getGeneratorOptions())
                 .withCppMain(useCppMainCheck.isSelected())
                 .codeOptions()));
@@ -208,7 +209,7 @@ public class AppInformationPanel {
         useSizedEepromStorage.setId("useSizedEepromStorage");
         useSizedEepromStorage.setSelected(options.isUsingSizedEEPROMStorage());
         useSizedEepromStorage.setTooltip(new Tooltip("Save the largest EEPROM location to prevent unsaved new items with higher locations loading"));
-        useSizedEepromStorage.setOnAction(event -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
+        useSizedEepromStorage.setOnAction(_ -> controller.getProject().setGeneratorOptions(new CodeGeneratorOptionsBuilder()
                         .withExisting(controller.getProject().getGeneratorOptions())
                         .withUseSizedEEPROMStorage(useSizedEepromStorage.isSelected())
                         .codeOptions()));
@@ -231,7 +232,7 @@ public class AppInformationPanel {
         vbox.getChildren().clear();
         vbox.getChildren().add(new Label(bundle.getString("app.info.reading.version.info")));
         executor.submit(() -> {
-            if (libraryVersionDetector.availableVersionsAreValid(true)) {
+            if (versionDetector.acquireVersion().version() != VersionInfo.ERROR_VERSION) {
                 Platform.runLater(this::redrawTheTitlePage);
             }
         });
@@ -248,33 +249,19 @@ public class AppInformationPanel {
                 var uiNeedsUpdate = new Button(bundle.getString("app.info.ui.update.available"));
                 uiNeedsUpdate.setId("tcMenuStatusArea");
                 uiNeedsUpdate.getStyleClass().add("libsNotOK");
-                uiNeedsUpdate.setOnAction(actionEvent -> editorUI.showGeneralSettings());
+                var verLink = versionDetector.acquireVersion().htmlUrl();
+                uiNeedsUpdate.setTooltip(new Tooltip(verLink));
+                uiNeedsUpdate.setOnAction(_ -> SafeNavigator.safeNavigateTo(verLink));
                 vbox.getChildren().add(uiNeedsUpdate);
                 needRefresh = true;
+            } else {
+                var uiOkLabel = new Label(bundle.getString("app.info.ui.up.to.date"));
+                uiOkLabel.setId("tcMenuStatusArea");
+                uiOkLabel.getStyleClass().add("libsOK");
+                vbox.getChildren().add(uiOkLabel);
             }
 
-            if (installer.getArduinoDirectory().isEmpty() && storage.isUsingArduinoIDE()) {
-                var setManually = new Button(bundle.getString("app.info.ui.set.arduino.directory"));
-                setManually.setId("tcMenuStatusArea");
-                setManually.getStyleClass().add("libsNotOK");
-                vbox.getChildren().add(setManually);
-                setManually.setOnAction(actionEvent -> editorUI.showGeneralSettings());
-                needRefresh = true;
-            } else if (storage.isUsingArduinoIDE() && installer.areCoreLibrariesUpToDate()) {
-                var lblTcMenuOK = new Label(bundle.getString("app.info.ui.libraries.up.to.date"));
-                lblTcMenuOK.setId("tcMenuStatusArea");
-                lblTcMenuOK.getStyleClass().add("libsOK");
-                vbox.getChildren().add(lblTcMenuOK);
-            } else if (storage.isUsingArduinoIDE()) {
-                var libsNotOK = new Button(bundle.getString("app.info.ui.libraries.need.update"));
-                libsNotOK.getStyleClass().add("libsNotOK");
-                libsNotOK.setId("tcMenuStatusArea");
-                libsNotOK.setOnAction(actionEvent -> editorUI.showGeneralSettings());
-                vbox.getChildren().add(libsNotOK);
-                needRefresh = true;
-            }
-
-            boolean pluginsNotUpdated = (pluginManager.getLoadedPlugins().size() == 0);
+            boolean pluginsNotUpdated = pluginManager.getLoadedPlugins().isEmpty();
 
             for (var plugin : pluginManager.getLoadedPlugins()) {
                 var installedVersion = getVersionOfLibraryOrError(plugin, CURRENT_PLUGIN);
@@ -300,7 +287,7 @@ public class AppInformationPanel {
                 var pluginLabel = new Button(bundle.getString("app.info.severe.error"));
                 pluginLabel.setId("tcMenuPluginIndicator");
                 pluginLabel.getStyleClass().add("libsNotOK");
-                pluginLabel.setOnAction(actionEvent -> {
+                pluginLabel.setOnAction(_ -> {
                     showAlertAndWait(Alert.AlertType.INFORMATION, bundle.getString("app.info.plugin.updater.fail.header")
                             , bundle.getString("app.info.plugin.updater.fail.message"), ButtonType.CLOSE);
                     controller.presentInfoPanel();
@@ -311,7 +298,7 @@ public class AppInformationPanel {
 
             if (needRefresh) {
                 var refreshButton = new Button(bundle.getString("app.info.plugin.refresh"));
-                refreshButton.setOnAction(actionEvent -> controller.presentInfoPanel());
+                refreshButton.setOnAction(_ -> controller.presentInfoPanel());
                 vbox.getChildren().add(refreshButton);
             }
         } catch (IOException e) {
@@ -331,7 +318,7 @@ public class AppInformationPanel {
         Hyperlink docs = new Hyperlink(title);
         docs.setTooltip(new Tooltip(urlToVisit));
         docs.setStyle("-fx-vgap: 5px; -fx-border-insets: 0;");
-        docs.setOnAction((event) -> editorUI.browseToURL(urlToVisit));
+        docs.setOnAction((_) -> editorUI.browseToURL(urlToVisit));
         docs.setId(fxId);
         vbox.getChildren().add(docs);
     }
