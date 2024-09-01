@@ -5,7 +5,7 @@
 #ifndef THEME_DARK_MODE
 #define THEME_DARK_MODE
 
-#include <graphics/tcThemeBuilder.h>
+#include <graphics/TcThemeBuilder.h>
 
 const color_t darkModeTitlePalette[] = {RGB(255,255,255), RGB(43,43,43), RGB(192,192,192), RGB(0,133,255)};
 const color_t darkModeItemPalette[] = {RGB(255, 255, 255), RGB(0,0,0), RGB(43,43,43), RGB(65,65,65)};
