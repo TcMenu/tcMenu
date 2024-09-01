@@ -1,6 +1,8 @@
 #ifndef THEME_COOL_BLUE
 #define THEME_COOL_BLUE
 
+#include <graphics/BaseGraphicalRenderer.h>
+
 //
 // Note only include this file ONCE, in a CPP file. We do this automatically when using a Theme by adding to setupMenu()
 //

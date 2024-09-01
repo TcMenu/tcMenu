@@ -6,6 +6,7 @@
 #ifndef DARK_MODE_TRADITIONAL_THEME
 #define DARK_MODE_TRADITIONAL_THEME
 
+#include <graphics/BaseGraphicalRenderer.h>
 
 // tcMenu drawing properties take a 4 color palette for items, titles and actions.
 // this renderer shares the color configuration for items and actions.

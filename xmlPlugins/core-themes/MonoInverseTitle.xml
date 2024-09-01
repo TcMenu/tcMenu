@@ -5,7 +5,7 @@
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
-    <Description>THIS THEME IS DEPRECATED (kept existing users), mono inverse theme for lower resolution.</Description>
+    <Description>THIS THEME IS DEPRECATED (kept for existing users), mono inverse theme for lower resolution.</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
     <ImageFile>theme-oled-inverse.jpg</ImageFile>

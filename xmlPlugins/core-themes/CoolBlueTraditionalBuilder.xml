@@ -1,11 +1,11 @@
-<TcMenuPlugin name="DEPRECATED cool blue traditional" id="03c6b25f-db63-402a-8447-a5ce1484c14d"
+<TcMenuPlugin name="%theme.cool.blue.traditional.name" id="57945787-0A04-447B-BBA2-6461FC505397"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
-    <Description>THIS THEME IS DEPRECATED (kept for existing users), cool blue traditional theme</Description>
+    <Description>%theme.cool.blue.traditional.desc</Description>
     <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/color-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-cool-blue-traditional.jpg</ImageFile>
@@ -13,7 +13,6 @@
     <Properties>
         <Property id="ITEM_FONT" name="%theme.item.font" initial="def:,1" desc="%theme.item.font.desc" type="font"/>
         <Property id="TITLE_FONT" name="%theme.title.font" initial="def:,1" desc="%theme.title.font.desc" type="font"/>
-        <Property id="BORDER_FOR_ACTIONS" name="%theme.border.for.action" initial="0" desc="%theme.border.for.action.desc" type="int" min="0" max="3"/>
         <Property id="TITLE_SHOW_MODE" name="%theme.title.show.mode" initial="TITLE_FIRST_ROW" desc="%theme.title.show.mode.desc" type="choice">
             <Choices>
                 <Choice desc="%theme.title.none">NO_TITLE</Choice>
@@ -22,18 +21,17 @@
             </Choices>
         </Property>
         <Property id="USE_TC_UNICODE" name="%theme.use.tcunicode" initial="false" type="boolean" desc="%theme.use.tcunicode.desc"/>
-        <Property id="USE_SLIDER_ANALOG" name="%theme.use.sliders" initial="true" desc="%theme.use.sliders.desc" type="boolean"/>
         <Property id="NEED_EDITING_ICONS" name="%theme.need.edit.icons" initial="false" desc="theme.need.edit.icons.desc" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
 
     <SourceFiles>
-        <SourceFile name="coolBlue/ThemeCoolBlueTraditional.h" overwrite="false"/>
+        <SourceFile name="coolBlue/ThemeCoolBlueTraditionalBuilder.h" overwrite="false"/>
     </SourceFiles>
 
     <IncludeFiles>
-        <Header name="${SRC_DIR_OFFSET}ThemeCoolBlueTraditional.h" inSource="cppSrc"/>
+        <Header name="${SRC_DIR_OFFSET}ThemeCoolBlueTraditionalBuilder.h" inSource="cppSrc"/>
         <Header name="tcUnicodeHelper.h" inSource="false" priority="high" whenProperty="USE_TC_UNICODE" isValue="true" />
         <Header name="${ITEM_FONT}" inSource="font"/>
         <Header name="${TITLE_FONT}" inSource="font"/>
@@ -45,21 +43,13 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="setTitleMode" object="renderer">
-            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
-        </Function>
-
-        <Function name="setUseSliderForAnalog" object="renderer">
-            <Param name="${USE_SLIDER_ANALOG}"/>
-        </Function>
-
-        <Function name="enableTcUnicode" object="renderer" whenProperty="USE_TC_UNICODE" isValue="true"/>
-
         <Function name="installCoolBlueTraditionalTheme">
             <Param value="renderer"/>
             <Param font="${ITEM_FONT}"/>
             <Param font="${TITLE_FONT}"/>
             <Param value="${NEED_EDITING_ICONS}"/>
+            <Param name="BaseGraphicalRenderer::${TITLE_SHOW_MODE}"/>
+            <Param name="${USE_TC_UNICODE}"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>
