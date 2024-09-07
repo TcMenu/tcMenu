@@ -1,6 +1,7 @@
-package com.thecoderscorner.menu.editorui.util;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.BackupManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorint.uitests;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.RomLayoutDialog;
 import com.thecoderscorner.menu.editorui.util.TestUtils;

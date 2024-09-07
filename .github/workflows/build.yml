@@ -26,7 +26,7 @@ jobs:
       run: mvn -B install -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
 
     - name: Build tcMenuGenerator
-      run: mvn -B compile -Dgpg.skip=true --file tcMenuGenerator/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file tcMenuGenerator/pom.xml
 
     - name: Build embeddedJavaExample
       run: mvn -B package --file embeddedJavaExample/pom.xml

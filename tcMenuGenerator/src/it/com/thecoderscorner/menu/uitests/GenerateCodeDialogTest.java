@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorint.uitests;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;

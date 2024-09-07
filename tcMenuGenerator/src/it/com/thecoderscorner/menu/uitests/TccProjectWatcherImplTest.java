@@ -1,5 +1,7 @@
-package com.thecoderscorner.menu.editorui.project;
+package com.thecoderscorner.menu.uitests;
 
+import com.thecoderscorner.menu.editorui.project.TccProjectWatcher;
+import com.thecoderscorner.menu.editorui.project.TccProjectWatcherImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +16,11 @@ import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.thecoderscorner.menu.editorui.project.TccProjectWatcherImplTest.TestProjectWatchListener.TestProjectWatchType.*;
+import static com.thecoderscorner.menu.uitests.TccProjectWatcherImplTest.TestProjectWatchListener.TestProjectWatchType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
-class TccProjectWatcherImplTest {
+public class TccProjectWatcherImplTest {
     private TccProjectWatcherImpl fileWatcher;
     private TestProjectWatchListener listener;
     private Path rootDir;
@@ -26,7 +28,7 @@ class TccProjectWatcherImplTest {
     private Path propFile1, propFile2;
 
     @BeforeEach
-    void setUp() throws IOException {
+    public void setUp() throws IOException {
         rootDir = Files.createTempDirectory("tcmenutest");
         Files.createDirectories(rootDir);
         Path i18nDir = rootDir.resolve("i18n");
@@ -46,7 +48,7 @@ class TccProjectWatcherImplTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    public void tearDown() throws IOException {
         Files.walk(rootDir)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
@@ -55,21 +57,21 @@ class TccProjectWatcherImplTest {
     }
 
     @Test
-    void testEmfFileWatching() throws Exception {
+    public void testEmfFileWatching() throws Exception {
         listener.reset();
         Files.writeString(emfFile, "File has changed");
         assertEquals(EMF_FILE_NOTIFIED, listener.waitForEvent());
     }
 
     @Test
-    void testI18nFileWatching() throws Exception {
+    public void testI18nFileWatching() throws Exception {
         listener.reset();
         Files.writeString(propFile1, "propery.1=abcdefghi");
         assertEquals(I18N_NOTIFIED, listener.waitForEvent());
     }
 
     @Test
-    void testWhereThereIsNoChange() throws Exception {
+    public void testWhereThereIsNoChange() throws Exception {
         fileWatcher.fileWasSaved(propFile2.getFileName(), "property.1=bonjour");
         listener.reset();
         Files.writeString(propFile2, "property.1=bonjour");

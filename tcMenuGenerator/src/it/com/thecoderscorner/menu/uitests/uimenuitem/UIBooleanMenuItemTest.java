@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
+package com.thecoderscorner.menu.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.BooleanMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
@@ -20,7 +20,8 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ComboBoxMatchers;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem.*;
+import static com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem.BooleanNamingValue;
+import static com.thecoderscorner.menu.editorui.uimodel.UIBooleanMenuItem.TidyBooleanNaming;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.testfx.api.FxAssert.verifyThat;

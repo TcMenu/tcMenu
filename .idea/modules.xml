@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/tcMenuGenerator/menuEditorUI.iml" filepath="$PROJECT_DIR$/tcMenuGenerator/menuEditorUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/xmlPlugins/xmlPlugins.iml" filepath="$PROJECT_DIR$/xmlPlugins/xmlPlugins.iml" />
     </modules>
   </component>

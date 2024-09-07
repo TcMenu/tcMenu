@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.thecoderscorner.menu.editorint.uitests.MenuEditorTestCases.FILE_NAME_SIMULATED;
 import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CurrentEditorProjectTest {
+    public static final String FILE_NAME_SIMULATED = "/var/tmp/fileName.emf";
 
     CurrentEditorProject project;
     private CurrentProjectEditorUIImpl editorUI;
