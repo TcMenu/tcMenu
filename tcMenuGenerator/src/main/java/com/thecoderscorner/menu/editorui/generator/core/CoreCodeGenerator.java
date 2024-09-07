@@ -110,7 +110,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         this.localeHandler = handler;
         namingGenerator = new VariableNameGenerator(menuTree, options.isNamingRecursive());
         this.previousPluginFiles = previousPluginFiles;
-        logLine(INFO, STR."Starting \{embeddedPlatform.getBoardId()} generate into : \{directory}");
+        logLine(INFO, "Starting " + embeddedPlatform.getBoardId() + " generate into : " + directory);
 
         hasRemotePlugins = codeGenerators.stream()
                 .anyMatch(p -> p.getSubsystem() == SubSystem.REMOTE && !p.getId().equals(NO_REMOTE_ID));
@@ -381,7 +381,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                 return toEmbeddedCppTextValue(tmi, s);
             }
             case String _ -> {
-                return STR."\"\{defaultValue}\"";
+                return "\"" + defaultValue + "\"";
             }
             case PortableColor c when item instanceof Rgb32MenuItem rgbItem -> {
                 if (rgbItem.isIncludeAlphaChannel()) {
@@ -474,7 +474,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             logLine(INFO, "Writing out source CPP file: " + cppFile);
 
             writer.write(COMMENT_HEADER);
-            writer.write(STR."// Generated for \{embeddedPlatform} by TcMenu \{configStore.getVersion()} on \{ISO_INSTANT.format(clock.instant())}.");
+            writer.write("// Generated for %s by TcMenu %s on %s.".formatted(embeddedPlatform, configStore.getVersion(), ISO_INSTANT.format(clock.instant())));
             writer.append(TWO_LINES);
 
             writer.write("#include <tcMenu.h>" + LINE_BREAK);

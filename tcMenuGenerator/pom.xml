@@ -166,7 +166,7 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
+                    <!--compilerArgs>enable-preview</compilerArgs-->
                 </configuration>
             </plugin>
             <plugin>

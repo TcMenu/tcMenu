@@ -9,8 +9,8 @@
       </pattern>
     </extension>
     <option name="ALTERNATIVE_JRE_PATH" value="liberica-20" />
-    <option name="PACKAGE_NAME" value="com.thecoderscorner.menu.editorint.uitests.uimenuitem" />
-    <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorint.uitests.uimenuitem.UIRuntimeListMenuItemTest" />
+    <option name="PACKAGE_NAME" value="com.thecoderscorner.menu.editorint.uitests" />
+    <option name="MAIN_CLASS_NAME" value="com.thecoderscorner.menu.editorint.uitests.MenuEditorTestCases" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED" />

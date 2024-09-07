@@ -103,7 +103,7 @@ public class CodeGeneratorCommand implements Callable<Integer> {
                         .map(form -> getFirstByNameAndUuid(appContext.getEcDataStore(), project, form)).toList();
             } catch(Exception ex) {
                 enabledFormObjects = List.of();
-                System.err.println(STR."WARNING: Forms \{project.getOptions().getListOfEmbeddedForms()} didn't load");
+                System.err.printf("WARNING: Forms %s didn't load\n", project.getOptions().getListOfEmbeddedForms());
                 System.err.println("IMPORTANT: Conversion will continue but forms will be missing from the build");
                 if(verbose) {
                     ex.printStackTrace();

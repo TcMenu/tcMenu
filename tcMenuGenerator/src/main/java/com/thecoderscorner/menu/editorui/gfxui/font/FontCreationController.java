@@ -50,7 +50,7 @@ public class FontCreationController {
 
         int row = 0;
         var grid = new GridPane(4, 4);
-        grid.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+        grid.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
         grid.getColumnConstraints().addAll(
             priorityColConstraint(Priority.NEVER),
             priorityColConstraint(Priority.SOMETIMES),

@@ -1,7 +1,9 @@
 /**
- * Cool blue modern theme by TheCodersCorner.com. This is part of the standard themes shipped with TcMenu.
+ * Cool blue modern theme by tcMenu organisation. This is part of the standard themes shipped with TcMenu.
  * This file will not be updated by the designer, you can edit.
+ * See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/rendering-with-themes-icons-grids/
  */
+
 #ifndef THEME_COOL_BLUE
 #define THEME_COOL_BLUE
 

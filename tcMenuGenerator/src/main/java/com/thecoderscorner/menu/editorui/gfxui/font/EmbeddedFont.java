@@ -113,7 +113,7 @@ public class EmbeddedFont {
         for(var glyph : glyphs) {
             var bm = findUnicodeBlockMapping(glyph);
             if (bm.isEmpty()) {
-                logger.log(WARNING, STR."Corrupt font, no block mapping for \{glyph.code()} so skipping.");
+                logger.log(WARNING, "Corrupt font, no block mapping for %d so skipping.".formatted(glyph.code()));
                 continue;
             }
             var list = mapBlockToGlyph.computeIfAbsent(bm.get(), _ -> new ArrayList<>(256));
@@ -275,7 +275,7 @@ public class EmbeddedFont {
         if(extensionIndex != -1) {
             file = file.substring(0, extensionIndex);
         }
-        var outputName = STR."\{file}_\{size}pt";
+        var outputName = "%s_%dpt".formatted(file, size);
         return VariableNameGenerator.makeNameFromVariable(outputName);
     }
 

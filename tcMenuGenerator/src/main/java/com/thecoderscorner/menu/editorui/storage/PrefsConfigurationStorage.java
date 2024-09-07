@@ -1,9 +1,9 @@
 package com.thecoderscorner.menu.editorui.storage;
 
 import com.thecoderscorner.menu.editorui.controller.MenuEditorController;
+import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.ReleaseType;
 import com.thecoderscorner.menu.persist.VersionInfo;
-import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.io.InputStream;
 import java.util.*;
@@ -161,6 +161,16 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     }
 
     @Override
+    public String getImportDirectory(ConfigImportType importMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setImportDirectory(ConfigImportType ty, String directory) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setArduinoOverrideDirectory(String overrideDirectory) {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         if(StringHelper.isStringEmptyOrNull(overrideDirectory)) {
@@ -295,15 +305,5 @@ public class PrefsConfigurationStorage implements ConfigurationStorage {
     public void emptyLastLoadedProject() {
         Preferences prefs = Preferences.userNodeForPackage(MenuEditorController.class);
         prefs.remove(LAST_LOADED_PROJ);
-    }
-
-    @Override
-    public ReleaseType getReleaseStream() {
-        return ReleaseType.STABLE;
-    }
-
-    @Override
-    public void setReleaseStream(ReleaseType releaseStream) {
-        // ignored in this implementation
     }
 }

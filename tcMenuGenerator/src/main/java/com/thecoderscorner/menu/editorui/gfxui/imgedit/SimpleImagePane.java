@@ -28,7 +28,7 @@ public class SimpleImagePane extends BorderPane {
 
         this.setCenter(canvas);
         var hbox = new HBox(4);
-        hbox.getChildren().add(new Label(STR."\{shortFmtText(format)}: \{image.getWidth()} x \{image.getHeight()}"));
+        hbox.getChildren().add(new Label("%s: %s x %s".formatted(shortFmtText(format), image.getWidth(), image.getHeight())));
         hbox.getChildren().addAll(actionButtons);
         this.setTop(hbox);
 
