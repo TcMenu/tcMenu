@@ -38,7 +38,7 @@ public class StartUICommand implements Callable<Integer> {
 
     public static void userDidSelectProject(File projectFile) {
         userSelectedProject.set(projectFile.getAbsolutePath());
-        System.out.println(STR."Designer is starting with project \{userSelectedProject.get()}");
+        System.out.println("Designer is starting with project " + userSelectedProject.get());
 
     }
 

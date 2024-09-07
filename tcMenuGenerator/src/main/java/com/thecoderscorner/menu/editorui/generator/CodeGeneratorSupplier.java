@@ -32,7 +32,7 @@ public class CodeGeneratorSupplier {
         } else if (javaPlatforms.contains(platform)) {
             return new EmbeddedJavaGenerator(configStorage, platform);
         } else {
-            throw new IllegalArgumentException(STR."No such board type: \{platform}");
+            throw new IllegalArgumentException("No such board type: " + platform);
         }
     }
 }

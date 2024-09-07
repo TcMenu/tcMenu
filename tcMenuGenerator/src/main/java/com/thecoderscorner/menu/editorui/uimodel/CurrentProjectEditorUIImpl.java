@@ -334,12 +334,12 @@ public class CurrentProjectEditorUIImpl implements CurrentProjectEditorUI {
 
     @Override
     public void showCreateFontUtility() {
-        new CreateFontUtilityDialog(mainStage, this, homeDirectory);
+        new CreateFontUtilityDialog(mainStage, this, configStore);
     }
 
     @Override
     public void showBitmapEditorUtility() {
-        new CreateBitmapWidgetToolDialog(mainStage, this, homeDirectory);
+        new CreateBitmapWidgetToolDialog(mainStage, this, configStore);
     }
 
     @Override

@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage.BUILD_TIMESTAMP_KEY;
 import static com.thecoderscorner.menu.editorui.storage.PrefsConfigurationStorage.BUILD_VERSION_KEY;
+import static com.thecoderscorner.menu.editorui.storage.TcConfigEntryType.DEFAULT_BMP_IMPORT_DIR;
+import static com.thecoderscorner.menu.editorui.storage.TcConfigEntryType.DEFAULT_FONT_IMPORT_DIR;
 import static java.lang.System.Logger.Level.*;
 
 public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
@@ -43,6 +45,9 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     private ArduinoDirectoryChangeListener arduinoChangeListener = null;
     private LinkedList<RecentlyUsedItem> recentItems = new LinkedList<>();
     private ApplicationThemeManager applicationThemeManager;
+    private List<TcConfigEntry> configEntries;
+    private String defaultFontImportDirectory;
+    private String defaultBitmapImportDirectory;
 
     public JdbcTcMenuConfigurationStore(TccDatabaseUtilities databaseUtilities, ApplicationThemeManager themeManager) {
         this.applicationThemeManager = themeManager;
@@ -54,10 +59,13 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             boolean firstStart = !databaseUtilities.checkTableExists("TC_MENU_SETTINGS");
             // once we've determined that, let the database utilities get the DB in the right state
             databaseUtilities.ensureTableFormatCorrect(LoadedConfiguration.class);
+            databaseUtilities.ensureTableFormatCorrect(TcConfigEntry.class);
+
             // and if not started before, on the first attempt, we try and copy from preferences or default.
             if(firstStart) createIfNeeded();
             // and lastly load the configuration
             loaded = databaseUtilities.queryPrimaryKey(LoadedConfiguration.class, 0).orElse(makeDefaultConfig());
+            loadAllConfigEntriesIntoMap(databaseUtilities);
 
             var r = databaseUtilities.queryStrings("SELECT RECENT_FILE FROM TC_MENU_RECENTS ORDER BY RECENT_IDX");
             recentItems = r.stream().map(rec -> new RecentlyUsedItem(Paths.get(rec).getFileName().toString(), rec))
@@ -70,6 +78,29 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         themeManager.setThemeName(loaded.getCurrentTheme());
         loadedConfig = loaded;
         logger.log(INFO, "Loaded initial designer settings as" + loadedConfig);
+    }
+
+    private void loadAllConfigEntriesIntoMap(TccDatabaseUtilities databaseUtilities) throws DataException {
+        configEntries = databaseUtilities.queryRecords(TcConfigEntry.class, "ACTIVE = 1");
+        defaultFontImportDirectory = fromConfigEntry(DEFAULT_FONT_IMPORT_DIR, System.getProperty("user.home"));
+        defaultBitmapImportDirectory = fromConfigEntry(DEFAULT_BMP_IMPORT_DIR, System.getProperty("user.home"));
+    }
+
+    private String fromConfigEntry(TcConfigEntryType key, String def) {
+        return configEntries.stream().filter(e -> e.getParamKey().equals(key))
+                .map(TcConfigEntry::getParamVal).findFirst()
+                .orElseGet(() -> {
+                    try {
+                        databaseUtilities.updateRecord(TcConfigEntry.class, new TcConfigEntry(key, def));
+                    } catch (DataException e) {
+                        logger.log(ERROR, "Could not write default value for " + key, e);
+                    }
+                    return def;
+                });
+    }
+
+    private int fromConfigEntry(TcConfigEntryType key, int def) {
+        return Integer.parseInt(fromConfigEntry(key, Integer.toString(def)));
     }
 
     private LoadedConfiguration makeDefaultConfig() {
@@ -122,7 +153,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             lc.setProjectMaxLevel(prefs.getMenuProjectMaxLevel());
             lc.setNumberBackups(prefs.getNumBackupItems());
             lc.setRegisteredKey(prefs.getRegisteredKey());
-            lc.setReleaseStream(ReleaseType.STABLE);
             lc.setCurrentTheme(lastTheme);
         }
 
@@ -172,10 +202,17 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
     }
 
     private void saveIfNeeded() {
-        if(autoCommit && loadedConfig.isChanged()) {
+        boolean anyTcEntryChange = configEntries.stream().anyMatch(TcConfigEntry::isChanged);
+        if(autoCommit && (loadedConfig.isChanged() || anyTcEntryChange)) {
             logger.log(INFO, "Saving designer settings" + loadedConfig);
             try {
                 databaseUtilities.updateRecord(LoadedConfiguration.class, loadedConfig);
+
+                var changedEntries = configEntries.stream().filter(TcConfigEntry::isChanged).toList();
+                for(var ce : changedEntries) {
+                    databaseUtilities.updateRecord(TcConfigEntry.class, ce);
+                    ce.saved();
+                }
             } catch (DataException e) {
                 logger.log(ERROR, "Could not save configuration", e);
             }
@@ -381,6 +418,28 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         arduinoChangeListener = directoryChangeListener;
     }
 
+    @Override
+    public String getImportDirectory(ConfigImportType importMode) {
+        return importMode == ConfigImportType.FONT ? defaultFontImportDirectory : defaultBitmapImportDirectory;
+    }
+
+    @Override
+    public void setImportDirectory(ConfigImportType importMode, String directory) {
+        if(importMode == ConfigImportType.FONT) {
+            this.defaultFontImportDirectory = directory;
+            getConfigEntry(DEFAULT_FONT_IMPORT_DIR).setParamVal(directory);
+        } else {
+            this.defaultBitmapImportDirectory = directory;
+            getConfigEntry(DEFAULT_BMP_IMPORT_DIR).setParamVal(directory);
+        }
+        saveIfNeeded();
+    }
+
+    private TcConfigEntry getConfigEntry(TcConfigEntryType ty) {
+        return configEntries.stream().filter(ce -> ce.getParamKey() == ty)
+                .findFirst().orElseThrow();
+    }
+
     public void setAutoCommit(boolean autoCommit) {
         if(!this.autoCommit && autoCommit) {
             this.autoCommit = true;
@@ -388,15 +447,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         } else {
             this.autoCommit = autoCommit;
         }
-    }
-
-    public ReleaseType getReleaseStream() {
-        return loadedConfig.getReleaseStream();
-    }
-
-    public void setReleaseStream(ReleaseType stream) {
-        loadedConfig.setReleaseStream(stream);
-        saveIfNeeded();
     }
 
     public void setCurrentTheme(String theme) {
@@ -450,8 +500,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
         private boolean eepromSized;
         @FieldMapping(fieldName = "USING_ARDUINO_IDE", fieldType = FieldType.BOOLEAN)
         private boolean usingArduinoIDE;
-        @FieldMapping(fieldName = "RELEASE_STREAM", fieldType = FieldType.ENUM)
-        private ReleaseType releaseStream;
         @FieldMapping(fieldName = "CURRENT_THEME", fieldType = FieldType.VARCHAR)
         private String currentTheme;
 
@@ -469,7 +517,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             saveToSrc = false;
             eepromSized = true;
             usingArduinoIDE = true;
-            releaseStream = ReleaseType.STABLE;
         }
 
         public boolean isChanged() {
@@ -588,15 +635,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
             this.changed = true;
         }
 
-        public ReleaseType getReleaseStream() {
-            return releaseStream;
-        }
-
-        public void setReleaseStream(ReleaseType releaseStream) {
-            this.changed = releaseStream != this.releaseStream;
-            this.releaseStream = releaseStream;
-        }
-
         public String getCurrentTheme() {
             return currentTheme;
         }
@@ -622,7 +660,6 @@ public class JdbcTcMenuConfigurationStore implements ConfigurationStorage {
                     ", saveToSrc=" + saveToSrc +
                     ", eepromSized=" + eepromSized +
                     ", usingArduinoIDE=" + usingArduinoIDE +
-                    ", releaseStream=" + releaseStream +
                     ", currentTheme='" + currentTheme + '\'' +
                     '}';
         }

@@ -29,6 +29,8 @@ public interface ConfigurationStorage {
         BETA, REGULAR, SUPPORTED
     }
 
+    enum ConfigImportType { BITMAP, FONT }
+
     List<String> loadRecents();
     void saveUniqueRecents(List<String> recents);
 
@@ -74,8 +76,8 @@ public interface ConfigurationStorage {
     void setLastLoadedProject(String absolutePath);
     void emptyLastLoadedProject();
 
-    ReleaseType getReleaseStream();
-    void setReleaseStream(ReleaseType releaseStream);
-
     void addArduinoDirectoryChangeListener(ArduinoDirectoryChangeListener directoryChangeListener);
+
+    String getImportDirectory(ConfigImportType importMode);
+    void setImportDirectory(ConfigImportType  importMode, String directory);
 }

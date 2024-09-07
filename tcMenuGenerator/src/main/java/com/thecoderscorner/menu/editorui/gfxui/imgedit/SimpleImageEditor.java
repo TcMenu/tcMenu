@@ -97,7 +97,7 @@ public class SimpleImageEditor {
             ((Stage)canvas.getScene().getWindow()).close();
         });
         var xyLabel = new Label("");
-        canvas.setPositionUpdateListener((x, y) -> xyLabel.setText(STR."X=\{x}, Y=\{y}"));
+        canvas.setPositionUpdateListener((x, y) -> xyLabel.setText("X=%d, Y=%d".formatted(x, y)));
         hbox.getChildren().addAll(cutButton, copyButton, pasteButton, saveButton, closeButton, xyLabel);
 
         canvas.widthProperty().bind(pane.widthProperty());
@@ -108,7 +108,7 @@ public class SimpleImageEditor {
 
         pane.setCenter(canvas);
         pane.getStyleClass().add("background");
-        pane.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+        pane.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
 
         Scene scene = new Scene(pane);
 
@@ -145,7 +145,7 @@ public class SimpleImageEditor {
         stage.setWidth(800);
         stage.setWidth(600);
         stage.setScene(scene);
-        stage.setTitle(STR."Bitmap Editor \{shortFmtText(format)} \{bitmap.getPixelWidth()} x \{bitmap.getPixelHeight()}");
+        stage.setTitle("Bitmap Editor %s %d x %d".formatted(shortFmtText(format), bitmap.getPixelWidth(), bitmap.getPixelHeight()));
         BaseDialogSupport.getJMetro().setScene(scene);
         stage.setOnCloseRequest(_ -> {
             if(editingMode == EditingMode.BITMAP_EDITOR && canvas.isDirty()) {

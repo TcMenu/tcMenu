@@ -13,6 +13,7 @@ import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BitmapImportPopup;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.BmpDataManager;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativeBmpBitPacker;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.event.ActionEvent;
@@ -37,6 +38,7 @@ import java.util.*;
 import static com.thecoderscorner.menu.domain.util.PortablePalette.PaletteMode;
 import static com.thecoderscorner.menu.editorui.gfxui.font.EmbeddedFontExporter.FontFormat;
 import static com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor.EditingMode.FONT_EDITOR;
+import static com.thecoderscorner.menu.editorui.storage.ConfigurationStorage.ConfigImportType;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.INFO;
 
@@ -51,7 +53,7 @@ public class CreateFontUtilityController {
     public Label fontSizeField;
     public MenuButton generateButton;
     private CurrentProjectEditorUI editorUI;
-    private String homeDirectory;
+    private ConfigurationStorage storage;
     private Path currentDir;
     private Set<UnicodeBlockMapping> chosenMappings = new HashSet<>(Set.of(UnicodeBlockMapping.BASIC_LATIN));
     private final Map<UnicodeBlockMapping,List<FontGlyphDataControl>> controlsByBlock = new HashMap<>();
@@ -61,11 +63,11 @@ public class CreateFontUtilityController {
     private boolean clipboardExport = false;
     private Path lastExportDir;
 
-    public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
+    public void initialise(CurrentProjectEditorUI editorUI, ConfigurationStorage storage) {
         this.editorUI = editorUI;
-        this.homeDirectory = homeDirectory;
+        this.storage = storage;
         var fileName = editorUI.getCurrentProject().getFileName();
-        currentDir = (fileName.equals("New")) ? Path.of(homeDirectory) : Path.of(fileName).getParent();
+        currentDir = (fileName.equals("New")) ? Path.of(storage.getImportDirectory(ConfigImportType.FONT)) : Path.of(fileName).getParent();
         lastExportDir = currentDir;
 
         var clipboardItem = new CheckMenuItem(bundle.getString("core.to.clip"));
@@ -83,7 +85,7 @@ public class CreateFontUtilityController {
 
     private void internalGenerate(FontEncoder.FontFormat format) {
         if(clipboardExport) {
-            logger.log(INFO, STR."Convert font \{format}, to clipboard");
+            logger.log(INFO, "Convert font {} to clipboard", format);
             try(var outStream = new ByteArrayOutputStream()) {
                 EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
@@ -92,7 +94,7 @@ public class CreateFontUtilityController {
                 content.putString(outStream.toString());
                 clipboard.setContent(content);
             } catch (Exception ex) {
-                editorUI.alertOnError("Clipboard export failed", STR."The font was not converted due to the following. \{ex.getMessage()}");
+                editorUI.alertOnError("Clipboard export failed", "The font was not converted due to the following." + ex.getMessage());
             }
         } else {
             logger.log(INFO, "Show font conversion save dialog");
@@ -100,12 +102,12 @@ public class CreateFontUtilityController {
             if (maybeOutFile.isEmpty()) return;
             String outputFile = maybeOutFile.get();
             lastExportDir = Path.of(outputFile).getParent();
-            logger.log(INFO, STR."Convert font \{format}, name \{outputFile}");
+            logger.log(INFO, "Convert font {}, name {}", format, outputFile);
             try (var outStream = new FileOutputStream(outputFile)) {
                 EmbeddedFontExporter exporter = new EmbeddedFontExporter(embeddedFont, outputStructNameField.getText());
                 exporter.encodeFontToStream(outStream, format);
             } catch (Exception ex) {
-                editorUI.alertOnError("File export failed ", STR."The font was not converted due to the following. \{ex.getMessage()}");
+                editorUI.alertOnError("File export failed ", "The font was not converted due to the following. " + ex.getMessage());
             }
         }
     }
@@ -126,7 +128,7 @@ public class CreateFontUtilityController {
                 embeddedFont = new EmbeddedFont(path);
                 recalcFont();
             } catch (Exception e) {
-                editorUI.alertOnError("File load problem", STR."The font file was not loaded - \{e}");
+                editorUI.alertOnError("File load problem", "The font file was not loaded - " + e);
             }
         });
     }
@@ -150,11 +152,12 @@ public class CreateFontUtilityController {
     public void importFont(ActionEvent ignoredActionEvent) {
         if(!shouldOverwrite()) return;
         var createFontDlg = new FontCreationController();
-        var p = (embeddedFont.getFontPath() != null) ? embeddedFont.getFontPath().getParent() : currentDir;
+        var p = Path.of(storage.getImportDirectory(ConfigImportType.FONT));
         var font = createFontDlg.createDialog((Stage)fontFileField.getScene().getWindow(), p, editorUI);
         if(font.isEmpty()) return;
         embeddedFont = font.get();
         chosenMappings = createFontDlg.getChosenMappings();
+        storage.setImportDirectory(ConfigImportType.FONT, embeddedFont.getFontPath().getParent().toString());
         recalcFont();
         checkButtons();
     }
@@ -168,7 +171,7 @@ public class CreateFontUtilityController {
 
             Label title = new Label(blockRange.toString());
             title.setPadding(new Insets(15, 0, 6, 0));
-            title.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize() * 2};");
+            title.setStyle(String.format("-fx-font-size: %d;", GlobalSettings.defaultFontSize() * 2));
             fontRenderArea.add(title, 0, gridRow, 5, 1);
             CheckBox selAllCheck = new CheckBox("Select/Clear All");
             selAllCheck.setOnAction(_ -> {
@@ -186,7 +189,7 @@ public class CreateFontUtilityController {
             fontRenderArea.add(selAllCheck, 6, gridRow, 2, 1);
             fontRenderArea.add(preview, 8, gridRow);
 
-            fontFileField.setText(STR."\{embeddedFont.getFontType()} \{embeddedFont.getFontPath()}");
+            fontFileField.setText("%s %s".formatted(embeddedFont.getFontType(), embeddedFont.getFontPath()));
             outputStructNameField.setText(embeddedFont.getDefaultFontVariableName());
 
             gridRow++;
@@ -206,7 +209,7 @@ public class CreateFontUtilityController {
                         gridRow++;
                     }
                 } catch(Exception ex) {
-                    logger.log(ERROR, STR."Create control has failed at \{new String(Character.toChars(glyph.code()))} \{glyph}", ex);
+                    logger.log(ERROR, "Create control has failed at %s %s".formatted(new String(Character.toChars(glyph.code())), glyph), ex);
                 }
             }
             gridRow++;
@@ -258,12 +261,12 @@ public class CreateFontUtilityController {
 
         var popup = new Popup();
         var vbox = new VBox(4);
-        vbox.setStyle(STR."-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
 
         e.setPrefWidth(640);
         e.setPrefHeight(maxHeight * 2);
 
-        var title = new Label(STR."Glyphs in \{mapping.name()} range \{mapping.getStartingCode()}-\{mapping.getEndingCode()}");
+        var title = new Label("Glyphs in %s range %d-%d".formatted(mapping.name(), mapping.getStartingCode(), mapping.getEndingCode()));
         var closeBtn = new Button("Close");
         closeBtn.setMaxWidth(99999);
         closeBtn.setOnAction(_ -> popup.hide());
@@ -310,7 +313,8 @@ public class CreateFontUtilityController {
 
         private void setFooterText(BorderPane pane) {
             var strSel = glyph.selected() ? "[X] " : "[ ]";
-            pane.setBottom(new Label(STR."\{strSel}U\{glyph.code()} : \{new String(Character.toChars(glyph.code()))}"));
+            char[] theChar = Character.toChars(glyph.code());
+            pane.setBottom(new Label("%sU%d : %s".formatted(strSel, glyph.code(), new String(theChar))));
         }
 
         public void setSelected(boolean selected) {
@@ -331,8 +335,8 @@ public class CreateFontUtilityController {
 
             var box = new VBox(4);
             box.setFillWidth(true);
-            box.setStyle(STR."-fx-font-size: \{GlobalSettings.defaultFontSize()}");
-            var editButton = new Button(STR."Edit Glyph U\{glyph.code()}");
+            box.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
+            var editButton = new Button("Edit Glyph U" + glyph.code());
             editButton.setMaxWidth(99999);
             editButton.setOnAction(_ -> {
                 var editor = new SimpleImageEditor(glyph.data(), NativePixelFormat.MONO_BITMAP, FONT_PALETTE, FONT_EDITOR);
@@ -355,7 +359,7 @@ public class CreateFontUtilityController {
             var closeButton = new Button("Close");
             closeButton.setMaxWidth(99999);
             closeButton.setOnAction(_ -> popup.hide());
-            box.setStyle(STR."-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: \{GlobalSettings.defaultFontSize()}");
+            box.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
             box.getChildren().addAll(selectButton, editButton, closeButton);
             popup.getContent().add(box);
             popup.show(pane.getScene().getWindow());

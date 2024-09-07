@@ -105,7 +105,7 @@ public class EmbeddedFontGlyph {
 
     @Override
     public String toString() {
-        return STR."ConvertedFontGlyph[code=\{code}, fontDims=\{fontDims}, data=\{data}, toBaseLine=\{toBaseLine}, belowBaseline=\{belowBaseline}, totalWidth=\{totalWidth}, selected=\{selected}\{']'}";
+        return "ConvertedFontGlyph[code=%d, fontDims=%s, data=%s, toBaseLine=%d, belowBaseline=%d, totalWidth=%d, selected=%s]".formatted(code, fontDims, data, toBaseLine, belowBaseline, totalWidth, selected);
     }
 
     /**

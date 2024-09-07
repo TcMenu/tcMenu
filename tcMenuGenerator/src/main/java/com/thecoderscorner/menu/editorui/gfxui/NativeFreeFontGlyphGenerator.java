@@ -39,7 +39,7 @@ public class NativeFreeFontGlyphGenerator implements FontGlyphGenerator, AutoClo
         fontPath = path;
         fontHandle = 0;
 
-        try (Arena arena = Arena.ofConfined()) {
+        try (Arena _ = Arena.ofConfined()) {
             logger.log(INFO, "Trying to initialise the library");
             int retCode = (int)tcNative.getFontLibInit().invoke();
             if(retCode != 0) throw new IllegalArgumentException("Font Library init failed");
@@ -138,7 +138,7 @@ public class NativeFreeFontGlyphGenerator implements FontGlyphGenerator, AutoClo
     @Override
     public void deriveFont(int size, Set<UnicodeBlockMapping> newMappings, AntiAliasMode aliasMode) {
         try(Arena arena = Arena.ofConfined()) {
-            logger.log(INFO, STR."Derive font size \{size} mappings \{newMappings.size()} path \{fontPath}");
+            logger.log(INFO, "Derive font size %d mappings %d path %s".formatted(size, newMappings.size(), fontPath));
             if(fontHandle != 0) {
                 tcNative.getFontClose().invoke(fontHandle);
             }

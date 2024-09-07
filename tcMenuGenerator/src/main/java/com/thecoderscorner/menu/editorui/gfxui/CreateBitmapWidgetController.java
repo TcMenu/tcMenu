@@ -6,6 +6,7 @@ import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor;
 import com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImagePane;
 import com.thecoderscorner.menu.editorui.gfxui.pixmgr.*;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.event.ActionEvent;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.gfxui.imgedit.SimpleImageEditor.EditingMode.BITMAP_EDITOR;
+import static com.thecoderscorner.menu.editorui.storage.ConfigurationStorage.ConfigImportType;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 
 public class CreateBitmapWidgetController {
@@ -45,12 +47,12 @@ public class CreateBitmapWidgetController {
     public GridPane imageGridPane;
 
     private CurrentProjectEditorUI editorUI;
-    private String homeDirectory;
     private final List<LoadedImage> loadedImages = new ArrayList<>();
+    private ConfigurationStorage storage;
 
-    public void initialise(CurrentProjectEditorUI editorUI, String homeDirectory) {
+    public void initialise(CurrentProjectEditorUI editorUI, ConfigurationStorage storage) {
         this.editorUI = editorUI;
-        this.homeDirectory = homeDirectory;
+        this.storage = storage;
 
         variableField.textProperty().addListener((_, _, _) -> refreshButtonStates());
 
@@ -169,8 +171,9 @@ public class CreateBitmapWidgetController {
             try(var is = new BufferedInputStream(new FileInputStream(maybeFile.get()))) {
                 Image img = new Image(is);
                 putImageIntoAvailableSlot(img);
+                storage.setImportDirectory(ConfigImportType.BITMAP, Path.of(maybeFile.get()).getParent().toString());
             } catch (Exception ex) {
-                logger.log(System.Logger.Level.ERROR, STR."Image load from file failure \{maybeFile.get()}", ex);
+                logger.log(System.Logger.Level.ERROR, "Image load from file failure " + maybeFile.get(), ex);
                 editorUI.alertOnError("Error loading image", ex.getMessage());
             }
         }
@@ -185,7 +188,7 @@ public class CreateBitmapWidgetController {
             }
             catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "Could not put file content on clipboard", e);
-                editorUI.alertOnError("Not exported to Clipboard", STR."Not exported to Clipboard \{e.getMessage()}");
+                editorUI.alertOnError("Not exported to Clipboard", "Not exported to Clipboard " + e.getMessage());
             }
             return;
         }
@@ -196,7 +199,7 @@ public class CreateBitmapWidgetController {
                 exportSuccessful(maybeName.get());
             } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "File could not be written", e);
-                editorUI.alertOnError("Not exported to file", STR."Not exported to file \{e.getMessage()}");
+                editorUI.alertOnError("Not exported to file", "Not exported to file " + e.getMessage());
             }
         }
     }
@@ -229,7 +232,7 @@ public class CreateBitmapWidgetController {
             }
             catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "Could not put file content on clipboard", e);
-                editorUI.alertOnError("Not exported to Clipboard", STR."Not exported to Clipboard \{e.getMessage()}");
+                editorUI.alertOnError("Not exported to Clipboard", "Not exported to Clipboard " + e.getMessage());
             }
             return;
         }
@@ -240,22 +243,22 @@ public class CreateBitmapWidgetController {
                 exportSuccessful(maybeName.get());
             } catch (Exception e) {
                 logger.log(System.Logger.Level.ERROR, "File could not be written", e);
-                editorUI.alertOnError("File not written", STR."Error while writing file \{e.getMessage()}");
+                editorUI.alertOnError("File not written", "Error while writing file " + e.getMessage());
             }
         }
     }
 
     private Optional<Path> getInitialDir() {
         if(editorUI.getCurrentProject().getFileName().equals("New")) {
-            return Optional.of(Path.of(homeDirectory));
+            return Optional.of(Path.of(storage.getImportDirectory(ConfigImportType.BITMAP)));
         } else {
             return Optional.of(Path.of(editorUI.getCurrentProject().getFileName()).getParent());
         }
     }
 
     private void exportSuccessful(String where) {
-        showAlertAndWait(Alert.AlertType.INFORMATION, STR."\{variableField.getText()} successfully exported",
-                STR."\{variableField.getText()} was successfully exported to \{where}", ButtonType.CLOSE);
+        showAlertAndWait(Alert.AlertType.INFORMATION, variableField.getText() + " successfully exported",
+                "%s was successfully exported to %s".formatted(variableField.getText(), where), ButtonType.CLOSE);
     }
 
     LoadedImage createBitmap(BitmapImportPopup popup) {

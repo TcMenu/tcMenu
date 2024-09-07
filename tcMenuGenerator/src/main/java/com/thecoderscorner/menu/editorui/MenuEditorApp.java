@@ -75,9 +75,15 @@ public class MenuEditorApp extends Application implements MenuEditorContext {
             appContext = new MenuEditorConfig();
             INSTANCE = this;
         } catch(Exception ex) {
+            String msg;
+            if(ex.getMessage().contains("Database lock acquisition failure")) {
+                msg = "Please check if designer is already running, or you have opened the database in the .tcmenu directory.";
+            } else {
+                msg = "App did not start due to " + ex.getMessage() + ". See log for more details.";
+            }
             System.getLogger(MenuEditorApp.class.getSimpleName()).log(ERROR, "Failed loading config", ex);
             AlertUtil.showAlertAndWait(AlertType.ERROR,"Could not load designer",
-                    "App did not start due to " + ex.getMessage() + ". See log for more details.",
+                    msg,
                     ButtonType.CLOSE);
             primaryStage.close(); // make sure the app closes here.
             return;

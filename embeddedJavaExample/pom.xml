@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- it is safe to edit this file, it will not be replaced by TcMenu designer unless you delete it --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thecoderscorner.menuexample</groupId>
-    <artifactId>EmbeddedJavaDemo</artifactId>
-    <name>EmbeddedJavaDemo</name>
+    <artifactId>embeddedJavaExample</artifactId>
+    <name>embeddedJavaExample</name>
     <description>An application built with TcMenu Designer</description>
     <version>0.0.1-SNAPSHOT</version>
 
