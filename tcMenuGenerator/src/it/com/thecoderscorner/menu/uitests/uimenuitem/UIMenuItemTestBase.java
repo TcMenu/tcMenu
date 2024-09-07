@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
+package com.thecoderscorner.menu.uitests.uimenuitem;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;

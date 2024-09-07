@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorint.uitests;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem;
 import org.hamcrest.BaseMatcher;

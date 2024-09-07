@@ -1,4 +1,4 @@
-package com.thecoderscorner.menu.editorint.uitests;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.menu.editorui.dialog.SelectEepromTypeDialog;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.*;

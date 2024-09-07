@@ -4,7 +4,7 @@
  *
  */
 
-package com.thecoderscorner.menu.editorint.uitests.uimenuitem;
+package com.thecoderscorner.menu.uitests.uimenuitem;
 
 import com.thecoderscorner.menu.domain.CustomBuilderMenuItem;
 import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
