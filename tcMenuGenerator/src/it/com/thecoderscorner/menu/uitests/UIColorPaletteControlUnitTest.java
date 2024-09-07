@@ -1,8 +1,11 @@
-package com.thecoderscorner.menu.editorui.gfxui.pixmgr;
+package com.thecoderscorner.menu.uitests;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.PortablePalette;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NBppBitPacker;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.NativePixelFormat;
+import com.thecoderscorner.menu.editorui.gfxui.pixmgr.UIColorPaletteControl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
