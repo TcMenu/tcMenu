@@ -51,15 +51,7 @@ public class TcPreferencesPersistence {
         } else {
             color = new ControlColor(); // not in use color
         }
-        switch (compType) {
-            case TEXT_FIELD -> settings.getTextColor().copyColorsFrom(color);
-            case BUTTON -> settings.getButtonColor().copyColorsFrom(color);
-            case HIGHLIGHT -> settings.getHighlightColor().copyColorsFrom(color);
-            case CUSTOM -> settings.getUpdateColor().copyColorsFrom(color);
-            case DIALOG -> settings.getDialogColor().copyColorsFrom(color);
-            case ERROR -> settings.getErrorColor().copyColorsFrom(color);
-            case PENDING -> settings.getPendingColor().copyColorsFrom(color);
-        }
+        settings.getUnderlyingColor(compType).copyColorsFrom(color);
     }
 
     public TcPreferencesPersistence(GlobalSettings settings) {
