@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public class TagValTextParser {
     public static final char FIELD_TERMINATOR = '|';
+    private static final int MAX_FIELD_EXPECTED = 256;
     private final Map<String, String> keyToValue = new HashMap<>(32);
 
     /**
@@ -48,27 +49,27 @@ public class TagValTextParser {
     }
 
     private String readString(ByteBuffer buffer) {
-        StringBuilder sb = new StringBuilder(32);
-        while(buffer.hasRemaining()) {
-            char ch = (char) buffer.get();
-            if(ch == MenuCommandProtocol.PROTO_END_OF_MSG) {
+        byte rawData[] = new byte[MAX_FIELD_EXPECTED];
+        int position = 0;
+        while(buffer.hasRemaining() && position < MAX_FIELD_EXPECTED) {
+            var by = buffer.get();
+            if(by == MenuCommandProtocol.PROTO_END_OF_MSG) {
                 return "\u0002";
             }
-            else if(ch == '\\') {
+            else if(by == '\\') {
                 // special escape case allows anything to be sent
-                ch = (char) buffer.get();
-                sb.append(ch);
+                rawData[position++] = buffer.get();
             }
-            else if(ch == '=' || ch == TagValTextParser.FIELD_TERMINATOR) {
+            else if(by == '=' || by == TagValTextParser.FIELD_TERMINATOR) {
                 // end of current token
-                return sb.toString();
+                return new String(rawData, 0, position);
             }
             else {
                 // within current token
-                sb.append(ch);
+                rawData[position++] = by;
             }
         }
-        return sb.toString();
+        return new String(rawData, 0, position);
     }
 
     /**
