@@ -180,7 +180,7 @@ There is also a Webserver/HTML based app that you can deploy, but it only really
 
 ## Working with menus using the CLI
 
-The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://tcmenu.github.io/documentation/products/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
+The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
 
 ## Loading and saving menu items
 
