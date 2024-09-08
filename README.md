@@ -19,9 +19,9 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Documentation
 
-[UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
+[UI user guide, getting started and other documentation](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/)
 
-[Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
+[Full API embedded documentation](https://tcmenu.github.io/documentation/ref-docs/tcmenu/html/index.html)
 
 [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
 
