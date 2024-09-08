@@ -1,11 +1,11 @@
 <TcMenuPlugin name="No remote capabilities" id="2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb" subsystem="REMOTE"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <All/>
     </SupportedPlatforms>
     <Description>Select this option when you don't need any remote control functionality.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-library-remote-connectivity/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-iot/menu-library-remote-connectivity/"/>
     <RequiredLibraries/>
     <ImageFile>no-display.png</ImageFile>
 

@@ -17,7 +17,7 @@ We have a schema for the plugin, always include it in the top level document as 
     <TcMenuPluginDefinition shortName="core-themes" 
         xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin.xsd">
+        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin.xsd">
 
 Within the top level element we provide the general details, the author of the plugin, the url, version (using semantic versioning), name and description. You also provide a license, and a URL to the licence file.
 

@@ -7,7 +7,7 @@
         <Platform>ARDUINO_32</Platform>
     </SupportedPlatforms>
     <Description>A unit test plugin that is not intended for production use</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/serial-remote-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/serial-remote-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>joystick.jpg</ImageFile>
 

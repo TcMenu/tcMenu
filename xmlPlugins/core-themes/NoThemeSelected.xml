@@ -1,12 +1,12 @@
 <TcMenuPlugin name="%theme.not.required" id="2026a7f2-0d5b-43f5-9f98-4f0eacac4c0e"
               subsystem="THEME" requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
     <Description>%theme.not.required.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/rendering-with-tcmenu-lcd-tft-oled/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/rendering-with-tcmenu-lcd-tft-oled/"/>
     <RequiredLibraries/>
     <ImageFile>no-theme.png</ImageFile>
 

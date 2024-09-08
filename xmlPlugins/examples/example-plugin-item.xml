@@ -10,7 +10,7 @@
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
     <Description>Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries>
         <Library>Library1</Library>
         <Library>Library2</Library>

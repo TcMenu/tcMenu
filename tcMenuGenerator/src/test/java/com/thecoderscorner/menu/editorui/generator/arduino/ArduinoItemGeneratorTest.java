@@ -448,8 +448,8 @@ public class ArduinoItemGeneratorTest {
         List<String> codeLines = new ArrayList<>();
         if(!(item instanceof RuntimeListMenuItem rli) || rli.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.CUSTOM_RTCALL) {
             codeLines.addAll(List.of("// This callback needs to be implemented by you, see the below docs:",
-                    "//  1. List Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
-                    "//  2. ScrollChoice Docs - https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",
+                    "//  1. List Docs - https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/menu-item-types/list-menu-item/",
+                    "//  2. ScrollChoice Docs - https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/menu-item-types/scrollchoice-menu-item/",
                     "int CALLBACK_FUNCTION " + cbName + "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
                     "    switch(mode) {",
                     "    default:",
@@ -582,7 +582,7 @@ public class ArduinoItemGeneratorTest {
 
     private Iterable<String> standardRuntimeCb(String name, String rtFn) {
         return List.of("int CALLBACK_FUNCTION " + name + "(RuntimeMenuItem* item, uint8_t row, RenderFnMode mode, char* buffer, int bufferSize) {",
-                "    // See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-item-types/based-on-runtimemenuitem/",
+                "    // See https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/menu-item-types/based-on-runtimemenuitem/",
                 "    switch(mode) {",
                 "    case RENDERFN_NAME:",
                 "        return false; // use default",

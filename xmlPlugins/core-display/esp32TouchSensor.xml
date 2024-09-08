@@ -2,12 +2,12 @@
               id="cc0f9246-03be-4adf-b1f5-dd501085122a" subsystem="INPUT"
               requiresDesigner="2.0"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
            <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
     <Description>%esp32.sensor.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/touch-pad-sensor-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/touch-pad-sensor-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>touch-pad-sensor.jpg</ImageFile>
 

@@ -1,6 +1,6 @@
 <TcMenuPlugin name="Maxtrix Keyboard (w/optional encoder) input" id="71DAF854-DF8D-4F0B-9039-23C5583C85B1" subsystem="INPUT"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>Arduino</PlatformGroup>
         <PlatformGroup>TrueCpp</PlatformGroup>

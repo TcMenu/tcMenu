@@ -1,11 +1,11 @@
 <TcMenuPlugin name="%core.no.display" id="cdd0be35-f6ff-40ae-86fc-f9d04a6e8679" subsystem="DISPLAY"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
        <All/>
     </SupportedPlatforms>
     <Description>%core.no.display.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/customise-menu-input-display-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/customise-menu-input-display-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>no-display.png</ImageFile>
 

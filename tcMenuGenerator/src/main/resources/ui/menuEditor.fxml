@@ -109,7 +109,7 @@
                           text="%menu.help.docs"/>
                 <MenuItem mnemonicParsing="false" onAction="#onGettingStarted" text="%menu.help.getting.started"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
-                <MenuItem mnemonicParsing="false" onAction="#onCommericalSupport" text="Commercial Support/Consultancy"/>
+                <MenuItem mnemonicParsing="false" onAction="#onTheCodersCorner" text="The Coders Corner Website"/>
                 <MenuItem mnemonicParsing="false" onAction="#onMakeADonation" text="Make Donation - GitHub"/>
                 <MenuItem mnemonicParsing="false" onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>

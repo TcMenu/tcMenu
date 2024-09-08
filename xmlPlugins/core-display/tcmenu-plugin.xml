@@ -1,10 +1,10 @@
 <?xml version="1.0" ?>
 <TcMenuPluginDefinition shortName="core-display" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin.xsd">
+                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin.xsd">
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
-        <Version>4.3.1-SNAPSHOT</Version>
+        <Version>4.3.1</Version>
         <Name>%plugin.name</Name>
         <Description>This plugin provides support for most basic inputs and most textual and graphical displays.</Description>
         <License name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>

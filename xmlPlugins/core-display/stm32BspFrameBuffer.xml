@@ -2,13 +2,13 @@
               id="fc7b8f22-6553-43d6-9968-df4ee2562aaf" subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>MBED_RTOS</Platform>
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>%ltdc.driver.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed-stm32-menu-touch-display/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/mbed-stm32-menu-touch-display/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
 

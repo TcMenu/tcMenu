@@ -12,7 +12,7 @@ The root item of the plugin contains the name of the plugin and also the subsyst
                   id="valid-uuid" subsystem="DISPLAY"
                   requiresDesigner="2.0" needsTheme="true"
                   xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+                  xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
 
 Next we provide the platforms on which the plugin can work, below lists all the possibilities for that field: 
 

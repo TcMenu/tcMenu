@@ -2,7 +2,7 @@
               id="e6342680-6fab-4d1b-ac08-ce8dbfc0974c" subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>ARDUINO_32</Platform>
         <Platform>ARDUINO_ESP8266</Platform>
@@ -10,7 +10,7 @@
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>Draw menus using the TFT_eSPI library with any configuration that you have for color TFTs. Supports double buffering and all menu display types. Can use the library touch functions.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/tft_espi-renderer-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/tft_espi-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>adagfx-color.jpg</ImageFile>
     <Properties>

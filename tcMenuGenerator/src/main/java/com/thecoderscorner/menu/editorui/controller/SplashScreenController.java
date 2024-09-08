@@ -12,7 +12,8 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.FACEBOOK_PAGE_URL;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TWITTER_X_FOLLOW_URL;
 
 public class SplashScreenController {
     private CurrentProjectEditorUI editorUI;
@@ -55,10 +56,6 @@ public class SplashScreenController {
         BaseDialogSupport.setTheme(darkMode);
         BaseDialogSupport.getJMetro().setScene(closeButton.getScene());
         themeListener.accept(darkMode);
-    }
-
-    public void onSupportOptions(ActionEvent ignored) {
-        editorUI.browseToURL(TCMENU_COMMERCIAL_SUPPORT_URL);
     }
 
     public void onBuyMeACoffee(ActionEvent ignored) {

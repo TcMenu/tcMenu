@@ -86,7 +86,7 @@ public class DefaultXmlPluginLoaderTest {
         assertEquals("20409bb8-b8a1-4d1d-b632-2cf9b57353e3", item.getId());
         assertEquals("Control menu with analog joystick", item.getDescription());
         assertEquals("Use an analog joystick connected to one of the Arduino inbuilt analog pins along with a switch also connected to an Arduino pin.", item.getExtendedDescription());
-        assertEquals("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/", item.getDocsLink());
+        assertEquals("https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/", item.getDocsLink());
         assertEquals("joystick.jpg", item.getImageFileName());
         assertEquals(SubSystem.INPUT, item.getSubsystem());
         assertThat(item.getSupportedPlatforms()).containsExactlyInAnyOrder(ARDUINO_AVR, ARDUINO_AVR, ARDUINO32);

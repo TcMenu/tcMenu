@@ -18,6 +18,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires com.thecoderscorner.embedcontrol.core;
 
     exports com.thecoderscorner.menu.editorui;
+    exports com.thecoderscorner.menu.editorui.cli;
     exports com.thecoderscorner.menu.editorui.controller;
     exports com.thecoderscorner.menu.editorui.storage;
     exports com.thecoderscorner.menu.editorui.project;

@@ -3,12 +3,12 @@
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>A fork of AdafruitGFX that we maintain supporting various OLED displays on PicoSDK, mbed6 and other native environments based on IoAbstraction.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/mbed_oled_plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_mbed-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>oled-display.jpg</ImageFile>
     <Properties>
