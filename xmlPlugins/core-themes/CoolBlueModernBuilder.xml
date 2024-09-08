@@ -47,7 +47,7 @@
     </GlobalVariables>
 
     <SetupFunctions>
-        <Function name="installDarkModeModernTheme">
+        <Function name="installCoolBlueModernTheme">
             <Param value="renderer"/>
             <Param font="${ITEM_FONT}"/>
             <Param font="${TITLE_FONT}"/>
