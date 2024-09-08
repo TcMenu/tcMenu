@@ -153,8 +153,6 @@ TcMenu was built from day one for remote control and there are a few different o
 
 This desktop UI can be easily built from the source here using the instructions provided, it is also packaged for desktop those who want to use it as it exists out of the box. This offering builds on top of JavaFX, it has an automated UI that builds automatically for any menu app with form support for more advanced cases.
 
-[https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-remote-connection-arduino-desktop/]
-
 ### Java / JVM API
 
 There is a java API for accessing the menu remotely, source includes JavaDoc to help getting started. There is an example JavaFX UI built with it within the above Repo. Include the following into your maven build file:
