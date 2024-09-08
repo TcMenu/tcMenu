@@ -9,7 +9,7 @@ A menu library and designer UI for Arduino and mbed that is modular enough to su
 
 Initially, you can use the menu designer UI that is packaged with every release, and available for Windows, macOS, and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
 
-TheCodersCorner.com invest a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost neutral to me by using either option to sponsor the project. We have [some commercial offerings](https://www.thecoderscorner.com/support-services/training-support/) _but these are presently very limited as I work full time_. 
+TcMenu organisation invest a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost neutral to me by using either option to sponsor the project.
 
 Sponsor me on [GitHub](https://github.com/TcMenu/tcMenu) (this repository). 
 
