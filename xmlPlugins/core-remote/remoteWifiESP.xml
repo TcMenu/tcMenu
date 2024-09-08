@@ -1,12 +1,12 @@
 <TcMenuPlugin name="ESP Wifi control of your menu for ESP boards" id="46c30011-cac6-4598-a7b8-b0630d55daab" subsystem="REMOTE"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>ARDUINO_ESP8266</Platform>
         <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
     <Description>Use this option to be able to control the menu using the ESP board built in WiFi controller. The full menu structure will be available to the remote using either the protocol or the API.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/esp-wifi-remote-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-iot/esp-wifi-remote-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>esp8266.jpg</ImageFile>
 

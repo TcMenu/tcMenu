@@ -1,11 +1,11 @@
 <TcMenuPlugin name="Embedded OpenJDK / JavaFX renderer" id="59f05a22-8873-4bfe-86d4-73ef874a0283" subsystem="DISPLAY" needsTheme="false"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <Platform>RASPBERRY_PIJ</Platform>
     </SupportedPlatforms>
     <Description>JavaFX application and framework that can be used to render the menu onto an embedded Linux device such as a Raspberry PI.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/embedded_java_raspberru_pi/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/tcmenu-openjfx-raspberrypi-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>embedded-java.png</ImageFile>
 

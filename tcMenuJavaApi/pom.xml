@@ -13,7 +13,7 @@
     <name>tcMenuJavaAPI</name>
     <version>4.3.1-SNAPSHOT</version>
     <description>A series of domain and serialisation components for the TcMenu library</description>
-    <url>https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/</url>
+    <url>https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/</url>
 
     <licenses>
         <license>

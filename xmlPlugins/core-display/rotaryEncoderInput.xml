@@ -2,13 +2,13 @@
               id="6dd87e7d-e751-4912-a70d-91793b1d3d87" subsystem="INPUT"
               requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>Arduino</PlatformGroup>
         <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>Hardware rotary encoder with acceleration that needs no external components in most cases. It can either be connected direct to Arduino or on an i2c expander (8574, 23017). With long wire runs may need stronger pull up resistors near the device.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>rotary-encoder.jpg</ImageFile>
 

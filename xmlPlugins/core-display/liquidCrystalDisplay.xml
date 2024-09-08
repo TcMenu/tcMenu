@@ -2,13 +2,13 @@
               id="61f370f4-0294-41cf-8988-1458f242914a" subsystem="DISPLAY"
               requiresDesigner="2.2"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>Arduino</PlatformGroup>
         <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>LiquidCrystal based display driver that can be configured to work with any pin arrangement. Just set the EN, RS, Data pins at a minimum. It also has optional inbuilt backlight and PWM contrast support.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/liquidcrystalio-hd44780-renderer-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/liquidcrystalio-hd44780-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>lcd-display.jpg</ImageFile>
 

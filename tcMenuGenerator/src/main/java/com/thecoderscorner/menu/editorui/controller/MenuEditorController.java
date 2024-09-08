@@ -823,16 +823,16 @@ public class MenuEditorController {
         }
     }
 
-    public void onCommericalSupport(ActionEvent ignored) {
-        editorUI.browseToURL(TCMENU_COMMERCIAL_SUPPORT_URL);
-    }
-
     public void onMakeADonation(ActionEvent ignored) {
         editorUI.browseToURL(SPONSOR_TCMENU_PAGE);
     }
 
     public void onBuyMeACoffee(ActionEvent ignored) {
         editorUI.browseToURL(BUY_ME_A_COFFEE_URL);
+    }
+
+    public void onTheCodersCorner(ActionEvent actionEvent) {
+        editorUI.browseToURL(THE_CODERS_CORNER_URL);
     }
 
     public class MenuItemWithDescription {

@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <TcMenuPluginDefinition shortName="demo-plugin" xmlns="https://www.thecoderscorner.com/libraries/tcmenuPlugin"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://www.thecoderscorner.com/products/arduino-libraries/libraries/tcmenu-plugin.xsd">
+                        xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPlugin https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin.xsd">
     <GeneralDetails>
         <Author name="The Coders Corner" url="http://www.thecoderscorner.com/" />
         <Version>1.3.5</Version>

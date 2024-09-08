@@ -46,20 +46,20 @@ import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class AppInformationPanel {
-    public static final String LIBRARY_DOCS_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/";
+    public static final String LIBRARY_DOCS_URL = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/";
     public static final String GITHUB_PROJECT_URL = "https://github.com/TcMenu/tcMenu/";
     public static final String GITHUB_LANGUAGE_FILES_URL = GITHUB_PROJECT_URL + "blob/master/tcMenuGenerator/scripts/i18n-readme.md";
     public static final String GITHUB_DISCUSSION_URL = GITHUB_PROJECT_URL + "discussions";
-    public static final String GETTING_STARTED_PAGE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
-    public static final String FONTS_GUIDE_URL = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
+    public static final String GETTING_STARTED_PAGE_URL = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-overview-quick-start/";
+    public static final String FONTS_GUIDE_URL = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/using-custom-fonts-in-menu/";
     public static final String TCC_FORUM_PAGE = "https://www.thecoderscorner.com/jforum/recentTopics/list.page";
-    public static final String EEPROM_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/menu-eeprom-integrations/";
-    public static final String AUTHENTICATOR_HELP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/secure-menuitem-pins-and-remotes/";
+    public static final String EEPROM_HELP_PAGE = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/menu-eeprom-integrations/";
+    public static final String AUTHENTICATOR_HELP_PAGE = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/secure-menuitem-pins-and-remotes/";
     public static final String SPONSOR_TCMENU_PAGE = "https://github.com/sponsors/davetcc";
     public static final String BUY_ME_A_COFFEE_URL = "https://www.buymeacoffee.com/davetcc";
-    public static final String IO_EXPANDER_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/setting-up-io-expanders-in-menu-designer/";
-    public static final String MENU_IN_MENU_GUIDE_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/";
-    public static final String CREATE_USE_BITMAP_PAGE = "https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/creating-and-using-bitmaps-menu/";
+    public static final String IO_EXPANDER_GUIDE_PAGE = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/setting-up-io-expanders-in-menu-designer/";
+    public static final String MENU_IN_MENU_GUIDE_PAGE = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-iot/java-menu-in-menu/";
+    public static final String CREATE_USE_BITMAP_PAGE = "https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/creating-and-using-bitmaps-menu/";
 
     private final PluginEmbeddedPlatformsImpl platforms = new PluginEmbeddedPlatformsImpl();
     private final MenuEditorController controller;
