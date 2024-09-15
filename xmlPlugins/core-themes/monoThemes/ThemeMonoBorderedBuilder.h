@@ -18,6 +18,8 @@ color_t defaultItemPaletteMono[] = {WHITE, BLACK, WHITE, WHITE};
  */
 void installMonoBorderTitleTheme(GraphicsDeviceRenderer& gr, const MenuFontDef& itemFont, const MenuFontDef& titleFont,
                                  bool needEditingIcons, BaseGraphicalRenderer::TitleMode titleMode, bool useUnicode) {
+
+    // See https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/themes/rendering-with-themes-icons-grids/
     TcThemeBuilder themeBuilder(gr);
     themeBuilder.withSelectedColors(0, 1)
             .dimensionsFromRenderer()

@@ -1,4 +1,4 @@
-<TcMenuPlugin name="%adafruit.mbed.oled.name"
+<TcMenuPlugin name="LEGACY Adafruit OLED for Mbed (see newer version)"
               id="8a15d500-410f-489d-b3dc-540b05e630ed" subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"

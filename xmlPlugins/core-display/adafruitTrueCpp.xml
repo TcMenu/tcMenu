@@ -53,7 +53,17 @@
         </Property>
     </Properties>
 
-    <ApplicabilityDefs/>
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="MBED_AND_SPI" mode="and">
+            <Applicability whenProperty="TARGET" isValue="MBED_RTOS"/>
+            <Applicability whenProperty="BUS_TYPE" isValue="SPI"/>
+        </ApplicabilityDef>
+
+        <ApplicabilityDef key="NOT_MBED_SPI" mode="and">
+            <Applicability whenProperty="TARGET" isNotValue="MBED_RTOS"/>
+            <Applicability whenProperty="BUS_TYPE" isValue="SPI"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
 
     <SourceFiles>
         <Replacement find="Adafruit_Header" replace="oled/AdafruitSSD1306I2c" whenProperty="BUS_TYPE" isValue="I2C"/>
@@ -71,9 +81,20 @@
 
     <GlobalVariables>
         <Variable name="${SERIAL_BUS}" type="WireType" export="only" whenProperty="BUS_TYPE" isValue="I2C"/>
+        <Variable name="${SERIAL_BUS}" type="SPI" export="only" applicabilityRef="MBED_AND_SPI" />
 
-        <Variable name="${DISPLAY_VARIABLE}" type="AdafruitSSD1306Spi" export="true" whenProperty="BUS_TYPE" isValue="SPI" useNew="true">
+        <Variable name="${DISPLAY_VARIABLE}" type="AdafruitSSD1306Spi" export="true" applicabilityRef="NOT_MBED_SPI" useNew="true">
             <Param value="SPIWithSettings(${SERIAL_BUS}, ${DISPLAY_CS_PIN}, ${DISPLAY_SPI_FREQ})" />
+            <Param value="${DISPLAY_RS_PIN}"/>
+            <Param value="${DISPLAY_RESET_PIN}"/>
+            <Param value="${DISPLAY_HEIGHT}"/>
+            <Param value="${DISPLAY_WIDTH}"/>
+            <Param value="${TEXT_ENCODING}"/>
+            <Param value="${DISPLAY_TYPE}"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}" type="AdafruitSSD1306Spi" export="true" applicabilityRef="MBED_AND_SPI" useNew="true">
+            <Param value="SPIWithSettings(&amp;${SERIAL_BUS}, ${DISPLAY_CS_PIN}, ${DISPLAY_SPI_FREQ})" />
             <Param value="${DISPLAY_RS_PIN}"/>
             <Param value="${DISPLAY_RESET_PIN}"/>
             <Param value="${DISPLAY_HEIGHT}"/>
