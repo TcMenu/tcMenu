@@ -206,14 +206,8 @@ public class MenuEditorController {
 
     private void populateAllMenus() {
         if(configStore.isUsingArduinoIDE()) {
-            boolean ok = populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples", 0);
-            ok = ok && populateMenu(menuSketches, installer.getArduinoDirectory(), "", 0);
-
-            if(!ok) {
-                editorUI.alertOnError(
-                        bundle.getString("core.arduino.or.libraries.missing"),
-                        "Please check the Arduino and libraries directory from menu 'Edit -> General Settings'");
-            }
+            populateMenu(examplesMenu, installer.findLibraryInstall("tcMenu"), "examples", 0);
+            populateMenu(menuSketches, installer.getArduinoDirectory(), "", 0);
         }
         darkModeMenuFlag.setSelected(BaseDialogSupport.getTheme().equals("darkMode"));
     }

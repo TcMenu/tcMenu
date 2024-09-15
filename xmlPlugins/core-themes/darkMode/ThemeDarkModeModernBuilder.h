@@ -28,6 +28,7 @@ const color_t darkModeActionPalette[] = {RGB(255, 255, 255), RGB(35,35,35), RGB(
 void installDarkModeModernTheme(GraphicsDeviceRenderer& gr, const MenuFontDef& itemFont, const MenuFontDef& titleFont,
                                 bool needEditingIcons, BaseGraphicalRenderer::TitleMode titleMode, bool useUnicode) {
 
+    // See https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/themes/rendering-with-themes-icons-grids/
     TcThemeBuilder themeBuilder(gr);
 
     themeBuilder.dimensionsFromRenderer()
