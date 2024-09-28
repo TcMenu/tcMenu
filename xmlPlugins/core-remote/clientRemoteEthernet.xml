@@ -15,7 +15,7 @@
     <ImageFile>ethernet-shield.jpg</ImageFile>
 
     <Properties>
-        <Property id="ETH_LIBRARY_TYPE" name="Ethernet library type" desc="Choose the library that supports your hardware" initial="ETHERNET_2" type="choice">
+        <Property id="CLIP_ETH_LIBRARY_TYPE" name="Ethernet library type" desc="Choose the library that supports your hardware" initial="ETHERNET_2" type="choice">
             <Choices>
                 <Choice desc="Ethernet 2">ETHERNET_2</Choice>
                 <Choice desc="UIP Ethernet">UIP_ENC28J60</Choice>
@@ -24,9 +24,17 @@
                 <Choice desc="ESP8266 Arduino">ESP8266_WIFI</Choice>
             </Choices>
         </Property>
-        <Property id="REMOTE_IP_ADDRESS" name="IP Address of the server" initial="127.0.0.1" type="text"
+        <Property id="CLIP_ADDR_TYPE" name="How to interpret the address field" initial="hardwired" type="choice"
+                  desc="The provided address can either be hardwired, a variable or compiler definition">
+            <Choices>
+                <Choice desc="Address is a hardwired string">hardwired</Choice>
+                <Choice desc="Address is a variable in my code">variable</Choice>
+                <Choice desc="Address is a compiler definition">flag</Choice>
+            </Choices>
+        </Property>
+        <Property id="CLIP_REMOTE_ADDRESS" name="Address of the server" initial="127.0.0.1" type="text"
                   desc="The IP address of the server to connect to."/>
-        <Property id="REMOTE_PORT" name="Remote Port" initial="3333" desc="The port on which the server is listening"
+        <Property id="CLIP_REMOTE_PORT" name="Remote Port" initial="3333" desc="The port on which the server is listening"
                   type="int" min="0" max="65355"/>
     </Properties>
 
@@ -34,16 +42,16 @@
     </ApplicabilityDefs>
 
     <SourceFiles>
-        <Replacement find="Ethernet.h" replace="STM32Ethernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="STM32ETHERNET"/>
-        <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="Ethernet.h" replace="WiFi.h" whenProperty="ETH_LIBRARY_TYPE" isValue="ESP32_WIFI"/>
-        <Replacement find="Ethernet.h" replace="ESP8266WiFi.h" whenProperty="ETH_LIBRARY_TYPE" isValue="ESP8266_WIFI"/>
+        <Replacement find="Ethernet.h" replace="STM32Ethernet.h" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="STM32ETHERNET"/>
+        <Replacement find="Ethernet.h" replace="UIPEthernet.h" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="Ethernet.h" replace="WiFi.h" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="ESP32_WIFI"/>
+        <Replacement find="Ethernet.h" replace="ESP8266WiFi.h" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="ESP8266_WIFI"/>
 
-        <Replacement find="EthernetClient" replace="UIPClient" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
-        <Replacement find="EthernetServer" replace="UIPServer" whenProperty="ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="EthernetClient" replace="UIPClient" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
+        <Replacement find="EthernetServer" replace="UIPServer" whenProperty="CLIP_ETH_LIBRARY_TYPE" isValue="UIP_ENC28J60"/>
 
-        <Replacement find="EthernetClient" replace="WiFiClient" whenProperty="ETH_LIBRARY_TYPE" matches="ESP.*"/>
-        <Replacement find="EthernetServer" replace="WiFiServer" whenProperty="ETH_LIBRARY_TYPE" matches="ESP.*"/>
+        <Replacement find="EthernetClient" replace="WiFiClient" whenProperty="CLIP_ETH_LIBRARY_TYPE" matches="ESP.*"/>
+        <Replacement find="EthernetServer" replace="WiFiServer" whenProperty="CLIP_ETH_LIBRARY_TYPE" matches="ESP.*"/>
 
         <SourceFile name="ethernetSrc/ClientEthernetTransport.cpp"/>
         <SourceFile name="ethernetSrc/ClientEthernetTransport.h"/>
@@ -55,10 +63,16 @@
     </IncludeFiles>
 
     <GlobalVariables>
-        <Variable name="clientEthInit" type="ClientEthernetInitialisation" export="true">
-            <Param value='"${REMOTE_IP_ADDRESS}"' />
-            <Param value="${REMOTE_PORT}" />
+        <Variable name="${CLIP_REMOTE_ADDRESS}" type="const char*" export="only" whenProperty="CLIP_ADDR_TYPE" isValue="variable"/>
+        <Variable name="clientEthInit" type="ClientEthernetInitialisation" export="true" whenProperty="CLIP_ADDR_TYPE" isValue="hardwired">
+            <Param value='"${CLIP_REMOTE_ADDRESS}"' />
+            <Param value="${CLIP_REMOTE_PORT}" />
         </Variable>
+        <Variable name="clientEthInit" type="ClientEthernetInitialisation" export="true" whenProperty="CLIP_ADDR_TYPE" isNotValue="hardwired">
+            <Param value="${CLIP_REMOTE_ADDRESS}" />
+            <Param value="${CLIP_REMOTE_PORT}" />
+        </Variable>
+        
         <Variable name="clientEthTransport" type="ClientEthernetTagValTransport" export="true"/>
         <Variable name="clientConnection" type="TagValueRemoteServerConnection" export="false">
             <Param value="clientEthTransport"/>
