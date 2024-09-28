@@ -6,7 +6,7 @@
         <PlatformGroup>TrueCpp</PlatformGroup>
     </SupportedPlatforms>
     <Description>Use this option to fully control a menu using a matrix keyboard and optionally also a rotary encoder.</Description>
-    <Documentation link="http://thecoderscorner.com/products/arduino-libraries/tc-menu/menu-control-using-matrix-keyboard/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/menu-control-using-matrix-keyboard/"/>
     <RequiredLibraries/>
     <ImageFile>matrix-keyboard.jpg</ImageFile>
 

@@ -68,7 +68,7 @@ class NativeBitmapExporterTest {
                     };
                     const uint8_t* const var1WidIcons[] PROGMEM = { var1WidIcon0, var1WidIcon1 };
                                         
-                    // See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/creating-and-using-bitmaps-menu/
+                    // See https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/creating-and-using-bitmaps-menu/
                     TitleWidget var1Widget(var1WidIcons, 2, 8, 3, nullptr);
                     """, os.toString());
         }

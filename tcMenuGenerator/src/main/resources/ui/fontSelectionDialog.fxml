@@ -49,7 +49,7 @@
                    <Insets top="10.0"/>
                </padding>
                <Label text="%unicode.font.variable.name" GridPane.rowIndex="1"/>
-               <TextField fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+               <ComboBox fx:id="fontVarField" GridPane.columnIndex="1" GridPane.rowIndex="1" editable="true" maxWidth="99999" />
                <Label fx:id="fontSizeLabel" text="%unicode.font.size" GridPane.rowIndex="2"/>
                <Label fx:id="errorField" style="-fx-text-fill: red; -fx-font-weight: bold;" text=""
                       GridPane.columnSpan="2" GridPane.rowIndex="4"/>

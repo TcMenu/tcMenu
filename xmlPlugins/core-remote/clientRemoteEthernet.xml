@@ -10,7 +10,7 @@
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>Control menu remotely where the device acts as a client. The device will attempt to connect to a server at a provided IP address.</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>ethernet-shield.jpg</ImageFile>
 

@@ -6,7 +6,7 @@
         <All/>
     </SupportedPlatforms>
     <Description>%theme.dark.modern.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/dark-themes-for-all-display-sizes/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/themes/color-themes-for-all-display-sizes/"/>
     <RequiredLibraries/>
     <ImageFile>theme-dark-mode-modern.jpg</ImageFile>
 
