@@ -21,7 +21,7 @@
             </Choices>
         </Property>
         <Property id="USE_TC_UNICODE" name="%theme.use.tcunicode" initial="false" type="boolean" desc="%theme.use.tcunicode.desc"/>
-        <Property id="NEED_EDITING_ICONS" name="%theme.need.edit.icons" initial="false" desc="theme.need.edit.icons.desc" type="boolean"/>
+        <Property id="NEED_EDITING_ICONS" name="%theme.need.edit.icons" initial="true" desc="theme.need.edit.icons.desc" type="boolean"/>
     </Properties>
 
     <ApplicabilityDefs/>
