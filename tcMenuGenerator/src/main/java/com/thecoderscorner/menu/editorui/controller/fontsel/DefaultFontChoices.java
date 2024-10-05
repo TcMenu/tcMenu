@@ -24,7 +24,7 @@ public class DefaultFontChoices {
                 new FontChoice("OpenSansRegular18pt", FontType.TC_UNICODE, false),
                 new FontChoice("OpenSansRegular7pt", FontType.TC_UNICODE, false),
                 new FontChoice("OpenSansRegular8pt", FontType.TC_UNICODE, false),
-                new FontChoice("RobotoMedium18", FontType.TC_UNICODE, false),
+                new FontChoice("RobotoMedium18", FontType.ADAFRUIT, false),
                 new FontChoice("RobotoMedium24", FontType.TC_UNICODE, false),
                 new FontChoice("RobotoRegular12pt", FontType.TC_UNICODE, false),
                 new FontChoice("RobotoRegular14pt", FontType.TC_UNICODE, false),
