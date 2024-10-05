@@ -7,8 +7,6 @@
 package com.thecoderscorner.menu.editorui.generator.ui;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
-import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.dialog.NewItemDialog;
@@ -66,12 +64,9 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
                 var threadSafeCreators = List.copyOf(creators);
                 var threadSafePreviousPluginFiles = allPreviousSourceFiles(previousPlugins);
                 var threadSafeMenuTree = project.getMenuTree();
-                var enabledFormObjects = project.getGeneratorOptions().getListOfEmbeddedForms().stream()
-                        .map(this::getFirstByNameAndUuid).toList();
                 new Thread(() -> {
                     gen.startConversion(Paths.get(path), threadSafeCreators, threadSafeMenuTree,
-                            threadSafePreviousPluginFiles, project.getGeneratorOptions(), project.getLocaleHandler(),
-                            enabledFormObjects);
+                            threadSafePreviousPluginFiles, project.getGeneratorOptions(), project.getLocaleHandler());
                     Platform.runLater(controller::enableCloseButton);
                 }).start();
                 createDialogStateAndShow(stage, pane, "Code Generator Log", modal, 0.95);
@@ -82,16 +77,6 @@ public class DefaultCodeGeneratorRunner implements CodeGeneratorRunner {
         }
         catch(Exception e) {
             logger.log(ERROR, "Unable to create the form", e);
-        }
-    }
-
-    private TcMenuFormPersistence getFirstByNameAndUuid(String formName) {
-        var uuid = project.getGeneratorOptions().getApplicationUUID().toString();
-        try {
-            return dbUtilities.queryRecords(TcMenuFormPersistence.class, "FORM_UUID=? and FORM_NAME=?", uuid, formName)
-                    .stream().findFirst().orElseThrow();
-        } catch (DataException e) {
-            throw new RuntimeException(e);
         }
     }
 

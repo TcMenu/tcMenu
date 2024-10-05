@@ -3,9 +3,7 @@ package com.thecoderscorner.embedcontrol.core.service;
 import com.thecoderscorner.embedcontrol.core.util.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @TableMapping(tableName = "TC_CONNECTION", uniqueKeyField = "LOCAL_ID")
@@ -33,7 +31,6 @@ public class TcMenuPersistedConnection {
     private LocalDateTime lastModified;
     @ProvideStore
     private TccDatabaseUtilities dataStore;
-    private List<TcMenuFormPersistence> attachedForms = null;
 
     public TcMenuPersistedConnection(int localId, String name, String uuid, String formName, StoreConnectionType conType,
                                      String hostOrSerialId, String portOrBaud, String extraData, TccDatabaseUtilities dataStore) {
@@ -85,28 +82,6 @@ public class TcMenuPersistedConnection {
         return formName;
     }
 
-    public Optional<TcMenuFormPersistence> getSelectedForm() {
-        ensurePopulated();
-        return attachedForms.stream().filter(form -> form.getFormName().equals(formName)).findFirst();
-    }
-
-    public List<TcMenuFormPersistence> getAllForms() {
-        ensurePopulated();
-        return attachedForms;
-    }
-
-    private void ensurePopulated() {
-        if(StringHelper.isStringEmptyOrNull(uuid)) {
-            attachedForms = List.of();
-        } else if(attachedForms == null || attachedForms.isEmpty()) {
-            try {
-                attachedForms = dataStore.queryRecords(TcMenuFormPersistence.class, "FORM_UUID = ?", uuid);
-            } catch (DataException e) {
-                logger.log(System.Logger.Level.ERROR, "Could not load forms for " + uuid, e);
-            }
-        }
-    }
-
     public String getHostOrSerialId() {
         return hostOrSerialId;
     }
@@ -134,13 +109,12 @@ public class TcMenuPersistedConnection {
                 Objects.equals(this.formName, that.formName) &&
                 Objects.equals(this.hostOrSerialId, that.hostOrSerialId) &&
                 Objects.equals(this.portOrBaud, that.portOrBaud) &&
-                Objects.equals(this.extraData, that.extraData) &&
-                Objects.equals(this.attachedForms, that.attachedForms);
+                Objects.equals(this.extraData, that.extraData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(localId, name, uuid, formName, hostOrSerialId, portOrBaud, extraData, attachedForms);
+        return Objects.hash(localId, name, uuid, formName, hostOrSerialId, portOrBaud, extraData);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class ConfigurableProtocolConverter implements MenuCommandProtocol {
 
         String ty = getMsgTypeFromBuffer(buffer);
         MessageField cmdType = MessageField.fromId(ty);
-        if(cmdType == null) throw new TcProtocolException("Received unexpected message: " + ty);
+        if(cmdType == null) throw new TcUnknownMessageException("Received unexpected message: " + ty);
 
         if(protocol == CommandProtocol.TAG_VAL_PROTOCOL && tagValIncomingParsers.containsKey(cmdType)) {
             TagValTextParser parser = new TagValTextParser(buffer);

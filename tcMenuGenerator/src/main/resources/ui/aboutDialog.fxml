@@ -37,7 +37,7 @@
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <center>
-      <GridPane BorderPane.alignment="CENTER">
+      <GridPane BorderPane.alignment="CENTER" hgap="5" vgap="4">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" />
           <ColumnConstraints hgrow="ALWAYS" />
@@ -50,9 +50,10 @@
           <RowConstraints  vgrow="SOMETIMES" />
           <RowConstraints  vgrow="SOMETIMES" />
           <RowConstraints  vgrow="SOMETIMES" />
+          <RowConstraints  vgrow="ALWAYS" />
         </rowConstraints>
          <children>
-            <ImageView fitHeight="190.0" fitWidth="214.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" GridPane.rowSpan="6" GridPane.valignment="TOP">
+            <ImageView fitHeight="190.0" fitWidth="214.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" GridPane.rowSpan="7" GridPane.valignment="TOP">
                <image>
                   <Image url="@../img/menu-icon-large.png" />
                </image>
@@ -61,7 +62,7 @@
             </Text>
             <Label text="%core.version" GridPane.columnIndex="1" GridPane.rowIndex="1" textAlignment="RIGHT" GridPane.halignment="RIGHT"/>
             <Label text="%core.built.on" GridPane.columnIndex="1" GridPane.rowIndex="2" textAlignment="RIGHT" GridPane.halignment="RIGHT"/>
-            <Label text="(C) 2018 - 2022 by TheCodersCorner.com" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="2" GridPane.valignment="BOTTOM" />
+            <Label text="(C) 2018 - 2024 by TcMenu and TheCodersCorner.com" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="2" GridPane.valignment="BOTTOM" />
             <Label fx:id="apiVersion"  GridPane.columnIndex="2" GridPane.rowIndex="1" textAlignment="RIGHT" GridPane.halignment="RIGHT"/>
             <Label fx:id="buildDateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" textAlignment="RIGHT" GridPane.halignment="RIGHT"/>
             <Label text="%about.dialog.thanks.text" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.valignment="TOP" />
