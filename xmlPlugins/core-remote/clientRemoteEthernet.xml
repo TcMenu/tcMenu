@@ -10,7 +10,7 @@
         <Platform>STM32DUINO</Platform>
     </SupportedPlatforms>
     <Description>Control menu remotely where the device acts as a client. The device will attempt to connect to a server at a provided IP address.</Description>
-    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/tcmenu-iot/ethernet-remote-plugin/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-iot/connect-to-remote-server-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>ethernet-shield.jpg</ImageFile>
 
@@ -20,7 +20,7 @@
                 <Choice desc="Ethernet 2">ETHERNET_2</Choice>
                 <Choice desc="UIP Ethernet">UIP_ENC28J60</Choice>
                 <Choice desc="STM32Ethernet">STM32ETHERNET</Choice>
-                <Choice desc="ESP32 Arduino">ESP32_WIFI</Choice>
+                <Choice desc="ESP32/Arduino WiFi">ESP32_WIFI</Choice>
                 <Choice desc="ESP8266 Arduino">ESP8266_WIFI</Choice>
             </Choices>
         </Property>

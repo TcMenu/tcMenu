@@ -15,7 +15,6 @@ import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
@@ -35,7 +34,10 @@ public abstract class HorizontalSliderAnalogComponent<T extends Number> extends 
     public Node createComponent() {
         canvas = new HorizScrollCanvas();
         if(isItemEditable(item)) {
-            canvas.setOnMouseReleased(mouseEvent -> sendItemAbsolute());
+            canvas.setOnMouseReleased(mouseEvent -> {
+                onMouseAdjusted(mouseEvent.getX());
+                sendItemAbsolute();
+            });
             canvas.setOnMouseDragged(mouseEvent -> onMouseAdjusted(mouseEvent.getX()));
         }
         borderPane = new BorderPane(canvas);
