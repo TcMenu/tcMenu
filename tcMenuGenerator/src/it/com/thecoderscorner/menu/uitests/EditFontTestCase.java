@@ -9,8 +9,10 @@ import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.util.TestUtils;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
@@ -18,7 +20,6 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ComboBoxMatchers;
-import org.testfx.matcher.control.TextInputControlMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
 import static com.thecoderscorner.menu.editorui.util.TestUtils.clickOnButtonInDialog;
@@ -75,7 +76,8 @@ public class EditFontTestCase {
         };
         FxAssert.verifyThat(radioToCheck, RadioButton::isSelected);
         FxAssert.verifyThat("#sizeCombo", ComboBoxMatchers.hasSelectedItem(Integer.toString(def.fontNumber())));
-        FxAssert.verifyThat("#fontVarField", TextInputControlMatchers.hasText(def.fontName()));
+        ComboBox<String> comboBox = robot.lookup("#fontVarField").queryComboBox();
+        Assertions.assertThat(comboBox.getEditor().getText()).isEqualTo(def.fontName());
 
         return robot.lookup(".fontDialog").query();
     }
