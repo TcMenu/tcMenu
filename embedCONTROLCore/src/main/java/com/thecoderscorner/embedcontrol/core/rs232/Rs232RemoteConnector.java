@@ -34,7 +34,7 @@ public class Rs232RemoteConnector extends StreamRemoteConnector {
 
     public Rs232RemoteConnector(LocalIdentifier localId, String portName, int baud, MenuCommandProtocol protocol,
                                 ScheduledExecutorService executor, Clock clock, ConnectMode connectMode) throws IOException {
-        super(localId, protocol, executor, clock);
+        super(localId, protocol, executor, clock, null);
         serialPort = Arrays.stream(SerialPort.getCommPorts())
                 .filter(sp -> sp.getSystemPortName().equals(portName))
                 .findFirst().orElseThrow(IOException::new);
