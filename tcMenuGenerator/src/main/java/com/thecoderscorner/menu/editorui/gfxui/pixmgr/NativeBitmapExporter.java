@@ -47,7 +47,7 @@ public class NativeBitmapExporter {
 
         fileOut.println();
 
-        fileOut.println("// See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/creating-and-using-bitmaps-menu/");
+        fileOut.println("// See https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/creating-and-using-bitmaps-menu/");
         fileOut.printf("TitleWidget %sWidget(%1$sWidIcons, %d, %d, %d, nullptr);", name, images.size(), images.get(0).width(), images.get(0).height());
         fileOut.println();
     }

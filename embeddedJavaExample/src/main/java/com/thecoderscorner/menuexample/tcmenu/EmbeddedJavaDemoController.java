@@ -91,7 +91,7 @@ public class EmbeddedJavaDemoController implements MenuManagerListener {
 
             navigationManager.addWidgetClickedListener((actionEvent, widget) -> {
                     if(widget == settingsWidget) {
-                        navigationManager.pushNavigation(new ColorSettingsPresentable(globalSettings, navigationManager, "Global", itemStore, false));
+                        navigationManager.pushNavigation(new ColorSettingsPresentable(globalSettings, navigationManager, "Global", false));
                     }
             });
 

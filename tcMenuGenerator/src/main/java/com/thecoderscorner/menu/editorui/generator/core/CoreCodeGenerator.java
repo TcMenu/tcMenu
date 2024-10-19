@@ -6,7 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -31,9 +30,11 @@ import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 import com.thecoderscorner.menu.persist.VersionInfo;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,16 +45,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
 
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR;
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_EEPROM;
 import static com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation.*;
 import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller.InstallationType;
-import static com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator.makeNameFromVariable;
 import static com.thecoderscorner.menu.editorui.util.StringHelper.isStringEmptyOrNull;
-import static com.thecoderscorner.menu.editorui.util.StringHelper.printArrayToWriter;
 import static java.lang.System.Logger.Level.*;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
@@ -104,7 +102,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
 
     public boolean startConversion(Path directory, List<CodePluginItem> codeGenerators, MenuTree menuTree,
                                    List<String> previousPluginFiles, CodeGeneratorOptions options,
-                                   LocaleMappingHandler handler, List<TcMenuFormPersistence> embeddedForms) {
+                                   LocaleMappingHandler handler) {
         this.menuTree = menuTree;
         this.options = options;
         this.localeHandler = handler;
@@ -142,8 +140,8 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             // generate the source by first generating the CPP and H for the menu definition and then
             // update the sketch. Also, if any plugins have changed, then update them.
             Map<MenuItem, CallbackRequirement> callbackFunctions = callBackFunctions(menuTree);
-            generateHeaders(codeGenerators, headerFile, menuStructure, extractor, projectName, callbackFunctions, embeddedForms);
-            generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions, embeddedForms);
+            generateHeaders(codeGenerators, headerFile, menuStructure, extractor, projectName, callbackFunctions);
+            generateSource(codeGenerators, cppFile, menuStructure, projectName, extractor, callbackFunctions);
             var fileProcessor = new PluginRequiredFileProcessor(context, this::logLine);
             fileProcessor.dealWithRequiredPlugins(codeGenerators, srcDir, directory, psl,previousPluginFiles);
 
@@ -467,8 +465,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected void generateSource(List<CodePluginItem> generators, String cppFile,
                                   Collection<BuildStructInitializer> menuStructure,
                                   String projectName, CodeVariableExtractor extractor,
-                                  Map<MenuItem, CallbackRequirement> callbackRequirements,
-                                  List<TcMenuFormPersistence> embeddedForms) throws TcMenuConversionException {
+                                  Map<MenuItem, CallbackRequirement> callbackRequirements) throws TcMenuConversionException {
 
         try (Writer writer = new BufferedWriter(new FileWriter(cppFile))) {
             logLine(INFO, "Writing out source CPP file: " + cppFile);
@@ -533,9 +530,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             writer.write(LINE_BREAK);
 
             writer.write("    // First we set up eeprom and authentication (if needed)." + LINE_BREAK);
-            if(!embeddedForms.isEmpty()) {
-                writer.write("    CombinedMessageProcessor::setFormTemplatesInFlash(tcMenuAllEmbeddedForms);" + LINE_BREAK);
-            }
             writer.write(extraCodeDefinitions().stream()
                     .map(CodeGeneratorCapable::generateCode)
                     .filter(Optional::isPresent)
@@ -587,49 +581,12 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             }
             writer.write(LINE_BREAK + "}" + LINE_BREAK + LINE_BREAK);
 
-            if(!embeddedForms.isEmpty()) {
-                writeEmbeddedForms(embeddedForms, writer);
-            }
-
             logLine(INFO, "Finished processing source file.");
 
         } catch (Exception e) {
             logLine(ERROR, "Failed to generate CPP: " + e.getMessage());
             throw new TcMenuConversionException("Header Generation failed", e);
         }
-
-    }
-
-    private void writeEmbeddedForms(List<TcMenuFormPersistence> embeddedForms, Writer writer) throws IOException {
-        int entireSize = 0;
-        writer.write("// Embedded form data" + TWO_LINES);
-        StringBuilder arrayOfAllForms = new StringBuilder("const EmbedControlFlashedForm* tcMenuAllEmbeddedForms[] " + progMemStr() + "{ ");
-        for(var ef : embeddedForms) {
-            var variableName = "formData_" + makeNameFromVariable(ef.getFormName());
-            var byteStream = new ByteArrayOutputStream();
-            try (var gzipStream = new GZIPOutputStream(byteStream)) {
-                gzipStream.write(ef.getXmlData().getBytes(StandardCharsets.UTF_8));
-            }
-            byte[] allBytes = byteStream.toByteArray();
-            writer.write("const uint8_t " + variableName + "_d8[] " + progMemStr() + "{" + LINE_BREAK);
-            logLine(INFO, "Form " + ef.getFormName() + " before " + ef.getXmlData().length() + ", after " + allBytes.length);
-            printArrayToWriter(writer, allBytes, 16);
-            writer.write("};" + LINE_BREAK);
-            entireSize += allBytes.length + 10;
-
-            if(allBytes.length > 14000) {
-                logLine(WARNING, "IMPORTANT, Embed Control form " + ef.getFormName() + " is very large, issues may result" );
-            }
-
-            writer.write("const EmbedControlFlashedForm " + variableName + " " + progMemStr() + "{" + LINE_BREAK);
-            writer.write("    \"" + ef.getFormName() + "\"," + LINE_BREAK);
-            writer.write("    " + variableName + "_d8," + LINE_BREAK);
-            writer.write("    " + allBytes.length + LINE_BREAK);
-            writer.write("};" + TWO_LINES);
-            arrayOfAllForms.append("&").append(variableName).append(", ");
-        }
-        writer.write(arrayOfAllForms + "nullptr };" + LINE_BREAK);
-        logLine(INFO, "Embedded forms zipped, approx total size in bytes " + entireSize);
     }
 
     private String getApplicationName() {
@@ -669,8 +626,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
     protected void generateHeaders(List<CodePluginItem> embeddedCreators,
                                    String headerFile, Collection<BuildStructInitializer> menuStructure,
                                    CodeVariableExtractor extractor, String projectName,
-                                   Map<MenuItem, CallbackRequirement> allCallbacks,
-                                   List<TcMenuFormPersistence> embeddedForms) throws TcMenuConversionException {
+                                   Map<MenuItem, CallbackRequirement> allCallbacks) throws TcMenuConversionException {
         try (Writer writer = new BufferedWriter(new FileWriter(headerFile))) {
 
             logLine(INFO, "Writing out header file: " + headerFile);
@@ -743,10 +699,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
                     writer.write(header + LINE_BREAK);
                     callbacksDeclared.add(callback.getCallbackName());
                 }
-            }
-
-            if(!embeddedForms.isEmpty()) {
-                writer.write(LINE_BREAK + "extern const EmbedControlFlashedForm* tcMenuAllEmbeddedForms[];" + LINE_BREAK);
             }
 
             writer.write(LINE_BREAK + "#endif // MENU_GENERATED_CODE_H" + LINE_BREAK);
@@ -833,10 +785,6 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         }
 
         // do a couple of final checks and put out warnings if need be
-    }
-
-    public String progMemStr() {
-        return usesProgMem ? "PROGMEM " : "";
     }
 
     protected abstract String platformIncludes();

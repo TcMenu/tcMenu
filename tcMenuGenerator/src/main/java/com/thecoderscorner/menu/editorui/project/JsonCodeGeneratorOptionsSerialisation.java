@@ -66,15 +66,6 @@ public class JsonCodeGeneratorOptionsSerialisation {
             populatePluginsFromJson(builder, jsonObj);
             populateEepromAuthAndExpanders(builder, jsonObj);
 
-            var listOfForms = new ArrayList<String>();
-            if(jsonObj.has(LIST_OF_EMBEDDED_FORMS)) {
-                var arr = jsonObj.get(LIST_OF_EMBEDDED_FORMS).getAsJsonArray();
-                for(int i=0; i<arr.size(); i++) {
-                    listOfForms.add(arr.get(i).getAsString());
-                }
-            }
-            builder.withEmbeddedFormsList(listOfForms);
-
             if(jsonObj.has(JSON_SAVE_SRC_LEGACY)) {
                 builder.withSaveLocation(jsonObj.get(JSON_SAVE_SRC_LEGACY).getAsBoolean() ? ALL_TO_SRC : ALL_TO_CURRENT);
             } else if(jsonObj.has(JSON_SAVE_LOCATION)){
@@ -169,7 +160,6 @@ public class JsonCodeGeneratorOptionsSerialisation {
             obj.add(JSON_MENU_IN_MENU_COLL, ctx.serialize(opts.getMenuInMenuCollection()));
             obj.addProperty(JSON_APP_NAMESPACE, opts.getPackageNamespace());
             obj.addProperty(JSON_APP_IS_MODULAR, opts.isModularApp());
-            obj.add(LIST_OF_EMBEDDED_FORMS, serialiseListOfForms(opts.getListOfEmbeddedForms()));
             return obj;
         }
 

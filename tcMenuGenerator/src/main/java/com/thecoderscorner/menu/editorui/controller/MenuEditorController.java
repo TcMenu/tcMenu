@@ -16,7 +16,6 @@ import com.thecoderscorner.menu.editorui.dialog.AppInformationPanel;
 import com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport;
 import com.thecoderscorner.menu.editorui.dialog.ChooseIoExpanderDialog;
 import com.thecoderscorner.menu.editorui.dialog.EditMenuInMenuDialog;
-import com.thecoderscorner.menu.editorui.embed.FormManagerDialog;
 import com.thecoderscorner.menu.editorui.generator.AppVersionDetector;
 import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstaller;
 import com.thecoderscorner.menu.editorui.generator.core.VariableNameGenerator;
@@ -800,10 +799,6 @@ public class MenuEditorController {
                     return item;
                 }).toList();
         embedConnections.getItems().setAll(connections);
-    }
-
-    public void onFormManager(ActionEvent actionEvent) {
-        new FormManagerDialog(getStage(), MenuEditorApp.getContext().getAppContext().getRemoteContext());
     }
 
     public void onFileExplorer(ActionEvent actionEvent) {

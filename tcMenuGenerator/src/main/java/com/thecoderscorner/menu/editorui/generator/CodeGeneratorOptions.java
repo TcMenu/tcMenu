@@ -8,12 +8,14 @@ package com.thecoderscorner.menu.editorui.generator;
 
 import com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.parameters.*;
+import com.thecoderscorner.menu.editorui.generator.parameters.AuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.MenuInMenuCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.auth.NoAuthenticatorDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.NoEepromDefinition;
 import com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +36,6 @@ public class CodeGeneratorOptions {
     private EepromDefinition eepromDefinition;
     private AuthenticatorDefinition authenticatorDefinition;
     private IoExpanderDefinitionCollection projectIoExpanders;
-    private List<String> listOfEmbeddedForms;
 
     private MenuInMenuCollection menuInMenuCollection;
     private String packageNamespace;
@@ -48,13 +49,12 @@ public class CodeGeneratorOptions {
                                 String themeTypeId, List<CreatorProperty> lastProperties,
                                 UUID applicationUUID, String applicationName, String packageNamespace,
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
-                                IoExpanderDefinitionCollection projectIoExpanders, List<String> listOfEmbeddedForms,
+                                IoExpanderDefinitionCollection projectIoExpanders,
                                 MenuInMenuCollection menuInMenuCollection, ProjectSaveLocation saveLocation,
                                 boolean appIsModular, boolean namingRecursive, boolean useCppMain, boolean sizeBasedRom) {
         this.embeddedPlatform = embeddedPlatform;
         this.lastDisplayUuid = displayTypeId;
         this.lastInputUuid = inputTypeId;
-        this.listOfEmbeddedForms = listOfEmbeddedForms;
         if(remoteCapabilities != null && !remoteCapabilities.isEmpty()) {
             this.lastRemoteUuids = remoteCapabilities;
             // for backward compatibility as far as possible we save the first in the old format.
@@ -84,11 +84,6 @@ public class CodeGeneratorOptions {
     public AuthenticatorDefinition getAuthenticatorDefinition() {
         if(authenticatorDefinition == null) return new NoAuthenticatorDefinition();
         return authenticatorDefinition;
-    }
-
-    public List<String> getListOfEmbeddedForms() {
-        if(listOfEmbeddedForms == null) listOfEmbeddedForms = new ArrayList<>();
-        return listOfEmbeddedForms;
     }
 
     public String getPackageNamespace() { return packageNamespace; }

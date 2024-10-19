@@ -2,7 +2,6 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.PanelPresentable;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -12,7 +11,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ColorSettingsPresentable implements PanelPresentable<Node> {
-    private final MenuItemStore store;
     private ColorSettingsController colorSettingsController;
     private final GlobalSettings settings;
     private final JfxNavigationManager manager;
@@ -20,9 +18,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
     private final boolean allowAdd;
     private Consumer<Boolean> closeListener = null;
 
-    public ColorSettingsPresentable(GlobalSettings settings, JfxNavigationManager manager, String name,
-                                    MenuItemStore store, boolean allowAdd) {
-        this.store = store;
+    public ColorSettingsPresentable(GlobalSettings settings, JfxNavigationManager manager, String name, boolean allowAdd) {
         this.manager = manager;
         this.settings = settings;
         this.name = name;
@@ -38,7 +34,7 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         var loader = new FXMLLoader(ColorSettingsPresentable.class.getResource("/core_fxml/generalSettings.fxml"));
         Pane loadedPane = loader.load();
         colorSettingsController = loader.getController();
-        colorSettingsController.initialise(manager, settings, store, name, allowAdd);
+        colorSettingsController.initialise(manager, settings, name, allowAdd);
         return loadedPane;
     }
 
@@ -68,11 +64,11 @@ public class ColorSettingsPresentable implements PanelPresentable<Node> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ColorSettingsPresentable that = (ColorSettingsPresentable) o;
-        return Objects.equals(store, that.store) && Objects.equals(name, that.name);
+        return Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(store, name);
+        return Objects.hash(name);
     }
 }

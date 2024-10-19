@@ -9,6 +9,12 @@
  * make sure to rename it first.
  */
 
+// we'll wait 100 times this amount in a task manager yielding loop when serial
+// would block
+#ifndef MICROS_TO_WAIT_FOR_SERIAL
+#define MICROS_TO_WAIT_FOR_SERIAL 10000
+#endif //MICROS_TO_WAIT_FOR_SERIAL
+
 #include "SerialTransport.h"
 #include <tcMenu.h>
 
@@ -29,11 +35,11 @@ int SerialTagValueTransport::writeChar(char ch) {
         serialPort->write(ch);
     }
     else {
-        int tries = 30;
+        int tries = 100;
         while(tries && !available()) {
             --tries;
             serialPort->flush();
-            taskManager.yieldForMicros(100);
+            taskManager.yieldForMicros(MICROS_TO_WAIT_FOR_SERIAL);
         }
 
         // if it's not available now, it probably will timeout anyway.

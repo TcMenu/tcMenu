@@ -50,13 +50,5 @@ public interface AppDataStore {
      */
     void updateGlobalSettings(TcPreferencesPersistence settings) throws DataException;
 
-    List<TcMenuFormPersistence> getAllForms();
-    List<TcMenuFormPersistence> getAllFormsForUuid(String uuid);
-    List<TcMenuFormPersistence> getAllProjectBasedForms();
-    void updateForm(TcMenuFormPersistence form) throws DataException;
-    void deleteForm(TcMenuFormPersistence form) throws DataException;
-
-    String getUniqueFormData(int formId);
-
     TccDatabaseUtilities getUtilities();
 }

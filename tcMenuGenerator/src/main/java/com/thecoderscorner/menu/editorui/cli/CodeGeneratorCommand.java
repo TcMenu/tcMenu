@@ -1,8 +1,5 @@
 package com.thecoderscorner.menu.editorui.cli;
 
-import com.thecoderscorner.embedcontrol.core.service.DatabaseAppDataStore;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
-import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
@@ -97,21 +94,8 @@ public class CodeGeneratorCommand implements Callable<Integer> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });
 
-            List<TcMenuFormPersistence> enabledFormObjects;
-            try {
-                enabledFormObjects = project.getOptions().getListOfEmbeddedForms().stream()
-                        .map(form -> getFirstByNameAndUuid(appContext.getEcDataStore(), project, form)).toList();
-            } catch(Exception ex) {
-                enabledFormObjects = List.of();
-                System.err.printf("WARNING: Forms %s didn't load\n", project.getOptions().getListOfEmbeddedForms());
-                System.err.println("IMPORTANT: Conversion will continue but forms will be missing from the build");
-                if(verbose) {
-                    ex.printStackTrace();
-                }
-            }
-
             codeGen.startConversion(location, plugins, project.getMenuTree(), Collections.emptyList(), project.getOptions(),
-                    getLocaleHandler(location), enabledFormObjects);
+                    getLocaleHandler(location));
             return 0;
         }
         catch (Exception ex) {
@@ -122,19 +106,6 @@ public class CodeGeneratorCommand implements Callable<Integer> {
             return -1;
         }
     }
-
-    private TcMenuFormPersistence getFirstByNameAndUuid(DatabaseAppDataStore dataStore, MenuTreeWithCodeOptions project,
-                                                        String formName) {
-        var uuid = project.getOptions().getApplicationUUID().toString();
-        try {
-            return dataStore.getUtilities()
-                    .queryRecords(TcMenuFormPersistence.class, "FORM_UUID=? and FORM_NAME=?", uuid, formName)
-                    .stream().findFirst().orElseThrow();
-        } catch (DataException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     private CodePluginItem getPluginOrDefault(List<CodePluginItem> plugins, String lastPlugin, String defaultPlugin, Map<String, CreatorProperty> propertiesMap) {
 

@@ -280,18 +280,6 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
         );
     }
 
-    /**
-     * The standard widget for toggling between layout mode on and layout mode off, it has two images, image 1 is off
-     * and image 2 is on.
-     * @return a widget that can represent layout mode being on and off.
-     */
-    public static TitleWidget<Image> standardLayoutWidget() {
-        return JfxNavigationHeader.widgetFromImages(
-                JfxNavigationHeader.class.getResource("/img-core/layout-off.png"),
-                JfxNavigationHeader.class.getResource("/img-core/layout-on.png")
-        );
-    }
-
     public static TitleWidget<Image> widgetFromImages(URL... imageName) {
         var images = Arrays.stream(imageName)
                 .map(i -> new Image(i.toString()))

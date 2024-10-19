@@ -6,7 +6,7 @@
        <All/>
     </SupportedPlatforms>
     <Description>%theme.mono.inverse.desc</Description>
-    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/monochrome-themes-for-oled-5110/"/>
+    <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/themes/monochrome-themes-for-oled-5110/"/>
     <RequiredLibraries/>
     <ImageFile>theme-oled-inverse.jpg</ImageFile>
 

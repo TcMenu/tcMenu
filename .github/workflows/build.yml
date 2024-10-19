@@ -19,11 +19,11 @@ jobs:
         distribution: 'liberica'
         cache: maven
 
-    - name: Build embedCONTROLCore
-      run: mvn -B install -Dgpg.skip=true --file embedCONTROLCore/pom.xml
-
     - name: Build tcMenuJavaApi
       run: mvn -B install -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
+  
+    - name: Build embedCONTROLCore
+      run: mvn -B install -Dgpg.skip=true --file embedCONTROLCore/pom.xml
 
     - name: Build tcMenuGenerator
       run: mvn -B install -Dgpg.skip=true --file tcMenuGenerator/pom.xml

@@ -91,8 +91,6 @@
                 <MenuItem accelerator="Shortcut+T" mnemonicParsing="false" onAction="#onCreateConnection" text="%menu.embed.create" />
                 <Menu fx:id="embedConnections" mnemonicParsing="false" text="%menu.embed.connections" />
                 <SeparatorMenuItem mnemonicParsing="false"/>
-                <MenuItem accelerator="Shortcut+D" mnemonicParsing="false" onAction="#onFormManager" text="%ec.form.manager"/>
-                <SeparatorMenuItem mnemonicParsing="false"/>
                 <MenuItem accelerator="F5" mnemonicParsing="false" onAction="#OnShowPreviewWindow" text="%ec.show.preview.window" />
             </Menu>
             <Menu mnemonicParsing="false" text="Window" onShowing="#windowMenuWillShow" >

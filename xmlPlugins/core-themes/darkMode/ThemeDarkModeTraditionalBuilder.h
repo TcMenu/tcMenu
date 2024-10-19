@@ -1,7 +1,7 @@
 /**
  * Dark mode modern theme by tcMenu organisation. This is part of the standard themes shipped with TcMenu.
  * This file will not be updated by the designer, you can edit.
- * See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/themes/rendering-with-themes-icons-grids/
+ * See https://tcmenu.github.io/documentation/arduino-libraries//tc-menu/themes/rendering-with-themes-icons-grids/
  */
 #ifndef THEME_DARK_MODE
 #define THEME_DARK_MODE

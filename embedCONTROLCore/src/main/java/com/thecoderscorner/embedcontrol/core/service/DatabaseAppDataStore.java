@@ -4,12 +4,8 @@ import com.thecoderscorner.embedcontrol.core.util.DataException;
 import com.thecoderscorner.embedcontrol.core.util.TccDatabaseUtilities;
 import com.thecoderscorner.embedcontrol.customization.ApplicationThemeManager;
 
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
 
 /**
  * Creates a connection with the local database stored in the .tcmenu directory and provides the core config
@@ -24,7 +20,6 @@ public class DatabaseAppDataStore implements AppDataStore {
         try {
             databaseHelper.ensureTableFormatCorrect(
                     TcMenuPersistedConnection.class,
-                    TcMenuFormPersistence.class,
                     TcPreferencesPersistence.class,
                     TcPreferencesColor.class
             );
@@ -84,74 +79,6 @@ public class DatabaseAppDataStore implements AppDataStore {
             for (var col : settings.getColorsToSave()) {
                 databaseHelper.updateRecord(TcPreferencesColor.class, col);
             }
-        }
-    }
-
-    @Override
-    public List<TcMenuFormPersistence> getAllForms() {
-        try {
-            removeAnyFormsWithBrokenLinks();
-            return databaseHelper.queryRecords(TcMenuFormPersistence.class, "");
-        } catch (DataException e) {
-            logger.log(System.Logger.Level.ERROR, "GetAllForms failed", e);
-            return List.of();
-        }
-    }
-
-    @Override
-    public List<TcMenuFormPersistence> getAllFormsForUuid(String uuid) {
-        try {
-            removeAnyFormsWithBrokenLinks();
-            return databaseHelper.queryRecords(TcMenuFormPersistence.class, "FORM_UUID = ?", uuid);
-        } catch (DataException e) {
-            logger.log(System.Logger.Level.ERROR, "GetAllFormsForUUID failed on " + uuid, e);
-            return List.of();
-        }
-    }
-
-    private void removeAnyFormsWithBrokenLinks() {
-        try {
-            var allProjectForms =  databaseHelper.queryRecords(TcMenuFormPersistence.class, "FORM_MODE = 'WITHIN_PROJECT'");
-            for(var f : allProjectForms) {
-                if(!Files.exists(f.getFileNameIfPresent().orElseThrow())) {
-                    logger.log(INFO,"Form " + f.getFormName() + " in " + f.getUuid() + " to path " + f.getFileNameIfPresent() + " no longer exists, removing");
-                    deleteForm(f);
-                }
-            }
-        } catch (DataException e) {
-            logger.log(ERROR, "Remove any broken form links failed", e);
-        }
-    }
-
-    @Override
-    public List<TcMenuFormPersistence> getAllProjectBasedForms() {
-        try {
-            removeAnyFormsWithBrokenLinks();
-            return databaseHelper.queryRecords(TcMenuFormPersistence.class, "FORM_MODE = 'WITHIN_PROJECT'");
-        } catch (DataException e) {
-            logger.log(System.Logger.Level.ERROR, "getAllProjectBasedForms failed", e);
-            return List.of();
-        }
-    }
-
-    @Override
-    public void updateForm(TcMenuFormPersistence form) throws DataException {
-        databaseHelper.updateRecord(TcMenuFormPersistence.class, form);
-    }
-
-    @Override
-    public void deleteForm(TcMenuFormPersistence form) throws DataException {
-        databaseHelper.executeRaw("DELETE FROM TC_FORM WHERE FORM_ID=?", form.getFormId());
-    }
-
-    @Override
-    public String getUniqueFormData(int formId) {
-        try {
-            var form = databaseHelper.queryPrimaryKey(TcMenuFormPersistence.class, formId);
-            return form.orElseThrow().getXmlData();
-        } catch (Exception e) {
-            logger.log(System.Logger.Level.ERROR, "Get Form data failed on " + formId, e);
-            return "";
         }
     }
 

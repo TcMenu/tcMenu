@@ -6,8 +6,6 @@
 
 package com.thecoderscorner.menu.editorui.generator.arduino;
 
-import com.thecoderscorner.embedcontrol.core.service.FormPersistMode;
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -49,24 +47,6 @@ import static org.mockito.Mockito.when;
 
 public class ArduinoGeneratorTest {
     public static final UUID SERVER_UUID = UUID.fromString("d7e57e8d-4528-4081-9b1b-cec5bc37a82e");
-    private static final String TEST_FORM_XML = """
-            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-            <EmbedControl boardUuid="29a725c3-0619-488e-b3bf-0f778dc9ef81" layoutName="Untitled">
-              <MenuLayouts>
-                <MenuLayout cols="2" fontInfo="100%" recursive="false" rootId="0">
-                  <MenuElement alignment="LEFT" colorSet="Global" controlType="HORIZONTAL_SLIDER" drawMode="SHOW_NAME_VALUE" fontInfo="100%" menuId="1" position="0,0"/>
-                  <MenuElement alignment="LEFT" colorSet="Global" controlType="UP_DOWN_CONTROL" drawMode="SHOW_NAME_VALUE" fontInfo="100%" menuId="2" position="0,1"/>
-                  <MenuElement alignment="LEFT" colorSet="Global" controlType="UP_DOWN_CONTROL" drawMode="SHOW_NAME_VALUE" fontInfo="100%" menuId="2" position="1,0"/>
-                  <MenuElement alignment="CENTER" colorSet="Global" controlType="BUTTON_CONTROL" drawMode="SHOW_NAME_VALUE" fontInfo="100%" menuId="3" position="1,1"/>
-                  <MenuElement alignment="LEFT" colorSet="Global" controlType="TEXT_CONTROL" drawMode="SHOW_NAME_VALUE" fontInfo="100%" menuId="4" position="2,0"/>
-                  <MenuElement alignment="CENTER" colorSet="Global" controlType="BUTTON_CONTROL" drawMode="SHOW_NAME" fontInfo="100%" menuId="5" position="2,1"/>
-                  <MenuElement alignment="CENTER" colorSet="Global" controlType="BUTTON_CONTROL" drawMode="SHOW_NAME" fontInfo="100%" menuId="6" position="3,0"/>
-                  <StaticText alignment="LEFT" colorSet="Global" position="3,1">Hello world</StaticText>
-                </MenuLayout>
-              </MenuLayouts>
-              <ColorSets/>
-            </EmbedControl>
-            """;
     private Path projectDir;
     private Path pluginDir;
     private Path rootDir;
@@ -142,16 +122,13 @@ public class ArduinoGeneratorTest {
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
         ArduinoGenerator generator = new ArduinoGenerator(adjuster, installer, standardOptions.getEmbeddedPlatform(), storage, clock);
 
-        var embeddedForm = new TcMenuFormPersistence(0, FormPersistMode.EXTERNAL_MANAGED, standardOptions.getApplicationUUID().toString(), "My Form 1", TEST_FORM_XML);
-
         var firstPlugin = pluginConfig.getPlugins().getFirst();
         firstPlugin.getProperties().stream()
                 .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
                 .findFirst()
                 .ifPresent(p -> p.setLatestValue("io23017"));
 
-        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions,
-                handler, List.of(embeddedForm)));
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), standardOptions, handler));
 
         VariableNameGenerator gen = new VariableNameGenerator(tree, false, Set.of());
         assertEquals("GenState", gen.makeNameToVar(generateItemWithName("Gen &^%State")));

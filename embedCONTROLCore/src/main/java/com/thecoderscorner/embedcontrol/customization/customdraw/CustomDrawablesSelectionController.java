@@ -1,8 +1,6 @@
 package com.thecoderscorner.embedcontrol.customization.customdraw;
 
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.FormMenuComponent;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.BaseDialogSupport;
@@ -24,17 +22,13 @@ public class CustomDrawablesSelectionController {
     public TableColumn<CustomDrawingConfiguration, String> drawingNameCol;
     public TableColumn<CustomDrawingConfiguration, String> drawingTypeCol;
     private GlobalSettings settings;
-    private FormMenuComponent component;
     private JfxNavigationManager navMgr;
-    private MenuItemStore store;
     AtomicReference<EditCustomDrawablesController> controllerRef = new AtomicReference<>();
 
-    public void initialise(GlobalSettings settings, FormMenuComponent component, JfxNavigationManager navMgr) {
+    public void initialise(GlobalSettings settings, JfxNavigationManager navMgr) {
 
         this.settings = settings;
-        this.component = component;
         this.navMgr = navMgr;
-        this.store = component.getStore();
 
         drawingNameCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getName()));
         drawingTypeCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getClass().getSimpleName()));
@@ -68,19 +62,17 @@ public class CustomDrawablesSelectionController {
         BaseDialogSupport.tryAndCreateDialog(stage, "/core_fxml/formCustomDrawingEditor.fxml", "Drawing " + toEdit.getName(),
                 JfxNavigationHeader.getCoreResources(), true, (EditCustomDrawablesController controller) -> {
                     this.controllerRef.set( controller);
-                    controller.initialise(settings, component, toEdit);
+                    controller.initialise(settings, toEdit);
                 });
 
         var result = controllerRef.get().getResult();
         if(result.isPresent()) {
-            store.addUpdateCustomDrawing(result.get());
             refreshTable();
         }
     }
 
     private void refreshTable() {
         drawingTable.getItems().clear();
-        drawingTable.getItems().addAll(component.getStore().getCustomDrawingElements().toArray(new CustomDrawingConfiguration[0]));
         drawingTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         drawingTable.getSelectionModel().select(0);
     }

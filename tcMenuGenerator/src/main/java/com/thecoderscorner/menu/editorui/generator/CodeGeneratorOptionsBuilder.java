@@ -39,7 +39,6 @@ public class CodeGeneratorOptionsBuilder {
     private EepromDefinition eepromDef = new NoEepromDefinition();
     private AuthenticatorDefinition authDef = new NoAuthenticatorDefinition();
     private MenuInMenuCollection menuInMenuDefinitions;
-    private List<String> listOfEmbeddedForms = List.of();
 
     public CodeGeneratorOptionsBuilder withExisting(CodeGeneratorOptions other) {
         embeddedPlatform = other.getEmbeddedPlatform();
@@ -60,15 +59,13 @@ public class CodeGeneratorOptionsBuilder {
         appIsModular = other.isModularApp();
         menuInMenuDefinitions = other.getMenuInMenuCollection();
         sizeBasedEEPROM = other.isUsingSizedEEPROMStorage();
-        listOfEmbeddedForms = other.getListOfEmbeddedForms();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, packageNamespace, eepromDef, authDef, expanderDefinitions,
-                listOfEmbeddedForms, menuInMenuDefinitions, saveLocation, appIsModular, namingRecursive, useCppMain,
-                sizeBasedEEPROM);
+                menuInMenuDefinitions, saveLocation, appIsModular, namingRecursive, useCppMain, sizeBasedEEPROM);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -98,11 +95,6 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withModularApp(boolean modularApp) {
         this.appIsModular = modularApp;
-        return this;
-    }
-
-    public CodeGeneratorOptionsBuilder withEmbeddedFormsList(List<String> embeddedFormsList) {
-        this.listOfEmbeddedForms = embeddedFormsList;
         return this;
     }
 

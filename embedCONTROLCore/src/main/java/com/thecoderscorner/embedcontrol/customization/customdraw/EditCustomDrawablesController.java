@@ -2,8 +2,6 @@ package com.thecoderscorner.embedcontrol.customization.customdraw;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
-import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.customization.formbuilder.FormMenuComponent;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.ActionEvent;
@@ -30,16 +28,12 @@ public class EditCustomDrawablesController {
     public Button deleteRangeButton;
     public Button saveButton;
     private GlobalSettings settings;
-    private FormMenuComponent component;
-    private MenuItemStore store;
     private CustomDrawingConfiguration customDrawIn;
     private Optional<CustomDrawingConfiguration> result = Optional.empty();
 
-    public void initialise(GlobalSettings settings, FormMenuComponent component, CustomDrawingConfiguration custom) {
+    public void initialise(GlobalSettings settings, CustomDrawingConfiguration custom) {
         this.settings = settings;
-        this.component = component;
         this.customDrawIn = custom;
-        this.store = component.getStore();
         drawingTypeCombo.getItems().addAll("Numeric Color Ranges");
         drawingTypeCombo.getItems().addAll("String Color Maps");
         drawingTypeCombo.getItems().addAll("Boolean Color/Icon Map");

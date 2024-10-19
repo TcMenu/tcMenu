@@ -59,8 +59,6 @@
         <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <buttons>
                 <Button mnemonicParsing="false" onAction="#onResetScheme" text="Reset Colors"/>
-                <Button fx:id="addButton" mnemonicParsing="false" text="Add" onAction="#onAddNew"/>
-                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveOverride" text="Remove"/>
                 <Button mnemonicParsing="false" onAction="#onSaveChanges" text="Save"/>
             </buttons>
         </ButtonBar>

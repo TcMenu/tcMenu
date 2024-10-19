@@ -1,6 +1,5 @@
 package com.thecoderscorner.menu.editorui.generator.ejava;
 
-import com.thecoderscorner.embedcontrol.core.service.TcMenuFormPersistence;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.RuntimeListMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -57,7 +56,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
     @Override
     public boolean startConversion(Path directory, List<CodePluginItem> plugins, MenuTree menuTree,
                                    List<String> previousPluginFiles, CodeGeneratorOptions options,
-                                   LocaleMappingHandler handler, List<TcMenuFormPersistence> formPersistence) {
+                                   LocaleMappingHandler handler) {
         try {
             logLine(INFO,"Starting conversion, Embedded Java to directory " + directory);
             this.allPlugins = plugins;
