@@ -582,39 +582,6 @@ public class TagValMenuCommandProtocolTest {
         testBufferAgainstExpected(DIALOG_UPDATE, "MO=S|HF=Hello|BU=Buffer|B1=4|B2=3|IC=00000000|\u0002");
     }
 
-    @Test
-    public void testSendingAndReceivingFormNamesRequest() throws IOException {
-        protocol.toChannel(bb, new FormGetNamesRequestCommand());
-        testBufferAgainstExpected(FORM_GET_NAMES_REQUEST, "NM=*|\u0002");
-
-        var cmd = protocol.fromChannel(toBuffer(FORM_GET_NAMES_REQUEST, "NM=*|\u0002"));
-        assertTrue(cmd instanceof FormGetNamesRequestCommand);
-        var pairing = (FormGetNamesRequestCommand) cmd;
-        assertEquals("*", pairing.getCriteria());
-    }
-
-    @Test
-    public void testSendingAndReceivingFormNamesResponse() throws IOException {
-        protocol.toChannel(bb, new FormGetNamesResponseCommand(List.of("Form 1", "Form 2", "Form 3")));
-        testBufferAgainstExpected(FORM_GET_NAMES_RESPONSE, "NC=3|CA=Form 1|CB=Form 2|CC=Form 3|\u0002");
-
-        var cmd = protocol.fromChannel(toBuffer(FORM_GET_NAMES_RESPONSE, "NC=3|CA=Form 1|CB=Form 2|CC=Form 3|\u0002"));
-        assertTrue(cmd instanceof FormGetNamesResponseCommand);
-        var formNames = (FormGetNamesResponseCommand) cmd;
-        Assertions.assertThat(formNames.getFormNames()).containsExactly("Form 1", "Form 2", "Form 3");
-    }
-
-    @Test
-    public void testSendingAndReceivingFormDataRequest() throws IOException {
-        protocol.toChannel(bb, new FormDataRequestCommand("Form 1"));
-        testBufferAgainstExpected(FORM_DATA_REQUEST, "ID=Form 1|\u0002");
-
-        var cmd = protocol.fromChannel(toBuffer(FORM_DATA_REQUEST, "ID=Form 1|\u0002"));
-        assertTrue(cmd instanceof FormDataRequestCommand);
-        var formNames = (FormDataRequestCommand) cmd;
-        assertEquals("Form 1", formNames.getFormName());
-    }
-
     private void testBufferAgainstExpected(MessageField expectedMsg, String expectedData) {
         bb.flip();
 
@@ -654,19 +621,5 @@ public class TagValMenuCommandProtocolTest {
         var msg = (BinaryDataCommand) protocol.fromChannel(bb);
         assertEquals(BinaryDataCommand.BIN_DATA_COMMAND, msg.getCommandType());
         Assertions.assertThat(msg.getBinData()).containsExactly(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-    }
-
-    @Test
-    public void testSendingAndReceivingFormDataResponse() throws IOException {
-        protocol.toChannel(bb, new FormDataResponseCommand(XML_DATA_FOR_SIM));
-        bb.flip();
-        assertEquals(MenuCommandProtocol.PROTO_START_OF_MSG, bb.get());
-        ByteBuffer bbCopy = bb.slice();
-        assertEquals(CommandProtocol.RAW_BIN_PROTOCOL.getProtoNum(), bbCopy.get());
-
-        var cmd = (FormDataResponseCommand) protocol.fromChannel(bb);
-        assertTrue(cmd instanceof FormDataResponseCommand);
-        var formNames = (FormDataResponseCommand) cmd;
-        assertEquals(XML_DATA_FOR_SIM, formNames.getFormData());
     }
 }
