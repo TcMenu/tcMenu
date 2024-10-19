@@ -32,22 +32,6 @@ public class TagValMenuCommandProtocolTest {
     private ConfigurableProtocolConverter protocol;
     private byte[] msgData;
     private ByteBuffer bb;
-    private String XML_DATA_FOR_SIM = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-            "<EmbedControl boardUuid=\"29a725c3-0619-488e-b3bf-0f778dc9ef81\" layoutName=\"Untitled\">\n" +
-            "  <MenuLayouts>\n" +
-            "    <MenuLayout cols=\"2\" fontInfo=\"100%\" recursive=\"false\" rootId=\"0\">\n" +
-            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"HORIZONTAL_SLIDER\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"1\" position=\"0,0\"/>\n" +
-            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"UP_DOWN_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"2\" position=\"0,1\"/>\n" +
-            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"UP_DOWN_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"2\" position=\"1,0\"/>\n" +
-            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"3\" position=\"1,1\"/>\n" +
-            "      <MenuElement alignment=\"LEFT\" colorSet=\"Global\" controlType=\"TEXT_CONTROL\" drawMode=\"SHOW_NAME_VALUE\" fontInfo=\"100%\" menuId=\"4\" position=\"2,0\"/>\n" +
-            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME\" fontInfo=\"100%\" menuId=\"5\" position=\"2,1\"/>\n" +
-            "      <MenuElement alignment=\"CENTER\" colorSet=\"Global\" controlType=\"BUTTON_CONTROL\" drawMode=\"SHOW_NAME\" fontInfo=\"100%\" menuId=\"6\" position=\"3,0\"/>\n" +
-            "      <StaticText alignment=\"LEFT\" colorSet=\"Global\" position=\"3,1\">Hello world</StaticText>\n" +
-            "    </MenuLayout>\n" +
-            "  </MenuLayouts>\n" +
-            "  <ColorSets/>\n" +
-            "</EmbedControl>\n";
 
     @Before
     public void setUp() {
