@@ -112,17 +112,24 @@ public class MenuTree {
      * @param id the id of the object to find.
      * @return the menu at the given id
      */
-    public Optional<MenuItem> getMenuById(int id) {
+    @SuppressWarnings("unchecked")
+    public <T extends MenuItem> Optional<T> getMenuById(int id) {
         var state = menuStates.get(id);
         if(state != null) {
-            return Optional.of(state.getItem());
+            return Optional.of((T)state.getItem());
         }
 
         // shortcut to find the submenu by ID if possible before going through everything.
-        var maybeSubMenuId = getAllSubMenus().stream().filter(item -> item.getId() == id).findFirst();
-        if(maybeSubMenuId.isPresent()) return maybeSubMenuId;
+        var maybeItem = getAllSubMenus().stream().filter(item -> item.getId() == id).map(m -> (T)m).findFirst();
+        if(maybeItem.isEmpty()) {
+            maybeItem = getAllMenuItems().stream().filter(item -> item.getId() == id).map(m -> (T) m).findFirst();
+        }
 
-        return getAllMenuItems().stream().filter(item -> item.getId() == id).findFirst();
+        // store a state object for the menu item, then we know for sure the next lookup is fast.
+        maybeItem.ifPresent(t -> menuStates.put(id, stateForMenuItem(t, MenuItemHelper.getDefaultFor(t),
+                false, false)));
+
+        return maybeItem;
     }
 
     /**
@@ -159,8 +166,10 @@ public class MenuTree {
 
                 // Now we update the "state" which also acts like a cache of menu items for lookup
                 if(menuStates.containsKey(toReplace.getId())) {
-                    var oldState = menuStates.get(toReplace.getId());
-                    menuStates.put(toReplace.getId(), stateForMenuItem(oldState, toReplace, oldState.getValue()));
+                    menuStates.compute(toReplace.getId(), (k, oldState) -> {
+                        var v = oldState != null ? oldState.getValue() : MenuItemHelper.getDefaultFor(toReplace);
+                        return stateForMenuItem(oldState, toReplace, v);
+                    });
                 }
 
                 // lastly if the item was a submenu, we need change the top level submenu list as well.
