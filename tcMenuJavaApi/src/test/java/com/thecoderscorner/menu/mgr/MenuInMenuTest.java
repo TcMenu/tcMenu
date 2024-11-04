@@ -2,10 +2,10 @@ package com.thecoderscorner.menu.mgr;
 
 import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
 import com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
-import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.mgr.MenuInMenu.ReplicationMode;
 import com.thecoderscorner.menu.remote.*;
 import com.thecoderscorner.menu.remote.commands.*;

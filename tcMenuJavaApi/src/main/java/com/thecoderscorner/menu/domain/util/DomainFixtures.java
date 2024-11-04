@@ -4,8 +4,9 @@
  *
  */
 
-package com.thecoderscorner.menu.domain;
+package com.thecoderscorner.menu.domain.util;
 
+import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 

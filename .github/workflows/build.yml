@@ -27,6 +27,3 @@ jobs:
 
     - name: Build tcMenuGenerator
       run: mvn -B install -Dgpg.skip=true --file tcMenuGenerator/pom.xml
-
-    - name: Build embeddedJavaExample
-      run: mvn -B package --file embeddedJavaExample/pom.xml

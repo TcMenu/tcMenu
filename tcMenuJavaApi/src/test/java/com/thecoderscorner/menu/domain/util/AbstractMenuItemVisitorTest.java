@@ -10,7 +10,7 @@ import com.thecoderscorner.menu.domain.*;
 import org.junit.Test;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
-import static com.thecoderscorner.menu.domain.DomainFixtures.*;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

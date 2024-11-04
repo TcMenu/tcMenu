@@ -18,11 +18,10 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
-import static com.thecoderscorner.menu.domain.DomainFixtures.*;
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.*;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.*;
 import static org.junit.Assert.*;
 
