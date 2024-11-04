@@ -6,9 +6,13 @@
 
 package com.thecoderscorner.menu.remote.protocol;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.AnalogMenuItemBuilder;
+import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.FloatMenuItem;
+import com.thecoderscorner.menu.domain.FloatMenuItemBuilder;
 import com.thecoderscorner.menu.domain.state.ListResponse;
 import com.thecoderscorner.menu.domain.state.PortableColor;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.remote.MenuCommandProtocol;
 import com.thecoderscorner.menu.remote.commands.*;
 import com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType;
@@ -425,7 +429,7 @@ public class TagValMenuCommandProtocolTest {
 
     @Test
     public void testWritingLargeIntegerBoot() throws TcProtocolException {
-        protocol.toChannel(bb, new MenuLargeNumBootCommand(10,DomainFixtures.aLargeNumber("largeNum", 111, 4, true), BigDecimal.ONE));
+        protocol.toChannel(bb, new MenuLargeNumBootCommand(10, DomainFixtures.aLargeNumber("largeNum", 111, 4, true), BigDecimal.ONE));
         testBufferAgainstExpected(LARGE_NUM_BOOT_ITEM, "PI=10|ID=111|IE=64|NM=largeNum|RO=0|VI=1|FD=4|NA=1|ML=12|VC=1.0000|\u0002");
     }
 

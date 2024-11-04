@@ -7,6 +7,7 @@
 package com.thecoderscorner.menu.domain.state;
 
 import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.Before;
 import org.junit.Test;

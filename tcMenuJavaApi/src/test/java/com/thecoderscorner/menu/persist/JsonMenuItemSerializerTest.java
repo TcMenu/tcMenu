@@ -1,8 +1,8 @@
 package com.thecoderscorner.menu.persist;
 
-import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.jupiter.api.Test;
 
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
-import static com.thecoderscorner.menu.domain.DomainFixtures.aSubMenu;
 import static com.thecoderscorner.menu.domain.state.MenuTree.ROOT;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.aSubMenu;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonMenuItemSerializerTest {

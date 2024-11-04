@@ -2,7 +2,6 @@ package com.thecoderscorner.menu.domain.util;
 
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.AnalogMenuItemBuilder;
-import com.thecoderscorner.menu.domain.DomainFixtures;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import org.junit.jupiter.api.BeforeEach;

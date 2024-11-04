@@ -12,14 +12,14 @@ import java.util.Collections;
 
 import static com.thecoderscorner.menu.domain.AnalogMenuItemBuilder.anAnalogMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
-import static com.thecoderscorner.menu.domain.DomainFixtures.aBooleanMenu;
-import static com.thecoderscorner.menu.domain.DomainFixtures.anActionMenu;
 import static com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder.aTextMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.EnumMenuItemBuilder.anEnumMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.FloatMenuItemBuilder.aFloatMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder;
 import static com.thecoderscorner.menu.domain.ScrollChoiceMenuItem.ScrollChoiceMode;
 import static com.thecoderscorner.menu.domain.SubMenuItemBuilder.aSubMenuItemBuilder;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.aBooleanMenu;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.anActionMenu;
 import static org.junit.Assert.*;
 
 public class MenuItemTest {

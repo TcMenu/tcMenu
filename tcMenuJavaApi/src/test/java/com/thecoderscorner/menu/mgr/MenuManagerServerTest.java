@@ -27,9 +27,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.thecoderscorner.menu.domain.DomainFixtures.fullEspAmplifierTestTree;
+import static com.thecoderscorner.menu.domain.util.DomainFixtures.fullEspAmplifierTestTree;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.getValueFor;
-import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType.*;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType.ABSOLUTE;
+import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeType.LIST_STATE_CHANGE;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.NORMAL;
 import static com.thecoderscorner.menu.remote.commands.MenuHeartbeatCommand.HeartbeatMode.START;
 import static org.junit.jupiter.api.Assertions.*;

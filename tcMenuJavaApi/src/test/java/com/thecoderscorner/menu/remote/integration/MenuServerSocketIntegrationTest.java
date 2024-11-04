@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.remote.integration;
 import com.thecoderscorner.menu.auth.PreDefinedAuthenticator;
 import com.thecoderscorner.menu.domain.*;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.mgr.MenuManagerServer;
 import com.thecoderscorner.menu.mgr.ServerConnectionMode;

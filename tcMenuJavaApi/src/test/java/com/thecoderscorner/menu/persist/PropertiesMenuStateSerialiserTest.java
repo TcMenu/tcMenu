@@ -1,16 +1,17 @@
 package com.thecoderscorner.menu.persist;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.AnalogMenuItem;
+import com.thecoderscorner.menu.domain.BooleanMenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
