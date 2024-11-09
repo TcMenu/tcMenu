@@ -31,7 +31,7 @@ public class MenuItemFormatter {
         return MenuItemHelper.visitWithResult(item, new AbstractMenuItemVisitor<String>() {
             @Override
             public void anyItem(MenuItem item) {
-                throw new IllegalArgumentException(item + "not editable");
+                setResult(text);
             }
 
             @Override
