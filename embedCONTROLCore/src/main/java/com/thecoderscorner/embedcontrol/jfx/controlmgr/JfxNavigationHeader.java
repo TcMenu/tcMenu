@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import static javafx.scene.control.Alert.AlertType;
@@ -158,6 +159,13 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
             }
             runNavigation(presentable);
             navigationStack.push(presentable);
+            executorService.scheduleAtFixedRate(() -> {
+                Platform.runLater(() -> {
+                    if(currentNavigationPanel() instanceof UpdatablePanel updatablePanel) {
+                        updatablePanel.tickAll();
+                    }
+                });
+            }, 100L, 100L, TimeUnit.MILLISECONDS);
         });
     }
 

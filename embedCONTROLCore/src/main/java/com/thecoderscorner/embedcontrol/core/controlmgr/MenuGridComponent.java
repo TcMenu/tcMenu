@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.PERCENT;
@@ -29,7 +27,6 @@ public abstract class MenuGridComponent<T> {
     private final MenuTree tree;
     protected final Map<Integer, EditorComponent<T>> editorComponents = new HashMap<>();
     private final ScheduledExecutorService executor;
-    private final ScheduledFuture<?> remoteTickTask;
     private ThreadMarshaller marshaller;
     private int row;
 
@@ -40,11 +37,7 @@ public abstract class MenuGridComponent<T> {
         this.navMgr = navMgr;
         this.executor = executor;
         this.marshaller = marshaller;
-
-        remoteTickTask = executor.scheduleAtFixedRate(this::timerTick, 100, 100, TimeUnit.MILLISECONDS);
     }
-
-
 
     public void renderMenuRecursive(MenuEditorFactory<T> editorFactory, SubMenuItem sub, boolean recurse, int level) {
         Consumer<MenuItem> subRenderer = subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore);
@@ -112,12 +105,6 @@ public abstract class MenuGridComponent<T> {
         }
     }
 
-    public void tickAll() {
-        for(var component : editorComponents.values()) {
-            component.tick();
-        }
-    }
-
     private ComponentSettings getComponentForMenuItem(MenuItem item) {
         var position = defaultSpaceForItem(Optional.of(item));
 
@@ -155,6 +142,12 @@ public abstract class MenuGridComponent<T> {
     public void acknowledgementReceived(CorrelationId key, AckStatus status) {
         for(var comp : editorComponents.values()) {
             comp.onCorrelation(key, status);
+        }
+    }
+
+    public void tickAll() {
+        for(var comp : editorComponents.values()) {
+            comp.tick();
         }
     }
 
@@ -196,19 +189,6 @@ public abstract class MenuGridComponent<T> {
         }
     }
 
-    /**
-     * Called frequently by the executor to update the UI components.
-     */
-    public void timerTick() {
-        marshaller.runOnUiThread(this::tickAll);
-    }
-
-    /**
-     * Call this to stop the associated tasks.
-     */
-    public void dispose() {
-        remoteTickTask.cancel(false);
-    }
 
     public static ControlType defaultControlForType(MenuItem item) {
         if (item instanceof SubMenuItem || item instanceof BooleanMenuItem || item instanceof ActionMenuItem) {
