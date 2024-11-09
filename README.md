@@ -19,11 +19,10 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Documentation
 
-[UI user guide, getting started and other documentation](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/)
-
-[Full API embedded documentation](https://tcmenu.github.io/documentation/ref-docs/tcmenu/html/index.html)
-
-[YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
+* [UI user guide, getting started and other documentation](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/)
+* [TcMenu API Examples and Project Starters repository](https://github.com/TcMenu/tcmenu-examples-starters)
+* [Full API embedded documentation](https://tcmenu.github.io/documentation/ref-docs/tcmenu/html/index.html)
+* [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
 
 ## Questions, community forum and support
 
