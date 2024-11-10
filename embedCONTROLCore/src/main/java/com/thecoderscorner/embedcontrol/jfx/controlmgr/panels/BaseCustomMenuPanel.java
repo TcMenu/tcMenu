@@ -18,6 +18,12 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.R
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType.TEXT_FIELD;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/// This class is the starting point for building your own panel to present a sub menu. It has
+/// the main functionality to easily add your own components that will update automatically
+/// as menu items change. It already implements `UpdatablePanel` so gets updates as menu items
+/// change, and also a 1/10sec tick to handle any animations such as update highlighting.
+/// Although it is not mandated that you use this to implement custom panels it provides a lot
+/// of helper functions.
 public abstract class BaseCustomMenuPanel implements PanelPresentable<Node>, UpdatablePanel {
     protected final boolean panelCanBeClosed;
     protected final MenuEditorFactory<Node> editorFactory;
@@ -118,5 +124,10 @@ public abstract class BaseCustomMenuPanel implements PanelPresentable<Node>, Upd
         for(var component : controlsBeingManaged.values()) {
             component.tick();
         }
+    }
+
+    @Override
+    public boolean canBeRemoved() {
+        return true;
     }
 }

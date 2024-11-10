@@ -8,9 +8,9 @@ import com.thecoderscorner.embedcontrol.core.service.TcMenuPersistedConnection;
 import com.thecoderscorner.embedcontrol.core.util.StringHelper;
 import com.thecoderscorner.embedcontrol.customization.GlobalColorCustomizable;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.UpdatablePanel;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -287,7 +287,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
     }
 
     private void notifyControlGrid(boolean up) {
-        if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPresentable) {
+        if(navigationManager.currentNavigationPanel() instanceof UpdatablePanel menuPresentable) {
             menuPresentable.connectionIsUp(up);
         }
     }
@@ -329,8 +329,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
             remoteListener = new RemoteControllerListener() {
                 @Override
                 public void menuItemChanged(MenuItem item, boolean valueOnly) {
-                    if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
-                        menuPanel.getGridComponent().itemHasUpdated(item);
+                    if(navigationManager.currentNavigationPanel() instanceof UpdatablePanel menuPanel) {
+                        menuPanel.itemHasUpdated(item);
                     }
                 }
 
@@ -362,8 +362,8 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
                 @Override
                 public void ackReceived(CorrelationId key, MenuItem item, AckStatus status) {
                     if(item == null) return; // we ignore dialog acks at the moment.
-                    if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
-                        menuPanel.getGridComponent().acknowledgementReceived(key, status);
+                    if(navigationManager.currentNavigationPanel() instanceof UpdatablePanel menuPanel) {
+                        menuPanel.acknowledgedCorrelationId(key, status);
                     }
                 }
 
@@ -376,7 +376,7 @@ public class RemoteConnectionPanel implements PanelPresentable<Node>, RemotePane
 
             // handle the case where it's already connected really quick!
             if (controller.getConnector().getAuthenticationStatus() == AuthStatus.CONNECTION_READY) {
-                if(navigationManager.currentNavigationPanel() instanceof JfxMenuPresentable) {
+                if(navigationManager.currentNavigationPanel() instanceof UpdatablePanel) {
                     statusHasChanged(AuthStatus.CONNECTION_READY);
                 }
             }

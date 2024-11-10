@@ -25,6 +25,12 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.Conditional
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement;
 
+/// The standard panel that is responsible for rendering either all or part of a menu onto the display automatically.
+/// IE when there is no custom override for a menu item. It has an inner class implementing the `MenuComponentControl`
+/// so that it can put the controls suggested into an on display grid.
+///
+/// This panel then implements `UpdatablePanel` so that it can be informed of menu item changes, and update the UI
+/// accordingly.
 public class JfxMenuPresentable implements PanelPresentable<Node>, UpdatablePanel {
     private final SubMenuItem subMenuItem;
     protected final MenuGridComponent<Node> gridComponent;

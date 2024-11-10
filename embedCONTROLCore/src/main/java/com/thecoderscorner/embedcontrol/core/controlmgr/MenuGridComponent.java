@@ -21,6 +21,14 @@ import static com.thecoderscorner.embedcontrol.customization.FontInformation.Siz
 import static com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
+/// MenuGridComponent is the auto UI, it is responsible for taking part of a menu tree and rendering it onto the display.
+/// It is used by both the Local Embedded UI, the Preview function and also all forms of Embed Control Fx. It is provided
+/// with a starting point and if the render is recursive, and then renders either all items in the current menu, or
+/// everything from that point down.
+///
+/// It is an abstract class, in that the absolute methods by with the controls are put into the grid are implemented
+/// elsewhere.
+/// @param <T> The type of UI component, normally Node
 public abstract class MenuGridComponent<T> {
     private final MenuItemStore menuItemStore;
     private final JfxNavigationManager navMgr;

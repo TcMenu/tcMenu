@@ -10,12 +10,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * This is a utility mapping class specifically for TCC applications, it has some raw SQL functions and the smallest
- * possible set of ORM functionality for our own purposes. Note that it is not intended as a general purpose ORM and
- * is just enough of an ORM for our purposes. You are welcome at your own risk to use this more widely but such use
- * is not recommended
- */
+/// This is a utility mapping class for TCC applications, it has some raw SQL functions and the smallest
+/// possible set of ORM functionality for our own purposes. Note that it is not intended as a general purpose ORM and
+/// is just enough of an ORM for our purposes. You are welcome to use within TcMenu applications for the most basic of
+/// activities, but it is not intended for wider distribution as it is somewhat incomplete.
+///
+/// The ORM works by a class being annotated with `TableMapping` on the class, and `FieldMapping` on fields that should
+/// be loaded/saved to the database. For example:
+///
+/// ```
+///     @TableMapping(tableName = "MY_TABLE_NAME", uniqueKeyField = "LOCAL_ID")
+///     public class MyPersistedType {
+///         // LocalID is the primary key, it must be integer.
+///         @FieldMapping(fieldName = "LOCAL_ID", primaryKey = true, fieldType = FieldType.INTEGER)
+///         private int localId;
+///         // Mapping a varchar field,
+///         @FieldMapping(fieldName = "MY_NAME", fieldType = FieldType.VARCHAR)
+///         private String myName;
+///     }
+/// ```
+///
+/// @see FieldMapping
+/// @see TableMapping
 public class TccDatabaseUtilities {
     private final System.Logger logger = System.getLogger(TccDatabaseUtilities.class.getSimpleName());
     private final String newLine = System.getProperty("line.separator");
@@ -25,10 +41,17 @@ public class TccDatabaseUtilities {
         connection = c;
     }
 
+    /// close out the database connection
     public void close() throws Exception {
         if(connection != null) connection.close();
     }
 
+    /// query for records and convert them into the database type provided, it must be annotated with @TableMapping
+    /// and any @FieldMapping entries will be populated.
+    /// @param databaseType the class with the mappings
+    /// @param whereClause the where clause of the statement
+    /// @param params the parameters for the query
+    /// @return a list of elements of `databaseType`
     public <T> List<T> queryRecords(Class<T> databaseType, String whereClause, Object... params) throws DataException {
         var tableInfo = databaseType.getAnnotation(TableMapping.class);
 
@@ -50,6 +73,10 @@ public class TccDatabaseUtilities {
         }
     }
 
+    /// Converts a result set row into the type provided if it is possible to do so. IE the class is annotated with
+    /// `@TableMapping` and the fields are annotated with `@FieldMapping`.
+    /// @param rs the result set
+    /// @param databaseType the database value type that is correctly annotated
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> T fromResultSet(ResultSet rs, Class<T> databaseType) throws Exception {
         var item = databaseType.getConstructor().newInstance();
@@ -75,6 +102,7 @@ public class TccDatabaseUtilities {
         return item;
     }
 
+    /// Query by the primary key, this must only return one result, otherwise acts like `queryRecords`
     public <T> Optional<T> queryPrimaryKey(Class<T> databaseType, Object primaryKey) throws DataException {
         var tableInfo = databaseType.getAnnotation(TableMapping.class);
 
@@ -91,6 +119,11 @@ public class TccDatabaseUtilities {
         }
     }
 
+    /// Update a record in the database either by insert if it is new, or by update otherwise. It again can only
+    /// persist classes that are annotated with `@TableMapping` with fields annotated with `@FieldMapping`
+    /// @param databaseType the type that is correctly annotated
+    /// @data the item to persist
+    /// @return the record loaded from the database
     public <T> int updateRecord(Class<T> databaseType, T data) throws DataException {
         var tableInfo = databaseType.getAnnotation(TableMapping.class);
 
@@ -161,6 +194,9 @@ public class TccDatabaseUtilities {
         return field.getAnnotation(FieldMapping.class).primaryKey();
     }
 
+    /// This should be called for each database type during start up, it will ensure that the database is up-to-date
+    /// with any changes in the schema, note that only small incremental changes can be handled by this utility.
+    /// It is intended that only columns are added, they should not be renamed or deleted.
     public void ensureTableFormatCorrect(Class<?>... databaseTypes) throws DataException {
         for(var databaseType : databaseTypes) {
             var tableMapping = databaseType.getAnnotation(TableMapping.class);
@@ -234,6 +270,9 @@ public class TccDatabaseUtilities {
         executeRaw(sql);
     }
 
+    /// Execute a raw query given SQL and parameters for the query
+    /// @param sql the SQL to execute
+    /// @param  params the parameters for the query
     public void executeRaw(String sql, Object... params) throws DataException {
         logger.log(System.Logger.Level.DEBUG, "Execute raw sql " + sql);
         try (var stmt = connection.prepareStatement(sql)) {
@@ -252,6 +291,10 @@ public class TccDatabaseUtilities {
         };
         return fm.primaryKey() ? strTy + " PRIMARY KEY" : strTy;
     }
+
+    /// Query for a single raw integer value, the result must be able to return as an integer.
+    /// @param sql the SQL to execute that returns a single integer value
+    /// @param data any parameters required to execute.
     public int queryRawSqlSingleInt(String sql, Object... data) throws DataException {
         logger.log(System.Logger.Level.DEBUG, "Query for int " + sql);
         try (var stmt = connection.prepareStatement(sql)) {
@@ -267,6 +310,7 @@ public class TccDatabaseUtilities {
         }
     }
 
+    /// Same as queryRawSqlSingleInt but without an exception returning 0 on failure.
     public int queryRawSqlSingleIntNoException(String sql, Object... data) {
         try {
             return queryRawSqlSingleInt(sql, data);
@@ -287,6 +331,9 @@ public class TccDatabaseUtilities {
         }
     }
 
+    /// Perform a raw select and handle the results using `ResultSetConsumer`
+    /// @param s the sql to process
+    /// @param resultConsumer will be called to process the results.
     public void rawSelect(String s, ResultSetConsumer resultConsumer, Object... args) throws Exception {
         try (var stmt = connection.createStatement()) {
             var rs = stmt.executeQuery(s);
@@ -294,6 +341,10 @@ public class TccDatabaseUtilities {
         }
     }
 
+    /// Query for a list of string items
+    /// @param sql the SQL to execute
+    /// @param params the parameters for the sql
+    /// @return a list of strings. There must only be 1 column in the dataset.
     public List<String> queryStrings(String sql, Object... params) throws DataException {
         logger.log(System.Logger.Level.DEBUG, "Query for strings " + sql);
         try (var stmt = connection.prepareStatement(sql)) {

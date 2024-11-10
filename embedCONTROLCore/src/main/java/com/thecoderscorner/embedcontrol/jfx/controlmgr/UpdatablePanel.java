@@ -4,7 +4,7 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
-/// Represents a `PanelPresentable` that can be updated when menu items change, it is also provided with a
+/// Represents a `PanelPresentable` that can is interested in menu items changes, it is also provided with a
 /// tick function so that the implementor can tick down updates that occur. When an item updates the update
 /// will be sent through the `itemHasUpdated` method, and you will be on the JavaFx thread when it occurs.
 public interface UpdatablePanel {
@@ -23,4 +23,8 @@ public interface UpdatablePanel {
     /// @param correlationId the correlation id of the acknowledgement
     /// @param status the status of the acknowledgement
     void acknowledgedCorrelationId(CorrelationId correlationId, AckStatus status);
+
+    /// Something such as a bootstrap has caused the menu structure to change significantly enough
+    /// that a complete redraw may be needed.
+    void entirelyRebuildGrid();
 }

@@ -1,15 +1,10 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
-import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-
-import java.io.IOException;
-
 /**
  * Represents a panel that can be displayed onto a UI, it has a name, a UI representation and the possibility to close
- * or remove it.
- * @param <T> the UI panel type
+ * or remove it. In all cases they will be in a card like layout where panels are pushed onto the layout, and only
+ * one can be shown at once, either in a stack, or the panels may be in a selectable list.
+ * @param <T> the UI panel type, usually Node
  */
 public interface PanelPresentable<T> {
     /**

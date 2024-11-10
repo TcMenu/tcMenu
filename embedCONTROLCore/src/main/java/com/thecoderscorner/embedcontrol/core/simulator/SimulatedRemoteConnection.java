@@ -20,6 +20,9 @@ import static com.thecoderscorner.menu.remote.commands.MenuChangeCommand.ChangeT
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.ERROR;
 
+/// This provides a somewhat complete implementation of remote that simulates a real connection. It allows you to
+/// test EmbedControl without needing a full connection to a device. It take a copied menu tree (usually from designer)
+/// and bootstraps it like a real device would.
 public class SimulatedRemoteConnection implements RemoteConnector {
     private static final UUID uuid = UUID.fromString("D5F0C35F-AF43-4CB6-BA79-512DF536B558");
     private final System.Logger logger = System.getLogger(SimulatedRemoteConnection.class.getSimpleName());

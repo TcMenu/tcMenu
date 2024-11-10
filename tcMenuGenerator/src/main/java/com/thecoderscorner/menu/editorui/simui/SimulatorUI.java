@@ -4,10 +4,10 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.service.AppDataStore;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
-import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuPresentable;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationHeader;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.TitleWidget;
+import com.thecoderscorner.embedcontrol.jfx.controlmgr.UpdatablePanel;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.ColorSettingsPresentable;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
@@ -116,11 +116,11 @@ public class SimulatorUI {
 
     public void itemHasChanged(MenuItem item) {
         Platform.runLater(() -> {
-            if(navMgr.currentNavigationPanel() instanceof JfxMenuPresentable menuPanel) {
+            if(navMgr.currentNavigationPanel() instanceof UpdatablePanel menuPanel) {
                 if(item == null) {
                     menuPanel.entirelyRebuildGrid();
                 } else {
-                    menuPanel.getGridComponent().itemHasUpdated(item);
+                    menuPanel.itemHasUpdated(item);
                 }
             }
         });
