@@ -6,8 +6,9 @@ import com.thecoderscorner.menu.remote.AuthStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
 /**
- * embedCONTROL is used in both local and remote settings, as such there is a need for different implementations of
- * things such as updates, and connection handling. This interface bridges the gap between the two.
+ * Embed Control is used in both local and remote settings, as such there is a need for different implementations of
+ * things such as updates, and connection handling. This interface provides a way to provide a suitable implementation
+ * for all environments.
  */
 public interface MenuComponentControl {
     /**

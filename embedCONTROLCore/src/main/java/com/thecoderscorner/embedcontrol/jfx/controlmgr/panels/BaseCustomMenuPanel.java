@@ -59,6 +59,10 @@ public abstract class BaseCustomMenuPanel implements PanelPresentable<Node>, Upd
     }
     protected abstract void populateGrid();
 
+    protected void putIntoGrid(ComponentSettingsBuilder builder) {
+        putIntoGrid(builder.getItem(), builder.build());
+    }
+
     protected void putIntoGrid(MenuItem item, ComponentSettings componentSettings) {
         ComponentPositioning pos = componentSettings.getPosition();
         var component = editorFactory.getComponentEditorItem(item, componentSettings, this::noAction);

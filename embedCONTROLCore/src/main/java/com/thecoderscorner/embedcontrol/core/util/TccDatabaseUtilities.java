@@ -122,7 +122,7 @@ public class TccDatabaseUtilities {
     /// Update a record in the database either by insert if it is new, or by update otherwise. It again can only
     /// persist classes that are annotated with `@TableMapping` with fields annotated with `@FieldMapping`
     /// @param databaseType the type that is correctly annotated
-    /// @data the item to persist
+    /// @param data the item to persist
     /// @return the record loaded from the database
     public <T> int updateRecord(Class<T> databaseType, T data) throws DataException {
         var tableInfo = databaseType.getAnnotation(TableMapping.class);

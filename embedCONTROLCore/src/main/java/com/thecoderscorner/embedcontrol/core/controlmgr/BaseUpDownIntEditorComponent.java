@@ -4,6 +4,13 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 
+/// BaseUpDownIntEditorComponent is an abstract class that handles
+/// the core logic for an editor component with up/down integer adjustments.
+/// This class extends [BaseEditorComponent] and encapsulates the functionalities
+/// required to manage integer values.
+///
+/// @param <T> The type of the value this editor component will manage.
+/// @param <W> The type of the widget component.
 public abstract class BaseUpDownIntEditorComponent<T, W> extends BaseEditorComponent<W> {
     protected T currentVal;
 

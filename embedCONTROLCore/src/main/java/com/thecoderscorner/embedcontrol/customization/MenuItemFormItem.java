@@ -1,8 +1,8 @@
 package com.thecoderscorner.embedcontrol.customization;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentPositioning;
+import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettingsBuilder;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ControlType;
-import com.thecoderscorner.embedcontrol.core.controlmgr.MenuGridComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode;
 import com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration;
 import com.thecoderscorner.menu.domain.ActionMenuItem;
@@ -33,7 +33,7 @@ public class MenuItemFormItem extends MenuFormItem {
         super(settings, positioning);
         this.item = mi;
         this.customDrawing = CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
-        this.controlType = MenuGridComponent.defaultControlForType(mi);
+        this.controlType = ComponentSettingsBuilder.defaultControlForType(mi);
         this.alignment = defaultAlignForType(mi, controlType);
         this.redrawingMode = defaultDrawingModeForType(mi);
     }

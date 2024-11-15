@@ -10,10 +10,12 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode.SHO
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.FONT_100_PERCENT;
 
 /// This class describes how a menu item should be rendered onto the display. It contains the most important drawing
-/// settings along with grid positioning data. It also allows for conditional colouring and custom drawing.
+/// settings along with grid positioning data. It also allows for conditional colouring and custom drawing. Usually
+/// use the {@link ComponentSettingsBuilder} in order to create an instance of this class.
 ///
 /// For automatic menu layout cases, the layout is described in terms of font, color, position and justification using
 /// this class based on some standard defaults.
+///
 /// @see CustomDrawingConfiguration
 /// @see ConditionalColoring
 public class ComponentSettings {

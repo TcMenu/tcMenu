@@ -2,7 +2,7 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr;
 
 /**
  * This interface is used to listen for updates on title widgets, you register with the title widget directly.
- * @param <T>
+ * @param <T> usually a javafx image
  */
 @FunctionalInterface
 public interface TitleWidgetListener<T> {

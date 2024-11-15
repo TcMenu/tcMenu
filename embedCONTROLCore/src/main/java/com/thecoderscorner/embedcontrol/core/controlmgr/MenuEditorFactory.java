@@ -6,12 +6,19 @@ import javafx.scene.Node;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * A menu control grid is responsible for actually placing controls onto the UI. It has a method for each type of
- * control that can be added, and has helper methods to clear down the grid, and to nest menu items, this allows for
- * cases where recursive menu rendering is used to give visual clues such as indentation.
- * @param <T>
- */
+/// This factory is responsible for creating controls that can be placed into a window or screen. The default JavaFX
+/// implementation creates JavaFX `Node` objects for each editor component. For the standard case that you want to
+/// create a custom panel in Embed Control then you should most likely start with `BaseCustomMenuPanel`.
+///
+/// The factory has a method for each type of control that can be added. The `getComponentEditorItem` method takes a
+/// `ComponentSettings` and returns an `EditorComponent`. The editor component is kind of like a wrapper around the
+/// actual control, and can keep the control up-to-date and in the right state when associated with a
+/// [com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.BaseCustomMenuPanel]. If you want to use these components
+/// outside of the base custom panel, then you should look at the custom panel implementation to see how to interact
+/// with editor components.
+///
+/// @see com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxMenuEditorFactory
+/// @param <T> the control type
 public interface MenuEditorFactory<T>
 {
     /**

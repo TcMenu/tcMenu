@@ -5,11 +5,19 @@ import com.thecoderscorner.menu.domain.state.MenuState;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 
-/**
- * This interface represents an item that can be drawn onto a display, it does not say what the control should be
- * directly, the control is created by a call to createComponent, which generates the required UI node.
- * @param <T> the base node type for the UI
- */
+/// This interface represents an item that can be drawn onto a display, it does not say what the control should be
+/// directly, the control is created by a call to createComponent, which generates the required UI node.
+///
+/// In order to present a menu item onto the display, we need to work out what text needs to be displayed, what kind
+/// of control is capable of presenting the menu item, and handling updates including a momentary change in color on
+/// value change. Error handling and correlation is also dealt with here.
+///
+/// You normally create items of this class by interacting with the `MenuEditorFactory` interface. If you're trying
+/// to create a custom page within `EmbedControl` it is recommended to start with `BaseCustomMenuPanel` as that already
+/// creates everything you're likely to need, and has examples of creating controls.
+///
+/// @see BaseEditorComponent
+/// @param <T> the base node type for the UI
 public interface EditorComponent<T> {
 
     /**
