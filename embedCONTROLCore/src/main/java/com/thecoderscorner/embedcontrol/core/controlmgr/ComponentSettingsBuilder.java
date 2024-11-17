@@ -16,6 +16,8 @@ import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.FONT_1
  * justification, position, control type, drawing mode, and custom drawing configuration.
  */
 public class ComponentSettingsBuilder {
+    public enum BuildingMode { MENU, TEXT, IMAGE }
+
     private final static Set<EditItemType> POSSIBLE_TIME_TYPES = Set.of(
             EditItemType.TIME_12H,
             EditItemType.TIME_24_HUNDREDS,
@@ -23,6 +25,8 @@ public class ComponentSettingsBuilder {
             EditItemType.TIME_12H_HHMM,
             EditItemType.TIME_24H_HHMM);
 
+    private BuildingMode mode;
+    private String text;
     private MenuItem item;
     private FontInformation fontInfo = FONT_100_PERCENT;
     private ConditionalColoring colors;
@@ -39,10 +43,21 @@ public class ComponentSettingsBuilder {
     /// @param color the colors to use for the control
     public static ComponentSettingsBuilder forMenuItem(MenuItem item, ConditionalColoring color) {
         var b = new ComponentSettingsBuilder();
+        b.mode = BuildingMode.MENU;
         b.colors = color;
         b.item = item;
         b.withControlType(defaultControlForType(item));
         b.withJustification(defaultJustificationForType(b.controlType));
+        return b;
+    }
+
+    public static ComponentSettingsBuilder forText(String text, ConditionalColoring color) {
+        var b = new ComponentSettingsBuilder();
+        b.mode = BuildingMode.TEXT;
+        b.colors = color;
+        b.text = text;
+        b.withControlType(ControlType.TEXT_CONTROL);
+        b.withJustification(PortableAlignment.LEFT);
         return b;
     }
 
@@ -89,10 +104,19 @@ public class ComponentSettingsBuilder {
         return this;
     }
 
-    /// Set the position of the control in the grid. Pretty much must always be set
+    /// Set the position of the control in the grid. Must always be set, for simpler cases with
+    /// no span you can use `withRowCol`
     /// @param position the position and span in the grid to create with
     public ComponentSettingsBuilder withPosition(ComponentPositioning position) {
         this.position = position;
+        return this;
+    }
+
+    /// Set the position of the control in the grid. Must always be set
+    /// @param row the zero based row
+    /// @param col the zero based column
+    public ComponentSettingsBuilder withRowCol(int row, int col) {
+        this.position = new ComponentPositioning(row, col);
         return this;
     }
 
@@ -101,10 +125,13 @@ public class ComponentSettingsBuilder {
     /// @param controlType  the control type to use
     /// @throws IllegalArgumentException if the control type is invalid for the menu item
     public ComponentSettingsBuilder withControlType(ControlType controlType) {
-        if(!controlType.isSupportedFor(item)) {
+        if(mode != BuildingMode.MENU) {
+            controlType = ControlType.TEXT_CONTROL;
+        } else if(!controlType.isSupportedFor(item)) {
             throw new IllegalArgumentException("Control type %s cannot render %s".formatted(controlType, item.getClass().getSimpleName()));
+        } else {
+            this.controlType = controlType;
         }
-        this.controlType = controlType;
         return this;
     }
 
@@ -130,6 +157,18 @@ public class ComponentSettingsBuilder {
     /// @return menu item
     public MenuItem getItem() {
         return item;
+    }
+
+    /// Get the static text associated with this builder
+    /// @return  the static text
+    public String getText() {
+        return text;
+    }
+
+    /// Get the mode of the building, IE text, menu item etc.
+    /// @return the building mode
+    public BuildingMode getMode() {
+        return mode;
     }
 
     /// Creates the component settings

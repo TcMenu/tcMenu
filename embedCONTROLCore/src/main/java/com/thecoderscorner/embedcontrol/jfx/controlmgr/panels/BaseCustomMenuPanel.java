@@ -2,15 +2,19 @@ package com.thecoderscorner.embedcontrol.jfx.controlmgr.panels;
 
 import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
+import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.UpdatablePanel;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.remote.commands.AckStatus;
 import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 import java.util.HashMap;
 
@@ -59,8 +63,36 @@ public abstract class BaseCustomMenuPanel implements PanelPresentable<Node>, Upd
     }
     protected abstract void populateGrid();
 
+    private Font calculateFont(FontInformation fontInfo, Font current) {
+        if(fontInfo.sizeMeasurement() == FontInformation.SizeMeasurement.PERCENT) {
+            return Font.font(current.getSize() * (fontInfo.fontSize() / 100.0));
+        } else {
+            return Font.font(fontInfo.fontSize());
+        }
+    }
+
+    private TextAlignment toTextAlign(EditorComponent.PortableAlignment justification) {
+        return switch (justification) {
+            case LEFT, LEFT_VAL_RIGHT -> TextAlignment.LEFT;
+            case RIGHT -> TextAlignment.RIGHT;
+            case CENTER -> TextAlignment.CENTER;
+        };
+    }
+
     protected void putIntoGrid(ComponentSettingsBuilder builder) {
-        putIntoGrid(builder.getItem(), builder.build());
+        if(builder.getMode() == ComponentSettingsBuilder.BuildingMode.TEXT) {
+            var settings = builder.build();
+            var comp = new Label(builder.getText());
+            comp.setFont(calculateFont(settings.getFontInfo(), comp.getFont()));
+            comp.setTextAlignment(toTextAlign(settings.getJustification()));
+            comp.setTextFill(asFxColor(settings.getColors().foregroundFor(NORMAL, TEXT_FIELD)));
+            var pos = settings.getPosition();
+            gridPane.add(comp, pos.getCol(), pos.getRow(), pos.getColSpan(), pos.getRowSpan());
+        } else if(builder.getMode() == ComponentSettingsBuilder.BuildingMode.MENU){
+            putIntoGrid(builder.getItem(), builder.build());
+        } else {
+            throw new IllegalArgumentException("Unsupported mode " + builder.getMode());
+        }
     }
 
     protected void putIntoGrid(MenuItem item, ComponentSettings componentSettings) {
