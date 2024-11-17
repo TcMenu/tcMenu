@@ -13,6 +13,10 @@ import javafx.scene.text.Text;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * The {@code ResizableCanvas} class extends the basic functionality of a {@code Canvas} and allows for custom
+ * rendering of text and other graphical elements based on the drawing settings provided in the {@code context}.
+ */
 class ResizableCanvas extends Canvas {
     protected CanvasDrawableContext context;
 

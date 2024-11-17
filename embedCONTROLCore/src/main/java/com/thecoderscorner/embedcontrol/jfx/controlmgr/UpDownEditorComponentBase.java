@@ -4,10 +4,8 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.BaseUpDownIntEditorCompo
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.AnalogMenuItem;
 import com.thecoderscorner.menu.domain.MenuItem;
-import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,9 +14,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.*;
+import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 
-
+/**
+ * Abstract class providing a base for editor components with up and down functionality be it numeric
+ * or a list of options. Even for lists of options such an EnumMenuItem their choice is based on an int.
+ * Extends the `BaseUpDownIntEditorComponent` and provides UI components with buttons for incrementing and decrementing values.
+ *
+ * @param <T> The type of the value managed by this editor component.
+ */
 public abstract class UpDownEditorComponentBase<T> extends BaseUpDownIntEditorComponent<T, Node> {
     private static final int REDUCE = -1;
     private static final int INCREASE = 1;

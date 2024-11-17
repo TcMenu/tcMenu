@@ -27,6 +27,11 @@ import java.util.function.BiConsumer;
 
 import static javafx.scene.control.Alert.AlertType;
 
+/**
+ * JfxNavigationHeader is a class that manages the navigation and UI header for a JavaFX application.
+ * It handles the addition of title widgets, menu navigation, and the UI initialization for the header area.
+ * It is the core of the many JavaFX applications that we look after that need to handle navigation.
+ */
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
     private static ResourceBundle CORE_RESOURCES;
 

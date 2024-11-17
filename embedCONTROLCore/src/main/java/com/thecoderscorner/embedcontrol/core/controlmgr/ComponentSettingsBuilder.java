@@ -51,6 +51,10 @@ public class ComponentSettingsBuilder {
         return b;
     }
 
+    /// Create a component settings builder object that will represent some text on the display at a
+    /// particular grid position, will default to the text color, 100% font size, and left justification.
+    /// @param text the text to present
+    /// @param color the color set to use
     public static ComponentSettingsBuilder forText(String text, ConditionalColoring color) {
         var b = new ComponentSettingsBuilder();
         b.mode = BuildingMode.TEXT;

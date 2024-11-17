@@ -19,6 +19,13 @@ import javafx.scene.layout.BorderPane;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * The `HorizontalSliderAnalogComponent` class encapsulates an abstract JavaFX-based slider component that allows for horizontal
+ * adjustment of analog values. It integrates with a menu system, rendering dynamic slider states and handling user interaction
+ * for adjustable menu items.
+ *
+ * @param <T> the type of the analog value, constrained to subclasses of Number.
+ */
 public abstract class HorizontalSliderAnalogComponent<T extends Number> extends JfxTextEditorComponentBase<T> implements CanvasDrawableContext {
     private RenderingStatus lastStatus = RenderingStatus.NORMAL;
     private final MenuTree tree;

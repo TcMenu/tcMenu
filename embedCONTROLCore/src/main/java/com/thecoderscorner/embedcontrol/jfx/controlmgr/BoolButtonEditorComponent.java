@@ -4,20 +4,18 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.BaseBoolEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * BoolButtonEditorComponent is a concrete implementation of BaseBoolEditorComponent that uses a JavaFX Button
+ * to represent and control a boolean state in a UI.
+ */
 public class BoolButtonEditorComponent extends BaseBoolEditorComponent<Node> {
     private Button button;
 

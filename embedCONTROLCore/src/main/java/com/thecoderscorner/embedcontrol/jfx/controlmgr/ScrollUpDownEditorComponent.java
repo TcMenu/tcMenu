@@ -7,6 +7,11 @@ import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.CurrentScrollPosition;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 
+/**
+ * A UI component that leverages the base functionality provided by UpDownEditorComponentBase to create
+ * an editor for managing scrolling through items. This component is specifically designed to handle
+ * current scroll position updates for a menu item.
+ */
 public class ScrollUpDownEditorComponent extends UpDownEditorComponentBase<CurrentScrollPosition> {
     public ScrollUpDownEditorComponent(MenuItem item, MenuComponentControl remote, ComponentSettings settings, ThreadMarshaller marshaller) {
         super(item, remote, settings, marshaller);
