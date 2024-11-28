@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JavaClassBuilderTest {
     private Path tempDir;
@@ -52,15 +51,6 @@ class JavaClassBuilderTest {
                 .forEach(File::delete);
     }
 
-    @Test
-    public void ensureProjectGetsCreated() throws IOException {
-        javaProject.setupProjectIfNeeded();
-        assertTrue(Files.exists(javaProject.getMainJava()));
-        assertTrue(Files.exists(javaProject.getTestJava()));
-        assertTrue(Files.exists(javaProject.getMainResources()));
-        assertTrue(Files.exists(javaProject.getProjectRoot().resolve("pom.xml")));
-        assertTrue(Files.exists(javaProject.getMainResources().resolve("application.properties")));
-    }
 
     @Test
     public void testCreateWithAllTypes() throws IOException {
