@@ -130,7 +130,7 @@ public class EmbeddedJavaProject {
              return fileStream.filter(path -> path.toString().endsWith(".java") && containsController(path))
                     .findFirst();
         } catch (IOException e) {
-            return null;
+            return Optional.empty();
         }
     }
 
