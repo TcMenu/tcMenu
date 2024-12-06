@@ -1,9 +1,7 @@
 package com.thecoderscorner.embedcontrol.core.controlmgr;
 
-/**
- * Represents an abstract way of positioning menu item controls for display in a grid. Containing the row, column
- * and span of each.
- */
+/// Represents an abstract way of positioning menu item controls for display in a grid. Containing the row, column
+/// and span of each. Generally always used with {@link ComponentSettings}
 public class ComponentPositioning {
     private final int row;
     private final int col;

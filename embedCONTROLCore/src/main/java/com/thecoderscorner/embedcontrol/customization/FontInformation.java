@@ -1,8 +1,16 @@
 package com.thecoderscorner.embedcontrol.customization;
 
+/// Used by component settings to indicate what size of font is needed for a given item, either absolute or percentage
+/// of the existing font.
+/// @param fontSize the font size
+/// @param sizeMeasurement either absolute or percentage of existing
 public record FontInformation(int fontSize, SizeMeasurement sizeMeasurement) {
     public enum SizeMeasurement {ABS_SIZE, PERCENT}
 
+    /// Calculates the font size to be used based on the existing font.
+    ///
+    /// @param size the existing size to base the calculation on
+    /// @return the calculated font size, either the absolute size or a percentage-based size
     public int fontSizeFromExisting(int size) {
         return (sizeMeasurement == SizeMeasurement.ABS_SIZE) ? size : (int)((size) * (fontSize / 100.0));
     }

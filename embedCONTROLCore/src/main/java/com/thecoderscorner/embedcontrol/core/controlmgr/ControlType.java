@@ -5,7 +5,7 @@ import com.thecoderscorner.menu.domain.*;
 import java.util.List;
 
 /**
- * Represents the type of embedCONTROL control to use, these are hints to the rendering layer to help it to decide
+ * Represents the type of Embed Control display item to use, these are hints to the rendering layer to help it to decide
  * what to display.
  */
 public enum ControlType {

@@ -44,10 +44,11 @@ class JavaCodeGeneratorCapableWrapperTest {
         Mockito.when(configStorage.getVersion()).thenReturn("1.0.0");
 
         CodeGeneratorOptions generatorOptions = new CodeGeneratorOptionsBuilder()
-                .withPackageNamespace("com.unittest")
+                .withPackageNamespace("pkg")
                 .withAppName("Super Amplifier")
                 .codeOptions();
 
+        JavaClassBuilderTest.createWorkableJavaProject(tempDir);
         javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, LocaleMappingHandler.NOOP_IMPLEMENTATION, this::logLine);
     }
 
@@ -73,11 +74,11 @@ class JavaCodeGeneratorCapableWrapperTest {
         wrapper.addToContext(noAuth, cb);
         cb.persistClass();
 
-        var cls = javaProject.getMainJava().resolve("com").resolve("unittest").resolve("tcmenu").resolve("TestClass.java");
+        var cls = javaProject.getMainJava().resolve("pkg").resolve("TestClass.java");
         var clsText = Files.readString(cls);
 
         TestUtils.assertEqualsIgnoringCRLF("""
-                package com.unittest.tcmenu;
+                package pkg;
                                 
                 import com.thecoderscorner.menu.auth.*;
                                 

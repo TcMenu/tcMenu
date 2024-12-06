@@ -9,12 +9,15 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.P
 import static com.thecoderscorner.embedcontrol.core.controlmgr.RedrawingMode.SHOW_NAME_VALUE;
 import static com.thecoderscorner.embedcontrol.customization.MenuFormItem.FONT_100_PERCENT;
 
-/**
- * When automatic menu layout is used, the layout is described in terms of font, color, position and justification using
- * this class. It can either be auto-generated on the fly, or selected by a user and serialized by the layout persister
- * for later reloading. This is essentially a value class.
- *
- */
+/// This class describes how a menu item should be rendered onto the display. It contains the most important drawing
+/// settings along with grid positioning data. It also allows for conditional colouring and custom drawing. Usually
+/// use the {@link ComponentSettingsBuilder} in order to create an instance of this class.
+///
+/// For automatic menu layout cases, the layout is described in terms of font, color, position and justification using
+/// this class based on some standard defaults.
+///
+/// @see CustomDrawingConfiguration
+/// @see ConditionalColoring
 public class ComponentSettings {
     public static final ComponentSettings NO_COMPONENT = new ComponentSettings(new NullConditionalColoring(),
             FONT_100_PERCENT, PortableAlignment.LEFT, new ComponentPositioning(0, 0), SHOW_NAME_VALUE,

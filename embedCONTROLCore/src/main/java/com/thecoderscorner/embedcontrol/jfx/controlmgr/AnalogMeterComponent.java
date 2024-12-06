@@ -13,13 +13,18 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * AnalogMeterComponent is a UI component designed for rendering an analog meter using JavaFX.
+ * It can display either a standard analog meter or a VU meter based on the configuration.
+ *
+ * @param <T> the type of the value displayed by the analog meter, extending from the Number class
+ */
 public class AnalogMeterComponent<T extends Number> extends JfxTextEditorComponentBase<T> implements CanvasDrawableContext  {
     private RenderingStatus lastStatus = RenderingStatus.NORMAL;
     private final MenuTree tree;

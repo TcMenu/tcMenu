@@ -8,12 +8,49 @@ import com.thecoderscorner.menu.domain.SubMenuItem;
 
 import java.util.Optional;
 
+/// An implementation of custom drawing for boolean items, they have color and possible image overrides for the two
+/// states, true and false. Construct an instance of this class and provide it to your.
+/// IMPORTANT note that images are not yet supported.
+///
+/// ```
+///     var redGreenBooleanCustom = new BooleanCustomDrawingConfiguration(
+///             new ControlColor(GREEN, WHITE), new ControlColor(RED, WHITE)
+///     );
+/// ```
+///
+/// @see ControlColor
+/// {@link com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettingsBuilder}  in order to override the drawing.
 public class BooleanCustomDrawingConfiguration implements CustomDrawingConfiguration {
     private String name;
     private ControlColor yesColor;
     private ControlColor noColor;
     private ImageDefinition yesImage;
     private ImageDefinition noImage;
+
+    /// An instance of the class that has color overrides for true and false cases.
+    /// @param yesColor the color to override for true
+    /// @param noColor the color to override for false
+    public BooleanCustomDrawingConfiguration(ControlColor yesColor, ControlColor noColor) {
+        this.name = "";
+        this.yesColor = yesColor;
+        this.noColor = noColor;
+        this.yesImage = ImageDefinition.NO_IMAGE;
+        this.noImage = ImageDefinition.NO_IMAGE;
+    }
+
+    /// An instance of the class that has color and image overrides for true and false cases.
+    /// IMPORTANT note that images are not yet supported.
+    /// @param yesColor the color to override for true
+    /// @param noColor the color to override for false
+    /// @param yesImage the image to render for true
+    /// @param noImage the image to render for false
+    public BooleanCustomDrawingConfiguration(ControlColor yesColor, ControlColor noColor, ImageDefinition yesImage, ImageDefinition noImage) {
+        this.name = "";
+        this.yesColor = yesColor;
+        this.noColor = noColor;
+        this.yesImage = yesImage != null ? yesImage : ImageDefinition.NO_IMAGE;
+        this.noImage = noImage != null ? noImage : ImageDefinition.NO_IMAGE;
+    }
 
     public BooleanCustomDrawingConfiguration(String name, ControlColor yesColor, ControlColor noColor) {
         this.name = name;

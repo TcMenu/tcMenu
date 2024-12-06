@@ -13,13 +13,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.thecoderscorner.menu.editorui.generator.ejava.GeneratedJavaMethod.GenerationMode.*;
 import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JavaClassBuilderTest {
     private Path tempDir;
@@ -33,15 +33,55 @@ class JavaClassBuilderTest {
     @BeforeEach
     public void setupDirectories() throws IOException {
         tempDir = Files.createTempDirectory(getClass().getSimpleName());
+        createWorkableJavaProject(tempDir);
         configStorage = Mockito.mock(ConfigurationStorage.class);
         Mockito.when(configStorage.getVersion()).thenReturn("1.0.0");
 
         CodeGeneratorOptions generatorOptions = new CodeGeneratorOptionsBuilder()
-                .withPackageNamespace("com.unittest")
+                .withPackageNamespace("pkg")
                 .withAppName("Super Amplifier")
                 .codeOptions();
 
         javaProject = new EmbeddedJavaProject(tempDir, generatorOptions, configStorage, LocaleMappingHandler.NOOP_IMPLEMENTATION, this::logLine);
+    }
+
+    public static void createWorkableJavaProject(Path tempDir) throws IOException {
+        Path mainPath = tempDir.resolve("src").resolve("main");
+        Files.createDirectories(mainPath.resolve("java"));
+        Files.createDirectories(mainPath.resolve("resources"));
+        var pkg = mainPath.resolve("java").resolve("pkg");
+        Files.createDirectories(pkg);
+        Files.writeString(pkg.resolve("Controller.java"), """
+                import xyz;
+                class Xyz implements MenuManagerListener{
+                    private final EmbeddedJavaDemoMenu  menuDef;
+                    private final JfxNavigationManager navigationManager;
+                    private final ScheduledExecutorService executorService;
+                    private final GlobalSettings globalSettings;
+                    // Auto generated menu fields end here. Add your own fields after here. Please do not remove this line.
+                    
+                    // Start of menu callbacks
+                
+                    // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
+
+                    public void menuItemHasChanged(Object sender, MenuItem item) {
+                    }
+            
+                    @Override
+                    public void managerWillStart() {
+                    }
+            
+                    @Override
+                    public void managerWillStop() {
+                    }
+                }""");
+        Files.writeString(pkg.resolve("MenuDef.java"), """
+                class Xyz implements TcApiDefinitions {
+                    // Auto generated menu callbacks end here. Please do not remove this line or change code after it.
+                }""");
+
+        Files.writeString(tempDir.resolve("pom.xml"), "TEST", StandardOpenOption.CREATE);
+        Files.writeString(tempDir.resolve("README.md"), "TEST", StandardOpenOption.CREATE);
     }
 
     @AfterEach
@@ -52,15 +92,6 @@ class JavaClassBuilderTest {
                 .forEach(File::delete);
     }
 
-    @Test
-    public void ensureProjectGetsCreated() throws IOException {
-        javaProject.setupProjectIfNeeded();
-        assertTrue(Files.exists(javaProject.getMainJava()));
-        assertTrue(Files.exists(javaProject.getTestJava()));
-        assertTrue(Files.exists(javaProject.getMainResources()));
-        assertTrue(Files.exists(javaProject.getProjectRoot().resolve("pom.xml")));
-        assertTrue(Files.exists(javaProject.getMainResources().resolve("application.properties")));
-    }
 
     @Test
     public void testCreateWithAllTypes() throws IOException {
@@ -78,10 +109,10 @@ class JavaClassBuilderTest {
                 .supportsInterface("MyInterface123")
                 .persistClass();
 
-        var cls = javaProject.getMainJava().resolve("com").resolve("unittest").resolve("tcmenu").resolve("SuperAmplifierApp.java");
+        var cls = javaProject.getMainJava().resolve("pkg").resolve("SuperAmplifierApp.java");
         var clsText = Files.readString(cls);
         assertEqualsIgnoringCRLF("""
-                package com.unittest.tcmenu;
+                package pkg;
 
                 import com.unittest.123;
                 import com.unittest.321;
@@ -113,10 +144,10 @@ class JavaClassBuilderTest {
                         .withStatement("// implement callback"))
                 .persistClass();
 
-        var cls = javaProject.getMainJava().resolve("com").resolve("unittest").resolve("tcmenu").resolve("SuperAmplifierMenu.java");
+        var cls = javaProject.getMainJava().resolve("pkg").resolve("SuperAmplifierMenu.java");
         var clsText = Files.readString(cls);
         assertEqualsIgnoringCRLF("""
-                package com.unittest.tcmenu;
+                package pkg;
 
                 public class SuperAmplifierMenu {
                     private final MenuTree tree;
@@ -140,10 +171,10 @@ class JavaClassBuilderTest {
                         .withStatement("// implement callback"))
                 .persistClass();
 
-        var cls = javaProject.getTestJava().resolve("com").resolve("unittest").resolve("tcmenu").resolve("SuperAmplifierMenu.java");
+        var cls = javaProject.getTestJava().resolve("pkg").resolve("SuperAmplifierMenu.java");
         var clsText = Files.readString(cls);
         assertEqualsIgnoringCRLF("""
-                package com.unittest.tcmenu;
+                package pkg;
 
                 import org.openlib.*;
 
@@ -178,10 +209,10 @@ class JavaClassBuilderTest {
                         .withStatement("}"))
                 .persistClassByPatching();
 
-        var cls = javaProject.getMainJava().resolve("com").resolve("unittest").resolve("tcmenu").resolve("SuperAmplifierController.java");
+        var cls = javaProject.getMainJava().resolve("pkg").resolve("SuperAmplifierController.java");
         var clsText = Files.readString(cls);
         assertEqualsIgnoringCRLF("""
-                package com.unittest.tcmenu;
+                package pkg;
 
                 import com.simplej.spanner;
                 import com.thecoderscorner.test;
@@ -240,7 +271,7 @@ class JavaClassBuilderTest {
 
                 clsText = Files.readString(cls);
                 assertEqualsIgnoringCRLF("""
-                        package com.unittest.tcmenu;
+                        package pkg;
 
                         import com.simplej.spanner;
                         import com.thecoderscorner.test;

@@ -10,6 +10,14 @@ import java.util.Optional;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.EditorComponent.RenderingStatus;
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 
+/// Custom drawing allows for the colour to change based on certain parameters, for example a numeric menu item may
+/// change color based on range, or a boolean may change color based on it being on or off.
+///
+/// This object is applied to a {@link com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettingsBuilder}
+/// and then used by the {@link com.thecoderscorner.embedcontrol.core.controlmgr.MenuEditorFactory} in order to
+/// override the colors when the conditions for custom rendering are met.
+///
+/// @see com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettingsBuilder
 public interface CustomDrawingConfiguration {
     NoOpCustomDrawingConfiguration NO_CUSTOM_DRAWING = new NoOpCustomDrawingConfiguration();
 

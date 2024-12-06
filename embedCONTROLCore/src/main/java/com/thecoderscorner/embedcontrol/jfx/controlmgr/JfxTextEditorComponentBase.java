@@ -8,7 +8,6 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColorin
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.state.MenuState;
-import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -20,7 +19,12 @@ import javafx.scene.layout.Region;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
-
+/**
+ * JfxTextEditorComponentBase provides an abstract base class for JavaFX-based text editor components.
+ * Extends capabilities of BaseTextEditorComponent by implementing methods specific to JavaFX.
+ *
+ * @param <T> the type of the underlying data that will be edited
+ */
 public abstract class JfxTextEditorComponentBase<T> extends BaseTextEditorComponent<T, Node> {
     protected final DrawingColorHandler drawingColorHandler;
     protected JfxTextEditorComponentBase(MenuComponentControl controller, ComponentSettings settings, MenuItem item, ThreadMarshaller threadMarshaller) {

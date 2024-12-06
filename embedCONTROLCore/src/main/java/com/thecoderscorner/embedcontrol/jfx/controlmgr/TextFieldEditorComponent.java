@@ -21,6 +21,12 @@ import java.util.Optional;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
 
+/**
+ * TextFieldEditorComponent is a graphical component for displaying and editing text fields.
+ * It extends JfxTextEditorComponentBase to provide additional functionality specific to text editing.
+ *
+ * @param <T> the type of the value being edited
+ */
 public class TextFieldEditorComponent<T> extends JfxTextEditorComponentBase<T> {
     private Label textField;
     private BorderPane borderPane;

@@ -4,20 +4,19 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.BaseBoolEditorComponent;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettings;
 import com.thecoderscorner.embedcontrol.core.controlmgr.MenuComponentControl;
 import com.thecoderscorner.embedcontrol.core.controlmgr.ThreadMarshaller;
-import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring;
 import com.thecoderscorner.menu.domain.MenuItem;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColoring.ColorComponentType;
-import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 
+/**
+ * This class represents a UI component for a menu item that includes a button with customizable text.
+ * It extends the BaseBoolEditorComponent designed for menu items that are either actionable or on/off.
+ * The button, when clicked, triggers a specified consumer with the associated menu item.
+ */
 public class MenuSelectButtonEditorComponent extends BaseBoolEditorComponent<Node> {
     private final String text;
     private final Consumer<MenuItem> itemConsumer;

@@ -22,10 +22,16 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import static javafx.scene.control.Alert.AlertType;
 
+/**
+ * JfxNavigationHeader is a class that manages the navigation and UI header for a JavaFX application.
+ * It handles the addition of title widgets, menu navigation, and the UI initialization for the header area.
+ * It is the core of the many JavaFX applications that we look after that need to handle navigation.
+ */
 public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavigationManager {
     private static ResourceBundle CORE_RESOURCES;
 
@@ -158,6 +164,13 @@ public class JfxNavigationHeader implements TitleWidgetListener<Image>, JfxNavig
             }
             runNavigation(presentable);
             navigationStack.push(presentable);
+            executorService.scheduleAtFixedRate(() -> {
+                Platform.runLater(() -> {
+                    if(currentNavigationPanel() instanceof UpdatablePanel updatablePanel) {
+                        updatablePanel.tickAll();
+                    }
+                });
+            }, 100L, 100L, TimeUnit.MILLISECONDS);
         });
     }
 

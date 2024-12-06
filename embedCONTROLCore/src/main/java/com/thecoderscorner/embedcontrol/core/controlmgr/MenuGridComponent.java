@@ -4,7 +4,8 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.color.ConditionalColorin
 import com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor;
 import com.thecoderscorner.embedcontrol.customization.*;
 import com.thecoderscorner.embedcontrol.jfx.controlmgr.JfxNavigationManager;
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
@@ -15,21 +16,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement.PERCENT;
 import static com.thecoderscorner.embedcontrol.customization.customdraw.CustomDrawingConfiguration.NO_CUSTOM_DRAWING;
 import static com.thecoderscorner.menu.domain.util.MenuItemHelper.asSubMenu;
 
+/// MenuGridComponent is the auto UI, it is responsible for taking part of a menu tree and rendering it onto the display.
+/// It is used by both the Local Embedded UI, the Preview function and also all forms of Embed Control Fx. It is provided
+/// with a starting point and if the render is recursive, and then renders either all items in the current menu, or
+/// everything from that point down.
+///
+/// It is an abstract class, in that the absolute methods by which the controls are put into the grid are implemented
+/// differently in each case. Normally you will not need to create these yourself as they are created automatically
+/// when no custom panel exists.
+/// @param <T> The type of UI component, normally Node
 public abstract class MenuGridComponent<T> {
     private final MenuItemStore menuItemStore;
     private final JfxNavigationManager navMgr;
     private final MenuTree tree;
     protected final Map<Integer, EditorComponent<T>> editorComponents = new HashMap<>();
     private final ScheduledExecutorService executor;
-    private final ScheduledFuture<?> remoteTickTask;
     private ThreadMarshaller marshaller;
     private int row;
 
@@ -40,11 +47,7 @@ public abstract class MenuGridComponent<T> {
         this.navMgr = navMgr;
         this.executor = executor;
         this.marshaller = marshaller;
-
-        remoteTickTask = executor.scheduleAtFixedRate(this::timerTick, 100, 100, TimeUnit.MILLISECONDS);
     }
-
-
 
     public void renderMenuRecursive(MenuEditorFactory<T> editorFactory, SubMenuItem sub, boolean recurse, int level) {
         Consumer<MenuItem> subRenderer = subMenuItem -> navMgr.pushMenuNavigation(asSubMenu(subMenuItem), menuItemStore);
@@ -112,27 +115,11 @@ public abstract class MenuGridComponent<T> {
         }
     }
 
-    public void tickAll() {
-        for(var component : editorComponents.values()) {
-            component.tick();
-        }
-    }
-
     private ComponentSettings getComponentForMenuItem(MenuItem item) {
         var position = defaultSpaceForItem(Optional.of(item));
-
-        return new ComponentSettings(new ScreenLayoutBasedConditionalColor(menuItemStore, position),
-                MenuFormItem.FONT_100_PERCENT, defaultJustificationForItem(Optional.of(item)),
-                position, defaultRedrawModeForItem(Optional.of(item)), defaultControlForType(item),
-                NO_CUSTOM_DRAWING, false);
-    }
-
-    protected RedrawingMode defaultRedrawModeForItem(Optional<MenuItem> item) {
-        return RedrawingMode.SHOW_NAME_VALUE;
-    }
-
-    protected EditorComponent.PortableAlignment defaultJustificationForItem(Optional<MenuItem> item) {
-        return EditorComponent.PortableAlignment.CENTER;
+        return ComponentSettingsBuilder.forMenuItem(item, new ScreenLayoutBasedConditionalColor(menuItemStore, position))
+                .withPosition(position)
+                .build();
     }
 
     protected ComponentPositioning defaultSpaceForItem(Optional<MenuItem> item) {
@@ -155,6 +142,12 @@ public abstract class MenuGridComponent<T> {
     public void acknowledgementReceived(CorrelationId key, AckStatus status) {
         for(var comp : editorComponents.values()) {
             comp.onCorrelation(key, status);
+        }
+    }
+
+    public void tickAll() {
+        for(var comp : editorComponents.values()) {
+            comp.tick();
         }
     }
 
@@ -195,47 +188,4 @@ public abstract class MenuGridComponent<T> {
             }
         }
     }
-
-    /**
-     * Called frequently by the executor to update the UI components.
-     */
-    public void timerTick() {
-        marshaller.runOnUiThread(this::tickAll);
-    }
-
-    /**
-     * Call this to stop the associated tasks.
-     */
-    public void dispose() {
-        remoteTickTask.cancel(false);
-    }
-
-    public static ControlType defaultControlForType(MenuItem item) {
-        if (item instanceof SubMenuItem || item instanceof BooleanMenuItem || item instanceof ActionMenuItem) {
-            return ControlType.BUTTON_CONTROL;
-        } else if (item instanceof AnalogMenuItem) {
-            return ControlType.HORIZONTAL_SLIDER;
-        } else if (item instanceof Rgb32MenuItem) {
-            return ControlType.RGB_CONTROL;
-        } else if (item instanceof EnumMenuItem || item instanceof ScrollChoiceMenuItem) {
-            return ControlType.UP_DOWN_CONTROL;
-        } else if (item instanceof RuntimeListMenuItem) {
-            return ControlType.LIST_CONTROL;
-        } else if (item instanceof CustomBuilderMenuItem) {
-            return ControlType.AUTH_IOT_CONTROL;
-        } else if (item instanceof EditableTextMenuItem textItem) {
-            if (textItem.getItemType() == EditItemType.GREGORIAN_DATE) {
-                return ControlType.DATE_CONTROL;
-            } else if (textItem.getItemType() == EditItemType.TIME_24_HUNDREDS ||
-                    textItem.getItemType() == EditItemType.TIME_12H ||
-                    textItem.getItemType() == EditItemType.TIME_24H) {
-                return ControlType.TIME_CONTROL;
-            } else {
-                return ControlType.TEXT_CONTROL;
-            }
-        } else {
-            return ControlType.TEXT_CONTROL;
-        }
-    }
-
 }

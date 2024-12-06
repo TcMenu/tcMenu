@@ -4,10 +4,12 @@ import com.thecoderscorner.embedcontrol.core.controlmgr.*;
 import com.thecoderscorner.embedcontrol.core.service.GlobalSettings;
 import com.thecoderscorner.embedcontrol.customization.FontInformation;
 import com.thecoderscorner.embedcontrol.customization.MenuItemStore;
+import com.thecoderscorner.menu.domain.MenuItem;
 import com.thecoderscorner.menu.domain.SubMenuItem;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemFormatter;
-import javafx.application.Platform;
+import com.thecoderscorner.menu.remote.commands.AckStatus;
+import com.thecoderscorner.menu.remote.protocol.CorrelationId;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -23,7 +25,13 @@ import static com.thecoderscorner.embedcontrol.core.controlmgr.color.Conditional
 import static com.thecoderscorner.embedcontrol.core.controlmgr.color.ControlColor.asFxColor;
 import static com.thecoderscorner.embedcontrol.customization.FontInformation.SizeMeasurement;
 
-public class JfxMenuPresentable implements PanelPresentable<Node> {
+/// The standard panel that is responsible for rendering either all or part of a menu onto the display automatically.
+/// IE when there is no custom override for a menu item. It has an inner class implementing the `MenuComponentControl`
+/// so that it can put the controls suggested into an on display grid.
+///
+/// This panel then implements `UpdatablePanel` so that it can be informed of menu item changes, and update the UI
+/// accordingly.
+public class JfxMenuPresentable implements PanelPresentable<Node>, UpdatablePanel {
     private final SubMenuItem subMenuItem;
     protected final MenuGridComponent<Node> gridComponent;
     private final MenuEditorFactory<Node> editorFactory;
@@ -89,8 +97,24 @@ public class JfxMenuPresentable implements PanelPresentable<Node> {
     public void closePanel() {
     }
 
+    @Override
     public void connectionIsUp(boolean up) {
-        Platform.runLater(()->gridPane.setDisable(!up));
+        gridPane.setDisable(!up);
+    }
+
+    @Override
+    public void acknowledgedCorrelationId(CorrelationId correlationId, AckStatus status) {
+        getGridComponent().acknowledgementReceived(correlationId, status);
+    }
+
+    @Override
+    public void tickAll() {
+        getGridComponent().tickAll();
+    }
+
+    @Override
+    public void itemHasUpdated(MenuItem item) {
+        getGridComponent().itemHasUpdated(item);
     }
 
     class JfxGridComponent extends MenuGridComponent<Node> {

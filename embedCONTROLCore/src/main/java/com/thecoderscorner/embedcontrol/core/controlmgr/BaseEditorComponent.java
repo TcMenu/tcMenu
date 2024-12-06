@@ -8,14 +8,21 @@ import javafx.scene.text.Font;
 
 import java.util.Set;
 
-/**
- * The absolute base class of editor components, this class contains many helper functions needed to be able to render
- * a menu item onto the display, regardless of the type of item, or display technology. This includes working out
- * what text needs to be displayed, handling updates including the momentary change in color on value change. Error
- * handling and correlation is also dealt with here.
- *
- * @param <W> The window component type
- */
+/// This class is the base of all editor components that can represent a menu item onto a window, and as such contains
+/// many helper functions needed to be able to keep the control in sync with the menu item, regardless of the type of
+/// item, or display technology. Normally for JavaFX the generic type is `Node`.
+///
+/// In order to present a menu item onto the display, we need to work out what text needs to be displayed, what kind
+/// of control is capable of presenting the menu item, and handling updates including a momentary change in color on
+/// value change. Error handling and correlation is also dealt with here.
+///
+/// You normally create items of this class by interacting with the `MenuEditorFactory` interface. If you're trying
+/// to create a custom page within `EmbedControl` it is recommended to start with `BaseCustomMenuPanel` as that already
+/// creates everything you're likely to need, and has examples of creating controls.
+///
+/// @see MenuEditorFactory
+/// @see com.thecoderscorner.embedcontrol.jfx.controlmgr.panels.BaseCustomMenuPanel
+/// @param <W> The window component type for JavaFX it is Node.
 public abstract class BaseEditorComponent<W> implements EditorComponent<W> {
     public static final int MAX_CORRELATION_WAIT = 5000;
 

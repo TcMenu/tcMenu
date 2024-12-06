@@ -10,6 +10,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/// An implementation of custom drawing that supports numeric ranges. Imagine for example that something becoming off
+/// has critical importance, then we may want to render the control in red when it is off it indicate its importance.
+/// Here is an example of how to construct an object you could then pass to component settings.
+///
+/// ```
+///         var stringColorCustom = new StringCustomDrawingConfiguration(List.of(
+///                 new Pair("Danger", new ControlColor(RED, WHITE))), "");
+///                 new Pair("Warn", new ControlColor(ORANGE, WHITE))), "");
+/// ```
+///
+/// @see ControlColor
+/// @see com.thecoderscorner.embedcontrol.core.controlmgr.ComponentSettingsBuilder
 public class StringCustomDrawingConfiguration implements CustomDrawingConfiguration {
     private final Map<String, ControlColor> colorMappings;
     private final String name;
@@ -19,6 +31,10 @@ public class StringCustomDrawingConfiguration implements CustomDrawingConfigurat
         this.name = name;
     }
 
+    public StringCustomDrawingConfiguration(List<Pair<String, ControlColor>> ranges) {
+        this.colorMappings = ranges.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        this.name = "";
+    }
     public StringCustomDrawingConfiguration(List<Pair<String, ControlColor>> ranges, String text) {
         this.colorMappings = ranges.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         this.name = text;
