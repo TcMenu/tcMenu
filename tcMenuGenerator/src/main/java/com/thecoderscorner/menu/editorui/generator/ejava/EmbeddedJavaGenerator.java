@@ -105,6 +105,7 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
         boolean hasMenuInMenuDefinitions = !options.getMenuInMenuCollection().getAllDefinitions().isEmpty();
         if(hasMenuInMenuDefinitions) {
             var method = new GeneratedJavaMethod(METHOD_REPLACE, "void", "buildMenuInMenuComponents")
+                    .withParameter("BaseMenuConfig context")
                     .withStatement("MenuManagerServer menuManager = context.getBean(MenuManagerServer.class);")
                     .withStatement("MenuCommandProtocol protocol = context.getBean(MenuCommandProtocol.class);")
                     .withStatement("ScheduledExecutorService executor = context.getBean(ScheduledExecutorService.class);")
@@ -124,6 +125,9 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
                 ));
                 method.withStatement(variableName + ".start();");
             }
+            classBuilder.addPackageImport("com.thecoderscorner.menu.mgr.*")
+                    .addPackageImport("com.thecoderscorner.menu.remote.*")
+                    .addPackageImport("java.util.concurrent.ScheduledExecutorService");
             classBuilder.addStatement(method);
         } else {
             classBuilder.addStatement(new GeneratedJavaMethod(METHOD_REPLACE, "void", "configureMenuInMenuComponents")

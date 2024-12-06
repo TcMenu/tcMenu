@@ -192,7 +192,7 @@ public class CreateProjectCommand implements Callable<Integer> {
             var mainRes = dir.resolve("src").resolve("main").resolve("resources");
             // move the class and resource files into selected package in options.
             var newSourcePackage = mainSrc.resolve(options.getPackageNamespace().replace('.', FileSystems.getDefault().getSeparator().charAt(0)));
-            String projectName = String.join("", newProject);
+            String projectName = String.join("", options.getApplicationName());
 
             // adjust the various project files minimally so they can be loaded into an IDE in
             // the new package structure.
