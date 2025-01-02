@@ -3,6 +3,7 @@ package com.thecoderscorner.menu.editorui.cli;
 import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.editorui.MenuEditorApp;
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptions;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
 import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
@@ -50,6 +51,9 @@ public class CodeGeneratorCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose logging")
     private boolean verbose;
 
+    @CommandLine.Option(names = {"-o", "--output-dir"}, description = "output directory")
+    private String outputDir;
+
     @Override
     public Integer call() {
         try {
@@ -89,7 +93,15 @@ public class CodeGeneratorCommand implements Callable<Integer> {
                 plugins.add(getPluginOrDefault(allPlugins, project.getOptions().getLastThemeUuid(), DEFAULT_THEME_PLUGIN, propMap));
             }
 
-            var location = Paths.get(loadedProjectFile.getParent());
+            // Override output dir settings from project file if specified as a parameter.
+            Path location;
+            location = (outputDir != null)
+                    ? Paths.get(outputDir)
+                    : Paths.get(loadedProjectFile.getParent());
+            if (outputDir != null) {
+                project.getOptions().setSaveLocation(ProjectSaveLocation.ALL_TO_CURRENT);
+            }
+
             codeGen.setLoggerFunction((level, s) -> {
                 if(verbose) System.out.format("Gen: %s: %s\n", level, s);
             });

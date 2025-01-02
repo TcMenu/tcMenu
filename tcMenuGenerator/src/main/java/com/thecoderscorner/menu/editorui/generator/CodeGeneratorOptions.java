@@ -129,6 +129,10 @@ public class CodeGeneratorOptions {
         return saveLocation;
     }
 
+    public void setSaveLocation(ProjectSaveLocation saveLocation) {
+        this.saveLocation = saveLocation;
+    }
+
     public boolean isUseCppMain() {
         return useCppMain;
     }
