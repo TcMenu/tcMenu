@@ -1,5 +1,8 @@
 ## tcMenu - A menu library and designer for Arduino and mbed with IoT capabilities
-[![Java Build](https://github.com/TcMenu/tcMenu/actions/workflows/build.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build.yml)
+[![Java Test](https://github.com/TcMenu/tcMenu/actions/workflows/test.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/test.yml)
+[![Linux nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml)
+[![macOS nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml)
+[![Windows nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/TcMenu/tcMenu/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/TcMenu/tcMenu.svg?maxAge=3600)](https://github.com/TcMenu/tcMenu/releases)
 [![davetcc](https://img.shields.io/badge/davetcc-dev-blue.svg)](https://github.com/davetcc)
