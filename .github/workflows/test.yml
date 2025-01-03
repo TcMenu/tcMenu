@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -19,11 +19,11 @@ jobs:
         distribution: 'liberica'
         cache: maven
 
-    - name: Build tcMenuJavaApi
+    - name: Build and test tcMenuJavaApi
       run: mvn -B install -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
   
-    - name: Build embedCONTROLCore
+    - name: Build and test embedCONTROLCore
       run: mvn -B install -Dgpg.skip=true --file embedCONTROLCore/pom.xml
 
-    - name: Build tcMenuGenerator
+    - name: Build and test tcMenuGenerator
       run: mvn -B install -Dgpg.skip=true --file tcMenuGenerator/pom.xml
