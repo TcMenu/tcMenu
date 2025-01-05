@@ -63,17 +63,15 @@ jobs:
     - name: Package EXE and config files
       shell: bash
       run: |
-        mkdir -p packaged/tcmenu/app
-        mkdir -p packaged/tcMenuDesigner/app
-        cp tcMenuGenerator/target/tcmenu/tcmenu.exe packaged/tcmenu/
-        cp tcMenuGenerator/target/tcmenu/app/tcmenu.cfg packaged/tcmenu/app/
-        cp tcMenuGenerator/target/tcMenuDesigner/tcMenuDesigner.exe packaged/tcMenuDesigner/
-        cp tcMenuGenerator/target/tcMenuDesigner/app/tcMenuDesigner.cfg packaged/tcMenuDesigner/app/
+        mkdir -p packaged/app
+        cp tcMenuGenerator/target/tcmenu/tcmenu.exe packaged/
+        cp tcMenuGenerator/target/tcmenu/app/tcmenu.cfg packaged/app/
+        cp tcMenuGenerator/target/tcMenuDesigner/tcMenuDesigner.exe packaged/
+        cp tcMenuGenerator/target/tcMenuDesigner/app/tcMenuDesigner.cfg packaged/app/
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
         name: tcmenudesigner_${{ env.version }}_windows_exe-${{ github.sha }}
         path: |
-          packaged/tcmenu
-          packaged/tcMenuDesigner
+          packaged
