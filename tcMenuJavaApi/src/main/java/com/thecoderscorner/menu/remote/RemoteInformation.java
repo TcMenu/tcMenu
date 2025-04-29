@@ -15,15 +15,15 @@ import java.util.UUID;
  * Represents the remote connection details, such as name and version.
  */
 public class RemoteInformation {
-    public static final RemoteInformation NOT_CONNECTED = new RemoteInformation("", UUID.randomUUID(),  0, -1, -1, ApiPlatform.JAVA_API);
+    public static final RemoteInformation NOT_CONNECTED = new RemoteInformation("", UUID.randomUUID(),  "0", -1, -1, ApiPlatform.JAVA_API);
     private final String name;
     private final UUID uuid;
-    private final int serialNumber;
+    private final String serialNumber;
     private final ApiPlatform platform;
     private final int major;
     private final int minor;
 
-    public RemoteInformation(String name, UUID uuid, int serialNumber, int major, int minor, ApiPlatform platform) {
+    public RemoteInformation(String name, UUID uuid, String serialNumber, int major, int minor, ApiPlatform platform) {
         this.name = name;
         this.major = major;
         this.minor = minor;
@@ -60,7 +60,7 @@ public class RemoteInformation {
     }
 
     /** the serial number */
-    public int getSerialNumber() {
+    public String getSerialNumber() {
         return serialNumber;
     }
 

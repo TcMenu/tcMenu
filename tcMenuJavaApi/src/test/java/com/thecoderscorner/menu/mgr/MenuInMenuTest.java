@@ -260,7 +260,7 @@ class MenuInMenuTest {
 
         @Override
         public RemoteInformation getRemoteParty() {
-            return new RemoteInformation(getConnectionName(), UUID.randomUUID(), 0, 1, 0, ApiPlatform.JAVA_API);
+            return new RemoteInformation(getConnectionName(), UUID.randomUUID(), "0", 1, 0, ApiPlatform.JAVA_API);
         }
 
         @Override

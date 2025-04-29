@@ -46,7 +46,7 @@ public class SimulatedRemoteConnection implements RemoteConnector {
         this.simName = simName;
         this.latencyMillis = latencyMillis;
         this.valuesById = valuesById;
-        this.remoteInfo = new RemoteInformation(simName, uuid, 1234, 1, 1, ApiPlatform.JAVA_API);
+        this.remoteInfo = new RemoteInformation(simName, uuid, "1234", 1, 1, ApiPlatform.JAVA_API);
         var simulatorMenu = new SubMenuItemBuilder()
                 .withId(60001)
                 .withName("Simulator Options")

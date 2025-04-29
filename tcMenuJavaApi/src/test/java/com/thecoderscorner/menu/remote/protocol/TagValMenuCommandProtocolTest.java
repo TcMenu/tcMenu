@@ -69,7 +69,7 @@ public class TagValMenuCommandProtocolTest {
         assertEquals("07cd8bc6-734d-43da-84e7-6084990becfc", join.getAppUuid().toString());
         assertEquals("IoTdevice", join.getMyName());
         assertEquals(1223, join.getApiVersion());
-        assertEquals(987654321, join.getSerialNumber());
+        assertEquals("987654321", join.getSerialNumber());
         assertEquals(ApiPlatform.JAVA_API, join.getPlatform());
         assertEquals(JOIN, join.getCommandType());
     }
@@ -423,7 +423,7 @@ public class TagValMenuCommandProtocolTest {
     @Test
     public void testWritingJoin() throws TcProtocolException {
         var uuid = UUID.fromString("07cd8bc6-734d-43da-84e7-6084990becfc");
-        protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101, 999999999));
+        protocol.toChannel(bb, new MenuJoinCommand(uuid,"dave", ApiPlatform.ARDUINO, 101, "999999999"));
         testBufferAgainstExpected(JOIN, "NM=dave|UU=07cd8bc6-734d-43da-84e7-6084990becfc|VE=101|PF=0|US=999999999|\u0002");
     }
 

@@ -61,7 +61,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
     private final Map<Integer, MethodWithObject> mapOfCallbacksById = new ConcurrentHashMap<>();
     private final Map<Integer, MethodWithObject> mapOfChoicePopulatorsById = new ConcurrentHashMap<>();
     private final List<MenuTreeStructureChangeListener> structureChangeListeners = new CopyOnWriteArrayList<>();
-    private final AtomicReference<Supplier<Integer>> boardSerialProvider = new AtomicReference<>(() -> 0);
+    private final AtomicReference<Supplier<String>> boardSerialProvider = new AtomicReference<>(() -> "0");
 
     public MenuManagerServer(ScheduledExecutorService executorService, MenuTree tree, String serverName, UUID uuid,
                              MenuAuthenticator authenticator, Clock clock) {
@@ -78,7 +78,7 @@ public class MenuManagerServer implements NewServerConnectionListener {
      * serial number is needed, and should return the value promptly to avoid connectivity issues.
      * @param provider the function that returns the serial number when requested.
      */
-    public void setBoardSerialProvider(Supplier<Integer> provider) {
+    public void setBoardSerialProvider(Supplier<String> provider) {
         boardSerialProvider.set(provider);
     }
 

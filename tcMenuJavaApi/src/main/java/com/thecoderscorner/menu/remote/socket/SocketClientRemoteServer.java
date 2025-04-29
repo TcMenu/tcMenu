@@ -125,7 +125,7 @@ public class SocketClientRemoteServer {
                 .findFirst();
     }
 
-    public Optional<SocketClientRemoteConnector> getConnection(UUID connectionId, long serialNumber) {
+    public Optional<SocketClientRemoteConnector> getConnection(UUID connectionId, String serialNumber) {
         return Optional.ofNullable(mapOfConnections.get(new UuidAndSerial(connectionId, serialNumber)));
     }
 
@@ -139,9 +139,9 @@ public class SocketClientRemoteServer {
      */
     public static class UuidAndSerial {
         private final UUID uuid;
-        private final long serial;
+        private final String serial;
 
-        private UuidAndSerial(UUID uuid, long serial) {
+        private UuidAndSerial(UUID uuid, String serial) {
             this.uuid = uuid;
             this.serial = serial;
         }
@@ -154,7 +154,7 @@ public class SocketClientRemoteServer {
             return uuid;
         }
 
-        public long getSerial() {
+        public String getSerial() {
             return serial;
         }
 
@@ -163,7 +163,7 @@ public class SocketClientRemoteServer {
             if (this == o) return true;
             if (!(o instanceof UuidAndSerial)) return false;
             UuidAndSerial that = (UuidAndSerial) o;
-            return serial == that.serial && Objects.equals(uuid, that.uuid);
+            return Objects.equals(serial, that.serial) && Objects.equals(uuid, that.uuid);
         }
 
         @Override

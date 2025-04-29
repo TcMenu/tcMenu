@@ -17,9 +17,9 @@ public class MenuJoinCommand implements MenuCommand {
     private final int apiVer;
     private final ApiPlatform platform;
     private final UUID appUuid;
-    private final int serialNumber;
+    private final String serialNumber;
 
-    public MenuJoinCommand(UUID uuid, String myName, ApiPlatform platform, int apiVer, int serialNo) {
+    public MenuJoinCommand(UUID uuid, String myName, ApiPlatform platform, int apiVer, String serialNo) {
         this.myName = myName;
         this.appUuid = uuid;
         this.apiVer = apiVer;
@@ -43,7 +43,7 @@ public class MenuJoinCommand implements MenuCommand {
         return platform;
     }
 
-    public int getSerialNumber() {
+    public String getSerialNumber() {
         return serialNumber;
     }
 

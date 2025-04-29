@@ -113,7 +113,7 @@ class MenuManagerServerTest {
 
         when(authenticator.authenticate(CLIENT_NAME, CLIENT_UUID)).thenReturn(false);
         simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, START));
-        simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100, 0));
+        simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100, "0"));
 
         assertFalse(mgr.isAnyRemoteConnection());
         assertTrue(simConnection.ensureMessageMatching(MenuAcknowledgementCommand.class, mac -> mac.getAckStatus().isError()));
@@ -140,7 +140,7 @@ class MenuManagerServerTest {
 
         when(authenticator.authenticate(CLIENT_NAME, CLIENT_UUID)).thenReturn(true);
         simConnection.simulateMessageToMessageHandler(new MenuHeartbeatCommand(1500, START));
-        simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100, 0));
+        simConnection.simulateMessageToMessageHandler(new MenuJoinCommand(CLIENT_UUID, CLIENT_NAME, ApiPlatform.JAVA_API, 100, "0"));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, ABSOLUTE, "22"));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 1, ABSOLUTE, "24"));
         simConnection.simulateMessageToMessageHandler(new MenuChangeCommand(CorrelationId.EMPTY_CORRELATION, 3, ABSOLUTE, "true"));

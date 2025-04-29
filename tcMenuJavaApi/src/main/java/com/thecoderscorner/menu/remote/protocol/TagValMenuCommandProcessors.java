@@ -381,7 +381,7 @@ public class TagValMenuCommandProcessors {
                 parser.getValue(KEY_NAME_FIELD),
                 ProtocolUtil.fromKeyToApiPlatform(parser.getValueAsInt(KEY_PLATFORM_ID)),
                 parser.getValueAsInt(KEY_VER_FIELD),
-                parser.getValueAsIntWithDefault(KEY_SERIAL_NO, 0));
+                parser.getValueWithDefault(KEY_SERIAL_NO, "0"));
     }
 
     private MenuCommand processHeartbeat(TagValTextParser parser) throws TcProtocolException {

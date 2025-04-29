@@ -34,7 +34,7 @@ import static java.lang.System.Logger.Level.INFO;
  * with stream like semantics can use this as the base for building out an adapter.
  */
 public abstract class StreamRemoteConnector extends SharedStreamConnection implements RemoteConnector, RemoteConnectorContext {
-    private static final int UI_SERIAL_NO = 0;
+    private static final String UI_SERIAL_NO = "0";
 
     public enum ReadMode { ONLY_WHEN_EMPTY, READ_MORE }
 
