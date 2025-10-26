@@ -12,8 +12,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.*;
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.FACEBOOK_PAGE_URL;
-import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.TWITTER_X_FOLLOW_URL;
+import static com.thecoderscorner.menu.editorui.uimodel.UrlsForDocumentation.*;
 
 public class SplashScreenController {
     private CurrentProjectEditorUI editorUI;
@@ -24,7 +23,7 @@ public class SplashScreenController {
     public void initialise(CurrentProjectEditorUI editorUI, Consumer<String> themeListener, ConfigurationStorage storage, ResourceBundle bundle) {
         this.editorUI = editorUI;
         this.themeListener = themeListener;
-        this.tcMenuVersionField.setText(bundle.getString("splash.dialog.you.installed.version") + storage.getVersion());
+        this.tcMenuVersionField.setText(bundle.getString("splash.dialog.you.installed.version") + " " + storage.getVersion());
     }
 
     public void onGettingStartedVideo(ActionEvent ignored) {
@@ -68,5 +67,9 @@ public class SplashScreenController {
 
     public void onFollowTwitter(ActionEvent ignored) {
         editorUI.browseToURL(TWITTER_X_FOLLOW_URL);
+    }
+
+    public void onPollLink(ActionEvent actionEvent) {
+        editorUI.browseToURL(TC_MENU_POLL_URL);
     }
 }

@@ -12,15 +12,15 @@
     <name>menuEditorUI</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>    
     <description>JavaFX based menu editor UI</description>
-    <version>4.4.1</version>
+    <version>4.5.0</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <!-- production deps -->
-        <jdk.version>22</jdk.version>
-        <jfx.version>23.0.1</jfx.version>
+        <jdk.version>25.0.1</jdk.version>
+        <jfx.version>25.0.1</jfx.version>
         <jmetro.version>11.6.16</jmetro.version>
         <google.gson.version>2.11.0</google.gson.version>
         <picocli.version>4.7.6</picocli.version>

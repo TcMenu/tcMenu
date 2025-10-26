@@ -13,7 +13,7 @@
     <artifactId>embedCONTROLCore</artifactId>
     <name>embedCONTROLCore</name>
     <description>TcMenu embedCONTROL shared core</description>
-    <version>4.4.1</version>
+    <version>4.5.0</version>
     <url>https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/</url>
 
     <licenses>
@@ -50,8 +50,8 @@
     </scm>
 
     <properties>
-        <jdk.version>22</jdk.version>
-        <jfx.version>23.0.1</jfx.version>
+        <jdk.version>25</jdk.version>
+        <jfx.version>25.0.1</jfx.version>
         <jserialcomm.version>2.11.0</jserialcomm.version>
         <google.gson.version>2.11.0</google.gson.version>
         <junit5.version>5.11.0</junit5.version>

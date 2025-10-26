@@ -40,6 +40,7 @@
         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1" fillWidth="true" prefWidth="400">
             <children>
                 <Label fx:id="tcMenuVersionField" text="%splash.dialog.you.installed.version"/>
+                <Hyperlink onAction="#onPollLink" text="%splash.dialog.tell.what.you.think"/>
                 <Hyperlink onAction="#onGettingStartedVideo" text="%splash.dialog.startup.video.youtube"/>
                 <Hyperlink onAction="#onTcMenuDocs" text="%splash.dialog.documentation"/>
                 <HBox>
@@ -49,8 +50,10 @@
                 <Label text="Releasing this UI costs more than you think:">
                     <padding><Insets top="10"/></padding>
                 </Label>
-                <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
-                <Hyperlink onAction="#onSponsorOptions" text="Follow/Sponsor GitHub"/>
+                <HBox>
+                    <Hyperlink onAction="#onBuyMeACoffee" text="Buy Me A Coffee"/>
+                    <Hyperlink onAction="#onSponsorOptions" text="Follow/Sponsor GitHub"/>
+                </HBox>
 
             </children>
         </VBox>

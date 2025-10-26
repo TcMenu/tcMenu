@@ -22,4 +22,5 @@ public interface UrlsForDocumentation {
     String TWITTER_X_FOLLOW_URL = "https://twitter.com/thecoderscorner";
     String FACEBOOK_PAGE_URL = "https://www.facebook.com/thecoderscorner";
     String THE_CODERS_CORNER_URL = "https://www.thecoderscorner.com/";
+    String TC_MENU_POLL_URL = "https://github.com/TcMenu/tcMenu/discussions/555";
 }
