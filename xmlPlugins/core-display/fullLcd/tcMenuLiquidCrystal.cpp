@@ -133,7 +133,7 @@ void LiquidCrystalRenderer::drawMenuItem(GridPositionRowCacheEntry* entry, Coord
 }
 
 void LiquidCrystalRenderer::setupEditorPlacement(int32_t x, int32_t y) {
-    lcdEditorCursorX = min((width - 1), x);
+    lcdEditorCursorX = min(int32_t(width - 1), x);
     lcdEditorCursorY = y;
 }
 
