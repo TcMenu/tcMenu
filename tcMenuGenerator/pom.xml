@@ -17,18 +17,6 @@
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-
-        <!-- production deps -->
-        <jdk.version>25.0.1</jdk.version>
-        <jfx.version>25.0.1</jfx.version>
-        <jmetro.version>11.6.16</jmetro.version>
-        <google.gson.version>2.11.0</google.gson.version>
-        <picocli.version>4.7.6</picocli.version>
-
-        <!-- test deps -->
-        <junit5.version>5.11.2</junit5.version>
-        <mockito.version>5.14.2</mockito.version>
-        <testfx.version>4.0.18</testfx.version>
     </properties>
 
     <dependencies>
@@ -49,44 +37,44 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>${google.gson.version}</version>
+            <version>2.13.2</version>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>${picocli.version}</version>
+            <version>4.7.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.7.3</version>
+            <version>2.7.4</version>
         </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>${jfx.version}</version>
+            <version>25.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${jfx.version}</version>
+            <version>25.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>${jfx.version}</version>
+            <version>25.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>${jfx.version}</version>
+            <version>25.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>${jfx.version}</version>
+            <version>25.0.1</version>
         </dependency>
 
         <!-- END JavaFX notes -->
@@ -94,7 +82,7 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jmetro</artifactId>
-            <version>${jmetro.version}</version>
+            <version>11.6.16</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
@@ -117,25 +105,25 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
+            <version>6.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
+            <version>5.20.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-core</artifactId>
-            <version>${testfx.version}</version>
+            <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-junit5</artifactId>
-            <version>${testfx.version}</version>
+            <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -162,16 +150,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
+                    <source>25</source>
+                    <target>25</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
