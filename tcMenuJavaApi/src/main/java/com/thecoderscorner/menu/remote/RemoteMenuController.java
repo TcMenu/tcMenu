@@ -217,7 +217,7 @@ public class RemoteMenuController {
     }
 
     private void onAcknowledgementCommand(MenuAcknowledgementCommand menuCommand) {
-        var item = itemsInProgress.get(menuCommand.getCorrelationId());
+        var item = itemsInProgress.remove(menuCommand.getCorrelationId());
         listeners.forEach(rcl->
                 rcl.ackReceived(menuCommand.getCorrelationId(), item, menuCommand.getAckStatus())
         );

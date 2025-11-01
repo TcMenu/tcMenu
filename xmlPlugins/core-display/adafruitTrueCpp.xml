@@ -1,4 +1,4 @@
-<TcMenuPlugin name="Adafruit OLED Fork for True C++ (PicoSDK/Mbed)"
+<TcMenuPlugin name="Adafruit OLED Fork for C++ (PicoSDK/ESP32-IDF/Mbed)"
               id="61159C5B-F23A-4050-980F-A8FE114E2965" subsystem="DISPLAY"
               requiresDesigner="2.0" needsTheme="true"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
@@ -6,6 +6,7 @@
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>TrueCpp</PlatformGroup>
+        <Platform>ARDUINO_ESP32</Platform>
     </SupportedPlatforms>
     <Description>A fork of AdafruitGFX that we maintain supporting various OLED displays on PicoSDK, mbed6 and other native environments based on IoAbstraction.</Description>
     <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_mbed-renderer-plugin/"/>
@@ -118,7 +119,7 @@
         <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
             <Param value="30"/>
             <Param value="applicationInfo.name"/>
-            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+            <Param value="nullptr"/>
         </Variable>
 
     </GlobalVariables>
@@ -139,6 +140,10 @@
         </Function>
         <Function name="setFontHandler" object="${DISPLAY_VARIABLE}Drawable">
             <Param value="${DISPLAY_VARIABLE}->getFontHandler()"/>
+        </Function>
+
+        <Function name="setDrawable" object="renderer">
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
         </Function>
     </SetupFunctions>
 </TcMenuPlugin>
