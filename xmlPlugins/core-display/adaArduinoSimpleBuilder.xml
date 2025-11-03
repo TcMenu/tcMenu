@@ -42,6 +42,7 @@
         <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="0" desc="%adafruit.display.rotation.desc" type="int" min="0" max="3"/>
         <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="%core.screen.updates.sec.desc" type="int" min="1" max="10"/>
         <Property id="DISPLAY_BUFFER_SIZE" name="%core.display.buffer.size" initial="0" type="int" min="0" max="320"  desc="%core.display.buffer.size.desc"/>
+        <Property id="DISPLAY_CUSTOM_SPI_NAME" name="%core.display.spi.class.name" initial="SPI" desc="%core.display.spi.class.name.desc" type="variable"/>
     </Properties>
 
     <ApplicabilityDefs>
@@ -117,6 +118,7 @@
         </Variable>
 
         <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" applicabilityRef="when77xxHardware">
+            <Param ref="${DISPLAY_CUSTOM_SPI_NAME}"/>
             <Param value="${DISPLAY_CS_PIN}"/>
             <Param value="${DISPLAY_RS_PIN}"/>
             <Param value="${DISPLAY_RESET_PIN}"/>
@@ -141,6 +143,7 @@
         <!-- ILI9341 variable options -->
 
         <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="true" applicabilityRef="when9341HWSPI">
+            <Param ref="${DISPLAY_CUSTOM_SPI_NAME}"/>
             <Param value="${DISPLAY_CS_PIN}"/>
             <Param value="${DISPLAY_RS_PIN}"/>
             <Param value="${DISPLAY_RESET_PIN}"/>
