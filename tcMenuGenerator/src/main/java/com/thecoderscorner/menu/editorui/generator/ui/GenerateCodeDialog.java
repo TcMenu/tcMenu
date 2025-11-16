@@ -28,6 +28,7 @@ import com.thecoderscorner.menu.editorui.generator.validation.IoExpanderProperty
 import com.thecoderscorner.menu.editorui.project.CurrentEditorProject;
 import com.thecoderscorner.menu.editorui.uimodel.CurrentProjectEditorUI;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -46,6 +47,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.dialog.BaseDialogSupport.createDialogStateAndShow;
+import static com.thecoderscorner.menu.editorui.generator.ui.TcSortOrder.NAME_ASC;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.CHANGE;
 import static com.thecoderscorner.menu.editorui.generator.ui.UICodePluginItem.UICodeAction.SELECT;
 import static com.thecoderscorner.menu.editorui.util.AlertUtil.showAlertAndWait;
@@ -573,19 +575,48 @@ public class GenerateCodeDialog {
     }
 
     private void selectPlugin(List<CodePluginItem> pluginItems, String changeWhat, BiConsumer<UICodePluginItem, CodePluginItem> eventHandler) {
-
         Popup popup = new Popup();
-        List<UICodePluginItem> listOfComponents = pluginItems.stream()
-                .map(display -> new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
-                    popup.hide();
-                    eventHandler.accept(ui, item);
-                }, 0, "pluginSel_" + display.getId()))
-                .toList();
-
+        List<UICodePluginItem> listOfComponents = getUiCodePluginItems("", NAME_ASC, pluginItems, eventHandler, popup);
         VBox vbox = new VBox(5);
         addTitleLabel(vbox, String.format(MenuEditorApp.getBundle().getString("code.gen.select.what.fmt"), changeWhat));
-        vbox.getChildren().addAll(listOfComponents);
 
+        // Add search box
+        HBox searchBox = new HBox(5);
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search...");
+        searchField.setPrefWidth(300);
+        searchField.setPromptText("Search by name");
+        searchBox.getChildren().add(searchField);
+
+        var combo = new ComboBox<>(FXCollections.observableArrayList(TcSortOrder.values()));
+        combo.getSelectionModel().select(NAME_ASC);
+        combo.setPadding(new Insets(0, 0, 0, 10));
+        searchBox.getChildren().add(combo);
+        vbox.getChildren().add(searchBox);
+
+        // Add components and set up filtering
+        VBox componentsBox = new VBox(5);
+        componentsBox.getChildren().addAll(listOfComponents);
+        vbox.getChildren().add(componentsBox);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            String searchText = newValue.toLowerCase();
+            componentsBox.getChildren().clear();
+            var sortedFilteredList = getUiCodePluginItems(searchText, NAME_ASC, pluginItems, eventHandler, popup);
+            componentsBox.getChildren().addAll(sortedFilteredList);
+        });
+
+        combo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            String searchText = searchField.getText().toLowerCase();
+            componentsBox.getChildren().clear();
+            var sortedFilteredList = getUiCodePluginItems(searchText, newValue, pluginItems, eventHandler, popup);
+            componentsBox.getChildren().addAll(sortedFilteredList);
+        });
+
+        createThePopupDialog(vbox, popup);
+    }
+
+    private void createThePopupDialog(VBox vbox, Popup popup) {
         BorderPane pane = new BorderPane();
         pane.setCenter(vbox);
         vbox.getStyleClass().add("popupWindow");
@@ -607,5 +638,19 @@ public class GenerateCodeDialog {
         popup.setHideOnEscape(true);
         var stage = (Stage)(currentInput.getScene().getWindow());
         popup.show(stage);
+    }
+
+    private List<UICodePluginItem> getUiCodePluginItems(String search, TcSortOrder order, List<CodePluginItem> pluginItems, BiConsumer<UICodePluginItem, CodePluginItem> eventHandler, Popup popup) {
+        List<UICodePluginItem> listOfComponents = pluginItems.stream()
+                .filter(p -> StringHelper.isStringEmptyOrNull(search) ||
+                        p.getDescription().toLowerCase().contains(search) ||
+                        p.getExtendedDescription().toLowerCase().contains(search))
+                .map(display -> new UICodePluginItem(manager, display, SELECT, (ui, item) -> {
+                    popup.hide();
+                    eventHandler.accept(ui, item);
+                }, 0, "pluginSel_" + display.getId()))
+                .sorted(order.getComparitor())
+                .toList();
+        return listOfComponents;
     }
 }
