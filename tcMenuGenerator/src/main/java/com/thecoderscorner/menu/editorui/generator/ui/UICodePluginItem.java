@@ -185,6 +185,7 @@ public class UICodePluginItem extends BorderPane {
 
         Node uiNodeToAdd;
         for(var property : item.getProperties()) {
+            if(property.getPropType() == CreatorProperty.PropType.HIDDEN) continue;
             if (property.getValidationRules().equals(CannedPropertyValidators.SEPARATOR_VALIDATION_RULES)) {
                 var lbl = new Label(property.getDescription());
                 lbl.setFont(Font.font(18));

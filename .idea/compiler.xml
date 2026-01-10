@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="EmbeddedJavaDemo" />
+        <module name="embeddedJavaExample" />
         <module name="embedCONTROLCore" />
         <module name="tcMenuJavaAPI" />
         <module name="menuEditorUI" />
@@ -15,7 +16,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="embedCONTROLFx" target="20" />
-      <module name="embeddedJavaExample" target="22" />
+      <module name="EmbeddedJavaDemo" target="22" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -135,6 +135,10 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             context = new CodeConversionContext(embeddedPlatform, root, options, allProps);
             var extractor = new CodeVariableCppExtractor(context, usesProgMem);
 
+            codeGenerators.stream().filter(CodePluginItem::isJavaImpl)
+                    .forEach(cg -> cg.getJavaImpl().beforeGenerationStarts(context));
+
+
             Collection<BuildStructInitializer> menuStructure = generateMenusInOrder(menuTree);
 
             // generate the source by first generating the CPP and H for the menu definition and then

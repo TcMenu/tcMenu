@@ -7,8 +7,8 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
-import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +30,7 @@ public class CodePluginItem {
     private List<RequiredSourceFile> requiredSourceFiles;
     private List<FunctionDefinition> functions;
     private CodePluginManager manager;
+    private JavaPluginItem javaImpl;
 
     public CodePluginItem() {
     }
@@ -115,6 +116,7 @@ public class CodePluginItem {
     }
 
     public List<CreatorProperty> getProperties() {
+        if(javaImpl != null) javaImpl.getRequiredProperties();
         return properties;
     }
 
@@ -123,6 +125,7 @@ public class CodePluginItem {
     }
 
     public List<CodeVariable> getVariables() {
+        if(javaImpl != null) return javaImpl.getVariables();
         return variables;
     }
 
@@ -131,6 +134,7 @@ public class CodePluginItem {
     }
 
     public List<HeaderDefinition> getIncludeFiles() {
+        if(javaImpl != null) return javaImpl.getHeaderDefinitions();
         return includeFiles;
     }
 
@@ -139,6 +143,7 @@ public class CodePluginItem {
     }
 
     public List<RequiredSourceFile> getRequiredSourceFiles() {
+        if(javaImpl != null) return javaImpl.getRequiredSourceFiles();
         return requiredSourceFiles;
     }
 
@@ -147,6 +152,7 @@ public class CodePluginItem {
     }
 
     public List<FunctionDefinition> getFunctions() {
+        if(javaImpl != null) return javaImpl.getFunctions();
         return functions;
     }
 
@@ -191,6 +197,7 @@ public class CodePluginItem {
         pluginCopy.setSupportedPlatforms(supportedPlatforms);
         pluginCopy.setThemeNeeded(themeNeeded);
         pluginCopy.setManager(manager);
+        pluginCopy.setJavaImpl(javaImpl);
         pluginCopy.setProperties(properties.stream().map(prop -> new CreatorProperty(
                 prop.getName(), prop.getDescription(), prop.getExtendedDescription(), prop.getLatestValue(), prop.getSubsystem(),
                 prop.getPropType(), prop.getValidationRules(), prop.getApplicability())).toList());
@@ -208,5 +215,21 @@ public class CodePluginItem {
     @Override
     public int hashCode() {
         return Objects.hash(id, description, extendedDescription, supportedPlatforms, requiredLibraries, subsystem, imageFileName, docsLink, themeNeeded, config);
+    }
+
+    public boolean isJavaPlugin() {
+        return javaImpl != null;
+    }
+
+    public JavaPluginItem getJavaImpl() {
+        return javaImpl;
+    }
+
+    public void setJavaImpl(JavaPluginItem javaImpl) {
+        this.javaImpl = javaImpl;
+    }
+
+    public boolean isJavaImpl() {
+        return javaImpl != null;
     }
 }

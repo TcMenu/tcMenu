@@ -79,12 +79,18 @@ public class PluginRequiredFileProcessor {
                 // get the source (either from the plugin or from the tcMenu library)
                 String fileNamePart;
                 byte[] fileDataBytes;
-                Path location = item.getConfig().getPath().resolve(fileName);
-                try (var sourceInputStream = new FileInputStream(location.toFile())) {
-                    fileDataBytes = sourceInputStream.readAllBytes();
-                    fileNamePart = Paths.get(fileName).getFileName().toString();
-                } catch (Exception e) {
-                    throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
+
+                if(srcFile.isPrepopulated()) {
+                    fileDataBytes = srcFile.getContent().getBytes();
+                    fileNamePart = fileName;
+                } else {
+                    Path location = item.getConfig().getPath().resolve(fileName);
+                    try (var sourceInputStream = new FileInputStream(location.toFile())) {
+                        fileDataBytes = sourceInputStream.readAllBytes();
+                        fileNamePart = Paths.get(fileName).getFileName().toString();
+                    } catch (Exception e) {
+                        throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
+                    }
                 }
 
                 Path resolvedOutputFile = directory;

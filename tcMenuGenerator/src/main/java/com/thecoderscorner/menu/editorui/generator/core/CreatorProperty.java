@@ -13,6 +13,9 @@ import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyVali
 
 import java.util.Objects;
 
+import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
+import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.*;
+
 /**
  * All creator instances can define properties. These are shown in the UI during code creation and can be edited by the
  * user. It is possible to validate the values entered into these properties and set different types and subsystems.
@@ -25,8 +28,32 @@ import java.util.Objects;
 public class CreatorProperty {
     private static final PropertyValidationRules BASE_RULE = new StringPropertyValidationRules(false, 32);
 
+    public static CreatorProperty separatorDisplay(String id, String name) {
+        return new CreatorProperty(id + "_SEPARATOR_DISP", name, name, "", SubSystem.DISPLAY,
+                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty separatorTheme(String id, String name) {
+        return new CreatorProperty(id + "_SEPARATOR_IN", name, name, "", SubSystem.THEME,
+                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty separatorInput(String id, String name) {
+        return new CreatorProperty(id + "_SEPARATOR_TH", name, name, "", SubSystem.INPUT,
+                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty optionalPin(String id, String name, String desc, String defValue, SubSystem ss) {
+        return new CreatorProperty(id, name, desc, defValue, ss, PropType.VARIABLE, optPinValidator(),
+                ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty uintProperty(String id, String name, String desc, SubSystem system, int defVal, int max) {
+        return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), ALWAYS_APPLICABLE);
+    }
+
     /** Definitions of how a specific property is intended to be used */
-    public enum PropType { USE_IN_DEFINE, VARIABLE, TEXTUAL }
+    public enum PropType { USE_IN_DEFINE, VARIABLE, HIDDEN, TEXTUAL }
 
     private String name;
     private String latestValue;

@@ -6,6 +6,7 @@
 
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
 
 import java.util.List;
@@ -15,17 +16,31 @@ public class RequiredSourceFile {
     private final List<CodeReplacement> replacementList;
     private final CodeApplicability applicability;
     private final boolean overwritable;
+    private final String content;
 
     public RequiredSourceFile(String fileName, List<CodeReplacement> replacementList, CodeApplicability applicability, boolean overwrite) {
         this.fileName = fileName;
         this.replacementList = replacementList;
         this.applicability = applicability;
         this.overwritable = overwrite;
+        this.content = null;
+    }
+
+    public RequiredSourceFile(String fileName, String content, List<CodeReplacement> replacementList, boolean overwrite) {
+        this.fileName = fileName;
+        this.replacementList = replacementList;
+        this.applicability = new AlwaysApplicable();
+        this.overwritable = overwrite;
+        this.content = content;
     }
 
     public String getFileName() {
         return fileName;
     }
+
+    public boolean isPrepopulated() { return content != null; }
+
+    public String getContent() { return content; }
 
     public List<CodeReplacement> getReplacementList() {
         return replacementList;
