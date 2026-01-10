@@ -48,6 +48,9 @@
                <RowConstraints vgrow="SOMETIMES"/>
                <RowConstraints vgrow="SOMETIMES"/>
                <RowConstraints vgrow="SOMETIMES"/>
+               <RowConstraints vgrow="SOMETIMES"/>
+               <RowConstraints vgrow="SOMETIMES"/>
+               <RowConstraints vgrow="SOMETIMES"/>
            </rowConstraints>
            <RadioButton fx:id="noRomRadio" mnemonicParsing="false" selected="true" text="%eeprom.type.no.rom"
                         GridPane.columnSpan="2">
@@ -63,6 +66,8 @@
                         GridPane.columnSpan="2" GridPane.rowIndex="3"/>
            <RadioButton fx:id="bspStRadio" mnemonicParsing="false" text="%eeprom.type.bsp.stm" toggleGroup="$main"
                         GridPane.columnSpan="2" GridPane.rowIndex="6"/>
+           <RadioButton fx:id="prefsRadio" mnemonicParsing="false" text="Use ESP32 Preferences" toggleGroup="$main"
+                        GridPane.columnSpan="2" GridPane.rowIndex="8"/>
            <Label fx:id="memOffsetLabel" text="%eeprom.type.mem.offs" GridPane.rowIndex="7">
               <GridPane.margin>
                   <Insets left="15.0"/>
@@ -82,6 +87,18 @@
            <TextField fx:id="memOffsetField" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
            <ComboBox fx:id="romPageCombo" GridPane.columnIndex="1"
                      GridPane.rowIndex="5"/>
+           <Label fx:id="prefNamespaceLabel" text="Namespace" GridPane.rowIndex="9">
+               <GridPane.margin>
+                   <Insets left="15.0"/>
+               </GridPane.margin>
+           </Label>
+           <Label fx:id="prefSizeLabel" text="Storage Size" GridPane.rowIndex="10">
+               <GridPane.margin>
+                   <Insets left="15.0"/>
+               </GridPane.margin>
+           </Label>
+           <TextField fx:id="prefsNamespace" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+           <TextField fx:id="prefsSize" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
        </GridPane>
    </center>
    <padding>

@@ -39,12 +39,17 @@ public class EepromTypeSelectionController {
     public TextField i2cAddrField;
     public TextField memOffsetField;
     public ComboBox<RomPageSize> romPageCombo;
+    public RadioButton prefsRadio;
     public RadioButton noRomRadio;
     public RadioButton avrRomRadio;
     public RadioButton eepromRadio;
     public RadioButton at24Radio;
     public RadioButton bspStRadio;
     public ToggleGroup main;
+    public Label prefNamespaceLabel;
+    public Label prefSizeLabel;
+    public TextField prefsNamespace;
+    public TextField prefsSize;
 
     public void initialise(EepromDefinition eepromMode) {
         romPageCombo.setItems(ROM_PAGE_SIZES);
@@ -67,9 +72,15 @@ public class EepromTypeSelectionController {
         else if(eepromMode instanceof BspStm32EepromDefinition bsp) {
             bspStRadio.setSelected(true);
             memOffsetField.setText(Integer.toString(bsp.getOffset()));
+        } else if(eepromMode instanceof PreferencesEepromDefinition prefs) {
+            prefsRadio.setSelected(true);
+            prefsNamespace.setText(prefs.getRomNamespace());
+            prefsSize.setText(Integer.toString(prefs.getSize()));
         }
         enableTheRightItems();
 
+        prefsNamespace.textProperty().addListener((observableValue, newVal, oldVal) -> enableTheRightItems());
+        prefsSize.textProperty().addListener((observableValue, newVal, oldVal) -> enableTheRightItems());
         i2cAddrField.textProperty().addListener((observableValue, newVal, oldVal) -> enableTheRightItems());
         memOffsetField.textProperty().addListener((observableValue, newVal, oldVal) -> enableTheRightItems());
         main.selectedToggleProperty().addListener((observableValue, newVal, oldVal) -> enableTheRightItems());
@@ -98,6 +109,9 @@ public class EepromTypeSelectionController {
                     return new BspStm32EepromDefinition(offs);
                 }
             }
+            else if(prefsRadio.isSelected()) {
+                return new PreferencesEepromDefinition(prefsNamespace.getText(), Integer.parseInt(prefsSize.getText()));
+            }
         }
         catch(Exception ex) {
             logger.log(ERROR, "Exception trying to parse results", ex);
@@ -120,12 +134,16 @@ public class EepromTypeSelectionController {
         romPageLabel.setDisable(!at24Mode);
         i2cAddrField.setDisable(!at24Mode);
         i2cAddrLabel.setDisable(!at24Mode);
+        boolean prefsMode = prefsRadio.isSelected();
+        prefNamespaceLabel.setDisable(!prefsMode);
+        prefSizeLabel.setDisable(!prefsMode);
+        prefsSize.setDisable(!prefsMode);
+        prefsNamespace.setDisable(!prefsMode);
 
         if(bspMode) {
             var offsText = memOffsetField.getText();
             okButton.setDisable(!offsText.matches("[0-9]+"));
-        }
-        else if(at24Mode) {
+        } else if(at24Mode) {
             if(StringHelper.isStringEmptyOrNull(i2cAddrField.getText())) {
                 i2cAddrField.setText("0x50");
                 romPageCombo.getSelectionModel().select(0);
@@ -133,8 +151,13 @@ public class EepromTypeSelectionController {
             var i2cAddrText = i2cAddrField.getText().toUpperCase();
             var selectedPageSize = romPageCombo.getSelectionModel().getSelectedItem();
             okButton.setDisable(selectedPageSize == null || !i2cAddrText.matches("0[xX][A-F0-9]*"));
-        }
-        else {
+        } else if(prefsMode) {
+            if(StringHelper.isStringEmptyOrNull(prefsNamespace.getText())) {
+                prefsNamespace.setText("menuStore");
+                prefsSize.setText("1024");
+            }
+            okButton.setDisable(prefsSize.getText().isEmpty() || prefsNamespace.getText().isEmpty() || !prefsSize.getText().matches("[0-9]+"));
+        } else {
             okButton.setDisable(false);
         }
     }

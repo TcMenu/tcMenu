@@ -69,4 +69,17 @@ class EepromDefinitionTest {
         assertThat(definition.generateCode()).contains("    glBspRom.initialise(256);" + LINE_BREAK + "    menuMgr.setEepromRef(&glBspRom);");
         assertEquals("STM32 BSP offset=256", definition.toString());
     }
+
+    @Test
+    public void testPreferencesEsp() {
+        PreferencesEepromDefinition definition = (PreferencesEepromDefinition) EepromDefinition.readFromProject("prefs:myRom:1024");
+        assertThat(definition).isInstanceOf(PreferencesEepromDefinition.class);
+        assertEquals("prefs:myRom:1024", definition.writeToProject());
+        assertEquals("myRom", definition.getRomNamespace());
+        assertEquals(1024, definition.getSize());
+        assertEquals("ESP32 Preferences EEPROM functions", definition.toString());
+        assertEquals("esp32/EspPreferencesEeprom.h", definition.generateHeader().orElseThrow().getHeaderName());
+        assertEquals("EspPreferencesEeprom glEspRom(\"myRom\", 1024);", definition.generateGlobal().orElseThrow());
+        assertThat(definition.generateCode().orElseThrow()).contains("menuMgr.setEepromRef(&glEspRom);");
+    }
 }

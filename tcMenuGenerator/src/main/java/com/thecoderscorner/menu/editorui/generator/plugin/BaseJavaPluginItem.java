@@ -1,9 +1,13 @@
 package com.thecoderscorner.menu.editorui.generator.plugin;
 
+import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class BaseJavaPluginItem implements JavaPluginItem {
 
@@ -35,5 +39,22 @@ public abstract class BaseJavaPluginItem implements JavaPluginItem {
 
     protected String expandToNull(String s) {
         return StringHelper.isStringEmptyOrNull(s) ? "nullptr" : s;
+    }
+
+    @Override
+    public void beforeGenerationStarts(CodeConversionContext context) {
+        updatePropertiesFromContext(context, getPlugin().getSubsystem());
+    }
+
+    private void updatePropertiesFromContext(CodeConversionContext context, SubSystem subsystem) {
+        var propsForThisPlugin = context.getProperties().stream()
+                .filter(p -> p.getSubsystem() == subsystem)
+                .collect(Collectors.toMap(CreatorProperty::getName, p -> p));
+
+        for(var prop : getRequiredProperties()) {
+            if(propsForThisPlugin.containsKey(prop.getName())) {
+                prop.setLatestValue( propsForThisPlugin.get(prop.getName()).getLatestValue() );
+            }
+        }
     }
 }
