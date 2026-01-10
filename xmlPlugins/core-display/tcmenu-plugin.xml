@@ -13,7 +13,6 @@
     <Plugins>
         <!-- df robot specific -->
         <Plugin>dfRobotJoystick.xml</Plugin>
-        <Plugin>dfRobotLcd.xml</Plugin>
 
         <!-- display plugins -->
         <Plugin>i2cLiquidCrystalDisplay.xml</Plugin>
