@@ -20,7 +20,7 @@ public class PreferencesEepromDefinition implements EepromDefinition {
 
     @Override
     public Optional<String> generateCode() {
-        return Optional.of("    menuMgr.setEepromRef(&glEspRom);");
+        return Optional.of("    glEspRom.init();" + System.lineSeparator() + "    menuMgr.setEepromRef(&glEspRom);");
     }
 
     @Override
