@@ -138,24 +138,24 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         boolean mono = findPropOrFail("DISPLAY_TYPE").equals("Adafruit_PCD8544");
         var replacements = List.of(
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", Boolean.toString(mono), ALWAYS_APPLICABLE),
-                new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(mono), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", "", ALWAYS_APPLICABLE),
-                new CodeReplacement("Adafruit_Header", "${DISPLAY_TYPE}", ALWAYS_APPLICABLE),
-                new CodeReplacement("Adafruit_Driver", "${DISPLAY_TYPE}", ALWAYS_APPLICABLE)
+                new CodeReplacement("Adafruit_Header", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE),
+                new CodeReplacement("Adafruit_Driver", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE)
         );
 
         var sourceFiles = new ArrayList<RequiredSourceFile>();
 
         if (mono) {
-            sourceFiles.add(new RequiredSourceFile("/plugin/display/adaSources/tcMenuAdaFruitGfxMono.cpp", replacements, ALWAYS_APPLICABLE, false));
-            sourceFiles.add(new RequiredSourceFile("/plugin/display/adaSources/tcMenuAdaFruitGfxMono.h", replacements, ALWAYS_APPLICABLE, false));
+            sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfxMono.cpp", getSourceFile(true), replacements, true));
+            sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfxMono.h", getHeaderFile(true), replacements, true));
         } else {
-            sourceFiles.add(new RequiredSourceFile("/plugin/display/adaSources/tcMenuAdaFruitGfx.cpp", replacements, ALWAYS_APPLICABLE, false));
-            sourceFiles.add(new RequiredSourceFile("/plugin/display/adaSources/tcMenuAdaFruitGfx.h", replacements, ALWAYS_APPLICABLE, false));
+            sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfx.cpp", getSourceFile(false), replacements, true));
+            sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfx.h", getHeaderFile(false), replacements, true));
         }
 
-        return sourceFiles;
+        return List.copyOf(sourceFiles);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         
         var drawableParams = new ArrayList<CodeParameter>();
         drawableParams.add(CodeParameter.unNamedValue("&${DISPLAY_VARIABLE}"));
-        if(mono) {
+        if(!mono) {
             drawableParams.add(CodeParameter.unNamedValue(findPropOrFail("DISPLAY_BUFFER_SIZE")));
         }
         
@@ -191,7 +191,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
 
         List<CodeParameter> params = standardSpiConfigurationParams(hwSpi);
 
-        return new CodeVariable(displayType, findPropOrFail("DISPLAY_VARIABLE"),
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
                 VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
     }
 
@@ -215,7 +215,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
             );
         }
 
-        return new CodeVariable(displayType, findPropOrFail("DISPLAY_VARIABLE"),
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
                 VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
     }
 
@@ -224,7 +224,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
 
         List<CodeParameter> params = standardSpiConfigurationParams(hwSpi);
 
-        return new CodeVariable(findPropOrFail("DISPLAY_TYPE"), findPropOrFail("DISPLAY_VARIABLE"), 
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
                 VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
     }
 
@@ -232,7 +232,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         List<CodeParameter> params;
         if(hwSpi) {
             params = List.of(
-                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_CUSTOM_SPI_NAME")),
+                    CodeParameter.unNamedValue("&" + findPropOrFail("DISPLAY_CUSTOM_SPI_NAME")),
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_CS_PIN")),
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RS_PIN")),
                     CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RESET_PIN"))

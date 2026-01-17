@@ -10,8 +10,7 @@ public abstract class CommonAdafruitDisplayPlugin extends BaseJavaPluginItem {
         super(subsystem);
     }
 
-    protected String getTransactionCode() {
-        var memBuffer = findPropOrFail("DISPLAY_HAS_MEMBUFFER").equals("true");
+    protected String getTransactionCode(boolean memBuffer) {
         if(memBuffer) {
             return DEFAULT_MONO_TRANSACTION_CODE;
         } else {

@@ -238,7 +238,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
                 new CodeReplacement("__GXINT_DISPLAY_TYPEDEF__", typenameFromDisplayType(displayType), ALWAYS_APPLICABLE),
                 new CodeReplacement("__NEEDED_INCLUDE_FILE__", headerForDisplayType(displayType), ALWAYS_APPLICABLE),
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", "true", ALWAYS_APPLICABLE),
-                new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(true), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", typeDataForDisplay(), ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Header", headerForDisplayType(displayType), ALWAYS_APPLICABLE),
@@ -262,7 +262,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
     }
 
     @Override
-    protected String getTransactionCode() {
+    protected String getTransactionCode(boolean memBuffer) {
         return """
                 if (isStarting && redrawNeeded) {
                 display.setFullWindow();

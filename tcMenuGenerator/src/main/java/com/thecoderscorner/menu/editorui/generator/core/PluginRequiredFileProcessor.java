@@ -124,8 +124,13 @@ public class PluginRequiredFileProcessor {
                     for (var cr : srcFile.getReplacementList()) {
                         if (cr.getApplicability().isApplicable(context.getProperties())) {
                             uiLogger.accept(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());
-                            var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                            fileData = fileData.replaceAll(cr.getFind(), replacement);
+                            if(srcFile.isPrepopulated()) {
+                                // in new content prepopulated files we don't need to deal with expressions like below.
+                                fileData = fileData.replace(cr.getFind(), cr.getReplace());
+                            } else {
+                                var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                                fileData = fileData.replaceAll(cr.getFind(), replacement);
+                            }
                         }
                     }
 
