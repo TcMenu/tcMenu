@@ -79,12 +79,18 @@ public class PluginRequiredFileProcessor {
                 // get the source (either from the plugin or from the tcMenu library)
                 String fileNamePart;
                 byte[] fileDataBytes;
-                Path location = item.getConfig().getPath().resolve(fileName);
-                try (var sourceInputStream = new FileInputStream(location.toFile())) {
-                    fileDataBytes = sourceInputStream.readAllBytes();
-                    fileNamePart = Paths.get(fileName).getFileName().toString();
-                } catch (Exception e) {
-                    throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
+
+                if(srcFile.isPrepopulated()) {
+                    fileDataBytes = srcFile.getContent().getBytes();
+                    fileNamePart = fileName;
+                } else {
+                    Path location = item.getConfig().getPath().resolve(fileName);
+                    try (var sourceInputStream = new FileInputStream(location.toFile())) {
+                        fileDataBytes = sourceInputStream.readAllBytes();
+                        fileNamePart = Paths.get(fileName).getFileName().toString();
+                    } catch (Exception e) {
+                        throw new TcMenuConversionException("Unable to locate file in plugin: " + srcFile, e);
+                    }
                 }
 
                 Path resolvedOutputFile = directory;
@@ -118,8 +124,13 @@ public class PluginRequiredFileProcessor {
                     for (var cr : srcFile.getReplacementList()) {
                         if (cr.getApplicability().isApplicable(context.getProperties())) {
                             uiLogger.accept(DEBUG, "Plugin file replacement: " + cr.getFind() + " to " + cr.getReplace());
-                            var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
-                            fileData = fileData.replaceAll(cr.getFind(), replacement);
+                            if(srcFile.isPrepopulated()) {
+                                // in new content prepopulated files we don't need to deal with expressions like below.
+                                fileData = fileData.replace(cr.getFind(), cr.getReplace());
+                            } else {
+                                var replacement = StringHelper.escapeRex(expando.expandExpression(context, cr.getReplace()));
+                                fileData = fileData.replaceAll(cr.getFind(), replacement);
+                            }
                         }
                     }
 

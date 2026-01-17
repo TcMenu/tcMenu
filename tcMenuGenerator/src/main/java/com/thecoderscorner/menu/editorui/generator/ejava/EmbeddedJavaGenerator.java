@@ -66,6 +66,9 @@ public class EmbeddedJavaGenerator implements CodeGenerator {
             context = new CodeConversionContext(platform, rootMenuName, options, options.getLastProperties());
             pluginCreator = new EmbeddedJavaPluginCreator(context);
 
+            plugins.stream().filter(CodePluginItem::isJavaImpl)
+                    .forEach(cg -> cg.getJavaImpl().beforeGenerationStarts(context));
+
             logLine(INFO, "Loading the java project from " + directory);
             EmbeddedJavaProject javaProject = new EmbeddedJavaProject(directory, options, configStorage, handler, this::logLine);
             logLine(INFO,"Java project looks to be in place, dir is " + javaProject.getActualPackageDir().relativize(javaProject.getMainJava()));

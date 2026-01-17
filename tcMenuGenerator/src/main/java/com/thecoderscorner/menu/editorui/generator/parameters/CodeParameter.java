@@ -7,9 +7,10 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
 import com.thecoderscorner.menu.editorui.generator.arduino.MenuItemToEmbeddedGenerator;
-import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.CodeConversionContext;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class CodeParameter {
@@ -35,6 +36,10 @@ public class CodeParameter {
         this.paramUsed = paramUsed;
         this.value = value;
         this.defaultValue = defaultValue;
+    }
+
+    public static CodeParameter unNamedValue(Object value) {
+        return new CodeParameter(NO_TYPE, NO_TYPE, true, Objects.toString(value));
     }
 
     public String expandExpression(CodeConversionContext context, String text)

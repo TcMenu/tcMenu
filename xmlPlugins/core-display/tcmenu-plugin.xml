@@ -13,12 +13,10 @@
     <Plugins>
         <!-- df robot specific -->
         <Plugin>dfRobotJoystick.xml</Plugin>
-        <Plugin>dfRobotLcd.xml</Plugin>
 
         <!-- display plugins -->
         <Plugin>i2cLiquidCrystalDisplay.xml</Plugin>
         <Plugin>liquidCrystalDisplay.xml</Plugin>
-        <Plugin>adaArduinoSimpleBuilder.xml</Plugin>
         <Plugin>adaGfxDisplay.xml</Plugin>
         <Plugin>u8g2SimpleBuilder.xml</Plugin>
         <Plugin>u8g2Display.xml</Plugin>

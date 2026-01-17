@@ -75,6 +75,28 @@ public class EditEEPROMTestCase {
     }
 
     @Test
+    public void checkPreferences(FxRobot robot) throws InterruptedException {
+        TestUtils.runOnFxThreadAndWait(() -> dialog = new SelectEepromTypeDialog(stage, new PreferencesEepromDefinition("TcMenuAbc", 1024), false));
+
+        verifyThat("#prefsRadio", RadioButton::isSelected);
+        verifyThat("#prefsNamespace", Predicate.not(Node::isDisabled));
+        verifyThat("#prefsNamespace", TextInputControlMatchers.hasText("TcMenuAbc"));
+        verifyThat("#prefsSize", Predicate.not(Node::isDisabled));
+        verifyThat("#prefsSize", TextInputControlMatchers.hasText("1024"));
+
+        WaitForAsyncUtils.waitForFxEvents(100);
+        robot.clickOn("#okButton");
+        WaitForAsyncUtils.waitForFxEvents(100);
+
+        var res = dialog.getResultOrEmpty().orElseThrow();
+        if(res instanceof PreferencesEepromDefinition prefs) {
+            assertEquals("TcMenuAbc", prefs.getRomNamespace());
+            assertEquals(1024, prefs.getSize());
+
+        } else fail("Not AT24 rom");
+    }
+
+    @Test
     public void testNoEeprom(FxRobot robot) throws InterruptedException {
         TestUtils.runOnFxThreadAndWait(() -> dialog = new SelectEepromTypeDialog(stage, new ArduinoClassEepromDefinition(), false));
 

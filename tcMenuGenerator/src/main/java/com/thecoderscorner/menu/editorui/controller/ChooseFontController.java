@@ -77,8 +77,7 @@ public class ChooseFontController {
             prepareChoicesForMode(font.fontMode());
 
             fontVarField.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-                var selected = fontVarField.getSelectionModel().getSelectedItem();
-                if(selected != null && tcUnicodeEnabled) {
+                if (newVal instanceof FontChoice selected && tcUnicodeEnabled) {
                     sizeCombo.getSelectionModel().select(selected.fontType() == FontType.ADAFRUIT ? 1 : 0);
                 }
             });
@@ -109,7 +108,7 @@ public class ChooseFontController {
         var filteredList = new FilteredList<>(fontChoices);
         fontVarField.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
             final TextField editor = fontVarField.getEditor();
-            final var selected = fontVarField.getSelectionModel().getSelectedItem();
+            final Object selected = fontVarField.getSelectionModel().getSelectedItem();
             Platform.runLater(() -> {
                 if (selected == null || !selected.toString().equals(editor.getText())) {
                     filteredList.setPredicate(item -> item.fontName().toUpperCase().startsWith(newVal.toUpperCase()));

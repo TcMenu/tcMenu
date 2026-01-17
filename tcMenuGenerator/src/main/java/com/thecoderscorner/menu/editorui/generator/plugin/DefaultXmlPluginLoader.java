@@ -12,6 +12,8 @@ import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.*;
+import com.thecoderscorner.menu.editorui.generator.plugin.display.InbuiltDisplayInputPlugins;
+import com.thecoderscorner.menu.editorui.generator.plugin.theme.InbuiltThemePlugins;
 import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
 import com.thecoderscorner.menu.editorui.generator.validation.IntegerPropertyValidationRules;
@@ -48,11 +50,16 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     private final List<String> loadErrors = new CopyOnWriteArrayList<>();
     private final boolean includeDefaultDir;
     private ResourceBundle resourceBundle;
+    private List<JavaPluginGroup> pluginGroups = new CopyOnWriteArrayList<>();
 
     public DefaultXmlPluginLoader(EmbeddedPlatforms embeddedPlatforms, ConfigurationStorage storage, boolean includeDefaultDir) {
         this.embeddedPlatforms = embeddedPlatforms;
         this.configStorage = storage;
         this.includeDefaultDir = includeDefaultDir;
+        this.pluginGroups.addAll(List.of(
+                new InbuiltDisplayInputPlugins(this, VersionInfo.of(configStorage.getVersion())),
+                new InbuiltThemePlugins(this, VersionInfo.of(configStorage.getVersion()))
+        ));
     }
 
     @Override
@@ -104,6 +111,11 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         } catch (Exception ex) {
             logger.log(ERROR, "Plugins not loaded!", ex);
             loadErrors.add("Exception processing plugins, see log");
+        }
+
+        // now load all the Java plugins into the list as well.
+        for(var pluginGroup : pluginGroups) {
+            allPlugins.add(pluginGroup.getConfig());
         }
     }
 
@@ -159,8 +171,12 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
     @Override
     public Optional<Image> getImageForName(CodePluginItem item, String imageName) {
         try {
-            Image img = new Image(new FileInputStream(item.getConfig().getPath().resolve("Images").resolve(item.getImageFileName()).toFile()));
-            return Optional.of(img);
+            if(item.isJavaPlugin()) {
+                return item.getJavaImpl().getImage();
+            } else {
+                Image img = new Image(new FileInputStream(item.getConfig().getPath().resolve("Images").resolve(item.getImageFileName()).toFile()));
+                return Optional.of(img);
+            }
         } catch (Exception e) {
             logger.log(ERROR, "Image load failed for " + item.getId(), e);
             return Optional.empty();

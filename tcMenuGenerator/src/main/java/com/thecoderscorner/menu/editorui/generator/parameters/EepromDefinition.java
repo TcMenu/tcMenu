@@ -1,6 +1,5 @@
 package com.thecoderscorner.menu.editorui.generator.parameters;
 
-import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.*;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 
@@ -15,6 +14,12 @@ public interface EepromDefinition extends CodeGeneratorCapable {
         try {
             if (encoding.startsWith("avr:")) return new AVREepromDefinition();
             else if (encoding.startsWith("eeprom:")) return new ArduinoClassEepromDefinition();
+            else if (encoding.startsWith("prefs:")) {
+                String[] parts = encoding.split(":");
+                String ns = parts[1];
+                int size = Integer.parseInt(parts[2]);
+                return new PreferencesEepromDefinition(ns, size);
+            }
             else if (encoding.startsWith("bsp:")) {
                 int memOffset = Integer.parseInt(encoding.substring(4));
                 return new BspStm32EepromDefinition(memOffset);
