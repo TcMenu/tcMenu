@@ -160,6 +160,7 @@ private:
     const GFXfont* computedFont = nullptr;
     int16_t computedBaseline = 0;
     int16_t computedHeight = 0;
+    __EXTRA_VARIABLES__
 protected:
     int spriteHeight = 0;
 public:

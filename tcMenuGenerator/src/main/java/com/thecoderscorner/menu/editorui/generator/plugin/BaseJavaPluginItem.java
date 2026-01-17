@@ -27,11 +27,11 @@ public abstract class BaseJavaPluginItem implements JavaPluginItem {
                 .getLatestValue();
     }
 
-    protected CodeVariable basicGraphicsDeviceVariable(int sizeBuffer) {
+    protected CodeVariable basicGraphicsDeviceVariable(String drawableName, int sizeBuffer) {
         return new CodeVariable("renderer", "GraphicsDeviceRenderer", VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, List.of(
                 CodeParameter.unNamedValue(sizeBuffer),
                 CodeParameter.unNamedValue("applicationInfo.name"),
-                CodeParameter.unNamedValue("&drawable")
+                CodeParameter.unNamedValue("&" + drawableName)
         ), ALWAYS_APPLICABLE);
     }
 

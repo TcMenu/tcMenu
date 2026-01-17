@@ -164,7 +164,9 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
                 new CreatorProperty("EINK_RESET_DELAY", "Reset delay", "Some boards require a custom reset delay, see library docs",
                         "10", SubSystem.DISPLAY, PropType.VARIABLE, CannedPropertyValidators.uintValidator(100), ALWAYS_APPLICABLE),
                 new CreatorProperty("EINK_RESET_PULLDOWN", "Pull down reset", "Some boards use pull-down reset, see library docs",
-                        "false", SubSystem.DISPLAY, PropType.VARIABLE, CannedPropertyValidators.boolValidator(), ALWAYS_APPLICABLE)
+                        "false", SubSystem.DISPLAY, PropType.VARIABLE, CannedPropertyValidators.boolValidator(), ALWAYS_APPLICABLE),
+                new CreatorProperty("DISPLAY_VARIABLE", "Display variable", "Display variable hidden",
+                        "display", SubSystem.DISPLAY, PropType.HIDDEN, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE)
         );
 
     }
@@ -203,10 +205,8 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
                 new CodeVariable("display", "TcGxEPD2", VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, List.of(
                         CodeParameter.unNamedValue(findPropOrFail("DISPLAY_TYPE") + "(${DISPLAY_CS_PIN}, ${DISPLAY_DC_PIN}, ${DISPLAY_RESET_PIN}, ${DISPLAY_BUSY_PIN})")
                 ), ALWAYS_APPLICABLE),
-                new CodeVariable("drawable", "TcMenuGxEPDeInk", VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, List.of(
-                        CodeParameter.unNamedValue("display")
-                ), ALWAYS_APPLICABLE),
-                basicGraphicsDeviceVariable(30)
+                adafruitDrawableVariable(true),
+                basicGraphicsDeviceVariable(findPropOrFail("DISPLAY_VARIABLE") + "Drawable", 30)
         );
     }
 
@@ -214,7 +214,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
     public List<HeaderDefinition> getHeaderDefinitions() {
         String displayType = findPropOrFail("DISPLAY_TYPE");
         return List.of(
-                new HeaderDefinition(headerForDisplayType(displayType), HeaderType.GLOBAL, 1, ALWAYS_APPLICABLE),
+                new HeaderDefinition(headerForDisplayType(displayType) + ".h", HeaderType.GLOBAL, 1, ALWAYS_APPLICABLE),
                 new HeaderDefinition("TcMenuGxEPDeInk.h", HeaderType.GLOBAL, 2, ALWAYS_APPLICABLE)
         );
     }
@@ -241,6 +241,8 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
                 new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(true), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", typeDataForDisplay(), ALWAYS_APPLICABLE),
+                new CodeReplacement("__ACTUAL_GENERATED_HDR__", "TcMenuGxEPDeInk.h", ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_VARIABLES__", "bool firstPageDone = false;", ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Header", headerForDisplayType(displayType), ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Driver", "TcGxEPD2", ALWAYS_APPLICABLE)
         );
@@ -264,27 +266,28 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
     @Override
     protected String getTransactionCode(boolean memBuffer) {
         return """
+                auto gr = reinterpret_cast<TcGxEPD2*>(graphics);
                 if (isStarting && redrawNeeded) {
-                display.setFullWindow();
+                gr->setFullWindow();
                 if (!firstPageDone) {
                     firstPageDone = true;
-                    display.firstPage();
+                    gr->firstPage();
                 }
                 } else if (redrawNeeded) {
-                    display.nextPage();
+                    gr->nextPage();
                 }
             """;
     }
 
     private String headerForDisplayType(String displayType) {
         if(MONO_SCREEN_TYPES.contains(displayType)) {
-            return "GxEPD2_BW.h";
+            return "GxEPD2_BW";
         } else if(COL3_SCREEN_TYPES.contains(displayType)) {
-            return "GxEPD2_3C.h";
+            return "GxEPD2_3C";
         } else if(COL4_SCREEN_TYPES.contains(displayType)) {
-            return "GxEPD2_4C.h";
+            return "GxEPD2_4C";
         } else if(COL7_SCREEN_TYPES.contains(displayType)) {
-            return "GxEPD2_7C.h";
+            return "GxEPD2_7C";
         } else {
             throw new IllegalArgumentException("Unknown display type, please report this error" + displayType);
         }

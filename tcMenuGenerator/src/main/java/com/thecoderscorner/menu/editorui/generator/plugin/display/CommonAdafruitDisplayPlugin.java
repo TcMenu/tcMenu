@@ -1,13 +1,29 @@
 package com.thecoderscorner.menu.editorui.generator.plugin.display;
 
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
 import com.thecoderscorner.menu.editorui.generator.plugin.BaseJavaPluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodeVariable;
+import com.thecoderscorner.menu.editorui.generator.plugin.VariableDefinitionMode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public abstract class CommonAdafruitDisplayPlugin extends BaseJavaPluginItem {
     protected CommonAdafruitDisplayPlugin(SubSystem subsystem) {
         super(subsystem);
+    }
+
+
+    protected CodeVariable adafruitDrawableVariable(boolean mono) {
+        var drawableParams = new ArrayList<CodeParameter>();
+        drawableParams.add(CodeParameter.unNamedValue("&${DISPLAY_VARIABLE}"));
+        if(!mono) {
+            drawableParams.add(CodeParameter.unNamedValue(findPropOrFail("DISPLAY_BUFFER_SIZE")));
+        }
+
+        return new CodeVariable("${DISPLAY_VARIABLE}Drawable", "AdafruitDrawable",
+                VariableDefinitionMode.VARIABLE_ONLY, false, false, false, drawableParams, ALWAYS_APPLICABLE);
     }
 
     protected String getTransactionCode(boolean memBuffer) {

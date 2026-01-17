@@ -13,7 +13,7 @@
  */
 
 #include <ScrollChoiceMenuItem.h>
-#include "tcMenuAdaFruitGfxMono.h"
+#include "__ACTUAL_GENERATED_HDR__"
 #include <tcUnicodeHelper.h>
 #include <tcUnicodeAdaGFX.h>
 

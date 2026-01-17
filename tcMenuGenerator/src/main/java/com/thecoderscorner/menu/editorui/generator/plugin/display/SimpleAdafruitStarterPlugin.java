@@ -136,11 +136,15 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
     @Override
     public List<RequiredSourceFile> getRequiredSourceFiles() {
         boolean mono = findPropOrFail("DISPLAY_TYPE").equals("Adafruit_PCD8544");
+        var headerName = mono ? "tcMenuAdaFruitGfxMono.h" : "tcMenuAdaFruitGfx.h";
         var replacements = List.of(
                 new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", Boolean.toString(mono), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(mono), ALWAYS_APPLICABLE),
                 new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
                 new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("__ACTUAL_GENERATED_HDR__", headerName, ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_TYPE_DEFS_NEEDED__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_VARIABLES__", "", ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Header", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE),
                 new CodeReplacement("Adafruit_Driver", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE)
         );
@@ -169,20 +173,8 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         };
         
         var mono = displayType.equals("Adafruit_PCD8544");
-        
-        var drawableParams = new ArrayList<CodeParameter>();
-        drawableParams.add(CodeParameter.unNamedValue("&${DISPLAY_VARIABLE}"));
-        if(!mono) {
-            drawableParams.add(CodeParameter.unNamedValue(findPropOrFail("DISPLAY_BUFFER_SIZE")));
-        }
-        
-        var drawable = new CodeVariable("${DISPLAY_VARIABLE}Drawable", "AdafruitDrawable",
-                VariableDefinitionMode.VARIABLE_ONLY, false, false, false, drawableParams, ALWAYS_APPLICABLE);
-        
-        var renderer = new CodeVariable("renderer", "GraphicsDeviceRenderer", VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, List.of(
-                CodeParameter.unNamedValue("30"),
-                CodeParameter.unNamedValue("applicationInfo.name"),
-                CodeParameter.unNamedValue("&${DISPLAY_VARIABLE}Drawable")), ALWAYS_APPLICABLE);
+        var drawable = adafruitDrawableVariable(mono);
+        var renderer = basicGraphicsDeviceVariable(findPropOrFail("DISPLAY_VARIABLE") + "Drawable", 30);
         return List.of(display, drawable, renderer);
     }
 
