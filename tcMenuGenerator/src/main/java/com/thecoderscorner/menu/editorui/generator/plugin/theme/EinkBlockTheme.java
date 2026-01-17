@@ -5,7 +5,10 @@ import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import javafx.scene.image.Image;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class EinkBlockTheme extends BaseJavaThemePluginItem {
     private final CodePluginItem pluginItem;
@@ -13,6 +16,7 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
     private final List<CreatorProperty> requiredProperties;
 
     public EinkBlockTheme(JavaPluginGroup group, CodePluginManager manager) {
+        super(SubSystem.THEME);
         var themeItems = new ArrayList<CreatorProperty>();
         themeItems.addAll(defFontProperties());
         themeItems.addAll(defDrawingProperties());
@@ -33,22 +37,6 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
         pluginItem = codePlugin;
     }
 
-    private Collection<CreatorProperty> colorThemeEntries() {
-        return List.of(
-                CreatorProperty.separatorTheme("COLORS", "Choose Theme Colors (range 0-7)"),
-                CreatorProperty.uintProperty("THEME_COLOR_ITEM_BG", "Item background color", "Background color of a regular menu item ", SubSystem.THEME, 1, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_ITEM_FG", "Item text color", "Text color of a regular menu item", SubSystem.THEME, 0, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_ITEM_HL", "Item highlight color", "Highlight color of regular menu items - widgets, checkbox, buttons, etc", SubSystem.THEME, 2, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_ITEM_EX", "Item extra color", "Extra color of regular menu items - for borders, buttons etc", SubSystem.THEME, 2, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_TITLE_BG", "Title background color", "Title background color", SubSystem.THEME, 0, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_TITLE_FG", "Title text color", "Text color of a title", SubSystem.THEME, 1, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_TITLE_HL", "Title highlight color", "Highlight color of title - widget color", SubSystem.THEME, 1, 7),
-                CreatorProperty.uintProperty("THEME_COLOR_TITLE_EX", "Title extra color", "Extra color of title menu items - for borders", SubSystem.THEME, 1, 7),
-                CreatorProperty.uintProperty("THEME_SELECTED_BG", "Selected background color", "Selected item background color", SubSystem.THEME, 0, 7),
-                CreatorProperty.uintProperty("THEME_SELECTED_FG", "Selected text color", "Selected item text color", SubSystem.THEME, 1, 7)
-        );
-    }
-
     @Override
     public List<RequiredSourceFile> getRequiredSourceFiles() {
         var replacements = replacementsWithExtras(
@@ -65,11 +53,6 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
         );
     }
 
-    private String buildPalette(String ty) {
-        return  findPropOrFail("THEME_COLOR_" + ty + "_BG") + ", " + findPropOrFail("THEME_COLOR_" + ty + "_FG") +
-                ", " + findPropOrFail("THEME_COLOR_" + ty + "_HL") + ", " + findPropOrFail("THEME_COLOR_" + ty + "_EX");
-    }
-
     @Override
     public CodePluginItem getPlugin() {
         return pluginItem;
@@ -82,6 +65,6 @@ public class EinkBlockTheme extends BaseJavaThemePluginItem {
 
     @Override
     public Optional<Image> getImage() {
-        return Optional.empty();
+        return imageFromPath("/plugin/theme/eink-theme.jpg");
     }
 }

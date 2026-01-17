@@ -17,7 +17,6 @@
         <!-- display plugins -->
         <Plugin>i2cLiquidCrystalDisplay.xml</Plugin>
         <Plugin>liquidCrystalDisplay.xml</Plugin>
-        <Plugin>adaArduinoSimpleBuilder.xml</Plugin>
         <Plugin>adaGfxDisplay.xml</Plugin>
         <Plugin>u8g2SimpleBuilder.xml</Plugin>
         <Plugin>u8g2Display.xml</Plugin>

@@ -8,13 +8,15 @@ package com.thecoderscorner.menu.editorui.generator.core;
 
 import com.thecoderscorner.menu.editorui.generator.applicability.AlwaysApplicable;
 import com.thecoderscorner.menu.editorui.generator.applicability.CodeApplicability;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
 import com.thecoderscorner.menu.editorui.generator.validation.PropertyValidationRules;
 import com.thecoderscorner.menu.editorui.generator.validation.StringPropertyValidationRules;
 
 import java.util.Objects;
 
 import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
-import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.*;
+import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.optPinValidator;
+import static com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators.uintValidator;
 
 /**
  * All creator instances can define properties. These are shown in the UI during code creation and can be edited by the
@@ -28,21 +30,6 @@ import static com.thecoderscorner.menu.editorui.generator.validation.CannedPrope
 public class CreatorProperty {
     private static final PropertyValidationRules BASE_RULE = new StringPropertyValidationRules(false, 32);
 
-    public static CreatorProperty separatorDisplay(String id, String name) {
-        return new CreatorProperty(id + "_SEPARATOR_DISP", name, name, "", SubSystem.DISPLAY,
-                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
-    }
-
-    public static CreatorProperty separatorTheme(String id, String name) {
-        return new CreatorProperty(id + "_SEPARATOR_IN", name, name, "", SubSystem.THEME,
-                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
-    }
-
-    public static CreatorProperty separatorInput(String id, String name) {
-        return new CreatorProperty(id + "_SEPARATOR_TH", name, name, "", SubSystem.INPUT,
-                PropType.TEXTUAL, SEPARATOR_VALIDATION_RULES, ALWAYS_APPLICABLE);
-    }
-
     public static CreatorProperty optionalPin(String id, String name, String desc, String defValue, SubSystem ss) {
         return new CreatorProperty(id, name, desc, defValue, ss, PropType.VARIABLE, optPinValidator(),
                 ALWAYS_APPLICABLE);
@@ -50,6 +37,11 @@ public class CreatorProperty {
 
     public static CreatorProperty uintProperty(String id, String name, String desc, SubSystem system, int defVal, int max) {
         return new CreatorProperty(id, name, desc, String.valueOf(defVal), system, PropType.VARIABLE, uintValidator(max), ALWAYS_APPLICABLE);
+    }
+
+    public static CreatorProperty rgbProperty(String id, String name, String desc, String defVal) {
+        return new CreatorProperty(id, name, desc, defVal, SubSystem.THEME, PropType.VARIABLE,
+                CannedPropertyValidators.rgbValidator(), ALWAYS_APPLICABLE);
     }
 
     /** Definitions of how a specific property is intended to be used */

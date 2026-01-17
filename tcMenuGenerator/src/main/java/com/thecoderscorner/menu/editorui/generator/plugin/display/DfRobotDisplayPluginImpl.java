@@ -8,19 +8,21 @@ import com.thecoderscorner.menu.editorui.generator.plugin.*;
 import javafx.scene.image.Image;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
 
 public class DfRobotDisplayPluginImpl extends BaseJavaPluginItem {
     private final CodePluginItem pluginItem;
-    private final List<CreatorProperty> requiredProperties = List.of(
-            CommonLCDPluginHelper.unoOrFullProperty(),
-            CommonDisplayPluginHelper.updatesPerSecond()
-    );
+    private final List<CreatorProperty> requiredProperties;
 
     public DfRobotDisplayPluginImpl(JavaPluginGroup group, CodePluginManager manager) {
+        super(SubSystem.DISPLAY);
+        requiredProperties = List.of(
+                CommonLCDPluginHelper.unoOrFullProperty(),
+                CommonDisplayPluginHelper.updatesPerSecond()
+        );
+
         var codePlugin = new CodePluginItem();
         codePlugin.setId("bcd5fe34-9e9f-4fcb-9edf-f4e3caca0674");
         codePlugin.setDescription("DFRobot LCD Shield plugin");
@@ -96,6 +98,6 @@ public class DfRobotDisplayPluginImpl extends BaseJavaPluginItem {
 
     @Override
     public Optional<Image> getImage() {
-        return Optional.of(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/plugin/display/DfRobotShield.jpg"))));
+        return imageFromPath("/plugin/display/DfRobotShield.jpg");
     }
 }

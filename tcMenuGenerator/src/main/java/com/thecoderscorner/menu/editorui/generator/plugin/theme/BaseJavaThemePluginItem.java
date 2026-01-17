@@ -22,6 +22,10 @@ import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinit
 public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     public final static FontDefinition defaultForTcUnicode = new FontDefinition(ADAFRUIT, "OpenSansRegular7pt", 0);
 
+    protected BaseJavaThemePluginItem(SubSystem subsystem) {
+        super(subsystem);
+    }
+
     public String unicodeAndIconsCode(boolean iconsOn) {
         var unicode = findPropOrFail("USE_TC_UNICODE").equals("true");
         var str = "";
@@ -44,7 +48,7 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
 
     public Collection<CreatorProperty> defFontProperties() {
         return List.of(
-                CreatorProperty.separatorTheme("FONT", "Font Settings"),
+                separatorProperty("FONT", "Font Settings"),
                 fontProperty("THEME_ITEM_FONT", "Font for menu items", "The default Font that menu items draw with", "def:,1"),
                 fontProperty("THEME_TITLE_FONT", "Font for titles", "The Font that will be used to draw titles", "def:,1")
         );
@@ -94,13 +98,12 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     private Optional<FontDefinition> getFontDefinition(String name) {
         var prop = getRequiredProperties().stream().filter(p -> p.getName().equals(name))
                 .findFirst().orElseThrow();
-        var fdOpt = FontDefinition.fromString(prop.getLatestValue());
-        return fdOpt;
+        return FontDefinition.fromString(prop.getLatestValue());
     }
 
     public Collection<CreatorProperty> defDrawingProperties() {
         return List.of(
-                CreatorProperty.separatorTheme("SPACING", "Spacing and Drawing Options"),
+                separatorProperty("SPACING", "Spacing and Drawing Options"),
                 CreatorProperty.uintProperty("TITLE_PADDING", "Padding around the title", "Padding that is applied around all sides of title", SubSystem.THEME, 2, 10),
                 CreatorProperty.uintProperty("ITEM_PADDING", "Padding around each item", "Padding that is applied around all sides menu items", SubSystem.THEME, 2, 10),
                 CreatorProperty.uintProperty("TITLE_TO_ITEM_SPACING", "Title to first item gap", "Space between title and first item", SubSystem.THEME, 2, 10),
@@ -176,6 +179,37 @@ public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
                         new MatchesApplicability("ITEM_FONT", "ad[al]:.*")),
                 new CodeVariable("${TITLE_FONT}", "const GFXfont*", VariableDefinitionMode.FONT_EXPORT, false, false, false, List.of(),
                         new MatchesApplicability("ITEM_FONT", "ad[al]:.*"))
+        );
+    }
+
+    protected String buildPalette(String ty) {
+        return findPropOrFail("THEME_COLOR_" + ty + "_FG") + findPropOrFail("THEME_COLOR_" + ty + "_BG") +
+                ", " + findPropOrFail("THEME_COLOR_" + ty + "_HL") + ", " + findPropOrFail("THEME_COLOR_" + ty + "_EX");
+    }
+
+
+    protected Collection<CreatorProperty> colorThemeEntries() {
+        var props = new ArrayList<CreatorProperty>();
+        props.add(separatorProperty("COLORS", "Choose Theme Colors"));
+        props.addAll(colorPropertiesFor("ITEM", "regular item", new String[] { "GxEPD_BLACK", "GxEPD_WHITE", "GxEPD_BLACK", "GxEPD_BLACK"}));
+        props.addAll(colorPropertiesFor("TITLE", "menu title", new String[] { "GxEPD_WHITE", "GxEPD_BLACK", "GxEPD_WHITE", "GxEPD_WHITE"}));
+        props.addAll(selectedColorProperties("GxEPD_WHITE", "GxEPD_BLACK"));
+        return props;
+    }
+
+    protected List<CreatorProperty> selectedColorProperties(String bgCol, String fgCol) {
+        return List.of(
+                CreatorProperty.rgbProperty("THEME_SELECTED_BG", "Selected background color", "Selected item background color", bgCol),
+                CreatorProperty.rgbProperty("THEME_SELECTED_FG", "Selected text color", "Selected item text color", fgCol)
+        );
+    }
+
+    protected List<CreatorProperty> colorPropertiesFor(String item, String desc, String[] defaultPalette) {
+        return List.of(
+                CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_FG", item + " text color", "Text color of a " + desc, defaultPalette[0]),
+                CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_BG", item + " background color", "Background color of a " + desc, defaultPalette[1]),
+                CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_HL", item + " highlight color", "Highlight color of widgets, checkbox, buttons for " + desc, defaultPalette[2]),
+                CreatorProperty.rgbProperty("THEME_COLOR_" + item + "_EX", item + " extra color", "Extra color of items for borders, buttons etc for " + desc, defaultPalette[3])
         );
     }
 

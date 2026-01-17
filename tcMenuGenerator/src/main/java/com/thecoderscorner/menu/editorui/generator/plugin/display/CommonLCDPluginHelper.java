@@ -26,7 +26,7 @@ public class CommonLCDPluginHelper {
         return isUno ? LCD_UNO_H_CODE : FULL_LCD_H_CODE;
     }
 
-    private static String LCD_UNO_H_CODE = """
+    private static final String LCD_UNO_H_CODE = """
             /*
              * Copyright (c) 2018 https://www.thecoderscorner.com (Dave Cherry).
              * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
@@ -105,10 +105,10 @@ public class CommonLCDPluginHelper {
             }
 
             #endif // _TCMENU_LIQUID_CRYSTAL_H
-            
+    
     """;
 
-    private static String LCD_UNO_CPP_CODE = """
+    private static final String LCD_UNO_CPP_CODE = """
             /*
              * Copyright (c) 2018 https://www.thecoderscorner.com (Dave Cherry).
              * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.

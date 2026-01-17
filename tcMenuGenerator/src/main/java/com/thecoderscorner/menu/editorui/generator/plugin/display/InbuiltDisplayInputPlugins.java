@@ -21,6 +21,7 @@ public class InbuiltDisplayInputPlugins implements JavaPluginGroup {
 
         addPlugin(new GxEPD2SimplePluginImpl(this, manager));
         addPlugin(new DfRobotDisplayPluginImpl(this, manager));
+        addPlugin(new SimpleAdafruitStarterPlugin(this, manager));
     }
 
     public void addPlugin(JavaPluginItem plugin) {

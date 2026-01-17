@@ -94,6 +94,10 @@ public class CannedPropertyValidators {
         return new IoExpanderPropertyValidationRules();
     }
 
+    public static PropertyValidationRules rgbValidator() {
+        return new RgbPropertyValidationRules();
+    }
+
     private static class EmptyValidationRule implements PropertyValidationRules {
         @Override
         public boolean isValueValid(String value) {
