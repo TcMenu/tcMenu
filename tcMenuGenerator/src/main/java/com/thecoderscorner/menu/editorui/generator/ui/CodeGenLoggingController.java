@@ -83,6 +83,7 @@ public class CodeGenLoggingController {
 
     public void enableCloseButton() {
         closeButton.setDisable(false);
+        closeButton.requestFocus();
     }
 
     public void onIncludeDebug(ActionEvent actionEvent) {
