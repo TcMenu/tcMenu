@@ -144,6 +144,20 @@
                                <HBox.margin>
                                    <Insets right="3.0" />
                                </HBox.margin></Button>
+                           <Button fx:id="menuTreeAddTemplate" mnemonicParsing="false" onAction="#onAddTemplateMenu">
+                               <graphic>
+                                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../img/tree-add-template.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <tooltip>
+                                   <Tooltip text="Insert template structure" />
+                               </tooltip>
+                               <HBox.margin>
+                                   <Insets right="3.0" />
+                               </HBox.margin></Button>
                            <Button fx:id="menuTreeRemove" mnemonicParsing="false" onAction="#onRemoveTreeMenu">
                                <graphic>
                                    <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">

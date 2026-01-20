@@ -31,12 +31,13 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -50,8 +51,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -97,6 +98,7 @@ public class MenuEditorController {
     public BorderPane rootPane;
     public TreeView<MenuItemWithDescription> menuTree;
     public Button menuTreeAdd;
+    public Button menuTreeAddTemplate;
     public Button menuTreeRemove;
     public Button menuTreeCopy;
     public Button menuTreePaste;
@@ -824,6 +826,10 @@ public class MenuEditorController {
         editorUI.browseToURL(THE_CODERS_CORNER_URL);
     }
 
+    public void onAddTemplateMenu(ActionEvent actionEvent) {
+        new TemplateGeneratingContextMenu((Node)actionEvent.getSource());
+    }
+
     public class MenuItemWithDescription {
         private String desc;
         private MenuItem item;
@@ -934,5 +940,45 @@ public class MenuEditorController {
 
     public void onFollowTwitter(ActionEvent ignored) {
         editorUI.browseToURL(TWITTER_X_FOLLOW_URL);
+    }
+
+    class TemplateGeneratingContextMenu {
+        public TemplateGeneratingContextMenu(Node node) {
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Add menu items to the context menu
+            createItemInMenu(contextMenu, "Audio amplifier control starter", "/plugin/templates/audio-amplifier.json");
+            createItemInMenu(contextMenu, "Bench PSU control starter", "/plugin/templates/bench-psu.json");
+            createItemInMenu(contextMenu, "IoT setup menu", "/plugin/templates/embedcontrol-starter.json");
+            createItemInMenu(contextMenu, "Power/Battery menu", "/plugin/templates/power-battery-menu.json");
+            createItemInMenu(contextMenu, "Motor control menu", "/plugin/templates/motor-control.json");
+
+            // Show the context menu at the button's location
+            contextMenu.show(node,
+                    node.localToScreen(node.getBoundsInLocal()).getMinX(),
+                    node.localToScreen(node.getBoundsInLocal()).getMaxY());
+
+        }
+
+        private void createItemInMenu(ContextMenu contextMenu, String name, String path) {
+            var menuItem = new javafx.scene.control.MenuItem(name);
+            menuItem.setOnAction(event -> {
+                try {
+                    var resourceStream = getClass().getResourceAsStream(path);
+                    if (resourceStream != null) {
+                        String content = new String(resourceStream.readAllBytes());
+                        var items = editorProject.getProjectPersistor().copyTextToItems(content);
+                        if (!items.isEmpty()) {
+                            editorProject.applyCommand(new PastedItemChange(items, getSelectedSubMenu(), editorProject.getMenuTree(),
+                                    new MenuIdChooserImpl(editorProject.getMenuTree())));
+                            redrawTreeControl(false);
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.log(ERROR, "Failed to load template from " + path, e);
+                }
+            });
+            contextMenu.getItems().add(menuItem);
+        }
     }
 }

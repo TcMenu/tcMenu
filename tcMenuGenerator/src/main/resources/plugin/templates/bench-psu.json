@@ -1,0 +1,133 @@
+tcMenuCopy:[
+  {
+    "parentId": 0,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 500,
+      "offset": 0,
+      "divisor": 10,
+      "unitName": "V",
+      "step": 1,
+      "name": "Tgt Volt1",
+      "variableName": "TgtVolt1",
+      "id": 2,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 500,
+      "offset": 0,
+      "divisor": 10,
+      "unitName": "V",
+      "step": 1,
+      "name": "Tgt Volt2",
+      "variableName": "TgtVolt2",
+      "id": 1,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 300,
+      "offset": 0,
+      "divisor": 100,
+      "unitName": "A",
+      "step": 1,
+      "name": "Tgt Amps1",
+      "variableName": "TgtAmps1",
+      "id": 3,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 300,
+      "offset": 0,
+      "divisor": 100,
+      "unitName": "A",
+      "step": 1,
+      "name": "Tgt Amps2",
+      "variableName": "TgtAmps2",
+      "id": 4,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "boolItem",
+    "defaultValue": "false",
+    "item": {
+      "naming": "YES_NO",
+      "name": "Curr Limit1",
+      "variableName": "CurrLimit1",
+      "id": 5,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "boolItem",
+    "defaultValue": "false",
+    "item": {
+      "naming": "YES_NO",
+      "name": "Curr Limit2",
+      "variableName": "CurrLimit2",
+      "id": 6,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "Combined",
+        "Separate"
+      ],
+      "name": "Operation",
+      "variableName": "Operation",
+      "id": 7,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  }
+]

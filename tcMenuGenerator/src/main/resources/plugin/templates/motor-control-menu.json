@@ -1,0 +1,138 @@
+tcMenuCopy:[
+  {
+    "parentId": 0,
+    "type": "subMenu",
+    "item": {
+      "secured": false,
+      "name": "Motor",
+      "variableName": "Motor",
+      "id": 1,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 255,
+      "offset": 0,
+      "divisor": 1,
+      "unitName": "mph",
+      "step": 1,
+      "name": "Speed",
+      "variableName": "Speed",
+      "id": 2,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "North",
+        "East",
+        "South",
+        "West"
+      ],
+      "name": "Direction",
+      "variableName": "Direction",
+      "id": 3,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "Auto",
+        "Manual"
+      ],
+      "name": "Mode",
+      "variableName": "Mode",
+      "id": 4,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "floatItem",
+    "defaultValue": "0.0",
+    "item": {
+      "numDecimalPlaces": 2,
+      "name": "Acceleration",
+      "variableName": "Acceleration",
+      "id": 5,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "boolItem",
+    "defaultValue": "false",
+    "item": {
+      "naming": "TRUE_FALSE",
+      "name": "Enable Motor",
+      "variableName": "EnableMotor",
+      "id": 7,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "subMenu",
+    "item": {
+      "secured": false,
+      "name": "Jog control",
+      "variableName": "JogControl",
+      "id": 6,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 6,
+    "type": "actionMenu",
+    "item": {
+      "name": "Go Faster..",
+      "variableName": "GoFaster",
+      "id": 8,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  }
+]

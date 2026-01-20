@@ -1,0 +1,118 @@
+tcMenuCopy:[
+  {
+    "parentId": 0,
+    "type": "subMenu",
+    "item": {
+      "secured": false,
+      "name": "Power",
+      "variableName": "Power",
+      "id": 1,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 100,
+      "offset": 0,
+      "divisor": 1,
+      "unitName": "%",
+      "step": 1,
+      "name": "Battery Level",
+      "variableName": "BatteryLevel",
+      "id": 2,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "Eco",
+        "Normal",
+        "Performance"
+      ],
+      "name": "Pwr Mode",
+      "variableName": "PwrMode",
+      "id": 3,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 110,
+      "offset": 10,
+      "divisor": 1,
+      "unitName": "s",
+      "step": 1,
+      "name": "Backlight Time",
+      "variableName": "BacklightTime",
+      "id": 4,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 255,
+      "offset": 0,
+      "divisor": 1,
+      "unitName": "s",
+      "step": 1,
+      "name": "Sleep Time",
+      "variableName": "SleepTime",
+      "id": 5,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 1,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "Fast",
+        "Trickle",
+        "Failure",
+        "Not Charging"
+      ],
+      "name": "Charging Status",
+      "variableName": "ChargingStatus",
+      "id": 6,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  }
+]

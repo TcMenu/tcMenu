@@ -1,0 +1,152 @@
+tcMenuCopy:[
+  {
+    "parentId": 0,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 100,
+      "offset": 0,
+      "divisor": 1,
+      "unitName": "%",
+      "step": 1,
+      "name": "Volume",
+      "variableName": "Volume",
+      "id": 1,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "USB Audio",
+        "Bluetooth",
+        "CD Player",
+        "Turntable"
+      ],
+      "name": "Channel",
+      "variableName": "Channel",
+      "id": 2,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "boolItem",
+    "defaultValue": "false",
+    "item": {
+      "naming": "ON_OFF",
+      "name": "Mute",
+      "variableName": "Mute",
+      "id": 3,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "boolItem",
+    "defaultValue": "false",
+    "item": {
+      "naming": "ON_OFF",
+      "name": "Direct",
+      "variableName": "Direct",
+      "id": 4,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 0,
+    "type": "subMenu",
+    "item": {
+      "secured": false,
+      "name": "Status",
+      "variableName": "Status",
+      "id": 5,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 5,
+    "type": "enumItem",
+    "defaultValue": "0",
+    "item": {
+      "enumEntries": [
+        "Standby",
+        "Protection",
+        "Overload",
+        "Warm up",
+        "Running"
+      ],
+      "name": "Amp State",
+      "variableName": "AmpState",
+      "id": 6,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 5,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 3000,
+      "offset": -2000,
+      "divisor": 100,
+      "unitName": "dB",
+      "step": 1,
+      "name": "Left Level",
+      "variableName": "LeftLevel",
+      "id": 7,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  },
+  {
+    "parentId": 5,
+    "type": "analogItem",
+    "defaultValue": "0",
+    "item": {
+      "maxValue": 3000,
+      "offset": -2000,
+      "divisor": 100,
+      "unitName": "dB",
+      "step": 1,
+      "name": "Right Level",
+      "variableName": "RightLevel",
+      "id": 8,
+      "eepromAddress": -1,
+      "readOnly": false,
+      "localOnly": false,
+      "visible": true,
+      "staticDataInRAM": false
+    }
+  }
+]
