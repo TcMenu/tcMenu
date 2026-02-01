@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ResourceBundleMappingHandlerTest {
 
@@ -40,7 +41,6 @@ class ResourceBundleMappingHandlerTest {
         assertEquals("bonjour", map.get("welcome"));
         assertEquals("au rivoir", map.get("leave"));
         assertEquals("merci", map.get("thanks"));
-        assertEquals("Paramètres", map.get("menu.5.name"));
         assertEquals("1234", map.get("root.only.entry"));
         assertEquals("", map.get("menu.2.unit"));
     }

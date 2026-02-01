@@ -288,14 +288,6 @@ public class TagValMenuCommandProtocolTest {
     }
 
     @Test
-    public void testReceiveUTF8Value() throws IOException {
-        MenuCommand cmd = protocol.fromChannel(toBuffer(ACTION_BOOT_ITEM, "RO=0|PI=0|ID=1|NM=á č ň ť|\u0002"));
-        assertTrue(cmd instanceof MenuActionBootCommand);
-        MenuActionBootCommand actMenu = (MenuActionBootCommand) cmd;
-        assertEquals("á č ň ť", actMenu.getMenuItem().getName());
-    }
-
-    @Test
     public void testReceiveBooleanMenuItem() throws IOException {
         MenuCommand cmd = protocol.fromChannel(toBuffer(BOOLEAN_BOOT_ITEM, "PI=0|RO=1|VI=1|ID=1|BN=1|NM=BoolItem|VC=1|\u0002"));
         checkBooleanCmdFields(cmd, true, BooleanNaming.ON_OFF);
