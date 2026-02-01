@@ -8,6 +8,7 @@ import com.thecoderscorner.menu.editorui.generator.arduino.ArduinoLibraryInstall
 import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
 import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinition;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.plugin.*;
@@ -250,7 +251,7 @@ public class GenerateCodeDialogTest {
         withRetryOnFxThread(new TextFieldPredicate(robot, nodeName, latestValue), "nodeName check for " + latestValue);
 
         var oldValue = prop.getLatestValue();
-        FontDefinition numberedFont = new FontDefinition(FontDefinition.FontMode.NUMBERED, "", 22);
+        FontDefinition numberedFont = new FontDefinition(FontMode.NUMBERED, "", 22);
         when(editorUI.showFontEditorDialog(oldValue, false)).thenReturn(Optional.of(numberedFont.toString()));
 
         robot.clickOn(nodeName + "_btn");

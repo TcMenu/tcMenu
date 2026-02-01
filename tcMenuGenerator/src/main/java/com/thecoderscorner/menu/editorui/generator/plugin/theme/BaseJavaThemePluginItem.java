@@ -16,8 +16,8 @@ import com.thecoderscorner.menu.editorui.util.StringHelper;
 import java.util.*;
 
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.ADAFRUIT;
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.ADAFRUIT_LOCAL;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.ADAFRUIT;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.ADAFRUIT_LOCAL;
 
 public abstract class BaseJavaThemePluginItem extends BaseJavaPluginItem {
     public final static FontDefinition defaultForTcUnicode = new FontDefinition(ADAFRUIT, "OpenSansRegular7pt", 0);

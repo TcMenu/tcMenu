@@ -4,6 +4,7 @@ import com.thecoderscorner.menu.editorui.controller.fontsel.DefaultFontChoices;
 import com.thecoderscorner.menu.editorui.controller.fontsel.FontChoice;
 import com.thecoderscorner.menu.editorui.controller.fontsel.FontType;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 import com.thecoderscorner.menu.editorui.util.SafeNavigator;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.thecoderscorner.menu.editorui.dialog.AppInformationPanel.FONTS_GUIDE_URL;
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode.*;
+import static com.thecoderscorner.menu.editorui.generator.parameters.FontMode.*;
 
 public class ChooseFontController {
     public RadioButton adafruitFontSel;
@@ -89,7 +90,7 @@ public class ChooseFontController {
         }
     }
 
-    private void prepareChoicesForMode(FontDefinition.FontMode fontMode) {
+    private void prepareChoicesForMode(FontMode fontMode) {
         if(tcUnicodeEnabled) {
             var allItems = new ArrayList<FontChoice>();
             allItems.addAll(DefaultFontChoices.getChoicesFor(FontType.TC_UNICODE));
@@ -129,7 +130,7 @@ public class ChooseFontController {
 
     @SuppressWarnings("unused")
     public void onCreatePressed(ActionEvent actionEvent) {
-        FontDefinition.FontMode mode = getFontMode();
+        FontMode mode = getFontMode();
 
         int mag;
         try {
@@ -155,8 +156,8 @@ public class ChooseFontController {
         closeIt();
     }
 
-    private FontDefinition.FontMode getFontMode() {
-        FontDefinition.FontMode mode;
+    private FontMode getFontMode() {
+        FontMode mode;
         if(adafruitFontSel.isSelected()) mode = ADAFRUIT;
         else if(adafruitLocalFontSel.isSelected()) mode = ADAFRUIT_LOCAL;
         else if(largeNumSelect.isSelected()) mode = NUMBERED;

@@ -22,7 +22,7 @@ public class CodePluginItem {
     private SubSystem subsystem;
     private String imageFileName;
     private String docsLink;
-    private boolean themeNeeded;
+    private ThemeDescription themeMode;
     private CodePluginConfig config;
     private List<CreatorProperty> properties;
     private List<CodeVariable> variables;
@@ -76,11 +76,11 @@ public class CodePluginItem {
     }
 
     public boolean isThemeNeeded() {
-        return themeNeeded;
+        return themeMode != null && themeMode.getThemeMode() != ThemeDescription.ThemeMode.NONE ;
     }
 
-    public void setThemeNeeded(boolean themeNeeded) {
-        this.themeNeeded = themeNeeded;
+    public void setThemeMode(ThemeDescription themeMode) {
+        this.themeMode = themeMode;
     }
 
     public SubSystem getSubsystem() {
@@ -195,7 +195,7 @@ public class CodePluginItem {
         pluginCopy.setRequiredSourceFiles(requiredSourceFiles);
         pluginCopy.setSubsystem(subsystem);
         pluginCopy.setSupportedPlatforms(supportedPlatforms);
-        pluginCopy.setThemeNeeded(themeNeeded);
+        pluginCopy.setThemeMode(themeMode);
         pluginCopy.setManager(manager);
         pluginCopy.setJavaImpl(javaImpl);
         pluginCopy.setProperties(properties.stream().map(prop -> new CreatorProperty(
@@ -209,12 +209,12 @@ public class CodePluginItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CodePluginItem that = (CodePluginItem) o;
-        return themeNeeded == that.themeNeeded && Objects.equals(id, that.id) && Objects.equals(description, that.description) && Objects.equals(extendedDescription, that.extendedDescription) && Objects.equals(supportedPlatforms, that.supportedPlatforms) && Objects.equals(requiredLibraries, that.requiredLibraries) && subsystem == that.subsystem && Objects.equals(imageFileName, that.imageFileName) && Objects.equals(docsLink, that.docsLink) && Objects.equals(config, that.config);
+        return Objects.equals(themeMode, that.themeMode) && Objects.equals(id, that.id) && Objects.equals(description, that.description) && Objects.equals(extendedDescription, that.extendedDescription) && Objects.equals(supportedPlatforms, that.supportedPlatforms) && Objects.equals(requiredLibraries, that.requiredLibraries) && subsystem == that.subsystem && Objects.equals(imageFileName, that.imageFileName) && Objects.equals(docsLink, that.docsLink) && Objects.equals(config, that.config);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, description, extendedDescription, supportedPlatforms, requiredLibraries, subsystem, imageFileName, docsLink, themeNeeded, config);
+        return Objects.hash(id, description, extendedDescription, supportedPlatforms, requiredLibraries, subsystem, imageFileName, docsLink, themeMode, config);
     }
 
     public boolean isJavaPlugin() {

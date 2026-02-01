@@ -24,6 +24,7 @@ import com.thecoderscorner.menu.persist.SafeBundleLoader;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.persist.XMLDOMHelper;
 import javafx.scene.image.Image;
+import org.hsqldb.lib.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -544,7 +546,7 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
 
     private void generateDescriptionFromXml(Element root, CodePluginItem config) {
         config.setSubsystem(SubSystem.valueOf(root.getAttribute("subsystem")));
-        config.setThemeNeeded(Boolean.parseBoolean(getAttributeOrDefault(root, "needsTheme", "false")));
+        config.setThemeMode(themeFromAttribute(getAttributeOrDefault(root, "needsTheme", "false")));
         config.setId(root.getAttribute("id"));
         config.setDescription(withBundle(root.getAttribute("name")));
         config.setExtendedDescription(withBundle(textOfElementByName(root, "Description")));
@@ -553,6 +555,27 @@ public class DefaultXmlPluginLoader implements CodePluginManager {
         config.setRequiredLibraries(transformElements(root, "RequiredLibraries", "Library", Node::getTextContent));
         var docs = elementWithName(root, "Documentation");
         if (docs != null) config.setDocsLink(docs.getAttribute("link"));
+    }
+
+    private ThemeDescription themeFromAttribute(String attribute) {
+        if(StringUtil.isEmpty(attribute) || attribute.equals("false")) {
+            return ThemeDescription.NO_THEME;
+        } else if(attribute.equals("true") || attribute.equals("any")) {
+            return ThemeDescription.ANY_THEME;
+        } else if(attribute.startsWith("color")) {
+            return ThemeDescription.colorWithFont(pullFontInfo(attribute));
+        } else if(attribute.equals("mono")) {
+            return ThemeDescription.monoWithFont(pullFontInfo(attribute));
+        } else {
+            return ThemeDescription.NO_THEME;
+        }
+    }
+
+    private FontMode pullFontInfo(String attribute) {
+        Pattern pattern = Pattern.compile("(color|mono|palette)\\[(.*)]");
+        var matcher = pattern.matcher(attribute);
+        if(!matcher.matches()) return FontMode.DEFAULT_FONT;
+        return FontMode.valueOf(matcher.group(2));
     }
 
     private List<EmbeddedPlatform> supportedPlatformsFromElement(Element sp) {

@@ -1,5 +1,5 @@
 <TcMenuPlugin name="%theme.manual" id="b186c809-d9ef-4ca8-9d4b-e4780a041ccc"
-              subsystem="THEME" requiresDesigner="2.0"
+              subsystem="THEME" requiresDesigner="2.0" needsTheme="any"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>

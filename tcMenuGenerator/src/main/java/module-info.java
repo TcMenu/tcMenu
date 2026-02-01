@@ -16,6 +16,7 @@ module com.thecoderscorner.tcmenu.menuEditorUI {
     requires info.picocli;
     requires org.jfxtras.styles.jmetro;
     requires com.thecoderscorner.embedcontrol.core;
+    requires org.hsqldb;
 
     exports com.thecoderscorner.menu.editorui;
     exports com.thecoderscorner.menu.editorui.cli;

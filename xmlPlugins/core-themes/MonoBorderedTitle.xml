@@ -1,5 +1,5 @@
 <TcMenuPlugin name="DEPRECATED - Legacy Mono Bordered Theme" id="815316bb-76c9-436a-8f83-be0bced963df"
-              subsystem="THEME" requiresDesigner="2.0"
+              subsystem="THEME" requiresDesigner="2.0" needsTheme="mono"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>

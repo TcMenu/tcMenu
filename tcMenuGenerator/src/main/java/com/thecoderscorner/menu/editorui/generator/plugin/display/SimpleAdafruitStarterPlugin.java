@@ -30,7 +30,7 @@ public class SimpleAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
         codePlugin.setDescription("AdafruitGFX quick start for 5110, ST77xx and ILI9341");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Draw menus using AdafruitGFX library using our quick start for Nokia 5110, ST77xx and ILI9341. This version defaults many configuration options to reasonable settings, for other cases use the custom Adafruit plugin.");
-        codePlugin.setThemeNeeded(true);
+        codePlugin.setThemeMode(ThemeDescription.ANY_THEME);
         codePlugin.setDocsLink("https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);

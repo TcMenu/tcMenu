@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public record FontDefinition(FontMode fontMode, String fontName, int fontNumber) {
-    public enum FontMode {DEFAULT_FONT, ADAFRUIT_LOCAL, ADAFRUIT, NUMBERED, AVAILABLE}
 
     public String getFontDef() {
         return switch (fontMode) {

@@ -8,6 +8,7 @@ package com.thecoderscorner.menu.editorui.generator.validation;
 
 import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
 import com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
 import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.CustomDeviceExpander;
 import com.thecoderscorner.menu.editorui.generator.parameters.expander.InternalDeviceExpander;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.thecoderscorner.menu.editorui.generator.parameters.FontDefinition.FontMode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;

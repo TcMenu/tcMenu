@@ -1,6 +1,6 @@
 <TcMenuPlugin name="TFT_eSPI display driver for color displays"
               id="e6342680-6fab-4d1b-ac08-ce8dbfc0974c" subsystem="DISPLAY"
-              requiresDesigner="2.0" needsTheme="true"
+              requiresDesigner="2.0" needsTheme="color[numbered]"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>

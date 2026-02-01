@@ -51,7 +51,7 @@ public class GxEPD2SimplePluginImpl extends CommonAdafruitDisplayPlugin {
         codePlugin.setDescription("Use GxEPD2 eInk/ePaper quick start");
         codePlugin.setConfig(group.getConfig());
         codePlugin.setExtendedDescription("Uses the GxEPD2 library for eInk/ePaper displays from WaveShare and Good Display. This simple builder has common options ready configured.");
-        codePlugin.setThemeNeeded(true);
+        codePlugin.setThemeMode(ThemeDescription.ANY_THEME);
         codePlugin.setDocsLink("TODO");
         codePlugin.setJavaImpl(this);
         codePlugin.setManager(manager);

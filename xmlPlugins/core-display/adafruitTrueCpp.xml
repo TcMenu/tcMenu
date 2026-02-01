@@ -1,6 +1,6 @@
 <TcMenuPlugin name="Adafruit OLED Fork for C++ (PicoSDK/ESP32-IDF/Mbed)"
               id="61159C5B-F23A-4050-980F-A8FE114E2965" subsystem="DISPLAY"
-              requiresDesigner="2.0" needsTheme="true"
+              requiresDesigner="2.0" needsTheme="mono[Adafruit]"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">

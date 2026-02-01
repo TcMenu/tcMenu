@@ -1,14 +1,14 @@
 <TcMenuPlugin name="Custom U8G2 - manually declared and configured"
               id="8646497b-1427-415f-8020-1260a1fef57d"
               subsystem="DISPLAY"
-              requiresDesigner="2.0" needsTheme="true"
+              requiresDesigner="2.0" needsTheme="mono[u8g2]"
               xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://tcmenu.github.io/documentation/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
     <SupportedPlatforms>
         <PlatformGroup>Arduino</PlatformGroup>
     </SupportedPlatforms>
-    <Description>Draw menus using a manually created U8G2 drawing object for cases not covered in the quick start. You create the display object yourself and call begin before setupMenu is called.</Description>
+    <Description>Draw menus using a manually created U8G2 drawing object for cases not covered in the quick start. For OLED and other mono displays. You create the display object yourself and call begin before setupMenu is called.</Description>
     <Documentation link="https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
     <RequiredLibraries/>
     <ImageFile>oled-display.jpg</ImageFile>
