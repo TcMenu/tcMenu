@@ -21,10 +21,8 @@ endif()
 add_library(tcMenuNative SHARED library.cpp FreeFontHandler.cpp)
 
 # Pull in the free type headers.
-if(UNIX AND NOT APPLE)
-#    I don't like this but for now we need to do this as the find_package doesn't
-#    correctly locate the includes.
-    target_include_directories(tcMenuNative PRIVATE /usr/include/freetype2)
+if(UNIX)
+    target_include_directories(tcMenuNative PRIVATE ${FREETYPE_INCLUDE_DIRS})
 else ()
     target_include_directories(tcMenuNative PRIVATE ${FREETYPE_DIR})
 endif ()
@@ -32,9 +30,9 @@ endif ()
 if(UNIX)
     # On unix we need to link against the three libraries needed by freetype, these were found above using find_package
     target_link_libraries(tcMenuNative
-            ${FREETYPE_LIBRARY}
-            ${PNG_LIBRARY}
-            ${ZLIB_LIBRARY})
+            ${FREETYPE_LIBRARIES}
+            ${PNG_LIBRARIES}
+            ${ZLIB_LIBRARIES})
 else ()
     # on windows however, we need to build freetype from source in release mode as a static library. Consult the freetype
     # docs if you don't want to use the tcMenuPackaged one

@@ -4,11 +4,8 @@
 #include <vector>
 #include <map>
 #include "library.h"
-#if __has_include ("freetype/freetype.h")
-#include "freetype/freetype.h"
-#else
-#include "freetype2/freetype/freetype.h"
-#endif // free type include
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 class FreeFontHandler;
 
