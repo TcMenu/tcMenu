@@ -33,7 +33,6 @@ Community questions can be asked in the discussions section of this repo, or usi
 
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
-* [Legacy discussion forum probably to be made read only soon](https://www.thecoderscorner.com/jforum/).
 
 ## Try the web designer that's now being tested
 
