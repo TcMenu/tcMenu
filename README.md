@@ -35,6 +35,12 @@ Community questions can be asked in the discussions section of this repo, or usi
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
 * [Legacy discussion forum probably to be made read only soon](https://www.thecoderscorner.com/jforum/).
 
+## Try the web designer that's now being tested
+
+We're slowly transitioning to the designer being a web based tool. It can already generate nearly all existing menu, handle all existing plugins, and in addition supports a new fluent mode where the output is much cleaner.
+
+* [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com)
+* [Documentation and starter page for Designer Turbo](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
 
 ## Packaged installation for Windows, Linux, and MacOS.
 
