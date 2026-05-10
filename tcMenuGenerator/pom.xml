@@ -12,7 +12,7 @@
     <name>menuEditorUI</name>
     <groupId>com.thecoderscorner.tcmenu</groupId>    
     <description>JavaFX based menu editor UI</description>
-    <version>4.5.0-SNAPSHOT</version>
+    <version>9.99.99</version>
 
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -25,12 +25,12 @@
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>tcMenuJavaAPI</artifactId>
-            <version>${project.version}</version>
+            <version>4.5.2</version>
         </dependency>
         <dependency>
             <groupId>com.thecoderscorner.tcmenu</groupId>
             <artifactId>embedCONTROLCore</artifactId>
-            <version>${project.version}</version>
+            <version>4.5.2</version>
         </dependency>
 
         <!-- external production dependencies -->
@@ -54,27 +54,27 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3</version>
         </dependency>
 
         <!-- END JavaFX notes -->
@@ -105,13 +105,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>6.0.1</version>
+            <version>6.0.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.20.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
