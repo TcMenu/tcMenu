@@ -5,17 +5,14 @@
 [![Windows nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/TcMenu/tcMenu/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/TcMenu/tcMenu.svg?maxAge=3600)](https://github.com/TcMenu/tcMenu/releases)
-[![davetcc](https://img.shields.io/badge/davetcc-dev-blue.svg)](https://github.com/davetcc)
-[![JSC TechMinds](https://img.shields.io/badge/JSC-TechMinds-green.svg)](https://www.jsctm.cz)
 
 A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
-https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
+<video src="https://github.com/TcMenu/tcMenu/raw/main/zMedia/TurboQuickStart.mp4" autoplay loop muted playsinline style="max-width:100%"></video>
 
+Initially, the quickest way to get started is using the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non-destructive on the sketch file, so can be round tripped during development. 
 
-Initially, the quickest way to get started is using the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
-
-TcMenu organisation invest a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost neutral to me by using either option to sponsor the project.
+TcMenu organisation invests a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost-neutral to me by using either option to sponsor the project.
 
 Sponsor me on [GitHub](https://github.com/TcMenu/tcMenu) (this repository). 
 
@@ -32,7 +29,7 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Questions, community forum and support
 
-Community questions can be asked in the discussions section of this repo, or using the Arduino forum. We generally answer most community questions but the responses will not be timely. Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation (see links further up):
+Community questions can be asked in the discussions section of this repo, or using the Arduino forum (but please tag me). We generally answer most community questions but the responses may not be timely. Before posting into the community make sure you've recreated the problem in a simple sketch, and please consider making at least a one time donation (see links further up):
 
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
@@ -51,12 +48,6 @@ The easiest and fastest way to build your first menu is using our web-based desi
 Open the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
 Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
-
-## Desktop Designer (Optional / Offline Use)
-
-While the web designer is now strongly recommended, and we've archived the desktop app. It is still packaged for installation on Windows, Linux, and MacOS for those who can't or prefer not to move over to the web designer.
-
-Historic 4.4 releases are directly available from the [releases page](https://github.com/TcMenu/tcMenu/releases), where there is a signed Windows version, notarized macOS version, and a package for Linux. There are also nightly builds in the repository – see the badges at the top. 
 
 ## Libraries required for tcMenu
 
@@ -89,6 +80,10 @@ The tcMenu Web Designer and bitmap/font editor are licensed under Apache 2.0 wit
 But in summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and bitmap/font editor are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
 
 The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer components.
+
+## Loading and saving menu items
+
+tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM.
 
 ## Input and display technologies
 
@@ -182,13 +177,16 @@ There is also an early version of a TypeScript API that can be used from any Jav
 
 There is also a Webserver/HTML based app that you can deploy, but it only really works from a Raspberry PI with the embedded Java support. It is somewhat limited in what it offers. After careful evaluation we decided NOT to support ESP32 and STM32 for this app at the moment as it is too large for them.
 
-## Working with menus using the CLI
+## Desktop Designer (Optional / Offline Use)
+
+Note that web designer is now strongly recommended, and we've archived the desktop app. It is still packaged for installation on Windows, Linux, and MacOS for those who can't or prefer not to move over to the web designer.
+
+Historic 4.4.x releases are directly available from the [releases page](https://github.com/TcMenu/tcMenu/releases), where there is a signed Windows version, notarized macOS version, and a package for Linux. There are also nightly builds in the repository – see the badges at the top.
+
+### Working with menus using the CLI
 
 The most recent builds of TcMenu Designer include a CLI that has support for creating projects, adding and removing items, verifying and generating menus. [Building and Generating menus from the CLI](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/tcmenu-cli-workflow/)
 
-## Loading and saving menu items
-
-tcMenu can also save menu item state to EEPROM storage. On AVR that will generally be internal EEPROM, on 32 bit boards generally an AT24 i2c EEPROM. 
 
 ## Developer setup
 
