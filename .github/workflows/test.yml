@@ -20,10 +20,13 @@ jobs:
         cache: maven
 
     - name: Build and test tcMenuJavaApi
-      run: mvn -B install -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file api/tcMenuJavaApi/pom.xml
   
     - name: Build and test embedCONTROLCore
-      run: mvn -B install -Dgpg.skip=true --file embedCONTROLCore/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file api/embedCONTROLCore/pom.xml
 
     - name: Build and test tcMenuGenerator
-      run: mvn -B install -Dgpg.skip=true --file tcMenuGenerator/pom.xml
+      run: mvn -B install -Dgpg.skip=true --file archive/tcMenuGenerator/pom.xml
+
+    - name: Build and test Turbo Web
+      run: mvn -B install -Dgpg.skip=true --file web-designer/pom.xml

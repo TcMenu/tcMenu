@@ -1,0 +1,217 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.editorui.generator.mbed;
+
+import com.thecoderscorner.menu.domain.AnalogMenuItemBuilder;
+import com.thecoderscorner.menu.domain.CustomBuilderMenuItemBuilder;
+import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.EditableTextMenuItemBuilder;
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.generator.ProjectSaveLocation;
+import com.thecoderscorner.menu.editorui.generator.logger.DelegatingUserFeedbackLogger;
+import com.thecoderscorner.menu.editorui.generator.logger.UserFeedbackLogger;
+import com.thecoderscorner.menu.editorui.generator.parameters.IoExpanderDefinitionCollection;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.EepromAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.eeprom.BspStm32EepromDefinition;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginConfig;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoader;
+import com.thecoderscorner.menu.editorui.generator.plugin.DefaultXmlPluginLoaderTest;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
+import com.thecoderscorner.menu.persist.SafeBundleLoader;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
+import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR;
+import static com.thecoderscorner.menu.editorui.generator.arduino.ArduinoGeneratorTest.SERVER_UUID;
+import static com.thecoderscorner.menu.editorui.generator.parameters.auth.ReadOnlyAuthenticatorDefinition.FlashRemoteId;
+import static com.thecoderscorner.menu.editorui.generator.plugin.EmbeddedPlatform.MBED_RTOS;
+import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MENU_PROJECT_LANG_FILENAME;
+import static com.thecoderscorner.menu.editorui.util.MenuItemDataSets.LARGE_MENU_STRUCTURE;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.assertEqualsIgnoringCRLF;
+import static com.thecoderscorner.menu.editorui.util.TestUtils.buildTreeFromJson;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class MbedGeneratorTest {
+    private Path projectDir;
+    private Path pluginDir;
+    private Path rootDir;
+    private CodePluginConfig pluginConfig;
+    private PluginEmbeddedPlatformsImpl embeddedPlatforms;
+    private ConfigurationStorage storage;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        rootDir = Files.createTempDirectory("tcmenutest");
+        projectDir = rootDir.resolve("project");
+        Files.createDirectories(projectDir);
+
+        pluginDir = rootDir.resolve("plugin");
+        pluginDir = DefaultXmlPluginLoaderTest.makeStandardPluginInPath(pluginDir, true);
+        embeddedPlatforms = new PluginEmbeddedPlatformsImpl();
+        storage = Mockito.mock(ConfigurationStorage.class);
+        when(storage.getVersion()).thenReturn("4.3.0-SNAPSHOT");
+        var loader = new DefaultXmlPluginLoader(embeddedPlatforms, storage, pluginDir.toString());
+        pluginConfig = loader.loadPluginLib(pluginDir);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @AfterEach
+    public void tearDown() throws Exception {
+        Files.walk(rootDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testMbedConversion() throws IOException {
+        var options = new CodeGeneratorOptionsBuilder()
+                .withPlatform(MBED_RTOS).withAppName("tester").withNewId(SERVER_UUID)
+                .withEepromDefinition(new BspStm32EepromDefinition(50))
+                .withDynamicMenus(false)
+                .withAuthenticationDefinition(new EepromAuthenticatorDefinition(600, 2))
+                .withExpanderDefinitions(new IoExpanderDefinitionCollection())
+                .withRecursiveNaming(true).withSaveLocation(ProjectSaveLocation.PROJECT_TO_SRC_WITH_GENERATED)
+                .codeOptions();
+
+        MenuTree tree = buildTreeFromJson(LARGE_MENU_STRUCTURE);
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10001).withName("%menu.10001.name")
+                .withMenuType(AUTHENTICATION).withEepromAddr(-1).withVariableName("CustomAuth").menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new CustomBuilderMenuItemBuilder().withId(10002).withName("%menu.10002.name")
+                .withMenuType(REMOTE_IOT_MONITOR).withEepromAddr(-1).withVariableName("IoTMon").menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new AnalogMenuItemBuilder().withId(10003).withName("%menu.10003.name")
+                .withDivisor(10).withOffset(0).withMaxValue(100).withUnit("%menu.10003.unit")
+                .withVariableName("AnalogRam").withStaticDataInRAM(true).menuItem());
+        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withId(10004).withName("%menu.10004.name")
+                .withLength(10).withEditItemType(EditItemType.PLAIN_TEXT).withFunctionName("textRenderRtCall")
+                .withVariableName("TextEditor").menuItem());
+
+        var clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(1709985287323L)); // for testing, it is always Sat 9th March 2024 at 11.54
+        var generator = new MbedGenerator(new MbedSketchFileAdjuster(options, storage), MBED_RTOS, storage, clock,
+                new DelegatingUserFeedbackLogger(mock(UserFeedbackLogger.class)));
+
+        var firstPlugin = pluginConfig.getPlugins().getFirst();
+        firstPlugin.getProperties().stream()
+                .filter(p -> p.getName().equals("SWITCH_IODEVICE"))
+                .findFirst()
+                .ifPresent(p -> p.setLatestValue("io23017"));
+
+        putLocaleFilesInPlace(projectDir.resolve("i18n"));
+
+        var propsLocale = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(projectDir.resolve("i18n"), MENU_PROJECT_LANG_FILENAME));
+
+        var allProperties = pluginConfig.getPlugins().stream().flatMap(p -> p.getProperties().stream()).toList();
+
+        assertTrue(generator.startConversion(projectDir, pluginConfig.getPlugins(), tree, List.of(), options, propsLocale, allProperties));
+
+        var sourceDir = projectDir.resolve("src");
+        var generatedDir = sourceDir.resolve("generated");
+
+        var cppGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.cpp")));
+        var hGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.h")));
+        var inoFile = new String(Files.readAllBytes(sourceDir.resolve("tcmenu_main.cpp")));
+        var pluginGeneratedH = new String(Files.readAllBytes(generatedDir.resolve("source.h")));
+        var pluginGeneratedCPP = new String(Files.readAllBytes(generatedDir.resolve("source.cpp")));
+        var pluginGeneratedTransport = new String(Files.readAllBytes(generatedDir.resolve("MySpecialTransport.h")));
+        var langSelectHeader = Files.readString(generatedDir.resolve("project_langSelect.h"));
+        var langCoreHeader = Files.readString(generatedDir.resolve("project_lang.h"));
+        var langFrHeader = Files.readString(generatedDir.resolve("project_lang_fr.h"));
+
+        var cppTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.cpp")).readAllBytes());
+        var hTemplate = new String(Objects.requireNonNull(getClass().getResourceAsStream("/generator/templateMbed.h")).readAllBytes());
+
+        cppGenerated = cppGenerated.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
+        cppTemplate = cppTemplate.replaceAll("#include \"tcmenu[^\"]*\"", "replacedInclude");
+
+        // these files should line up. IF they do not because of the change in the ArduinoGenerator,
+        // then make sure the change is good before adjusting the templates.
+        assertEqualsIgnoringCRLF(cppTemplate, cppGenerated);
+        assertEqualsIgnoringCRLF(hTemplate, hGenerated);
+        assertThat(inoFile).contains("textRenderRtCall");
+        assertThat(inoFile).contains("fnMySubSub1CustomChoiceRtCall");
+        assertThat(inoFile).contains("fnMySubMyListRtCall");
+        assertThat(inoFile).contains("onBoolChange");
+        assertEqualsIgnoringCRLF("CPP_FILE_CONTENT 10 otherKey", pluginGeneratedCPP);
+        assertEqualsIgnoringCRLF("H_FILE_CONTENT 10 otherKey", pluginGeneratedH);
+        assertEqualsIgnoringCRLF("""
+                My Transport file
+                #define THE_SERIAL Serial
+                """, pluginGeneratedTransport);
+        assertEqualsIgnoringCRLF("""
+                // TcMenu Generated Locale File, do not edit this file.
+                // This is the header to include. Set TC_LOCAL_?? to a locale
+                // or omit for the default language
+                                
+                #if defined(TC_LOCALE_FR)
+                # include "project_lang_fr.h"
+                #else
+                #include "project_lang.h"
+                #endif
+                """, langSelectHeader);
+        assertEqualsIgnoringCRLF("""
+                // TcMenu Generated Locale File, do not edit this file. Locale\s
+                // Never include directly, always include the langSelect header
+                                
+                #define TC_I18N_MENU_10003_NAME "Analog Ram Def"
+                #define TC_I18N_MENU_10002_NAME "IoT Def Text"
+                #define TC_I18N_MENU_10003_UNIT "De"
+                #define TC_I18N_MENU_10004_NAME "Text Edit Def"
+                #define TC_I18N_MENU_10001_NAME "Auth Def Text"
+                """, langCoreHeader);
+        assertEqualsIgnoringCRLF("""
+                // TcMenu Generated Locale File, do not edit this file. Locale fr
+                // Never include directly, always include the langSelect header
+                                
+                #define TC_I18N_MENU_10003_NAME "Analog Ram Fr"
+                #define TC_I18N_MENU_10002_NAME "IoT Fr Text"
+                #define TC_I18N_MENU_10003_UNIT "Fr"
+                #define TC_I18N_MENU_10004_NAME "Text Edit"
+                #define TC_I18N_MENU_10001_NAME "Auth Fr Text"
+                """, langFrHeader);
+    }
+
+    private void putLocaleFilesInPlace(Path i18n) throws IOException {
+        Files.createDirectory(i18n);
+        Files.writeString(i18n.resolve(MENU_PROJECT_LANG_FILENAME + ".properties"), """
+                menu.10001.name=Auth Def Text
+                menu.10002.name=IoT Def Text
+                menu.10003.name=Analog Ram Def
+                menu.10003.unit=De
+                menu.10004.name=Text Edit Def
+                """);
+
+        Files.writeString(i18n.resolve(MENU_PROJECT_LANG_FILENAME + "_fr.properties"), """
+                menu.10001.name=Auth Fr Text
+                menu.10002.name=IoT Fr Text
+                menu.10003.name=Analog Ram Fr
+                menu.10003.unit=Fr
+                menu.10004.name=Text Edit
+                """);
+    }
+}

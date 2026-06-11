@@ -3,8 +3,6 @@ name: Windows nightly
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   build-windows-binary:
@@ -32,10 +30,10 @@ jobs:
     - name: Build tcMenuGenerator binaries
       shell: bash
       run: |
-        mvn -B install -DskipTests -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file embedCONTROLCore/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file tcMenuGenerator/pom.xml
-        cd tcMenuGenerator/target
+        mvn -B install -DskipTests -Dgpg.skip=true --file api/tcMenuJavaApi/pom.xml
+        mvn -B install -DskipTests -Dgpg.skip=true --file api/embedCONTROLCore/pom.xml
+        mvn -B install -DskipTests -Dgpg.skip=true --file archive/tcMenuGenerator/pom.xml
+        cd archive/tcMenuGenerator/target
         cp classes/img/tcMenuDesigner.ico .
         jpackage --type app-image -n tcmenu \
                  -p jfx/deps \

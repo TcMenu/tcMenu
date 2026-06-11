@@ -1,0 +1,248 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://www.thecoderscorner.com/libraries/tcmenuEmfFileSchema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["analogItem", "enumItem", "subMenu", "actionMenu", "runtimeList", "boolItem", "textItem", "floatItem",
+                       "largeNumItem", "scrollItem", "rgbItem", "customBuildItem"]
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "variableName": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "eepromAddress": {
+                  "type": "integer"
+                },
+                "functionName": {
+                  "type": "string"
+                },
+                "readOnly": {
+                  "type": "boolean"
+                },
+                "localOnly": {
+                  "type": "boolean"
+                },
+                "visible": {
+                  "type": "boolean"
+                },
+                "maxValue": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": -32768
+                },
+                "divisor": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "step": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 128
+                },
+                "unitName": {
+                  "type": "string"
+                },
+                "naming": {
+                  "type": "string",
+                  "enum": ["YES_NO","ON_OFF","TRUE_FALSE"]
+                },
+                "secured": {
+                  "type": "boolean"
+                },
+                "menuType": {
+                  "type": "string",
+                  "enum": ["REMOTE_IOT_MONITOR", "AUTHENTICATION"]
+                },
+                "includeAlphaChannel": {
+                  "type": "boolean"
+                },
+                "numDecimalPlaces": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "itemType": {
+                  "type": "string",
+                  "enum": [ "PLAIN_TEXT", "IP_ADDRESS", "TIME_24H", "TIME_12H", "TIME_24_HUNDREDS", "GREGORIAN_DATE",
+                            "TIME_DURATION_SECONDS", "TIME_DURATION_HUNDREDS", "TIME_24H_HHMM", "TIME_12H_HHMM" ]
+                },
+                "textLength": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 256
+                },
+                "itemWidth": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 64
+                },
+                "eepromOffset": {
+                  "type": "integer"
+                },
+                "numEntries": {
+                  "type": "integer"
+                },
+                "choiceMode": {
+                  "type": "string",
+                  "enum": ["ARRAY_IN_EEPROM", "ARRAY_IN_RAM", "CUSTOM_RENDERFN"]
+                },
+                "enumEntries": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "digitsAllowed": {
+                  "type": "integer",
+                  "minimum": 5,
+                  "maximum": 12
+                },
+                "decimalPlaces": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "negativeAllowed": {
+                  "type": "boolean"
+                },
+                "staticDataInRAM": {
+                  "type": "boolean"
+                },
+                "initialRows": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "name",
+                "variableName",
+                "id",
+                "eepromAddress",
+                "readOnly",
+                "localOnly",
+                "visible"
+              ]
+            }
+          },
+          "required": [
+            "parentId",
+            "type",
+            "item"
+          ]
+        }
+      ]
+    },
+    "codeOptions": {
+      "type": "object",
+      "properties": {
+        "embeddedPlatform": {
+          "type": "string"
+        },
+        "lastDisplayUuid": {
+          "type": "string"
+        },
+        "lastInputUuid": {
+          "type": "string"
+        },
+        "lastRemoteUuid": {
+          "type": "string"
+        },
+        "lastRemoteUuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lastThemeUuid": {
+          "type": "string"
+        },
+        "applicationUUID": {
+          "type": "string"
+        },
+        "applicationName": {
+          "type": "string"
+        },
+        "lastProperties": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "latestValue": {
+                  "type": "string"
+                },
+                "subsystem": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "latestValue",
+                "subsystem"
+              ]
+            }
+          ]
+        },
+        "namingRecursive": {
+          "type": "boolean"
+        },
+        "saveLocation": {
+          "type": "string",
+          "enum": ["ALL_TO_SRC","ALL_TO_CURRENT","PROJECT_TO_CURRENT_WITH_GENERATED", "PROJECT_TO_SRC_WITH_GENERATED"]
+        },
+        "useCppMain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "embeddedPlatform",
+        "applicationUUID",
+        "applicationName",
+        "lastProperties",
+        "namingRecursive",
+        "saveLocation",
+        "useCppMain"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "projectName",
+    "author",
+    "items",
+    "codeOptions"
+  ]
+}

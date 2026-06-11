@@ -1,0 +1,73 @@
+<TcMenuPlugin name="Control menu with rotary encoder"
+              id="6dd87e7d-e751-4912-a70d-91793b1d3d87" subsystem="INPUT"
+              requiresDesigner="2.2"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <PlatformGroup>Arduino</PlatformGroup>
+        <PlatformGroup>TrueCpp</PlatformGroup>
+    </SupportedPlatforms>
+    <Description>Hardware rotary encoder with acceleration that needs no external components in most cases. It can either be connected direct to Arduino or on an i2c expander (8574, 23017). With long wire runs may need stronger pull up resistors near the device.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/encoder-switches-input-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>rotary-encoder.jpg</ImageFile>
+
+    <Properties>
+        <Property id="SW_POLLING_MODE" name="Polling / Interrupt mode" initial="SWITCHES_POLL_EVERYTHING" desc="Choose how switches should poll / use interrupts" type="choice">
+            <Choices>
+                <Choice desc="Polling for keys and encoders - 1/100sec">SWITCHES_POLL_EVERYTHING</Choice>
+                <Choice desc="Everything interrupt driven, no polling">SWITCHES_NO_POLLING</Choice>
+                <Choice desc="Keys polling, encoder A pin interrupt - 1/50sec">SWITCHES_POLL_KEYS_ONLY</Choice>
+            </Choices>
+        </Property>
+        <Property id="SWITCH_IODEVICE" name="IoAbstractionRef for Switches" initial="devicePins" desc="This allows you to provide an IoAbstractionRef if your input is on an IO expander" type="io-device"/>
+        <Property id="ENCODER_PIN_A" name="PinA of Encoder" initial="2" desc="The pin on which A from the encoder is connected, see documentation for more details" type="pin"/>
+        <Property id="ENCODER_PIN_B" name="PinB of Encoder" initial="3" desc="The pin on which B from the encoder is connected" type="pin"/>
+        <Property id="ENCODER_PIN_OK" name="PinOK of Encoder" initial="8" desc="The pin on which OK from the encoder is connected" type="pin"/>
+        <Property id="ENCODER_BACK_PIN" name="Left / Back Button Pin (-1 off)" initial="-1" desc="Left or back button pin connection, or -1 for none" type="pin"/>
+        <Property id="ENCODER_NEXT_PIN" name="Right / Next Button Pin (-1 off)" initial="-1" desc="Right or Next button pin connection, or -1 for none" type="pin"/>
+        <Property id="PULLUP_LOGIC" name="PullUp Logic" initial="true" desc="Enable this to use pull up logic, otherwise pull down" type="boolean"/>
+        <Property id="ENCODER_IS_QUARTER_CYCLE" name="Quarter cycle encoder (half speed output)" initial="false" desc="Most encoders are full/half cycle but a few are quarter" type="boolean"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles/>
+
+    <IncludeFiles/>
+
+    <GlobalVariables/>
+
+    <SetupFunctions>
+        <Function name="init" object="switches">
+            <Param ioDevice="${SWITCH_IODEVICE}" />
+            <Param value="${SW_POLLING_MODE}" />
+            <Param value="${PULLUP_LOGIC}"/>
+        </Function>
+
+        <Function name="initForEncoder" object="menuMgr" whenProperty="ENCODER_IS_QUARTER_CYCLE" isValue="false">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${ENCODER_PIN_A}"/>
+            <Param value="${ENCODER_PIN_B}"/>
+            <Param value="${ENCODER_PIN_OK}"/>
+        </Function>
+
+        <Function name="initForEncoder" object="menuMgr" whenProperty="ENCODER_IS_QUARTER_CYCLE" isValue="true">
+            <Param ref="renderer"/>
+            <Param ref="${ROOT}"/>
+            <Param value="${ENCODER_PIN_A}"/>
+            <Param value="${ENCODER_PIN_B}"/>
+            <Param value="${ENCODER_PIN_OK}"/>
+            <Param value="QUARTER_CYCLE"/>
+        </Function>
+
+        <Function name="setBackButton" object="menuMgr" whenProperty="ENCODER_BACK_PIN" isNotValue="-1">
+            <Param value="${ENCODER_BACK_PIN}"/>
+        </Function>
+
+        <Function name="setNextButton" object="menuMgr" whenProperty="ENCODER_NEXT_PIN" isNotValue="-1">
+            <Param value="${ENCODER_NEXT_PIN}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

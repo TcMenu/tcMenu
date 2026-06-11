@@ -1,0 +1,101 @@
+<TcMenuPlugin name="Use Wifi library to control the menu" id="46c30011-cac6-4598-a7b8-b0630d55daab" subsystem="REMOTE"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>STM32DUINO</Platform>
+    </SupportedPlatforms>
+    <Description>Use this option to be able to control the menu using a library compatible WiFi. The full menu structure will be available to the remote using either the protocol or the API.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-iot/esp-wifi-remote-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>esp8266.jpg</ImageFile>
+
+    <Properties>
+        <Property id="ESPWIFI_CONCURRENT_CONNECTIONS" name="Number of concurrent connections" desc="The number of concurrent connects to allow, each uses memory" initial="1" type="choice">
+            <Choices>
+                <Choice desc="One remote at a time">1</Choice>
+                <Choice desc="Up to two remotes at once">2</Choice>
+                <Choice desc="Up to three remotes at once">3</Choice>
+            </Choices>
+        </Property>
+        <Property id="ESPWIFI_LISTEN_PORT1" name="First port on which to listen " initial="3333" desc="The first port on which to listen for connections"
+                  type="int" min="0" max="65535"/>
+        <Property id="ESPWIFI_LISTEN_PORT2" name="Second port on which to listen" initial="3334" desc="The second port on which to listen for connections"
+                  type="int" min="0" max="65535" whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]"/>
+        <Property id="ESPWIFI_LISTEN_PORT3" name="Third port on which to listen" initial="3335" desc="The third port on which to listen for connections"
+                  type="int" min="0" max="65535"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3"/>
+        <Property id="ESPWIFI_BUFFERED" name="Buffer messages in memory before sending" initial="true" desc="Buffer each connection - uses memory but may be faster" type="boolean" />
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="Ethernet.h" replace="WiFi.h" whenProperty="TARGET" isNotValue="ARDUINO_ESP8266"/>
+        <Replacement find="Ethernet.h" replace="ESP8266WiFi.h" whenProperty="TARGET" isValue="ARDUINO_ESP8266"/>
+        <Replacement find="ETHERNET_BUFFER_SIZE 0" replace="ETHERNET_BUFFER_SIZE 96" whenProperty="ESPWIFI_BUFFERED" isValue="true"/>
+
+        <Replacement find="EthernetClient" replace="WiFiClient" />
+        <Replacement find="EthernetServer" replace="WiFiServer" />
+        <SourceFile name="ethernetSrc/EthernetTransport.cpp"/>
+        <SourceFile name="ethernetSrc/EthernetTransport.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="EthernetTransport.h" inSource="true"/>
+        <Header name="RemoteConnector.h" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="server" type="WiFiServer" export="true">
+            <Param value="${ESPWIFI_LISTEN_PORT1}" default="3333" />
+        </Variable>
+        <Variable name="ethernetInitialisation" type="EthernetInitialisation" export="true">
+            <Param ref="server"/>
+        </Variable>
+        <Variable name="ethernetTransport" type="EthernetTagValTransport" export="false"/>
+        <Variable name="ethernetConnection" type="TagValueRemoteServerConnection" export="false">
+            <Param value="ethernetTransport"/>
+            <Param value="ethernetInitialisation"/>
+        </Variable>
+
+        <Variable name="server2" type="WiFiServer" export="true"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param value="${ESPWIFI_LISTEN_PORT2}" default="3334" />
+        </Variable>
+        <Variable name="ethernetInitialisation2" type="EthernetInitialisation" export="true"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param ref="server2"/>
+        </Variable>
+        <Variable name="ethernetTransport2" type="EthernetTagValTransport" export="false"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]"/>
+        <Variable name="ethernetConnection2" type="TagValueRemoteServerConnection" export="false"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param value="ethernetTransport2"/>
+            <Param value="ethernetInitialisation2"/>
+        </Variable>
+
+        <Variable name="server3" type="WiFiServer" export="true" whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param value="${ESPWIFI_LISTEN_PORT3}" default="3335" />
+        </Variable>
+        <Variable name="ethernetInitialisation2" type="EthernetInitialisation" export="true" whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param ref="server3"/>
+        </Variable>
+        <Variable name="ethernetTransport3" type="EthernetTagValTransport" export="false"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3"/>
+        <Variable name="ethernetConnection3" type="TagValueRemoteServerConnection" export="false"  whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param value="ethernetTransport3"/>
+            <Param value="ethernetInitialisation3"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="addConnection" object="remoteServer">
+            <Param ref="ethernetConnection"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" matches="[23]">
+            <Param ref="ethernetConnection2"/>
+        </Function>
+
+        <Function name="addConnection" object="remoteServer" whenProperty="ESPWIFI_CONCURRENT_CONNECTIONS" isValue="3">
+            <Param ref="ethernetConnection3"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

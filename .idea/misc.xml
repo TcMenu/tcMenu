@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
     <list size="2">
@@ -19,6 +20,9 @@
         <option value="$PROJECT_DIR$/embedCONTROLFx/pom.xml" />
         <option value="$PROJECT_DIR$/embeddedJavaExample/pom.xml" />
         <option value="$PROJECT_DIR$/tcMenuGenerator/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/font-bmp-editor/pom.xml" />
+        <option value="$PROJECT_DIR$/archive/tcMenuGenerator/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

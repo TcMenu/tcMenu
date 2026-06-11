@@ -1,0 +1,118 @@
+<TcMenuPlugin name="TFT_eSPI display driver for color displays"
+              id="e6342680-6fab-4d1b-ac08-ce8dbfc0974c" subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="color[numbered]"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_32</Platform>
+        <Platform>ARDUINO_ESP8266</Platform>
+        <Platform>ARDUINO_ESP32</Platform>
+        <Platform>STM32DUINO</Platform>
+    </SupportedPlatforms>
+    <Description>Draw menus using the TFT_eSPI library with any configuration that you have for color TFTs. Supports double buffering and all menu display types. Can use the library touch functions.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/tft_espi-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>adagfx-color.jpg</ImageFile>
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.auto.desc" type="variable" />
+        <Property id="DISPLAY_ROTATION" name="%adafruit.display.rotation" initial="2" desc="%adafruit.display.rotation.desc" type="int" min="0" max="3" />
+        <Property id="DOUBLE_BUFFER_ROWS" name="%core.display.buffer.size" initial="0" desc="%core.display.buffer.size.desc" type="int" min="0" max="250" />
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="10" desc="core.screen.updates.sec.desc" type="int" min="1" max="30" />
+
+        <Property id="TOUCH_SEPARATOR" name="%core.touch.separator" initial="" desc="%core.touch.separator.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SCREEN_REQUIRED" name="%core.touch.required" initial="false" desc="%core.touch.required.desc" type="boolean" />
+        <Property id="TOUCH_CALIB_WIDTH" name="%touch.tft.calib.width" type="int" min="1" max="65535" initial="240"
+                  desc="%touch.tft.calib.width.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Property id="TOUCH_CALIB_HEIGHT" name="%touch.tft.calib.height" type="int" min="1" max="65535" initial="320"
+                  desc="%touch.tft.calib.height.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Property id="TOUCH_USE_RAW_TFT_FUNCTION" name="%touch.tft.use.raw" initial="true" type="boolean"
+                  desc="%touch.tft.use.raw.desc" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
+
+        <Property id="ORIENTATION_SEPARATOR" name="%core.touch.orientation" initial="" desc="%core.touch.orientation.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SWAP_XY" name="%core.touch.swap.xy" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  desc="%core.touch.swap.xy.desc" type="boolean" />
+        <Property id="TFT_TOUCH_X_INVERTED" name="%core.touch.x.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.x.inverted.desc"/>
+        <Property id="TFT_TOUCH_Y_INVERTED" name="%core.touch.y.inverted" initial="false" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"
+                  type="boolean" desc="%core.touch.y.inverted.desc"/>
+
+        <Property id="CALIB_SEPARATOR" name="%core.touch.calibration" initial="" desc="%core.touch.calibration.desc" type="separator"/>
+        <Property id="TFT_TOUCH_SCREEN_CALIBRATE" name="%core.enable.touch.calib" initial="true"
+                  desc="%core.enable.touch.calib.desc" type="boolean" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true"  />
+        <Property id="TFT_TOUCH_CALIBRATION_STORAGE_LOC" name="%core.touch.calib.addr" initial="400" type="int"
+                  desc="%core.touch.calib.addr.desc"  min="4" max="65535" whenProperty="TOUCH_SCREEN_REQUIRED" isValue="true" />
+    </Properties>
+
+    <ApplicabilityDefs>
+        <ApplicabilityDef key="touchCalibrationNeeded" mode="and">
+            <Applicability whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+            <Applicability whenProperty="TFT_TOUCH_SCREEN_CALIBRATE" isValue="true"/>
+        </ApplicabilityDef>
+    </ApplicabilityDefs>
+
+    <SourceFiles>
+        <Replacement find="define TC_TFT_ESPI_NEEDS_TOUCH (true|false)" replace="define TC_TFT_ESPI_NEEDS_TOUCH ${TFT_TOUCH_SCREEN_REQUIRED}"/>
+        <SourceFile name="tfteSpi/tcMenuTfteSpi.cpp"/>
+        <SourceFile name="tfteSpi/tcMenuTfteSpi.h"/>
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuTfteSpi.h" inSource="true"/>
+        <Header name="graphics/MenuTouchScreenEncoder.h" inSource="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true"/>
+        <Header name="extras/DrawableTouchCalibrator.h" inSource="false" applicabilityRef="touchCalibrationNeeded"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="TFT_eSPI" export="true" />
+
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="TfteSpiDrawable" export="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param value="${DOUBLE_BUFFER_ROWS}"/>
+        </Variable>
+
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+
+        <Variable name="touchInterrogator" type="iotouch::TftSpiTouchInterrogator" export="true" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param value="${TOUCH_CALIB_WIDTH}"/>
+            <Param value="${TOUCH_CALIB_HEIGHT}"/>
+            <Param value="${TOUCH_USE_RAW_TFT_FUNCTION}"/>
+        </Variable>
+
+        <Variable name="touchOrientation" type="iotouch::TouchOrientationSettings" export="false" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param value="${TFT_TOUCH_SWAP_XY}"/>
+            <Param value="${TFT_TOUCH_X_INVERTED}"/>
+            <Param value="${TFT_TOUCH_Y_INVERTED}"/>
+        </Variable>
+
+        <Variable name="touchScreen" type="MenuTouchScreenManager" export="true" whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true">
+            <Param ref="touchInterrogator"/>
+            <Param ref="renderer"/>
+            <Param value="touchOrientation"/>
+        </Variable>
+
+        <Variable name="touchCalibrator" type="tcextras::IoaTouchScreenCalibrator" export="true" applicabilityRef="touchCalibrationNeeded">
+            <Param ref="touchScreen"/>
+            <Param ref="renderer"/>
+            <Param value="${TFT_TOUCH_CALIBRATION_STORAGE_LOC}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function object="${DISPLAY_VARIABLE}" name="begin"/>
+
+        <Function object="${DISPLAY_VARIABLE}" name="setRotation">
+            <Param value="${DISPLAY_ROTATION}"/>
+        </Function>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+
+        <Function name="start" object="touchScreen"  whenProperty="TFT_TOUCH_SCREEN_REQUIRED" isValue="true" />
+    </SetupFunctions>
+</TcMenuPlugin>

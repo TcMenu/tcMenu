@@ -1,0 +1,322 @@
+.plugin-item-container {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-family: sans-serif;
+}
+
+.plugin-item-header {
+    background-color: #e9ecef;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    border-radius: 4px 4px 0 0;
+}
+
+.plugin-item-body {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.plugin-item-left {
+    flex: 0 0 150px;
+}
+
+.plugin-image-container {
+    position: relative;
+    cursor: pointer;
+    width: 150px;
+    height: 100px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.plugin-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.plugin-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    font-size: 0.8rem;
+}
+
+.plugin-item-middle {
+    flex: 1;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.plugin-item-middle p {
+    margin: 0;
+}
+
+.plugin-links {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.plugin-links a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.plugin-links a:hover {
+    text-decoration: underline;
+}
+
+.plugin-item-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.plugin-property-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plugin-property-editor label {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0;
+}
+
+.plugin-property-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.extra-info-button {
+    background: none;
+    border: 1px solid #77e2f2;
+    color: #007bff;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    order: 3;
+}
+
+.extra-info-button:hover {
+    background-color: #77e2f2;
+    color: white;
+}
+
+.property-extended-description {
+    font-size: 0.85rem;
+    color: #555;
+    background-color: #f0fbfc;
+    padding: 8px;
+    border-left: 3px solid #77e2f2;
+    border-radius: 0 4px 4px 0;
+    margin-top: 4px;
+}
+
+.plugin-property-editor input[type="text"],
+.plugin-property-editor input[type="number"],
+.plugin-property-editor input[type="color"],
+.plugin-property-editor select {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 1rem;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px; /* Standardize height */
+}
+
+.plugin-property-editor input[type="text"]:focus,
+.plugin-property-editor input[type="number"]:focus,
+.plugin-property-editor input[type="color"]:focus,
+.plugin-property-editor select:focus {
+    outline: none;
+    border-color: #77e2f2;
+    box-shadow: 0 0 0 2px rgba(119, 226, 242, 0.25);
+}
+
+.plugin-property-editor input.invalid-input {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.plugin-property-editor input.invalid-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+.rgb-property-editor {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.rgb-property-editor input[type="text"] {
+    flex: 1;
+}
+
+.rgb-property-editor input[type="color"] {
+    width: 50px !important;
+    padding: 2px !important;
+    cursor: pointer;
+}
+
+.plugin-property-editor-checkbox-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plugin-property-editor-checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.plugin-property-editor-checkbox label {
+    font-size: 1rem;
+    color: #666;
+    order: 2;
+    flex-grow: 1;
+}
+
+.plugin-property-editor-checkbox input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    order: 1;
+}
+
+.plugin-property-separator {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.plugin-property-separator hr {
+    border: 0;
+    border-top: 1px solid #dee2e6;
+    margin-bottom: 10px;
+}
+
+.plugin-property-separator strong {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.font-description-collapsed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.font-description-collapsed:hover {
+    background-color: #f1f3f5;
+}
+
+.font-description-collapsed span {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.edit-font-button {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.font-description-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #77e2f2;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.font-description-editor .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.font-description-editor .form-group label {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.font-description-editor .form-group input,
+.font-description-editor .form-group select {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.font-editor-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.font-editor-actions button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.font-editor-actions button:first-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.font-editor-actions button:last-child {
+    background-color: #6c757d;
+    color: white;
+}
+
+.font-editor-actions button:hover {
+    opacity: 0.9;
+}

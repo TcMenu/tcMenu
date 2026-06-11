@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.thecoderscorner.bmped.controller.SelectUnicodeRangesController">
+    <center>
+        <ListView fx:id="unicodeRangeList" BorderPane.alignment="CENTER"/>
+    </center>
+    <bottom>
+        <ButtonBar BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="6"/>
+            </padding>
+            <buttons>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onCancel" text="Cancel"/>
+                <Button fx:id="selectRangeButton" defaultButton="true" mnemonicParsing="false"
+                        onAction="#onSelectRanges" text="Apply"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+    <top>
+        <GridPane BorderPane.alignment="CENTER" hgap="4" vgap="4">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER"/>
+                <ColumnConstraints hgrow="SOMETIMES"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <Label text="Search" GridPane.rowIndex="1"/>
+            <TextField fx:id="unicodeSearchField" promptText="range name or codepoint" GridPane.columnIndex="1"
+                       GridPane.rowIndex="1" />
+        </GridPane>
+    </top>
+</BorderPane>

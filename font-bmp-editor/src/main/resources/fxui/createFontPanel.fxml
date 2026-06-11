@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
+          hgap="4" vgap="4" fx:controller="com.thecoderscorner.bmped.gfxui.CreateFontUtilityController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="NEVER"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="NEVER"/>
+        <ColumnConstraints hgrow="NEVER"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="NEVER"/>
+        <RowConstraints vgrow="NEVER"/>
+        <RowConstraints vgrow="NEVER"/>
+        <RowConstraints vgrow="NEVER"/>
+        <RowConstraints vgrow="NEVER"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="NEVER"/>
+    </rowConstraints>
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+
+    <Label text="File Name" GridPane.rowIndex="1"/>
+    <TextField fx:id="fontFileField" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1"/>
+    <Label text="Struct/header name" GridPane.rowIndex="2"/>
+    <TextField fx:id="outputStructNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3"/>
+
+    <Label fx:id="fontSizeField" text="Choose characters in font" GridPane.columnSpan="3" GridPane.rowIndex="4"
+           GridPane.valignment="BOTTOM"/>
+    <ScrollPane prefHeight="200.0" prefWidth="200.0" maxWidth="9999" fitToWidth="true" GridPane.columnSpan="4" GridPane.rowIndex="5">
+        <GridPane fx:id="fontRenderArea">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.8"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES"/>
+            </rowConstraints>
+        </GridPane>
+    </ScrollPane>
+    <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onOnlineHelp" text="Help"/>
+            <Button mnemonicParsing="false" onAction="#onOpenExistingFont" text="Open Font" />
+            <Button mnemonicParsing="false" onAction="#importFont" text="Import Font" />
+            <Button mnemonicParsing="false" onAction="#saveFont" text="Save to XML" />
+            <MenuButton mnemonicParsing="false" text="Generate.." fx:id="generateButton"/>
+        </buttons>
+    </ButtonBar>
+</GridPane>

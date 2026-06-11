@@ -1,0 +1,197 @@
+package com.thecoderscorner.menu.editorui.generator.plugin.display;
+
+import com.thecoderscorner.menu.editorui.generator.applicability.MatchesApplicability;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition;
+import com.thecoderscorner.menu.editorui.generator.parameters.CodeParameter;
+import com.thecoderscorner.menu.editorui.generator.parameters.FontMode;
+import com.thecoderscorner.menu.editorui.generator.plugin.*;
+import com.thecoderscorner.menu.editorui.generator.validation.CannedPropertyValidators;
+import com.thecoderscorner.menu.editorui.generator.validation.ChoiceDescription;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.thecoderscorner.menu.editorui.generator.core.CreatorProperty.PropType.VARIABLE;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType;
+import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.PRIORITY_NORMAL;
+import static com.thecoderscorner.menu.editorui.generator.core.SubSystem.DISPLAY;
+
+public class ColorAdafruitStarterPlugin extends CommonAdafruitDisplayPlugin{
+    private final CodePluginItem pluginItem;
+    private final List<CreatorProperty> requiredProperties;
+
+    protected ColorAdafruitStarterPlugin(JavaPluginGroup group, CodePluginManager manager) {
+        super(DISPLAY, "/plugin/display/adagfx-color.jpg");
+        requiredProperties = createRequiredProperties(); 
+        var codePlugin = new CodePluginItem();
+        codePlugin.setId("4dcb12ec-13d8-4466-b8b6-bd575eae4612");
+        codePlugin.setDescription("AdafruitGFX quick start for color displays: ST77xx and ILI9341");
+        codePlugin.setConfig(group.getConfig());
+        codePlugin.setExtendedDescription("Draw menus using AdafruitGFX library using our quick start for ST77xx and ILI9341. This version is a template that creates the display variable and configures it.");
+        codePlugin.setThemeDescription(ThemeDescription.colorWithFont(FontMode.ADAFRUIT));
+        codePlugin.setDocsLink("https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/adafruit_gfx-renderer-plugin/");
+        codePlugin.setJavaImpl(this);
+        codePlugin.setManager(manager);
+        codePlugin.setProperties(requiredProperties);
+        codePlugin.setSubsystem(DISPLAY);
+        codePlugin.setSupportedPlatforms(PluginEmbeddedPlatformsImpl.arduinoPlatforms);
+        pluginItem = codePlugin;
+
+    }
+
+    private List<CreatorProperty> createRequiredProperties() {
+        return List.of(
+                separatorProperty("DISPLAY", "Display Information"),
+                new CreatorProperty("DISPLAY_TYPE", "Display Type", "Choose the display type for your display",
+                     "Adafruit_ST7735", DISPLAY, VARIABLE, CannedPropertyValidators.choicesValidator(List.of(
+                             new ChoiceDescription("Adafruit_ST7735", "Adafruit ST7735 library"),
+                             new ChoiceDescription("Adafruit_ST7789", "Adafruit ST7789 library"),
+                             new ChoiceDescription("Adafruit_ILI9341", "Adafruit ILI9341 library")
+                        ), "Adafruit_ST7735"), ALWAYS_APPLICABLE),
+                new CreatorProperty("DISPLAY_VARIABLE", "Display Variable Name", "The variable name available in your sketch", "display", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE),
+                CreatorProperty.uintProperty("DISPLAY_WIDTH", "Display Width in Pixels", "Display width in pixels", DISPLAY, 320, 8192),
+                CreatorProperty.uintProperty("DISPLAY_HEIGHT", "Display Height in Pixels", "Display height in pixels", DISPLAY, 240, 8192),
+                separatorProperty("PINS","Board Pin Configuration"),
+                CreatorProperty.optionalPin("DISPLAY_RESET_PIN", "Display Reset Pin", "The pin on which the display reset pin is connected", "-1", DISPLAY),
+                CreatorProperty.optionalPin("DISPLAY_CS_PIN", "CS Pin", "The chip select pin for the display", "-1", DISPLAY),
+                CreatorProperty.optionalPin("DISPLAY_RS_PIN", "RS Pin", "The register select pin for the display", "-1", DISPLAY),
+                CreatorProperty.optionalPin("DISPLAY_DATA_PIN", "Data Pin (Software SPI ONLY)", "When not set to -1, this enables slower software SPI (I.E. bit-banging), defines the data pin for transfer", "-1", DISPLAY),
+                CreatorProperty.optionalPin("DISPLAY_CLOCK_PIN", "Clock Pin (Software SPI ONLY)", "When not set to -1, this enables slower software SPI (I.E. bit-banging), defines the clock pin for transfer", "-1", DISPLAY),
+                separatorProperty("OTHER", "Other properties"),
+                new CreatorProperty("ST7735_TAB_TYPE", "Display Tab Type", "The type of display tab being used",
+                        "INITR_BLACKTAB", DISPLAY, VARIABLE,
+                        CannedPropertyValidators.choicesValidator(List.of(
+                                new ChoiceDescription("INITR_BLACKTAB", "Black Tab"),
+                                new ChoiceDescription("INITR_GREENTAB", "Green Tab"),
+                                new ChoiceDescription("INITR_REDTAB", "Red Tab"),
+                                new ChoiceDescription("INITR_MINI160x80", "Mini 160x80"),
+                                new ChoiceDescription("INITR_HALLOWING", "Hallowing")
+                        ), "INITR_BLACKTAB"), new MatchesApplicability("DISPLAY_TYPE", "Adafruit_ST77..")),
+                CommonDisplayPluginHelper.updatesPerSecond(),
+                CommonDisplayPluginHelper.displayRotation0to3(),
+                CommonDisplayPluginHelper.doubleBufferSize(),
+                new CreatorProperty("DISPLAY_CUSTOM_SPI_NAME", "Which SPI bus to use", "Choose the SPI class that will be used",
+                        "SPI", DISPLAY, VARIABLE, CannedPropertyValidators.variableValidator(), ALWAYS_APPLICABLE)
+        );
+    }
+
+    @Override
+    public CodePluginItem getPlugin() {
+        return pluginItem;
+    }
+
+    @Override
+    public List<CreatorProperty> getRequiredProperties() {
+        return requiredProperties;
+    }
+
+    @Override
+    public List<FunctionDefinition> getFunctions() {
+        var functions = new ArrayList<FunctionDefinition>();
+        var displayType = findPropOrFail("DISPLAY_TYPE");
+
+        // handle initialise
+        if(displayType.equals("Adafruit_ST7735")) {
+            functions.add(new FunctionDefinition("initR", "${DISPLAY_VARIABLE}", false, false, List.of(
+                    CodeParameter.unNamedValue(findPropOrFail("ST7735_TAB_TYPE"))
+            ), ALWAYS_APPLICABLE));
+        } else if(displayType.equals("Adafruit_ST7789")) {
+            functions.add(new FunctionDefinition("init", "${DISPLAY_VARIABLE}", false, false, List.of(
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_WIDTH")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_HEIGHT"))
+            ), ALWAYS_APPLICABLE));
+        } else {
+            functions.add(new FunctionDefinition("begin", "${DISPLAY_VARIABLE}", false, false, List.of(), ALWAYS_APPLICABLE));
+        }
+
+        // configure renderer
+        functions.add(new FunctionDefinition("setRotation", "${DISPLAY_VARIABLE}", false, false, List.of(
+                CodeParameter.unNamedValue("${DISPLAY_ROTATION}")), ALWAYS_APPLICABLE));
+        functions.add(new FunctionDefinition("setUpdatesPerSecond", "renderer", false, false, List.of(
+                CodeParameter.unNamedValue("${UPDATES_PER_SEC}")), ALWAYS_APPLICABLE));
+
+        return List.copyOf(functions);
+    }
+
+    @Override
+    public List<HeaderDefinition> getHeaderDefinitions() {
+        return List.of(new HeaderDefinition("tcMenuAdaFruitGfx.h", HeaderType.SOURCE, PRIORITY_NORMAL, ALWAYS_APPLICABLE));
+    }
+
+    @Override
+    public List<RequiredSourceFile> getRequiredSourceFiles() {
+        var headerName =  "tcMenuAdaFruitGfx.h";
+        var replacements = List.of(
+                new CodeReplacement("__DISPLAY_HAS_MEMBUFFER__", Boolean.toString(false), ALWAYS_APPLICABLE),
+                new CodeReplacement("__TRANSACTION_CODE__", getTransactionCode(false), ALWAYS_APPLICABLE),
+                new CodeReplacement("__TEXT_HANDLING_CODE__", DEFAULT_TEXT_FUNCTIONS, ALWAYS_APPLICABLE),
+                new CodeReplacement("__POTENTIAL_EXTRA_TYPE_DATA__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("__ACTUAL_GENERATED_HDR__", headerName, ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_TYPE_DEFS_NEEDED__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("__EXTRA_VARIABLES__", "", ALWAYS_APPLICABLE),
+                new CodeReplacement("Adafruit_Header", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE),
+                new CodeReplacement("Adafruit_Driver", findPropOrFail("DISPLAY_TYPE"), ALWAYS_APPLICABLE)
+        );
+
+        var sourceFiles = new ArrayList<RequiredSourceFile>();
+
+        sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfx.cpp", getSourceFile(false), replacements, true));
+        sourceFiles.add(new RequiredSourceFile("tcMenuAdaFruitGfx.h", getHeaderFile(false), replacements, true));
+
+        return List.copyOf(sourceFiles);
+    }
+
+    @Override
+    public List<CodeVariable> getVariables() {
+        var displayType = findPropOrFail("DISPLAY_TYPE");
+        CodeVariable display = switch(displayType) {
+            case "Adafruit_ST7735", "Adafruit_ST7789" -> st77xxVariable(displayType);
+            case "Adafruit_ILI9341" -> ili9341Variable(displayType);
+            default -> throw new IllegalStateException("Unexpected value: " + displayType);
+        };
+        
+        var drawable = adafruitDrawableVariable(false);
+        var renderer = basicGraphicsDeviceVariable(findPropOrFail("DISPLAY_VARIABLE") + "Drawable", 30);
+        return List.of(display, drawable, renderer);
+    }
+
+    private CodeVariable ili9341Variable(String displayType) {
+        boolean hwSpi = findPropOrFail("DISPLAY_DATA_PIN").equals("-1");
+
+        List<CodeParameter> params = standardSpiConfigurationParams(hwSpi);
+
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
+                VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
+    }
+
+    private CodeVariable st77xxVariable(String displayType) {
+        boolean hwSpi = findPropOrFail("DISPLAY_DATA_PIN").equals("-1");
+
+        List<CodeParameter> params = standardSpiConfigurationParams(hwSpi);
+
+        return new CodeVariable(findPropOrFail("DISPLAY_VARIABLE"), displayType,
+                VariableDefinitionMode.VARIABLE_AND_EXPORT, false, false, false, params, ALWAYS_APPLICABLE);
+    }
+
+    private List<CodeParameter> standardSpiConfigurationParams(boolean hwSpi) {
+        List<CodeParameter> params;
+        if(hwSpi) {
+            params = List.of(
+                    CodeParameter.unNamedValue("&" + findPropOrFail("DISPLAY_CUSTOM_SPI_NAME")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_CS_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RS_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RESET_PIN"))
+            );
+        } else {
+            params = List.of(
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_CS_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RS_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_DATA_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_CLOCK_PIN")),
+                    CodeParameter.unNamedValue(findPropOrFail("DISPLAY_RESET_PIN"))
+            );
+        }
+        return params;
+    }
+}

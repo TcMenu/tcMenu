@@ -3,20 +3,39 @@
   <component name="CompilerConfiguration">
     <option name="USE_RELEASE_OPTION" value="false" />
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="EmbeddedJavaDemo" />
         <module name="embeddedJavaExample" />
+        <module name="menuEditorUI (1)" />
         <module name="embedCONTROLCore" />
         <module name="tcMenuJavaAPI" />
         <module name="menuEditorUI" />
+      </profile>
+      <profile name="Annotation profile for tcmenu-ide-project-root" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="tcmenu-web-generator" />
+        <module name="tcmenu-code-generator" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="embedCONTROLFx" target="20" />
       <module name="EmbeddedJavaDemo" target="22" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="tcmenu-code-generator" options="-parameters" />
+      <module name="tcmenu-parent" options="-parameters" />
+      <module name="tcmenu-web-generator" options="-parameters" />
+    </option>
   </component>
 </project>

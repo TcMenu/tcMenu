@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright (c)  2016-2020 https://www.thecoderscorner.com (Dave Cherry).
+  ~ This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+  ~
+  -->
+
+<TcMenuPlugin name="%ssd1306ascii.name" id="1ec1b247-cc51-49d7-aa5c-dd0d4530751d" subsystem="DISPLAY"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>ARDUINO_UNO</Platform>
+        <Platform>ARDUINO_AVR</Platform>
+    </SupportedPlatforms>
+    <Description>%ssd1306ascii.desc</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/ssd1306ascii-display-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>ssd1306ascii.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="" desc="%core.display.variable.type.desc" type="variable" />
+        <Property id="CHAR_WIDTH" name="%ssd1306ascii.char.width" initial="20" desc="%ssd1306ascii.char.width.desc" type="int" min="2" max="99"/>
+        <Property id="TITLE_FONT" name="%ssd1306ascii.title.font" initial="Arial14" desc="%ssd1306ascii.title.font.desc" type="variable" />
+        <Property id="ITEM_FONT" name="%ssd1306ascii.item.font" initial="System5x7" desc="%ssd1306ascii.item.font.desc" type="variable" />
+    </Properties>
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <SourceFile name="ssd1306AsciiSupport/ssd1306asciiRenderer.cpp" />
+        <SourceFile name="ssd1306AsciiSupport/ssd1306asciiRenderer.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="SSD1306Ascii.h" inSource="false" priority="high"/>
+        <Header name="${DISPLAY_TYPE}.h" inSource="false"/>
+        <Header name="ssd1306asciiRenderer.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="only" />
+        <Variable name="renderer" type="SSD1306AsciiRenderer" export="true" progmem="false">
+            <Param value="${CHAR_WIDTH}"/>
+            <Param value="${TITLE_FONT}"/>
+            <Param value="${ITEM_FONT}"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="setGraphicsDevice" object="renderer" whenProperty="DISPLAY_CONFIG" isValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

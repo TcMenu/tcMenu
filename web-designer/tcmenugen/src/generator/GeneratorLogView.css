@@ -1,0 +1,92 @@
+.generator-log-container {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.generator-log-header {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.log-header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.dismiss-button, .download-button {
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    line-height: normal;
+}
+
+.dismiss-button {
+    background-color: #007bff;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.dismiss-button:hover {
+    background-color: #0056b3;
+}
+
+.download-button {
+    background-color: #28a745;
+}
+
+.download-button:hover {
+    background-color: #218838;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.log-table th, .log-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.log-table th {
+    background-color: #e0e0e0;
+}
+
+.log-level-error {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.log-level-warn {
+    color: #ef6c00;
+    font-weight: bold;
+}
+
+.log-level-info {
+    color: #388e3c;
+}
+
+.log-level-debug {
+    color: #757575;
+}
+
+.status-success {
+    color: green;
+    font-weight: bold;
+}
+
+.status-fail {
+    color: red;
+    font-weight: bold;
+}

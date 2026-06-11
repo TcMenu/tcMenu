@@ -1,0 +1,212 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.editorui.util;
+
+import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.core.CreatorProperty;
+import com.thecoderscorner.menu.editorui.generator.core.SubSystem;
+import com.thecoderscorner.menu.editorui.generator.plugin.CodePluginItem;
+import com.thecoderscorner.menu.editorui.generator.plugin.PluginEmbeddedPlatformsImpl;
+import com.thecoderscorner.menu.editorui.project.FileBasedProjectPersistor;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestUtils {
+
+    public static MenuTree buildTreeFromJson(String json) {
+        var persistor = new FileBasedProjectPersistor(new PluginEmbeddedPlatformsImpl());
+        var listOfItems = persistor.copyTextToItems(json);
+        if(listOfItems.isEmpty()) throw new IllegalArgumentException("Structure created empty list of items");
+        MenuTree tree = new MenuTree();
+        for (var item : listOfItems) {
+            var sub = tree.getMenuById(item.getParentId());
+            tree.addMenuItem((SubMenuItem)sub.orElse(MenuTree.ROOT), item.getItem());
+        }
+        return tree;
+    }
+
+    public static void assertEqualsIgnoringCRLF(String expected, String actual) {
+        expected = expected.replaceAll("\\r\\n", "\n");
+        actual = actual.replaceAll("\\r\\n", "\n");
+        assertEquals(expected, actual);
+    }
+
+    public static CreatorProperty findAndCheckProperty(CodePluginItem creator, String name, SubSystem subSystem,
+                                                       CreatorProperty.PropType type, String newVal) {
+        CreatorProperty prop = creator.getProperties().stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst().orElse(null);
+
+        assertNotNull(prop);
+
+        assertEquals(subSystem, prop.getSubsystem());
+        assertEquals(type, prop.getPropType());
+        prop.setLatestValue(newVal);
+        assertEquals(newVal, prop.getLatestValue());
+        return prop;
+    }
+
+    public static MenuTree buildSimpleTreeReadOnly() {
+        MenuTree tree = new MenuTree();
+
+        AnalogMenuItem item = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withId(1)
+                .withName("test")
+                .withFunctionName(null)
+                .withEepromAddr(2)
+                .withOffset(0)
+                .withDivisor(1)
+                .withUnit("dB")
+                .withMaxValue(100)
+                .withReadOnly(true)
+                .menuItem();
+        AnalogMenuItem item2 = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withExisting(item)
+                .withName("test2")
+                .withVariableName("OverrideAnalog2Name")
+                .withId(2)
+                .withEepromAddr(4)
+                .withLocalOnly(true)
+                .withFunctionName("callback1")
+                .menuItem();
+        SubMenuItem sub = SubMenuItemBuilder.aSubMenuItemBuilder()
+                .withName("sub")
+                .withVariableName("OverrideSubName")
+                .withId(100)
+                .withEepromAddr(-1)
+                .withLocalOnly(true)
+                .menuItem();
+        EnumMenuItem extraItem = EnumMenuItemBuilder.anEnumMenuItemBuilder()
+                .withId(20)
+                .withName("Extra")
+                .withEepromAddr(5)
+                .withFunctionName("callback1")
+                .withEnumList(List.of("test"))
+                .menuItem();
+        EditableTextMenuItem textItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(99)
+                .withEepromAddr(-1)
+                .withName("Text Item")
+                .withFunctionName("callback2")
+                .withLength(10)
+                .withEditItemType(EditItemType.PLAIN_TEXT)
+                .menuItem();
+        EditableTextMenuItem ipItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(79)
+                .withEepromAddr(-1)
+                .withName("Ip Item")
+                .withLength(20)
+                .withFunctionName("@headerOnly")
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .menuItem();
+        RuntimeListMenuItem listItem = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withId(1043)
+                .withInitialRows(2)
+                .withName("Abc")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, extraItem);
+        tree.addMenuItem(MenuTree.ROOT, item);
+        tree.addMenuItem(MenuTree.ROOT, listItem);
+        tree.addMenuItem(MenuTree.ROOT, sub);
+        tree.addMenuItem(sub, item2);
+        tree.addMenuItem(sub, textItem);
+        tree.addMenuItem(sub, ipItem);
+        return tree;
+    }
+
+    public static MenuTree buildSimpleTree() {
+        MenuTree tree = new MenuTree();
+
+        AnalogMenuItem item = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withId(1)
+                .withName("test")
+                .withFunctionName(null)
+                .withEepromAddr(2)
+                .withOffset(0)
+                .withDivisor(1)
+                .withUnit("dB")
+                .withMaxValue(100)
+                .menuItem();
+        AnalogMenuItem item2 = AnalogMenuItemBuilder.anAnalogMenuItemBuilder()
+                .withExisting(item)
+                .withId(2)
+                .withEepromAddr(4)
+                .withFunctionName("callback1")
+                .menuItem();
+        SubMenuItem sub = SubMenuItemBuilder.aSubMenuItemBuilder()
+                .withName("sub")
+                .withId(100)
+                .withEepromAddr(-1)
+                .menuItem();
+        EnumMenuItem extraItem = EnumMenuItemBuilder.anEnumMenuItemBuilder()
+                .withId(20)
+                .withName("Extra")
+                .withEepromAddr(5)
+                .withEnumList(List.of("test"))
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, extraItem);
+        tree.addMenuItem(MenuTree.ROOT, item);
+        tree.addMenuItem(MenuTree.ROOT, sub);
+        tree.addMenuItem(sub, item2);
+        return tree;
+    }
+
+    public static MenuTree buildCompleteTree() {
+        MenuTree tree = buildSimpleTree();
+
+        BooleanMenuItem boolItem = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
+                .withId(4)
+                .withNaming(BooleanMenuItem.BooleanNaming.ON_OFF)
+                .withName("BoolTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, boolItem);
+
+        EditableTextMenuItem textItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(5)
+                .withLength(10)
+                .withName("TextTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, textItem);
+
+        FloatMenuItem floatItem = FloatMenuItemBuilder.aFloatMenuItemBuilder()
+                .withId(6)
+                .withDecimalPlaces(4)
+                .withName("FloatTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, floatItem);
+
+        ActionMenuItem actionItem = ActionMenuItemBuilder.anActionMenuItemBuilder()
+                .withId(8)
+                .withFunctionName("callback")
+                .withName("ActionTest")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, actionItem);
+
+        EditableTextMenuItem ipItem = EditableTextMenuItemBuilder.aTextMenuItemBuilder()
+                .withId(9)
+                .withName("Subnet Mask")
+                .withLength(20)
+                .withFunctionName("onIpChange")
+                .withEditItemType(EditItemType.IP_ADDRESS)
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, ipItem);
+
+        RuntimeListMenuItem listItem = RuntimeListMenuItemBuilder.aRuntimeListMenuItemBuilder()
+                .withId(10)
+                .withName("List")
+                .withFunctionName("onListItem")
+                .menuItem();
+        tree.addMenuItem(MenuTree.ROOT, listItem);
+
+        return tree;
+    }
+
+}

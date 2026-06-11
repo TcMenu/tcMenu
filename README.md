@@ -57,17 +57,9 @@ Here's a couple of screen-shots of the designer UI - runs on Windows, macOS and 
 
 ## Generating a menu from the UI for the impatient
 
-If you don't want to read the above documentation this gives a very quick start. Open the tcMenu Designer UI and set up your Arduino directory in "Edit -> General Settings", then check the "Library Versions" tab to ensure the embedded libraries are installed / up to date.
+Open the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
-Once the tcMenu library directory is located, the "File -> Examples" menu will load with all the examples. Load the example closest to the hardware you have. Once it's open, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
-
-Once you've arranged your menu using the UI how you'd like it, choose `Code -> ID & Eeprom analyser` from the menu to check that you've not got any overlapping ranges, then choose `Code -> Generate` from the menu, choose appropriate hardware arrangements and hit generate.
-
-The Generator is capable of round trip development too - most of the code is offloaded into associated CPP and Header files.
-
-## TcMenu still supports Uno with LiquidCrystal dfRobot shield or Ssd1306Ascii
-
-We try to keep Uno viable for tcMenu. However, there are limitations to what we can do. You can run a full menu on an Uno, but it's unlikely that the remote Ethernet support will fit. For anything that includes remote control support, we recommend at least 64K of flash memory. We store the menu items in static RAM where it's supported by the hardware, to further reduce memory on the board.
+Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
 
 ## Libraries required for tcMenu
 
@@ -91,9 +83,19 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 * Adafruit_GFX by AdaFruit- https://github.com/adafruit/Adafruit-GFX-Library 
 * U8G2 by olikraus - https://github.com/olikraus/u8g2
 
-### Main Java source code locations
+### Licenses and usage
 
-The designer UI code base and plugins for 2.0 onwards are located [in this repository](https://github.com/TcMenu/tcMenu/tree/main/xmlPlugins). The designer, library and shipped plugins are all Apache licensed.
+All components of tcMenu other than the Web Designer are licensed under Apache 2.0.
+
+The tcMenu Web Designer is licensed under Apache 2.0 with the Commons Clause.
+
+• Makers, hobbyists, and individuals may use, modify, and self‑host the Web Designer freely.
+• Companies may use the Web Designer internally at no cost.
+• Commercial redistribution, SaaS hosting, embedding into commercial tools, or selling products whose value derives from the Web Designer requires a commercial licence.
+
+In summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and certain high‑performance plugins are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
+
+The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer.
 
 ## Input and display technologies
 

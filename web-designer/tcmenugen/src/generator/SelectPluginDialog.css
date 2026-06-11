@@ -1,0 +1,146 @@
+.plugin-select-dialog {
+    background-color: white;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.dialog-header-with-search {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.header-search-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.deprecated-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.deprecated-toggle input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+.deprecated-toggle label {
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dialog-header-with-search h2 {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.plugin-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.plugin-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.plugin-list-container {
+    overflow-y: auto;
+    flex: 1;
+    margin: 15px 0;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.plugin-select-item {
+    display: flex;
+    flex-direction: row;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    gap: 15px;
+}
+
+.plugin-select-item:last-child {
+    border-bottom: none;
+}
+
+.plugin-select-item:hover {
+    background-color: #f1f3f5;
+}
+
+.plugin-select-image {
+    flex: 0 0 120px;
+    height: 80px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.plugin-select-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.plugin-select-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plugin-select-info strong {
+    font-size: 1.1rem;
+    color: #007bff;
+}
+
+.plugin-select-floating {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.plugin-select-floating .dialog-content {
+    pointer-events: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid #dee2e6;
+    max-width: 600px;
+}
+
+.plugin-vendor {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.plugin-description-text {
+    font-size: 0.95rem;
+    color: #333;
+    margin: 5px 0 0 0;
+}

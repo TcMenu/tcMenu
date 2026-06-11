@@ -1,0 +1,140 @@
+/*
+ * Copyright (c)  2016-2021 https://www.thecoderscorner.com (Dave Cherry).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.editorui.generator.core;
+
+import com.google.errorprone.annotations.Var;
+import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.util.DomainFixtures;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class VariableNameGeneratorTest {
+
+    private SubMenuItem sub1;
+    private SubMenuItem sub2;
+    private MenuTree tree;
+    private ActionMenuItem action1;
+    private ActionMenuItem action2;
+    private SubMenuItem sub3;
+    private ActionMenuItem action3;
+    private SubMenuItem sub4;
+    private ActionMenuItem action4;
+
+    @BeforeEach
+    void setUp() {
+        tree = new MenuTree();
+
+        // two top level sub menus
+        sub1 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub Menu 1 Öôóò").withId(100).menuItem();
+        tree.addMenuItem(MenuTree.ROOT, sub1);
+        sub2 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub 2 Öôóò").withId(101).withVariableName("OverrideÖôóò").menuItem();
+        tree.addMenuItem(MenuTree.ROOT, sub2);
+
+        // an action item under each of the above sub menus
+        action1 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 1").withId(102).menuItem();
+        tree.addMenuItem(sub1, action1);
+        action2 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 2").withId(103).withVariableName("OverrideAbc").menuItem();
+        tree.addMenuItem(sub2, action2);
+
+        // put another sub menu under sub2 so now we have sub2 -> sub3
+        sub3 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub 3").withId(105).menuItem();
+        tree.addMenuItem(sub2, sub3);
+
+        // put another sub menu under sub2 so now we have sub2 -> sub4
+        sub4 = SubMenuItemBuilder.aSubMenuItemBuilder().withName("Sub 4").withId(106).withVariableName("OverrideSub4").menuItem();
+        tree.addMenuItem(sub2, sub4);
+
+        // put an item under sub 3 so now we have sub2 -> sub3 -> action3
+        action3 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 3").withId(107).menuItem();
+        tree.addMenuItem(sub3, action3);
+
+        // put an item under sub 4 so now we have sub2 -> sub3 -> action3
+        action4 = ActionMenuItemBuilder.anActionMenuItemBuilder().withName("Action 4").withId(108).menuItem();
+        tree.addMenuItem(sub4, action4);
+    }
+
+    @Test
+    public void testGenerationFlatNamesTopLevel() {
+        VariableNameGenerator generator = new VariableNameGenerator(tree, false);
+        assertEquals("SubMenu1Öôóò", generator.makeNameToVar(sub1));
+        assertEquals("OverrideÖôóò", generator.makeNameToVar(sub2));
+        assertEquals("Sub3", generator.makeNameToVar(sub3));
+        assertEquals("OverrideSub4", generator.makeNameToVar(sub4));
+
+        assertEquals("NewName", generator.makeNameToVar(sub1, "NewName"));
+        assertEquals("NewName", generator.makeNameToVar(sub2, "NewName"));
+    }
+
+    @Test
+    public void testGenerationFlatNamesSubLevel() {
+        VariableNameGenerator generator = new VariableNameGenerator(tree, false);
+        assertEquals("Action1", generator.makeNameToVar(action1));
+        assertEquals("OverrideAbc", generator.makeNameToVar(action2));
+
+        assertEquals("NewName", generator.makeNameToVar(action1, "NewName"));
+        assertEquals("NewName", generator.makeNameToVar(action2, "NewName"));
+    }
+
+    @Test
+    public void testGenerationRecursiveNames() {
+        VariableNameGenerator generator = new VariableNameGenerator(tree, true);
+
+        assertEquals("SubMenu1ÖôóòAction1", generator.makeNameToVar(action1));
+        assertEquals("OverrideAbc", generator.makeNameToVar(action2));
+
+        assertEquals("SubMenu1ÖôóòNewName", generator.makeNameToVar(action1, "NewName"));
+        assertEquals("OverrideÖôóòNewName", generator.makeNameToVar(action2, "NewName"));
+
+        assertEquals("SubMenu1Öôóò", generator.makeNameToVar(sub1));
+        assertEquals("OverrideÖôóò", generator.makeNameToVar(sub2));
+
+        assertEquals("NewName", generator.makeNameToVar(sub1, "NewName"));
+        assertEquals("NewName", generator.makeNameToVar(sub2, "NewName"));
+    }
+
+    @Test
+    public void testDoubleRecursiveNames() {
+        VariableNameGenerator generator = new VariableNameGenerator(tree, true);
+
+        assertEquals("OverrideÖôóòSub3", generator.makeNameToVar(sub3));
+        assertEquals("OverrideÖôóòSub3Action3", generator.makeNameToVar(action3));
+
+        assertEquals("OverrideSub4", generator.makeNameToVar(sub4));
+        assertEquals("OverrideÖôóòNewName", generator.makeNameToVar(sub4, "New Name"));
+        assertEquals("OverrideSub4Action4", generator.makeNameToVar(action4));
+
+        assertEquals("OverrideÖôóòNewSubName", generator.makeNameToVar(sub3, "New Sub Name"));
+        assertEquals("OverrideÖôóòNewSubName", generator.makeNameToVar(sub4, "New Sub Name"));
+        assertEquals("OverrideÖôóòSub3LightsCamera", generator.makeNameToVar(action3, "Lights Camera"));
+    }
+
+    @Test
+    public void testHeaderDefineFromName() {
+        var tree = new MenuTree();
+        var sub = DomainFixtures.aSubMenu("Sub Abc", 100);
+        tree.addMenuItem(MenuTree.ROOT, sub);
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("UUID", 1, BooleanNaming.CHECKBOX));
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("MyUUID", 2, BooleanNaming.CHECKBOX));
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("SomeClientName", 3, BooleanNaming.CHECKBOX));
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("AlreadyUpper", 4, BooleanNaming.CHECKBOX));
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("Test123", 5, BooleanNaming.CHECKBOX));
+        tree.addMenuItem(sub, DomainFixtures.aBooleanMenu("UpperDown", 6, BooleanNaming.CHECKBOX));
+
+        VariableNameGenerator generator = new VariableNameGenerator(tree, true);
+        assertEquals("SUB_ABC_UUID", generator.makeHeaderDefineFromName(tree.getMenuById(1).orElseThrow()));
+        assertEquals("SUB_ABC_MY_UUID", generator.makeHeaderDefineFromName(tree.getMenuById(2).orElseThrow()));
+        assertEquals("SUB_ABC_SOME_CLIENT_NAME", generator.makeHeaderDefineFromName(tree.getMenuById(3).orElseThrow()));
+        assertEquals("SUB_ABC_ALREADY_UPPER", generator.makeHeaderDefineFromName(tree.getMenuById(4).orElseThrow()));
+        assertEquals("SUB_ABC_TEST123", generator.makeHeaderDefineFromName(tree.getMenuById(5).orElseThrow()));
+        assertEquals("SUB_ABC_UPPER_DOWN", generator.makeHeaderDefineFromName(tree.getMenuById(6).orElseThrow()));
+    }
+}

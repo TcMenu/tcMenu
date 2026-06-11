@@ -1,0 +1,73 @@
+<TcMenuPlugin name="Custom U8G2 - manually declared and configured"
+              id="8646497b-1427-415f-8020-1260a1fef57d"
+              subsystem="DISPLAY"
+              requiresDesigner="2.0" needsTheme="mono[u8g2]"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <PlatformGroup>Arduino</PlatformGroup>
+    </SupportedPlatforms>
+    <Description>Draw menus using a manually created U8G2 drawing object for cases not covered in the quick start. For OLED and other mono displays. You create the display object yourself and call begin before setupMenu is called.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/tcmenu-plugins/u8g2-renderer-plugin/"/>
+    <RequiredLibraries/>
+    <ImageFile>oled-display.jpg</ImageFile>
+
+    <Properties>
+        <Property id="DISPLAY_VARIABLE" name="%core.display.variable" initial="gfx" desc="%core.display.variable.desc" type="variable" />
+        <Property id="DISPLAY_TYPE" name="%core.display.variable.type" initial="U8G2_SSD1306_128X64_NONAME_F_SW_I2C" desc="%core.display.variable.type.desc" type="variable" />
+        <Property id="DISPLAY_CONFIG" name="%core.display.config" initial="" desc="%core.display.config.desc" type="variable" />
+        <Property id="UPDATES_PER_SEC" name="%core.screen.updates.sec" initial="5" desc="core.screen.updates.sec.desc" type="int" min="1" max="10"/>
+        <Property id="YIELDING_WIRE_CB" name="%u8g2.yield.callback" initial="false" type="boolean"
+                  whenProperty="DISPLAY_TYPE" matches=".*HW_I2C" desc="%u8g2.yield.callback.desc" />
+        <Property id="USE_UTF8_SUPPORT" name="%u8g2.enable.utf8" initial="false" type="boolean" desc="%u8g2.enable.utf8.desc"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles>
+        <Replacement find="define TC_USE_UTF_8_ENCODING (true|false)" replace="define TC_USE_UTF_8_ENCODING true" whenProperty="USE_UTF8_SUPPORT" isValue="true"/>
+        <Replacement find="define TC_USE_UTF_8_ENCODING (true|false)" replace="define TC_USE_UTF_8_ENCODING false" whenProperty="USE_UTF8_SUPPORT" isValue="false"/>
+        <Replacement find="define WANT_TASK_MANAGER_FRIENDLY_YIELD [01]" replace="define WANT_TASK_MANAGER_FRIENDLY_YIELD 1" whenProperty="YIELDING_WIRE_CB" isValue="true"/>
+        <Replacement find="define WANT_TASK_MANAGER_FRIENDLY_YIELD [01]" replace="define WANT_TASK_MANAGER_FRIENDLY_YIELD 0" whenProperty="YIELDING_WIRE_CB" isValue="false"/>
+        <SourceFile name="u8g2Driver/tcMenuU8g2.cpp" />
+        <SourceFile name="u8g2Driver/tcMenuU8g2.h" />
+    </SourceFiles>
+
+    <IncludeFiles>
+        <Header name="tcMenuU8g2.h" inSource="true"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="${DISPLAY_VARIABLE}" type="${DISPLAY_TYPE}" export="only" />
+
+        <Variable name="${DISPLAY_CONFIG}" type="U8g2GfxMenuConfig" export="only" whenProperty="DISPLAY_CONFIG" isNotValue=""/>
+
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="true" export="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="Wire"/>
+        </Variable>
+
+        <Variable name="${DISPLAY_VARIABLE}Drawable" type="U8g2Drawable" whenProperty="YIELDING_WIRE_CB" isValue="false" export="true">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+        </Variable>
+
+        <Variable name="renderer" type="GraphicsDeviceRenderer" export="true">
+            <Param value="30"/>
+            <Param value="applicationInfo.name"/>
+            <Param ref="${DISPLAY_VARIABLE}Drawable"/>
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+
+        <Function name="setGraphicsConfiguration" object="renderer" whenProperty="DISPLAY_CONFIG" isNotValue="">
+            <Param ref="${DISPLAY_VARIABLE}"/>
+            <Param ref="${DISPLAY_CONFIG}"/>
+        </Function>
+
+        <Function object="renderer" name="setUpdatesPerSecond">
+            <Param value="${UPDATES_PER_SEC}"/>
+        </Function>
+    </SetupFunctions>
+</TcMenuPlugin>

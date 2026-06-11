@@ -1,0 +1,45 @@
+<TcMenuPlugin name="Unit test java plugin" id="ed8a4eec-bc37-4ac1-9941-889995601588" subsystem="REMOTE"
+              xmlns="https://www.thecoderscorner.com/libraries/tcmenuPluginItem" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://www.thecoderscorner.com/libraries/tcmenuPluginItem https://www.thecoderscorner.com/arduino-libraries/libraries/tcmenu-plugin-item.xsd">
+    <SupportedPlatforms>
+        <Platform>RASPBERRY_PIJ</Platform>
+    </SupportedPlatforms>
+    <Description>Unit test plugin for Java.</Description>
+    <Documentation link="https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/"/>
+    <RequiredLibraries/>
+    <ImageFile>joystick.jpg</ImageFile>
+
+    <Properties>
+        <Property id="EJ_NET_PORT_NUMBER" name="Port number for connections" initial="3333" type="int" min="1024" max="65000"
+                  desc="The port number for desktop and API embedCONTROL connections"/>
+    </Properties>
+
+    <ApplicabilityDefs/>
+
+    <SourceFiles/>
+
+    <IncludeFiles>
+        <Header name="com.thecoderscorner.menu.remote.protocol.*" inSource="true"/>
+        <Header name="com.thecoderscorner.menu.remote.mgrclient.*" inSource="true"/>
+        <Header name="java.util.concurrent.*" inSource="true"/>
+        <Header name="mvn:com.thecoderscorner.tcmenu/TestDep@1.2.3" inSource="false"/>
+    </IncludeFiles>
+
+    <GlobalVariables>
+        <Variable name="tagVal" type="TagValMenuCommandProtocol" inContext="true" export="true"/>
+
+        <Variable name="socketClient" type="SocketServerConnectionManager" inContext="true" export="false">
+            <Param ref="TagValMenuCommandProtocol.class" name="protocol" type="TagValMenuCommandProtocol"/>
+            <Param ref="ScheduledExecutorService.class" name="executor" type="ScheduledExecutorService"/>
+            <Param value="${EJ_NET_PORT_NUMBER}" name="portNum" type="int" />
+            <Param ref="Clock.class" name="clock" type="Clock" />
+        </Variable>
+    </GlobalVariables>
+
+    <SetupFunctions>
+        <Function name="addConnectionManager" object="manager">
+            <Param value="socketClient"/>
+        </Function>
+        <Function name="unitTestMe" object="tagVal" neverReturns="true"/>
+    </SetupFunctions>
+</TcMenuPlugin>

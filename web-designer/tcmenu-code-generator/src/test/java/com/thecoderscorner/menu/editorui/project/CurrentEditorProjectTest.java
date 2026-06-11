@@ -1,0 +1,127 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+package com.thecoderscorner.menu.editorui.project;
+
+import com.thecoderscorner.menu.domain.BooleanMenuItem;
+import com.thecoderscorner.menu.domain.BooleanMenuItemBuilder;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.editorui.generator.CodeGeneratorOptionsBuilder;
+import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
+import com.thecoderscorner.menu.editorui.util.TestUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import static com.thecoderscorner.menu.editorui.project.EditedItemChange.Command.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class CurrentEditorProjectTest {
+    public static final String FILE_NAME_SIMULATED = "/var/tmp/fileName.emf";
+
+    CurrentEditorProject project;
+    private ProjectPersistor persistor;
+    private BooleanMenuItem item1;
+
+    @BeforeEach
+    public void setUp() {
+        persistor = mock(ProjectPersistor.class);
+        ConfigurationStorage configStore = mock(ConfigurationStorage.class);
+        when(configStore.getVersion()).thenReturn("3.2.0");
+        project = new CurrentEditorProject(persistor, configStore);
+
+        item1 = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
+                .withId(1)
+                .withEepromAddr(12)
+                .withName("name")
+                .withNaming(BooleanMenuItem.BooleanNaming.ON_OFF)
+                .menuItem();
+    }
+
+    @Test
+    public void testInsertFollowedByCleanDown() {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+        assertTrue(project.isDirty());
+        project.newProject();
+        assertFalse(project.isFileNameSet());
+        assertFalse(project.isDirty());
+    }
+
+    @Test
+    public void testAddFollowedByUndo() {
+        project.applyCommand(NEW, item1);
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+        project.undoChange();
+        assertFalse(project.getMenuTree().getMenuById(1).isPresent());
+        project.redoChange();
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+
+        assertTrue(project.isDirty());
+    }
+
+    @Test
+    public void testRemovingItemsThenUndo() {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+        project.applyCommand(REMOVE, item1, MenuTree.ROOT);
+        assertFalse(project.getMenuTree().getMenuById(1).isPresent());
+
+        project.undoChange();
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+    }
+
+    @Test
+    public void testEditingAnItemAndUndoIt() {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+        assertTrue(project.getMenuTree().getMenuById(1).isPresent());
+
+        BooleanMenuItem itemEdit = BooleanMenuItemBuilder.aBooleanMenuItemBuilder()
+                .withExisting(item1)
+                .withName("Hello")
+                .menuItem();
+        project.applyCommand(EDIT, itemEdit, MenuTree.ROOT);
+        Optional<MenuItem> itemReadBack = project.getMenuTree().getMenuById(1);
+        assertTrue(itemReadBack.isPresent());
+        assertEquals("Hello", itemReadBack.get().getName());
+
+        project.undoChange();
+        itemReadBack = project.getMenuTree().getMenuById(1);
+        assertTrue(itemReadBack.isPresent());
+        assertEquals("name", itemReadBack.get().getName());
+    }
+
+    @Test
+    public void testSaving() throws IOException {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+
+        assertEquals("New", project.getFileName());
+        project.setFileName(FILE_NAME_SIMULATED);
+        project.saveProject(CurrentEditorProject.EditorSaveMode.SAVE);
+        assertFalse(project.isDirty());
+        Mockito.verify(persistor).save(eq(FILE_NAME_SIMULATED), eq(""), eq(project.getMenuTree()), eq(project.getGeneratorOptions()), any());
+    }
+
+    @Test
+    public void testOpening() throws IOException {
+        project.applyCommand(NEW, item1, MenuTree.ROOT);
+        MenuTree replacementMenu = TestUtils.buildSimpleTree();
+        Mockito.when(persistor.open(FILE_NAME_SIMULATED)).thenReturn(new MenuTreeWithCodeOptions(
+                replacementMenu, new CodeGeneratorOptionsBuilder().codeOptions(), "my project description"
+        ));
+        project.openProject(FILE_NAME_SIMULATED);
+
+        assertEquals(replacementMenu, project.getMenuTree());
+    }
+}

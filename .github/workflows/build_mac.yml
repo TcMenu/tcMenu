@@ -3,8 +3,6 @@ name: macOS nightly
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   build-macos-binary:
@@ -30,10 +28,10 @@ jobs:
 
     - name: Build tcMenuGenerator binary
       run: |
-        mvn -B install -DskipTests -Dgpg.skip=true --file tcMenuJavaApi/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file embedCONTROLCore/pom.xml
-        mvn -B install -DskipTests -Dgpg.skip=true --file tcMenuGenerator/pom.xml
-        cd tcMenuGenerator/target
+        mvn -B install -DskipTests -Dgpg.skip=true --file api/tcMenuJavaApi/pom.xml
+        mvn -B install -DskipTests -Dgpg.skip=true --file api/embedCONTROLCore/pom.xml
+        mvn -B install -DskipTests -Dgpg.skip=true --file archive/tcMenuGenerator/pom.xml
+        cd archive/tcMenuGenerator/target
         jpackage -n tcMenuDesigner \
                  -p jfx/deps \
                  --input jfx/app \

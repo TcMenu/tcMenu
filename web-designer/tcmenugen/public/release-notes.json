@@ -1,0 +1,53 @@
+[
+  {
+    "release": "4.5.9",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-18",
+    "notes": [
+
+    ]
+  }, {
+    "release": "4.5.8",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-18",
+    "notes": [
+      "Added release notes directly to app, easiest place to track changes",
+      "Recursive naming option now applies to the menu builder code, critical for menu items sharing same name."
+    ]
+  }, {
+    "release": "4.5.7",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-16",
+    "notes": [
+      "Fixes an issue when building for eInk displays with all-in-one mode.",
+      "Fixes an issue with the base theme for palettes."
+    ]
+  }, {
+    "release": "4.5.6",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-15",
+    "notes": [
+      "Revised front page that helps new users to get started, a few small UI/UX improvements.",
+      "Problem with theme builder when not using dynamic eeprom.",
+      "Problem with custom scroll-choice and lists in theme builder."
+    ]
+  }, {
+    "release": "4.5.5",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-11",
+    "notes": [
+      "Start new project wizard now starts with the counter starter loaded into tree",
+      "Start new project now defaults to menu builder in your sketch.",
+      "The counter starter if detected, will add a callback that updates the analog item",
+      "Code generator now fully supports putting menu builder code directly in the INO/main.",
+      "All server-side dependencies brought up to date."
+    ]
+  }, {
+    "release": "4.5.4",
+    "qaStatus": "Production",
+    "dateReleased": "2026-05-01",
+    "notes": [
+      "First proper and full release"
+    ]
+  }
+]

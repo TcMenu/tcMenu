@@ -1,0 +1,89 @@
+/*
+ * Copyright (c)  2016-2019 https://www.thecoderscorner.com (Dave Cherry).
+ * This product is licensed under an Apache license, see the LICENSE file in the top-level directory.
+ *
+ */
+
+.eepromEntry {
+  -fx-background-color: #50e550;
+  -fx-text-fill: black;
+}
+.brokenEeprom {
+  -fx-background-color: #ff2222;
+  -fx-text-fill: white;
+}
+
+.item-title {
+  -fx-font-weight: bold;
+}
+
+.lcdDisplayTextArea .content {
+  -fx-background-color: #1d67c7;
+  -fx-text-fill: white;
+}
+
+.lcdDisplayTextArea .content:hover {
+  -fx-background-color: #1d67c7;
+  -fx-text-fill: white;
+}
+
+.lcdDisplayTextArea .content:selected {
+  -fx-background-color: #1d67c7;
+  -fx-text-fill: white;
+}
+
+.lcdDisplayTextArea  {
+  -fx-background-color: #1d1d1d;
+  -fx-font-family: Monospaced;
+  -fx-font-size: 130%;
+  -fx-text-fill: white;
+}
+
+.label-bright {
+  -fx-opacity: 1.0;
+  -fx-font-size: 160%;
+}
+
+.libsOK {
+  -fx-background-color: #43cb43;
+  -fx-text-fill: #000;
+  -fx-border-color: #303030;
+  -fx-border-width: 1px;
+  -fx-padding: 4;
+}
+
+.libsNotOK {
+  -fx-padding: 4;
+  -fx-font-weight: bold;
+  -fx-text-fill: white;
+  -fx-background-color: #c01620;
+  -fx-border-color: #040404;
+  -fx-border-width: 1px;
+}
+
+.uiCodeGen {
+  -fx-background-color: #f6edff;
+  -fx-padding: 3px;
+  -fx-border-width: 1px;
+  -fx-border-style: solid;
+  -fx-border-color: #4a4252
+}
+
+#uiItemErrors {
+  -fx-font-weight: bold;
+  -fx-padding: 4;
+}
+
+.popupWindow {
+  -fx-background-color: #f4f0ff;
+  -fx-border-style: solid;
+  -fx-border-color: black;
+  -fx-border-width: 1px;
+  -fx-border-insets: 2px;
+  -fx-background-insets: 2px;
+  -fx-padding: 5px;
+}
+
+.text-field {
+  -right-button-visible: false;
+}
