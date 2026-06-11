@@ -49,4 +49,4 @@ jobs:
       with:
         name: tcmenudesigner_${{ env.version }}_macos-${{ github.sha }}
         path: |
-          tcMenuGenerator/target/tcMenuDesigner-${{ env.version }}.dmg
+          archive/tcMenuGenerator/target/tcMenuDesigner-${{ env.version }}.dmg

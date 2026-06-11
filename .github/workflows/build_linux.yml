@@ -51,4 +51,4 @@ jobs:
       with:
         name: tcmenudesigner_${{ env.version }}_linux_deb-${{ github.sha }}
         path: |
-          tcMenuGenerator/target/tcmenudesigner_${{ env.version }}_amd64.deb
+          archive/tcMenuGenerator/target/tcmenudesigner_${{ env.version }}_amd64.deb

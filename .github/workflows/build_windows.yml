@@ -62,10 +62,10 @@ jobs:
       shell: bash
       run: |
         mkdir -p packaged/app
-        cp tcMenuGenerator/target/tcmenu/tcmenu.exe packaged/
-        cp tcMenuGenerator/target/tcmenu/app/tcmenu.cfg packaged/app/
-        cp tcMenuGenerator/target/tcMenuDesigner/tcMenuDesigner.exe packaged/
-        cp tcMenuGenerator/target/tcMenuDesigner/app/tcMenuDesigner.cfg packaged/app/
+        cp archive/tcMenuGenerator/target/tcmenu/tcmenu.exe packaged/
+        cp archive/tcMenuGenerator/target/tcmenu/app/tcmenu.cfg packaged/app/
+        cp archive/tcMenuGenerator/target/tcMenuDesigner/tcMenuDesigner.exe packaged/
+        cp archive/tcMenuGenerator/target/tcMenuDesigner/app/tcMenuDesigner.cfg packaged/app/
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
