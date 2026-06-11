@@ -10,7 +10,9 @@ A menu library and designer UI for Arduino and mbed that is modular enough to su
 
 https://github.com/user-attachments/assets/cdd26e29-db7b-444f-b681-079de567a04e
 
-Initially, the quickest way to get started is using the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non-destructive on the sketch file, so can be round tripped during development. 
+Get started building your menu right away using [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. 
+
+Think of the designer like a form designer in the desktop domain. Furthermore, It's non-destructive on the sketch file, so can be round tripped during development. 
 
 TcMenu organisation invests a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost-neutral to me by using either option to sponsor the project.
 
