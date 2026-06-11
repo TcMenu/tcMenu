@@ -10,7 +10,6 @@
 
 A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
-https://github.com/TcMenu/tcMenu/raw/main/zMedia/TurboQuickStart.mp4
 
 Initially, the quickest way to get started is using the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
 
