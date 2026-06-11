@@ -10,7 +10,9 @@
 
 A menu library and designer UI for Arduino and mbed that is modular enough to support different input methods, display modules and IoT / remote control methods. TcMenu is more than just an Arduino menu library, think of it as a framework for building IoT applications that includes the ability to render menus locally onto a display.
 
-Initially, you can use the menu designer UI that is packaged with every release, and available for Windows, macOS, and Linux. The designer UI takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
+https://github.com/TcMenu/tcMenu/raw/main/zMedia/TurboQuickStart.mp4
+
+Initially, the quickest way to get started is using the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com), it takes care of building the core menu code and putting any callback functions into your sketch file. Think of the designer like a form designer in the desktop domain. Furthermore, It's non destructive on the sketch file, so can be round tripped during development. 
 
 TcMenu organisation invest a lot of time and resources into making this open source product which is used by literally thousands of users. Releasing a UI, renting server space cost more than you'd think. Please consider at least making this project cost neutral to me by using either option to sponsor the project.
 
@@ -22,9 +24,9 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Documentation
 
-* [UI user guide, getting started and other documentation](https://tcmenu.github.io/documentation/arduino-libraries/tc-menu/)
+* [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 * [TcMenu API Examples and Project Starters repository](https://github.com/TcMenu/tcmenu-examples-starters)
-* [Full API embedded documentation](https://tcmenu.github.io/documentation/ref-docs/tcmenu/html/index.html)
+* [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)
 * [YouTube getting started Part 1](https://youtu.be/ucFqpzMss-4) 
 
 ## Questions, community forum and support
@@ -34,32 +36,26 @@ Community questions can be asked in the discussions section of this repo, or usi
 * Discussions section of this git repo (available from top menu of github page).
 * [Arduino discussion forum](https://forum.arduino.cc/) where questions can be asked, please tag me using `@davetcc`.
 
-## Try the web designer that's now being tested
+## Getting Started: TcMenu Designer Turbo (Web-Based)
 
-We're slowly transitioning to the designer being a web based tool. It can already generate nearly all existing menu, handle all existing plugins, and in addition supports a new fluent mode where the output is much cleaner.
+The easiest and fastest way to build your first menu is using our web-based designer. It can generate nearly all existing menu, handle all existing plugins, and supports a new fluent mode where the output is much cleaner.
+
+* [Open Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com)
+* [Documentation and starter page for Designer Turbo](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
 
 **Note for All-In-One or Fluent API mode you need to use TcMenu Library as 4.5.x.**
 
-* [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com)
-* [Documentation and starter page for Designer Turbo](https://www.thecoderscorner.com/products/apps/tcmenu-designer/)
-
-## Packaged installation for Windows, Linux, and MacOS.
-
-Releases are directly available from the releases page, there is a signed Windows version, notarized macOS version, and a package for Linux:
-
-[Get the latest TcMenu Designer release](https://github.com/TcMenu/tcMenu/releases)
-
-Although most will use the above packages, it's also possible to build from source, full instructions are in the tcMenuGenerator folder. We ask that you only build from source for your own use.
-
-Here's a couple of screen-shots of the designer UI - runs on Windows, macOS and Linux:
-
-![Menu designer for Arduino](zMedia/design-menu-for-arduino.jpg)
-
-## Generating a menu from the UI for the impatient
+### Quick Start for the impatient
 
 Open the [Web based TcMenu Designer Turbo](https://designer.thecoderscorner.com) and either drag an example EMF file into it, or start a new project. Once you got an open project, you'll see the menu tree structure on the left, and the details for each menu when selected on the right. Below the menu tree are buttons that manage items in the menu tree. 
 
 Once you've arranged your menu using the UI how you'd like it, go to the "Generate" tab at the top, choose appropriate hardware arrangements and hit generate. This will provide a zip with your new project.
+
+## Desktop Designer (Optional / Offline Use)
+
+While the web designer is now strongly recommended, and we've archived the desktop app. It is still packaged for installation on Windows, Linux, and MacOS for those who can't or prefer not to move over to the web designer.
+
+Historic 4.4 releases are directly available from the [releases page](https://github.com/TcMenu/tcMenu/releases), where there is a signed Windows version, notarized macOS version, and a package for Linux. There are also nightly builds in the repository – see the badges at the top. 
 
 ## Libraries required for tcMenu
 
@@ -85,17 +81,13 @@ TcMenu supports different boards and build tools. It is possible to use it direc
 
 ### Licenses and usage
 
-All components of tcMenu other than the Web Designer are licensed under Apache 2.0.
+All components of tcMenu other than the Web Designer and the bitmap/font editor are licensed under Apache 2.0.
 
-The tcMenu Web Designer is licensed under Apache 2.0 with the Commons Clause.
+The tcMenu Web Designer and bitmap/font editor are licensed under Apache 2.0 with the Commons Clause. See [LICENCES.md]
 
-• Makers, hobbyists, and individuals may use, modify, and self‑host the Web Designer freely.
-• Companies may use the Web Designer internally at no cost.
-• Commercial redistribution, SaaS hosting, embedding into commercial tools, or selling products whose value derives from the Web Designer requires a commercial licence.
+But in summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and bitmap/font editor are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
 
-In summary, tcMenu continues to be fully open source under Apache 2.0. The new Web Designer and certain high‑performance plugins are now released under a protected licence. This keeps them free for makers, hobbyists, and internal company use, while requiring a commercial licence for redistribution, SaaS hosting, or embedding into paid products.
-
-The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer.
+The goal is straightforward: keep tcMenu open and accessible, while ensuring the long‑term sustainability of the project and preventing commercial misuse of the Designer components.
 
 ## Input and display technologies
 
