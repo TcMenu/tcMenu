@@ -24,7 +24,7 @@ jobs:
       shell: bash
       run: |
         version=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
-                  -Dexpression=project.version -q -DforceStdout --file tcMenuGenerator/pom.xml)
+                  -Dexpression=project.version -q -DforceStdout --file archive/tcMenuGenerator/pom.xml)
         echo "version=$version" >> $GITHUB_ENV
 
     - name: Build tcMenuGenerator binaries
