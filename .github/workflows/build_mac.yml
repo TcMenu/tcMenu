@@ -44,8 +44,9 @@ jobs:
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
         jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
-            --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
-            --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
+            --icon ./classes/img/AppIcon.icns \
+            --app-version 99.99.99 --verbose \
+            --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/mac' \
             --add-modules "jdk.crypto.cryptoki" \
             -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 

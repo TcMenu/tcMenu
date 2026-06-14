@@ -53,10 +53,15 @@ jobs:
                  -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
 
     - name: Build Bitmap and Font editor
+      shell: bash
       run: |
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
-       
+        jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
+              --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
+              --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
+              --add-modules "jdk.crypto.cryptoki" \
+              -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 
     - name: Package EXE and config files
       shell: bash
@@ -66,11 +71,6 @@ jobs:
         cp archive/tcMenuGenerator/target/tcmenu/app/tcmenu.cfg packaged/app/
         cp archive/tcMenuGenerator/target/tcMenuDesigner/tcMenuDesigner.exe packaged/
         cp archive/tcMenuGenerator/target/tcMenuDesigner/app/tcMenuDesigner.cfg packaged/app/
-        jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
-              --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
-              --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
-              --add-modules "jdk.crypto.cryptoki" \
-              -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
