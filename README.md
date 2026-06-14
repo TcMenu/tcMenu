@@ -3,7 +3,6 @@
 [![Linux nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml)
 [![macOS nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml)
 [![Windows nightly](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml/badge.svg)](https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml)
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/TcMenu/tcMenu/blob/main/LICENSE)
 
 [Build your menu now with web designer](https://designer.thecoderscorner.com)
 
