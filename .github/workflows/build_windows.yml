@@ -85,7 +85,7 @@ jobs:
       with:
         name: BitMapEdit_NIGHTLY_windows_exe-${{ github.sha }}.exe
         path: |
-          archive/font-bmp-editor/target/BitMapEdit/BitMapEdit.exe
+          font-bmp-editor/target/BitMapEdit/BitMapEdit.exe
           
           
           
