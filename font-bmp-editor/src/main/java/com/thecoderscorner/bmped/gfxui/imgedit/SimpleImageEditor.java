@@ -89,7 +89,7 @@ public class SimpleImageEditor {
         var closeButton = new Button("Close");
         closeButton.setOnAction(_ -> {
             if(editingMode == EditingMode.BITMAP_EDITOR &&  canvas.isDirty()) {
-                if(editorUI.questionYesNo("Image not saved?", "The image has been changed, do you want to save?")) {
+                if(shouldBackupImage(editorUI)) {
                     saveContents();
                 }
             }
@@ -147,13 +147,20 @@ public class SimpleImageEditor {
         stage.setTitle("Bitmap Editor %s %d x %d".formatted(shortFmtText(format), bitmap.getPixelWidth(), bitmap.getPixelHeight()));
         stage.setOnCloseRequest(_ -> {
             if(editingMode == EditingMode.BITMAP_EDITOR && canvas.isDirty()) {
-                if(editorUI.questionYesNo("Save Image?", "The image is dirty do you want to save?")) {
+                if(shouldBackupImage(editorUI)) {
                     saveContents();
                 }
             }
         });
         stage.showAndWait();
         return canvas.isChanged();
+    }
+
+    private static boolean shouldBackupImage(BmpEditorUI editorUI) {
+        return editorUI.questionYesNo(
+                "Keep backup of edited image?",
+                "Embedded images are saved as headers and can't be reloaded, " +
+                        "would you like to save a PNG copy?");
     }
 
     private void changeShape(ImageDrawingGrid.DrawingMode drawingMode) {

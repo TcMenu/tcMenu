@@ -232,32 +232,49 @@ public class CreateFontUtilityController {
 
     private boolean shouldOverwrite() {
         if(!dirty) return true;
-        if(editorUI.questionYesNo("%font.create.changed.title", "%font.create.changed.content")) {
+        if(editorUI.questionYesNo("Font has changed", "The font has changed, proceeding will lose the changes?")) {
             dirty = false;
             return true;
         } else return false;
     }
 
     private void previewNativeFont(UnicodeBlockMapping mapping, List<FontGlyphDataControl> glyphs) {
-        int totalWidth = Math.max(1, glyphs.stream().filter(FontGlyphDataControl::isSelected)
-                .map(d -> d.getData().getPixelWidth()).reduce(0, Integer::sum));
-        int maxHeight = glyphs.stream().map(d -> d.getData().getPixelHeight()).max(Integer::compareTo).orElse(1);
-        NativeBmpBitPacker packer = new NativeBmpBitPacker(320, maxHeight * ((totalWidth / 320) + 1), false);
+        int totalWidth = 0;
+        int maxHeight = 1;
+        int yAdvance = embeddedFont.getYAdvance();
+        int currentX = 0;
+        int numLines = 1;
+
+        for (var g : glyphs) {
+            if (!g.isSelected()) continue;
+            var glyph = g.glyph;
+            int gWidth = glyph.calculatedWidth();
+            if (currentX + gWidth > 640) {
+                currentX = 0;
+                numLines++;
+            }
+            currentX += gWidth;
+            maxHeight = Math.max(maxHeight, glyph.data().getPixelHeight());
+        }
+
+        int packerHeight = (numLines + 1) * yAdvance;
+        NativeBmpBitPacker packer = new NativeBmpBitPacker(320, packerHeight, false);
         SimpleImagePane e = new SimpleImagePane(packer, NativePixelFormat.MONO_BITMAP, false, BitmapImportPopup.EMPTY_PALETTE, List.of());
-        e.getDrawingGrid().setTextCursor(0,0);
+        e.getDrawingGrid().setTextCursor(0, 0);
         e.getDrawingGrid().setFont(embeddedFont);
         e.getDrawingGrid().setCurrentColor(1);
-        for(var g : glyphs) {
-            if(!g.isSelected()) continue;
+        for (var g : glyphs) {
+            if (!g.isSelected()) continue;
             e.getDrawingGrid().printChar(g.glyph.code());
         }
 
         var popup = new Popup();
         var vbox = new VBox(4);
-        vbox.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
+        vbox.getStyleClass().add("popup-content");
+        vbox.setStyle("-fx-background-color: -fx-control-inner-background; -fx-border-style: solid; -fx-border-color: -fx-box-border; -fx-border-width: 1; -fx-padding: 10; -fx-font-size: " + GlobalSettings.defaultFontSize());
 
         e.setPrefWidth(640);
-        e.setPrefHeight(maxHeight * 2);
+        e.setPrefHeight(packerHeight + 40); // extra space for the label at the top of SimpleImagePane
 
         var title = new Label("Glyphs in %s range %d-%d".formatted(mapping.name(), mapping.getStartingCode(), mapping.getEndingCode()));
         var closeBtn = new Button("Close");
@@ -328,7 +345,8 @@ public class CreateFontUtilityController {
 
             var box = new VBox(4);
             box.setFillWidth(true);
-            box.setStyle("-fx-font-size: " + GlobalSettings.defaultFontSize());
+            box.getStyleClass().add("popup-content");
+            box.setStyle("-fx-background-color: -fx-control-inner-background; -fx-border-style: solid; -fx-border-color: -fx-box-border; -fx-border-width: 1; -fx-padding: 6; -fx-font-size: " + GlobalSettings.defaultFontSize());
             var editButton = new Button("Edit Glyph U" + glyph.code());
             editButton.setMaxWidth(99999);
             editButton.setOnAction(_ -> {
@@ -352,12 +370,9 @@ public class CreateFontUtilityController {
             var closeButton = new Button("Close");
             closeButton.setMaxWidth(99999);
             closeButton.setOnAction(_ -> popup.hide());
-            box.setStyle("-fx-background-color: #1f1a1a;-fx-border-style: solid;-fx-border-color: black;-fx-border-width: 2;-fx-background-insets: 6;-fx-padding: 10;-fx-font-size: " + GlobalSettings.defaultFontSize());
             box.getChildren().addAll(selectButton, editButton, closeButton);
             popup.getContent().add(box);
-            popup.show(pane.getScene().getWindow());
-            popup.setX(mouseEvent.getScreenX());
-            popup.setY(mouseEvent.getScreenY());
+            popup.show(pane.getScene().getWindow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
         }
     }
 }

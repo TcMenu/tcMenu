@@ -17,8 +17,8 @@ import java.util.function.BiConsumer;
  */
 public class ImageDrawingGrid extends Canvas {
     public enum DrawingMode { NONE, DOT, LINE, OUTLINE_RECT, FILLED_RECT, OUTLINE_CIRCLE, FLOOD_FILL, SELECTION }
-    private final BmpDataManager bitmap;
-    private final PortablePalette palette;
+    private BmpDataManager bitmap;
+    private PortablePalette palette;
     private final boolean editMode;
     private BiConsumer<Integer, Integer> positionConsumer;
     private DrawingMode mode = DrawingMode.NONE;
@@ -45,6 +45,11 @@ public class ImageDrawingGrid extends Canvas {
                 xStart = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yStart = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
                 mode = currentShape == DrawingMode.FLOOD_FILL ? DrawingMode.FLOOD_FILL : DrawingMode.DOT;
+                if(currentShape == DrawingMode.DOT) {
+                    recordChange();
+                    bitmap.setDataAt(xStart, yStart, colorIndex);
+                    onPaintSurface(getGraphicsContext2D());
+                }
             });
 
             setOnMouseDragged(event -> {
@@ -52,9 +57,11 @@ public class ImageDrawingGrid extends Canvas {
 
                 xNow = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 yNow = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
-                if (xNow  > bitmap.getPixelWidth() || yNow > bitmap.getPixelHeight()) return;
+                if (xNow  >= bitmap.getPixelWidth() || yNow >= bitmap.getPixelHeight() || xNow < 0 || yNow < 0) return;
                 if(mode == DrawingMode.SELECTION) {
                     imageSelection = new OrderedRect(xStart, yStart, xNow, yNow);
+                } else if(mode == DrawingMode.DOT) {
+                    bitmap.setDataAt(xNow, yNow, colorIndex);
                 }
 
                 onPaintSurface(getGraphicsContext2D());
@@ -71,11 +78,9 @@ public class ImageDrawingGrid extends Canvas {
             setOnMouseReleased(event -> {
                 int xEnd = (int) (event.getX() / fitWidth * bitmap.getPixelWidth());
                 int yEnd = (int) (event.getY() / fitHeight * bitmap.getPixelHeight());
-                if (xEnd >= bitmap.getPixelWidth() || yEnd >= bitmap.getPixelHeight()) return;
+                if (xEnd >= bitmap.getPixelWidth() || yEnd >= bitmap.getPixelHeight() || xEnd < 0 || yEnd < 0) return;
                 if(mode == DrawingMode.DOT) {
-                    recordChange();
                     bitmap.setDataAt(xEnd, yEnd, colorIndex);
-                    onPaintSurface(getGraphicsContext2D());
                 } else if(mode == DrawingMode.FILLED_RECT) {
                     recordChange();
                     filledRectangle(bitmap, xStart, yStart, xEnd, yEnd);
@@ -111,24 +116,28 @@ public class ImageDrawingGrid extends Canvas {
         floodFill(x  + 1, y, startingCol);
     }
 
-    public void drawBoxOutline(int xEnd, int yEnd) {
-        drawLine(xStart, yStart, xEnd, yStart);
-        drawLine(xEnd, yStart, xEnd, yEnd);
-        drawLine(xStart, yEnd, xEnd, yEnd);
-        drawLine(xStart, yStart, xStart, yEnd);
+    public void drawBoxOutline(BmpDataManager bitmapToDraw, int xStart, int yStart, int xEnd, int yEnd) {
+        drawLine(bitmapToDraw, xStart, yStart, xEnd, yStart);
+        drawLine(bitmapToDraw, xEnd, yStart, xEnd, yEnd);
+        drawLine(bitmapToDraw, xStart, yEnd, xEnd, yEnd);
+        drawLine(bitmapToDraw, xStart, yStart, xStart, yEnd);
     }
 
-    public void drawCircle(int x0, int y0, int r) {
+    public void drawBoxOutline(int xEnd, int yEnd) {
+        drawBoxOutline(bitmap, xStart, yStart, xEnd, yEnd);
+    }
+
+    public void drawCircle(BmpDataManager bitmapToDraw, int x0, int y0, int r) {
         int f = 1 - r;
         int ddF_x = 1;
         int ddF_y = -2 * r;
         int x = 0;
         int y = r;
 
-        bitmap.setDataAt(x0, y0 + r, colorIndex);
-        bitmap.setDataAt(x0, y0 - r, colorIndex);
-        bitmap.setDataAt(x0 + r, y0, colorIndex);
-        bitmap.setDataAt(x0 - r, y0, colorIndex);
+        bitmapToDraw.setDataAt(x0, y0 + r, colorIndex);
+        bitmapToDraw.setDataAt(x0, y0 - r, colorIndex);
+        bitmapToDraw.setDataAt(x0 + r, y0, colorIndex);
+        bitmapToDraw.setDataAt(x0 - r, y0, colorIndex);
 
         while (x < y) {
             if (f >= 0) {
@@ -140,15 +149,19 @@ public class ImageDrawingGrid extends Canvas {
             ddF_x += 2;
             f += ddF_x;
 
-            bitmap.setDataAt(x0 + x, y0 + y, colorIndex);
-            bitmap.setDataAt(x0 - x, y0 + y, colorIndex);
-            bitmap.setDataAt(x0 + x, y0 - y, colorIndex);
-            bitmap.setDataAt(x0 - x, y0 - y, colorIndex);
-            bitmap.setDataAt(x0 + y, y0 + x, colorIndex);
-            bitmap.setDataAt(x0 - y, y0 + x, colorIndex);
-            bitmap.setDataAt(x0 + y, y0 - x, colorIndex);
-            bitmap.setDataAt(x0 - y, y0 - x, colorIndex);
+            bitmapToDraw.setDataAt(x0 + x, y0 + y, colorIndex);
+            bitmapToDraw.setDataAt(x0 - x, y0 + y, colorIndex);
+            bitmapToDraw.setDataAt(x0 + x, y0 - y, colorIndex);
+            bitmapToDraw.setDataAt(x0 - x, y0 - y, colorIndex);
+            bitmapToDraw.setDataAt(x0 + y, y0 + x, colorIndex);
+            bitmapToDraw.setDataAt(x0 - y, y0 + x, colorIndex);
+            bitmapToDraw.setDataAt(x0 + y, y0 - x, colorIndex);
+            bitmapToDraw.setDataAt(x0 - y, y0 - x, colorIndex);
         }
+    }
+
+    public void drawCircle(int x0, int y0, int r) {
+        drawCircle(bitmap, x0, y0, r);
     }
 
     private void recordChange() {
@@ -181,7 +194,7 @@ public class ImageDrawingGrid extends Canvas {
         }
     }
 
-    public void drawLine(int x0, int y0, int x1, int y1) {
+    public void drawLine(BmpDataManager bitmapToDraw, int x0, int y0, int x1, int y1) {
         // roughly copied from Adafruit_GFX, Thanks!
         boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
         if (steep) {
@@ -219,9 +232,9 @@ public class ImageDrawingGrid extends Canvas {
 
         for (; x0 <= x1; x0++) {
             if (steep) {
-                bitmap.setDataAt(y0, x0, colorIndex);
+                bitmapToDraw.setDataAt(y0, x0, colorIndex);
             } else {
-                bitmap.setDataAt(x0, y0, colorIndex);
+                bitmapToDraw.setDataAt(x0, y0, colorIndex);
             }
             err -= dy;
             if (err < 0) {
@@ -229,6 +242,10 @@ public class ImageDrawingGrid extends Canvas {
                 err += dx;
             }
         }
+    }
+
+    public void drawLine(int x0, int y0, int x1, int y1) {
+        drawLine(bitmap, x0, y0, x1, y1);
     }
 
     public void setCurrentColor(int paletteIdx) {
@@ -267,16 +284,26 @@ public class ImageDrawingGrid extends Canvas {
 
         if(!editMode) return;
 
-        gc.setStroke(Color.BLUE);
-        gc.setLineWidth(3);
-        gc.setLineDashes(10, 3);
-
-        double wid = ((xNow - xStart) + 1) * perSquareX;
-        double hei = ((yNow - yStart) + 1) * perSquareY;
-        if(mode == DrawingMode.FILLED_RECT || mode == DrawingMode.OUTLINE_RECT || mode == DrawingMode.OUTLINE_CIRCLE) {
-            gc.strokeRect(xStart * perSquareX, yStart * perSquareY, wid, hei);
-        } else if(mode == DrawingMode.LINE) {
-            gc.strokeLine(xStart * perSquareX, yStart * perSquareY, xNow * perSquareX, yNow * perSquareY);
+        if(mode == DrawingMode.FILLED_RECT || mode == DrawingMode.OUTLINE_RECT || mode == DrawingMode.OUTLINE_CIRCLE || mode == DrawingMode.LINE) {
+            gc.setFill(ControlColor.asFxColor(palette.getColorAt(colorIndex)));
+            var tempBmp = bitmap.createNew(bitmap.getPixelWidth(), bitmap.getPixelHeight());
+            if(mode == DrawingMode.LINE) {
+                drawLine(tempBmp, xStart, yStart, xNow, yNow);
+            } else if(mode == DrawingMode.FILLED_RECT) {
+                filledRectangle(tempBmp, xStart, yStart, xNow, yNow);
+            } else if(mode == DrawingMode.OUTLINE_RECT) {
+                drawBoxOutline(tempBmp, xStart, yStart, xNow, yNow);
+            } else if(mode == DrawingMode.OUTLINE_CIRCLE) {
+                int halfX = (xNow - xStart) / 2;
+                drawCircle(tempBmp, xStart + halfX, yStart + halfX, halfX);
+            }
+            for (int y = 0; y < tempBmp.getPixelHeight(); y++) {
+                for (int x = 0; x < tempBmp.getPixelWidth(); x++) {
+                    if(tempBmp.getDataAt(x, y) != 0) {
+                        gc.fillRect(x * perSquareX, y * perSquareY, perSquareX + 0.6, perSquareY + 0.6);
+                    }
+                }
+            }
         } else if(currentShape == DrawingMode.SELECTION && imageSelection != null) {
             gc.setStroke(Color.GREENYELLOW);
             gc.setLineWidth(4);
@@ -353,12 +380,17 @@ public class ImageDrawingGrid extends Canvas {
         this.embeddedFont = font;
     }
 
+    public void setBitmap(BmpDataManager bitmap, PortablePalette palette) {
+        this.bitmap = bitmap;
+        this.palette = palette;
+    }
+
     public void printChar(int code) {
         if(embeddedFont == null) return;
         var g = embeddedFont.getGlyph(code);
         if(g == null) return;
 
-        if(cursorX + g.calculatedWidth() > 320) {
+        if(cursorX + g.calculatedWidth() > bitmap.getPixelWidth()) {
             cursorX = 0;
             cursorY += embeddedFont.getYAdvance();
         }

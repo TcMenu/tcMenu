@@ -10,7 +10,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="EmbeddedJavaDemo" />
         <module name="embeddedJavaExample" />
-        <module name="menuEditorUI (1)" />
         <module name="embedCONTROLCore" />
         <module name="tcMenuJavaAPI" />
         <module name="menuEditorUI" />
@@ -29,6 +28,7 @@
     <bytecodeTargetLevel>
       <module name="embedCONTROLFx" target="20" />
       <module name="EmbeddedJavaDemo" target="22" />
+      <module name="menuEditorUI (1)" target="25" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
