@@ -66,4 +66,4 @@ jobs:
       with:
         name: bitmapedit-NIGHTLY_macos-${{ github.sha }}.dmg
         path: |
-          font-bmp-editor/target/bitmapedit-99.99.99_amd64.deb
+          font-bmp-editor/target/bitmapedit_99.99.99_amd64.deb

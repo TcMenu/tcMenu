@@ -57,6 +57,7 @@ jobs:
       run: |
         mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
         cd font-bmp-editor/target
+        cp classes/img/tcMenuDesigner.ico .
         jpackage --type app-image -n BitMapEdit -p jfx/deps --input jfx/app  \
               --resource-dir .\classes\img\ --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
               --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/win' \
