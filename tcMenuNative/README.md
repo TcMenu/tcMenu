@@ -6,15 +6,19 @@ Once you've built a release build, it is your responsibility to test it, and tha
 
 Once it is tested, replace the output DLL/DynLib/so file in the packaged directory.
 
-## Windows
+## Windows and MacOS
 
-Use the Visual Studio toolchain as the dependencies it creates are on nearly all Windows boxes.
+On Windows use the Visual Studio toolchain as the dependencies it creates are on nearly all Windows boxes.
 
-First you need a statically linked version of the freetype library, this is generally achieved by building the free type source with the static linking options enabled.
+On MacOS use the standard apple toolchain for the same reason.
 
-## MacOS
+First, you need a statically linked version of the freetype library, this is generally achieved by building the free type source with the static linking options enabled.
 
-Ensure XCode is installed. Beyond this the library should build in release mode with no further options
+Now indicate where to find the includes as an option:
+
+    -FREETYPE_DIR=/myUserDir/source/freetype/include
+
+Make sure that you build a release version, it will be 10x smaller than a debug build.
 
 ## Linux Ubuntu
 
