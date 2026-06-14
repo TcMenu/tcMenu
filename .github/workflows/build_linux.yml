@@ -8,6 +8,8 @@ jobs:
   build-linux-binary:
 
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
     - uses: actions/checkout@v4
@@ -18,13 +20,6 @@ jobs:
         java-version: '25'
         distribution: 'liberica'
         cache: maven
-
-    - name: Extract version from Maven cache
-      id: get-version
-      run: |
-        version=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
-                  -Dexpression=project.version -q -DforceStdout --file archive/tcMenuGenerator/pom.xml)
-        echo "version=$version" >> $GITHUB_ENV
 
     - name: Build tcMenuGenerator binary
       run: |
@@ -42,13 +37,33 @@ jobs:
                  --linux-app-category Development \
                  --linux-menu-group "Development;Utility;" \
                  --java-options "-Dprism.lcdtext=false -Djava.library.path=$APPDIR/lin" \
-                 --app-version ${{ env.version }} \
+                 --app-version 99.99.99 \
                  --add-modules "jdk.crypto.cryptoki" \
                  -m com.thecoderscorner.tcmenu.menuEditorUI/com.thecoderscorner.menu.editorui.cli.TcMenuDesignerCmd
+
+    - name: Build Bitmap and Font editor
+      run: |
+        mvn -B install -DskipTests -Dgpg.skip=true --file font-bmp-editor/pom.xml
+        cd font-bmp-editor/target
+        jpackage -n BitMapEdit -p jfx/deps --input jfx/app  \ 
+              --icon tcMenuDesigner.ico --app-version 99.99.99 --verbose \
+              --java-options '-Dprism.lcdtext=false  -Djava.library.path=$APPDIR/deb' \
+              --add-modules "jdk.crypto.cryptoki" \
+              --linux-app-category Development \
+              --linux-menu-group "Development;Utility;" \
+              -m com.thecoderscorner.bmped/com.thecoderscorner.bmped.BitMapEditApp
+
 
     - name: Upload DEB artifact
       uses: actions/upload-artifact@v4
       with:
-        name: tcmenudesigner_${{ env.version }}_linux_deb-${{ github.sha }}
+        name: tcmenudesigner_NIGHTLY_linux_deb-${{ github.sha }}
         path: |
-          archive/tcMenuGenerator/target/tcmenudesigner_${{ env.version }}_amd64.deb
+          archive/tcMenuGenerator/target/tcmenudesigner_99.99.99_amd64.deb
+
+    - name: Upload macOS BitmapFontEditor artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bitmapedit-NIGHTLY_macos-${{ github.sha }}.dmg
+        path: |
+          font-bmp-editor/target/bitmapedit-99.99.99_amd64.deb
