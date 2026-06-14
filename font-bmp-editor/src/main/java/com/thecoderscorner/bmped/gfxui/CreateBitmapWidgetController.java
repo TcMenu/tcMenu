@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +193,7 @@ public class CreateBitmapWidgetController {
     }
 
     private void writeOutTitleWidget(PrintStream fileOut) throws IOException {
-        var exporter = new NativeBitmapExporter();
+        var exporter = new NativeBitmapExporter(Clock.systemDefaultZone());
         for(var li : loadedImages) {
             exporter.addImageToExport(li);
         }
@@ -206,7 +207,7 @@ public class CreateBitmapWidgetController {
             return;
         }
 
-        var exporter = new NativeBitmapExporter();
+        var exporter = new NativeBitmapExporter(Clock.systemDefaultZone());
         for(var li : loadedImages) {
             exporter.addImageToExport(li);
         }

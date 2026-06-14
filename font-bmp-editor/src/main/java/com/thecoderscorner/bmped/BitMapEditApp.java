@@ -1,6 +1,7 @@
 package com.thecoderscorner.bmped;
 
 import com.thecoderscorner.bmped.controller.MainWindowController;
+import com.thecoderscorner.bmped.util.AppDirectories;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,6 +10,9 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,17 +46,15 @@ public class BitMapEditApp extends Application {
 
     }
 
-    private void startUpLogging() {
-        var tcMenuHome = Paths.get(System.getProperty("user.home"), ".tcmenu");
+    private void startUpLogging() throws IOException {
+        var logDirectory = AppDirectories.logDirectory("BmpFontEd");
         var logName = System.getProperty("devlog") != null ? "dev-logging" : "logging";
-        var inputStream = getClass().getResourceAsStream("/logconf/" + logName + ".properties");
-        try
-        {
-            Path menuDir = tcMenuHome.resolve(".tcmenu/logs");
-            if(!Files.exists(menuDir)) {
-                Files.createDirectories(menuDir);
-            }
 
+        try(var logConfData = getClass().getResourceAsStream("/logconf/" + logName + ".properties")){
+            byte[] logConfBytes = logConfData.readAllBytes();
+            var logData = new String(logConfBytes, StandardCharsets.UTF_8);
+            logData = logData.replace("%EXPECTED_DIR%", logDirectory.toString());
+            var inputStream = new ByteArrayInputStream(logData.getBytes(StandardCharsets.UTF_8));
             LogManager.getLogManager().readConfiguration(inputStream);
         }
         catch (Exception e)

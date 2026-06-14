@@ -22,8 +22,8 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
-        <module name="tcmenu-web-generator" />
         <module name="tcmenu-code-generator" />
+        <module name="tcmenu-web-generator" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

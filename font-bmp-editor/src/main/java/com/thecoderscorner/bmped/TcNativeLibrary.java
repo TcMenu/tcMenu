@@ -6,8 +6,8 @@ import java.lang.foreign.Linker;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
-import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicReference;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * TcNative wraps the tcNativeLibrary functions to make it easier to use in more than one place in the code, and remove
@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class TcNativeLibrary {
     private final static System.Logger logger = System.getLogger(TcNativeLibrary.class.getSimpleName());
-    private final static AtomicReference<TcNativeLibrary> theInstance = new AtomicReference<>(null);
 
     private final MethodHandle fontLibInit;
     private final MethodHandle fontLibDestroy;
@@ -25,7 +24,7 @@ public class TcNativeLibrary {
     private final MethodHandle canDisplayFn;
     private final MethodHandle setPixelsPerInch;
 
-    private TcNativeLibrary() {
+    public TcNativeLibrary() throws IllegalStateException {
         logger.log(System.Logger.Level.INFO, "Loading TcNative Library");
         loadLibrary();
         logger.log(System.Logger.Level.INFO, "Creating native linker");
@@ -68,37 +67,19 @@ public class TcNativeLibrary {
         );
     }
 
-    private static void loadLibrary() {
-        String os = System.getProperty("os.name");
-        if(System.getProperty("devlog") != null) {
-            logger.log(System.Logger.Level.INFO, "Assuming native library on LD_LIBRARY_PATH already");
-            System.loadLibrary("tcMenuNative");
-        }else if (os != null && os.startsWith ("Mac")) {
-            var path = findPluginDir().resolve("mac").resolve("libtcMenuNative.dylib");
-            System.load(path.toString());
-        } else if(os != null && os.startsWith("Win")) {
-            var path = findPluginDir().resolve("win").resolve("tcMenuNative.dll");
-            System.load(path.toString());
-        } else if(os != null && os.startsWith("Linux")) {
-            var path = findPluginDir().resolve("ubu").resolve("libtcMenuNative.so");
-            System.load(path.toString());
+    private void loadLibrary() {
+        if(System.getProperty("java.library.path") != null) {
+            try {
+                logger.log(System.Logger.Level.INFO, "Assuming native library on LD_LIBRARY_PATH already");
+                System.loadLibrary("tcMenuNative");
+            } catch(Exception e) {
+                logger.log(ERROR,"Failed to load native library, please set java.library.path to the path of the native library");
+                throw new IllegalStateException("Failed to load native library, please set java.library.path to the path of the native library");
+            }
+        } else {
+            logger.log(ERROR,"java.library.path was not set, please set it to the path of the native library");
+            throw new IllegalStateException("java.library.path was not set, please set it to the path of the native library");
         }
-    
-    }
-
-    private static Path findPluginDir() {
-        //TODO: Implement plugin directory resolution logic when we have a jfx/jpackage build
-        //TODO: for now just use -Ddevlog and manually set the library location in -Djava.library.path=...
-        throw new UnsupportedOperationException("todo");
-    }
-
-    public static TcNativeLibrary getInstance() {
-        var ret = theInstance.get();
-        if(ret == null) {
-            ret = new TcNativeLibrary();
-            theInstance.set(ret);
-        }
-        return ret;
     }
 
     public MethodHandle getFontLibInit() {

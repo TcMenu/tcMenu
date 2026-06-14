@@ -25,7 +25,7 @@ public class NativeFreeFontGlyphGenerator implements FontGlyphGenerator, AutoClo
     private final Path fontPath;
     private int fontHandle;
 
-    private final TcNativeLibrary tcNative = TcNativeLibrary.getInstance();
+    private final TcNativeLibrary tcNative = new TcNativeLibrary();
 
     /**
      * Construct an instance of the generator based on a particular font file and the DPI of the display. This will
