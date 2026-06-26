@@ -1,4 +1,4 @@
- import {useCurrentlyOpenProject} from "../App";
+import {findFileWithExtension, getDirectoryHandle, useCurrentlyOpenProject} from "../App";
 import React, {useEffect, useState} from "react";
 import {ALL_PLATFORMS} from "../domain/Platforms";
 import {AuthenticationDefinition, EepromDefinition} from "./EepromAndAuthSupport";
@@ -13,16 +13,16 @@ import {
     GenerationResponse,
     getDefaultPlugin,
     getPluginsByIds,
+    NO_REMOTE_ID,
     PublishableCodePluginItem,
     runGenerateCode,
     searchPlugins,
     ThemeMode,
     userNeedsChooseDisplay,
     userNeedsChooseInput,
-    userNeedsChooseTheme,
-    NO_REMOTE_ID
+    userNeedsChooseTheme
 } from "./TcCodeGeneration";
-import {CreatorProperty, SubSystem} from "../domain/ProjectStruct";
+import {CreatorProperty, RoundTripMode, SubSystem} from "../domain/ProjectStruct";
 import {SelectPluginDialog} from "./SelectPluginDialog";
 
 export function GenerateCodeView() {
@@ -321,13 +321,36 @@ export function GenerateCodeView() {
         setHash(h => h + 1);
     }
 
-    function requiredFilesForBuild(): GeneratedFile[] {
+    async function requiredFilesForBuild(): Promise<GeneratedFile[]> {
         if(!project) return [];
 
-        return [];
+        let ret = Array<GeneratedFile>();
+
+        if(project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER) {
+            const dir = getDirectoryHandle();
+            if(dir == null) throw new Error("No directory handle");
+            const inoFile = await findFileWithExtension(dir, 'ino', 'cpp');
+            if(inoFile !== null) {
+                const inoActFile = await inoFile.getFile();
+                ret.push({fileName: inoFile.name, content: await inoActFile.text(), alwaysOverwrite: true});
+            }
+            try {
+                let i18nDir = await dir.getDirectoryHandle('i18n');
+                for await (const entry of (i18nDir as any).values()) {
+                    if(entry.kind === 'file' && entry.name.endsWith('.properties')) {
+                        const propActFile = await entry.getFile();
+                        ret.push({fileName: "i18n/" + entry.name, content: await propActFile.text(), alwaysOverwrite: true});
+                    }
+                }
+            } catch(e: any) {
+                console.log("i18n directory not found, proceeding without " + e.toString());
+            }
+        }
+
+        return ret;
     }
 
-    function onCodeGenerate() {
+    async function onCodeGenerate() {
         if(!project) {
             console.error("Project not loaded");
             return;
@@ -359,7 +382,7 @@ export function GenerateCodeView() {
 
         if(!project) return;
 
-        runGenerateCode(project, requiredFilesForBuild()).then(response => {
+        runGenerateCode(project, await requiredFilesForBuild()).then(response => {
             console.log("Success:", response.successful);
             console.log("Generated files:", response.generatedFiles ? response.generatedFiles.length : 0);
             if (response.generatedFiles) {

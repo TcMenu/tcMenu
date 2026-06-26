@@ -47,9 +47,4 @@ public class MbedSketchFileAdjuster extends ArduinoSketchFileAdjuster {
         logger.error("SKETCH ERROR: you are missing taskManager.runLoop(); in your sketch file");
         logger.error("SKETCH ERROR: this should be added in a loop within the main() method");
     }
-
-    protected Path getCppMainPath(Path path) {
-        return path.resolve("tcmenu_main.cpp");
-    }
-
 }

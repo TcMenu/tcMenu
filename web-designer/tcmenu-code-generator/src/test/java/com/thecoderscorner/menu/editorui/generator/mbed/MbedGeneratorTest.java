@@ -135,7 +135,7 @@ public class MbedGeneratorTest {
 
         var cppGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.cpp")));
         var hGenerated = new String(Files.readAllBytes(generatedDir.resolve(projectDir.getFileName() + "_menu.h")));
-        var inoFile = new String(Files.readAllBytes(sourceDir.resolve("tcmenu_main.cpp")));
+        var inoFile = new String(Files.readAllBytes(sourceDir.resolve("project_main.cpp")));
         var pluginGeneratedH = new String(Files.readAllBytes(generatedDir.resolve("source.h")));
         var pluginGeneratedCPP = new String(Files.readAllBytes(generatedDir.resolve("source.cpp")));
         var pluginGeneratedTransport = new String(Files.readAllBytes(generatedDir.resolve("MySpecialTransport.h")));

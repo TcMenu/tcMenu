@@ -1,27 +1,43 @@
 import React, {useEffect, useState} from 'react';
 import logo from './img/logo192.png';
+import tcIcon from './img/logo192.png';
 import './App.css';
-import { NavLink, Link, Routes, Route } from 'react-router-dom';
+import {Link, NavLink, Route, Routes} from 'react-router-dom';
 import {MenuTreeWithCodeOptions, RoundTripMode} from "./domain/ProjectStruct";
 import {getActiveProfile} from "./generator/TcCodeGeneration";
 import {parseEmfJsonToProject, projectToPersistedJson} from "./domain/PersistedMenu";
-import { StartNewProject } from './StartNewProject';
+import {StartNewProject} from './StartNewProject';
 import {TcMenuEditor} from "./menuedit/TcMenuEditor";
 import {GenerateCodeView} from "./generator/GenerateCodeView";
 import embedIcon from "./img/embedControlLogo300.png"
-import tcIcon from "./img/logo192.png"
 import {IoExpanderComponent} from "./generator/IoExpanderComponent";
 import ReleaseNotes from "./releaseNotes";
+import {get, set} from 'idb-keyval';
+import fontEdIcon from './img/font-editor-example.jpg'
 
 const TC_MENU_STORAGE_KEY = "tcMenuTurboProject";
 const TC_MENU_POLICY_KEY = "tcMenuTurboPolicyAccepted";
 let currentlyOpenProject: MenuTreeWithCodeOptions|null = null;
+let globalDirectoryHandle: FileSystemDirectoryHandle|null = null;
 let projectListeners: ((proj: MenuTreeWithCodeOptions | null) => void)[] = [];
 let saveTimer: any = null;
 
 export function getCurrentlyOpenProject(): MenuTreeWithCodeOptions|null {
     return currentlyOpenProject;
 }
+
+export function getDirectoryHandle(): FileSystemDirectoryHandle|null {
+    return globalDirectoryHandle;
+}
+
+export const findFileWithExtension = async (directoryHandle: any, ext1: string, ext2: string = "undef"): Promise<any | null> => {
+    for await (const entry of directoryHandle.values()) {
+        if (entry.kind === 'file' && (entry.name.endsWith('.' + ext1) || entry.name.endsWith('.' + ext2))) {
+            return entry;
+        }
+    }
+    return null;
+};
 
 export function  saveProjectToLocalStorage(proj: MenuTreeWithCodeOptions | null) {
     if (saveTimer) {
@@ -50,7 +66,7 @@ export function  saveProjectToLocalStorage(proj: MenuTreeWithCodeOptions | null)
     }
 }
 
-export function setCurrentlyOpenProject(proj: MenuTreeWithCodeOptions | null) {
+export function setCurrentlyOpenProject(proj: MenuTreeWithCodeOptions | null, directoryHandle: any = null) {
     currentlyOpenProject = proj;
     if (proj) {
         proj.menuTree.setTreeStructureChanged((tree, id) => {
@@ -74,10 +90,53 @@ export function setCurrentlyOpenProject(proj: MenuTreeWithCodeOptions | null) {
                 }
             });
         }
+        if(directoryHandle) {
+            saveProjectToLocalStorage(currentlyOpenProject);
+            globalDirectoryHandle = directoryHandle;
+            set('last_project_dir', directoryHandle)
+                .catch(() => {
+                    alert("Failed to save last project directory, project will not be able to save");
+                });
+        }
     } else {
         localStorage.removeItem(TC_MENU_STORAGE_KEY);
     }
     projectListeners.forEach(l => l(proj));
+}
+
+async function rehydrateProjectDirectory(proj: MenuTreeWithCodeOptions) {
+    const savedHandle = await get('last_project_dir');
+
+    if (savedHandle) {
+        // 1. Check if we still have readwrite permissions (usually "prompt" or "denied" after tab close)
+        let perm = await savedHandle.queryPermission({ mode: 'readwrite' });
+
+        console.log(`Permission status: ${perm}`);
+
+        if (perm !== 'granted') {
+            console.log(`Re-request perms`);
+            // 2. Trigger a simple browser pop-up asking to restore access to that specific folder
+            try {
+                perm = await savedHandle.requestPermission({ mode: 'readwrite' });
+            } catch (e) {
+                console.error("Failed to request permission", e);
+                perm = 'denied';
+            }
+        }
+
+        globalDirectoryHandle = savedHandle;
+
+        console.log(`Permission status II: ${perm}`);
+
+        if (perm === 'granted') {
+            console.log(`Successfully rehydrated folder: ${savedHandle.name}`);
+            setCurrentlyOpenProject(proj, savedHandle);
+            return savedHandle; // You are fully back in business without the picker!
+        } else {
+            console.log(`Failed to rehydrate folder: ${savedHandle.name}`);
+        }
+    }
+    return null; // Fallback to recommend closing project
 }
 
 export function useCurrentlyOpenProject() {
@@ -89,6 +148,12 @@ export function useCurrentlyOpenProject() {
                 const parsed = JSON.parse(saved);
                 const restored = parseEmfJsonToProject(parsed.json, parsed.mode as RoundTripMode);
                 setCurrentlyOpenProject(restored);
+                if(restored.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER) {
+                    rehydrateProjectDirectory(restored)
+                        .catch(() => {
+                            alert("Failed to restore last project directory, project will not be able to save");
+                        });
+                }
                 return restored;
             } catch (e) {
                 console.error("Failed to restore project from localStorage", e);
@@ -214,8 +279,18 @@ export const MainRoutes = () => {
             <Route path="/io-expanders" element={<IoExpanderComponent />} />
             <Route path="/release-notes" element={<ReleaseNotes />} />
             <Route path="/bitmap-generator" element={<div>
-                <h1>Bitmap Generator</h1>
-                <p>This will be ported from the Java version shortly, in the mean time continue to use the java version for this function.</p>
+                <h1>Font and Bitmap Editor</h1>
+                <p>You can edit fonts, title widgets and bitmaps using the new Font Bmp Editor application.</p>
+                <p>The plan is to make the app available on the Windows store and MacOS app store, but even right
+                    now there are nightly builds for all platforms.</p>
+                <img src={fontEdIcon} alt="Font and Bitmap Editor application screen"/>
+                <h2>How to get the editor</h2>
+                <ul>
+                    <li><a href="https://github.com/TcMenu/tcMenu/actions/workflows/build_windows.yml">Windows Nightly</a></li>
+                    <li><a href="https://github.com/TcMenu/tcMenu/actions/workflows/build_mac.yml">MacOS Nightly</a></li>
+                    <li><a href="https://github.com/TcMenu/tcMenu/actions/workflows/build_linux.yml">Linux Nightly</a></li>
+                    <li><a href="https://github.com/TcMenu/tcMenu/">From source</a></li>
+                </ul>
             </div>} />
         </Routes>
     );
@@ -253,7 +328,7 @@ function App() {
                             <li><NavLink to="/menu-edit">Menu Edit</NavLink></li>
                             {project && <li><NavLink to="/generate-code">Generate Code</NavLink></li>}
                             {project && <li><NavLink to="/io-expanders">Io Expanders</NavLink></li>}
-                            <li><NavLink to="/bitmap-generator">Bitmaps/Widgets/Fonts</NavLink></li>
+                            <li><NavLink to="/bitmap-generator">Font Bmp Editor</NavLink></li>
                         </ul>
                     </nav>
                 </div>

@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {setCurrentlyOpenProject} from "../App";
+import {findFileWithExtension, setCurrentlyOpenProject} from "../App";
 import {parseEmfJsonToProject} from "../domain/PersistedMenu";
+import {RoundTripMode} from "../domain/ProjectStruct";
 
 export function ProjectWelcome() {
     const navigate = useNavigate();
@@ -41,10 +42,28 @@ export function ProjectWelcome() {
     const handleOpenDirectory = async () => {
         try {
             // @ts-ignore
-            const directoryHandle = await window.showDirectoryPicker();
+            const directoryHandle = await window.showDirectoryPicker({mode: 'readwrite'});
             console.log("Directory selected:", directoryHandle.name);
-            // Placeholder: logic to scan directory for EMF files would go here
-            alert(`Selected directory: ${directoryHandle.name}. Directory scanning is not yet implemented.`);
+
+            const emfFileHandle = await findFileWithExtension(directoryHandle, 'emf');
+
+            if (emfFileHandle) {
+                const file = await emfFileHandle.getFile();
+                const text = await file.text();
+                console.log("EMF File found:", emfFileHandle.name, "Length:", text.length);
+
+                try {
+                    let project = parseEmfJsonToProject(text, RoundTripMode.DIRECTORY_IN_BROWSER);
+                    setCurrentlyOpenProject(project, directoryHandle);
+                    navigate('/menu-edit');
+                } catch (e) {
+                    alert("Could not parse found EMF file. Please make sure it is a valid TcMenu project file." + e);
+                    console.log((e as Error).stack);
+                    return;
+                }
+            } else {
+                alert(`No .emf file found in directory: ${directoryHandle.name}`);
+            }
         } catch (err: any) {
             if (err.name !== 'AbortError') {
                 console.error("Error opening directory:", err);
@@ -53,14 +72,26 @@ export function ProjectWelcome() {
         }
     };
 
+    function isFileSystemAccessSupported() {
+        // 1. Direct feature check for the directory picker method
+        const hasPicker = 'showDirectoryPicker' in window;
+
+        // 2. Ensure we aren't on mobile (Android/iOS don't expose the local disk picker)
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+        return hasPicker && !isMobile;
+    }
+
     return <div className="menu-editor-welcome">
         <h1>Menu Editor</h1>
         <p>To begin editing, please provide a project file or directory.</p>
         
         <div className="editor-actions">
-            <button className="open-dir-button" onClick={handleOpenDirectory}>
-                Open Local Project Directory (preferred)
-            </button>
+
+            {isFileSystemAccessSupported() ?
+                <button className="open-dir-button" onClick={handleOpenDirectory}>Open Local Project Directory (legacy mode)</button> :
+                <p>Round trip mode needs (Google Chrome or Microsoft Edge).</p>
+            }
 
             <div className="action-divider">
                 <span>OR</span>

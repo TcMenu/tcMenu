@@ -147,7 +147,7 @@ function jsonifyGenerationRequest(project: MenuTreeWithCodeOptions, requiredFile
             subsystem: SubSystem[p.subsystem],
             latestValue: p.latestValue
         })),
-        requiredFiles: requiredFiles.map(f => ({fileName: f.fileName, alwaysOverwrite: f.alwaysOverwrite}))
+        requiredFiles: requiredFiles.map(f => ({fileName: f.fileName, content: f.content, alwaysOverwrite: f.alwaysOverwrite}))
     });
 }
 

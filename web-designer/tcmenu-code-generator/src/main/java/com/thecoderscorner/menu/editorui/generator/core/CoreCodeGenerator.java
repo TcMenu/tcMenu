@@ -227,7 +227,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
             var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generated));
             Files.writeString(selFile, langSelectText.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             feedbackLogger.fileModificiation(GeneratedFile.always(selFile, langSelectText.toString()));
-            feedbackLogger.info("Wrote out the language selector - " + selFile);
+            feedbackLogger.info("Wrote out the language selector - " + selFile.getFileName());
             feedbackLogger.debug("Finished locale processing");
         }
         finally {

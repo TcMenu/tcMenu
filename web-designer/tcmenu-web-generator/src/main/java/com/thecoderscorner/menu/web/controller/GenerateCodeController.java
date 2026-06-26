@@ -190,7 +190,9 @@ public class GenerateCodeController {
         }
     }
 
-    private @NonNull GenerationResponse doCodeGeneration(GenerateCodeRequest request, MenuTreeWithCodeOptions menuWithOptions, List<CreatorProperty> frontEndProperties, List<GeneratedFile> projectFiles, long millisStart, HttpServletRequest servletRequest) {
+    private @NonNull GenerationResponse doCodeGeneration(GenerateCodeRequest request, MenuTreeWithCodeOptions menuWithOptions,
+                                                         List<CreatorProperty> frontEndProperties, List<GeneratedFile> projectFiles,
+                                                         long millisStart, HttpServletRequest servletRequest) {
         var uuid = request.getProject().getCodeOptions().getApplicationUUID();
         var existingOpt = codeBuildCache.asMap().values().stream()
                 .filter(c -> c.getProjectUuid().equals(uuid))
@@ -233,7 +235,7 @@ public class GenerateCodeController {
             var plugins = allPlugins(menuWithOptions.getOptions());
             var combinedSetProperties = deepCopyAndPrepareProps(plugins, frontEndProperties);
 
-            var localeHandler = prepareLocaleHandler(projectFiles, srcPath);
+            var localeHandler = prepareLocaleHandler(projectFiles, srcPath, logger);
             copyInoFileIfPresent(projectFiles, srcPath, menuWithOptions.getOptions().isUseCppMain());
 
             var codeOptions = new CodeGeneratorOptionsBuilder().withExisting(menuWithOptions.getOptions())
@@ -297,7 +299,7 @@ public class GenerateCodeController {
     }
 
     private void copyInoFileIfPresent(List<GeneratedFile> allFiles, Path projectPath, boolean cppProject) {
-        var inoFileOpt = allFiles.stream().filter(f -> f.getFileName().equals("PROJECT_MAIN"))
+        var inoFileOpt = allFiles.stream().filter(f -> f.getFileName().endsWith(".ino") || f.getFileName().endsWith("_main.cpp"))
                 .findFirst();
         if(inoFileOpt.isPresent()) {
             var inoFile = inoFileOpt.get();
@@ -317,7 +319,7 @@ public class GenerateCodeController {
         }
     }
 
-    private static LocaleMappingHandler prepareLocaleHandler(List<GeneratedFile> allFiles, Path rootDir) throws IOException {
+    private static LocaleMappingHandler prepareLocaleHandler(List<GeneratedFile> allFiles, Path rootDir,ControllerFeedbackLogger logger) throws IOException {
         var localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
         var localeFiles = allFiles.stream().filter(f -> f.getFileName().endsWith(".properties")).toList();
         if (!ObjectUtils.isEmpty(localeFiles)) {
@@ -326,16 +328,22 @@ public class GenerateCodeController {
             Files.createDirectories(i18nDir);
             for (var file : localeFiles) {
                 var fileName = file.getFileName();
+                // select files that start with i18n/ and normalise
+                if (!fileName.startsWith("i18n/")) continue;
+                fileName = fileName.substring(5);
+
+                // ensure nothing untoward in the path. Only latin characters allowed in path at the moment
                 if (fileName.contains("/") || fileName.contains("\\") || fileName.contains("..")) {
                     throw new IllegalArgumentException("Invalid filename - directory traversal not allowed");
                 }
                 var sanitizedName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
                 log.info("Locale file {} copied into i18n", sanitizedName);
                 var filePath = i18nDir.resolve(sanitizedName).normalize();
-                if(!filePath.startsWith(i18nDir)) {
+                if (!filePath.startsWith(i18nDir)) {
                     throw new IllegalArgumentException("Invalid filename - resolved path outside i18n directory");
                 }
                 Files.writeString(filePath, file.getContent());
+                logger.fileModificiation(GeneratedFile.always(filePath, file.getContent()));
             }
             localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
         }
