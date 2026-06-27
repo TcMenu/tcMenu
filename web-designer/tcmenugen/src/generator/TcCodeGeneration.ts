@@ -139,9 +139,10 @@ export async function getActiveProfile(): Promise<string> {
     return "noenv";
 }
 
-function jsonifyGenerationRequest(project: MenuTreeWithCodeOptions, requiredFiles: GeneratedFile[]): string {
+function jsonifyGenerationRequest(project: MenuTreeWithCodeOptions, requiredFiles: GeneratedFile[], projectOverrideDir: string|null): string {
     return JSON.stringify({
         project: projectToPersistedJson(project),
+        projectOverrideDir: projectOverrideDir,
         existingProperties: project.options.lastProperties.map(p => ({
             name: p.name,
             subsystem: SubSystem[p.subsystem],
@@ -151,10 +152,12 @@ function jsonifyGenerationRequest(project: MenuTreeWithCodeOptions, requiredFile
     });
 }
 
-export async function runGenerateCode(request: MenuTreeWithCodeOptions, requiredFile: GeneratedFile[]): Promise<GenerationResponse> {
+export async function runGenerateCode(request: MenuTreeWithCodeOptions,
+                                      requiredFile: GeneratedFile[],
+                                      projectOverrideDir: string|null = null): Promise<GenerationResponse> {
     let req = await fetch("/api/v1/generator/generate", {
         method: "POST",  headers: {"Content-Type": "application/json", "Accept": "application/json"},
-        body: jsonifyGenerationRequest(request, requiredFile)
+        body: jsonifyGenerationRequest(request, requiredFile, projectOverrideDir)
     });
     if (!req.ok) {
         throw new Error(`Unable to generate code, status was ${req.status}`);

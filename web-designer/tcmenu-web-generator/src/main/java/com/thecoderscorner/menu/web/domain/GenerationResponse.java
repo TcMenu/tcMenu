@@ -20,13 +20,14 @@ public class GenerationResponse {
         return new GenerationResponse(false, List.of(), logs, null);
     }
 
-    public static GenerationResponse okResponse(List<GeneratedFile> files, List<LogEntry> logs, UUID buildId) {
-        return new GenerationResponse(true, sanitiseFilesInOutput(files), logs, buildId.toString());
+    public static GenerationResponse okResponse(List<GeneratedFile> files, List<LogEntry> logs, UUID buildId, Path basePath) {
+        return new GenerationResponse(true, sanitiseFilesInOutput(files, basePath), logs, buildId.toString());
     }
 
-    private static List<GeneratedFile> sanitiseFilesInOutput(List<GeneratedFile> files) {
+    private static List<GeneratedFile> sanitiseFilesInOutput(List<GeneratedFile> files, Path basePath) {
         return files.stream()
-                .map(gf -> new GeneratedFile(Path.of(gf.getFileName()).getFileName().toString(), gf.getContent(), gf.isAlwaysOverwrite()))
+                .map(gf -> new GeneratedFile(basePath.relativize(Path.of(gf.getFileName())).toString(),
+                        gf.getContent(), gf.isAlwaysOverwrite()))
                 .toList();
     }
 

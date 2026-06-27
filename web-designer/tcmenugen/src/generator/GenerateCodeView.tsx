@@ -329,7 +329,7 @@ export function GenerateCodeView() {
         if(project.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER) {
             const dir = getDirectoryHandle();
             if(dir == null) throw new Error("No directory handle");
-            const inoFile = await findFileWithExtension(dir, 'ino', 'cpp');
+            const inoFile = await findFileWithExtension(dir, '.ino', '_main.cpp');
             if(inoFile !== null) {
                 const inoActFile = await inoFile.getFile();
                 ret.push({fileName: inoFile.name, content: await inoActFile.text(), alwaysOverwrite: true});
@@ -382,14 +382,10 @@ export function GenerateCodeView() {
 
         if(!project) return;
 
-        runGenerateCode(project, await requiredFilesForBuild()).then(response => {
+        const possibleDir = getDirectoryHandle()?.name ?? null;
+        runGenerateCode(project, await requiredFilesForBuild(), possibleDir).then(response => {
             console.log("Success:", response.successful);
             console.log("Generated files:", response.generatedFiles ? response.generatedFiles.length : 0);
-            if (response.generatedFiles) {
-                for(const f of response.generatedFiles) {
-                    console.log(f.fileName);
-                }
-            }
             setGenerationResponse(response);
         }).catch(err => {
             console.error("Generation failed", err);
@@ -427,7 +423,7 @@ export function GenerateCodeView() {
     }
 
     if (generationResponse) {
-        return <GeneratorLogView response={generationResponse} onDismiss={() => setGenerationResponse(null)} />;
+        return <GeneratorLogView response={generationResponse} menuProject={project} onDismiss={() => setGenerationResponse(null)} />;
     }
 
     return (

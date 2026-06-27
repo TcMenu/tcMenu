@@ -34,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -212,7 +213,13 @@ public class GenerateCodeController {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("tcmenu-gen");
-            var fileName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
+            String fileName = request.getProjectOverrideDir();
+            if(!StringUtils.hasLength(fileName)) {
+                fileName = VariableNameGenerator.makeNameFromVariable(menuWithOptions.getOptions().getApplicationName());
+                logger.info("Generating project dir from name as: " + fileName);
+            } else {
+                logger.info("Using project override directory: " +  fileName);
+            }
             if(fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
                 throw new IllegalArgumentException("Invalid filename - directory traversal not allowed");
             }
@@ -248,7 +255,7 @@ public class GenerateCodeController {
 
             var howLong = Duration.ofMillis(System.currentTimeMillis() - millisStart);
             logger.info("Thank you for choosing TcMenu. Task completed in %02d.%03d seconds".formatted(howLong.toSecondsPart(), howLong.toMillisPart()));
-            var response = GenerationResponse.okResponse(logger.filesInOutput, logger.logEntries, buildUuid);
+            var response = GenerationResponse.okResponse(logger.filesInOutput, logger.logEntries, buildUuid, projectPath);
             codeBuildCache.put(buildUuid.toString(), new CodeBuildInfo(buildUuid.toString(), uuid, LocalDateTime.now(), response, tempDir));
             return response;
         } catch(Exception ex) {

@@ -1,13 +1,16 @@
 import React from "react";
 import {GenerationResponse, LogEntry} from "./TcCodeGeneration";
 import "./GeneratorLogView.css";
+import {MenuTreeWithCodeOptions, RoundTripMode} from "../domain/ProjectStruct";
+import {filePatcher} from "./FilePatcher";
 
 export interface CodeGeneratedProperties {
     response: GenerationResponse;
     onDismiss: () => void;
+    menuProject: MenuTreeWithCodeOptions;
 }
 
-export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, onDismiss})  => {
+export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, onDismiss, menuProject})  => {
     const getLevelClass = (level: string) => {
         switch (level.toUpperCase()) {
             case 'ERROR': return 'log-level-error';
@@ -18,6 +21,15 @@ export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, o
             default: return '';
         }
     };
+
+    async function onPatchFiles() {
+        try {
+            await filePatcher(response.generatedFiles, menuProject);
+            alert("All files patched successfully!");
+        } catch (error) {
+            alert("Failed to patch files: " + error);
+        }
+    }
 
     return (
         <div className="generator-log-container">
@@ -41,6 +53,8 @@ export const GeneratorLogView: React.FC<CodeGeneratedProperties> = ({response, o
                             Download Zip
                         </a>
                     )}
+                    {response.successful && menuProject.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER &&
+                    <button type="button" className="download-button" style={{fontSize: "100%"}} onClick={onPatchFiles}>Apply Directly</button>}
                     <button type="button" className="dismiss-button" onClick={onDismiss}>Dismiss</button>
                 </div>
             </div>

@@ -30,9 +30,9 @@ export function getDirectoryHandle(): FileSystemDirectoryHandle|null {
     return globalDirectoryHandle;
 }
 
-export const findFileWithExtension = async (directoryHandle: any, ext1: string, ext2: string = "undef"): Promise<any | null> => {
+export const findFileWithExtension = async (directoryHandle: any, ext1: string, ext2: string = ".undef"): Promise<any | null> => {
     for await (const entry of directoryHandle.values()) {
-        if (entry.kind === 'file' && (entry.name.endsWith('.' + ext1) || entry.name.endsWith('.' + ext2))) {
+        if (entry.kind === 'file' && (entry.name.endsWith(ext1) || entry.name.endsWith(ext2))) {
             return entry;
         }
     }

@@ -14,6 +14,7 @@ import java.util.List;
 @Data
 public class GenerateCodeRequest {
     private PersistedProject project;
+    private String projectOverrideDir;
     private List<CreatorProperty> existingProperties;
     private List<GeneratedFile> requiredFiles;
 }
