@@ -72,7 +72,7 @@ public class GenerateCodeControllerTest {
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
         PersistedProject project = persistor.asPersistedProject(projectOptions);
-        GenerateCodeRequest request = new GenerateCodeRequest(project, List.of(), List.of());
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, List.of(), List.of());
         doReturn(request).when(controller).processGenerateCodeRequest(anyString());
 
         CodePluginItem inputPlugin = mock(CodePluginItem.class);
@@ -123,7 +123,7 @@ public class GenerateCodeControllerTest {
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
         PersistedProject project = persistor.asPersistedProject(projectOptions);
-        GenerateCodeRequest request = new GenerateCodeRequest(project, List.of(), List.of());
+        GenerateCodeRequest request = new GenerateCodeRequest(project, "override", List.of(), List.of());
         doReturn(request).when(controller).processGenerateCodeRequest(anyString());
 
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
@@ -154,7 +154,7 @@ public class GenerateCodeControllerTest {
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
         PersistedProject project = persistor.asPersistedProject(projectOptions);
-        GenerateCodeRequest request = new GenerateCodeRequest(project, List.of(), List.of());
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, List.of(), List.of());
         doReturn(request).when(controller).processGenerateCodeRequest(anyString());
 
         CodePluginItem inputPlugin = mock(CodePluginItem.class);
@@ -196,7 +196,7 @@ public class GenerateCodeControllerTest {
                 new CreatorProperty("ORIENTATION_SEPARATOR", "val1", SubSystem.DISPLAY),
                 new CreatorProperty("ORIENTATION_SEPARATOR", "val2", SubSystem.INPUT)
         );
-        GenerateCodeRequest request = new GenerateCodeRequest(project, frontEndProperties, List.of());
+        GenerateCodeRequest request = new GenerateCodeRequest(project, null, frontEndProperties, List.of());
         doReturn(request).when(controller).processGenerateCodeRequest(anyString());
 
         CodePluginItem inputPlugin = mock(CodePluginItem.class);
