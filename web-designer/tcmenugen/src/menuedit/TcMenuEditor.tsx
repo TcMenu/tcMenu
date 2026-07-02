@@ -32,6 +32,7 @@ import {
 } from "./EditRuntimeItems";
 import {CustomBuilderMenuItemEditor, FloatItemEditor, SubMenuItemEditor} from "./EditOtherMenuItem";
 import {EditCallbackDialog} from "./EditCallbackDialog";
+import {getInternationalization, NO_INTERNATIONALIZATION} from "../generator/I18nImpls";
 
 export function openModeDesc(roundTripMode: RoundTripMode): string {
     switch(roundTripMode) {
@@ -75,6 +76,7 @@ export function TcMenuEditor() {
     const [isAddingTemplate, setIsAddingTemplate] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState<MenuItem<any> | null>(null);
     const [, setTreeHash] = useState(0);
+    const [i18n, setI18n] = useState(NO_INTERNATIONALIZATION);
 
     React.useEffect(() => {
         if (project && !selectedItem) {
@@ -83,11 +85,16 @@ export function TcMenuEditor() {
     }, [project, selectedItem]);
 
     React.useEffect(() => {
+        let isMounted = true;
         if (project) {
             project.menuTree.setTreeStructureChanged(() => {
                 setTreeHash(h => h + 1);
             });
         }
+        getInternationalization().then((i18n) => {
+            if (isMounted) setI18n(i18n);
+        });
+        return () => { isMounted = false; };
     }, [project]);
 
     function findNearestSubMenu(selectedItem: MenuItem<any> | null): SubMenuItem|null {
@@ -228,7 +235,7 @@ export function TcMenuEditor() {
             onNo={() => setConfirmDelete(null)}
         />}
         <div className="editor-header">
-            <h1>Menu Editor - <span style={{fontSize: '70%'}}><b>{project.options.applicationName}</b> is {openModeDesc(project.roundTripMode)}</span></h1>
+            <h1>Menu Editor - <span style={{fontSize: '70%'}}><b>{i18n.valueForKey(project.options.applicationName)}</b> is {openModeDesc(project.roundTripMode)}</span></h1>
             <button className="close-button" onClick={() => setCurrentlyOpenProject(null)}>Close Project</button>
         </div>
         <div className="editor-main-layout">

@@ -56,7 +56,8 @@ export function StartNewProject() {
             authenticatorDefinition: "",
             projectIoExpanders: [],
             useDynamicMenus: menuBuilderOn,
-            menuInMenuCollection: { menuDefinitions: [] }
+            menuInMenuCollection: { menuDefinitions: [] },
+            i18nEnabled: false
         };
         const menuProject: MenuTreeWithCodeOptions = {
             menuTree: new MenuTree(menuTree => {}),

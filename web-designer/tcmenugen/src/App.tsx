@@ -3,7 +3,7 @@ import logo from './img/logo192.png';
 import tcIcon from './img/logo192.png';
 import './App.css';
 import {Link, NavLink, Route, Routes} from 'react-router-dom';
-import {MenuTreeWithCodeOptions, RoundTripMode} from "./domain/ProjectStruct";
+import {EepromSaveMode, MenuTreeWithCodeOptions, RoundTripMode} from "./domain/ProjectStruct";
 import {getActiveProfile} from "./generator/TcCodeGeneration";
 import {parseEmfJsonToProject, projectToPersistedJson} from "./domain/PersistedMenu";
 import {StartNewProject} from './StartNewProject';
@@ -14,6 +14,7 @@ import {IoExpanderComponent} from "./generator/IoExpanderComponent";
 import ReleaseNotes from "./releaseNotes";
 import {get, set} from 'idb-keyval';
 import fontEdIcon from './img/font-editor-example.jpg'
+import {i18nStateHasChanged} from "./generator/I18nImpls";
 
 const TC_MENU_STORAGE_KEY = "tcMenuTurboProject";
 const TC_MENU_POLICY_KEY = "tcMenuTurboPolicyAccepted";
@@ -21,6 +22,8 @@ let currentlyOpenProject: MenuTreeWithCodeOptions|null = null;
 let globalDirectoryHandle: FileSystemDirectoryHandle|null = null;
 let projectListeners: ((proj: MenuTreeWithCodeOptions | null) => void)[] = [];
 let saveTimer: any = null;
+let rehydrationPromise: Promise<FileSystemDirectoryHandle | null> | null = null;
+
 
 export function getCurrentlyOpenProject(): MenuTreeWithCodeOptions|null {
     return currentlyOpenProject;
@@ -29,6 +32,13 @@ export function getCurrentlyOpenProject(): MenuTreeWithCodeOptions|null {
 export function getDirectoryHandle(): FileSystemDirectoryHandle|null {
     return globalDirectoryHandle;
 }
+
+export async function waitForDirectoryHandle(): Promise<FileSystemDirectoryHandle | null> {
+    if (globalDirectoryHandle) return globalDirectoryHandle;
+    if (rehydrationPromise) return rehydrationPromise;
+    return null;
+}
+
 
 export const findFileWithExtension = async (directoryHandle: any, ext1: string, ext2: string = ".undef"): Promise<any | null> => {
     for await (const entry of directoryHandle.values()) {
@@ -53,7 +63,7 @@ export function  saveProjectToLocalStorage(proj: MenuTreeWithCodeOptions | null)
                 }, 2);
                 localStorage.setItem(TC_MENU_STORAGE_KEY, JSON.stringify({
                     json: json,
-                    mode: proj.roundTripMode
+                    mode: RoundTripMode[proj.roundTripMode]
                 }));
                 console.log("Project auto-saved to localStorage");
             } catch (e) {
@@ -97,9 +107,13 @@ export function setCurrentlyOpenProject(proj: MenuTreeWithCodeOptions | null, di
                 .catch(() => {
                     alert("Failed to save last project directory, project will not be able to save");
                 });
+            i18nStateHasChanged();
+        } else if (proj.roundTripMode !== RoundTripMode.DIRECTORY_IN_BROWSER) {
+            globalDirectoryHandle = null;
         }
     } else {
         localStorage.removeItem(TC_MENU_STORAGE_KEY);
+        globalDirectoryHandle = null;
     }
     projectListeners.forEach(l => l(proj));
 }
@@ -124,15 +138,15 @@ async function rehydrateProjectDirectory(proj: MenuTreeWithCodeOptions) {
             }
         }
 
-        globalDirectoryHandle = savedHandle;
-
         console.log(`Permission status II: ${perm}`);
 
         if (perm === 'granted') {
             console.log(`Successfully rehydrated folder: ${savedHandle.name}`);
+            globalDirectoryHandle = savedHandle;
             setCurrentlyOpenProject(proj, savedHandle);
             return savedHandle; // You are fully back in business without the picker!
         } else {
+            globalDirectoryHandle = null;
             console.log(`Failed to rehydrate folder: ${savedHandle.name}`);
         }
     }
@@ -146,12 +160,27 @@ export function useCurrentlyOpenProject() {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                const restored = parseEmfJsonToProject(parsed.json, parsed.mode as RoundTripMode);
+                let mode = parsed.mode;
+                if (typeof mode === 'string') {
+                    mode = RoundTripMode[mode as keyof typeof RoundTripMode];
+                }
+                const restored = parseEmfJsonToProject(parsed.json, mode);
                 setCurrentlyOpenProject(restored);
                 if(restored.roundTripMode === RoundTripMode.DIRECTORY_IN_BROWSER) {
-                    rehydrateProjectDirectory(restored)
-                        .catch(() => {
+                    rehydrationPromise = rehydrateProjectDirectory(restored);
+                    rehydrationPromise
+                        .then((handle) => {
+                            if (handle) {
+                                console.log("Rehydration successful, updating project listeners");
+                                i18nStateHasChanged();
+                                projectListeners.forEach(l => l(restored));
+                            }
+                            rehydrationPromise = null;
+                        })
+                        .catch((err) => {
+                            console.error("Failed to restore last project directory", err);
                             alert("Failed to restore last project directory, project will not be able to save");
+                            rehydrationPromise = null;
                         });
                 }
                 return restored;

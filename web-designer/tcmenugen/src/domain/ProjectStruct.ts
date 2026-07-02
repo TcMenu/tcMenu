@@ -81,6 +81,7 @@ export interface CodeGeneratorOptions {
     projectIoExpanders: string[];
     useDynamicMenus?: boolean;
     menuInMenuCollection?: MenuInMenuCollection;
+    i18nEnabled?: boolean;
 }
 
 export enum RoundTripMode {

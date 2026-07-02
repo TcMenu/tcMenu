@@ -524,6 +524,36 @@ header {
     max-width: 800px;
 }
 
+.header-with-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header-with-buttons h2 {
+    margin: 0;
+}
+
+.header-with-buttons .buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.header-with-buttons button {
+    padding: 6px 12px;
+    background-color: #77e2f2;
+    border: 1px solid #5abecb;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.header-with-buttons button:hover {
+    background-color: #5abecb;
+}
+
 table td:first-child {
   width: 200px;
 }

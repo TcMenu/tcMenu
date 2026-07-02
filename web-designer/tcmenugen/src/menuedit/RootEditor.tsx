@@ -1,12 +1,43 @@
 import {embeddedPlatformFromId} from "../domain/Platforms";
 import {generateUUID} from "../util/uuid";
-import {EepromSaveMode, MenuTreeWithCodeOptions, ProjectSaveLocation} from "../domain/ProjectStruct";
+import {EepromSaveMode, MenuTreeWithCodeOptions} from "../domain/ProjectStruct";
 import {GeneratorOptionsEditor} from "./GeneratorOptionsEditor";
+import {
+    getInternationalization,
+    InternationalizationMode,
+    NO_INTERNATIONALIZATION,
+    resetI18n
+} from "../generator/I18nImpls";
+import {useEffect, useState} from "react";
 
 export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOptions, onHashChange: () => void}) {
+    const [counter, setCounter] = useState(0);
+    const [i18n, setI18n] = useState(NO_INTERNATIONALIZATION);
+    useEffect(() => {
+        let isMounted = true;
+        getInternationalization().then((intnl) => {
+            if (isMounted) setI18n(intnl);
+        });
+        return () => { isMounted = false; };
+    }, [project, counter]);
     return (
         <div className="root-editor">
-            <h2>Project Settings</h2>
+            <div className="header-with-buttons">
+                <h2>Project Settings</h2>
+                <div className="buttons">
+                    <button style={{backgroundColor: "#2bdc46"}} type="button" onClick={() => {}}>I18N Help</button>
+                    {i18n.mode === InternationalizationMode.NONE && (
+                        <button type="button" onClick={() => {}}>Enable Internationalisation</button>
+                    )}
+                    {i18n.mode === InternationalizationMode.I18N_DIR_PROPS && (
+                        <button type="button" onClick={() => {i18n.reload().then(() => setCounter(c => c + 1));}}>Refresh Properties</button>
+                    )}
+                    {i18n.mode === InternationalizationMode.CREATE_ON_GEN && (
+                        <button type="button" onClick={() => {resetI18n(); setCounter(c => c + 1);}}>Disable Internationalisation</button>
+                    )}
+                    {i18n.mode === InternationalizationMode.NOT_INIT && (<span>Initializing i18n...</span>)}
+                </div>
+            </div>
 
             <div className="form-group">
                 <label htmlFor="applicationName">Project Name</label>

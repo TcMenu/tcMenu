@@ -174,7 +174,7 @@ export function parseEmfJsonToProject(jsonData: string, mode?: RoundTripMode) : 
         menuTree: tree,
         description: prj.projectName,
         options: prj.codeOptions,
-        roundTripMode: mode ?? RoundTripMode.EMF_FILE_DRAGGED_IN
+        roundTripMode: (mode !== undefined) ? mode : RoundTripMode.EMF_FILE_DRAGGED_IN
     };
 
 }

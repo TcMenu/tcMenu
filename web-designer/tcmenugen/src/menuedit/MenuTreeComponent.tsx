@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {MenuTree} from "../domain/MenuTree";
 import {MenuItem, SubMenuItem} from "../domain/MenuItem";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,10 +12,7 @@ import {
     faPaste,
     faSearch
 } from "@fortawesome/free-solid-svg-icons";
-
-function emptyShowSomething(s: string): string {
-    return s?.trim() ? s : "[empty]";
-}
+import {getInternationalization, NO_INTERNATIONALIZATION} from "../generator/I18nImpls";
 
 interface MenuTreeComponentProps {
     menuTree: MenuTree;
@@ -33,8 +30,25 @@ interface MenuTreeComponentProps {
 export function MenuTreeComponent({ menuTree, selectedItem, onSelectItem, onAddNewItem, onAddTemplate, onDeleteItem, onMoveUp, onMoveDown, onCopyItem, onPasteItem }: MenuTreeComponentProps) {
     const [filter, setFilter] = useState("");
     const root = menuTree.getRoot();
+    const [i18n, setI18n] = useState(NO_INTERNATIONALIZATION);
+    useEffect(() => {
+        let isMounted = true;
+        getInternationalization().then((intnl) => {
+            if (isMounted) setI18n(intnl);
+        });
+        return () => {
+            isMounted = false;
+        };
+    }, [filter]);
 
     const isRootSelected = selectedItem?.getMenuId() === "0";
+
+    function emptyShowSomething(s: string): string {
+        if(!s?.trim()) return "[empty]";
+
+        return i18n.valueForKey(s) ?? s;
+    }
+
 
     return (
         <div className="menu-tree">
@@ -57,6 +71,7 @@ export function MenuTreeComponent({ menuTree, selectedItem, onSelectItem, onAddN
                         selectedItem={selectedItem} 
                         onSelect={onSelectItem}
                         filter={filter}
+                        nameRenderFn={emptyShowSomething}
                     />
                 </ul>
             </div>
@@ -96,9 +111,10 @@ interface MenuItemNodeProps {
     selectedItem: MenuItem<any> | null;
     onSelect: (item: MenuItem<any>) => void;
     filter: string;
+    nameRenderFn: (name: string) => string;
 }
 
-function MenuItemNode({ item, selectedItem, onSelect, filter }: MenuItemNodeProps) {
+function MenuItemNode({ nameRenderFn, item, selectedItem, onSelect, filter }: MenuItemNodeProps) {
     const isSubMenu = item instanceof SubMenuItem;
     const isSelected = selectedItem?.getMenuId() === item.getMenuId();
 
@@ -128,7 +144,7 @@ function MenuItemNode({ item, selectedItem, onSelect, filter }: MenuItemNodeProp
                 className={`menu-item-name ${isSelected ? 'selected' : ''}`}
                 onClick={() => onSelect(item)}
             >
-                {emptyShowSomething(item.getItemName()) + ": " + item.getMenuId() + " (" + item.messageType + ")"}
+                {nameRenderFn(item.getItemName()) + ": " + item.getMenuId() + " (" + item.messageType + ")"}
             </span>
             {isSubMenu && (
                 <ul>
@@ -139,6 +155,7 @@ function MenuItemNode({ item, selectedItem, onSelect, filter }: MenuItemNodeProp
                             selectedItem={selectedItem}
                             onSelect={onSelect}
                             filter={filter}
+                            nameRenderFn={nameRenderFn}
                         />
                     ))}
                 </ul>
