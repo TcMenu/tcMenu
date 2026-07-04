@@ -25,7 +25,8 @@ export function RootEditor({project, onHashChange}: {project: MenuTreeWithCodeOp
             <div className="header-with-buttons">
                 <h2>Project Settings</h2>
                 <div className="buttons">
-                    <button style={{backgroundColor: "#2bdc46"}} type="button" onClick={() => {}}>I18N Help</button>
+                    <button style={{backgroundColor: "#2bdc46"}} type="button"
+                            onClick={() => window.open('https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/', 'docs')}>I18N Help</button>
                     {i18n.mode === InternationalizationMode.NONE && (
                         <button type="button" onClick={() => {}}>Enable Internationalisation</button>
                     )}

@@ -63,6 +63,11 @@ import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MEN
 @RestController
 @RequestMapping("/api/v1/generator/generate")
 public class GenerateCodeController {
+    private static final CharSequence DEFAULT_I18N_PROPS = """
+            # Add properties for i18n here. Commented example below:
+            # See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/
+            # key1 = value1
+            """;
     private final Cache<String, CodeBuildInfo> codeBuildCache = Caffeine.newBuilder()
             .maximumSize(128)
             .expireAfterWrite(Duration.ofMinutes(15))
@@ -242,7 +247,7 @@ public class GenerateCodeController {
             var plugins = allPlugins(menuWithOptions.getOptions());
             var combinedSetProperties = deepCopyAndPrepareProps(plugins, frontEndProperties);
 
-            var localeHandler = prepareLocaleHandler(projectFiles, srcPath, logger);
+            var localeHandler = prepareLocaleHandler(projectFiles, srcPath, logger, menuWithOptions.getOptions().isI18nEnabled());
             copyInoFileIfPresent(projectFiles, srcPath, menuWithOptions.getOptions().isUseCppMain());
 
             var codeOptions = new CodeGeneratorOptionsBuilder().withExisting(menuWithOptions.getOptions())
@@ -326,7 +331,10 @@ public class GenerateCodeController {
         }
     }
 
-    private static LocaleMappingHandler prepareLocaleHandler(List<GeneratedFile> allFiles, Path rootDir,ControllerFeedbackLogger logger) throws IOException {
+    private static LocaleMappingHandler prepareLocaleHandler(List<GeneratedFile> allFiles,
+                                                             Path rootDir,
+                                                             ControllerFeedbackLogger logger,
+                                                             boolean i18nEnabled) throws IOException {
         var localeHandler = LocaleMappingHandler.NOOP_IMPLEMENTATION;
         var localeFiles = allFiles.stream().filter(f -> f.getFileName().endsWith(".properties")).toList();
         if (!ObjectUtils.isEmpty(localeFiles)) {
@@ -352,6 +360,11 @@ public class GenerateCodeController {
                 Files.writeString(filePath, file.getContent());
                 logger.fileModificiation(GeneratedFile.always(filePath, file.getContent()));
             }
+            localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
+        } else if(i18nEnabled) {
+            var i18nDir = rootDir.resolve("i18n");
+            Files.createDirectories(i18nDir);
+            Files.writeString(i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties"), DEFAULT_I18N_PROPS);
             localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
         }
         return localeHandler;

@@ -40,6 +40,7 @@ public class CodeGeneratorOptions {
     private IoExpanderDefinitionCollection projectIoExpanders;
     boolean useDynamicMenus;
     private MenuInMenuCollection menuInMenuCollection;
+    boolean i18nEnabled;
 
     public CodeGeneratorOptions() {
         // for serialisation
@@ -51,12 +52,14 @@ public class CodeGeneratorOptions {
                                 EepromDefinition eepromDef, AuthenticatorDefinition authDef,
                                 IoExpanderDefinitionCollection projectIoExpanders,
                                 MenuInMenuCollection menuInMenuCollection, ProjectSaveLocation saveLocation,
-                                boolean namingRecursive, boolean useCppMain, EepromSaveMode eepromSaveMode, boolean useDynamicMenus) {
+                                boolean namingRecursive, boolean useCppMain, EepromSaveMode eepromSaveMode, boolean useDynamicMenus,
+                                boolean i18nEnabled) {
         this.embeddedPlatform = embeddedPlatform;
         this.useDynamicMenus = useDynamicMenus;
         this.lastDisplayUuid = displayTypeId;
         this.eepromSaveMode = eepromSaveMode;
         this.lastInputUuid = inputTypeId;
+        this.i18nEnabled = i18nEnabled;
         if(remoteCapabilities != null && !remoteCapabilities.isEmpty()) {
             this.lastRemoteUuids = remoteCapabilities;
             // for backward compatibility as far as possible we save the first in the old format.

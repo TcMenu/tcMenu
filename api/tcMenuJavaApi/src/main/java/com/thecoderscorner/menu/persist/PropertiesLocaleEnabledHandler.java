@@ -90,12 +90,12 @@ public class PropertiesLocaleEnabledHandler implements LocaleMappingHandler {
     private Locale makeLocale(String s) {
         var localeStr = (s.startsWith("_")) ? s.substring(1) : s;
         if(localeStr.isEmpty() || localeStr.equals("==")) {
-            return new Locale(localeStr);
+            return Locale.of(localeStr);
         }
         if(localeStr.length() == 2) {
-            return new Locale(localeStr);
+            return Locale.of(localeStr);
         } else if(localeStr.matches("\\w\\w_\\w\\w")) {
-            return new Locale(localeStr.substring(0, 2), localeStr.substring(3));
+            return Locale.of(localeStr.substring(0, 2), localeStr.substring(3));
         } else throw new UnsupportedOperationException("Unsupported type of locale only language or languageCountry" + localeStr);
     }
 

@@ -38,6 +38,7 @@ public class CodeGeneratorOptionsBuilder {
     private AuthenticatorDefinition authDef = new NoAuthenticatorDefinition();
     private MenuInMenuCollection menuInMenuDefinitions;
     private boolean useDynamicMenus = true;
+    private boolean i18nEnabled = false;
 
     public CodeGeneratorOptionsBuilder withExisting(CodeGeneratorOptions other) {
         embeddedPlatform = other.getEmbeddedPlatform();
@@ -57,13 +58,14 @@ public class CodeGeneratorOptionsBuilder {
         menuInMenuDefinitions = other.getMenuInMenuCollection();
         eepromSaveMode = other.getEepromSaveMode();
         useDynamicMenus = other.isUseDynamicMenus();
+        i18nEnabled = other.isI18nEnabled();
         return this;
     }
 
     public CodeGeneratorOptions codeOptions() {
         return new CodeGeneratorOptions(embeddedPlatform, lastDisplayUuid, lastInputUuid, lastRemoteUuids, lastThemeUuid,
                 lastProperties, applicationUUID, applicationName, eepromDef, authDef, expanderDefinitions,
-                menuInMenuDefinitions, saveLocation, namingRecursive, useCppMain, eepromSaveMode, useDynamicMenus);
+                menuInMenuDefinitions, saveLocation, namingRecursive, useCppMain, eepromSaveMode, useDynamicMenus, i18nEnabled);
     }
 
     public CodeGeneratorOptionsBuilder withRecursiveNaming(Boolean recursive) {
@@ -147,6 +149,11 @@ public class CodeGeneratorOptionsBuilder {
 
     public CodeGeneratorOptionsBuilder withDynamicMenus(boolean dynamicMenus) {
         this.useDynamicMenus = dynamicMenus;
+        return this;
+    }
+
+    public CodeGeneratorOptionsBuilder withI18nEnabled(boolean i18nEnabled) {
+        this.i18nEnabled = i18nEnabled;
         return this;
     }
 }
