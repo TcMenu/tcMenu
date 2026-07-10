@@ -63,7 +63,7 @@ import static com.thecoderscorner.menu.editorui.project.CurrentEditorProject.MEN
 @RestController
 @RequestMapping("/api/v1/generator/generate")
 public class GenerateCodeController {
-    private static final CharSequence DEFAULT_I18N_PROPS = """
+    private static final String DEFAULT_I18N_PROPS = """
             # Add properties for i18n here. Commented example below:
             # See https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/multi-language-locale-menu/
             # key1 = value1
@@ -364,7 +364,9 @@ public class GenerateCodeController {
         } else if(i18nEnabled) {
             var i18nDir = rootDir.resolve("i18n");
             Files.createDirectories(i18nDir);
-            Files.writeString(i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties"), DEFAULT_I18N_PROPS);
+            Path resolvedProps = i18nDir.resolve(MENU_PROJECT_LANG_FILENAME + ".properties");
+            Files.writeString(resolvedProps, DEFAULT_I18N_PROPS);
+            logger.fileModificiation(GeneratedFile.always(resolvedProps, DEFAULT_I18N_PROPS));
             localeHandler = new PropertiesLocaleEnabledHandler(new SafeBundleLoader(i18nDir, MENU_PROJECT_LANG_FILENAME));
         }
         return localeHandler;

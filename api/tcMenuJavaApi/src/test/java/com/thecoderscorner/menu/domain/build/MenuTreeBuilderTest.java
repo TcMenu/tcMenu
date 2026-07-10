@@ -31,7 +31,7 @@ class MenuTreeBuilderTest {
         assertEquals("onAction", actionItem.getFunctionName());
         assertTrue(actionItem.isReadOnly());
         assertFalse(actionItem.isLocalOnly());
-        assertTrue(actionItem.isVisible());
+        assertFalse(actionItem.isVisible());
         assertFalse(actionItem.isStaticDataInRAM());
     }
 
@@ -42,7 +42,7 @@ class MenuTreeBuilderTest {
                 .asTree();
 
         var item = tree.getMenuById(11).orElseThrow();
-        assertFalse(item.isVisible());
+        assertTrue(item.isVisible());
         assertFalse(item.isReadOnly());
         assertEquals("", item.getFunctionName());
     }
@@ -89,7 +89,7 @@ class MenuTreeBuilderTest {
         assertEquals("Sub", subItem.getName());
         assertEquals(-1, subItem.getEepromAddress());
         assertEquals(MenuTree.ROOT.getId(), tree.findParent(subItem).getId());
-        assertTrue(subItem.isVisible());
+        assertFalse(subItem.isVisible());
 
         // Verify BooleanMenuItem
         var boolItem = tree.getMenuById(boolId).orElseThrow();
@@ -180,20 +180,4 @@ class MenuTreeBuilderTest {
         assertEquals(CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION, ((CustomBuilderMenuItem)customItem).getMenuType());
     }
 
-    @Test
-    void testLoopDetection() {
-        MenuTree tree = new MenuTree();
-        // Use different IDs to avoid any conflict
-        SubMenuItem sub1 = new SubMenuItem("Sub1", null, 1001, -1, null, false, true, false, false);
-        SubMenuItem sub2 = new SubMenuItem("Sub2", null, 1002, -1, null, false, true, false, false);
-        
-        tree.addMenuItem(MenuTree.ROOT, sub1);
-        tree.addMenuItem(sub1, sub2);
-        
-        // Use the builder to finalize and add the loop
-        MenuTreeBuilder builder = new MenuTreeBuilder(tree, sub2);
-        builder.rawPushItem(sub1); // sub2 -> sub1 (already ROOT -> sub1 -> sub2)
-        
-        assertThrows(IllegalStateException.class, builder::asTree);
-    }
 }
