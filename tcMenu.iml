@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/archive/tcMenuGenerator" />
+      <excludeFolder url="file://$MODULE_DIR$/archive/xmlPlugins" />
+    </content>
+  </component>
+</module>

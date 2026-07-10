@@ -21,11 +21,9 @@ import com.thecoderscorner.menu.persist.JsonMenuItemSerializer;
 import com.thecoderscorner.menu.persist.VersionInfo;
 import com.thecoderscorner.menu.web.domain.GenerateCodeRequest;
 import com.thecoderscorner.menu.web.domain.GenerationResponse;
-import com.thecoderscorner.menu.web.domain.LogEntry;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.event.Level;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +65,7 @@ public class GenerateCodeControllerTest {
                 List.of(), UUID.randomUUID(), "TestApp",
                 new ArduinoClassEepromDefinition(), new EepromAuthenticatorDefinition(256, 2),
                 null, null, ProjectSaveLocation.ALL_TO_CURRENT, false,
-                false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true
+                false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
         );
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
@@ -107,18 +105,17 @@ public class GenerateCodeControllerTest {
         assertTrue(response.getFileByName("TestApp_menu.h").getContent().contains("#ifndef MENU_GENERATED_CODE_H"));
         assertTrue(response.getFileByName("TestApp_menu.h").getContent().contains("extern GraphicsDeviceRenderer renderer;"));
         assertThat(response.getLogLines()).isNotEmpty();
-        //assertFileWithContents("");
         assertTrue(response.isSuccessful());
     }
 
     @Test
-    public void testGenerateCodeInvalidRequest() throws Exception {
+    public void testGenerateCodeInvalidRequest() {
         // Given - a request with a null UUID in options
         CodeGeneratorOptions options = new CodeGeneratorOptions(
                 EmbeddedPlatform.ARDUINO_AVR, "display-uuid", "input-uuid", List.of("remote-uuid"), "theme-uuid",
                 List.of(), null, "TestApp",
                 null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
-                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
         );
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
@@ -139,7 +136,7 @@ public class GenerateCodeControllerTest {
     }
 
     @Test
-    public void testGenerateCodeRateLimit() throws Exception {
+    public void testGenerateCodeRateLimit() {
         // Given
         String inputUuid = "input-uuid";
         String displayUuid = "display-uuid";
@@ -149,7 +146,7 @@ public class GenerateCodeControllerTest {
                 EmbeddedPlatform.ARDUINO_AVR, displayUuid, inputUuid, List.of("remote-uuid"), themeUuid,
                 List.of(), UUID.randomUUID(), "TestApp",
                 null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
-                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
         );
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");
@@ -177,7 +174,7 @@ public class GenerateCodeControllerTest {
         assertThat(response2.getLogLines()).anyMatch(log -> log.getLog().contains("Rate limit exceeded"));
     }
     @Test
-    public void testGenerateCodeWithDuplicatePropertyNames() throws Exception {
+    public void testGenerateCodeWithDuplicatePropertyNames() {
         // Given
         String inputUuid = "input-uuid";
         String displayUuid = "display-uuid";
@@ -186,7 +183,7 @@ public class GenerateCodeControllerTest {
                 EmbeddedPlatform.ARDUINO_AVR, displayUuid, inputUuid, List.of(), null,
                 List.of(), UUID.randomUUID(), "TestApp",
                 null, null, null, null, ProjectSaveLocation.ALL_TO_CURRENT,
-                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true
+                false, false, EepromSaveMode.LEGACY_WRITE_BY_POSITION, true, false
         );
 
         MenuTreeWithCodeOptions projectOptions = new MenuTreeWithCodeOptions(DomainFixtures.fullEspAmplifierTestTree(), options, "Test Project");

@@ -58,18 +58,21 @@ public class CppDefaultVariableExtractor {
                 var matcher = pattern.matcher(s);
                 if (matcher.matches()) {
                     var hundreds = (matcher.groupCount() == 4 && matcher.group(4) != null) ? matcher.group(4).substring(1) : "0";
-                    return String.format("TimeStorage(%s, %s, %s, %s)", matcher.group(1), matcher.group(2), matcher.group(3), hundreds);
+                    return String.format("TimeStorage(%d, %d, %d, %d)", Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)),
+                            Integer.parseInt(matcher.group(3)), Integer.parseInt(hundreds));
                 } else if (matcher.matches() && matcher.groupCount() == 3) {
-                    return String.format("TimeStorage(%s, %s, %s, 0)", matcher.group(1), matcher.group(2), matcher.group(3));
+                    return String.format("TimeStorage(%d, %d, %d, 0)", Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)),
+                            Integer.parseInt(matcher.group(3)));
                 } else {
                     return "TimeStorage(0, 0, 0, 0)";
                 }
             }
             case GREGORIAN_DATE -> {
-                var pattern = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
+                var pattern = Pattern.compile("(\\d+)[-/](\\d+)[/-](\\d+)");
                 var matcher = pattern.matcher(s);
                 if (matcher.matches() && matcher.groupCount() == 3) {
-                    return String.format("DateStorage(%s, %s, %s)", matcher.group(3), matcher.group(2), matcher.group(1));
+                    return String.format("DateStorage(%d, %d, %d)", Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(2)),
+                            Integer.parseInt(matcher.group(1)));
                 } else {
                     return "DateStorage(1, 1, 2020)";
                 }

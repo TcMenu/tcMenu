@@ -73,15 +73,19 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
     public static String getUnitName(AnalogMenuItem item, LocaleMappingHandler handler) {
         String unitName = item.getUnitName();
         if(unitName != null && handler.isLocalSupportEnabled() && isFromResourceBundle(unitName) && unitName.length() > 1) {
-            return "TC_I18N" + toUpperWithUnderscores(item.getUnitName());
+            return createI18nReference(item.getUnitName());
         } else {
             return "\"" + removePossibleBundleEscape(unitName) + "\""; // as before;
         }
     }
 
+    private static String createI18nReference(String n) {
+        return "getTcLocaleString(TC_I18N" + toUpperWithUnderscores(n) + ")";
+    }
+
     public static String getItemName(MenuItem item, LocaleMappingHandler handler) {
         if(handler.isLocalSupportEnabled() && isFromResourceBundle(item.getName())) {
-            return "TC_I18N" + toUpperWithUnderscores(item.getName());
+            return createI18nReference(item.getName());
         } else {
             return "\"" + removePossibleBundleEscape(item.getName()) + "\""; // as before
         }
@@ -320,7 +324,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
             var tempList = new ArrayList<String>(enumEntries.size()+1);
             for(var en : enumEntries) {
                 if(isFromResourceBundle(en)) {
-                    tempList.add("TC_I18N" + toUpperWithUnderscores(en));
+                    tempList.add(createI18nReference(en));
                 } else {
                     tempList.add("\"" + en + "\"");
                 }
@@ -384,7 +388,7 @@ public class MenuItemToEmbeddedGenerator extends AbstractMenuItemVisitor<List<Bu
                 var tempList = new ArrayList<String>(list.size()+1);
                 for(var it : list) {
                     if(isFromResourceBundle(it)) {
-                        tempList.add("TC_I18N" + toUpperWithUnderscores(it));
+                        tempList.add(createI18nReference(it));
                     } else {
                         tempList.add("\"" + it + "\"");
                     }

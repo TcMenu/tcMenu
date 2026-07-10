@@ -24,13 +24,13 @@ const int anotherVar;
 const int allowedPluginVar;
 
 // Global Menu Item declarations
-RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTextEditorRtCall, textRenderRtCall, TC_I18N_MENU_10004_NAME, 0)
+RENDERING_CALLBACK_NAME_OVERRIDDEN(fnTextEditorRtCall, textRenderRtCall, getTcLocaleString(TC_I18N_MENU_10004_NAME), 0)
 TextMenuItem menuTextEditor(fnTextEditorRtCall, "", 10004, 10, nullptr);
-AnalogMenuInfo minfoAnalogRam = { TC_I18N_MENU_10003_NAME, 10003, 0, 100, NO_CALLBACK, 0, 10, TC_I18N_MENU_10003_UNIT };
+AnalogMenuInfo minfoAnalogRam = { getTcLocaleString(TC_I18N_MENU_10003_NAME), 10003, 0, 100, NO_CALLBACK, 0, 10, getTcLocaleString(TC_I18N_MENU_10003_UNIT) };
 AnalogMenuItem menuAnalogRam(&minfoAnalogRam, 0, &menuTextEditor, INFO_LOCATION_RAM);
-const char pgmStrIoTMonText[] = { TC_I18N_MENU_10002_NAME };
+const char pgmStrIoTMonText[] = { getTcLocaleString(TC_I18N_MENU_10002_NAME) };
 RemoteMenuItem menuIoTMon(pgmStrIoTMonText, 10002, &menuAnalogRam);
-const char pgmStrCustomAuthText[] = { TC_I18N_MENU_10001_NAME };
+const char pgmStrCustomAuthText[] = { getTcLocaleString(TC_I18N_MENU_10001_NAME) };
 EepromAuthenticationInfoMenuItem menuCustomAuth(pgmStrCustomAuthText, NO_CALLBACK, 10001, &menuIoTMon);
 const AnyMenuInfo minfoMySubSub1CustomChoice = { "Custom Choice", 18, 33, 0, NO_CALLBACK };
 ScrollChoiceMenuItem menuMySubSub1CustomChoice(&minfoMySubSub1CustomChoice, fnMySubSub1CustomChoiceRtCall, 0, 6, nullptr, INFO_LOCATION_PGM);

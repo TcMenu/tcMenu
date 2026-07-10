@@ -6,17 +6,34 @@
 
 package com.thecoderscorner.menu.domain;
 
+import com.thecoderscorner.menu.domain.build.MenuTreeBuilder;
+import com.thecoderscorner.menu.domain.util.MenuItemHelper;
+
+import java.util.Objects;
+
 /**
  * Constructs an AnalogMenuItem using the standard builder pattern. It is possible to either build
  * an item from scratch, or start with an existing item and make changes.
  */
 public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder, AnalogMenuItem> {
 
+    private final MenuTreeBuilder possibleBuilder;
+    private final int defVal;
     private String unit;
     private int maxValue;
     private int divisor;
     private int offset;
     private int step;
+
+    public AnalogMenuItemBuilder(MenuTreeBuilder possibleBuilder, int defVal) {
+        this.possibleBuilder = possibleBuilder;
+        this.defVal = defVal;
+    }
+
+    public AnalogMenuItemBuilder() {
+        this.possibleBuilder = null;
+        defVal = 0;
+    }
 
     @Override
     AnalogMenuItemBuilder getThis() {
@@ -56,6 +73,17 @@ public class AnalogMenuItemBuilder extends MenuItemBuilder<AnalogMenuItemBuilder
         this.offset = other.getOffset();
         this.step = other.getStep();
         return getThis();
+    }
+
+    /**
+     * Should only be called if this builder was created with a MenuTreeBuilder
+     * @return the actual builder
+     */
+    public MenuTreeBuilder endItem() {
+        AnalogMenuItem analogMenuItem = menuItem();
+        Objects.requireNonNull(possibleBuilder).rawPushItem(analogMenuItem);
+        MenuItemHelper.setMenuState(analogMenuItem, defVal, possibleBuilder.asTree());
+        return possibleBuilder;
     }
 
     public AnalogMenuItem menuItem() {

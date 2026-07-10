@@ -1,19 +1,33 @@
 package com.thecoderscorner.menu.editorui.generator.core;
 
-import com.thecoderscorner.menu.domain.*;
+import com.thecoderscorner.menu.domain.EditItemType;
+import com.thecoderscorner.menu.domain.MenuItem;
+import com.thecoderscorner.menu.domain.ScrollChoiceMenuItem;
+import com.thecoderscorner.menu.domain.build.LargeNumberDefinition;
+import com.thecoderscorner.menu.domain.build.MenuTreeBuilder;
 import com.thecoderscorner.menu.domain.state.MenuTree;
+import com.thecoderscorner.menu.domain.state.PortableColor;
 import com.thecoderscorner.menu.domain.util.DomainFixtures;
-import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.logger.UserFeedbackLogger;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
+import static com.thecoderscorner.menu.domain.BooleanMenuItem.BooleanNaming;
+import static com.thecoderscorner.menu.domain.RuntimeListMenuItem.ListCreationMode;
+import static com.thecoderscorner.menu.domain.build.CallbackDefinition.*;
+import static com.thecoderscorner.menu.domain.build.MenuBuilderFlag.*;
+import static com.thecoderscorner.menu.domain.build.MenuTreeBuilder.DONT_SAVE;
+import static com.thecoderscorner.menu.domain.build.MenuTreeBuilder.ROM_SAVE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MenuBuilderTreeCodeGeneratorTest {
     @Test
@@ -21,7 +35,9 @@ public class MenuBuilderTreeCodeGeneratorTest {
         MenuTree tree = DomainFixtures.fullEspAmplifierTestTree();
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(mock(CodeConversionContext.class));
         VariableNameGenerator namingGenerator = new VariableNameGenerator(tree, true);
-        MenuBuilderTreeCodeGeneratorImpl generator = new MenuBuilderTreeCodeGeneratorImpl("builder", true, namingGenerator, mock(UserFeedbackLogger.class));
+        MenuBuilderTreeCodeGeneratorImpl generator = new MenuBuilderTreeCodeGeneratorImpl("builder", true, namingGenerator,
+                LocaleMappingHandler.NOOP_IMPLEMENTATION,
+                mock(UserFeedbackLogger.class));
         generator.initialise(tree);
 
         Map<MenuItem, CallbackRequirement> callbackRequirements = Map.of();
@@ -152,26 +168,87 @@ public class MenuBuilderTreeCodeGeneratorTest {
     }
 
     @Test
-    public void testGeneratorWithRtCall() throws TcMenuConversionException {
-        MenuTree tree = new MenuTree();
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withName("HexText").withId(1).withFunctionName("hexTextRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withName("IpCust").withEditItemType(EditItemType.IP_ADDRESS).withId(2).withFunctionName("hexTextRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withName("DateCust").withEditItemType(EditItemType.GREGORIAN_DATE).withId(3).withFunctionName("hexTextRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableTextMenuItemBuilder().withName("TimeCust").withEditItemType(EditItemType.TIME_12H).withId(4).withFunctionName("hexTextRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new Rgb32MenuItemBuilder().withName("ExtraRgb").withId(6).withFunctionName("extraRgbRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableLargeNumberMenuItemBuilder().withName("ExtraLgeNum").withId(7).withFunctionName("extraLgeRtCall").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new EditableLargeNumberMenuItemBuilder().withName("LgeNum").withId(8).withFunctionName("onCallback").menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new RuntimeListMenuItemBuilder().withName("Ram List !").withId(9).withFunctionName("onCallback")
-                .withCreationMode(RuntimeListMenuItem.ListCreationMode.RAM_ARRAY).menuItem());
-        tree.addMenuItem(MenuTree.ROOT, new RuntimeListMenuItemBuilder().withName("Flash List!").withId(10).withFunctionName("onCallbackII")
-                .withCreationMode(RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY).withLocalOnly(true).menuItem());
+    public void testGeneratorWithI18N() throws  TcMenuConversionException {
+        var tree = new MenuTreeBuilder()
+                .booleanItem(10, "Bool Item", DONT_SAVE, BooleanNaming.CHECKBOX, false, noCallback(), LOCAL_ONLY, STATIC_IN_RAM)
+                .textItem(1, "%volume.item", DONT_SAVE, 10, "Hello", noCallback(), LOCAL_ONLY, STATIC_IN_RAM)
+                .analogItem(2, "%analog2.item", ROM_SAVE, 99, noCallback())
+                    .withOffset(100).withMaxValue(300).withUnit("%analog2.unit").withDivisor(2).endItem()
+                .analogItem(3, "%analog.item", DONT_SAVE, 10, noCallback())
+                    .withOffset(100).withMaxValue(300).withUnit("%%").withDivisor(2).endItem()
+                .enumItem(4, "%enum.item", DONT_SAVE, List.of("%enum.opt.1", "Enum 2"), 1, noCallback(), LOCAL_ONLY)
+                .subMenu(101, "The Sub", noCallback())
+                    .listFromArray(5, "%list.item", ListCreationMode.RAM_ARRAY, List.of("%list.opt.1", "Option 2"), noCallback(), READ_ONLY)
+                    .listFromCustom(6, "%list.custom", 90, functionCb("helloFn"), READ_ONLY)
+                    .scrollChoiceItem(7, "%scroll.choice", DONT_SAVE, 1, rtCall("scrollCb"))
+                        .withChoiceMode(ScrollChoiceMenuItem.ScrollChoiceMode.ARRAY_IN_RAM)
+                        .withVariable("var123").withItemWidth(10).withNumEntries(5).endItem()
+                .endSub()
+                .actionItem(102, "%action", functionCb("helloCall102"))
+                .asTree();
 
-        MenuItemHelper.setMenuState(tree.getMenuById(9).orElseThrow(), List.of("abc1234", "def4567"), tree);
-        MenuItemHelper.setMenuState(tree.getMenuById(10).orElseThrow(), List.of("xyz", "abc"), tree);
+
+        var extractor = new CodeVariableCppExtractor(mock(CodeConversionContext.class));
+        var namingGenerator = new VariableNameGenerator(tree, false);
+        var mockedLocaleHandler = mock(LocaleMappingHandler.class);
+        when(mockedLocaleHandler.isLocalSupportEnabled()).thenReturn(true);
+        MenuBuilderTreeCodeGeneratorImpl generator = new MenuBuilderTreeCodeGeneratorImpl("builder", true, namingGenerator,
+                mockedLocaleHandler, mock(UserFeedbackLogger.class));
+        generator.initialise(tree);
+
+        Map<MenuItem, CallbackRequirement> callbackRequirements = Map.of();
+        String cpp = generator.getRootMenuCode(callbackRequirements, extractor);
+
+        assertThat(cpp).isEqualToIgnoringNewLines("""
+                
+                
+                // Declaring any arrays used by enum/list items
+                const char* strEnumItemEnumEntries[] = { getTcLocaleString(TC_I18N_ENUM_OPT_1), "Enum 2" };
+                char* strListItemListItems[] = { getTcLocaleString(TC_I18N_LIST_OPT_1), "Option 2" };
+                
+                void buildMenu(TcMenuBuilder& builder) {
+                    builder.usingDynamicEEPROMStorage()
+                        .boolItem(MENU_BOOL_ITEM_ID, "Bool Item", DONT_SAVE, NAMING_CHECKBOX, MenuFlags().localOnly(), false, nullptr)
+                        .textItem(MENU_VOLUME_ITEM_ID, getTcLocaleString(TC_I18N_VOLUME_ITEM), DONT_SAVE, 10, MenuFlags().localOnly(), "Hello", nullptr)
+                        .analogBuilder(MENU_ANALOG2_ITEM_ID, getTcLocaleString(TC_I18N_ANALOG2_ITEM), ROM_SAVE, NoMenuFlags, 99, nullptr)
+                            .offset(100).divisor(2).step(1).maxValue(300).unit(getTcLocaleString(TC_I18N_ANALOG2_UNIT)).endItem()
+                        .analogBuilder(MENU_ANALOG_ITEM_ID, getTcLocaleString(TC_I18N_ANALOG_ITEM), DONT_SAVE, NoMenuFlags, 10, nullptr)
+                            .offset(100).divisor(2).step(1).maxValue(300).unit("%").endItem()
+                        .enumItem(MENU_ENUM_ITEM_ID, getTcLocaleString(TC_I18N_ENUM_ITEM), DONT_SAVE, strEnumItemEnumEntries, 2, MenuFlags().localOnly(), 1, nullptr)
+                        .subMenu(MENU_THE_SUB_ID, "The Sub", NoMenuFlags, nullptr)
+                            .listItemRam(MENU_LIST_ITEM_ID, getTcLocaleString(TC_I18N_LIST_ITEM), 2, strListItemListItems, MenuFlags().readOnly(), nullptr)
+                            .listItemRtCustom(MENU_LIST_CUSTOM_ID, getTcLocaleString(TC_I18N_LIST_CUSTOM), 90, fnListCustomRtCall, MenuFlags().readOnly(), helloFn)
+                            .scrollChoiceBuilder(MENU_SCROLL_CHOICE_ID, getTcLocaleString(TC_I18N_SCROLL_CHOICE), DONT_SAVE, NoMenuFlags, 1, scrollCbRtCall).fromRamChoices(var123, 5, 10).endItem()
+                            .endSub()
+                        .actionItem(MENU_ACTION_ID, getTcLocaleString(TC_I18N_ACTION), NoMenuFlags, helloCall102);
+                }
+                """);
+    }
+
+    @Test
+    public void testGeneratorWithRtCall() throws TcMenuConversionException {
+        var treeBuilder = new MenuTreeBuilder();
+        treeBuilder
+                .textItem(1, "HexText", DONT_SAVE, 5, "", rtCall("hexText"))
+                .ipAddressItem(2, "IpCust", DONT_SAVE, "", rtCall("hexText"))
+                .dateItem(3, "DateCust", ROM_SAVE, LocalDate.of(2023, 2, 1), rtCall("hexText"))
+                .timeItem(4, "TimeCust", ROM_SAVE, EditItemType.TIME_12H, LocalTime.of(20, 22), rtCall("hexText"))
+                .rgb32Item(6, "ExtraRgb", ROM_SAVE, true, PortableColor.BLACK, rtCall("extraRgb"), READ_ONLY)
+                .largeNumItem(7, "ExtraLgeNum", ROM_SAVE, LargeNumberDefinition.positiveOnly(9, 2),
+                        BigDecimal.ZERO, rtCall("extraLge"), READ_ONLY)
+                .largeNumItem(8, "LgeNum", ROM_SAVE, LargeNumberDefinition.allowingNegative(9, 2),
+                        BigDecimal.TEN, functionCb("onCallback"), READ_ONLY)
+                .listFromArray(9, "Ram List !", ListCreationMode.RAM_ARRAY, List.of("abc1234", "def4567"),
+                        functionCb("onCallback"), READ_ONLY, LOCAL_ONLY)
+                .listFromArray(10, "Flash List!", ListCreationMode.FLASH_ARRAY, List.of("xyz", "abc"),
+                        functionCb("onCallbackII"), STATIC_IN_RAM, READ_ONLY);
+        var tree = treeBuilder.asTree();
+
 
         CodeVariableCppExtractor extractor = new CodeVariableCppExtractor(mock(CodeConversionContext.class));
         VariableNameGenerator namingGenerator = new VariableNameGenerator(tree, false);
-        MenuBuilderTreeCodeGeneratorImpl generator = new MenuBuilderTreeCodeGeneratorImpl("builder", true, namingGenerator, mock(UserFeedbackLogger.class));
+        MenuBuilderTreeCodeGeneratorImpl generator = new MenuBuilderTreeCodeGeneratorImpl("builder", true, namingGenerator,
+                LocaleMappingHandler.NOOP_IMPLEMENTATION, mock(UserFeedbackLogger.class));
         generator.initialise(tree);
 
         Map<MenuItem, CallbackRequirement> callbackRequirements = Map.of();
@@ -186,15 +263,15 @@ public class MenuBuilderTreeCodeGeneratorTest {
                 
                 void buildMenu(TcMenuBuilder& builder) {
                     builder.usingDynamicEEPROMStorage()
-                        .textCustomRt(MENU_HEX_TEXT_ID, "HexText", ROM_SAVE, 0, hexTextRtCall, NoMenuFlags, "")
-                        .ipAddressCustomRt(MENU_IP_CUST_ID, "IpCust", ROM_SAVE, NoMenuFlags, hexTextRtCall, IpAddressStorage(127, 0, 0, 1))
-                        .dateItemCustomRt(MENU_DATE_CUST_ID, "DateCust", ROM_SAVE, NoMenuFlags, DateStorage(1, 1, 2020), hexTextRtCall)
-                        .timeItemCustomRt(MENU_TIME_CUST_ID, "TimeCust", ROM_SAVE, TimeStorage(0, 0, 0, 0), hexTextRtCall, NoMenuFlags, EDITMODE_TIME_12H)
-                        .rgb32CustomRt(MENU_EXTRA_RGB_ID, "ExtraRgb", ROM_SAVE, false, extraRgbRtCall, NoMenuFlags, RgbColor32(0, 0, 0))
-                        .largeNumberRtCustom(MENU_EXTRA_LGE_NUM_ID, "ExtraLgeNum", ROM_SAVE, LargeFixedNumber(0, 0, 0U, 0U, false), true, extraLgeRtCall, NoMenuFlags, nullptr)
-                        .largeNumberItem(MENU_LGE_NUM_ID, "LgeNum", ROM_SAVE, LargeFixedNumber(0, 0, 0U, 0U, false), true, NoMenuFlags, onCallback)
-                        .listItemRam(MENU_RAM_LIST_ID, "Ram List !", 0, strRamListListItems, NoMenuFlags, onCallback)
-                        .listItemFlash(MENU_FLASH_LIST_ID, "Flash List!", 0, strFlashListListItems, MenuFlags().localOnly(), onCallbackII);
+                        .textCustomRt(MENU_HEX_TEXT_ID, "HexText", DONT_SAVE, 5, hexTextRtCall, NoMenuFlags, "")
+                        .ipAddressCustomRt(MENU_IP_CUST_ID, "IpCust", DONT_SAVE, NoMenuFlags, hexTextRtCall, IpAddressStorage(127, 0, 0, 1))
+                        .dateItemCustomRt(MENU_DATE_CUST_ID, "DateCust", ROM_SAVE, NoMenuFlags, DateStorage(1, 2, 2023), hexTextRtCall)
+                        .timeItemCustomRt(MENU_TIME_CUST_ID, "TimeCust", ROM_SAVE, TimeStorage(20, 22, 0, 0), hexTextRtCall, NoMenuFlags, EDITMODE_TIME_12H)
+                        .rgb32CustomRt(MENU_EXTRA_RGB_ID, "ExtraRgb", ROM_SAVE, true, extraRgbRtCall, MenuFlags().readOnly(), RgbColor32(0, 0, 0, 255))
+                        .largeNumberRtCustom(MENU_EXTRA_LGE_NUM_ID, "ExtraLgeNum", ROM_SAVE, LargeFixedNumber(9, 2, 0U, 0U, false), false, extraLgeRtCall, MenuFlags().readOnly(), nullptr)
+                        .largeNumberItem(MENU_LGE_NUM_ID, "LgeNum", ROM_SAVE, LargeFixedNumber(9, 2, 10U, 0U, false), true, MenuFlags().readOnly(), onCallback)
+                        .listItemRam(MENU_RAM_LIST_ID, "Ram List !", 2, strRamListListItems, MenuFlags().readOnly().localOnly(), onCallback)
+                        .listItemFlash(MENU_FLASH_LIST_ID, "Flash List!", 2, strFlashListListItems, MenuFlags().readOnly(), onCallbackII);
                 }
                 """);
 

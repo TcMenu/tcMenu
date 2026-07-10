@@ -73,7 +73,7 @@ public class MultiFileI18nCodeGenerator extends I18nCodeGenerator {
             langSelectWriter.flush();
             var selFile = Paths.get(toSourceFile(srcDir, "_langSelect" + ".h", generatedDir));
             Files.writeString(selFile, baos.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            feedbackLogger.fileModificiation(GeneratedFile.always(selFile, langSelectWriter.toString()));
+            feedbackLogger.fileModificiation(GeneratedFile.always(selFile, baos.toString()));
             feedbackLogger.info("Finished processing locale, Wrote out language selector - " + selFile.getFileName());
         }
         finally {

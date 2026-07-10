@@ -24,6 +24,15 @@ In any fork, please ensure all text up to here is left unaltered.
 
 ## Documentation
 
+```
+    _____       __  __                  
+   / / / |_ ___|  \/  | ___ _ __  _   _ 
+  / / /| __/ __| |\/| |/ _ \ '_ \| | | |
+ / / / | || (__| |  | |  __/ | | | |_| |
+/_/_/   \__\___|_|  |_|\___|_| |_|\__,_|
+documentation
+```
+
 * [UI user guide, getting started and other documentation](https://www.thecoderscorner.com/products/arduino-libraries/tc-menu/)
 * [TcMenu API Examples and Project Starters repository](https://github.com/TcMenu/tcmenu-examples-starters)
 * [Full API embedded documentation](https://www.thecoderscorner.com/ref-docs/tcmenu/html/index.html)

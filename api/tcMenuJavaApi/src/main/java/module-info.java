@@ -17,4 +17,6 @@ module com.thecoderscorner.tcmenu.javaapi {
 
     opens com.thecoderscorner.menu.domain to com.google.gson;
     opens com.thecoderscorner.menu.persist to com.google.gson;
+    exports com.thecoderscorner.menu.domain.build;
+    opens com.thecoderscorner.menu.domain.build to com.google.gson;
 }

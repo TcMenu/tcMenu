@@ -5,6 +5,7 @@ import com.thecoderscorner.menu.domain.state.MenuTree;
 import com.thecoderscorner.menu.domain.util.MenuItemHelper;
 import com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement;
 import com.thecoderscorner.menu.editorui.generator.logger.UserFeedbackLogger;
+import com.thecoderscorner.menu.persist.LocaleMappingHandler;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
@@ -12,8 +13,7 @@ import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.RUNTIME_FUNCTION_SUFIX;
 import static com.thecoderscorner.menu.editorui.generator.arduino.CallbackRequirement.isApplicableForOverrideRtCall;
-import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.LINE_BREAK;
-import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.TWO_LINES;
+import static com.thecoderscorner.menu.editorui.generator.core.CoreCodeGenerator.*;
 import static com.thecoderscorner.menu.editorui.generator.core.CppDefaultVariableExtractor.toEmbeddedCppValue;
 import static com.thecoderscorner.menu.editorui.generator.core.HeaderDefinition.HeaderType.GLOBAL;
 import static com.thecoderscorner.menu.editorui.generator.plugin.JavaPluginItem.ALWAYS_APPLICABLE;
@@ -26,6 +26,7 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
     private final String builderName;
     private final boolean dynamicRom;
     private final UserFeedbackLogger logger;
+    private final LocaleMappingHandler handler;
     private final VariableNameGenerator variableNameGenerator;
     private String cppCode;
     private String hdrCode;
@@ -36,13 +37,17 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
     private int endSubCount = 0;
     private MenuItem firstItemOnDisplay;
     private MenuTree tree;
-    private Map<Integer, String> allAccessorFunctions = new HashMap<>(128);
+    private final Map<Integer, String> allAccessorFunctions = new HashMap<>(128);
 
-    public MenuBuilderTreeCodeGeneratorImpl(String builderName, boolean dynamicRom, VariableNameGenerator variableNameGenerator, UserFeedbackLogger logger) {
+    public MenuBuilderTreeCodeGeneratorImpl(String builderName, boolean dynamicRom,
+                                            VariableNameGenerator variableNameGenerator,
+                                            LocaleMappingHandler handler,
+                                            UserFeedbackLogger logger) {
         this.builderName = builderName;
         this.dynamicRom = dynamicRom;
         this.variableNameGenerator = variableNameGenerator;
         this.logger = logger;
+        this.handler = handler;
     }
 
     @Override
@@ -219,12 +224,12 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         String prefix = "const ";
         if(menuItem instanceof EnumMenuItem en) {
             entries = en.getEnumEntries().stream()
-                    .map(str -> "\"" + str + "\"")
+                    .map(this::escapeStringAndI18n)
                     .collect(Collectors.joining(", "));
             postfix = ENUM_ENTRIES_ARRAY_POSTFIX;
         } else if(menuItem instanceof RuntimeListMenuItem rl) {
             entries = rl.getItemsFromTree(tree).stream()
-                    .map(str -> "\"" + str + "\"")
+                    .map(this::escapeStringAndI18n)
                     .collect(Collectors.joining(", "));
             postfix = LIST_ITEMS_ARRAY_POSTFIX;
             prefix = rl.getListCreationMode() == RuntimeListMenuItem.ListCreationMode.FLASH_ARRAY ? "const " : "";
@@ -232,6 +237,15 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
             throw new IllegalStateException("Unexpected menu type for static list: " + menuItem.getClass().getSimpleName());
         }
         return "%schar* %s%s[] = { %s };".formatted(prefix, variableNameForArray(menuItem), postfix, entries);
+    }
+
+    private String escapeStringAndI18n(String s) {
+        if(s == null) return null;
+        if(handler.isLocalSupportEnabled() && isFromResourceBundle(s)) {
+            return "getTcLocaleString(TC_I18N" + toUpperWithUnderscores(s) + ")";
+        } else {
+            return '"' + removePossibleBundleEscape(s) + '"';
+        }
     }
 
     @Override
@@ -258,6 +272,22 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         return allAccessorFunctions.get(item.getId());
     }
 
+    private String getI18nName(String n) {
+        if(handler.isLocalSupportEnabled() && isFromResourceBundle(n)) {
+            return "getTcLocaleString(TC_I18N" + toUpperWithUnderscores(n) + ")";
+        } else {
+            return '"' + removePossibleBundleEscape(n) + '"';
+        }
+    }
+
+    private String getI18nUnit(String unit) {
+        if(handler.isLocalSupportEnabled() && isFromResourceBundle(unit) && unit.length() > 1) {
+            return "getTcLocaleString(TC_I18N" + toUpperWithUnderscores(unit) + ")";
+        } else {
+            return '"' + removePossibleBundleEscape(unit) + '"';
+        }
+    }
+
     public String menuBuilderEntryFor(MenuItem item, MenuTree tree) throws TcMenuConversionException {
         var nesting = "    ".repeat(nestingLevel);
         String callback = (item.getFunctionName() == null || item.getFunctionName().isEmpty()) ? "nullptr" : item.getFunctionName();
@@ -266,31 +296,32 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         var id = idMap.get(item.getId());
         var eeprom = eepromFor(item);
         var flags = flagsForItem(item);
+        var itemName = getI18nName(item.getName());
 
         switch (item) {
-            case SubMenuItem smi -> {
-                String entry = nesting + ".subMenu(%s, \"%s\", %s, %s)".formatted(id, smi.getName(), flags, callback);
+            case SubMenuItem _ -> {
+                String entry = nesting + ".subMenu(%s, %s, %s, %s)".formatted(id, itemName, flags, callback);
                 nestingLevel++;
                 return entry;
             }
             case BooleanMenuItem bi -> {
-                return nesting + ".boolItem(%s, \"%s\", %s, NAMING_%s, %s, %s, %s)".formatted(id, bi.getName(), eeprom, bi.getNaming(), flags, defaultValueForCpp(bi, tree), callback);
+                return nesting + ".boolItem(%s, %s, %s, NAMING_%s, %s, %s, %s)".formatted(id, itemName, eeprom, bi.getNaming(), flags, defaultValueForCpp(bi, tree), callback);
             }
-            case ActionMenuItem ai -> {
-                return nesting + ".actionItem(%s, \"%s\", %s, %s)".formatted(id, ai.getName(), flags, callback);
+            case ActionMenuItem _ -> {
+                return nesting + ".actionItem(%s, %s, %s, %s)".formatted(id, itemName, flags, callback);
             }
             case AnalogMenuItem am -> {
-                return nesting + ".analogBuilder(%s, \"%s\", %s, %s, %s, %s)%n%s    .offset(%d).divisor(%d).step(%d).maxValue(%d).unit(\"%s\").endItem()"
-                        .formatted(id, am.getName(), eeprom, flags, defaultValueForCpp(am, tree), callback, nesting, am.getOffset(), am.getDivisor(), am.getStep(), am.getMaxValue(), am.getUnitName());
+                return nesting + ".analogBuilder(%s, %s, %s, %s, %s, %s)%n%s    .offset(%d).divisor(%d).step(%d).maxValue(%d).unit(%s).endItem()"
+                        .formatted(id, itemName, eeprom, flags, defaultValueForCpp(am, tree), callback, nesting, am.getOffset(), am.getDivisor(), am.getStep(), am.getMaxValue(), getI18nUnit(am.getUnitName()));
             }
             case EnumMenuItem em -> {
                 String enumName = variableNameForArray(em) + ENUM_ENTRIES_ARRAY_POSTFIX;
-                return nesting + ".enumItem(%s, \"%s\", %s, %s, %d, %s, %s, %s)"
-                        .formatted(id, em.getName(), eeprom, enumName, em.getEnumEntries().size(), flags, defaultValueForCpp(em, tree), callback);
+                return nesting + ".enumItem(%s, %s, %s, %s, %d, %s, %s, %s)"
+                        .formatted(id, itemName, eeprom, enumName, em.getEnumEntries().size(), flags, defaultValueForCpp(em, tree), callback);
             }
             case FloatMenuItem fm -> {
-                return nesting + ".floatItem(%s, \"%s\", %s, %d, %s, %s, %s)"
-                        .formatted(id, fm.getName(), eeprom, fm.getNumDecimalPlaces(), flags, defaultValueForCpp(fm, tree), callback);
+                return nesting + ".floatItem(%s, %s, %s, %d, %s, %s, %s)"
+                        .formatted(id, itemName, eeprom, fm.getNumDecimalPlaces(), flags, defaultValueForCpp(fm, tree), callback);
             }
             case EditableTextMenuItem tm -> {
                 if (hasRtCallFunctionCallback(tm)) {
@@ -301,11 +332,11 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
             }
             case Rgb32MenuItem rm -> {
                 if (hasRtCallFunctionCallback(rm)) {
-                    return nesting + ".rgb32CustomRt(%s, \"%s\", %s, %b, %s, %s, %s)"
-                            .formatted(id, rm.getName(), eeprom, rm.isIncludeAlphaChannel(), rm.getFunctionName(), flags, defaultValueForCpp(rm, tree));
+                    return nesting + ".rgb32CustomRt(%s, %s, %s, %b, %s, %s, %s)"
+                            .formatted(id, itemName, eeprom, rm.isIncludeAlphaChannel(), rm.getFunctionName(), flags, defaultValueForCpp(rm, tree));
                 } else {
-                    return nesting + ".rgb32Item(%s, \"%s\", %s, %b, %s, %s, %s)"
-                            .formatted(id, rm.getName(), eeprom, rm.isIncludeAlphaChannel(), flags, defaultValueForCpp(rm, tree), callback);
+                    return nesting + ".rgb32Item(%s, %s, %s, %b, %s, %s, %s)"
+                            .formatted(id, itemName, eeprom, rm.isIncludeAlphaChannel(), flags, defaultValueForCpp(rm, tree), callback);
                 }
             }
             case ScrollChoiceMenuItem sc -> {
@@ -317,14 +348,14 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
                     case CUSTOM_RENDERFN ->
                             ".ofCustomRtFunction(%s, %d)".formatted(variableNameForRtCall(sc), sc.getNumEntries());
                 };
-                return nesting + ".scrollChoiceBuilder(%s, \"%s\", %s, %s, %s, %s)%s.endItem()"
-                        .formatted(id, sc.getName(), eeprom, flags, defaultValueForCpp(sc, tree), callback, modeCall);
+                return nesting + ".scrollChoiceBuilder(%s, %s, %s, %s, %s, %s)%s.endItem()"
+                        .formatted(id, itemName, eeprom, flags, defaultValueForCpp(sc, tree), callback, modeCall);
             }
             case CustomBuilderMenuItem cb -> {
                 if (cb.getMenuType() == CustomBuilderMenuItem.CustomMenuType.REMOTE_IOT_MONITOR) {
-                    return nesting + ".remoteConnectivityMonitor(%s, \"%s\", %s)".formatted(id, cb.getName(), flags);
+                    return nesting + ".remoteConnectivityMonitor(%s, %s, %s)".formatted(id, itemName, flags);
                 } else if (cb.getMenuType() == CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION) {
-                    return nesting + ".eepromAuthenticationItem(%s, \"%s\", %s, %s)".formatted(id, cb.getName(), flags, callback);
+                    return nesting + ".eepromAuthenticationItem(%s, %s, %s, %s)".formatted(id, itemName, flags, callback);
                 } else {
                     throw new IllegalStateException("Unexpected custom builder type " + cb.getMenuType());
                 }
@@ -332,21 +363,21 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
             case RuntimeListMenuItem rl -> {
                 String itemsList = variableNameForArray(rl) + LIST_ITEMS_ARRAY_POSTFIX;
                 return switch (rl.getListCreationMode()) {
-                    case RAM_ARRAY -> nesting + ".listItemRam(%s, \"%s\", %d, %s, %s, %s)"
-                            .formatted(id, rl.getName(), rl.getInitialRows(), itemsList, flags, callback);
-                    case FLASH_ARRAY -> nesting + ".listItemFlash(%s, \"%s\", %d, %s, %s, %s)"
-                            .formatted(id, rl.getName(), rl.getInitialRows(), itemsList, flags, callback);
-                    case CUSTOM_RTCALL -> nesting + ".listItemRtCustom(%s, \"%s\", %d, %s, %s, %s)"
-                            .formatted(id, rl.getName(), rl.getInitialRows(), variableNameForRtCall(rl), flags, callback);
+                    case RAM_ARRAY -> nesting + ".listItemRam(%s, %s, %d, %s, %s, %s)"
+                            .formatted(id, itemName, rl.getInitialRows(), itemsList, flags, callback);
+                    case FLASH_ARRAY -> nesting + ".listItemFlash(%s, %s, %d, %s, %s, %s)"
+                            .formatted(id, itemName, rl.getInitialRows(), itemsList, flags, callback);
+                    case CUSTOM_RTCALL -> nesting + ".listItemRtCustom(%s, %s, %d, %s, %s, %s)"
+                            .formatted(id, itemName, rl.getInitialRows(), variableNameForRtCall(rl), flags, callback);
                 };
             }
             case EditableLargeNumberMenuItem ln -> {
                 if(hasRtCallFunctionCallback(ln)) {
-                    return nesting + ".largeNumberRtCustom(%s, \"%s\", %s, %s, %s, %s, %s, nullptr)"
-                            .formatted(id, ln.getName(), eeprom, defaultValueForCpp(ln, tree), ln.isNegativeAllowed(), callback, flags);
+                    return nesting + ".largeNumberRtCustom(%s, %s, %s, %s, %s, %s, %s, nullptr)"
+                            .formatted(id, itemName, eeprom, defaultValueForCpp(ln, tree), ln.isNegativeAllowed(), callback, flags);
                 } else {
-                    return nesting + ".largeNumberItem(%s, \"%s\", %s, %s, %s, %s, %s)"
-                            .formatted(id, ln.getName(), eeprom, defaultValueForCpp(ln, tree), ln.isNegativeAllowed(), flags, callback);
+                    return nesting + ".largeNumberItem(%s, %s, %s, %s, %s, %s, %s)"
+                            .formatted(id, itemName, eeprom, defaultValueForCpp(ln, tree), ln.isNegativeAllowed(), flags, callback);
                 }
             }
             case EndSubMenuItem _ -> {
@@ -366,16 +397,17 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         var id = idMap.get(tm.getId());
         var eeprom = eepromFor(tm);
         var flags = flagsForItem(tm);
+        var itemName = getI18nName(tm.getName());
 
         return switch (tm.getItemType()) {
-            case PLAIN_TEXT -> nesting + ".textItem(%s, \"%s\", %s, %d, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, tm.getTextLength(), flags, defaultValueForCpp(tm, tree), callback);
-            case IP_ADDRESS -> nesting + ".ipAddressItem(%s, \"%s\", %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, flags, defaultValueForCpp(tm, tree), callback);
-            case GREGORIAN_DATE -> nesting + ".dateItem(%s, \"%s\", %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, flags, defaultValueForCpp(tm, tree), callback);
-            default -> nesting + ".timeItem(%s, \"%s\", %s, %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, flags, toNativeTimeType(tm.getItemType()), defaultValueForCpp(tm, tree), callback);
+            case PLAIN_TEXT -> nesting + ".textItem(%s, %s, %s, %d, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, tm.getTextLength(), flags, defaultValueForCpp(tm, tree), callback);
+            case IP_ADDRESS -> nesting + ".ipAddressItem(%s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, flags, defaultValueForCpp(tm, tree), callback);
+            case GREGORIAN_DATE -> nesting + ".dateItem(%s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, flags, defaultValueForCpp(tm, tree), callback);
+            default -> nesting + ".timeItem(%s, %s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, flags, toNativeTimeType(tm.getItemType()), defaultValueForCpp(tm, tree), callback);
         };
     }
 
@@ -383,16 +415,17 @@ public class MenuBuilderTreeCodeGeneratorImpl implements MenuTreeCodeGenerator {
         var id = idMap.get(tm.getId());
         var eeprom = eepromFor(tm);
         var flags = flagsForItem(tm);
+        var itemName = getI18nName(tm.getName());
 
         return switch (tm.getItemType()) {
-            case PLAIN_TEXT -> nesting + ".textCustomRt(%s, \"%s\", %s, %d, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, tm.getTextLength(), callback, flags, defaultValueForCpp(tm, tree));
-            case IP_ADDRESS -> nesting + ".ipAddressCustomRt(%s, \"%s\", %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, flags, callback, defaultValueForCpp(tm, tree));
-            case GREGORIAN_DATE -> nesting + ".dateItemCustomRt(%s, \"%s\", %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, flags, defaultValueForCpp(tm, tree), callback);
-            default -> nesting + ".timeItemCustomRt(%s, \"%s\", %s, %s, %s, %s, %s)"
-                    .formatted(id, tm.getName(), eeprom, defaultValueForCpp(tm, tree), callback, flags, toNativeTimeType(tm.getItemType()));
+            case PLAIN_TEXT -> nesting + ".textCustomRt(%s, %s, %s, %d, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, tm.getTextLength(), callback, flags, defaultValueForCpp(tm, tree));
+            case IP_ADDRESS -> nesting + ".ipAddressCustomRt(%s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, flags, callback, defaultValueForCpp(tm, tree));
+            case GREGORIAN_DATE -> nesting + ".dateItemCustomRt(%s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, flags, defaultValueForCpp(tm, tree), callback);
+            default -> nesting + ".timeItemCustomRt(%s, %s, %s, %s, %s, %s, %s)"
+                    .formatted(id, itemName, eeprom, defaultValueForCpp(tm, tree), callback, flags, toNativeTimeType(tm.getItemType()));
         };
     }
 

@@ -3,7 +3,7 @@ import logo from './img/logo192.png';
 import tcIcon from './img/logo192.png';
 import './App.css';
 import {Link, NavLink, Route, Routes} from 'react-router-dom';
-import {EepromSaveMode, MenuTreeWithCodeOptions, RoundTripMode} from "./domain/ProjectStruct";
+import {MenuTreeWithCodeOptions, RoundTripMode} from "./domain/ProjectStruct";
 import {getActiveProfile} from "./generator/TcCodeGeneration";
 import {parseEmfJsonToProject, projectToPersistedJson} from "./domain/PersistedMenu";
 import {StartNewProject} from './StartNewProject';
@@ -268,19 +268,6 @@ const LandingPage = () => (
         </section>
 
         <p><Link to="/release-notes">View Release Notes</Link></p>
-
-        <section style={{
-            marginTop: '24px',
-            padding: '14px 16px',
-            borderLeft: '4px solid #d98c00',
-            backgroundColor: '#fff7e6'
-        }}>
-            <h2 style={{marginTop: 0}}>Developer snapshot</h2>
-            <p style={{marginBottom: 0}}>
-                TcMenu Turbo is currently a developer snapshot. It is suitable for evaluation and testing, but we do not
-                recommend relying on it for production systems yet.
-            </p>
-        </section>
 
         <section style={{marginTop: '24px'}}>
             <p>

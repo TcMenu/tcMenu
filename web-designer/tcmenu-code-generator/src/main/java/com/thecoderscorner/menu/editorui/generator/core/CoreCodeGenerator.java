@@ -29,16 +29,15 @@ import com.thecoderscorner.menu.editorui.generator.plugin.RequiredSourceFile;
 import com.thecoderscorner.menu.editorui.storage.ConfigurationStorage;
 import com.thecoderscorner.menu.editorui.util.StringHelper;
 import com.thecoderscorner.menu.persist.LocaleMappingHandler;
-import com.thecoderscorner.menu.persist.PropertiesLocaleEnabledHandler;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.thecoderscorner.menu.domain.CustomBuilderMenuItem.CustomMenuType.AUTHENTICATION;
@@ -184,7 +183,7 @@ public abstract class CoreCodeGenerator implements CodeGenerator {
         MenuTreeCodeGenerator gen;
         if(options.isUseDynamicMenus()) {
             boolean dynamicRom = options.getEepromSaveMode() == EepromSaveMode.DYNAMIC_WRITE_BY_ID;
-            gen = new MenuBuilderTreeCodeGeneratorImpl("builder", dynamicRom, namingGenerator, feedbackLogger);
+            gen = new MenuBuilderTreeCodeGeneratorImpl("builder", dynamicRom, namingGenerator, localeHandler, feedbackLogger);
         } else {
             gen = new StaticMenuTreeCodeGeneratorImpl(namingGenerator, localeHandler, feedbackLogger);
         }
